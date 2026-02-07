@@ -15,6 +15,4 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY serve.py .
 
-EXPOSE 8080
-
 CMD ["python3", "serve.py"]

@@ -3,7 +3,7 @@ import os
 
 class SPAHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory="/home/user/gameshow/dist", **kwargs)
+        super().__init__(*args, directory=os.path.join(os.path.dirname(__file__), "dist"), **kwargs)
 
     def do_GET(self):
         path = self.translate_path(self.path)
@@ -15,6 +15,7 @@ class SPAHandler(http.server.SimpleHTTPRequestHandler):
         return super().do_GET()
 
 if __name__ == '__main__':
-    server = http.server.HTTPServer(('0.0.0.0', 8080), SPAHandler)
-    print("Serving on http://0.0.0.0:8080")
+    port = int(os.environ.get('PORT', '8080'))
+    server = http.server.HTTPServer(('0.0.0.0', port), SPAHandler)
+    print(f"Serving on http://0.0.0.0:{port}")
     server.serve_forever()
