@@ -3,7 +3,7 @@ import os
 
 class SPAHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=os.path.join(os.path.dirname(__file__), "dist"), **kwargs)
+        super().__init__(*args, directory=os.path.abspath(os.path.join(os.path.dirname(__file__), "dist")), **kwargs)
 
     def do_GET(self):
         path = self.translate_path(self.path)
