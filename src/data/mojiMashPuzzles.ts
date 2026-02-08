@@ -1,6 +1,8 @@
+import { ImageSourcePropType } from 'react-native';
+
 export interface MojiMashPuzzle {
-  /** The emoji combination displayed to the player */
-  display: string;
+  /** The genmoji image displayed to the player */
+  image: ImageSourcePropType;
   /** The words used to "generate" the genmoji (lowercase) */
   words: string[];
   /** A hint shown after 3 wrong guesses */
@@ -8,160 +10,79 @@ export interface MojiMashPuzzle {
 }
 
 /**
- * Each puzzle represents a "genmoji" — an AI-generated emoji made from 2-3 words.
- * The display is a combo of real emojis that visually represents the mash-up.
+ * Each puzzle represents a "genmoji" image made from multiple words.
  * Players must guess the original words.
  */
 const puzzles: MojiMashPuzzle[] = [
   {
-    display: '🐱💻',
-    words: ['cat', 'coding'],
-    hint: 'A feline at work on something digital',
+    image: require('../../assets/genmoji/air-bed-mattress.png'),
+    words: ['air', 'bed', 'mattress'],
+    hint: 'Starts with: a, b, m',
   },
   {
-    display: '🌮🦄',
-    words: ['taco', 'unicorn'],
-    hint: 'Magical Mexican food',
+    image: require('../../assets/genmoji/attic-stove.png'),
+    words: ['attic', 'stove'],
+    hint: 'Starts with: a, s',
   },
   {
-    display: '🧠💪',
-    words: ['brain', 'muscle'],
-    hint: 'Intelligence meets strength',
+    image: require('../../assets/genmoji/chandelier-glass.png'),
+    words: ['chandelier', 'glass'],
+    hint: 'Starts with: c, g',
   },
   {
-    display: '🐶☁️',
-    words: ['dog', 'cloud'],
-    hint: 'A fluffy pet in the sky',
+    image: require('../../assets/genmoji/christmas-ham.png'),
+    words: ['christmas', 'ham'],
+    hint: 'Starts with: c, h',
   },
   {
-    display: '🍕🚀',
-    words: ['pizza', 'rocket'],
-    hint: 'Italian food goes to space',
+    image: require('../../assets/genmoji/disco-cactus.png'),
+    words: ['disco', 'cactus'],
+    hint: 'Starts with: d, c',
   },
   {
-    display: '🦊❄️',
-    words: ['fox', 'ice'],
-    hint: 'An arctic animal',
+    image: require('../../assets/genmoji/espresso-machine.png'),
+    words: ['espresso', 'machine'],
+    hint: 'Starts with: e, m',
   },
   {
-    display: '🌻🌙',
-    words: ['sunflower', 'moon'],
-    hint: 'A bloom under the night sky',
+    image: require('../../assets/genmoji/music-video.png'),
+    words: ['music', 'video'],
+    hint: 'Starts with: m, v',
   },
   {
-    display: '🐸👑',
-    words: ['frog', 'king'],
-    hint: 'A fairy tale amphibian',
+    image: require('../../assets/genmoji/party-pooper.png'),
+    words: ['party', 'pooper'],
+    hint: 'Starts with: p, p',
   },
   {
-    display: '🎸🔥',
-    words: ['guitar', 'fire'],
-    hint: 'A blazing instrument',
+    image: require('../../assets/genmoji/penguin-mountain-snow.png'),
+    words: ['penguin', 'mountain', 'snow'],
+    hint: 'Starts with: p, m, s',
   },
   {
-    display: '🐧🎩',
-    words: ['penguin', 'hat'],
-    hint: 'A fancy antarctic bird',
+    image: require('../../assets/genmoji/plane-crash.png'),
+    words: ['plane', 'crash'],
+    hint: 'Starts with: p, c',
   },
   {
-    display: '🍩🌈',
-    words: ['donut', 'rainbow'],
-    hint: 'Colorful circular treat',
+    image: require('../../assets/genmoji/red-bull.png'),
+    words: ['red', 'bull'],
+    hint: 'Starts with: r, b',
   },
   {
-    display: '🦁🧊',
-    words: ['lion', 'ice'],
-    hint: 'A frozen king of the jungle',
+    image: require('../../assets/genmoji/roller-skates-rubber-duck.png'),
+    words: ['roller', 'skates', 'rubber', 'duck'],
+    hint: 'Starts with: r, s, r, d',
   },
   {
-    display: '🌊🐉',
-    words: ['wave', 'dragon'],
-    hint: 'A mythical sea creature',
+    image: require('../../assets/genmoji/spaghetti-western.png'),
+    words: ['spaghetti', 'western'],
+    hint: 'Starts with: s, w',
   },
   {
-    display: '🎭🤖',
-    words: ['theater', 'robot'],
-    hint: 'An artificial performer',
-  },
-  {
-    display: '🍄⭐',
-    words: ['mushroom', 'star'],
-    hint: 'A classic video game power-up',
-  },
-  {
-    display: '🐻🍯🌙',
-    words: ['bear', 'honey', 'night'],
-    hint: 'A nocturnal snacking animal',
-  },
-  {
-    display: '🦈🌪️',
-    words: ['shark', 'tornado'],
-    hint: 'A famously bad movie concept',
-  },
-  {
-    display: '🐙🎨',
-    words: ['octopus', 'paint'],
-    hint: 'A multi-armed artist',
-  },
-  {
-    display: '🦉📚',
-    words: ['owl', 'book'],
-    hint: 'A wise reader',
-  },
-  {
-    display: '🐝🏰',
-    words: ['bee', 'castle'],
-    hint: 'A royal hive',
-  },
-  {
-    display: '🍋😤',
-    words: ['lemon', 'angry'],
-    hint: 'A sour attitude',
-  },
-  {
-    display: '🐢🏎️',
-    words: ['turtle', 'race'],
-    hint: 'A slow creature going fast',
-  },
-  {
-    display: '🌵👻',
-    words: ['cactus', 'ghost'],
-    hint: 'A spooky desert plant',
-  },
-  {
-    display: '🦜🏴‍☠️',
-    words: ['parrot', 'pirate'],
-    hint: 'A classic shoulder companion',
-  },
-  {
-    display: '🐋🎵',
-    words: ['whale', 'music'],
-    hint: 'An ocean singer',
-  },
-  {
-    display: '🦊🔮✨',
-    words: ['fox', 'crystal', 'magic'],
-    hint: 'A mystical woodland creature',
-  },
-  {
-    display: '🐼🎂',
-    words: ['panda', 'cake'],
-    hint: 'A black and white birthday treat',
-  },
-  {
-    display: '🦩🌴',
-    words: ['flamingo', 'palm'],
-    hint: 'A tropical pink scene',
-  },
-  {
-    display: '🐺🌕',
-    words: ['wolf', 'moon'],
-    hint: 'A howling night scene',
-  },
-  {
-    display: '🦋💎',
-    words: ['butterfly', 'gem'],
-    hint: 'A precious winged insect',
+    image: require('../../assets/genmoji/spicy-curry.png'),
+    words: ['spicy', 'curry'],
+    hint: 'Starts with: s, c',
   },
 ];
 

@@ -5,6 +5,7 @@ import {
   TextInput,
   StyleSheet,
   Pressable,
+  Image,
   ScrollView,
   Animated,
   KeyboardAvoidingView,
@@ -118,7 +119,7 @@ export default function MojiMashScreen() {
           >
             {/* Emoji display */}
             <View style={styles.emojiContainer}>
-              <Text style={styles.emojiDisplay}>{puzzle.display}</Text>
+              <Image source={puzzle.image} style={styles.genmojiImage} />
               <Text style={styles.emojiLabel}>
                 {isPractice ? 'Practice Mode' : "Today's Genmoji"}
               </Text>
@@ -289,9 +290,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.xl,
   },
-  emojiDisplay: {
-    fontSize: 80,
-    lineHeight: 100,
+  genmojiImage: {
+    width: 140,
+    height: 140,
+    resizeMode: 'contain',
   },
   emojiLabel: {
     fontSize: FontSize.sm,
@@ -312,10 +314,14 @@ const styles = StyleSheet.create({
   },
   slots: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.sm,
+    justifyContent: 'center',
   },
   slot: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: 120,
+    minWidth: 120,
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
