@@ -20,25 +20,14 @@ export default function HomeScreen() {
         <Text style={styles.kicker}>Puzzle of the Day</Text>
         <Text style={styles.title}>Moji Mash</Text>
         <Text style={styles.subtitle}>{dateLabel}</Text>
+        <Text style={styles.blurb}>
+          Genmojis are AI-styled emoji blends — guess the words behind today’s image.
+        </Text>
       </View>
 
       <View style={styles.dailyCard}>
         <View style={styles.preview}>
           <Image source={puzzle.image} style={styles.previewImage} />
-        </View>
-        <Text style={styles.gameTitle}>Guess the words</Text>
-        <Text style={styles.gameDescription}>
-          One genmoji. Two or more hidden words.
-        </Text>
-        <View style={styles.metaRow}>
-          <View style={styles.pill}>
-            <Text style={styles.pillText}>Daily</Text>
-          </View>
-          <View style={styles.pill}>
-            <Text style={styles.pillText}>
-              {puzzle.words.length} words
-            </Text>
-          </View>
         </View>
         <Pressable
           style={({ pressed }) => [
@@ -82,6 +71,12 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginTop: Spacing.sm,
   },
+  blurb: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: Spacing.sm,
+    maxWidth: 320,
+  },
   dailyCard: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
@@ -103,34 +98,6 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     resizeMode: 'contain',
-  },
-  gameTitle: {
-    fontSize: FontSize.xl,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  gameDescription: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    marginTop: Spacing.xs,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    marginTop: Spacing.md,
-  },
-  pill: {
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  pillText: {
-    color: Colors.textSecondary,
-    fontSize: FontSize.sm,
-    fontWeight: '600',
   },
   playButton: {
     backgroundColor: Colors.primary,

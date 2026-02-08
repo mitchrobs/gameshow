@@ -1,17 +1,17 @@
 export const Colors = {
-  background: '#f6f4f0',
+  background: '#f4f6fb',
   surface: '#ffffff',
-  surfaceLight: '#f0ede7',
+  surfaceLight: '#eef1f7',
   primary: '#111111',
   primaryLight: '#2b2b2b',
-  accent: '#e34a59',
+  accent: '#ff4d6d',
   success: '#18a957',
   error: '#e04444',
   errorLight: '#f7b2b2',
   text: '#111111',
-  textSecondary: '#6f6a63',
-  textMuted: '#9a938a',
-  border: '#ebe7e1',
+  textSecondary: '#616776',
+  textMuted: '#8c93a5',
+  border: '#e1e6ef',
   white: '#ffffff',
 };
 

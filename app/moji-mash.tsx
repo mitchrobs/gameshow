@@ -38,6 +38,15 @@ function getStorage(): Storage | null {
 export default function MojiMashScreen() {
   const router = useRouter();
   const dateKey = useMemo(() => getLocalDateKey(), []);
+  const dateLabel = useMemo(
+    () =>
+      new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+    []
+  );
   const dailyKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
   const bonusKey = `${STORAGE_PREFIX}:bonus:${dateKey}`;
 
@@ -48,11 +57,42 @@ export default function MojiMashScreen() {
   const [mode, setMode] = useState<PuzzleMode>('daily');
   const [dailyCompleted, setDailyCompleted] = useState(false);
   const [bonusCompleted, setBonusCompleted] = useState(false);
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [foundWords, setFoundWords] = useState<Set<string>>(new Set());
   const [wrongCount, setWrongCount] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const inputRef = useRef<TextInput>(null);
+  const foundCount = foundWords.size;
+  const totalWords = puzzle.words.length;
+
+  const shareText = useMemo(() => {
+    const wordRow =
+      'Words: ' +
+      '🟩'.repeat(foundCount) +
+      '⬜️'.repeat(Math.max(0, totalWords - foundCount));
+    const mistakeRow =
+      'Mistakes: ' +
+      '🟥'.repeat(wrongCount) +
+      '⬜️'.repeat(Math.max(0, MAX_WRONG_GUESSES - wrongCount));
+    const result =
+      gameState === 'won'
+        ? `Solved in ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`
+        : 'Did not solve';
+    const modeLabel = mode === 'bonus' ? 'Bonus' : 'Daily';
+
+    return [
+      `Moji Mash ${dateLabel} (${modeLabel})`,
+      result,
+      wordRow,
+      mistakeRow,
+      'https://mitchrobs.github.io/gameshow/',
+    ].join('\n');
+  }, [dateLabel, mode, gameState, foundCount, totalWords, wrongCount, guesses.length]);
+
+  useEffect(() => {
+    setShareStatus(null);
+  }, [shareText]);
 
   useEffect(() => {
     const storage = getStorage();
@@ -76,6 +116,25 @@ export default function MojiMashScreen() {
     storage?.setItem(bonusKey, '1');
     setBonusCompleted(true);
   }, [gameState, mode, bonusCompleted, bonusKey]);
+
+  const handleCopyResults = useCallback(async () => {
+    if (Platform.OS !== 'web') return;
+    const clipboard = (globalThis as typeof globalThis & {
+      navigator?: { clipboard?: { writeText?: (text: string) => Promise<void> } };
+    }).navigator?.clipboard;
+
+    if (!clipboard?.writeText) {
+      setShareStatus('Copy not supported');
+      return;
+    }
+
+    try {
+      await clipboard.writeText(shareText);
+      setShareStatus('Copied to clipboard');
+    } catch {
+      setShareStatus('Copy failed');
+    }
+  }, [shareText]);
 
   const triggerShake = useCallback(() => {
     Animated.sequence([
@@ -290,6 +349,28 @@ export default function MojiMashScreen() {
                     Solved with {wrongCount} wrong guess{wrongCount !== 1 ? 'es' : ''}
                   </Text>
                 )}
+                <View style={styles.shareCard}>
+                  <Text style={styles.shareTitle}>Share your result</Text>
+                  <View style={styles.shareBox}>
+                    <Text selectable style={styles.shareText}>
+                      {shareText}
+                    </Text>
+                  </View>
+                  {Platform.OS === 'web' && (
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.shareButton,
+                        pressed && styles.shareButtonPressed,
+                      ]}
+                      onPress={handleCopyResults}
+                    >
+                      <Text style={styles.shareButtonText}>Copy results</Text>
+                    </Pressable>
+                  )}
+                  {shareStatus && (
+                    <Text style={styles.shareStatus}>{shareStatus}</Text>
+                  )}
+                </View>
                 {dailyCompleted && (
                   <Pressable
                     style={({ pressed }) => [
@@ -514,6 +595,54 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     color: Colors.textSecondary,
     marginTop: Spacing.sm,
+  },
+  shareCard: {
+    width: '100%',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginTop: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  shareTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  shareBox: {
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+  },
+  shareText: {
+    fontSize: FontSize.sm,
+    color: Colors.text,
+    lineHeight: 18,
+  },
+  shareButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    marginTop: Spacing.sm,
+  },
+  shareButtonPressed: {
+    backgroundColor: Colors.primaryLight,
+  },
+  shareButtonText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+  },
+  shareStatus: {
+    marginTop: Spacing.xs,
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    textAlign: 'center',
   },
   answerReveal: {
     marginTop: Spacing.md,
