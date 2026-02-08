@@ -1,14 +1,16 @@
-import { View, Text, StyleSheet, Pressable, Image, Platform } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image, Platform, ScrollView } from 'react-native';
 import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
 import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
+import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 
 export default function HomeScreen() {
   const router = useRouter();
   const puzzle = getDailyPuzzle();
+  const whodunit = getDailyWhodunit();
   const [streak, setStreak] = useState(0);
   const dateLabel = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -46,38 +48,78 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ title: 'Daybreak Games' }} />
-      <View style={styles.header}>
-        <Text style={styles.brand}>Daybreak Games</Text>
-        <Text style={styles.tagline}>For the curious</Text>
-        <Text style={styles.kicker}>Puzzle of the Day</Text>
-        <Text style={styles.title}>Moji Mash</Text>
-        <Text style={styles.subtitle}>{dateLabel}</Text>
-        <Text style={styles.blurb}>
-          Genmojis are AI-styled emoji blends — guess the words behind today’s image.
-        </Text>
-        {streak > 0 && (
-          <View style={styles.streakPill}>
-            <Text style={styles.streakText}>
-              {streak}-day streak
-            </Text>
-          </View>
-        )}
-      </View>
-
-      <View style={styles.dailyCard}>
-        <View style={styles.preview}>
-          <Image source={puzzle.image} style={styles.previewImage} />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={styles.brand}>Daybreak Games</Text>
+          <Text style={styles.tagline}>For the curious</Text>
+          <Text style={styles.dateSubtitle}>{dateLabel}</Text>
         </View>
-        <Pressable
-          style={({ pressed }) => [
-            styles.playButton,
-            pressed && styles.playButtonPressed,
-          ]}
-          onPress={() => router.push('/moji-mash')}
-        >
-          <Text style={styles.playButtonText}>Play</Text>
-        </Pressable>
-      </View>
+
+        {/* Moji Mash card */}
+        <View style={styles.gameSection}>
+          <View style={styles.gameLabel}>
+            <Text style={styles.kicker}>Word Puzzle</Text>
+            <Text style={styles.gameTitle}>Moji Mash</Text>
+          </View>
+          <Text style={styles.blurb}>
+            Genmojis are AI-styled emoji blends — guess the words behind today's image.
+          </Text>
+          {streak > 0 && (
+            <View style={styles.streakPill}>
+              <Text style={styles.streakText}>{streak}-day streak</Text>
+            </View>
+          )}
+          <View style={styles.dailyCard}>
+            <View style={styles.preview}>
+              <Image source={puzzle.image} style={styles.previewImage} />
+            </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.playButton,
+                pressed && styles.playButtonPressed,
+              ]}
+              onPress={() => router.push('/moji-mash')}
+            >
+              <Text style={styles.playButtonText}>Play</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Whodunit card */}
+        <View style={styles.gameSection}>
+          <View style={styles.gameLabel}>
+            <Text style={styles.kicker}>Logic Deduction</Text>
+            <Text style={styles.gameTitle}>Whodunit</Text>
+          </View>
+          <Text style={styles.blurb}>
+            A daily murder mystery. Read clues, eliminate suspects, deduce the killer.
+          </Text>
+          <View style={styles.dailyCard}>
+            <View style={styles.whodunitPreview}>
+              <Text style={styles.whodunitPreviewEmoji}>🔍</Text>
+              <Text style={styles.whodunitCaseName}>
+                Case #{String(whodunit.caseNumber).padStart(3, '0')} — {whodunit.caseName}
+              </Text>
+              <View style={styles.whodunitSuspects}>
+                {whodunit.suspects.map((s, i) => (
+                  <Text key={i} style={styles.whodunitSuspectChip}>
+                    {s.emoji} {s.name}
+                  </Text>
+                ))}
+              </View>
+            </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.playButton,
+                pressed && styles.playButtonPressed,
+              ]}
+              onPress={() => router.push('/whodunit')}
+            >
+              <Text style={styles.playButtonText}>Play</Text>
+            </Pressable>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -86,7 +128,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  scrollContent: {
     paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xxl,
   },
   header: {
     paddingTop: Spacing.xxl,
@@ -101,7 +146,17 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     marginTop: 2,
-    marginBottom: Spacing.sm,
+  },
+  dateSubtitle: {
+    fontSize: FontSize.md,
+    color: Colors.textSecondary,
+    marginTop: Spacing.sm,
+  },
+  gameSection: {
+    marginBottom: Spacing.xl,
+  },
+  gameLabel: {
+    marginBottom: Spacing.xs,
   },
   kicker: {
     color: Colors.accent,
@@ -111,15 +166,10 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
   },
-  title: {
+  gameTitle: {
     fontSize: 36,
     fontWeight: '800',
     color: Colors.text,
-  },
-  subtitle: {
-    fontSize: FontSize.md,
-    color: Colors.textSecondary,
-    marginTop: Spacing.sm,
   },
   blurb: {
     fontSize: FontSize.sm,
@@ -146,6 +196,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.xl,
+    marginTop: Spacing.md,
     shadowColor: '#000000',
     shadowOpacity: 0.06,
     shadowRadius: 20,
@@ -163,6 +214,42 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     resizeMode: 'contain',
+  },
+  whodunitPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+  },
+  whodunitPreviewEmoji: {
+    fontSize: 40,
+    marginBottom: Spacing.sm,
+  },
+  whodunitCaseName: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  whodunitSuspects: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+  },
+  whodunitSuspectChip: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    overflow: 'hidden',
   },
   playButton: {
     backgroundColor: Colors.primary,
