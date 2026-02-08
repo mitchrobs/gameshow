@@ -75,15 +75,10 @@ export default function MojiMashScreen() {
       'Mistakes: ' +
       '🟥'.repeat(wrongCount) +
       '⬜️'.repeat(Math.max(0, MAX_WRONG_GUESSES - wrongCount));
-    const result =
-      gameState === 'won'
-        ? `Solved in ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`
-        : 'Did not solve';
     const modeLabel = mode === 'bonus' ? 'Bonus' : 'Daily';
 
     return [
       `Moji Mash ${dateLabel} (${modeLabel})`,
-      result,
       wordRow,
       mistakeRow,
       'https://mitchrobs.github.io/gameshow/',
@@ -221,6 +216,7 @@ export default function MojiMashScreen() {
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
           >
+            <View style={styles.page}>
             {/* Emoji display */}
             <View style={styles.emojiContainer}>
               <Image source={puzzle.image} style={styles.genmojiImage} />
@@ -398,6 +394,7 @@ export default function MojiMashScreen() {
                 </Pressable>
               </View>
             )}
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -416,6 +413,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xxl,
+  },
+  page: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
   },
   emojiContainer: {
     alignItems: 'center',
