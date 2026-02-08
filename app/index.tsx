@@ -6,12 +6,14 @@ import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme'
 import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 import { getDailyWordle } from '../src/data/wordlePuzzles';
+import { getDailyTriviaCategories } from '../src/data/triviaPuzzles';
 
 export default function HomeScreen() {
   const router = useRouter();
   const puzzle = getDailyPuzzle();
   const whodunit = getDailyWhodunit();
   const wordle = getDailyWordle();
+  const triviaCategories = getDailyTriviaCategories();
   const [streak, setStreak] = useState(0);
   const dateLabel = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -72,7 +74,7 @@ export default function HomeScreen() {
               <Text style={styles.gameTitle}>Moji Mash</Text>
             </View>
             <Text style={styles.blurb}>
-              Genmojis are AI-styled emoji blends — guess the words behind today’s image.
+              Genmojis are AI-styled emoji blends - guess the words behind today's image.
             </Text>
             {streak > 0 && (
               <View style={styles.streakPill}>
@@ -130,6 +132,38 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Trivia card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabel}>
+              <Text style={styles.kicker}>Quickfire</Text>
+              <Text style={styles.gameTitle}>Daily Trivia</Text>
+            </View>
+            <Text style={styles.blurb}>
+              Eight rapid questions - pick one of today's categories and race the clock.
+            </Text>
+            <View style={styles.dailyCard}>
+              <View style={styles.triviaPreview}>
+                <Text style={styles.triviaPreviewTitle}>Today's choices</Text>
+                <View style={styles.triviaCategoryRow}>
+                  {triviaCategories.map((cat) => (
+                    <View key={cat.id} style={styles.triviaCategoryChip}>
+                      <Text style={styles.triviaCategoryText}>{cat.name}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/trivia')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
           {/* Whodunit card */}
           <View style={styles.gameSection}>
             <View style={styles.gameLabel}>
@@ -143,7 +177,7 @@ export default function HomeScreen() {
               <View style={styles.whodunitPreview}>
                 <Text style={styles.whodunitPreviewEmoji}>🔍</Text>
                 <Text style={styles.whodunitCaseName}>
-                  Case #{String(whodunit.caseNumber).padStart(3, '0')} — {whodunit.caseName}
+                  Case #{String(whodunit.caseNumber).padStart(3, '0')} - {whodunit.caseName}
                 </Text>
                 <View style={styles.whodunitSuspects}>
                   {whodunit.suspects.map((s, i) => (
@@ -294,6 +328,41 @@ const styles = StyleSheet.create({
     fontSize: FontSize.lg,
     fontWeight: '800',
     color: Colors.text,
+  },
+  triviaPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+  },
+  triviaPreviewTitle: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontWeight: '600',
+  },
+  triviaCategoryRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+  },
+  triviaCategoryChip: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  triviaCategoryText: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    fontWeight: '600',
   },
   whodunitPreview: {
     alignItems: 'center',

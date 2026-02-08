@@ -1,0 +1,493 @@
+import { useMemo, useState, useCallback, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  Platform,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Stack, useRouter } from 'expo-router';
+import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
+import {
+  getDailyTriviaCategories,
+  getTriviaQuestions,
+  getTriviaCategory,
+  TriviaQuestion,
+} from '../src/data/triviaPuzzles';
+
+const QUESTION_COUNT = 8;
+const TIME_PER_QUESTION = 12;
+
+type GameMode = 'choose' | 'quiz' | 'finished';
+
+export default function TriviaScreen() {
+  const router = useRouter();
+  const dateLabel = useMemo(
+    () =>
+      new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+    []
+  );
+
+  const dailyCategories = useMemo(() => getDailyTriviaCategories(), []);
+  const [mode, setMode] = useState<GameMode>('choose');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<TriviaQuestion[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<{ correct: boolean; timedOut: boolean }[]>([]);
+  const [countdown, setCountdown] = useState(TIME_PER_QUESTION);
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
+
+  const category = useMemo(
+    () => (selectedCategoryId ? getTriviaCategory(selectedCategoryId) : undefined),
+    [selectedCategoryId]
+  );
+
+  const currentQuestion = questions[currentIndex];
+  const correctCount = answers.filter((a) => a.correct).length;
+
+  const startTrivia = useCallback(
+    (categoryId: string) => {
+      const picked = getTriviaQuestions(categoryId);
+      setSelectedCategoryId(categoryId);
+      setQuestions(picked);
+      setCurrentIndex(0);
+      setAnswers([]);
+      setSelectedOption(null);
+      setCountdown(TIME_PER_QUESTION);
+      setMode('quiz');
+    },
+    []
+  );
+
+  const goNext = useCallback(() => {
+    setSelectedOption(null);
+    setCountdown(TIME_PER_QUESTION);
+    setCurrentIndex((prev) => {
+      const next = prev + 1;
+      if (next >= QUESTION_COUNT) {
+        setMode('finished');
+        return prev;
+      }
+      return next;
+    });
+  }, []);
+
+  const handleAnswer = useCallback(
+    (index: number) => {
+      if (mode !== 'quiz') return;
+      if (selectedOption !== null) return;
+      if (!currentQuestion) return;
+      setSelectedOption(index);
+      const isCorrect = index === currentQuestion.answerIndex;
+      setAnswers((prev) => [...prev, { correct: isCorrect, timedOut: false }]);
+      setTimeout(goNext, 650);
+    },
+    [mode, selectedOption, currentQuestion, goNext]
+  );
+
+  const handleTimeout = useCallback(() => {
+    if (mode !== 'quiz') return;
+    if (selectedOption !== null) return;
+    setSelectedOption(-1);
+    setAnswers((prev) => [...prev, { correct: false, timedOut: true }]);
+    setTimeout(goNext, 500);
+  }, [mode, selectedOption, goNext]);
+
+  useEffect(() => {
+    if (mode !== 'quiz') return;
+    if (selectedOption !== null) return;
+    if (countdown <= 0) return;
+    const id = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [mode, selectedOption, countdown]);
+
+  useEffect(() => {
+    if (mode !== 'quiz') return;
+    if (selectedOption !== null) return;
+    if (countdown <= 0) {
+      handleTimeout();
+    }
+  }, [countdown, handleTimeout, mode, selectedOption]);
+
+  const shareText = useMemo(() => {
+    const resultRow = answers
+      .map((a) => (a.correct ? '🟩' : a.timedOut ? '⏱️' : '⬛️'))
+      .join('');
+    return [
+      `Trivia ${dateLabel} ${correctCount}/${QUESTION_COUNT}`,
+      category?.name ?? 'Daily Trivia',
+      resultRow,
+      'https://mitchrobs.github.io/gameshow/',
+    ].join('\n');
+  }, [answers, dateLabel, correctCount, category?.name]);
+
+  useEffect(() => {
+    setShareStatus(null);
+  }, [shareText]);
+
+  const handleCopyResults = useCallback(async () => {
+    if (Platform.OS !== 'web') return;
+    const clipboard = (globalThis as typeof globalThis & {
+      navigator?: { clipboard?: { writeText?: (text: string) => Promise<void> } };
+    }).navigator?.clipboard;
+    if (!clipboard?.writeText) {
+      setShareStatus('Copy not supported');
+      return;
+    }
+    try {
+      await clipboard.writeText(shareText);
+      setShareStatus('Copied to clipboard');
+    } catch {
+      setShareStatus('Copy failed');
+    }
+  }, [shareText]);
+
+  return (
+    <>
+      <Stack.Screen options={{ title: 'Daily Trivia', headerBackTitle: 'Home' }} />
+      <SafeAreaView style={styles.container} edges={['bottom']}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.page}>
+            <View style={styles.pageAccent} />
+            <View style={styles.header}>
+              <Text style={styles.title}>Daily Trivia</Text>
+              <Text style={styles.subtitle}>{dateLabel}</Text>
+            </View>
+
+            {mode === 'choose' && (
+              <View style={styles.choiceCard}>
+                <Text style={styles.choiceTitle}>Pick a category</Text>
+                <Text style={styles.choiceSubtitle}>
+                  Choose one of today's two categories to start.
+                </Text>
+                {dailyCategories.map((cat) => (
+                  <Pressable
+                    key={cat.id}
+                    style={({ pressed }) => [
+                      styles.categoryCard,
+                      pressed && styles.categoryCardPressed,
+                    ]}
+                    onPress={() => startTrivia(cat.id)}
+                  >
+                    <Text style={styles.categoryName}>{cat.name}</Text>
+                    <Text style={styles.categoryDesc}>{cat.description}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+
+            {mode === 'quiz' && currentQuestion && (
+              <View style={styles.quizCard}>
+                <View style={styles.quizTop}>
+                  <Text style={styles.quizMeta}>
+                    Question {currentIndex + 1} / {QUESTION_COUNT}
+                  </Text>
+                  <View style={styles.timerPill}>
+                    <Text style={styles.timerText}>{countdown}s</Text>
+                  </View>
+                </View>
+                <Text style={styles.question}>{currentQuestion.prompt}</Text>
+                <View style={styles.optionsList}>
+                  {currentQuestion.options.map((option, idx) => {
+                    const isSelected = selectedOption === idx;
+                    const isCorrect = idx === currentQuestion.answerIndex;
+                    const showResult = selectedOption !== null;
+                    return (
+                      <Pressable
+                        key={option}
+                        style={({ pressed }) => [
+                          styles.option,
+                          pressed && styles.optionPressed,
+                          showResult && isSelected && styles.optionSelected,
+                          showResult && isCorrect && styles.optionCorrect,
+                          showResult && isSelected && !isCorrect && styles.optionWrong,
+                        ]}
+                        onPress={() => handleAnswer(idx)}
+                        disabled={selectedOption !== null}
+                      >
+                        <Text style={styles.optionText}>{option}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
+
+            {mode === 'finished' && (
+              <View style={styles.resultCard}>
+                <Text style={styles.resultEmoji}>🎯</Text>
+                <Text style={styles.resultTitle}>You scored {correctCount}/8</Text>
+                <Text style={styles.resultSubtitle}>{category?.name}</Text>
+                <View style={styles.shareCard}>
+                  <Text style={styles.shareTitle}>Share your result</Text>
+                  <View style={styles.shareBox}>
+                    <Text selectable style={styles.shareText}>
+                      {shareText}
+                    </Text>
+                  </View>
+                  {Platform.OS === 'web' && (
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.shareButton,
+                        pressed && styles.shareButtonPressed,
+                      ]}
+                      onPress={handleCopyResults}
+                    >
+                      <Text style={styles.shareButtonText}>Copy results</Text>
+                    </Pressable>
+                  )}
+                  {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
+                </View>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.homeButton,
+                    pressed && styles.homeButtonPressed,
+                  ]}
+                  onPress={() => router.back()}
+                >
+                  <Text style={styles.homeButtonText}>Back to games</Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  scrollContent: {
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xxl,
+  },
+  page: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
+  },
+  pageAccent: {
+    height: 6,
+    width: 80,
+    backgroundColor: '#00a48a',
+    borderRadius: 999,
+    marginBottom: Spacing.md,
+  },
+  header: {
+    marginBottom: Spacing.md,
+  },
+  title: {
+    fontSize: FontSize.xxl,
+    fontWeight: '800',
+    color: Colors.text,
+  },
+  subtitle: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: Spacing.xs,
+  },
+  choiceCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  choiceTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  choiceSubtitle: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.md,
+  },
+  categoryCard: {
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: Spacing.sm,
+  },
+  categoryCardPressed: {
+    backgroundColor: Colors.border,
+  },
+  categoryName: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  categoryDesc: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  quizCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  quizTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  quizMeta: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+  },
+  timerPill: {
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  timerText: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  question: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: Spacing.md,
+  },
+  optionsList: {
+    gap: Spacing.sm,
+  },
+  option: {
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  optionPressed: {
+    backgroundColor: Colors.border,
+  },
+  optionSelected: {
+    borderColor: Colors.primary,
+  },
+  optionCorrect: {
+    backgroundColor: 'rgba(24, 169, 87, 0.15)',
+    borderColor: Colors.success,
+  },
+  optionWrong: {
+    backgroundColor: 'rgba(224, 68, 68, 0.15)',
+    borderColor: Colors.error,
+  },
+  optionText: {
+    fontSize: FontSize.md,
+    color: Colors.text,
+    fontWeight: '600',
+  },
+  resultCard: {
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    shadowColor: '#000000',
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4,
+  },
+  resultEmoji: {
+    fontSize: 56,
+  },
+  resultTitle: {
+    fontSize: FontSize.xl,
+    fontWeight: '800',
+    color: Colors.text,
+    marginTop: Spacing.md,
+  },
+  resultSubtitle: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: Spacing.xs,
+  },
+  shareCard: {
+    width: '100%',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginTop: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  shareTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  shareBox: {
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+  },
+  shareText: {
+    fontSize: FontSize.sm,
+    color: Colors.text,
+    lineHeight: 18,
+  },
+  shareButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    marginTop: Spacing.sm,
+  },
+  shareButtonPressed: {
+    backgroundColor: Colors.primaryLight,
+  },
+  shareButtonText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+  },
+  shareStatus: {
+    marginTop: Spacing.xs,
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    textAlign: 'center',
+  },
+  homeButton: {
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    marginTop: Spacing.sm,
+  },
+  homeButtonPressed: {
+    backgroundColor: Colors.surfaceLight,
+  },
+  homeButtonText: {
+    color: Colors.textSecondary,
+    fontSize: FontSize.md,
+    fontWeight: '600',
+  },
+});
