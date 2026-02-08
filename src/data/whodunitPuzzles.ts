@@ -264,6 +264,20 @@ const CASE_NAMES = [
   'The Broken Seal',
 ];
 
+const NARRATIVE_BEATS = [
+  'Earlier in the evening, a tense exchange drew quiet attention.',
+  'A brief blackout swept the {setting}, leaving the guests unsettled.',
+  'Whispers of an argument drifted from the {room} moments before the discovery.',
+  'The party had been lively, but private grudges simmered beneath the music.',
+];
+
+const NARRATIVE_AFTER = [
+  'Staff reported hurried footsteps retreating from the {room}.',
+  'Someone tried to tidy the scene, but the {weapon} was left behind.',
+  'A sharp clatter echoed down the hall, then the room fell quiet.',
+  'The clock chimed and the room went still as the body was found.',
+];
+
 // ── Seeded random ──────────────────────────────────────────────
 
 function mulberry32(seed: number) {
@@ -325,10 +339,18 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
 
   // Generate narrative
   const suspectNames = suspects.map((s) => s.name).join(', ');
+  const context = {
+    victim: victim.name,
+    weapon: weapon.name,
+    room: room.name,
+    setting: setting.description,
+  };
+  const leadIn = fillTemplate(seededPick(NARRATIVE_BEATS, rand), context);
+  const aftermath = fillTemplate(seededPick(NARRATIVE_AFTER, rand), context);
   const narrative = `At ${setting.name}, ${victim.name} (${victim.title}) was found dead. The ${weapon.name.replace(
     /^a /,
     ''
-  )} was discovered in ${room.name}. Five guests remain under suspicion: ${suspectNames}.`;
+  )} was discovered in ${room.name}. ${leadIn} ${aftermath} Five guests remain under suspicion: ${suspectNames}.`;
 
   const killer = suspects[killerIndex];
   const innocents = suspects
@@ -336,13 +358,6 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
     .filter((_, i) => i !== killerIndex);
 
   const [alibiOne, alibiTwo, alibiThree] = seededShuffle(innocents, rand).slice(0, 3);
-
-  const context = {
-    victim: victim.name,
-    weapon: weapon.name,
-    room: room.name,
-    setting: setting.description,
-  };
 
   const evidenceClue: Clue = {
     id: 'evidence',

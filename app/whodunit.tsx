@@ -78,6 +78,13 @@ export default function WhodunitScreen() {
     const choice = puzzle.leadChoices.find((c) => c.clueId === leadChoiceId);
     return choice?.label ?? null;
   }, [leadChoiceId, puzzle.leadChoices]);
+  const unlockedClues = useMemo(
+    () =>
+      puzzle.clues
+        .map((clue, index) => ({ clue, index }))
+        .filter(({ index }) => revealedClues.has(index)),
+    [puzzle.clues, revealedClues]
+  );
 
   // Timer
   useEffect(() => {
@@ -322,6 +329,19 @@ export default function WhodunitScreen() {
                 <Text style={styles.caseChipLabel}>Room</Text>
                 <Text style={styles.caseChipValue}>{puzzle.room.name}</Text>
               </View>
+            </View>
+            <View style={styles.caseUnlocked}>
+              <Text style={styles.caseUnlockedTitle}>Unlocked clues</Text>
+              {unlockedClues.length === 0 ? (
+                <Text style={styles.caseUnlockedEmpty}>No clues yet.</Text>
+              ) : (
+                unlockedClues.map(({ clue, index }) => (
+                  <View key={clue.id} style={styles.caseUnlockedItem}>
+                    <Text style={styles.caseUnlockedNumber}>{index + 1}</Text>
+                    <Text style={styles.caseUnlockedText}>{clue.text}</Text>
+                  </View>
+                ))
+              )}
             </View>
           </View>
 
@@ -695,6 +715,47 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.text,
     fontWeight: '600',
+  },
+  caseUnlocked: {
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  caseUnlockedTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  caseUnlockedEmpty: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+  },
+  caseUnlockedItem: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    alignItems: 'flex-start',
+  },
+  caseUnlockedNumber: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: Colors.accent,
+    color: Colors.white,
+    textAlign: 'center',
+    lineHeight: 20,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  caseUnlockedText: {
+    fontSize: FontSize.sm,
+    color: Colors.text,
+    lineHeight: 18,
+    flex: 1,
+    minWidth: 0,
   },
   leadCard: {
     backgroundColor: Colors.surface,
