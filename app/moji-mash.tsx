@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,24 +14,68 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
-import { getDailyPuzzle, getRandomPuzzle, MojiMashPuzzle } from '../src/data/mojiMashPuzzles';
+import { getDailyPuzzle, getBonusPuzzle, MojiMashPuzzle } from '../src/data/mojiMashPuzzles';
 
 const MAX_WRONG_GUESSES = 5;
+const STORAGE_PREFIX = 'mojimash';
 
 type GameState = 'playing' | 'won' | 'lost';
+type PuzzleMode = 'daily' | 'bonus';
+
+function getLocalDateKey(date: Date = new Date()): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function getStorage(): Storage | null {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return window.localStorage;
+  }
+  return null;
+}
 
 export default function MojiMashScreen() {
   const router = useRouter();
+  const dateKey = useMemo(() => getLocalDateKey(), []);
+  const dailyKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
+  const bonusKey = `${STORAGE_PREFIX}:bonus:${dateKey}`;
+
   const [puzzle, setPuzzle] = useState<MojiMashPuzzle>(getDailyPuzzle);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<GameState>('playing');
+  const [mode, setMode] = useState<PuzzleMode>('daily');
+  const [dailyCompleted, setDailyCompleted] = useState(false);
+  const [bonusCompleted, setBonusCompleted] = useState(false);
   const [foundWords, setFoundWords] = useState<Set<string>>(new Set());
   const [wrongCount, setWrongCount] = useState(0);
   const [showHint, setShowHint] = useState(false);
-  const [isPractice, setIsPractice] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    const storage = getStorage();
+    if (!storage) return;
+    setDailyCompleted(storage.getItem(dailyKey) === '1');
+    setBonusCompleted(storage.getItem(bonusKey) === '1');
+  }, [dailyKey, bonusKey]);
+
+  useEffect(() => {
+    if (gameState !== 'won' || mode !== 'daily') return;
+    if (dailyCompleted) return;
+    const storage = getStorage();
+    storage?.setItem(dailyKey, '1');
+    setDailyCompleted(true);
+  }, [gameState, mode, dailyCompleted, dailyKey]);
+
+  useEffect(() => {
+    if (mode !== 'bonus' || gameState === 'playing') return;
+    if (bonusCompleted) return;
+    const storage = getStorage();
+    storage?.setItem(bonusKey, '1');
+    setBonusCompleted(true);
+  }, [gameState, mode, bonusCompleted, bonusKey]);
 
   const triggerShake = useCallback(() => {
     Animated.sequence([
@@ -86,8 +130,8 @@ export default function MojiMashScreen() {
     setTimeout(() => inputRef.current?.focus(), 100);
   }, [currentGuess, gameState, guesses, puzzle.words, foundWords, wrongCount, triggerShake]);
 
-  const startPractice = useCallback(() => {
-    const newPuzzle = getRandomPuzzle();
+  const startBonus = useCallback(() => {
+    const newPuzzle = getBonusPuzzle();
     setPuzzle(newPuzzle);
     setGuesses([]);
     setCurrentGuess('');
@@ -95,7 +139,8 @@ export default function MojiMashScreen() {
     setFoundWords(new Set());
     setWrongCount(0);
     setShowHint(false);
-    setIsPractice(true);
+    setMode('bonus');
+    setTimeout(() => inputRef.current?.focus(), 150);
   }, []);
 
   const wrongGuesses = guesses.filter((g) => !puzzle.words.includes(g));
@@ -121,7 +166,7 @@ export default function MojiMashScreen() {
             <View style={styles.emojiContainer}>
               <Image source={puzzle.image} style={styles.genmojiImage} />
               <Text style={styles.emojiLabel}>
-                {isPractice ? 'Practice Mode' : "Today's Genmoji"}
+                {mode === 'bonus' ? 'Bonus Puzzle' : "Today's Genmoji"}
               </Text>
             </View>
 
@@ -245,17 +290,22 @@ export default function MojiMashScreen() {
                     Solved with {wrongCount} wrong guess{wrongCount !== 1 ? 'es' : ''}
                   </Text>
                 )}
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.practiceButton,
-                    pressed && styles.practiceButtonPressed,
-                  ]}
-                  onPress={startPractice}
-                >
-                  <Text style={styles.practiceButtonText}>
-                    Play a random puzzle
-                  </Text>
-                </Pressable>
+                {dailyCompleted && (
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.practiceButton,
+                      pressed && styles.practiceButtonPressed,
+                      (bonusCompleted || mode === 'bonus') &&
+                        styles.practiceButtonDisabled,
+                    ]}
+                    onPress={startBonus}
+                    disabled={bonusCompleted || mode === 'bonus'}
+                  >
+                    <Text style={styles.practiceButtonText}>
+                      {bonusCompleted ? 'Bonus completed' : 'Play bonus puzzle'}
+                    </Text>
+                  </Pressable>
+                )}
                 <Pressable
                   style={({ pressed }) => [
                     styles.homeButton,
@@ -277,7 +327,7 @@ export default function MojiMashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'transparent',
   },
   flex: {
     flex: 1,
@@ -488,6 +538,9 @@ const styles = StyleSheet.create({
   },
   practiceButtonPressed: {
     backgroundColor: Colors.primaryLight,
+  },
+  practiceButtonDisabled: {
+    opacity: 0.5,
   },
   practiceButtonText: {
     color: Colors.white,
