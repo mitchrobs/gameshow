@@ -231,6 +231,9 @@ export default function MojiMashScreen() {
               <Text style={styles.sectionLabel}>
                 Guess the {puzzle.words.length} words used to create this genmoji
               </Text>
+              <Text style={styles.helperText}>
+                Enter one word at a time.
+              </Text>
               <View style={styles.slots}>
                 {puzzle.words.map((word, i) => {
                   const isFound = foundWords.has(word);
@@ -461,6 +464,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     fontWeight: '500',
     letterSpacing: 0.3,
+  },
+  helperText: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginBottom: Spacing.sm,
   },
   slots: {
     flexDirection: 'row',
