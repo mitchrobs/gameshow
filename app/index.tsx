@@ -17,22 +17,29 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Gameshow</Text>
-        <Text style={styles.subtitle}>Daily puzzle games</Text>
+        <Text style={styles.kicker}>Puzzle of the Day</Text>
+        <Text style={styles.title}>Moji Mash</Text>
+        <Text style={styles.subtitle}>{dateLabel}</Text>
       </View>
 
       <View style={styles.dailyCard}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>Puzzle of the Day</Text>
-        </View>
-        <Text style={styles.dateText}>{dateLabel}</Text>
         <View style={styles.preview}>
           <Image source={puzzle.image} style={styles.previewImage} />
         </View>
-        <Text style={styles.gameTitle}>Moji Mash</Text>
+        <Text style={styles.gameTitle}>Guess the words</Text>
         <Text style={styles.gameDescription}>
-          Guess the words behind the genmoji.
+          One genmoji. Two or more hidden words.
         </Text>
+        <View style={styles.metaRow}>
+          <View style={styles.pill}>
+            <Text style={styles.pillText}>Daily</Text>
+          </View>
+          <View style={styles.pill}>
+            <Text style={styles.pillText}>
+              {puzzle.words.length} words
+            </Text>
+          </View>
+        </View>
         <Pressable
           style={({ pressed }) => [
             styles.playButton,
@@ -40,7 +47,7 @@ export default function HomeScreen() {
           ]}
           onPress={() => router.push('/moji-mash')}
         >
-          <Text style={styles.playButtonText}>Play today’s puzzle</Text>
+          <Text style={styles.playButtonText}>Play</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -55,30 +62,64 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: Spacing.xxl,
-    paddingBottom: Spacing.xl,
-    alignItems: 'center',
+    paddingBottom: Spacing.lg,
+  },
+  kicker: {
+    color: Colors.accent,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
   },
   title: {
-    fontSize: FontSize.xxl,
+    fontSize: 36,
     fontWeight: '800',
     color: Colors.text,
-    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
-    marginTop: Spacing.xs,
+    marginTop: Spacing.sm,
   },
   dailyCard: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.xl,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    gap: Spacing.sm,
+    shadowColor: '#000000',
+    shadowOpacity: 0.06,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4,
   },
-  badge: {
-    alignSelf: 'center',
+  preview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+  },
+  previewImage: {
+    width: 160,
+    height: 160,
+    resizeMode: 'contain',
+  },
+  gameTitle: {
+    fontSize: FontSize.xl,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  gameDescription: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+  },
+  pill: {
     backgroundColor: Colors.surfaceLight,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
@@ -86,44 +127,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  badgeText: {
+  pillText: {
     color: Colors.textSecondary,
     fontSize: FontSize.sm,
     fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-  },
-  dateText: {
-    textAlign: 'center',
-    color: Colors.textMuted,
-    fontSize: FontSize.sm,
-  },
-  preview: {
-    alignItems: 'center',
-    marginVertical: Spacing.sm,
-  },
-  previewImage: {
-    width: 140,
-    height: 140,
-    resizeMode: 'contain',
-  },
-  gameTitle: {
-    textAlign: 'center',
-    fontSize: FontSize.xl,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  gameDescription: {
-    textAlign: 'center',
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
   },
   playButton: {
     backgroundColor: Colors.primary,
     borderRadius: BorderRadius.sm,
     paddingVertical: Spacing.md,
     alignItems: 'center',
-    marginTop: Spacing.sm,
+    marginTop: Spacing.lg,
   },
   playButtonPressed: {
     backgroundColor: Colors.primaryLight,

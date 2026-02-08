@@ -6,13 +6,14 @@ import { Colors } from '../src/constants/theme';
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: Colors.surface },
+          headerStyle: { backgroundColor: Colors.background },
           headerTintColor: Colors.text,
           headerTitleStyle: { fontWeight: '700' },
           contentStyle: { backgroundColor: Colors.background },
+          headerShadowVisible: false,
           animation: 'slide_from_right',
         }}
       />

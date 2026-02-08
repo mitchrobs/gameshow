@@ -289,6 +289,14 @@ const styles = StyleSheet.create({
   emojiContainer: {
     alignItems: 'center',
     paddingVertical: Spacing.xl,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.lg,
+    shadowColor: '#000000',
+    shadowOpacity: 0.06,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 3,
   },
   genmojiImage: {
     width: 140,
@@ -311,6 +319,7 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginBottom: Spacing.sm,
     fontWeight: '500',
+    letterSpacing: 0.3,
   },
   slots: {
     flexDirection: 'row',
@@ -326,14 +335,12 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: Colors.border,
-    borderStyle: 'dashed',
   },
   slotFound: {
     borderColor: Colors.success,
-    borderStyle: 'solid',
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    backgroundColor: 'rgba(24, 169, 87, 0.12)',
   },
   slotText: {
     fontSize: FontSize.lg,
@@ -343,6 +350,8 @@ const styles = StyleSheet.create({
   slotPlaceholder: {
     fontSize: FontSize.sm,
     color: Colors.textMuted,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
   livesContainer: {
     flexDirection: 'row',
@@ -354,11 +363,11 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.text,
   },
   lifeDotUsed: {
-    backgroundColor: Colors.error,
-    opacity: 0.4,
+    backgroundColor: Colors.border,
+    opacity: 1,
   },
   livesText: {
     fontSize: FontSize.sm,
@@ -366,12 +375,12 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.sm,
   },
   hintContainer: {
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     marginBottom: Spacing.lg,
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.accent,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   hintLabel: {
     fontSize: FontSize.sm,
@@ -426,13 +435,15 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   guessTag: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    backgroundColor: Colors.surfaceLight,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   guessTagText: {
-    color: Colors.errorLight,
+    color: Colors.textSecondary,
     fontSize: FontSize.sm,
     fontWeight: '500',
   },
