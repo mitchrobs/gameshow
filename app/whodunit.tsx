@@ -17,7 +17,7 @@ import {
   Clue,
 } from '../src/data/whodunitPuzzles';
 
-const TIME_PENALTY = 15;
+const TIME_PENALTY = 10;
 const STORAGE_PREFIX = 'whodunit';
 
 type GameState = 'playing' | 'won' | 'lost';
@@ -61,16 +61,7 @@ export default function WhodunitScreen() {
     return free;
   });
   const [eliminatedSuspects, setEliminatedSuspects] = useState<Set<number>>(
-    () => {
-      // Auto-eliminate from initially revealed alibi clues
-      const elim = new Set<number>();
-      puzzle.clues.forEach((c, i) => {
-        if (!c.locked && c.type === 'alibi' && c.clearsIndex >= 0) {
-          elim.add(c.clearsIndex);
-        }
-      });
-      return elim;
-    }
+    () => new Set<number>()
   );
   const [timePenalty, setTimePenalty] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -123,15 +114,7 @@ export default function WhodunitScreen() {
       setRevealedClues(newRevealed);
       setTimePenalty((prev) => prev + TIME_PENALTY);
 
-      // Auto-eliminate if alibi
-      const clue = puzzle.clues[index];
-      if (clue.type === 'alibi' && clue.clearsIndex >= 0) {
-        setEliminatedSuspects((prev) => {
-          const next = new Set(prev);
-          next.add(clue.clearsIndex);
-          return next;
-        });
-      }
+      // No auto-elimination — player decides who to eliminate
     },
     [gameState, revealedClues, puzzle.clues]
   );
@@ -143,6 +126,25 @@ export default function WhodunitScreen() {
       setSelectedSuspect((prev) => (prev === index ? null : index));
     },
     [gameState, eliminatedSuspects]
+  );
+
+  const handleToggleEliminate = useCallback(
+    (index: number) => {
+      if (gameState !== 'playing') return;
+      setEliminatedSuspects((prev) => {
+        const next = new Set(prev);
+        if (next.has(index)) {
+          next.delete(index);
+        } else {
+          next.add(index);
+        }
+        return next;
+      });
+      if (selectedSuspect === index) {
+        setSelectedSuspect(null);
+      }
+    },
+    [gameState, selectedSuspect]
   );
 
   const handleAccuse = useCallback(() => {
@@ -200,6 +202,7 @@ export default function WhodunitScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
+          <View style={styles.page}>
           {/* Header */}
           <View style={styles.caseHeader}>
             <Text style={styles.caseTitle}>Whodunit</Text>
@@ -239,7 +242,9 @@ export default function WhodunitScreen() {
                     isSelected && styles.suspectSelected,
                   ]}
                   onPress={() => handleSelectSuspect(i)}
-                  disabled={isEliminated || gameState !== 'playing'}
+                  onLongPress={() => handleToggleEliminate(i)}
+                  delayLongPress={250}
+                  disabled={gameState !== 'playing'}
                 >
                   <Text style={styles.suspectEmoji}>{suspect.emoji}</Text>
                   <Text
@@ -268,12 +273,18 @@ export default function WhodunitScreen() {
               );
             })}
           </View>
+          <Text style={styles.suspectHint}>
+            Tap to select • Long-press to eliminate
+          </Text>
 
           {/* Clues */}
           <View style={styles.cluesSection}>
-            <Text style={styles.cluesHeader}>
-              Clues Revealed ({cluesUsed} / {totalClues})
-            </Text>
+            <View style={styles.cluesHeaderRow}>
+              <Text style={styles.cluesHeader}>
+                Clues Revealed ({cluesUsed} / {totalClues})
+              </Text>
+              <Text style={styles.cluesPenalty}>+{TIME_PENALTY}s each</Text>
+            </View>
             {puzzle.clues.map((clue, i) => {
               const isRevealed = revealedClues.has(i);
               return (
@@ -401,6 +412,7 @@ export default function WhodunitScreen() {
               </Pressable>
             </View>
           )}
+          </View>
         </ScrollView>
       </SafeAreaView>
     </>
@@ -413,14 +425,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   scrollContent: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxl,
+    padding: Spacing.md,
+    paddingBottom: Spacing.xl,
+  },
+  page: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
   },
 
   // Case header
   caseHeader: {
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   caseTitle: {
     fontSize: FontSize.xxl,
@@ -460,8 +477,8 @@ const styles = StyleSheet.create({
   narrativeCard: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    marginBottom: Spacing.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
     shadowColor: '#000000',
@@ -481,15 +498,15 @@ const styles = StyleSheet.create({
   suspectsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.sm,
-    marginBottom: Spacing.lg,
+    gap: Spacing.xs,
+    marginBottom: Spacing.md,
   },
   suspectCard: {
     flexBasis: '47%',
     flexGrow: 1,
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
-    padding: Spacing.md,
+    padding: Spacing.sm,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: Colors.border,
@@ -505,8 +522,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceLight,
   },
   suspectEmoji: {
-    fontSize: 32,
-    marginBottom: Spacing.xs,
+    fontSize: 28,
+    marginBottom: 2,
   },
   suspectName: {
     fontSize: FontSize.md,
@@ -519,6 +536,12 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     textAlign: 'center',
     marginTop: 2,
+  },
+  suspectHint: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    textAlign: 'center',
+    marginBottom: Spacing.md,
   },
   suspectTextEliminated: {
     color: Colors.textMuted,
@@ -541,7 +564,13 @@ const styles = StyleSheet.create({
 
   // Clues
   cluesSection: {
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
+  },
+  cluesHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
   },
   cluesHeader: {
     fontSize: FontSize.sm,
@@ -549,10 +578,14 @@ const styles = StyleSheet.create({
     color: Colors.accent,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
-    marginBottom: Spacing.md,
+  },
+  cluesPenalty: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    fontWeight: '600',
   },
   clueRow: {
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   clueNumber: {
     width: 28,
@@ -585,7 +618,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
-    padding: Spacing.md,
+    padding: Spacing.sm,
     paddingLeft: 52,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -596,7 +629,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.surfaceLight,
     borderRadius: BorderRadius.md,
-    padding: Spacing.md,
+    padding: Spacing.sm,
     borderWidth: 1,
     borderColor: Colors.border,
     borderStyle: 'dashed',
@@ -614,9 +647,9 @@ const styles = StyleSheet.create({
   accuseButton: {
     backgroundColor: Colors.accent,
     borderRadius: BorderRadius.xl,
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.sm,
     alignItems: 'center',
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   accuseButtonPressed: {
     opacity: 0.85,
@@ -638,7 +671,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    padding: Spacing.xl,
+    padding: Spacing.lg,
     shadowColor: '#000000',
     shadowOpacity: 0.08,
     shadowRadius: 20,
@@ -664,8 +697,8 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: Colors.surfaceLight,
     borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    marginTop: Spacing.lg,
+    padding: Spacing.sm,
+    marginTop: Spacing.md,
     alignItems: 'center',
   },
   solutionLabel: {
@@ -685,7 +718,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: Spacing.lg,
+    marginTop: Spacing.md,
     gap: Spacing.lg,
   },
   statItem: {
@@ -712,8 +745,8 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginTop: Spacing.lg,
+    padding: Spacing.sm,
+    marginTop: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -725,10 +758,10 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   shareBox: {
-    marginTop: Spacing.sm,
+    marginTop: Spacing.xs,
     backgroundColor: Colors.surfaceLight,
     borderRadius: BorderRadius.md,
-    padding: Spacing.md,
+    padding: Spacing.sm,
   },
   shareText: {
     fontSize: FontSize.sm,
@@ -738,9 +771,9 @@ const styles = StyleSheet.create({
   shareButton: {
     backgroundColor: Colors.primary,
     borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.xs,
     alignItems: 'center',
-    marginTop: Spacing.sm,
+    marginTop: Spacing.xs,
   },
   shareButtonPressed: {
     backgroundColor: Colors.primaryLight,
