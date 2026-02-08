@@ -291,10 +291,8 @@ export default function WhodunitScreen() {
                       <Text style={styles.miniChipValue}>{puzzle.room.name}</Text>
                     </View>
                     <View style={styles.miniChip}>
-                      <Text style={styles.miniChipLabel}>Setting</Text>
-                      <Text style={styles.miniChipValue}>
-                        {puzzle.setting.description}
-                      </Text>
+                      <Text style={styles.miniChipLabel}>Time</Text>
+                      <Text style={styles.miniChipValue}>{puzzle.timeWindow}</Text>
                     </View>
                   </View>
                 </View>
@@ -307,6 +305,15 @@ export default function WhodunitScreen() {
           {/* Unified case board */}
           <View style={styles.caseBoard}>
             <Text style={styles.caseBoardTitle}>Case Board</Text>
+            <View style={styles.caseVisual}>
+              <View style={styles.caseVisualBadge}>
+                <Text style={styles.caseVisualEmoji}>{puzzle.setting.icon}</Text>
+              </View>
+              <View style={styles.caseVisualText}>
+                <Text style={styles.caseVisualKicker}>{puzzle.setting.description}</Text>
+                <Text style={styles.caseVisualTitle}>{puzzle.caseName}</Text>
+              </View>
+            </View>
             <Text style={styles.caseNarrative}>{puzzle.narrative}</Text>
             <View style={styles.caseBoardRow}>
               <View style={styles.caseChip}>
@@ -328,6 +335,16 @@ export default function WhodunitScreen() {
               <View style={styles.caseChip}>
                 <Text style={styles.caseChipLabel}>Room</Text>
                 <Text style={styles.caseChipValue}>{puzzle.room.name}</Text>
+              </View>
+            </View>
+            <View style={styles.caseBoardRow}>
+              <View style={styles.caseChip}>
+                <Text style={styles.caseChipLabel}>Time of death</Text>
+                <Text style={styles.caseChipValue}>{puzzle.timeOfDeath}</Text>
+              </View>
+              <View style={styles.caseChip}>
+                <Text style={styles.caseChipLabel}>Window</Text>
+                <Text style={styles.caseChipValue}>{puzzle.timeWindow}</Text>
               </View>
             </View>
             <View style={styles.caseUnlocked}>
@@ -677,6 +694,42 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
+  },
+  caseVisual: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  caseVisualBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: Colors.surfaceLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  caseVisualEmoji: {
+    fontSize: 28,
+  },
+  caseVisualText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  caseVisualKicker: {
+    fontSize: FontSize.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    color: Colors.textMuted,
+    fontWeight: '700',
+  },
+  caseVisualTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: '800',
+    color: Colors.text,
+    marginTop: 2,
   },
   caseNarrative: {
     fontSize: FontSize.md,

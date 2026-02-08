@@ -18,6 +18,9 @@ export interface Victim {
 export interface Setting {
   name: string;
   description: string;
+  icon: string;
+  timeBaseMinutes: number;
+  rooms: Room[];
 }
 
 export interface Weapon {
@@ -49,6 +52,8 @@ export interface WhodunitPuzzle {
   caseNumber: number;
   caseName: string;
   narrative: string;
+  timeOfDeath: string;
+  timeWindow: string;
   suspects: Suspect[];
   killerIndex: number;
   victim: Victim;
@@ -66,7 +71,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '🎭',
     trait: 'Renowned surgeon with a gambling debt',
     alibiClue:
-      "Dr. Voss was stitching a staff member's cut in the library at 8:30 PM, confirmed by the butler.",
+      "Dr. Voss was stitching a staff member's cut in the library at {timeMid}, confirmed by the butler.",
     motiveClue:
       'The victim had called in a large debt from a renowned surgeon days ago.',
     tellClue: 'A faint smell of antiseptic and surgical tape lingered on the weapon.',
@@ -78,7 +83,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '👩‍🎨',
     trait: 'Art curator with a forged past',
     alibiClue:
-      'Ms. Liang was cataloging the gallery exhibits at 8:15 PM, seen by the security guard.',
+      'Ms. Liang was cataloging the gallery exhibits at {timeEarly}, seen by the security guard.',
     motiveClue:
       'The victim threatened to expose a forged provenance tied to a curator.',
     tellClue: 'A smudge of oil paint and gold leaf was found near the scene.',
@@ -90,7 +95,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '🎖️',
     trait: 'Retired officer haunted by old secrets',
     alibiClue:
-      'Col. Marsh was on the terrace calling an old comrade at 8:45 PM.',
+      'Col. Marsh was on the terrace calling an old comrade at {timeLate}.',
     motiveClue:
       'A sealed file from the victim could have ruined a retired officer.',
     tellClue: 'Boot scuffs with military polish were found in the hallway.',
@@ -102,7 +107,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '💼',
     trait: 'Corporate lawyer with a grudge',
     alibiClue:
-      'R. Okafor was reviewing contracts in the study at 8:30 PM, witnessed by the secretary.',
+      'R. Okafor was reviewing contracts in the study at {timeMid}, witnessed by the secretary.',
     motiveClue:
       'A bitter lawsuit against the victim had just collapsed for a prominent lawyer.',
     tellClue: 'A torn legal brief was discovered in the wastebasket.',
@@ -114,7 +119,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '👑',
     trait: 'Socialite hiding a ruined fortune',
     alibiClue:
-      'Lady Ashford was hosting guests in the ballroom at 8:15 PM, photographed by a guest.',
+      'Lady Ashford was hosting guests in the ballroom at {timeEarly}, photographed by a guest.',
     motiveClue:
       "The victim threatened to reveal a socialite's ruined finances.",
     tellClue: 'A strand of pearl and a trace of jasmine perfume were found near the scene.',
@@ -126,7 +131,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '📚',
     trait: 'Academic rival with a bitter dispute',
     alibiClue:
-      'Prof. Navarro was debating in the conservatory at 8:45 PM, overheard by two guests.',
+      'Prof. Navarro was debating in the conservatory at {timeLate}, overheard by two guests.',
     motiveClue:
       "The victim was about to claim credit for a rival's research.",
     tellClue: 'Chalk dust and a torn lecture note were found near the victim.',
@@ -138,7 +143,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '🎩',
     trait: 'Antique dealer with suspicious imports',
     alibiClue:
-      'Mr. Huang was appraising a vase in the drawing room at 8:30 PM, observed by the concierge.',
+      'Mr. Huang was appraising a vase in the drawing room at {timeMid}, observed by the concierge.',
     motiveClue:
       'Customs were closing in on a dealer’s smuggling ring tied to the victim.',
     tellClue: 'Splinters of lacquered wood were found, like from an antique crate.',
@@ -150,7 +155,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '🌹',
     trait: 'Ex-diplomat with classified contacts',
     alibiClue:
-      'Mme. Duval was on a secure call in the wine cellar at 8:15 PM.',
+      'Mme. Duval was on a secure call in the wine cellar at {timeEarly}.',
     motiveClue:
       'The victim hinted at leaking a diplomat’s classified contacts.',
     tellClue: 'A drop of rare French perfume and a silk glove were left behind.',
@@ -162,7 +167,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '🔧',
     trait: 'Mechanic turned private investigator',
     alibiClue:
-      'Sgt. Petrov was inspecting the generator outside at 8:45 PM, seen by the groundskeeper.',
+      'Sgt. Petrov was inspecting the generator outside at {timeLate}, seen by the groundskeeper.',
     motiveClue:
       'The victim had ruined a mechanic’s last investigation.',
     tellClue: 'Grease and engine oil were smeared on the handle of the weapon.',
@@ -174,7 +179,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '🔬',
     trait: 'Chemist who knows too many poisons',
     alibiClue:
-      'Dr. Chandra was mixing a tonic in the kitchen at 8:30 PM, confirmed by the chef.',
+      'Dr. Chandra was mixing a tonic in the kitchen at {timeMid}, confirmed by the chef.',
     motiveClue:
       'The victim threatened to report a chemist for illegal experiments.',
     tellClue: 'A faint chemical scent and reagent stains were found at the scene.',
@@ -186,7 +191,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '📿',
     trait: 'Clergy member with a hidden life',
     alibiClue:
-      'Rev. Whitmore was counseling a guest in the parlor at 8:15 PM.',
+      'Rev. Whitmore was counseling a guest in the parlor at {timeEarly}.',
     motiveClue:
       'The victim had discovered a clergy member’s hidden life.',
     tellClue: 'A prayer card was left behind, marked in the margins.',
@@ -198,7 +203,7 @@ const SUSPECTS: Suspect[] = [
     emoji: '⚓',
     trait: 'Retired sailor with smuggling ties',
     alibiClue:
-      'Capt. Reyes was on the balcony watching the harbor at 8:45 PM.',
+      'Capt. Reyes was on the balcony watching the harbor at {timeLate}.',
     motiveClue:
       'The victim had seized a shipment tied to a retired sailor.',
     tellClue: 'Saltwater and rope fibers were found near the scene.',
@@ -218,13 +223,97 @@ const VICTIMS: Victim[] = [
 ];
 
 const SETTINGS: Setting[] = [
-  { name: 'a sprawling country estate during a winter gala', description: 'winter gala' },
-  { name: 'a fog-bound lighthouse on the Devon coast', description: 'lighthouse gathering' },
-  { name: 'a lavish penthouse overlooking the city', description: 'penthouse soirée' },
-  { name: 'an old university hall during a reunion dinner', description: 'reunion dinner' },
-  { name: 'a private yacht anchored in the harbor', description: 'harbor cruise' },
-  { name: 'a secluded mountain lodge after a snowstorm', description: 'mountain retreat' },
-  { name: 'a grand opera house during intermission', description: 'opera night' },
+  {
+    name: 'a sprawling country estate during a winter gala',
+    description: 'winter gala',
+    icon: '❄️',
+    timeBaseMinutes: 20 * 60 + 30,
+    rooms: [
+      { name: 'the ballroom' },
+      { name: 'the conservatory' },
+      { name: 'the library' },
+      { name: 'the drawing room' },
+      { name: 'the wine cellar' },
+    ],
+  },
+  {
+    name: 'a fog-bound lighthouse on the Devon coast',
+    description: 'lighthouse gathering',
+    icon: '🌫️',
+    timeBaseMinutes: 21 * 60,
+    rooms: [
+      { name: 'the lantern room' },
+      { name: 'the keeper’s quarters' },
+      { name: 'the supply hall' },
+      { name: 'the radio nook' },
+      { name: 'the stairwell landing' },
+    ],
+  },
+  {
+    name: 'a lavish penthouse overlooking the city',
+    description: 'penthouse soirée',
+    icon: '🏙️',
+    timeBaseMinutes: 21 * 60 + 15,
+    rooms: [
+      { name: 'the study' },
+      { name: 'the glass lounge' },
+      { name: 'the private bar' },
+      { name: 'the terrace' },
+      { name: 'the media room' },
+    ],
+  },
+  {
+    name: 'an old university hall during a reunion dinner',
+    description: 'reunion dinner',
+    icon: '🏛️',
+    timeBaseMinutes: 20 * 60 + 45,
+    rooms: [
+      { name: 'the lecture hall' },
+      { name: 'the faculty lounge' },
+      { name: 'the archive room' },
+      { name: 'the cloister corridor' },
+      { name: 'the dining hall' },
+    ],
+  },
+  {
+    name: 'a private yacht anchored in the harbor',
+    description: 'harbor cruise',
+    icon: '🛥️',
+    timeBaseMinutes: 21 * 60 + 30,
+    rooms: [
+      { name: 'the captain’s cabin' },
+      { name: 'the galley' },
+      { name: 'the lounge deck' },
+      { name: 'the navigation room' },
+      { name: 'the aft lounge' },
+    ],
+  },
+  {
+    name: 'a secluded mountain lodge after a snowstorm',
+    description: 'mountain retreat',
+    icon: '🏔️',
+    timeBaseMinutes: 20 * 60 + 15,
+    rooms: [
+      { name: 'the great room' },
+      { name: 'the trophy hall' },
+      { name: 'the mudroom' },
+      { name: 'the upstairs study' },
+      { name: 'the dining nook' },
+    ],
+  },
+  {
+    name: 'a grand opera house during intermission',
+    description: 'opera night',
+    icon: '🎭',
+    timeBaseMinutes: 20 * 60 + 5,
+    rooms: [
+      { name: 'the green room' },
+      { name: 'the private box' },
+      { name: 'the orchestra pit' },
+      { name: 'the backstage corridor' },
+      { name: 'the costume room' },
+    ],
+  },
 ];
 
 const WEAPONS: Weapon[] = [
@@ -238,16 +327,6 @@ const WEAPONS: Weapon[] = [
   { name: 'a length of piano wire' },
 ];
 
-const ROOMS: Room[] = [
-  { name: 'the conservatory' },
-  { name: 'the library' },
-  { name: 'the wine cellar' },
-  { name: 'the ballroom' },
-  { name: 'the drawing room' },
-  { name: 'the study' },
-  { name: 'the gallery' },
-  { name: 'the kitchen' },
-];
 
 const CASE_NAMES = [
   'The Gilded Alibi',
@@ -302,12 +381,25 @@ function seededPick<T>(arr: T[], rand: () => number): T {
   return arr[Math.floor(rand() * arr.length)];
 }
 
+function formatTime(minutes: number): string {
+  const total = ((minutes % 1440) + 1440) % 1440;
+  const hours = Math.floor(total / 60);
+  const mins = total % 60;
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hour12 = hours % 12 === 0 ? 12 : hours % 12;
+  return `${hour12}:${String(mins).padStart(2, '0')} ${period}`;
+}
+
 function fillTemplate(template: string, data: Record<string, string>): string {
   return template
     .replace('{victim}', data.victim)
     .replace('{weapon}', data.weapon)
     .replace('{room}', data.room)
-    .replace('{setting}', data.setting);
+    .replace('{setting}', data.setting)
+    .replace('{timeEarly}', data.timeEarly)
+    .replace('{timeMid}', data.timeMid)
+    .replace('{timeLate}', data.timeLate)
+    .replace('{timeWindow}', data.timeWindow);
 }
 
 // ── Puzzle generation ──────────────────────────────────────────
@@ -333,24 +425,32 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
   const victim = seededPick(VICTIMS, rand);
   const setting = seededPick(SETTINGS, rand);
   const weapon = seededPick(WEAPONS, rand);
-  const room = seededPick(ROOMS, rand);
+  const room = seededPick(setting.rooms, rand);
   const caseName = seededPick(CASE_NAMES, rand);
   const caseNumber = (seed % 900) + 1;
 
   // Generate narrative
   const suspectNames = suspects.map((s) => s.name).join(', ');
+  const timeMid = formatTime(setting.timeBaseMinutes);
+  const timeEarly = formatTime(setting.timeBaseMinutes - 15);
+  const timeLate = formatTime(setting.timeBaseMinutes + 15);
+  const timeWindow = `${timeEarly}–${timeLate}`;
   const context = {
     victim: victim.name,
     weapon: weapon.name,
     room: room.name,
     setting: setting.description,
+    timeEarly,
+    timeMid,
+    timeLate,
+    timeWindow,
   };
   const leadIn = fillTemplate(seededPick(NARRATIVE_BEATS, rand), context);
   const aftermath = fillTemplate(seededPick(NARRATIVE_AFTER, rand), context);
   const narrative = `At ${setting.name}, ${victim.name} (${victim.title}) was found dead. The ${weapon.name.replace(
     /^a /,
     ''
-  )} was discovered in ${room.name}. ${leadIn} ${aftermath} Five guests remain under suspicion: ${suspectNames}.`;
+  )} was discovered in ${room.name}. Estimated time of death: around ${timeMid}. ${leadIn} ${aftermath} Five guests remain under suspicion: ${suspectNames}.`;
 
   const killer = suspects[killerIndex];
   const innocents = suspects
@@ -452,6 +552,8 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
     caseNumber,
     caseName,
     narrative,
+    timeOfDeath: timeMid,
+    timeWindow,
     suspects,
     killerIndex,
     victim,
