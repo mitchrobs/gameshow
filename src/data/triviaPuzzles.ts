@@ -1,7 +1,10 @@
+export type TriviaDifficulty = 1 | 2 | 3;
+
 export interface TriviaQuestion {
   prompt: string;
   options: string[];
   answerIndex: number;
+  difficulty: TriviaDifficulty;
 }
 
 export interface TriviaCategory {
@@ -21,61 +24,73 @@ const CATEGORIES: TriviaCategory[] = [
         prompt: 'Which city is known as the "City of Canals"?',
         options: ['Amsterdam', 'Venice', 'Bangkok', 'Bruges'],
         answerIndex: 1,
+        difficulty: 1,
       },
       {
         prompt: 'Machu Picchu is located in which country?',
         options: ['Peru', 'Chile', 'Bolivia', 'Ecuador'],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'The Great Barrier Reef lies off the coast of which country?',
         options: ['South Africa', 'Australia', 'Mexico', 'Indonesia'],
         answerIndex: 1,
+        difficulty: 1,
       },
       {
         prompt: 'Which desert is the largest hot desert in the world?',
         options: ['Sahara', 'Gobi', 'Mojave', 'Kalahari'],
         answerIndex: 0,
+        difficulty: 1,
       },
       {
         prompt: 'What is the capital of New Zealand?',
         options: ['Auckland', 'Wellington', 'Christchurch', 'Queenstown'],
         answerIndex: 1,
+        difficulty: 2,
       },
       {
         prompt: 'Which river runs through Paris?',
         options: ['Thames', 'Seine', 'Rhine', 'Danube'],
         answerIndex: 1,
+        difficulty: 2,
       },
       {
         prompt: 'Which U.S. state has the most active volcanoes?',
         options: ['Alaska', 'Hawaii', 'California', 'Washington'],
         answerIndex: 0,
+        difficulty: 3,
       },
       {
         prompt: 'Petra, the ancient city carved into rock, is in which country?',
         options: ['Jordan', 'Turkey', 'Greece', 'Egypt'],
         answerIndex: 0,
+        difficulty: 3,
       },
       {
         prompt: 'The Andes mountain range runs along which continent?',
         options: ['Africa', 'Asia', 'South America', 'Europe'],
         answerIndex: 2,
+        difficulty: 2,
       },
       {
         prompt: 'Which country has the most islands in the world?',
         options: ['Norway', 'Indonesia', 'Sweden', 'Canada'],
         answerIndex: 2,
+        difficulty: 3,
       },
       {
         prompt: 'Mount Kilimanjaro is located in which country?',
         options: ['Kenya', 'Tanzania', 'Uganda', 'Ethiopia'],
         answerIndex: 1,
+        difficulty: 3,
       },
       {
         prompt: 'Which city is home to the Sydney Opera House?',
         options: ['Melbourne', 'Sydney', 'Perth', 'Adelaide'],
         answerIndex: 1,
+        difficulty: 1,
       },
     ],
   },
@@ -88,41 +103,49 @@ const CATEGORIES: TriviaCategory[] = [
         prompt: 'What planet is known as the Red Planet?',
         options: ['Mars', 'Jupiter', 'Mercury', 'Venus'],
         answerIndex: 0,
+        difficulty: 1,
       },
       {
         prompt: 'Which gas do plants absorb during photosynthesis?',
         options: ['Oxygen', 'Nitrogen', 'Carbon dioxide', 'Hydrogen'],
         answerIndex: 2,
+        difficulty: 1,
       },
       {
         prompt: 'What is the largest organ in the human body?',
         options: ['Heart', 'Skin', 'Liver', 'Lung'],
         answerIndex: 1,
+        difficulty: 2,
       },
       {
         prompt: 'How many bones are in the adult human body?',
         options: ['206', '208', '201', '212'],
         answerIndex: 0,
+        difficulty: 3,
       },
       {
         prompt: 'What is the chemical symbol for gold?',
         options: ['Ag', 'Au', 'Gd', 'Go'],
         answerIndex: 1,
+        difficulty: 1,
       },
       {
         prompt: 'Which animal has the fastest land speed?',
         options: ['Cheetah', 'Lion', 'Pronghorn', 'Greyhound'],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'Which layer of Earth lies just below the crust?',
         options: ['Core', 'Mantle', 'Outer core', 'Lithosphere'],
         answerIndex: 1,
+        difficulty: 2,
       },
       {
         prompt: 'Which planet has the most moons (as of 2024)?',
         options: ['Jupiter', 'Saturn', 'Uranus', 'Neptune'],
         answerIndex: 1,
+        difficulty: 3,
       },
       {
         prompt: 'DNA stands for what?',
@@ -133,21 +156,25 @@ const CATEGORIES: TriviaCategory[] = [
           'Deoxynitric acid',
         ],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'What is the smallest unit of life?',
         options: ['Atom', 'Cell', 'Molecule', 'Organ'],
         answerIndex: 1,
+        difficulty: 1,
       },
       {
         prompt: 'Which blood type is known as the universal donor?',
         options: ['O negative', 'AB positive', 'A positive', 'B negative'],
         answerIndex: 0,
+        difficulty: 3,
       },
       {
         prompt: "What is the main gas in Earth's atmosphere?",
         options: ['Oxygen', 'Nitrogen', 'Carbon dioxide', 'Argon'],
         answerIndex: 1,
+        difficulty: 2,
       },
     ],
   },
@@ -160,61 +187,73 @@ const CATEGORIES: TriviaCategory[] = [
         prompt: 'Which band released the album "Abbey Road"?',
         options: ['The Beatles', 'The Rolling Stones', 'Pink Floyd', 'Queen'],
         answerIndex: 0,
+        difficulty: 1,
       },
       {
         prompt: 'Who wrote "1984"?',
         options: ['George Orwell', 'Aldous Huxley', 'Ray Bradbury', 'Philip K. Dick'],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'Which movie features the quote, "May the Force be with you"?',
         options: ['Star Wars', 'Star Trek', 'Dune', 'Blade Runner'],
         answerIndex: 0,
+        difficulty: 1,
       },
       {
         prompt: "What is the name of Sherlock Holmes' assistant?",
         options: ['Watson', 'Hudson', 'Lestrade', 'Moriarty'],
         answerIndex: 0,
+        difficulty: 1,
       },
       {
         prompt: 'Which artist painted the Mona Lisa?',
         options: ['Michelangelo', 'Leonardo da Vinci', 'Raphael', 'Van Gogh'],
         answerIndex: 1,
+        difficulty: 1,
       },
       {
         prompt: 'In music, what does "forte" mean?',
         options: ['Fast', 'Soft', 'Loud', 'Slow'],
         answerIndex: 2,
+        difficulty: 2,
       },
       {
         prompt: 'Which film won Best Picture at the 2020 Oscars?',
         options: ['1917', 'Joker', 'Parasite', 'Ford v Ferrari'],
         answerIndex: 2,
+        difficulty: 3,
       },
       {
         prompt: 'Which novel opens with "Call me Ishmael"?',
         options: ['Moby-Dick', 'The Old Man and the Sea', 'Dracula', 'Frankenstein'],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'Which artist is known for the sculpture "The Thinker"?',
         options: ['Rodin', 'Bernini', 'Donatello', 'Degas'],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'Which character lives in a pineapple under the sea?',
         options: ['SpongeBob', 'Patrick', 'Squidward', 'Plankton'],
         answerIndex: 0,
+        difficulty: 1,
       },
       {
         prompt: 'What is the highest-grossing film of all time (as of 2024)?',
         options: ['Avatar', 'Avengers: Endgame', 'Titanic', 'The Force Awakens'],
         answerIndex: 0,
+        difficulty: 3,
       },
       {
         prompt: 'Who is the author of the Harry Potter series?',
         options: ['J.K. Rowling', 'Philip Pullman', 'Neil Gaiman', 'Suzanne Collins'],
         answerIndex: 0,
+        difficulty: 1,
       },
     ],
   },
@@ -227,61 +266,73 @@ const CATEGORIES: TriviaCategory[] = [
         prompt: 'Who was the first person to walk on the Moon?',
         options: ['Buzz Aldrin', 'Neil Armstrong', 'Yuri Gagarin', 'Michael Collins'],
         answerIndex: 1,
+        difficulty: 1,
       },
       {
         prompt: 'The printing press was invented by which person?',
         options: ['Johannes Gutenberg', 'Isaac Newton', 'Thomas Edison', 'Nikola Tesla'],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'Which ancient civilization built the Pyramids of Giza?',
         options: ['Romans', 'Greeks', 'Egyptians', 'Mayans'],
         answerIndex: 2,
+        difficulty: 1,
       },
       {
         prompt: 'Which war ended with the Treaty of Versailles?',
         options: ['World War I', 'World War II', 'Crimean War', 'Cold War'],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'Who painted the ceiling of the Sistine Chapel?',
         options: ['Michelangelo', 'Da Vinci', 'Raphael', 'Caravaggio'],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'The telephone was invented by which person?',
         options: ['Alexander Graham Bell', 'Thomas Edison', 'Guglielmo Marconi', 'Nikola Tesla'],
         answerIndex: 0,
+        difficulty: 2,
       },
       {
         prompt: 'In which year did the Berlin Wall fall?',
         options: ['1987', '1989', '1991', '1993'],
         answerIndex: 1,
+        difficulty: 2,
       },
       {
         prompt: 'Which empire was ruled by Genghis Khan?',
         options: ['Ottoman Empire', 'Mongol Empire', 'Roman Empire', 'Persian Empire'],
         answerIndex: 1,
+        difficulty: 2,
       },
       {
         prompt: 'Who discovered penicillin?',
         options: ['Louis Pasteur', 'Alexander Fleming', 'Marie Curie', 'Gregor Mendel'],
         answerIndex: 1,
+        difficulty: 2,
       },
       {
         prompt: 'The Magna Carta was signed in which year?',
         options: ['1066', '1215', '1492', '1776'],
         answerIndex: 1,
+        difficulty: 3,
       },
       {
         prompt: 'Which civilization built Machu Picchu?',
         options: ['Inca', 'Aztec', 'Olmec', 'Maya'],
         answerIndex: 0,
+        difficulty: 1,
       },
       {
         prompt: 'Who was the first female Prime Minister of the UK?',
         options: ['Theresa May', 'Margaret Thatcher', 'Indira Gandhi', 'Angela Merkel'],
         answerIndex: 1,
+        difficulty: 3,
       },
     ],
   },
@@ -332,6 +383,21 @@ export function getTriviaQuestions(categoryId: string, date: Date = new Date()):
   const rand = mulberry32(getDailySeed(date) + DAILY_SEED + categoryId.length * 97);
   const shuffled = seededShuffle(category.questions, rand);
   return shuffled.slice(0, 8);
+}
+
+export function getTriviaQuestionPools(
+  categoryId: string,
+  date: Date = new Date()
+): Record<TriviaDifficulty, TriviaQuestion[]> {
+  const category = CATEGORIES.find((c) => c.id === categoryId);
+  if (!category) return { 1: [], 2: [], 3: [] };
+  const rand = mulberry32(getDailySeed(date) + DAILY_SEED + categoryId.length * 97);
+  const shuffled = seededShuffle(category.questions, rand);
+  const pools: Record<TriviaDifficulty, TriviaQuestion[]> = { 1: [], 2: [], 3: [] };
+  for (const question of shuffled) {
+    pools[question.difficulty].push(question);
+  }
+  return pools;
 }
 
 export function getTriviaCategory(id: string): TriviaCategory | undefined {

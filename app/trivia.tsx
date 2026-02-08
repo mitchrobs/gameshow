@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,15 +12,34 @@ import { Stack, useRouter } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
 import {
   getDailyTriviaCategories,
-  getTriviaQuestions,
+  getTriviaQuestionPools,
   getTriviaCategory,
   TriviaQuestion,
+  TriviaDifficulty,
 } from '../src/data/triviaPuzzles';
 
 const QUESTION_COUNT = 8;
 const TIME_PER_QUESTION = 12;
 
 type GameMode = 'choose' | 'quiz' | 'finished';
+
+type QuestionPools = Record<TriviaDifficulty, TriviaQuestion[]>;
+
+function clampDifficulty(value: number): TriviaDifficulty {
+  if (value <= 1) return 1;
+  if (value >= 3) return 3;
+  return value as TriviaDifficulty;
+}
+
+function drawFromPools(pools: QuestionPools, target: TriviaDifficulty): TriviaQuestion | null {
+  const order: TriviaDifficulty[] =
+    target === 1 ? [1, 2, 3] : target === 2 ? [2, 3, 1] : [3, 2, 1];
+  for (const diff of order) {
+    const next = pools[diff].shift();
+    if (next) return next;
+  }
+  return null;
+}
 
 export default function TriviaScreen() {
   const router = useRouter();
@@ -37,36 +56,51 @@ export default function TriviaScreen() {
   const dailyCategories = useMemo(() => getDailyTriviaCategories(), []);
   const [mode, setMode] = useState<GameMode>('choose');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [questions, setQuestions] = useState<TriviaQuestion[]>([]);
+  const [questionOrder, setQuestionOrder] = useState<TriviaQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [answers, setAnswers] = useState<{ correct: boolean; timedOut: boolean }[]>([]);
   const [countdown, setCountdown] = useState(TIME_PER_QUESTION);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [difficulty, setDifficulty] = useState<TriviaDifficulty>(1);
+  const poolsRef = useRef<QuestionPools | null>(null);
 
   const category = useMemo(
     () => (selectedCategoryId ? getTriviaCategory(selectedCategoryId) : undefined),
     [selectedCategoryId]
   );
 
-  const currentQuestion = questions[currentIndex];
+  const currentQuestion = questionOrder[currentIndex];
   const correctCount = answers.filter((a) => a.correct).length;
+
+  const takeNextQuestion = useCallback(
+    (nextDifficulty: TriviaDifficulty) => {
+      if (!poolsRef.current) return;
+      const next = drawFromPools(poolsRef.current, nextDifficulty);
+      if (!next) return;
+      setQuestionOrder((prev) => [...prev, next]);
+    },
+    []
+  );
 
   const startTrivia = useCallback(
     (categoryId: string) => {
-      const picked = getTriviaQuestions(categoryId);
+      const pools = getTriviaQuestionPools(categoryId);
+      poolsRef.current = pools;
+      const first = drawFromPools(pools, 1);
       setSelectedCategoryId(categoryId);
-      setQuestions(picked);
+      setQuestionOrder(first ? [first] : []);
       setCurrentIndex(0);
       setAnswers([]);
       setSelectedOption(null);
       setCountdown(TIME_PER_QUESTION);
+      setDifficulty(1);
       setMode('quiz');
     },
     []
   );
 
-  const goNext = useCallback(() => {
+  const goNext = useCallback((nextDifficulty: TriviaDifficulty) => {
     setSelectedOption(null);
     setCountdown(TIME_PER_QUESTION);
     setCurrentIndex((prev) => {
@@ -75,9 +109,10 @@ export default function TriviaScreen() {
         setMode('finished');
         return prev;
       }
+      takeNextQuestion(nextDifficulty);
       return next;
     });
-  }, []);
+  }, [takeNextQuestion]);
 
   const handleAnswer = useCallback(
     (index: number) => {
@@ -86,19 +121,23 @@ export default function TriviaScreen() {
       if (!currentQuestion) return;
       setSelectedOption(index);
       const isCorrect = index === currentQuestion.answerIndex;
+      const nextDifficulty = clampDifficulty(difficulty + (isCorrect ? 1 : -1));
+      setDifficulty(nextDifficulty);
       setAnswers((prev) => [...prev, { correct: isCorrect, timedOut: false }]);
-      setTimeout(goNext, 650);
+      setTimeout(() => goNext(nextDifficulty), 650);
     },
-    [mode, selectedOption, currentQuestion, goNext]
+    [mode, selectedOption, currentQuestion, goNext, difficulty]
   );
 
   const handleTimeout = useCallback(() => {
     if (mode !== 'quiz') return;
     if (selectedOption !== null) return;
     setSelectedOption(-1);
+    const nextDifficulty = clampDifficulty(difficulty - 1);
+    setDifficulty(nextDifficulty);
     setAnswers((prev) => [...prev, { correct: false, timedOut: true }]);
-    setTimeout(goNext, 500);
-  }, [mode, selectedOption, goNext]);
+    setTimeout(() => goNext(nextDifficulty), 500);
+  }, [mode, selectedOption, goNext, difficulty]);
 
   useEffect(() => {
     if (mode !== 'quiz') return;
