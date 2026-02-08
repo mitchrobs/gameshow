@@ -52,6 +52,7 @@ export default function WhodunitScreen() {
   // Game state
   const [gameState, setGameState] = useState<GameState>('playing');
   const [selectedSuspect, setSelectedSuspect] = useState<number | null>(null);
+  const [leadChoiceId, setLeadChoiceId] = useState<string | null>(null);
   const [revealedClues, setRevealedClues] = useState<Set<number>>(() => {
     // Free clues (first 3, which are unlocked) start revealed
     const free = new Set<number>();
@@ -71,6 +72,11 @@ export default function WhodunitScreen() {
 
   const cluesUsed = revealedClues.size;
   const totalClues = puzzle.clues.length;
+  const leadChoiceLabel = useMemo(() => {
+    if (!leadChoiceId) return null;
+    const choice = puzzle.leadChoices.find((c) => c.clueId === leadChoiceId);
+    return choice?.label ?? null;
+  }, [leadChoiceId, puzzle.leadChoices]);
 
   // Timer
   useEffect(() => {
@@ -117,6 +123,22 @@ export default function WhodunitScreen() {
       // No auto-elimination — player decides who to eliminate
     },
     [gameState, revealedClues, puzzle.clues]
+  );
+
+  const handleSelectLead = useCallback(
+    (choiceId: string) => {
+      if (gameState !== 'playing') return;
+      if (leadChoiceId) return;
+      const clueIndex = puzzle.clues.findIndex((c) => c.id === choiceId);
+      if (clueIndex === -1) return;
+      if (!revealedClues.has(clueIndex)) {
+        const next = new Set(revealedClues);
+        next.add(clueIndex);
+        setRevealedClues(next);
+      }
+      setLeadChoiceId(choiceId);
+    },
+    [gameState, leadChoiceId, puzzle.clues, revealedClues]
   );
 
   const handleSelectSuspect = useCallback(
@@ -254,6 +276,37 @@ export default function WhodunitScreen() {
                 <Text style={styles.caseChipValue}>{puzzle.room.name}</Text>
               </View>
             </View>
+          </View>
+
+          {/* Lead choice */}
+          <View style={styles.leadCard}>
+            <Text style={styles.leadTitle}>{puzzle.leadPrompt}</Text>
+            <Text style={styles.leadSubtitle}>
+              Pick one lead to reveal a clue immediately.
+            </Text>
+            {puzzle.leadChoices.map((choice) => {
+              const chosen = leadChoiceId === choice.clueId;
+              const disabled = leadChoiceId !== null && !chosen;
+              return (
+                <Pressable
+                  key={choice.clueId}
+                  style={({ pressed }) => [
+                    styles.leadChoice,
+                    chosen && styles.leadChoiceSelected,
+                    disabled && styles.leadChoiceDisabled,
+                    pressed && !disabled && styles.leadChoicePressed,
+                  ]}
+                  onPress={() => handleSelectLead(choice.clueId)}
+                  disabled={disabled}
+                >
+                  <Text style={styles.leadChoiceLabel}>{choice.label}</Text>
+                  <Text style={styles.leadChoiceDesc}>{choice.description}</Text>
+                </Pressable>
+              );
+            })}
+            {leadChoiceLabel && (
+              <Text style={styles.leadPicked}>Lead chosen: {leadChoiceLabel}</Text>
+            )}
           </View>
 
           {/* Suspects grid */}
@@ -567,6 +620,60 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontWeight: '600',
   },
+  leadCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  leadTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.accent,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  leadSubtitle: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  leadChoice: {
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: Spacing.sm,
+  },
+  leadChoicePressed: {
+    backgroundColor: Colors.border,
+  },
+  leadChoiceSelected: {
+    borderColor: Colors.accent,
+    backgroundColor: 'rgba(255, 77, 109, 0.08)',
+  },
+  leadChoiceDisabled: {
+    opacity: 0.5,
+  },
+  leadChoiceLabel: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  leadChoiceDesc: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  leadPicked: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: Spacing.xs,
+  },
 
   // Suspects
   suspectsGrid: {
@@ -699,6 +806,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     flexShrink: 1,
     flex: 1,
+    minWidth: 0,
   },
   lockedClue: {
     flexDirection: 'row',
@@ -721,6 +829,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flex: 1,
     flexShrink: 1,
+    minWidth: 0,
   },
 
   // Accuse button

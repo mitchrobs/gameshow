@@ -31,11 +31,18 @@ export interface Room {
 export type ClueType = 'alibi' | 'evidence' | 'motive' | 'opportunity' | 'red_herring';
 
 export interface Clue {
+  id: string;
   type: ClueType;
   text: string;
   /** Index of suspect cleared by this alibi clue, or -1 */
   clearsIndex: number;
   locked: boolean;
+}
+
+export interface LeadChoice {
+  label: string;
+  description: string;
+  clueId: string;
 }
 
 export interface WhodunitPuzzle {
@@ -48,6 +55,8 @@ export interface WhodunitPuzzle {
   setting: Setting;
   weapon: Weapon;
   room: Room;
+  leadPrompt: string;
+  leadChoices: LeadChoice[];
   clues: Clue[];
 }
 
@@ -299,12 +308,12 @@ function getDailySeed(date: Date = new Date()): number {
 function generatePuzzle(seed: number): WhodunitPuzzle {
   const rand = mulberry32(seed);
 
-  // Pick 4 suspects
+  // Pick 5 suspects (harder)
   const shuffledSuspects = seededShuffle(SUSPECTS, rand);
-  const suspects = shuffledSuspects.slice(0, 4);
+  const suspects = shuffledSuspects.slice(0, 5);
 
-  // Pick killer (index 0-3)
-  const killerIndex = Math.floor(rand() * 4);
+  // Pick killer (index 0-4)
+  const killerIndex = Math.floor(rand() * 5);
 
   // Pick content
   const victim = seededPick(VICTIMS, rand);
@@ -319,14 +328,14 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
   const narrative = `At ${setting.name}, ${victim.name} (${victim.title}) was found dead. The ${weapon.name.replace(
     /^a /,
     ''
-  )} was discovered in ${room.name}. Four guests remain under suspicion: ${suspectNames}.`;
+  )} was discovered in ${room.name}. Five guests remain under suspicion: ${suspectNames}.`;
 
   const killer = suspects[killerIndex];
   const innocents = suspects
     .map((s, i) => ({ suspect: s, index: i }))
     .filter((_, i) => i !== killerIndex);
 
-  const [alibiOne, alibiTwo] = seededShuffle(innocents, rand).slice(0, 2);
+  const [alibiOne, alibiTwo, alibiThree] = seededShuffle(innocents, rand).slice(0, 3);
 
   const context = {
     victim: victim.name,
@@ -336,62 +345,93 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
   };
 
   const evidenceClue: Clue = {
+    id: 'evidence',
     type: 'evidence',
-    text: `Evidence: ${fillTemplate(killer.tellClue, context)} The ${weapon.name} was found in ${room.name}.`,
+    text: `${fillTemplate(killer.tellClue, context)} The ${weapon.name} was found in ${room.name}.`,
     clearsIndex: -1,
     locked: false,
   };
 
   const motiveClue: Clue = {
+    id: 'motive',
     type: 'motive',
-    text: `Motive: ${fillTemplate(killer.motiveClue, context)}`,
+    text: fillTemplate(killer.motiveClue, context),
     clearsIndex: -1,
     locked: false,
   };
 
   const opportunityClue: Clue = {
+    id: 'opportunity',
     type: 'opportunity',
-    text: `Opportunity: ${fillTemplate(killer.opportunityClue, context)}`,
+    text: fillTemplate(killer.opportunityClue, context),
     clearsIndex: -1,
     locked: false,
   };
 
   const alibiClueOne: Clue = {
+    id: 'alibi-1',
     type: 'alibi',
-    text: `Alibi: ${fillTemplate(alibiOne.suspect.alibiClue, context)}`,
+    text: fillTemplate(alibiOne.suspect.alibiClue, context),
     clearsIndex: alibiOne.index,
     locked: false,
   };
 
   const alibiClueTwo: Clue = {
+    id: 'alibi-2',
     type: 'alibi',
-    text: `Alibi: ${fillTemplate(alibiTwo.suspect.alibiClue, context)}`,
+    text: fillTemplate(alibiTwo.suspect.alibiClue, context),
     clearsIndex: alibiTwo.index,
     locked: false,
   };
 
+  const alibiClueThree: Clue = {
+    id: 'alibi-3',
+    type: 'alibi',
+    text: fillTemplate(alibiThree.suspect.alibiClue, context),
+    clearsIndex: alibiThree.index,
+    locked: false,
+  };
+
   const redHerringClue: Clue = {
+    id: 'red-herring',
     type: 'red_herring',
-    text: `Red herring: ${fillTemplate(alibiOne.suspect.tellClue, context)} The timing, however, is unclear.`,
+    text: `${fillTemplate(alibiTwo.suspect.tellClue, context)} The timing, however, is unclear.`,
     clearsIndex: -1,
     locked: false,
   };
 
-  const freeClues = seededShuffle([evidenceClue, motiveClue, alibiClueOne], rand).map((clue) => ({
-    ...clue,
-    locked: false,
-  }));
+  const freeClues = seededShuffle(
+    [evidenceClue, motiveClue, alibiClueOne],
+    rand
+  ).map((clue) => ({ ...clue, locked: false }));
 
-  const lockedClues = seededShuffle([
-    opportunityClue,
-    alibiClueTwo,
-    redHerringClue,
-  ], rand).map((clue) => ({
-    ...clue,
-    locked: true,
-  }));
+  const lockedClues = seededShuffle(
+    [opportunityClue, alibiClueTwo, alibiClueThree, redHerringClue],
+    rand
+  ).map((clue) => ({ ...clue, locked: true }));
 
   const clues: Clue[] = [...freeClues, ...lockedClues];
+
+  const clueIndexById = (id: string) => clues.findIndex((c) => c.id === id);
+
+  const leadPrompt = 'Choose your first lead:';
+  const leadChoices: LeadChoice[] = [
+    {
+      label: `Interview ${alibiTwo.suspect.name}`,
+      description: 'Confirm their alibi or catch a slip.',
+      clueId: 'alibi-2',
+    },
+    {
+      label: `Inspect ${room.name}`,
+      description: 'Search the room for fresh details.',
+      clueId: 'opportunity',
+    },
+    {
+      label: `Follow the odd detail`,
+      description: 'Pursue a risky hunch.',
+      clueId: 'red-herring',
+    },
+  ].filter((choice) => clueIndexById(choice.clueId) >= 0);
 
   return {
     caseNumber,
@@ -403,6 +443,8 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
     setting,
     weapon,
     room,
+    leadPrompt,
+    leadChoices,
     clues,
   };
 }

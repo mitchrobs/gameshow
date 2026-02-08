@@ -5,11 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
 import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
+import { getDailyWordle } from '../src/data/wordlePuzzles';
 
 export default function HomeScreen() {
   const router = useRouter();
   const puzzle = getDailyPuzzle();
   const whodunit = getDailyWhodunit();
+  const wordle = getDailyWordle();
   const [streak, setStreak] = useState(0);
   const dateLabel = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -87,6 +89,41 @@ export default function HomeScreen() {
                   pressed && styles.playButtonPressed,
                 ]}
                 onPress={() => router.push('/moji-mash')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Wordle card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabel}>
+              <Text style={styles.kicker}>Word Guess</Text>
+              <Text style={styles.gameTitle}>Wordle</Text>
+            </View>
+            <Text style={styles.blurb}>
+              Solve the five-letter word in six guesses.
+            </Text>
+            <View style={styles.dailyCard}>
+              <View style={styles.wordlePreview}>
+                {Array.from({ length: 2 }).map((_, row) => (
+                  <View key={row} style={styles.wordleRow}>
+                    {Array.from({ length: 5 }).map((_, col) => (
+                      <View key={col} style={styles.wordleTile}>
+                        {row === 0 && col === 0 ? (
+                          <Text style={styles.wordleTileText}>{wordle[0]}</Text>
+                        ) : null}
+                      </View>
+                    ))}
+                  </View>
+                ))}
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/wordle')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
@@ -230,6 +267,33 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     resizeMode: 'contain',
+  },
+  wordlePreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    gap: Spacing.sm,
+  },
+  wordleRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  wordleTile: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wordleTileText: {
+    fontSize: FontSize.lg,
+    fontWeight: '800',
+    color: Colors.text,
   },
   whodunitPreview: {
     alignItems: 'center',
