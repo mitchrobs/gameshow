@@ -142,7 +142,7 @@ export default function MojiMashScreen() {
                         <Text style={styles.slotText}>{word}</Text>
                       ) : (
                         <Text style={styles.slotPlaceholder}>
-                          Hidden
+                          Word {i + 1}
                         </Text>
                       )}
                     </View>
