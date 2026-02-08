@@ -246,14 +246,10 @@ export default function WhodunitScreen() {
             </View>
           )}
 
-          {/* Crime scene narrative */}
-          <View style={styles.narrativeCard}>
-            <Text style={styles.narrativeText}>"{puzzle.narrative}"</Text>
-          </View>
-
-          {/* Case board */}
+          {/* Unified case board */}
           <View style={styles.caseBoard}>
             <Text style={styles.caseBoardTitle}>Case Board</Text>
+            <Text style={styles.caseNarrative}>{puzzle.narrative}</Text>
             <View style={styles.caseBoardRow}>
               <View style={styles.caseChip}>
                 <Text style={styles.caseChipLabel}>Victim</Text>
@@ -276,37 +272,6 @@ export default function WhodunitScreen() {
                 <Text style={styles.caseChipValue}>{puzzle.room.name}</Text>
               </View>
             </View>
-          </View>
-
-          {/* Lead choice */}
-          <View style={styles.leadCard}>
-            <Text style={styles.leadTitle}>{puzzle.leadPrompt}</Text>
-            <Text style={styles.leadSubtitle}>
-              Pick one lead to reveal a clue immediately.
-            </Text>
-            {puzzle.leadChoices.map((choice) => {
-              const chosen = leadChoiceId === choice.clueId;
-              const disabled = leadChoiceId !== null && !chosen;
-              return (
-                <Pressable
-                  key={choice.clueId}
-                  style={({ pressed }) => [
-                    styles.leadChoice,
-                    chosen && styles.leadChoiceSelected,
-                    disabled && styles.leadChoiceDisabled,
-                    pressed && !disabled && styles.leadChoicePressed,
-                  ]}
-                  onPress={() => handleSelectLead(choice.clueId)}
-                  disabled={disabled}
-                >
-                  <Text style={styles.leadChoiceLabel}>{choice.label}</Text>
-                  <Text style={styles.leadChoiceDesc}>{choice.description}</Text>
-                </Pressable>
-              );
-            })}
-            {leadChoiceLabel && (
-              <Text style={styles.leadPicked}>Lead chosen: {leadChoiceLabel}</Text>
-            )}
           </View>
 
           {/* Suspects grid */}
@@ -357,6 +322,37 @@ export default function WhodunitScreen() {
           <Text style={styles.suspectHint}>
             Tap to select • Long-press to eliminate
           </Text>
+
+          {/* Lead choice */}
+          <View style={styles.leadCard}>
+            <Text style={styles.leadTitle}>{puzzle.leadPrompt}</Text>
+            <Text style={styles.leadSubtitle}>
+              Pick one lead to reveal a clue immediately.
+            </Text>
+            {puzzle.leadChoices.map((choice) => {
+              const chosen = leadChoiceId === choice.clueId;
+              const disabled = leadChoiceId !== null && !chosen;
+              return (
+                <Pressable
+                  key={choice.clueId}
+                  style={({ pressed }) => [
+                    styles.leadChoice,
+                    chosen && styles.leadChoiceSelected,
+                    disabled && styles.leadChoiceDisabled,
+                    pressed && !disabled && styles.leadChoicePressed,
+                  ]}
+                  onPress={() => handleSelectLead(choice.clueId)}
+                  disabled={disabled}
+                >
+                  <Text style={styles.leadChoiceLabel}>{choice.label}</Text>
+                  <Text style={styles.leadChoiceDesc}>{choice.description}</Text>
+                </Pressable>
+              );
+            })}
+            {leadChoiceLabel && (
+              <Text style={styles.leadPicked}>Lead chosen: {leadChoiceLabel}</Text>
+            )}
+          </View>
 
           {/* Clues */}
           <View style={styles.cluesSection}>
@@ -562,25 +558,6 @@ const styles = StyleSheet.create({
   },
 
   // Narrative
-  narrativeCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    shadowColor: '#000000',
-    shadowOpacity: 0.06,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 3,
-  },
-  narrativeText: {
-    fontSize: FontSize.md,
-    color: Colors.text,
-    fontStyle: 'italic',
-    lineHeight: 24,
-  },
   caseBoard: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
@@ -588,6 +565,13 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
+  },
+  caseNarrative: {
+    fontSize: FontSize.md,
+    color: Colors.text,
+    fontStyle: 'italic',
+    lineHeight: 22,
+    marginBottom: Spacing.sm,
   },
   caseBoardTitle: {
     fontSize: FontSize.sm,
