@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, Pressable, Image, Platform } from 'react-native';
+import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -44,7 +45,10 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Stack.Screen options={{ title: 'Daybreak Games' }} />
       <View style={styles.header}>
+        <Text style={styles.brand}>Daybreak Games</Text>
+        <Text style={styles.tagline}>For the curious</Text>
         <Text style={styles.kicker}>Puzzle of the Day</Text>
         <Text style={styles.title}>Moji Mash</Text>
         <Text style={styles.subtitle}>{dateLabel}</Text>
@@ -87,6 +91,17 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: Spacing.xxl,
     paddingBottom: Spacing.lg,
+  },
+  brand: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  tagline: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: 2,
+    marginBottom: Spacing.sm,
   },
   kicker: {
     color: Colors.accent,
