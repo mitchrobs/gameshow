@@ -217,6 +217,7 @@ export default function MojiMashScreen() {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.page}>
+            <View style={styles.pageAccent} />
             {/* Emoji display */}
             <View style={styles.emojiContainer}>
               <Image source={puzzle.image} style={styles.genmojiImage} />
@@ -418,6 +419,13 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 520,
     alignSelf: 'center',
+  },
+  pageAccent: {
+    height: 6,
+    width: 80,
+    backgroundColor: '#6d4aff',
+    borderRadius: 999,
+    marginBottom: Spacing.md,
   },
   emojiContainer: {
     alignItems: 'center',

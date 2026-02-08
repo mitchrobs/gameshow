@@ -316,7 +316,7 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
 
   // Generate narrative
   const suspectNames = suspects.map((s) => s.name).join(', ');
-  const narrative = `${victim.name} has been found dead at ${setting.name}. The ${weapon.name.replace(
+  const narrative = `At ${setting.name}, ${victim.name} (${victim.title}) was found dead. The ${weapon.name.replace(
     /^a /,
     ''
   )} was discovered in ${room.name}. Four guests remain under suspicion: ${suspectNames}.`;
@@ -337,42 +337,42 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
 
   const evidenceClue: Clue = {
     type: 'evidence',
-    text: `${fillTemplate(killer.tellClue, context)} The ${weapon.name} was found in ${room.name}.`,
+    text: `Evidence: ${fillTemplate(killer.tellClue, context)} The ${weapon.name} was found in ${room.name}.`,
     clearsIndex: -1,
     locked: false,
   };
 
   const motiveClue: Clue = {
     type: 'motive',
-    text: fillTemplate(killer.motiveClue, context),
+    text: `Motive: ${fillTemplate(killer.motiveClue, context)}`,
     clearsIndex: -1,
     locked: false,
   };
 
   const opportunityClue: Clue = {
     type: 'opportunity',
-    text: fillTemplate(killer.opportunityClue, context),
+    text: `Opportunity: ${fillTemplate(killer.opportunityClue, context)}`,
     clearsIndex: -1,
     locked: false,
   };
 
   const alibiClueOne: Clue = {
     type: 'alibi',
-    text: fillTemplate(alibiOne.suspect.alibiClue, context),
+    text: `Alibi: ${fillTemplate(alibiOne.suspect.alibiClue, context)}`,
     clearsIndex: alibiOne.index,
     locked: false,
   };
 
   const alibiClueTwo: Clue = {
     type: 'alibi',
-    text: fillTemplate(alibiTwo.suspect.alibiClue, context),
+    text: `Alibi: ${fillTemplate(alibiTwo.suspect.alibiClue, context)}`,
     clearsIndex: alibiTwo.index,
     locked: false,
   };
 
   const redHerringClue: Clue = {
     type: 'red_herring',
-    text: `${fillTemplate(alibiOne.suspect.tellClue, context)} The timing, however, is unclear.`,
+    text: `Red herring: ${fillTemplate(alibiOne.suspect.tellClue, context)} The timing, however, is unclear.`,
     clearsIndex: -1,
     locked: false,
   };

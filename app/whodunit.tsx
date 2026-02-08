@@ -203,6 +203,7 @@ export default function WhodunitScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.page}>
+          <View style={styles.pageAccent} />
           {/* Header */}
           <View style={styles.caseHeader}>
             <Text style={styles.caseTitle}>Whodunit</Text>
@@ -226,6 +227,33 @@ export default function WhodunitScreen() {
           {/* Crime scene narrative */}
           <View style={styles.narrativeCard}>
             <Text style={styles.narrativeText}>"{puzzle.narrative}"</Text>
+          </View>
+
+          {/* Case board */}
+          <View style={styles.caseBoard}>
+            <Text style={styles.caseBoardTitle}>Case Board</Text>
+            <View style={styles.caseBoardRow}>
+              <View style={styles.caseChip}>
+                <Text style={styles.caseChipLabel}>Victim</Text>
+                <Text style={styles.caseChipValue}>
+                  {puzzle.victim.name} ({puzzle.victim.title})
+                </Text>
+              </View>
+              <View style={styles.caseChip}>
+                <Text style={styles.caseChipLabel}>Setting</Text>
+                <Text style={styles.caseChipValue}>{puzzle.setting.description}</Text>
+              </View>
+            </View>
+            <View style={styles.caseBoardRow}>
+              <View style={styles.caseChip}>
+                <Text style={styles.caseChipLabel}>Weapon</Text>
+                <Text style={styles.caseChipValue}>{puzzle.weapon.name}</Text>
+              </View>
+              <View style={styles.caseChip}>
+                <Text style={styles.caseChipLabel}>Room</Text>
+                <Text style={styles.caseChipValue}>{puzzle.room.name}</Text>
+              </View>
+            </View>
           </View>
 
           {/* Suspects grid */}
@@ -433,6 +461,13 @@ const styles = StyleSheet.create({
     maxWidth: 520,
     alignSelf: 'center',
   },
+  pageAccent: {
+    height: 6,
+    width: 80,
+    backgroundColor: '#7f1d1d',
+    borderRadius: 999,
+    marginBottom: Spacing.md,
+  },
 
   // Case header
   caseHeader: {
@@ -492,6 +527,45 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontStyle: 'italic',
     lineHeight: 24,
+  },
+  caseBoard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  caseBoardTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.accent,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: Spacing.sm,
+  },
+  caseBoardRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  caseChip: {
+    flex: 1,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm,
+  },
+  caseChipLabel: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginBottom: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  caseChipValue: {
+    fontSize: FontSize.sm,
+    color: Colors.text,
+    fontWeight: '600',
   },
 
   // Suspects
@@ -586,6 +660,9 @@ const styles = StyleSheet.create({
   },
   clueRow: {
     marginBottom: Spacing.xs,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
   },
   clueNumber: {
     width: 28,
@@ -594,9 +671,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    left: Spacing.md,
-    top: Spacing.md,
+    marginTop: 2,
   },
   clueNumberLocked: {
     width: 28,
@@ -619,11 +694,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
     padding: Spacing.sm,
-    paddingLeft: 52,
     borderWidth: 1,
     borderColor: Colors.border,
     overflow: 'hidden',
     flexShrink: 1,
+    flex: 1,
   },
   lockedClue: {
     flexDirection: 'row',
@@ -634,6 +709,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     borderStyle: 'dashed',
+    flex: 1,
+    gap: Spacing.sm,
   },
   lockedCluePressed: {
     backgroundColor: Colors.border,
