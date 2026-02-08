@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
+import { BUILD_ID } from '../src/constants/build';
 import {
   getDailyTriviaCategories,
   getTriviaQuestionPools,
@@ -295,6 +296,7 @@ export default function TriviaScreen() {
                 >
                   <Text style={styles.homeButtonText}>Back to games</Text>
                 </Pressable>
+                <Text style={styles.buildText}>Build: {BUILD_ID}</Text>
               </View>
             )}
           </View>
@@ -528,5 +530,10 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     fontSize: FontSize.md,
     fontWeight: '600',
+  },
+  buildText: {
+    marginTop: Spacing.md,
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
   },
 });
