@@ -422,7 +422,7 @@ export default function WhodunitScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: Colors.background,
   },
   scrollContent: {
     padding: Spacing.md,
@@ -623,6 +623,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     overflow: 'hidden',
+    flexShrink: 1,
   },
   lockedClue: {
     flexDirection: 'row',
@@ -641,6 +642,8 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     fontWeight: '600',
+    flex: 1,
+    flexShrink: 1,
   },
 
   // Accuse button

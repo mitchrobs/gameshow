@@ -4,6 +4,10 @@ export interface Suspect {
   name: string;
   emoji: string;
   trait: string;
+  alibiClue: string;
+  motiveClue: string;
+  tellClue: string;
+  opportunityClue: string;
 }
 
 export interface Victim {
@@ -24,7 +28,7 @@ export interface Room {
   name: string;
 }
 
-export type ClueType = 'alibi' | 'evidence' | 'motive' | 'red_herring';
+export type ClueType = 'alibi' | 'evidence' | 'motive' | 'opportunity' | 'red_herring';
 
 export interface Clue {
   type: ClueType;
@@ -48,18 +52,150 @@ export interface WhodunitPuzzle {
 }
 
 const SUSPECTS: Suspect[] = [
-  { name: 'Dr. Voss', emoji: '🎭', trait: 'Renowned surgeon with a gambling debt' },
-  { name: 'Ms. Liang', emoji: '👩‍🎨', trait: 'Art curator with a forged past' },
-  { name: 'Col. Marsh', emoji: '🎖️', trait: 'Retired officer haunted by old secrets' },
-  { name: 'R. Okafor', emoji: '💼', trait: 'Corporate lawyer with a grudge' },
-  { name: 'Lady Ashford', emoji: '👑', trait: 'Socialite hiding a ruined fortune' },
-  { name: 'Prof. Navarro', emoji: '📚', trait: 'Academic rival with a bitter dispute' },
-  { name: 'Mr. Huang', emoji: '🎩', trait: 'Antique dealer with suspicious imports' },
-  { name: 'Mme. Duval', emoji: '🌹', trait: 'Ex-diplomat with classified contacts' },
-  { name: 'Sgt. Petrov', emoji: '🔧', trait: 'Mechanic turned private investigator' },
-  { name: 'Dr. Chandra', emoji: '🔬', trait: 'Chemist who knows too many poisons' },
-  { name: 'Rev. Whitmore', emoji: '📿', trait: 'Clergy member with a hidden life' },
-  { name: 'Capt. Reyes', emoji: '⚓', trait: 'Retired sailor with smuggling ties' },
+  {
+    name: 'Dr. Voss',
+    emoji: '🎭',
+    trait: 'Renowned surgeon with a gambling debt',
+    alibiClue:
+      "Dr. Voss was stitching a staff member's cut in the library at 8:30 PM, confirmed by the butler.",
+    motiveClue:
+      'The victim had called in a large debt from a renowned surgeon days ago.',
+    tellClue: 'A faint smell of antiseptic and surgical tape lingered on the weapon.',
+    opportunityClue:
+      'The killer moved with clinical precision, as if trained in the operating room.',
+  },
+  {
+    name: 'Ms. Liang',
+    emoji: '👩‍🎨',
+    trait: 'Art curator with a forged past',
+    alibiClue:
+      'Ms. Liang was cataloging the gallery exhibits at 8:15 PM, seen by the security guard.',
+    motiveClue:
+      'The victim threatened to expose a forged provenance tied to a curator.',
+    tellClue: 'A smudge of oil paint and gold leaf was found near the scene.',
+    opportunityClue:
+      "Only someone who knows the gallery's alarm bypass could slip in unnoticed.",
+  },
+  {
+    name: 'Col. Marsh',
+    emoji: '🎖️',
+    trait: 'Retired officer haunted by old secrets',
+    alibiClue:
+      'Col. Marsh was on the terrace calling an old comrade at 8:45 PM.',
+    motiveClue:
+      'A sealed file from the victim could have ruined a retired officer.',
+    tellClue: 'Boot scuffs with military polish were found in the hallway.',
+    opportunityClue:
+      'The killer knew how to move quietly and methodically, like a trained officer.',
+  },
+  {
+    name: 'R. Okafor',
+    emoji: '💼',
+    trait: 'Corporate lawyer with a grudge',
+    alibiClue:
+      'R. Okafor was reviewing contracts in the study at 8:30 PM, witnessed by the secretary.',
+    motiveClue:
+      'A bitter lawsuit against the victim had just collapsed for a prominent lawyer.',
+    tellClue: 'A torn legal brief was discovered in the wastebasket.',
+    opportunityClue:
+      'The killer exploited the estate’s paperwork chaos to move unseen.',
+  },
+  {
+    name: 'Lady Ashford',
+    emoji: '👑',
+    trait: 'Socialite hiding a ruined fortune',
+    alibiClue:
+      'Lady Ashford was hosting guests in the ballroom at 8:15 PM, photographed by a guest.',
+    motiveClue:
+      "The victim threatened to reveal a socialite's ruined finances.",
+    tellClue: 'A strand of pearl and a trace of jasmine perfume were found near the scene.',
+    opportunityClue:
+      'The killer used the crowd’s attention to slip away unnoticed.',
+  },
+  {
+    name: 'Prof. Navarro',
+    emoji: '📚',
+    trait: 'Academic rival with a bitter dispute',
+    alibiClue:
+      'Prof. Navarro was debating in the conservatory at 8:45 PM, overheard by two guests.',
+    motiveClue:
+      "The victim was about to claim credit for a rival's research.",
+    tellClue: 'Chalk dust and a torn lecture note were found near the victim.',
+    opportunityClue:
+      'The killer knew how to access restricted archives and staff passages.',
+  },
+  {
+    name: 'Mr. Huang',
+    emoji: '🎩',
+    trait: 'Antique dealer with suspicious imports',
+    alibiClue:
+      'Mr. Huang was appraising a vase in the drawing room at 8:30 PM, observed by the concierge.',
+    motiveClue:
+      'Customs were closing in on a dealer’s smuggling ring tied to the victim.',
+    tellClue: 'Splinters of lacquered wood were found, like from an antique crate.',
+    opportunityClue:
+      'The killer knew the estate’s storage crates and back corridors.',
+  },
+  {
+    name: 'Mme. Duval',
+    emoji: '🌹',
+    trait: 'Ex-diplomat with classified contacts',
+    alibiClue:
+      'Mme. Duval was on a secure call in the wine cellar at 8:15 PM.',
+    motiveClue:
+      'The victim hinted at leaking a diplomat’s classified contacts.',
+    tellClue: 'A drop of rare French perfume and a silk glove were left behind.',
+    opportunityClue:
+      'The killer knew how to avoid surveillance and create a clean exit.',
+  },
+  {
+    name: 'Sgt. Petrov',
+    emoji: '🔧',
+    trait: 'Mechanic turned private investigator',
+    alibiClue:
+      'Sgt. Petrov was inspecting the generator outside at 8:45 PM, seen by the groundskeeper.',
+    motiveClue:
+      'The victim had ruined a mechanic’s last investigation.',
+    tellClue: 'Grease and engine oil were smeared on the handle of the weapon.',
+    opportunityClue:
+      'The killer understood the estate’s systems and could cut the lights.',
+  },
+  {
+    name: 'Dr. Chandra',
+    emoji: '🔬',
+    trait: 'Chemist who knows too many poisons',
+    alibiClue:
+      'Dr. Chandra was mixing a tonic in the kitchen at 8:30 PM, confirmed by the chef.',
+    motiveClue:
+      'The victim threatened to report a chemist for illegal experiments.',
+    tellClue: 'A faint chemical scent and reagent stains were found at the scene.',
+    opportunityClue:
+      'The killer knew how to prepare a quick-acting toxin.',
+  },
+  {
+    name: 'Rev. Whitmore',
+    emoji: '📿',
+    trait: 'Clergy member with a hidden life',
+    alibiClue:
+      'Rev. Whitmore was counseling a guest in the parlor at 8:15 PM.',
+    motiveClue:
+      'The victim had discovered a clergy member’s hidden life.',
+    tellClue: 'A prayer card was left behind, marked in the margins.',
+    opportunityClue:
+      'The killer used trust and confession to get close.',
+  },
+  {
+    name: 'Capt. Reyes',
+    emoji: '⚓',
+    trait: 'Retired sailor with smuggling ties',
+    alibiClue:
+      'Capt. Reyes was on the balcony watching the harbor at 8:45 PM.',
+    motiveClue:
+      'The victim had seized a shipment tied to a retired sailor.',
+    tellClue: 'Saltwater and rope fibers were found near the scene.',
+    opportunityClue:
+      'The killer knew knots and could improvise a swift restraint.',
+  },
 ];
 
 const VICTIMS: Victim[] = [
@@ -143,48 +279,13 @@ function seededPick<T>(arr: T[], rand: () => number): T {
   return arr[Math.floor(rand() * arr.length)];
 }
 
-// ── Alibi templates ────────────────────────────────────────────
-
-const ALIBI_TEMPLATES = [
-  (name: string, room: string, time: string) =>
-    `${name} was seen in ${room} at ${time} by multiple witnesses.`,
-  (name: string, _room: string, time: string) =>
-    `Phone records confirm ${name} was on a call at ${time}.`,
-  (name: string, room: string, time: string) =>
-    `Security footage shows ${name} entering ${room} at ${time}, far from the scene.`,
-  (name: string, _room: string, time: string) =>
-    `The staff confirmed ${name} requested room service at ${time}.`,
-  (name: string, room: string, time: string) =>
-    `${name} was in ${room} at ${time}, confirmed by two guests.`,
-  (name: string, _room: string, time: string) =>
-    `A signed receipt places ${name} at the bar at ${time}.`,
-];
-
-const MOTIVE_TEMPLATES = [
-  (name: string, victimName: string) =>
-    `Financial records show ${name} stood to inherit if ${victimName} died.`,
-  (name: string, victimName: string) =>
-    `A bitter letter from ${name} to ${victimName} was found in the desk.`,
-  (name: string, victimName: string) =>
-    `${name} had recently been cut from ${victimName}'s will.`,
-  (name: string, _victimName: string) =>
-    `Insurance documents reveal a large policy recently taken out by ${name}.`,
-  (name: string, victimName: string) =>
-    `Witnesses say ${name} and ${victimName} had a heated argument earlier that evening.`,
-];
-
-const RED_HERRING_TEMPLATES = [
-  (name: string) =>
-    `${name} was seen nervously pacing the hallway, but the timing is unclear.`,
-  (name: string) =>
-    `A monogrammed handkerchief belonging to ${name} was found nearby, though it may have been dropped earlier.`,
-  (name: string) =>
-    `${name} left the party briefly, but no one can confirm where they went.`,
-  (name: string) =>
-    `${name} was overheard whispering about "taking care of something tonight."`,
-  (name: string) =>
-    `Mud on ${name}'s shoes suggests a trip outside, but the path is inconclusive.`,
-];
+function fillTemplate(template: string, data: Record<string, string>): string {
+  return template
+    .replace('{victim}', data.victim)
+    .replace('{weapon}', data.weapon)
+    .replace('{room}', data.room)
+    .replace('{setting}', data.setting);
+}
 
 // ── Puzzle generation ──────────────────────────────────────────
 
@@ -215,79 +316,82 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
 
   // Generate narrative
   const suspectNames = suspects.map((s) => s.name).join(', ');
-  const narrative = `${victim.name} has been found dead at ${setting.name}. The ${weapon.name.replace(/^a /, '')} was discovered in ${room.name}. Four guests remain under suspicion: ${suspectNames}.`;
+  const narrative = `${victim.name} has been found dead at ${setting.name}. The ${weapon.name.replace(
+    /^a /,
+    ''
+  )} was discovered in ${room.name}. Four guests remain under suspicion: ${suspectNames}.`;
 
-  // Generate clues
+  const killer = suspects[killerIndex];
   const innocents = suspects
     .map((s, i) => ({ suspect: s, index: i }))
     .filter((_, i) => i !== killerIndex);
 
-  const alibiRooms = seededShuffle(ROOMS.filter((r) => r.name !== room.name), rand);
-  const times = ['8:15 PM', '8:30 PM', '8:45 PM'];
-  const alibiTemplates = seededShuffle(ALIBI_TEMPLATES, rand);
+  const [alibiOne, alibiTwo] = seededShuffle(innocents, rand).slice(0, 2);
 
-  const alibiClues: Clue[] = innocents.map((innocent, i) => ({
-    type: 'alibi' as ClueType,
-    text: alibiTemplates[i](
-      innocent.suspect.name,
-      alibiRooms[i]?.name ?? 'the lounge',
-      times[i]
-    ),
-    clearsIndex: innocent.index,
-    locked: false,
-  }));
+  const context = {
+    victim: victim.name,
+    weapon: weapon.name,
+    room: room.name,
+    setting: setting.description,
+  };
 
   const evidenceClue: Clue = {
     type: 'evidence',
-    text: `The weapon was ${weapon.name}, found in ${room.name}.`,
+    text: `${fillTemplate(killer.tellClue, context)} The ${weapon.name} was found in ${room.name}.`,
     clearsIndex: -1,
     locked: false,
   };
 
-  const motiveTemplate = seededPick(MOTIVE_TEMPLATES, rand);
   const motiveClue: Clue = {
     type: 'motive',
-    text: motiveTemplate(suspects[killerIndex].name, victim.name),
+    text: fillTemplate(killer.motiveClue, context),
     clearsIndex: -1,
     locked: false,
   };
 
-  const redHerringTarget = innocents[Math.floor(rand() * innocents.length)];
-  const redHerringTemplate = seededPick(RED_HERRING_TEMPLATES, rand);
+  const opportunityClue: Clue = {
+    type: 'opportunity',
+    text: fillTemplate(killer.opportunityClue, context),
+    clearsIndex: -1,
+    locked: false,
+  };
+
+  const alibiClueOne: Clue = {
+    type: 'alibi',
+    text: fillTemplate(alibiOne.suspect.alibiClue, context),
+    clearsIndex: alibiOne.index,
+    locked: false,
+  };
+
+  const alibiClueTwo: Clue = {
+    type: 'alibi',
+    text: fillTemplate(alibiTwo.suspect.alibiClue, context),
+    clearsIndex: alibiTwo.index,
+    locked: false,
+  };
+
   const redHerringClue: Clue = {
     type: 'red_herring',
-    text: redHerringTemplate(redHerringTarget.suspect.name),
+    text: `${fillTemplate(alibiOne.suspect.tellClue, context)} The timing, however, is unclear.`,
     clearsIndex: -1,
     locked: false,
   };
 
-  // Shuffle all 6 clues
-  const allClues = seededShuffle(
-    [...alibiClues, evidenceClue, motiveClue, redHerringClue],
-    rand
-  );
+  const freeClues = seededShuffle([evidenceClue, motiveClue, alibiClueOne], rand).map((clue) => ({
+    ...clue,
+    locked: false,
+  }));
 
-  // First 3 free, rest locked. Ensure not all 3 free are alibis.
-  // Count alibis in first 3
-  let freeClues = allClues.slice(0, 3);
-  let lockedClues = allClues.slice(3);
-  const freeAlibiCount = freeClues.filter((c) => c.type === 'alibi').length;
+  const lockedClues = seededShuffle([
+    opportunityClue,
+    alibiClueTwo,
+    redHerringClue,
+  ], rand).map((clue) => ({
+    ...clue,
+    locked: true,
+  }));
 
-  if (freeAlibiCount === 3) {
-    // Swap one alibi from free with a non-alibi from locked
-    const freeAlibiIdx = freeClues.findIndex((c) => c.type === 'alibi');
-    const lockedNonAlibiIdx = lockedClues.findIndex((c) => c.type !== 'alibi');
-    if (freeAlibiIdx !== -1 && lockedNonAlibiIdx !== -1) {
-      const temp = freeClues[freeAlibiIdx];
-      freeClues[freeAlibiIdx] = lockedClues[lockedNonAlibiIdx];
-      lockedClues[lockedNonAlibiIdx] = temp;
-    }
-  }
-
-  const clues: Clue[] = [
-    ...freeClues.map((c) => ({ ...c, locked: false })),
-    ...lockedClues.map((c) => ({ ...c, locked: true })),
-  ];
+  const clues: Clue[] = [...freeClues, ...lockedClues];
 
   return {
     caseNumber,

@@ -136,7 +136,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: Colors.background,
   },
   scrollContent: {
     paddingHorizontal: Spacing.lg,
