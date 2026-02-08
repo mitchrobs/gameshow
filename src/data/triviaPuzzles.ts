@@ -340,6 +340,7 @@ const CATEGORIES: TriviaCategory[] = [
 
 const DAY_MS = 1000 * 60 * 60 * 24;
 const DAILY_SEED = 773401;
+const BANK_VERSION = 2;
 
 function mulberry32(seed: number) {
   let t = seed + 0x6d2b79f5;
@@ -372,7 +373,7 @@ function getDailySeed(date: Date): number {
 }
 
 export function getDailyTriviaCategories(date: Date = new Date()): TriviaCategory[] {
-  const rand = mulberry32(getDailySeed(date) + DAILY_SEED);
+  const rand = mulberry32(getDailySeed(date) + DAILY_SEED + BANK_VERSION * 101);
   const shuffled = seededShuffle(CATEGORIES, rand);
   return shuffled.slice(0, 2);
 }
@@ -380,7 +381,9 @@ export function getDailyTriviaCategories(date: Date = new Date()): TriviaCategor
 export function getTriviaQuestions(categoryId: string, date: Date = new Date()): TriviaQuestion[] {
   const category = CATEGORIES.find((c) => c.id === categoryId);
   if (!category) return [];
-  const rand = mulberry32(getDailySeed(date) + DAILY_SEED + categoryId.length * 97);
+  const rand = mulberry32(
+    getDailySeed(date) + DAILY_SEED + BANK_VERSION * 103 + categoryId.length * 97
+  );
   const shuffled = seededShuffle(category.questions, rand);
   return shuffled.slice(0, 8);
 }
@@ -391,7 +394,9 @@ export function getTriviaQuestionPools(
 ): Record<TriviaDifficulty, TriviaQuestion[]> {
   const category = CATEGORIES.find((c) => c.id === categoryId);
   if (!category) return { 1: [], 2: [], 3: [] };
-  const rand = mulberry32(getDailySeed(date) + DAILY_SEED + categoryId.length * 97);
+  const rand = mulberry32(
+    getDailySeed(date) + DAILY_SEED + BANK_VERSION * 103 + categoryId.length * 97
+  );
   const shuffled = seededShuffle(category.questions, rand);
   const pools: Record<TriviaDifficulty, TriviaQuestion[]> = { 1: [], 2: [], 3: [] };
   for (const question of shuffled) {

@@ -1,1 +1,1 @@
-export const BUILD_ID = 'd6d0d85';
+export const BUILD_ID = 'bank-v2';
