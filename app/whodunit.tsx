@@ -223,28 +223,38 @@ export default function WhodunitScreen() {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          stickyHeaderIndices={[0]}
         >
-          <View style={styles.page}>
-          <View style={styles.pageAccent} />
-          {/* Header */}
-          <View style={styles.caseHeader}>
-            <Text style={styles.caseTitle}>Whodunit</Text>
-            <Text style={styles.caseNumber}>
-              Case #{String(puzzle.caseNumber).padStart(3, '0')} — {puzzle.caseName}
-            </Text>
-          </View>
-
-          {/* Timer */}
-          {gameState === 'playing' && (
-            <View style={styles.timerRow}>
-              <Text style={styles.timerText}>⏱ {formatTime(totalTime)}</Text>
-              {timePenalty > 0 && (
+          <View style={styles.stickyHeader}>
+            <View style={styles.stickyHeaderInner}>
+              <View style={styles.pageAccent} />
+              <View style={styles.caseHeaderRow}>
+                <View>
+                  <Text style={styles.caseTitle}>Whodunit</Text>
+                  <Text style={styles.caseNumber}>
+                    Case #{String(puzzle.caseNumber).padStart(3, '0')} — {puzzle.caseName}
+                  </Text>
+                </View>
+                {gameState === 'playing' && (
+                  <View style={styles.headerMeta}>
+                    <Text style={styles.timerText}>⏱ {formatTime(totalTime)}</Text>
+                    <View style={styles.cluePill}>
+                      <Text style={styles.cluePillText}>
+                        Clues {cluesUsed}/{totalClues}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+              {gameState === 'playing' && timePenalty > 0 && (
                 <Text style={styles.penaltyText}>
                   (+{timePenalty}s penalty)
                 </Text>
               )}
             </View>
-          )}
+          </View>
+
+          <View style={styles.page}>
 
           {/* Unified case board */}
           <View style={styles.caseBoard}>
@@ -329,26 +339,38 @@ export default function WhodunitScreen() {
             <Text style={styles.leadSubtitle}>
               Pick one lead to reveal a clue immediately.
             </Text>
-            {puzzle.leadChoices.map((choice) => {
-              const chosen = leadChoiceId === choice.clueId;
-              const disabled = leadChoiceId !== null && !chosen;
-              return (
-                <Pressable
-                  key={choice.clueId}
-                  style={({ pressed }) => [
-                    styles.leadChoice,
-                    chosen && styles.leadChoiceSelected,
-                    disabled && styles.leadChoiceDisabled,
-                    pressed && !disabled && styles.leadChoicePressed,
-                  ]}
-                  onPress={() => handleSelectLead(choice.clueId)}
-                  disabled={disabled}
-                >
-                  <Text style={styles.leadChoiceLabel}>{choice.label}</Text>
-                  <Text style={styles.leadChoiceDesc}>{choice.description}</Text>
-                </Pressable>
-              );
-            })}
+            <View style={styles.leadChoiceRow}>
+              {puzzle.leadChoices.map((choice) => {
+                const chosen = leadChoiceId === choice.clueId;
+                const disabled = leadChoiceId !== null && !chosen;
+                return (
+                  <Pressable
+                    key={choice.clueId}
+                    style={({ pressed }) => [
+                      styles.leadChoice,
+                      chosen && styles.leadChoiceSelected,
+                      disabled && styles.leadChoiceDisabled,
+                      pressed && !disabled && styles.leadChoicePressed,
+                    ]}
+                    onPress={() => handleSelectLead(choice.clueId)}
+                    disabled={disabled}
+                  >
+                    <View style={styles.leadRadio}>
+                      <View
+                        style={[
+                          styles.leadRadioDot,
+                          chosen && styles.leadRadioDotActive,
+                        ]}
+                      />
+                    </View>
+                    <View style={styles.leadChoiceContent}>
+                      <Text style={styles.leadChoiceLabel}>{choice.label}</Text>
+                      <Text style={styles.leadChoiceDesc}>{choice.description}</Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
             {leadChoiceLabel && (
               <Text style={styles.leadPicked}>Lead chosen: {leadChoiceLabel}</Text>
             )}
@@ -505,6 +527,19 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     paddingBottom: Spacing.xl,
   },
+  stickyHeader: {
+    backgroundColor: Colors.background,
+    paddingTop: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  stickyHeaderInner: {
+    maxWidth: 520,
+    alignSelf: 'center',
+    width: '100%',
+    paddingBottom: Spacing.sm,
+  },
   page: {
     width: '100%',
     maxWidth: 520,
@@ -519,9 +554,11 @@ const styles = StyleSheet.create({
   },
 
   // Case header
-  caseHeader: {
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
+  caseHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
   },
   caseTitle: {
     fontSize: FontSize.xxl,
@@ -537,14 +574,9 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
     fontWeight: '600',
   },
-
-  // Timer
-  timerRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    marginBottom: Spacing.md,
+  headerMeta: {
+    alignItems: 'flex-end',
+    gap: Spacing.xs,
   },
   timerText: {
     fontSize: FontSize.md,
@@ -554,6 +586,20 @@ const styles = StyleSheet.create({
   penaltyText: {
     fontSize: FontSize.sm,
     color: Colors.accent,
+    fontWeight: '600',
+    marginTop: Spacing.xs,
+  },
+  cluePill: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  cluePillText: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
 
@@ -625,13 +671,18 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
     marginBottom: Spacing.sm,
   },
+  leadChoiceRow: {
+    gap: Spacing.sm,
+  },
   leadChoice: {
     backgroundColor: Colors.surfaceLight,
     borderRadius: BorderRadius.md,
-    padding: Spacing.sm,
+    padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    marginBottom: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
   leadChoicePressed: {
     backgroundColor: Colors.border,
@@ -639,9 +690,35 @@ const styles = StyleSheet.create({
   leadChoiceSelected: {
     borderColor: Colors.accent,
     backgroundColor: 'rgba(255, 77, 109, 0.08)',
+    shadowColor: Colors.accent,
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
   leadChoiceDisabled: {
     opacity: 0.5,
+  },
+  leadRadio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  leadRadioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'transparent',
+  },
+  leadRadioDotActive: {
+    backgroundColor: Colors.accent,
+  },
+  leadChoiceContent: {
+    flex: 1,
   },
   leadChoiceLabel: {
     fontSize: FontSize.md,
@@ -663,12 +740,14 @@ const styles = StyleSheet.create({
   suspectsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.xs,
+    gap: Spacing.sm,
+    justifyContent: 'space-between',
     marginBottom: Spacing.md,
   },
   suspectCard: {
-    flexBasis: '47%',
-    flexGrow: 1,
+    width: '48%',
+    flexBasis: '48%',
+    flexGrow: 0,
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
     padding: Spacing.sm,
@@ -681,6 +760,11 @@ const styles = StyleSheet.create({
   suspectSelected: {
     borderColor: Colors.accent,
     backgroundColor: 'rgba(255, 77, 109, 0.06)',
+    shadowColor: Colors.accent,
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
   },
   suspectEliminated: {
     opacity: 0.45,
@@ -750,10 +834,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   clueRow: {
-    marginBottom: Spacing.xs,
+    marginBottom: 6,
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: Spacing.sm,
+    width: '100%',
   },
   clueNumber: {
     width: 28,
