@@ -83,7 +83,7 @@ export default function MojiMashScreen() {
       mistakeRow,
       'https://mitchrobs.github.io/gameshow/',
     ].join('\n');
-  }, [dateLabel, mode, gameState, foundCount, totalWords, wrongCount, guesses.length]);
+  }, [dateLabel, mode, foundCount, totalWords, wrongCount]);
 
   useEffect(() => {
     setShareStatus(null);
