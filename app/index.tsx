@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image, Platform } from 'react-native';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
@@ -7,12 +8,39 @@ import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 export default function HomeScreen() {
   const router = useRouter();
   const puzzle = getDailyPuzzle();
+  const [streak, setStreak] = useState(0);
   const dateLabel = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
   });
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') {
+      setStreak(0);
+      return;
+    }
+
+    const storage = window.localStorage;
+    const keyForDate = (date: Date) => {
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${date.getFullYear()}-${month}-${day}`;
+    };
+
+    const hasDaily = (date: Date) =>
+      storage.getItem(`mojimash:daily:${keyForDate(date)}`) === '1';
+
+    let count = 0;
+    const cursor = new Date();
+    while (hasDaily(cursor)) {
+      count += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    setStreak(count);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,6 +51,13 @@ export default function HomeScreen() {
         <Text style={styles.blurb}>
           Genmojis are AI-styled emoji blends — guess the words behind today’s image.
         </Text>
+        {streak > 0 && (
+          <View style={styles.streakPill}>
+            <Text style={styles.streakText}>
+              {streak}-day streak
+            </Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.dailyCard}>
@@ -76,6 +111,21 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     marginTop: Spacing.sm,
     maxWidth: 320,
+  },
+  streakPill: {
+    marginTop: Spacing.sm,
+    alignSelf: 'flex-start',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  streakText: {
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
   },
   dailyCard: {
     backgroundColor: Colors.surface,
