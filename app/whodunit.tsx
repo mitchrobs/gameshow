@@ -68,6 +68,7 @@ export default function WhodunitScreen() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
+  const [miniBoardOpen, setMiniBoardOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const cluesUsed = revealedClues.size;
@@ -250,6 +251,46 @@ export default function WhodunitScreen() {
                 <Text style={styles.penaltyText}>
                   (+{timePenalty}s penalty)
                 </Text>
+              )}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.miniBoardToggle,
+                  pressed && styles.miniBoardTogglePressed,
+                ]}
+                onPress={() => setMiniBoardOpen((prev) => !prev)}
+              >
+                <Text style={styles.miniBoardToggleText}>Case Board</Text>
+                <Text style={styles.miniBoardToggleChevron}>
+                  {miniBoardOpen ? '▲' : '▼'}
+                </Text>
+              </Pressable>
+              {miniBoardOpen && (
+                <View style={styles.miniBoard}>
+                  <View style={styles.miniBoardRow}>
+                    <View style={styles.miniChip}>
+                      <Text style={styles.miniChipLabel}>Victim</Text>
+                      <Text style={styles.miniChipValue}>
+                        {puzzle.victim.name}
+                      </Text>
+                    </View>
+                    <View style={styles.miniChip}>
+                      <Text style={styles.miniChipLabel}>Weapon</Text>
+                      <Text style={styles.miniChipValue}>{puzzle.weapon.name}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.miniBoardRow}>
+                    <View style={styles.miniChip}>
+                      <Text style={styles.miniChipLabel}>Room</Text>
+                      <Text style={styles.miniChipValue}>{puzzle.room.name}</Text>
+                    </View>
+                    <View style={styles.miniChip}>
+                      <Text style={styles.miniChipLabel}>Setting</Text>
+                      <Text style={styles.miniChipValue}>
+                        {puzzle.setting.description}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
               )}
             </View>
           </View>
@@ -533,6 +574,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+    zIndex: 10,
+    elevation: 4,
   },
   stickyHeaderInner: {
     maxWidth: 520,
@@ -559,6 +602,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: Spacing.md,
+    flexWrap: 'wrap',
+    rowGap: Spacing.xs,
   },
   caseTitle: {
     fontSize: FontSize.xxl,
@@ -575,7 +620,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   headerMeta: {
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     gap: Spacing.xs,
   },
   timerText: {
@@ -596,6 +641,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderWidth: 1,
     borderColor: Colors.border,
+    alignSelf: 'flex-start',
   },
   cluePillText: {
     fontSize: FontSize.sm,
@@ -734,6 +780,63 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     marginTop: Spacing.xs,
+  },
+  miniBoardToggle: {
+    marginTop: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  miniBoardTogglePressed: {
+    backgroundColor: Colors.surfaceLight,
+  },
+  miniBoardToggleText: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  miniBoardToggleChevron: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+  },
+  miniBoard: {
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: Spacing.sm,
+  },
+  miniBoardRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  miniChip: {
+    flex: 1,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm,
+  },
+  miniChipLabel: {
+    fontSize: 11,
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  miniChipValue: {
+    fontSize: FontSize.sm,
+    color: Colors.text,
+    fontWeight: '600',
+    marginTop: 2,
   },
 
   // Suspects
