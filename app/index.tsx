@@ -3,6 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
+import { BUILD_ID } from '../src/constants/build';
 import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 import { getDailyWordle } from '../src/data/wordlePuzzles';
@@ -197,6 +198,10 @@ export default function HomeScreen() {
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
             </View>
+          </View>
+
+          <View style={styles.buildFooter}>
+            <Text style={styles.buildText}>Build: {BUILD_ID}</Text>
           </View>
         </View>
       </ScrollView>
@@ -415,5 +420,13 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: FontSize.md,
     fontWeight: '600',
+  },
+  buildFooter: {
+    alignItems: 'center',
+    marginTop: Spacing.lg,
+  },
+  buildText: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
   },
 });
