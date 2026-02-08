@@ -25,6 +25,11 @@ const puzzles: MojiMashPuzzle[] = [
     hint: 'Starts with: a, s',
   },
   {
+    image: require('../../assets/genmoji/bike-share.png'),
+    words: ['bike', 'share'],
+    hint: 'Starts with: b, s',
+  },
+  {
     image: require('../../assets/genmoji/chandelier-glass.png'),
     words: ['chandelier', 'glass'],
     hint: 'Starts with: c, g',
@@ -33,6 +38,16 @@ const puzzles: MojiMashPuzzle[] = [
     image: require('../../assets/genmoji/christmas-ham.png'),
     words: ['christmas', 'ham'],
     hint: 'Starts with: c, h',
+  },
+  {
+    image: require('../../assets/genmoji/city-llama-family.png'),
+    words: ['city', 'llama', 'family'],
+    hint: 'Starts with: c, l, f',
+  },
+  {
+    image: require('../../assets/genmoji/date-night.png'),
+    words: ['date', 'night'],
+    hint: 'Starts with: d, n',
   },
   {
     image: require('../../assets/genmoji/disco-cactus.png'),
@@ -45,9 +60,39 @@ const puzzles: MojiMashPuzzle[] = [
     hint: 'Starts with: e, m',
   },
   {
+    image: require('../../assets/genmoji/fire-helmet-dog.png'),
+    words: ['fire', 'helmet', 'dog'],
+    hint: 'Starts with: f, h, d',
+  },
+  {
+    image: require('../../assets/genmoji/green-machine.png'),
+    words: ['green', 'machine'],
+    hint: 'Starts with: g, m',
+  },
+  {
+    image: require('../../assets/genmoji/grumpy-rainbow.png'),
+    words: ['grumpy', 'rainbow'],
+    hint: 'Starts with: g, r',
+  },
+  {
+    image: require('../../assets/genmoji/hedgehog-ninja.png'),
+    words: ['hedgehog', 'ninja'],
+    hint: 'Starts with: h, n',
+  },
+  {
+    image: require('../../assets/genmoji/magic-horse.png'),
+    words: ['magic', 'horse'],
+    hint: 'Starts with: m, h',
+  },
+  {
     image: require('../../assets/genmoji/music-video.png'),
     words: ['music', 'video'],
     hint: 'Starts with: m, v',
+  },
+  {
+    image: require('../../assets/genmoji/oil-money.png'),
+    words: ['oil', 'money'],
+    hint: 'Starts with: o, m',
   },
   {
     image: require('../../assets/genmoji/party-pooper.png'),
@@ -63,6 +108,11 @@ const puzzles: MojiMashPuzzle[] = [
     image: require('../../assets/genmoji/plane-crash.png'),
     words: ['plane', 'crash'],
     hint: 'Starts with: p, c',
+  },
+  {
+    image: require('../../assets/genmoji/pyramid-scheme.png'),
+    words: ['pyramid', 'scheme'],
+    hint: 'Starts with: p, s',
   },
   {
     image: require('../../assets/genmoji/red-bull.png'),
@@ -83,6 +133,11 @@ const puzzles: MojiMashPuzzle[] = [
     image: require('../../assets/genmoji/spicy-curry.png'),
     words: ['spicy', 'curry'],
     hint: 'Starts with: s, c',
+  },
+  {
+    image: require('../../assets/genmoji/very-obese-red-robin.png'),
+    words: ['very', 'obese', 'red', 'robin'],
+    hint: 'Starts with: v, o, r, r',
   },
 ];
 
