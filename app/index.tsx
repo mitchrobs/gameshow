@@ -1,20 +1,18 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
-
-const games = [
-  {
-    id: 'moji-mash',
-    title: 'Moji Mash',
-    emoji: '🎨',
-    description: 'Guess the words behind the genmoji',
-    route: '/moji-mash' as const,
-  },
-];
+import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const puzzle = getDailyPuzzle();
+  const dateLabel = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,24 +21,27 @@ export default function HomeScreen() {
         <Text style={styles.subtitle}>Daily puzzle games</Text>
       </View>
 
-      <View style={styles.gamesGrid}>
-        {games.map((game) => (
-          <Pressable
-            key={game.id}
-            style={({ pressed }) => [
-              styles.gameCard,
-              pressed && styles.gameCardPressed,
-            ]}
-            onPress={() => router.push(game.route)}
-          >
-            <Text style={styles.gameEmoji}>{game.emoji}</Text>
-            <Text style={styles.gameTitle}>{game.title}</Text>
-            <Text style={styles.gameDescription}>{game.description}</Text>
-            <View style={styles.playButton}>
-              <Text style={styles.playButtonText}>Play</Text>
-            </View>
-          </Pressable>
-        ))}
+      <View style={styles.dailyCard}>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>Puzzle of the Day</Text>
+        </View>
+        <Text style={styles.dateText}>{dateLabel}</Text>
+        <View style={styles.preview}>
+          <Image source={puzzle.image} style={styles.previewImage} />
+        </View>
+        <Text style={styles.gameTitle}>Moji Mash</Text>
+        <Text style={styles.gameDescription}>
+          Guess the words behind the genmoji.
+        </Text>
+        <Pressable
+          style={({ pressed }) => [
+            styles.playButton,
+            pressed && styles.playButtonPressed,
+          ]}
+          onPress={() => router.push('/moji-mash')}
+        >
+          <Text style={styles.playButtonText}>Play today’s puzzle</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -68,40 +69,65 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginTop: Spacing.xs,
   },
-  gamesGrid: {
-    gap: Spacing.md,
-  },
-  gameCard: {
+  dailyCard: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
+    padding: Spacing.xl,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: Spacing.sm,
+  },
+  badge: {
+    alignSelf: 'center',
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  gameCardPressed: {
-    backgroundColor: Colors.surfaceLight,
-    transform: [{ scale: 0.98 }],
+  badgeText: {
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
   },
-  gameEmoji: {
-    fontSize: FontSize.display,
-    marginBottom: Spacing.sm,
+  dateText: {
+    textAlign: 'center',
+    color: Colors.textMuted,
+    fontSize: FontSize.sm,
+  },
+  preview: {
+    alignItems: 'center',
+    marginVertical: Spacing.sm,
+  },
+  previewImage: {
+    width: 140,
+    height: 140,
+    resizeMode: 'contain',
   },
   gameTitle: {
+    textAlign: 'center',
     fontSize: FontSize.xl,
     fontWeight: '700',
     color: Colors.text,
   },
   gameDescription: {
+    textAlign: 'center',
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.md,
   },
   playButton: {
     backgroundColor: Colors.primary,
     borderRadius: BorderRadius.sm,
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.md,
     alignItems: 'center',
+    marginTop: Spacing.sm,
+  },
+  playButtonPressed: {
+    backgroundColor: Colors.primaryLight,
+    transform: [{ scale: 0.99 }],
   },
   playButtonText: {
     color: Colors.white,
