@@ -45,10 +45,18 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen options={{ title: 'Daybreak Games' }} />
+      <Stack.Screen
+        options={{
+          headerTitleAlign: 'left',
+          headerTitle: () => (
+            <View style={styles.headerTitle}>
+              <Text style={styles.headerTitleText}>Daybreak Games</Text>
+              <Text style={styles.headerTaglineText}>For the curious</Text>
+            </View>
+          ),
+        }}
+      />
       <View style={styles.header}>
-        <Text style={styles.brand}>Daybreak Games</Text>
-        <Text style={styles.tagline}>For the curious</Text>
         <Text style={styles.kicker}>Puzzle of the Day</Text>
         <Text style={styles.title}>Moji Mash</Text>
         <Text style={styles.subtitle}>{dateLabel}</Text>
@@ -92,16 +100,18 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.xxl,
     paddingBottom: Spacing.lg,
   },
-  brand: {
-    fontSize: FontSize.lg,
+  headerTitle: {
+    paddingVertical: 4,
+  },
+  headerTitleText: {
+    fontSize: FontSize.md,
     fontWeight: '700',
     color: Colors.text,
   },
-  tagline: {
+  headerTaglineText: {
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     marginTop: 2,
-    marginBottom: Spacing.sm,
   },
   kicker: {
     color: Colors.accent,
