@@ -28,11 +28,11 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
       "output": "static",
-      "baseUrl": "/gameshow"
+      "baseUrl": "/gameshow/"
     },
     "plugins": ["expo-router"],
     "experiments": {
-      "baseUrl": "/gameshow"
+      "baseUrl": "/gameshow/"
     }
   }
 }
