@@ -14,13 +14,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
-import { getDailyPuzzle, getBonusPuzzle, MojiMashPuzzle } from '../src/data/mojiMashPuzzles';
+import { getDailyPuzzle, MojiMashPuzzle } from '../src/data/mojiMashPuzzles';
 
 const MAX_WRONG_GUESSES = 5;
 const STORAGE_PREFIX = 'mojimash';
 
 type GameState = 'playing' | 'won' | 'lost';
-type PuzzleMode = 'daily' | 'bonus';
 
 function getLocalDateKey(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -48,15 +47,12 @@ export default function MojiMashScreen() {
     []
   );
   const dailyKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
-  const bonusKey = `${STORAGE_PREFIX}:bonus:${dateKey}`;
 
-  const [puzzle, setPuzzle] = useState<MojiMashPuzzle>(getDailyPuzzle);
+  const puzzle = useMemo<MojiMashPuzzle>(() => getDailyPuzzle(), []);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<GameState>('playing');
-  const [mode, setMode] = useState<PuzzleMode>('daily');
   const [dailyCompleted, setDailyCompleted] = useState(false);
-  const [bonusCompleted, setBonusCompleted] = useState(false);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [foundWords, setFoundWords] = useState<Set<string>>(new Set());
   const [wrongCount, setWrongCount] = useState(0);
@@ -75,15 +71,13 @@ export default function MojiMashScreen() {
       'Mistakes: ' +
       '🟥'.repeat(wrongCount) +
       '⬜️'.repeat(Math.max(0, MAX_WRONG_GUESSES - wrongCount));
-    const modeLabel = mode === 'bonus' ? 'Bonus' : 'Daily';
-
     return [
-      `Moji Mash ${dateLabel} (${modeLabel})`,
+      `Moji Mash ${dateLabel}`,
       wordRow,
       mistakeRow,
       'https://mitchrobs.github.io/gameshow/',
     ].join('\n');
-  }, [dateLabel, mode, foundCount, totalWords, wrongCount]);
+  }, [dateLabel, foundCount, totalWords, wrongCount]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -93,8 +87,7 @@ export default function MojiMashScreen() {
     const storage = getStorage();
     if (!storage) return;
     setDailyCompleted(storage.getItem(dailyKey) === '1');
-    setBonusCompleted(storage.getItem(bonusKey) === '1');
-  }, [dailyKey, bonusKey]);
+  }, [dailyKey]);
 
   useEffect(() => {
     const storage = getStorage();
@@ -105,20 +98,12 @@ export default function MojiMashScreen() {
   }, []);
 
   useEffect(() => {
-    if (gameState !== 'won' || mode !== 'daily') return;
+    if (gameState !== 'won') return;
     if (dailyCompleted) return;
     const storage = getStorage();
     storage?.setItem(dailyKey, '1');
     setDailyCompleted(true);
-  }, [gameState, mode, dailyCompleted, dailyKey]);
-
-  useEffect(() => {
-    if (mode !== 'bonus' || gameState === 'playing') return;
-    if (bonusCompleted) return;
-    const storage = getStorage();
-    storage?.setItem(bonusKey, '1');
-    setBonusCompleted(true);
-  }, [gameState, mode, bonusCompleted, bonusKey]);
+  }, [gameState, dailyCompleted, dailyKey]);
 
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;
@@ -192,18 +177,6 @@ export default function MojiMashScreen() {
     setTimeout(() => inputRef.current?.focus(), 100);
   }, [currentGuess, gameState, guesses, puzzle.words, foundWords, wrongCount, triggerShake]);
 
-  const startBonus = useCallback(() => {
-    const newPuzzle = getBonusPuzzle();
-    setPuzzle(newPuzzle);
-    setGuesses([]);
-    setCurrentGuess('');
-    setGameState('playing');
-    setFoundWords(new Set());
-    setWrongCount(0);
-    setShowHint(false);
-    setMode('bonus');
-    setTimeout(() => inputRef.current?.focus(), 150);
-  }, []);
 
   const wrongGuesses = guesses.filter((g) => !puzzle.words.includes(g));
 
@@ -230,7 +203,7 @@ export default function MojiMashScreen() {
             <View style={styles.emojiContainer}>
               <Image source={puzzle.image} style={styles.genmojiImage} />
               <Text style={styles.emojiLabel}>
-                {mode === 'bonus' ? 'Bonus Puzzle' : "Today's Genmoji"}
+                {"Today's Genmoji"}
               </Text>
             </View>
 
@@ -379,22 +352,6 @@ export default function MojiMashScreen() {
                     <Text style={styles.shareStatus}>{shareStatus}</Text>
                   )}
                 </View>
-                {dailyCompleted && (
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.practiceButton,
-                      pressed && styles.practiceButtonPressed,
-                      (bonusCompleted || mode === 'bonus') &&
-                        styles.practiceButtonDisabled,
-                    ]}
-                    onPress={startBonus}
-                    disabled={bonusCompleted || mode === 'bonus'}
-                  >
-                    <Text style={styles.practiceButtonText}>
-                      {bonusCompleted ? 'Bonus completed' : 'Play bonus puzzle'}
-                    </Text>
-                  </Pressable>
-                )}
                 <Pressable
                   style={({ pressed }) => [
                     styles.homeButton,
