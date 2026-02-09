@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Pressable, Image, Platform, ScrollView } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
 import { BUILD_ID } from '../src/constants/build';
@@ -24,6 +24,22 @@ export default function HomeScreen() {
     day: 'numeric',
     year: 'numeric',
   });
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }, []);
+  const quickLinks = useMemo(
+    () => [
+      { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩' },
+      { label: 'Wordle', route: '/wordle', emoji: '🔤' },
+      { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠' },
+      { label: 'Whodunit', route: '/whodunit', emoji: '🔍' },
+      { label: 'Trivia', route: '/trivia', emoji: '⚡' },
+    ],
+    []
+  );
 
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') {
@@ -67,7 +83,34 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.page}>
           <View style={styles.header}>
+            <Text style={styles.greetingText}>{greeting}</Text>
             <Text style={styles.dateSubtitle}>{dateLabel}</Text>
+          </View>
+
+          <View style={styles.quickLinksSection}>
+            <View style={styles.quickLinksHeader}>
+              <Text style={styles.quickLinksTitle}>Quick links</Text>
+              <Text style={styles.quickLinksSubtitle}>Jump back into a game.</Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.quickLinksRow}
+            >
+              {quickLinks.map((item) => (
+                <Pressable
+                  key={item.route}
+                  style={({ pressed }) => [
+                    styles.quickLinkCard,
+                    pressed && styles.quickLinkCardPressed,
+                  ]}
+                  onPress={() => router.push(item.route)}
+                >
+                  <Text style={styles.quickLinkEmoji}>{item.emoji}</Text>
+                  <Text style={styles.quickLinkLabel}>{item.label}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
           </View>
 
           {/* Moji Mash card */}
@@ -270,6 +313,12 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.xxl,
     paddingBottom: Spacing.lg,
   },
+  greetingText: {
+    fontSize: FontSize.xl,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
   headerTitle: {
     paddingVertical: 4,
   },
@@ -285,6 +334,53 @@ const styles = StyleSheet.create({
   },
   dateSubtitle: {
     fontSize: FontSize.md,
+    color: Colors.textSecondary,
+  },
+  quickLinksSection: {
+    marginBottom: Spacing.xl,
+  },
+  quickLinksHeader: {
+    marginBottom: Spacing.sm,
+  },
+  quickLinksTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  quickLinksSubtitle: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  quickLinksRow: {
+    gap: Spacing.sm,
+    paddingRight: Spacing.lg,
+  },
+  quickLinkCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    minWidth: 120,
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
+  },
+  quickLinkCardPressed: {
+    transform: [{ scale: 0.98 }],
+  },
+  quickLinkEmoji: {
+    fontSize: 22,
+  },
+  quickLinkLabel: {
+    marginTop: Spacing.xs,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
     color: Colors.textSecondary,
   },
   gameSection: {
