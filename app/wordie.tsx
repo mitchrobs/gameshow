@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -122,8 +122,15 @@ export default function WordieScreen() {
     const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
-    incrementGlobalPlayCount('wordie');
   }, []);
+
+  const hasCountedRef = useRef(false);
+  useEffect(() => {
+    if (gameState !== 'playing' && !hasCountedRef.current) {
+      hasCountedRef.current = true;
+      incrementGlobalPlayCount('wordie');
+    }
+  }, [gameState]);
 
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;

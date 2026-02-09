@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -155,8 +155,15 @@ export default function SudokuScreen() {
     const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
-    incrementGlobalPlayCount('sudoku');
   }, []);
+
+  const hasCountedRef = useRef(false);
+  useEffect(() => {
+    if (gameState !== 'playing' && !hasCountedRef.current) {
+      hasCountedRef.current = true;
+      incrementGlobalPlayCount('sudoku');
+    }
+  }, [gameState]);
 
   useEffect(() => {
     if (gameState !== 'playing') return;
