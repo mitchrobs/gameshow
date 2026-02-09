@@ -328,41 +328,204 @@ const WEAPONS: Weapon[] = [
 ];
 
 
-const CASE_NAMES = [
-  'The Gilded Alibi',
-  'The Midnight Heir',
-  'The Scarlet Ledger',
-  'A Cold Reckoning',
-  'The Final Curtain',
-  'The Hollow Portrait',
-  'Ashes at Dawn',
-  'The Glass Witness',
-  'A Silent Encore',
-  'The Iron Garden',
-  'The Velvet Confession',
-  'The Broken Seal',
-  'The Midnight Correspondence',
-  'The Silent Balcony',
-  'The Vanishing Heirloom',
-  'The Brass Lantern',
-  'The Hidden Key',
-  'The Winter Masquerade',
-  'The Last Encore',
-  'The Broken Compass',
-  'The Hollow Promise',
-  'The Ivory Dossier',
-  'The Quiet Rendezvous',
-  'The Shattered Locket',
-  'The Opera Cipher',
-  'The Frosted Alibi',
-  'The Cobalt Affair',
-  'The Harbor Vow',
-  "The Archivist's Bluff",
-  'The Crimson Coda',
-  'The Orchard Secret',
-  'The Silent Barometer',
-  'The Velvet Ultimatum',
-  "The Lantern's Witness",
+const NOIR_PREFIXES = [
+  'Crimson',
+  'Midnight',
+  'Velvet',
+  'Ashen',
+  'Gilded',
+  'Silent',
+  'Iron',
+  'Shadow',
+  'Scarlet',
+  'Obsidian',
+];
+const NOIR_NOUNS = [
+  'Ledger',
+  'Alibi',
+  'Confession',
+  'Coda',
+  'Rendezvous',
+  'Dossier',
+  'Cipher',
+  'Heir',
+  'Lantern',
+  'Compass',
+];
+
+const PLAYFUL_PREFIXES = [
+  'Bubble',
+  'Sprinkle',
+  'Silly',
+  'Neon',
+  'Peppery',
+  'Twinkle',
+  'Poppy',
+  'Lemon',
+  'Quirky',
+  'Sunny',
+];
+const PLAYFUL_NOUNS = [
+  'Pancake',
+  'Parade',
+  'Glove',
+  'Whistle',
+  'Treasure',
+  'Spectacle',
+  'Jacket',
+  'Picnic',
+  'Typewriter',
+  'Confetti',
+];
+
+const CREATIVE_PREFIXES = [
+  'Orbital',
+  'Cobalt',
+  'Ivory',
+  'Hollow',
+  'Frosted',
+  'Mirror',
+  'Opaline',
+  'Sapphire',
+  'Cedar',
+  'Brass',
+];
+const CREATIVE_NOUNS = [
+  'Archive',
+  'Portrait',
+  'Promise',
+  'Locket',
+  'Echo',
+  'Hourglass',
+  'Sonnet',
+  'Oracle',
+  'Heirloom',
+  'Garden',
+];
+
+const NOIR_HOOK_LEADS = [
+  'A coded note slipped onto the {room} desk just after {timeMid}.',
+  'A hush fell over the {setting} when a stranger mentioned {victim}.',
+  'A rain-darkened footprint traced a path from {room}.',
+  'A sealed envelope arrived at {timeLate}, addressed only to {victim}.',
+  'A whisper about {weapon} moved through the crowd at {timeEarly}.',
+  'A dim reflection revealed movement near {room}.',
+  'A guard swore the hallway clock stopped at {timeMid}.',
+  'A silver token was found beneath the {room} chair.',
+  'A ledger page was torn free during the {setting}.',
+  'A hush of velvet curtains masked a hurried exit from {room}.',
+];
+const NOIR_HOOK_DETAILS = [
+  'It hinted at a payoff tied to the {weapon}.',
+  'It referenced a meeting window of {timeWindow}.',
+  'It accused someone of staging the {room}.',
+  'It pointed to a name etched on a forgotten key.',
+  'It mentioned a secret exchange during the {setting}.',
+  'It listed debts connected to the {weapon}.',
+  'It warned of a second move before {timeLate}.',
+  'It called the {room} “the quiet vault.”',
+  'It promised protection for the guilty party.',
+  'It marked a clock face with {timeEarly}.',
+];
+
+const PLAYFUL_HOOK_LEADS = [
+  'A surprise toast at {timeMid} drew everyone toward the {room}.',
+  'A bright ribbon trail led from the {room} to the main hall.',
+  'A confetti pop startled the guests at {timeEarly}.',
+  'A joke about the {weapon} earned nervous laughter.',
+  'A misplaced party favor was found in the {room}.',
+  'A whimsical invitation arrived during the {setting}.',
+  'A playful dare sent someone sprinting past the {room}.',
+  'A singalong at {timeLate} masked a sudden commotion.',
+  'A magician’s prop vanished near the {room}.',
+  'A cheery bell chimed right at {timeMid}.',
+];
+const PLAYFUL_HOOK_DETAILS = [
+  'It left a clue tucked inside a napkin.',
+  'It mentioned an off-limits corridor near {room}.',
+  'It hinted that {victim} had planned a reveal.',
+  'It tied the mood to the {weapon}.',
+  'It placed someone suspiciously near {room}.',
+  'It referenced a secret trade during the {setting}.',
+  'It warned that the next act was staged.',
+  'It suggested the timing window {timeWindow}.',
+  'It turned the spotlight toward the {room}.',
+  'It teased a hidden message beneath the {room} rug.',
+];
+
+const CREATIVE_HOOK_LEADS = [
+  'A crystalline shard was found near {room} at {timeMid}.',
+  'A mural in the {room} seemed altered after {timeLate}.',
+  'A strange resonance echoed during the {setting}.',
+  'A blueprint surfaced showing access to {room}.',
+  'A rare bloom appeared in the {room} just after {timeEarly}.',
+  'A clockwork chime rang out of sequence at {timeMid}.',
+  'A mirrored surface reflected a figure near {room}.',
+  'A ciphered poem appeared beside the {weapon}.',
+  'A lantern glow flickered across the {room} doorway.',
+  'A page from a sketchbook went missing at {timeLate}.',
+];
+const CREATIVE_HOOK_DETAILS = [
+  'It linked {victim} to an unfinished pact.',
+  'It suggested the {weapon} was staged as a decoy.',
+  'It revealed a hidden latch behind the {room} panel.',
+  'It described a countdown ending at {timeLate}.',
+  'It tied the {setting} to a forgotten oath.',
+  'It called the {room} “the hinge of the night.”',
+  'It marked {timeEarly} as the moment of doubt.',
+  'It implied a witness waited in the {room}.',
+  'It placed the culprit within the {timeWindow}.',
+  'It framed the {weapon} as a message.',
+];
+
+function buildCases(
+  prefixes: string[],
+  nouns: string[],
+  hookLeads: string[],
+  hookDetails: string[],
+  count: number,
+  nameTemplate: (prefix: string, noun: string) => string
+): { name: string; hook: string }[] {
+  const cases: { name: string; hook: string }[] = [];
+  let index = 0;
+  for (let i = 0; i < count; i += 1) {
+    const prefix = prefixes[i % prefixes.length];
+    const noun = nouns[Math.floor(i / prefixes.length) % nouns.length];
+    const name = nameTemplate(prefix, noun);
+    const lead = hookLeads[i % hookLeads.length];
+    const detail = hookDetails[Math.floor(i / hookLeads.length) % hookDetails.length];
+    const hook = `${lead} ${detail}`;
+    cases.push({ name, hook });
+    index += 1;
+  }
+  return cases;
+}
+
+const CASE_PROFILES = [
+  ...buildCases(
+    NOIR_PREFIXES,
+    NOIR_NOUNS,
+    NOIR_HOOK_LEADS,
+    NOIR_HOOK_DETAILS,
+    100,
+    (prefix, noun) => `The ${prefix} ${noun}`
+  ),
+  ...buildCases(
+    PLAYFUL_PREFIXES,
+    PLAYFUL_NOUNS,
+    PLAYFUL_HOOK_LEADS,
+    PLAYFUL_HOOK_DETAILS,
+    100,
+    (prefix, noun) => `The ${prefix} ${noun}`
+  ),
+  ...buildCases(
+    CREATIVE_PREFIXES,
+    CREATIVE_NOUNS,
+    CREATIVE_HOOK_LEADS,
+    CREATIVE_HOOK_DETAILS,
+    100,
+    (prefix, noun) => `The ${prefix} ${noun}`
+  ),
 ];
 
 const NARRATIVE_BEATS = [
@@ -448,7 +611,8 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
   const setting = seededPick(SETTINGS, rand);
   const weapon = seededPick(WEAPONS, rand);
   const room = seededPick(setting.rooms, rand);
-  const caseName = seededPick(CASE_NAMES, rand);
+  const caseProfile = seededPick(CASE_PROFILES, rand);
+  const caseName = caseProfile.name;
   const caseNumber = (seed % 900) + 1;
 
   // Generate narrative
@@ -469,10 +633,11 @@ function generatePuzzle(seed: number): WhodunitPuzzle {
   };
   const leadIn = fillTemplate(seededPick(NARRATIVE_BEATS, rand), context);
   const aftermath = fillTemplate(seededPick(NARRATIVE_AFTER, rand), context);
+  const caseHook = fillTemplate(caseProfile.hook, context);
   const narrative = `At ${setting.name}, ${victim.name} (${victim.title}) was found dead. The ${weapon.name.replace(
     /^a /,
     ''
-  )} was discovered in ${room.name}. Estimated time of death: around ${timeMid}. ${leadIn} ${aftermath} Five guests remain under suspicion: ${suspectNames}.`;
+  )} was discovered in ${room.name}. Estimated time of death: around ${timeMid}. ${leadIn} ${caseHook} ${aftermath} Five guests remain under suspicion: ${suspectNames}.`;
 
   const killer = suspects[killerIndex];
   const innocents = suspects
