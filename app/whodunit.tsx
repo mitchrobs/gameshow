@@ -80,23 +80,15 @@ export default function WhodunitScreen() {
     const choice = puzzle.leadChoices.find((c) => c.clueId === leadChoiceId);
     return choice?.label ?? null;
   }, [leadChoiceId, puzzle.leadChoices]);
-  const revealedNumberMap = useMemo(() => {
-    const map = new Map<number, number>();
-    revealedOrder.forEach((clueIndex, index) => {
-      map.set(clueIndex, index + 1);
-    });
-    return map;
-  }, [revealedOrder]);
-  const leadClue = useMemo(() => {
-    if (!leadChoiceId) return null;
-    const index = puzzle.clues.findIndex((c) => c.id === leadChoiceId);
-    if (index === -1) return null;
+  const latestClue = useMemo(() => {
+    if (revealedOrder.length === 0) return null;
+    const index = revealedOrder[revealedOrder.length - 1];
     return {
       index,
       clue: puzzle.clues[index],
-      displayNumber: revealedNumberMap.get(index) ?? revealedOrder.length + 1,
+      displayNumber: revealedOrder.length,
     };
-  }, [leadChoiceId, puzzle.clues, revealedNumberMap, revealedOrder.length]);
+  }, [puzzle.clues, revealedOrder]);
   const unlockedClues = useMemo(
     () =>
       revealedOrder.map((index, orderIndex) => ({
@@ -358,9 +350,11 @@ export default function WhodunitScreen() {
           {/* Suspects board */}
           <View style={styles.suspectsBoard}>
             <View style={styles.suspectsHeaderRow}>
-              <Text style={styles.suspectsTitle}>Suspects Board</Text>
+              <Text selectable={false} style={styles.suspectsTitle}>
+                Suspects Board
+              </Text>
               <View style={styles.suspectsCounter}>
-                <Text style={styles.suspectsCounterText}>
+                <Text selectable={false} style={styles.suspectsCounterText}>
                   Active {puzzle.suspects.length - eliminatedSuspects.size} • Eliminated{' '}
                   {eliminatedSuspects.size}
                 </Text>
@@ -371,20 +365,23 @@ export default function WhodunitScreen() {
                 const isEliminated = eliminatedSuspects.has(i);
                 const isSelected = selectedSuspect === i;
                 return (
-                <Pressable
-                  key={i}
-                  style={({ pressed }) => [
-                    styles.suspectCard,
-                    isSelected && styles.suspectSelected,
-                    pressed && styles.suspectCardPressed,
-                  ]}
-                  onPress={() => handleSelectSuspect(i)}
-                  onLongPress={() => handleToggleEliminate(i)}
-                  delayLongPress={250}
-                  disabled={gameState !== 'playing'}
-                >
-                    <Text style={styles.suspectEmoji}>{suspect.emoji}</Text>
+                  <Pressable
+                    key={i}
+                    style={({ pressed }) => [
+                      styles.suspectCard,
+                      isSelected && styles.suspectSelected,
+                      pressed && styles.suspectCardPressed,
+                    ]}
+                    onPress={() => handleSelectSuspect(i)}
+                    onLongPress={() => handleToggleEliminate(i)}
+                    delayLongPress={250}
+                    disabled={gameState !== 'playing'}
+                  >
+                    <Text selectable={false} style={styles.suspectEmoji}>
+                      {suspect.emoji}
+                    </Text>
                     <Text
+                      selectable={false}
                       style={[
                         styles.suspectName,
                         isEliminated && styles.suspectTextEliminated,
@@ -393,6 +390,7 @@ export default function WhodunitScreen() {
                       {suspect.name}
                     </Text>
                     <Text
+                      selectable={false}
                       style={[
                         styles.suspectTrait,
                         isEliminated && styles.suspectTextEliminated,
@@ -401,11 +399,11 @@ export default function WhodunitScreen() {
                     >
                       {suspect.trait}
                     </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-            <Text style={styles.suspectHint}>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text selectable={false} style={styles.suspectHint}>
               Tap to select • Long-press to eliminate
             </Text>
           </View>
@@ -446,11 +444,11 @@ export default function WhodunitScreen() {
                 <View style={styles.leadResultCard}>
                   <View style={styles.leadResultNumber}>
                     <Text style={styles.leadResultNumberText}>
-                      {leadClue?.displayNumber ?? '•'}
+                      {latestClue?.displayNumber ?? '•'}
                     </Text>
                   </View>
                   <Text style={styles.leadResultText}>
-                    {leadClue?.clue.text ?? 'Lead resolved.'}
+                    {latestClue?.clue.text ?? 'Lead resolved.'}
                   </Text>
                 </View>
                 {remainingLockedClues.length === 0 ? (
@@ -893,6 +891,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     marginBottom: Spacing.lg,
+    ...(Platform.OS === 'web' ? { userSelect: 'none' } : {}),
   },
   suspectsHeaderRow: {
     flexDirection: 'row',

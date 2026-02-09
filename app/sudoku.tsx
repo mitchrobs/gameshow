@@ -357,14 +357,11 @@ export default function SudokuScreen() {
                   )}
                 </View>
               </View>
-            ) : (
-              <View style={[styles.lockedRow, { width: boardSize }]}>
-                <Text style={styles.lockedText}>Puzzle locked.</Text>
-              </View>
             )}
 
             {gameState === 'won' && (
               <View style={styles.resultCard}>
+                <Text style={styles.confetti}>🎉 ✨ 🎊</Text>
                 <Text style={styles.resultTitle}>Nice solve!</Text>
                 <Text style={styles.resultSubtitle}>
                   {formatTime(elapsedSeconds)} - {puzzle.difficulty}
@@ -584,16 +581,9 @@ const styles = StyleSheet.create({
     color: Colors.error,
     fontWeight: '600',
   },
-  lockedRow: {
-    marginTop: Spacing.lg,
-    alignSelf: 'center',
-    paddingVertical: Spacing.sm,
-  },
-  lockedText: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-    fontWeight: '600',
-    textAlign: 'center',
+  confetti: {
+    fontSize: 28,
+    marginBottom: Spacing.sm,
   },
   resultCard: {
     alignItems: 'center',

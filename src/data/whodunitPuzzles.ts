@@ -341,6 +341,18 @@ const CASE_NAMES = [
   'The Iron Garden',
   'The Velvet Confession',
   'The Broken Seal',
+  'The Midnight Correspondence',
+  'The Silent Balcony',
+  'The Vanishing Heirloom',
+  'The Brass Lantern',
+  'The Hidden Key',
+  'The Winter Masquerade',
+  'The Last Encore',
+  'The Broken Compass',
+  'The Hollow Promise',
+  'The Ivory Dossier',
+  'The Quiet Rendezvous',
+  'The Shattered Locket',
 ];
 
 const NARRATIVE_BEATS = [
