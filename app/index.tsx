@@ -8,6 +8,7 @@ import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 import { getDailyWordle } from '../src/data/wordlePuzzles';
 import { getDailyTriviaCategories } from '../src/data/triviaPuzzles';
+import { getDailySudoku } from '../src/data/sudokuPuzzles';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function HomeScreen() {
   const whodunit = getDailyWhodunit();
   const wordle = getDailyWordle();
   const triviaCategories = getDailyTriviaCategories();
+  const sudoku = getDailySudoku();
   const [streak, setStreak] = useState(0);
   const dateLabel = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -127,6 +129,47 @@ export default function HomeScreen() {
                   pressed && styles.playButtonPressed,
                 ]}
                 onPress={() => router.push('/wordle')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Mini Sudoku card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabel}>
+              <Text style={styles.kicker}>Logic Grid</Text>
+              <Text style={styles.gameTitle}>Mini Sudoku</Text>
+            </View>
+            <Text style={styles.blurb}>
+              A 6x6 daily Sudoku with a medium-hard bite.
+            </Text>
+            <View style={styles.dailyCard}>
+              <View style={styles.sudokuPreview}>
+                {sudoku.grid.map((row, rowIndex) => (
+                  <View key={`sudoku-row-${rowIndex}`} style={styles.sudokuRow}>
+                    {row.map((value, colIndex) => (
+                      <View
+                        key={`sudoku-${rowIndex}-${colIndex}`}
+                        style={[
+                          styles.sudokuCell,
+                          value !== 0 && styles.sudokuCellFilled,
+                        ]}
+                      >
+                        <Text style={styles.sudokuCellText}>
+                          {value !== 0 ? value : ''}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                ))}
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/sudoku')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
@@ -333,6 +376,37 @@ const styles = StyleSheet.create({
     fontSize: FontSize.lg,
     fontWeight: '800',
     color: Colors.text,
+  },
+  sudokuPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    gap: 4,
+  },
+  sudokuRow: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  sudokuCell: {
+    width: 26,
+    height: 26,
+    borderRadius: 6,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sudokuCellFilled: {
+    backgroundColor: Colors.surface,
+  },
+  sudokuCellText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.textSecondary,
   },
   triviaPreview: {
     alignItems: 'center',
