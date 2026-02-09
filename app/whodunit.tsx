@@ -68,7 +68,6 @@ export default function WhodunitScreen() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
-  const [miniBoardOpen, setMiniBoardOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const cluesUsed = revealedClues.size;
@@ -91,13 +90,15 @@ export default function WhodunitScreen() {
         .filter(({ index }) => revealedClues.has(index)),
     [puzzle.clues, revealedClues]
   );
-  const remainingLockedClues = useMemo(
-    () =>
-      puzzle.clues
-        .map((clue, index) => ({ clue, index }))
-        .filter(({ clue, index }) => clue.locked && !revealedClues.has(index)),
-    [puzzle.clues, revealedClues]
-  );
+  const remainingLockedClues = useMemo(() => {
+    const revealedOrder = puzzle.clues.filter((_, index) => revealedClues.has(index));
+    const remaining = puzzle.clues.filter((clue, index) => clue.locked && !revealedClues.has(index));
+    return remaining.map((clue, index) => ({
+      clue,
+      displayNumber: revealedOrder.length + index + 1,
+      index: puzzle.clues.indexOf(clue),
+    }));
+  }, [puzzle.clues, revealedClues]);
 
   // Timer
   useEffect(() => {
@@ -272,44 +273,6 @@ export default function WhodunitScreen() {
                   (+{timePenalty}s penalty)
                 </Text>
               )}
-              <Pressable
-                style={({ pressed }) => [
-                  styles.miniBoardToggle,
-                  pressed && styles.miniBoardTogglePressed,
-                ]}
-                onPress={() => setMiniBoardOpen((prev) => !prev)}
-              >
-                <Text style={styles.miniBoardToggleText}>Case Board</Text>
-                <Text style={styles.miniBoardToggleChevron}>
-                  {miniBoardOpen ? '▲' : '▼'}
-                </Text>
-              </Pressable>
-              {miniBoardOpen && (
-                <View style={styles.miniBoard}>
-                  <View style={styles.miniBoardRow}>
-                    <View style={styles.miniChip}>
-                      <Text style={styles.miniChipLabel}>Victim</Text>
-                      <Text style={styles.miniChipValue}>
-                        {puzzle.victim.name}
-                      </Text>
-                    </View>
-                    <View style={styles.miniChip}>
-                      <Text style={styles.miniChipLabel}>Weapon</Text>
-                      <Text style={styles.miniChipValue}>{puzzle.weapon.name}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.miniBoardRow}>
-                    <View style={styles.miniChip}>
-                      <Text style={styles.miniChipLabel}>Room</Text>
-                      <Text style={styles.miniChipValue}>{puzzle.room.name}</Text>
-                    </View>
-                    <View style={styles.miniChip}>
-                      <Text style={styles.miniChipLabel}>Time</Text>
-                      <Text style={styles.miniChipValue}>{puzzle.timeWindow}</Text>
-                    </View>
-                  </View>
-                </View>
-              )}
             </View>
           </View>
 
@@ -325,6 +288,9 @@ export default function WhodunitScreen() {
               <View style={styles.caseVisualText}>
                 <Text style={styles.caseVisualKicker}>{puzzle.setting.description}</Text>
                 <Text style={styles.caseVisualTitle}>{puzzle.caseName}</Text>
+              </View>
+              <View style={styles.caseStamp}>
+                <Text style={styles.caseStampText}>OPEN</Text>
               </View>
             </View>
             <Text style={styles.caseNarrative}>{puzzle.narrative}</Text>
@@ -375,54 +341,66 @@ export default function WhodunitScreen() {
             </View>
           </View>
 
-          {/* Suspects grid */}
-          <View style={styles.suspectsGrid}>
-            {puzzle.suspects.map((suspect, i) => {
-              const isEliminated = eliminatedSuspects.has(i);
-              const isSelected = selectedSuspect === i;
-              return (
+          {/* Suspects board */}
+          <View style={styles.suspectsBoard}>
+            <View style={styles.suspectsHeaderRow}>
+              <Text style={styles.suspectsTitle}>Suspects Board</Text>
+              <View style={styles.suspectsCounter}>
+                <Text style={styles.suspectsCounterText}>
+                  Active {puzzle.suspects.length - eliminatedSuspects.size} • Eliminated{' '}
+                  {eliminatedSuspects.size}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.suspectsGrid}>
+              {puzzle.suspects.map((suspect, i) => {
+                const isEliminated = eliminatedSuspects.has(i);
+                const isSelected = selectedSuspect === i;
+                return (
                 <Pressable
                   key={i}
-                  style={[
+                  style={({ pressed }) => [
                     styles.suspectCard,
                     isEliminated && styles.suspectEliminated,
                     isSelected && styles.suspectSelected,
+                    pressed && styles.suspectCardPressed,
                   ]}
                   onPress={() => handleSelectSuspect(i)}
                   onLongPress={() => handleToggleEliminate(i)}
                   delayLongPress={250}
                   disabled={gameState !== 'playing'}
                 >
-                  <Text style={styles.suspectEmoji}>{suspect.emoji}</Text>
-                  <Text
-                    style={[
-                      styles.suspectName,
-                      isEliminated && styles.suspectTextEliminated,
-                    ]}
-                  >
-                    {suspect.name}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.suspectTrait,
-                      isEliminated && styles.suspectTextEliminated,
-                    ]}
-                    numberOfLines={2}
-                  >
-                    {suspect.trait}
-                  </Text>
-                  {isEliminated && (
-                    <View style={styles.eliminatedOverlay}>
-                      <Text style={styles.eliminatedX}>✕</Text>
-                    </View>
-                  )}
-                </Pressable>
-              );
-            })}
+                    <Text style={styles.suspectEmoji}>{suspect.emoji}</Text>
+                    <Text
+                      style={[
+                        styles.suspectName,
+                        isEliminated && styles.suspectTextEliminated,
+                      ]}
+                    >
+                      {suspect.name}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.suspectTrait,
+                        isEliminated && styles.suspectTextEliminated,
+                      ]}
+                      numberOfLines={2}
+                    >
+                      {suspect.trait}
+                    </Text>
+                    {isEliminated && (
+                      <View style={styles.eliminatedOverlay}>
+                        <Text style={styles.eliminatedX}>✕</Text>
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text style={styles.suspectHint}>
+              Tap to select • Long-press to eliminate
+            </Text>
           </View>
-          <Text style={styles.suspectHint}>
-            Tap to select • Long-press to eliminate
-          </Text>
 
           {/* Lead choice */}
           <View style={styles.leadCard}>
@@ -470,7 +448,7 @@ export default function WhodunitScreen() {
                 {remainingLockedClues.length === 0 ? (
                   <Text style={styles.remainingCluesEmpty}>No more clues left.</Text>
                 ) : (
-                  remainingLockedClues.map(({ clue, index }) => (
+                  remainingLockedClues.map(({ clue, index, displayNumber }) => (
                     <Pressable
                       key={clue.id}
                       style={({ pressed }) => [
@@ -481,9 +459,9 @@ export default function WhodunitScreen() {
                       disabled={gameState !== 'playing'}
                     >
                       <View style={styles.clueNumberLocked}>
-                        <Text style={styles.clueNumberText}>{index + 1}</Text>
+                        <Text style={styles.clueNumberText}>{displayNumber}</Text>
                       </View>
-                      <Text style={styles.lockedClueText}>Tap to reveal</Text>
+                      <Text style={styles.lockedClueText}>Tap to reveal +{TIME_PENALTY}s</Text>
                     </Pressable>
                   ))
                 )}
@@ -510,6 +488,9 @@ export default function WhodunitScreen() {
                   ? `🔎 Accuse ${puzzle.suspects[selectedSuspect].name}`
                   : '🔎 Make Accusation'}
               </Text>
+              {selectedSuspect === null && (
+                <Text style={styles.accuseHelper}>Select a suspect first.</Text>
+              )}
             </Pressable>
           )}
 
@@ -717,6 +698,20 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
+  caseStamp: {
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  caseStampText: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1,
+    color: Colors.textMuted,
+  },
   caseVisualKicker: {
     fontSize: FontSize.sm,
     textTransform: 'uppercase',
@@ -894,62 +889,38 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     marginTop: Spacing.xs,
   },
-  miniBoardToggle: {
-    marginTop: Spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  miniBoardTogglePressed: {
-    backgroundColor: Colors.surfaceLight,
-  },
-  miniBoardToggleText: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  miniBoardToggleChevron: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-  },
-  miniBoard: {
-    marginTop: Spacing.sm,
+  suspectsBoard: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    padding: Spacing.sm,
+    padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    gap: Spacing.sm,
+    marginBottom: Spacing.md,
   },
-  miniBoardRow: {
+  suspectsHeaderRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
     gap: Spacing.sm,
   },
-  miniChip: {
-    flex: 1,
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.sm,
-  },
-  miniChipLabel: {
-    fontSize: 11,
-    color: Colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  miniChipValue: {
+  suspectsTitle: {
     fontSize: FontSize.sm,
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.accent,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  suspectsCounter: {
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+  },
+  suspectsCounterText: {
+    fontSize: 12,
+    color: Colors.textMuted,
     fontWeight: '600',
-    marginTop: 2,
   },
 
   // Suspects
@@ -958,7 +929,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: Spacing.sm,
     justifyContent: 'space-between',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   suspectCard: {
     width: '48%',
@@ -972,6 +943,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     position: 'relative',
     overflow: 'hidden',
+  },
+  suspectCardPressed: {
+    transform: [{ scale: 0.98 }],
   },
   suspectSelected: {
     borderColor: Colors.accent,
@@ -1152,6 +1126,12 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  accuseHelper: {
+    marginTop: 4,
+    fontSize: FontSize.sm,
+    color: Colors.white,
+    opacity: 0.7,
   },
 
   // Result
