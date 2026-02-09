@@ -212,18 +212,4 @@ export function getDailyPuzzle(date: Date = new Date()): MojiMashPuzzle {
   return puzzles[getDailyPuzzleIndex(date)];
 }
 
-/**
- * Get a bonus puzzle that differs from the daily puzzle.
- * Deterministic by day so it won't change on refresh.
- */
-export function getBonusPuzzle(date: Date = new Date()): MojiMashPuzzle {
-  const dayIndex = getLocalDayIndex(date);
-  const dailyPos = dayIndex % DAILY_ORDER.length;
-  let bonusPos = (dailyPos + 7) % DAILY_ORDER.length;
-  if (bonusPos === dailyPos) {
-    bonusPos = (bonusPos + 1) % DAILY_ORDER.length;
-  }
-  return puzzles[DAILY_ORDER[bonusPos]];
-}
-
 export default puzzles;
