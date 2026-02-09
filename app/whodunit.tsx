@@ -64,6 +64,9 @@ export default function WhodunitScreen() {
     () => new Set(initialRevealed)
   );
   const [revealedOrder, setRevealedOrder] = useState<number[]>(() => initialRevealed);
+  const [lastRevealedIndex, setLastRevealedIndex] = useState<number | null>(
+    initialRevealed.length ? initialRevealed[initialRevealed.length - 1] : null
+  );
   const [eliminatedSuspects, setEliminatedSuspects] = useState<Set<number>>(
     () => new Set<number>()
   );
@@ -81,14 +84,14 @@ export default function WhodunitScreen() {
     return choice?.label ?? null;
   }, [leadChoiceId, puzzle.leadChoices]);
   const latestClue = useMemo(() => {
-    if (revealedOrder.length === 0) return null;
-    const index = revealedOrder[revealedOrder.length - 1];
+    if (lastRevealedIndex === null) return null;
+    const displayNumber = revealedOrder.indexOf(lastRevealedIndex) + 1;
     return {
-      index,
-      clue: puzzle.clues[index],
-      displayNumber: revealedOrder.length,
+      index: lastRevealedIndex,
+      clue: puzzle.clues[lastRevealedIndex],
+      displayNumber: displayNumber > 0 ? displayNumber : revealedOrder.length,
     };
-  }, [puzzle.clues, revealedOrder]);
+  }, [lastRevealedIndex, puzzle.clues, revealedOrder]);
   const unlockedClues = useMemo(
     () =>
       revealedOrder.map((index, orderIndex) => ({
@@ -146,6 +149,7 @@ export default function WhodunitScreen() {
       newRevealed.add(index);
       setRevealedClues(newRevealed);
       setRevealedOrder((prev) => (prev.includes(index) ? prev : [...prev, index]));
+      setLastRevealedIndex(index);
       setTimePenalty((prev) => prev + TIME_PENALTY);
 
       // No auto-elimination — player decides who to eliminate
@@ -167,6 +171,7 @@ export default function WhodunitScreen() {
           prev.includes(clueIndex) ? prev : [...prev, clueIndex]
         );
       }
+      setLastRevealedIndex(clueIndex);
       setLeadChoiceId(choiceId);
     },
     [gameState, leadChoiceId, puzzle.clues, revealedClues]
@@ -354,7 +359,7 @@ export default function WhodunitScreen() {
                 Suspects Board
               </Text>
               <View style={styles.suspectsCounter}>
-                <Text selectable={false} style={styles.suspectsCounterText}>
+                <Text selectable={false} style={[styles.suspectsCounterText, styles.noSelect]}>
                   Active {puzzle.suspects.length - eliminatedSuspects.size} • Eliminated{' '}
                   {eliminatedSuspects.size}
                 </Text>
@@ -377,7 +382,7 @@ export default function WhodunitScreen() {
                     delayLongPress={250}
                     disabled={gameState !== 'playing'}
                   >
-                    <Text selectable={false} style={styles.suspectEmoji}>
+                    <Text selectable={false} style={[styles.suspectEmoji, styles.noSelect]}>
                       {suspect.emoji}
                     </Text>
                     <Text
@@ -385,6 +390,7 @@ export default function WhodunitScreen() {
                       style={[
                         styles.suspectName,
                         isEliminated && styles.suspectTextEliminated,
+                        styles.noSelect,
                       ]}
                     >
                       {suspect.name}
@@ -394,6 +400,7 @@ export default function WhodunitScreen() {
                       style={[
                         styles.suspectTrait,
                         isEliminated && styles.suspectTextEliminated,
+                        styles.noSelect,
                       ]}
                       numberOfLines={2}
                     >
@@ -403,7 +410,7 @@ export default function WhodunitScreen() {
                 );
               })}
             </View>
-            <Text selectable={false} style={styles.suspectHint}>
+            <Text selectable={false} style={[styles.suspectHint, styles.noSelect]}>
               Tap to select • Long-press to eliminate
             </Text>
           </View>
@@ -893,6 +900,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
     ...(Platform.OS === 'web' ? { userSelect: 'none' } : {}),
   },
+  noSelect: {
+    ...(Platform.OS === 'web'
+      ? { userSelect: 'none', WebkitUserSelect: 'none' }
+      : {}),
+  },
   suspectsHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -977,6 +989,7 @@ const styles = StyleSheet.create({
   },
   suspectTextEliminated: {
     color: Colors.textMuted,
+    textDecorationLine: 'line-through',
   },
 
   // Clues / Lead result
