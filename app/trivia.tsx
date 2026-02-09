@@ -195,8 +195,15 @@ export default function TriviaScreen() {
     const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
-    incrementGlobalPlayCount('trivia');
   }, []);
+
+  const hasCountedRef = useRef(false);
+  useEffect(() => {
+    if (mode === 'finished' && !hasCountedRef.current) {
+      hasCountedRef.current = true;
+      incrementGlobalPlayCount('trivia');
+    }
+  }, [mode]);
 
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;

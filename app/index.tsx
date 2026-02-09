@@ -34,11 +34,11 @@ export default function HomeScreen() {
   }, []);
   const quickLinks = useMemo(
     () => [
-      { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩' },
-      { label: 'Wordie', route: '/wordie', emoji: '🔤' },
-      { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠' },
-      { label: 'Whodunit', route: '/whodunit', emoji: '🔍' },
-      { label: 'Trivia', route: '/trivia', emoji: '⚡' },
+      { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash' },
+      { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie' },
+      { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
+      { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
+      { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
     ],
     []
   );
@@ -127,6 +127,9 @@ export default function HomeScreen() {
                 >
                   <Text style={styles.quickLinkEmoji}>{item.emoji}</Text>
                   <Text style={styles.quickLinkLabel}>{item.label}</Text>
+                  {(playCounts[item.countKey] ?? 0) > 0 && (
+                    <Text style={styles.quickLinkCount}>{playCounts[item.countKey]} plays</Text>
+                  )}
                 </Pressable>
               ))}
             </ScrollView>
@@ -426,6 +429,12 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: '700',
     color: Colors.textSecondary,
+  },
+  quickLinkCount: {
+    marginTop: 4,
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.textMuted,
   },
   gameSection: {
     marginBottom: Spacing.xl,

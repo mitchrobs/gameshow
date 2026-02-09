@@ -103,7 +103,6 @@ export default function MojiMashScreen() {
     const key = `${STORAGE_PREFIX}:playcount:${dateKey}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
-    incrementGlobalPlayCount('mojimash');
   }, []);
 
   useEffect(() => {
@@ -121,6 +120,14 @@ export default function MojiMashScreen() {
     storage?.setItem(bonusKey, '1');
     setBonusCompleted(true);
   }, [gameState, mode, bonusCompleted, bonusKey]);
+
+  const hasCountedRef = useRef(false);
+  useEffect(() => {
+    if (gameState !== 'playing' && !hasCountedRef.current) {
+      hasCountedRef.current = true;
+      incrementGlobalPlayCount('mojimash');
+    }
+  }, [gameState]);
 
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;
