@@ -78,11 +78,24 @@ export default function WhodunitScreen() {
     const choice = puzzle.leadChoices.find((c) => c.clueId === leadChoiceId);
     return choice?.label ?? null;
   }, [leadChoiceId, puzzle.leadChoices]);
+  const leadClue = useMemo(() => {
+    if (!leadChoiceId) return null;
+    const index = puzzle.clues.findIndex((c) => c.id === leadChoiceId);
+    if (index === -1) return null;
+    return { index, clue: puzzle.clues[index] };
+  }, [leadChoiceId, puzzle.clues]);
   const unlockedClues = useMemo(
     () =>
       puzzle.clues
         .map((clue, index) => ({ clue, index }))
         .filter(({ index }) => revealedClues.has(index)),
+    [puzzle.clues, revealedClues]
+  );
+  const remainingLockedClues = useMemo(
+    () =>
+      puzzle.clues
+        .map((clue, index) => ({ clue, index }))
+        .filter(({ clue, index }) => clue.locked && !revealedClues.has(index)),
     [puzzle.clues, revealedClues]
   );
 
@@ -417,82 +430,68 @@ export default function WhodunitScreen() {
             <Text style={styles.leadSubtitle}>
               Pick one lead to reveal a clue immediately.
             </Text>
-            <View style={styles.leadChoiceRow}>
-              {puzzle.leadChoices.map((choice) => {
-                const chosen = leadChoiceId === choice.clueId;
-                const disabled = leadChoiceId !== null && !chosen;
-                return (
+            {leadChoiceId === null ? (
+              <View style={styles.leadChoiceRow}>
+                {puzzle.leadChoices.map((choice) => (
                   <Pressable
                     key={choice.clueId}
                     style={({ pressed }) => [
                       styles.leadChoice,
-                      chosen && styles.leadChoiceSelected,
-                      disabled && styles.leadChoiceDisabled,
-                      pressed && !disabled && styles.leadChoicePressed,
+                      pressed && styles.leadChoicePressed,
                     ]}
                     onPress={() => handleSelectLead(choice.clueId)}
-                    disabled={disabled}
                   >
                     <View style={styles.leadRadio}>
-                      <View
-                        style={[
-                          styles.leadRadioDot,
-                          chosen && styles.leadRadioDotActive,
-                        ]}
-                      />
+                      <View style={styles.leadRadioDot} />
                     </View>
                     <View style={styles.leadChoiceContent}>
                       <Text style={styles.leadChoiceLabel}>{choice.label}</Text>
                       <Text style={styles.leadChoiceDesc}>{choice.description}</Text>
                     </View>
                   </Pressable>
-                );
-              })}
-            </View>
-            {leadChoiceLabel && (
-              <Text style={styles.leadPicked}>Lead chosen: {leadChoiceLabel}</Text>
-            )}
-          </View>
-
-          {/* Clues */}
-          <View style={styles.cluesSection}>
-            <View style={styles.cluesHeaderRow}>
-              <Text style={styles.cluesHeader}>
-                Clues Revealed ({cluesUsed} / {totalClues})
-              </Text>
-              <Text style={styles.cluesPenalty}>+{TIME_PENALTY}s each</Text>
-            </View>
-            {puzzle.clues.map((clue, i) => {
-              const isRevealed = revealedClues.has(i);
-              return (
-                <View key={i} style={styles.clueRow}>
-                  {isRevealed ? (
-                    <>
-                      <View style={styles.clueNumber}>
-                        <Text style={styles.clueNumberText}>{i + 1}</Text>
-                      </View>
-                      <Text style={styles.clueText}>{clue.text}</Text>
-                    </>
-                  ) : (
+                ))}
+              </View>
+            ) : (
+              <View style={styles.leadResultSection}>
+                <View style={styles.leadResultCard}>
+                  <View style={styles.leadResultNumber}>
+                    <Text style={styles.leadResultNumberText}>
+                      {leadClue ? leadClue.index + 1 : '•'}
+                    </Text>
+                  </View>
+                  <Text style={styles.leadResultText}>
+                    {leadClue?.clue.text ?? 'Lead resolved.'}
+                  </Text>
+                </View>
+                <View style={styles.remainingCluesHeader}>
+                  <Text style={styles.remainingCluesTitle}>Remaining clues</Text>
+                  <Text style={styles.remainingCluesPenalty}>+{TIME_PENALTY}s each</Text>
+                </View>
+                {remainingLockedClues.length === 0 ? (
+                  <Text style={styles.remainingCluesEmpty}>No more clues left.</Text>
+                ) : (
+                  remainingLockedClues.map(({ clue, index }) => (
                     <Pressable
+                      key={clue.id}
                       style={({ pressed }) => [
                         styles.lockedClue,
                         pressed && styles.lockedCluePressed,
                       ]}
-                      onPress={() => handleRevealClue(i)}
+                      onPress={() => handleRevealClue(index)}
                       disabled={gameState !== 'playing'}
                     >
                       <View style={styles.clueNumberLocked}>
-                        <Text style={styles.clueNumberText}>{i + 1}</Text>
+                        <Text style={styles.clueNumberText}>{index + 1}</Text>
                       </View>
-                      <Text style={styles.lockedClueText}>
-                        Tap to reveal (+{TIME_PENALTY}s)
-                      </Text>
+                      <Text style={styles.lockedClueText}>Tap to reveal</Text>
                     </Pressable>
-                  )}
-                </View>
-              );
-            })}
+                  ))
+                )}
+                {leadChoiceLabel && (
+                  <Text style={styles.leadPicked}>Lead chosen: {leadChoiceLabel}</Text>
+                )}
+              </View>
+            )}
           </View>
 
           {/* Accusation button */}
@@ -1028,35 +1027,7 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
 
-  // Clues
-  cluesSection: {
-    marginBottom: Spacing.md,
-  },
-  cluesHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.sm,
-  },
-  cluesHeader: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: Colors.accent,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-  },
-  cluesPenalty: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-    fontWeight: '600',
-  },
-  clueRow: {
-    marginBottom: 6,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: Spacing.sm,
-    width: '100%',
-  },
+  // Clues / Lead result
   clueNumber: {
     width: 28,
     height: 28,
@@ -1080,20 +1051,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  clueText: {
-    fontSize: FontSize.md,
-    color: Colors.text,
-    lineHeight: 22,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    overflow: 'hidden',
-    flexShrink: 1,
-    flex: 1,
-    minWidth: 0,
-  },
   lockedClue: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1116,6 +1073,62 @@ const styles = StyleSheet.create({
     flex: 1,
     flexShrink: 1,
     minWidth: 0,
+  },
+  leadResultSection: {
+    gap: Spacing.sm,
+  },
+  leadResultCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  leadResultNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  leadResultNumberText: {
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  leadResultText: {
+    fontSize: FontSize.md,
+    color: Colors.text,
+    lineHeight: 22,
+    flex: 1,
+    minWidth: 0,
+  },
+  remainingCluesHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginTop: Spacing.xs,
+  },
+  remainingCluesTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.accent,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  remainingCluesPenalty: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    fontWeight: '600',
+  },
+  remainingCluesEmpty: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
   },
 
   // Accuse button
