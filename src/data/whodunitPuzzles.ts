@@ -353,6 +353,16 @@ const CASE_NAMES = [
   'The Ivory Dossier',
   'The Quiet Rendezvous',
   'The Shattered Locket',
+  'The Opera Cipher',
+  'The Frosted Alibi',
+  'The Cobalt Affair',
+  'The Harbor Vow',
+  "The Archivist's Bluff",
+  'The Crimson Coda',
+  'The Orchard Secret',
+  'The Silent Barometer',
+  'The Velvet Ultimatum',
+  "The Lantern's Witness",
 ];
 
 const NARRATIVE_BEATS = [

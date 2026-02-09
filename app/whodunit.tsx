@@ -19,6 +19,16 @@ import {
 
 const TIME_PENALTY = 10;
 const STORAGE_PREFIX = 'whodunit';
+const WEB_NO_SELECT =
+  Platform.OS === 'web'
+    ? {
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTouchCallout: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        touchAction: 'manipulation',
+      }
+    : {};
 
 type GameState = 'playing' | 'won' | 'lost';
 
@@ -64,9 +74,6 @@ export default function WhodunitScreen() {
     () => new Set(initialRevealed)
   );
   const [revealedOrder, setRevealedOrder] = useState<number[]>(() => initialRevealed);
-  const [lastRevealedIndex, setLastRevealedIndex] = useState<number | null>(
-    initialRevealed.length ? initialRevealed[initialRevealed.length - 1] : null
-  );
   const [eliminatedSuspects, setEliminatedSuspects] = useState<Set<number>>(
     () => new Set<number>()
   );
@@ -84,14 +91,14 @@ export default function WhodunitScreen() {
     return choice?.label ?? null;
   }, [leadChoiceId, puzzle.leadChoices]);
   const latestClue = useMemo(() => {
-    if (lastRevealedIndex === null) return null;
-    const displayNumber = revealedOrder.indexOf(lastRevealedIndex) + 1;
+    if (revealedOrder.length === 0) return null;
+    const latestIndex = revealedOrder[revealedOrder.length - 1];
     return {
-      index: lastRevealedIndex,
-      clue: puzzle.clues[lastRevealedIndex],
-      displayNumber: displayNumber > 0 ? displayNumber : revealedOrder.length,
+      index: latestIndex,
+      clue: puzzle.clues[latestIndex],
+      displayNumber: revealedOrder.length,
     };
-  }, [lastRevealedIndex, puzzle.clues, revealedOrder]);
+  }, [puzzle.clues, revealedOrder]);
   const unlockedClues = useMemo(
     () =>
       revealedOrder.map((index, orderIndex) => ({
@@ -149,7 +156,6 @@ export default function WhodunitScreen() {
       newRevealed.add(index);
       setRevealedClues(newRevealed);
       setRevealedOrder((prev) => (prev.includes(index) ? prev : [...prev, index]));
-      setLastRevealedIndex(index);
       setTimePenalty((prev) => prev + TIME_PENALTY);
 
       // No auto-elimination — player decides who to eliminate
@@ -171,7 +177,6 @@ export default function WhodunitScreen() {
           prev.includes(clueIndex) ? prev : [...prev, clueIndex]
         );
       }
-      setLastRevealedIndex(clueIndex);
       setLeadChoiceId(choiceId);
     },
     [gameState, leadChoiceId, puzzle.clues, revealedClues]
@@ -353,19 +358,23 @@ export default function WhodunitScreen() {
           </View>
 
           {/* Suspects board */}
-          <View style={styles.suspectsBoard}>
+          <View style={[styles.suspectsBoard, styles.noSelect]}>
             <View style={styles.suspectsHeaderRow}>
               <Text selectable={false} style={styles.suspectsTitle}>
                 Suspects Board
               </Text>
               <View style={styles.suspectsCounter}>
-                <Text selectable={false} style={[styles.suspectsCounterText, styles.noSelect]}>
+                <Text
+                  pointerEvents="none"
+                  selectable={false}
+                  style={[styles.suspectsCounterText, styles.noSelectText]}
+                >
                   Active {puzzle.suspects.length - eliminatedSuspects.size} • Eliminated{' '}
                   {eliminatedSuspects.size}
                 </Text>
               </View>
             </View>
-            <View style={styles.suspectsGrid}>
+            <View style={[styles.suspectsGrid, styles.noSelect]}>
               {puzzle.suspects.map((suspect, i) => {
                 const isEliminated = eliminatedSuspects.has(i);
                 const isSelected = selectedSuspect === i;
@@ -374,6 +383,8 @@ export default function WhodunitScreen() {
                     key={i}
                     style={({ pressed }) => [
                       styles.suspectCard,
+                      styles.noSelect,
+                      isEliminated && styles.suspectCardEliminated,
                       isSelected && styles.suspectSelected,
                       pressed && styles.suspectCardPressed,
                     ]}
@@ -382,25 +393,31 @@ export default function WhodunitScreen() {
                     delayLongPress={250}
                     disabled={gameState !== 'playing'}
                   >
-                    <Text selectable={false} style={[styles.suspectEmoji, styles.noSelect]}>
+                    <Text
+                      pointerEvents="none"
+                      selectable={false}
+                      style={[styles.suspectEmoji, styles.noSelectText]}
+                    >
                       {suspect.emoji}
                     </Text>
                     <Text
+                      pointerEvents="none"
                       selectable={false}
                       style={[
                         styles.suspectName,
                         isEliminated && styles.suspectTextEliminated,
-                        styles.noSelect,
+                        styles.noSelectText,
                       ]}
                     >
                       {suspect.name}
                     </Text>
                     <Text
+                      pointerEvents="none"
                       selectable={false}
                       style={[
                         styles.suspectTrait,
                         isEliminated && styles.suspectTextEliminated,
-                        styles.noSelect,
+                        styles.noSelectText,
                       ]}
                       numberOfLines={2}
                     >
@@ -410,7 +427,11 @@ export default function WhodunitScreen() {
                 );
               })}
             </View>
-            <Text selectable={false} style={[styles.suspectHint, styles.noSelect]}>
+            <Text
+              pointerEvents="none"
+              selectable={false}
+              style={[styles.suspectHint, styles.noSelectText]}
+            >
               Tap to select • Long-press to eliminate
             </Text>
           </View>
@@ -898,12 +919,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     marginBottom: Spacing.lg,
-    ...(Platform.OS === 'web' ? { userSelect: 'none' } : {}),
+    ...WEB_NO_SELECT,
   },
   noSelect: {
-    ...(Platform.OS === 'web'
-      ? { userSelect: 'none', WebkitUserSelect: 'none' }
-      : {}),
+    ...WEB_NO_SELECT,
+  },
+  noSelectText: {
+    ...WEB_NO_SELECT,
   },
   suspectsHeaderRow: {
     flexDirection: 'row',
@@ -951,6 +973,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     position: 'relative',
     overflow: 'hidden',
+    ...WEB_NO_SELECT,
   },
   suspectCardPressed: {
     transform: [{ scale: 0.98 }],
@@ -963,6 +986,11 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
+  },
+  suspectCardEliminated: {
+    backgroundColor: Colors.surfaceLight,
+    borderColor: Colors.border,
+    opacity: 0.65,
   },
   suspectEmoji: {
     fontSize: 28,
@@ -982,7 +1010,8 @@ const styles = StyleSheet.create({
   },
   suspectHint: {
     fontSize: FontSize.sm,
-    color: Colors.textMuted,
+    color: Colors.textSecondary,
+    fontWeight: '600',
     textAlign: 'center',
     marginTop: Spacing.xs,
     marginBottom: Spacing.sm,

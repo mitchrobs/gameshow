@@ -313,7 +313,7 @@ export default function SudokuScreen() {
               ))}
             </View>
 
-            {gameState === 'playing' ? (
+            {gameState === 'playing' && (
               <View style={[styles.pad, { width: boardSize }]}>
                 <View style={styles.padRow}>
                   {[1, 2, 3, 4, 5, 6].map((num) => (
