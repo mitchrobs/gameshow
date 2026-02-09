@@ -53,14 +53,17 @@ export default function WhodunitScreen() {
   const [gameState, setGameState] = useState<GameState>('playing');
   const [selectedSuspect, setSelectedSuspect] = useState<number | null>(null);
   const [leadChoiceId, setLeadChoiceId] = useState<string | null>(null);
-  const [revealedClues, setRevealedClues] = useState<Set<number>>(() => {
-    // Free clues (first 3, which are unlocked) start revealed
-    const free = new Set<number>();
+  const initialRevealed = useMemo(() => {
+    const free: number[] = [];
     puzzle.clues.forEach((c, i) => {
-      if (!c.locked) free.add(i);
+      if (!c.locked) free.push(i);
     });
     return free;
-  });
+  }, [puzzle.clues]);
+  const [revealedClues, setRevealedClues] = useState<Set<number>>(
+    () => new Set(initialRevealed)
+  );
+  const [revealedOrder, setRevealedOrder] = useState<number[]>(() => initialRevealed);
   const [eliminatedSuspects, setEliminatedSuspects] = useState<Set<number>>(
     () => new Set<number>()
   );
@@ -77,25 +80,40 @@ export default function WhodunitScreen() {
     const choice = puzzle.leadChoices.find((c) => c.clueId === leadChoiceId);
     return choice?.label ?? null;
   }, [leadChoiceId, puzzle.leadChoices]);
+  const revealedNumberMap = useMemo(() => {
+    const map = new Map<number, number>();
+    revealedOrder.forEach((clueIndex, index) => {
+      map.set(clueIndex, index + 1);
+    });
+    return map;
+  }, [revealedOrder]);
   const leadClue = useMemo(() => {
     if (!leadChoiceId) return null;
     const index = puzzle.clues.findIndex((c) => c.id === leadChoiceId);
     if (index === -1) return null;
-    return { index, clue: puzzle.clues[index] };
-  }, [leadChoiceId, puzzle.clues]);
-  const unlockedClues = useMemo(() => {
-    const ordered = puzzle.clues.filter((_, index) => revealedClues.has(index));
-    return ordered.map((clue, index) => ({ clue, displayNumber: index + 1 }));
-  }, [puzzle.clues, revealedClues]);
+    return {
+      index,
+      clue: puzzle.clues[index],
+      displayNumber: revealedNumberMap.get(index) ?? revealedOrder.length + 1,
+    };
+  }, [leadChoiceId, puzzle.clues, revealedNumberMap, revealedOrder.length]);
+  const unlockedClues = useMemo(
+    () =>
+      revealedOrder.map((index, orderIndex) => ({
+        clue: puzzle.clues[index],
+        displayNumber: orderIndex + 1,
+      })),
+    [puzzle.clues, revealedOrder]
+  );
   const remainingLockedClues = useMemo(() => {
-    const revealedOrder = puzzle.clues.filter((_, index) => revealedClues.has(index));
-    const remaining = puzzle.clues.filter((clue, index) => clue.locked && !revealedClues.has(index));
-    return remaining.map((clue, index) => ({
-      clue,
+    const remaining = puzzle.clues
+      .map((clue, index) => ({ clue, index }))
+      .filter(({ clue, index }) => clue.locked && !revealedClues.has(index));
+    return remaining.map((entry, index) => ({
+      ...entry,
       displayNumber: revealedOrder.length + index + 1,
-      index: puzzle.clues.indexOf(clue),
     }));
-  }, [puzzle.clues, revealedClues]);
+  }, [puzzle.clues, revealedClues, revealedOrder.length]);
 
   // Timer
   useEffect(() => {
@@ -137,11 +155,12 @@ export default function WhodunitScreen() {
       const newRevealed = new Set(revealedClues);
       newRevealed.add(index);
       setRevealedClues(newRevealed);
+      setRevealedOrder((prev) => (prev.includes(index) ? prev : [...prev, index]));
       setTimePenalty((prev) => prev + TIME_PENALTY);
 
       // No auto-elimination — player decides who to eliminate
     },
-    [gameState, revealedClues, puzzle.clues]
+    [gameState, revealedClues]
   );
 
   const handleSelectLead = useCallback(
@@ -154,6 +173,9 @@ export default function WhodunitScreen() {
         const next = new Set(revealedClues);
         next.add(clueIndex);
         setRevealedClues(next);
+        setRevealedOrder((prev) =>
+          prev.includes(clueIndex) ? prev : [...prev, clueIndex]
+        );
       }
       setLeadChoiceId(choiceId);
     },
@@ -398,9 +420,13 @@ export default function WhodunitScreen() {
 
           {/* Lead choice */}
           <View style={styles.leadCard}>
-            <Text style={styles.leadTitle}>{puzzle.leadPrompt}</Text>
+            <Text style={styles.leadTitle}>
+              {leadChoiceId ? 'Remaining clues' : puzzle.leadPrompt}
+            </Text>
             <Text style={styles.leadSubtitle}>
-              Pick one lead to reveal a clue immediately.
+              {leadChoiceId
+                ? `Each clue adds +${TIME_PENALTY}s to your time.`
+                : 'Pick one lead to reveal a clue immediately.'}
             </Text>
             {leadChoiceId === null ? (
               <View style={styles.leadChoiceRow}>
@@ -428,16 +454,12 @@ export default function WhodunitScreen() {
                 <View style={styles.leadResultCard}>
                   <View style={styles.leadResultNumber}>
                     <Text style={styles.leadResultNumberText}>
-                      {leadClue ? leadClue.index + 1 : '•'}
+                      {leadClue?.displayNumber ?? '•'}
                     </Text>
                   </View>
                   <Text style={styles.leadResultText}>
                     {leadClue?.clue.text ?? 'Lead resolved.'}
                   </Text>
-                </View>
-                <View style={styles.remainingCluesHeader}>
-                  <Text style={styles.remainingCluesTitle}>Remaining clues</Text>
-                  <Text style={styles.remainingCluesPenalty}>+{TIME_PENALTY}s each</Text>
                 </View>
                 {remainingLockedClues.length === 0 ? (
                   <Text style={styles.remainingCluesEmpty}>No more clues left.</Text>
@@ -666,7 +688,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     paddingTop: Spacing.lg,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -710,7 +732,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     color: Colors.text,
     fontStyle: 'italic',
-    lineHeight: 22,
+    lineHeight: 20,
     marginBottom: Spacing.sm,
   },
   caseBoardTitle: {
@@ -724,7 +746,7 @@ const styles = StyleSheet.create({
   caseBoardRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   caseChip: {
     flex: 1,
@@ -805,7 +827,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     marginTop: Spacing.xs,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   leadChoiceRow: {
     gap: Spacing.sm,
@@ -884,7 +906,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
     gap: Spacing.sm,
   },
   suspectsTitle: {
@@ -963,7 +985,8 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     textAlign: 'center',
-    marginBottom: Spacing.md,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.sm,
   },
   suspectTextEliminated: {
     color: Colors.textMuted,
@@ -1032,7 +1055,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   leadResultSection: {
-    gap: Spacing.sm,
+    gap: Spacing.md,
   },
   leadResultCard: {
     flexDirection: 'row',
