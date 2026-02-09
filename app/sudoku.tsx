@@ -149,6 +149,14 @@ export default function SudokuScreen() {
   }, [gameState, isComplete, hasConflict, storageKey]);
 
   useEffect(() => {
+    const storage = getStorage();
+    if (!storage) return;
+    const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
+    const current = parseInt(storage.getItem(key) || '0', 10);
+    storage.setItem(key, String(current + 1));
+  }, []);
+
+  useEffect(() => {
     if (gameState !== 'playing') return;
     const id = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);

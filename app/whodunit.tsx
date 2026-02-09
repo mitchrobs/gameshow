@@ -145,6 +145,14 @@ export default function WhodunitScreen() {
     storage?.setItem(storageKey, '1');
   }, [gameState, storageKey]);
 
+  useEffect(() => {
+    const storage = getStorage();
+    if (!storage) return;
+    const key = `${STORAGE_PREFIX}:playcount:${dateKey}`;
+    const current = parseInt(storage.getItem(key) || '0', 10);
+    storage.setItem(key, String(current + 1));
+  }, []);
+
   const totalTime = elapsedSeconds + timePenalty;
 
   const handleRevealClue = useCallback(

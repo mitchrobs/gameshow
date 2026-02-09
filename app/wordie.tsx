@@ -11,10 +11,24 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
-import { getDailyWordle } from '../src/data/wordlePuzzles';
+import { getDailyWordie } from '../src/data/wordiePuzzles';
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
+const STORAGE_PREFIX = 'wordie';
+
+function getLocalDateKey(date: Date = new Date()): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function getStorage(): Storage | null {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return window.localStorage;
+  }
+  return null;
+}
 
 type GameState = 'playing' | 'won' | 'lost';
 type TileStatus = 'correct' | 'present' | 'absent' | 'empty';
@@ -48,7 +62,7 @@ function evaluateGuess(guess: string, answer: string): TileStatus[] {
 
 export default function WordleScreen() {
   const router = useRouter();
-  const answer = useMemo(() => getDailyWordle(), []);
+  const answer = useMemo(() => getDailyWordie(), []);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<GameState>('playing');
@@ -91,7 +105,7 @@ export default function WordleScreen() {
       .join('\n');
 
     return [
-      `Wordle ${dateLabel} ${result}`,
+      `Wordie ${dateLabel} ${result}`,
       rows,
       'https://mitchrobs.github.io/gameshow/',
     ].join('\n');
@@ -100,6 +114,14 @@ export default function WordleScreen() {
   useEffect(() => {
     setShareStatus(null);
   }, [shareText]);
+
+  useEffect(() => {
+    const storage = getStorage();
+    if (!storage) return;
+    const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
+    const current = parseInt(storage.getItem(key) || '0', 10);
+    storage.setItem(key, String(current + 1));
+  }, []);
 
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;
@@ -120,7 +142,7 @@ export default function WordleScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Wordle', headerBackTitle: 'Home' }} />
+      <Stack.Screen options={{ title: 'Wordie', headerBackTitle: 'Home' }} />
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -129,7 +151,7 @@ export default function WordleScreen() {
           <View style={styles.page}>
             <View style={styles.pageAccent} />
             <View style={styles.header}>
-              <Text style={styles.title}>Wordle</Text>
+              <Text style={styles.title}>Wordie</Text>
               <Text style={styles.subtitle}>Guess the 5-letter word in 6 tries.</Text>
             </View>
 

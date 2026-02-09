@@ -372,13 +372,13 @@ function getLocalDayIndex(date: Date): number {
   return Math.floor(localMidnight.getTime() / DAY_MS);
 }
 
-export function getDailyWordleIndex(date: Date = new Date()): number {
+export function getDailyWordieIndex(date: Date = new Date()): number {
   const dayIndex = getLocalDayIndex(date);
   return DAILY_ORDER[dayIndex % DAILY_ORDER.length];
 }
 
-export function getDailyWordle(date: Date = new Date()): string {
-  return WORDS[getDailyWordleIndex(date)];
+export function getDailyWordie(date: Date = new Date()): string {
+  return WORDS[getDailyWordieIndex(date)];
 }
 
 export default WORDS;
