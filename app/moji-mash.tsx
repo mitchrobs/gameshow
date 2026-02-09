@@ -97,6 +97,14 @@ export default function MojiMashScreen() {
   }, [dailyKey, bonusKey]);
 
   useEffect(() => {
+    const storage = getStorage();
+    if (!storage) return;
+    const key = `${STORAGE_PREFIX}:playcount:${dateKey}`;
+    const current = parseInt(storage.getItem(key) || '0', 10);
+    storage.setItem(key, String(current + 1));
+  }, []);
+
+  useEffect(() => {
     if (gameState !== 'won' || mode !== 'daily') return;
     if (dailyCompleted) return;
     const storage = getStorage();

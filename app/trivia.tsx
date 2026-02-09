@@ -21,6 +21,20 @@ import {
 
 const QUESTION_COUNT = 8;
 const TIME_PER_QUESTION = 12;
+const STORAGE_PREFIX = 'trivia';
+
+function getLocalDateKey(date: Date = new Date()): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function getStorage(): Storage | null {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return window.localStorage;
+  }
+  return null;
+}
 
 type GameMode = 'choose' | 'quiz' | 'finished';
 
@@ -173,6 +187,14 @@ export default function TriviaScreen() {
   useEffect(() => {
     setShareStatus(null);
   }, [shareText]);
+
+  useEffect(() => {
+    const storage = getStorage();
+    if (!storage) return;
+    const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
+    const current = parseInt(storage.getItem(key) || '0', 10);
+    storage.setItem(key, String(current + 1));
+  }, []);
 
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;

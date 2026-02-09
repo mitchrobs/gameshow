@@ -6,7 +6,7 @@ import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme'
 import { BUILD_ID } from '../src/constants/build';
 import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
-import { getDailyWordle } from '../src/data/wordlePuzzles';
+import { getDailyWordie } from '../src/data/wordiePuzzles';
 import { getDailyTriviaCategories } from '../src/data/triviaPuzzles';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
 
@@ -14,10 +14,11 @@ export default function HomeScreen() {
   const router = useRouter();
   const puzzle = getDailyPuzzle();
   const whodunit = getDailyWhodunit();
-  const wordle = getDailyWordle();
+  const wordie = getDailyWordie();
   const triviaCategories = getDailyTriviaCategories();
   const sudoku = getDailySudoku();
   const [streak, setStreak] = useState(0);
+  const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const dateLabel = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -33,7 +34,7 @@ export default function HomeScreen() {
   const quickLinks = useMemo(
     () => [
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩' },
-      { label: 'Wordle', route: '/wordle', emoji: '🔤' },
+      { label: 'Wordie', route: '/wordie', emoji: '🔤' },
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠' },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍' },
       { label: 'Trivia', route: '/trivia', emoji: '⚡' },
@@ -54,17 +55,36 @@ export default function HomeScreen() {
       return `${date.getFullYear()}-${month}-${day}`;
     };
 
-    const hasDaily = (date: Date) =>
-      storage.getItem(`mojimash:daily:${keyForDate(date)}`) === '1';
+    const hasAnyDaily = (date: Date) => {
+      const key = keyForDate(date);
+      return (
+        storage.getItem(`mojimash:daily:${key}`) === '1' ||
+        storage.getItem(`wordie:daily:${key}`) === '1' ||
+        storage.getItem(`wordle:daily:${key}`) === '1' ||
+        storage.getItem(`sudoku:daily:${key}`) === '1' ||
+        storage.getItem(`whodunit:daily:${key}`) === '1' ||
+        storage.getItem(`trivia:daily:${key}`) === '1'
+      );
+    };
 
     let count = 0;
     const cursor = new Date();
-    while (hasDaily(cursor)) {
+    while (hasAnyDaily(cursor)) {
       count += 1;
       cursor.setDate(cursor.getDate() - 1);
     }
 
     setStreak(count);
+
+    // Read play counts for today
+    const today = keyForDate(new Date());
+    const games = ['mojimash', 'wordie', 'sudoku', 'whodunit', 'trivia'];
+    const counts: Record<string, number> = {};
+    for (const game of games) {
+      const raw = storage.getItem(`${game}:playcount:${today}`);
+      counts[game] = raw ? parseInt(raw, 10) || 0 : 0;
+    }
+    setPlayCounts(counts);
   }, []);
 
   return (
@@ -111,6 +131,11 @@ export default function HomeScreen() {
                 </Pressable>
               ))}
             </ScrollView>
+            {streak > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{streak}-day streak</Text>
+              </View>
+            )}
           </View>
 
           {/* Moji Mash card */}
@@ -122,9 +147,9 @@ export default function HomeScreen() {
             <Text style={styles.blurb}>
               Genmojis are AI-styled emoji blends - guess the words behind today's image.
             </Text>
-            {streak > 0 && (
+            {(playCounts['mojimash'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
-                <Text style={styles.streakText}>{streak}-day streak</Text>
+                <Text style={styles.streakText}>Played {playCounts['mojimash']}x today</Text>
               </View>
             )}
             <View style={styles.dailyCard}>
@@ -143,15 +168,20 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Wordle card */}
+          {/* Wordie card */}
           <View style={styles.gameSection}>
             <View style={styles.gameLabel}>
               <Text style={styles.kicker}>Word Guess</Text>
-              <Text style={styles.gameTitle}>Wordle</Text>
+              <Text style={styles.gameTitle}>Wordie</Text>
             </View>
             <Text style={styles.blurb}>
               Solve the five-letter word in six guesses.
             </Text>
+            {(playCounts['wordie'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>Played {playCounts['wordie']}x today</Text>
+              </View>
+            )}
             <View style={styles.dailyCard}>
               <View style={styles.wordlePreview}>
                 {Array.from({ length: 2 }).map((_, row) => (
@@ -159,7 +189,7 @@ export default function HomeScreen() {
                     {Array.from({ length: 5 }).map((_, col) => (
                       <View key={col} style={styles.wordleTile}>
                         {row === 0 && col === 0 ? (
-                          <Text style={styles.wordleTileText}>{wordle[0]}</Text>
+                          <Text style={styles.wordleTileText}>{wordie[0]}</Text>
                         ) : null}
                       </View>
                     ))}
@@ -171,7 +201,7 @@ export default function HomeScreen() {
                   styles.playButton,
                   pressed && styles.playButtonPressed,
                 ]}
-                onPress={() => router.push('/wordle')}
+                onPress={() => router.push('/wordie')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
@@ -187,6 +217,11 @@ export default function HomeScreen() {
             <Text style={styles.blurb}>
               A 6x6 daily Sudoku with a medium-hard bite.
             </Text>
+            {(playCounts['sudoku'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>Played {playCounts['sudoku']}x today</Text>
+              </View>
+            )}
             <View style={styles.dailyCard}>
               <View style={styles.sudokuPreview}>
                 {sudoku.grid.map((row, rowIndex) => (
@@ -228,6 +263,11 @@ export default function HomeScreen() {
             <Text style={styles.blurb}>
               Eight rapid questions - pick one of today's categories and race the clock.
             </Text>
+            {(playCounts['trivia'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>Played {playCounts['trivia']}x today</Text>
+              </View>
+            )}
             <View style={styles.dailyCard}>
               <View style={styles.triviaPreview}>
                 <Text style={styles.triviaPreviewTitle}>Today's choices</Text>
@@ -260,6 +300,11 @@ export default function HomeScreen() {
             <Text style={styles.blurb}>
               A daily murder mystery. Read clues, eliminate suspects, deduce the killer.
             </Text>
+            {(playCounts['whodunit'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>Played {playCounts['whodunit']}x today</Text>
+              </View>
+            )}
             <View style={styles.dailyCard}>
               <View style={styles.whodunitPreview}>
                 <Text style={styles.whodunitPreviewEmoji}>🔍</Text>
