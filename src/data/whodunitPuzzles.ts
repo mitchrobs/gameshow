@@ -576,15 +576,10 @@ function formatTime(minutes: number): string {
 }
 
 function fillTemplate(template: string, data: Record<string, string>): string {
-  return template
-    .replace('{victim}', data.victim)
-    .replace('{weapon}', data.weapon)
-    .replace('{room}', data.room)
-    .replace('{setting}', data.setting)
-    .replace('{timeEarly}', data.timeEarly)
-    .replace('{timeMid}', data.timeMid)
-    .replace('{timeLate}', data.timeLate)
-    .replace('{timeWindow}', data.timeWindow);
+  return template.replace(
+    /\{(victim|weapon|room|setting|timeEarly|timeMid|timeLate|timeWindow)\}/g,
+    (_match, key) => data[key] ?? ''
+  );
 }
 
 // ── Puzzle generation ──────────────────────────────────────────
