@@ -16,6 +16,7 @@ import {
   WhodunitPuzzle,
   Clue,
 } from '../src/data/whodunitPuzzles';
+import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const TIME_PENALTY = 10;
 const STORAGE_PREFIX = 'whodunit';
@@ -151,6 +152,7 @@ export default function WhodunitScreen() {
     const key = `${STORAGE_PREFIX}:playcount:${dateKey}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
+    incrementGlobalPlayCount('whodunit');
   }, []);
 
   const totalTime = elapsedSeconds + timePenalty;
