@@ -105,15 +105,13 @@ export default function WhodunitScreen() {
       })),
     [puzzle.clues, revealedOrder]
   );
-  const remainingLockedClues = useMemo(() => {
-    const remaining = puzzle.clues
-      .map((clue, index) => ({ clue, index }))
-      .filter(({ clue, index }) => clue.locked && !revealedClues.has(index));
-    return remaining.map((entry, index) => ({
-      ...entry,
-      displayNumber: revealedOrder.length + index + 1,
-    }));
-  }, [puzzle.clues, revealedClues, revealedOrder.length]);
+  const remainingLockedClues = useMemo(
+    () =>
+      puzzle.clues
+        .map((clue, index) => ({ clue, index }))
+        .filter(({ clue, index }) => clue.locked && !revealedClues.has(index)),
+    [puzzle.clues, revealedClues]
+  );
 
   // Timer
   useEffect(() => {
@@ -377,7 +375,6 @@ export default function WhodunitScreen() {
                   key={i}
                   style={({ pressed }) => [
                     styles.suspectCard,
-                    isEliminated && styles.suspectEliminated,
                     isSelected && styles.suspectSelected,
                     pressed && styles.suspectCardPressed,
                   ]}
@@ -404,15 +401,10 @@ export default function WhodunitScreen() {
                     >
                       {suspect.trait}
                     </Text>
-                    {isEliminated && (
-                      <View style={styles.eliminatedOverlay}>
-                        <Text style={styles.eliminatedX}>✕</Text>
-                      </View>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
+                </Pressable>
+              );
+            })}
+          </View>
             <Text style={styles.suspectHint}>
               Tap to select • Long-press to eliminate
             </Text>
@@ -464,7 +456,7 @@ export default function WhodunitScreen() {
                 {remainingLockedClues.length === 0 ? (
                   <Text style={styles.remainingCluesEmpty}>No more clues left.</Text>
                 ) : (
-                  remainingLockedClues.map(({ clue, index, displayNumber }) => (
+                  remainingLockedClues.map(({ clue, index }) => (
                     <Pressable
                       key={clue.id}
                       style={({ pressed }) => [
@@ -475,7 +467,7 @@ export default function WhodunitScreen() {
                       disabled={gameState !== 'playing'}
                     >
                       <View style={styles.clueNumberLocked}>
-                        <Text style={styles.clueNumberText}>{displayNumber}</Text>
+                        <Text style={styles.clueNumberText}>•</Text>
                       </View>
                       <Text style={styles.lockedClueText}>Tap to reveal +{TIME_PENALTY}s</Text>
                     </Pressable>
@@ -648,7 +640,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     textTransform: 'uppercase',
-    letterSpacing: 1.5,
+    letterSpacing: 1.1,
     marginTop: Spacing.xs,
     fontWeight: '600',
   },
@@ -731,16 +723,16 @@ const styles = StyleSheet.create({
   caseNarrative: {
     fontSize: FontSize.md,
     color: Colors.text,
-    fontStyle: 'italic',
+    fontStyle: 'normal',
     lineHeight: 20,
     marginBottom: Spacing.sm,
   },
   caseBoardTitle: {
     fontSize: FontSize.sm,
     fontWeight: '700',
-    color: Colors.accent,
+    color: Colors.textSecondary,
     textTransform: 'uppercase',
-    letterSpacing: 1.2,
+    letterSpacing: 0.9,
     marginBottom: Spacing.sm,
   },
   caseBoardRow: {
@@ -819,9 +811,9 @@ const styles = StyleSheet.create({
   leadTitle: {
     fontSize: FontSize.sm,
     fontWeight: '700',
-    color: Colors.accent,
+    color: Colors.textSecondary,
     textTransform: 'uppercase',
-    letterSpacing: 1.2,
+    letterSpacing: 0.9,
   },
   leadSubtitle: {
     fontSize: FontSize.sm,
@@ -912,9 +904,9 @@ const styles = StyleSheet.create({
   suspectsTitle: {
     fontSize: FontSize.sm,
     fontWeight: '700',
-    color: Colors.accent,
+    color: Colors.textSecondary,
     textTransform: 'uppercase',
-    letterSpacing: 1.2,
+    letterSpacing: 0.9,
   },
   suspectsCounter: {
     backgroundColor: Colors.surfaceLight,
@@ -961,10 +953,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
   },
-  suspectEliminated: {
-    opacity: 0.45,
-    backgroundColor: Colors.surfaceLight,
-  },
   suspectEmoji: {
     fontSize: 28,
     marginBottom: 2,
@@ -990,21 +978,6 @@ const styles = StyleSheet.create({
   },
   suspectTextEliminated: {
     color: Colors.textMuted,
-  },
-  eliminatedOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  eliminatedX: {
-    fontSize: 48,
-    color: Colors.error,
-    fontWeight: '800',
-    opacity: 0.3,
   },
 
   // Clues / Lead result

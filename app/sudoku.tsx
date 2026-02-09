@@ -17,6 +17,10 @@ const SIZE = 6;
 const BOX_ROWS = 2;
 const BOX_COLS = 3;
 const STORAGE_PREFIX = 'sudoku';
+const HIGHLIGHT_COLOR = '#3b82f6';
+const HIGHLIGHT_BG = 'rgba(59, 130, 246, 0.12)';
+const ROW_GLOW_BG = 'rgba(79, 180, 119, 0.14)';
+const ROW_GLOW_BORDER = 'rgba(79, 180, 119, 0.4)';
 
 type GameState = 'playing' | 'won';
 
@@ -119,6 +123,14 @@ export default function SudokuScreen() {
   const [shareStatus, setShareStatus] = useState<string | null>(null);
 
   const conflicts = useMemo(() => getConflicts(grid), [grid]);
+  const rowComplete = useMemo(
+    () =>
+      grid.map(
+        (row, rowIndex) =>
+          row.every((value) => value !== 0) && !conflicts[rowIndex].some(Boolean)
+      ),
+    [grid, conflicts]
+  );
   const isComplete = useMemo(
     () => grid.every((row) => row.every((value) => value !== 0)),
     [grid]
@@ -149,8 +161,10 @@ export default function SudokuScreen() {
   const blockGap = 12;
   const maxBoard = 360;
   const boardSize = Math.min(maxBoard, width - Spacing.lg * 2);
+  const boardPadding = Spacing.md;
   const totalGap = baseGap * (SIZE - 2) + blockGap;
-  const cellSize = Math.floor((boardSize - totalGap) / SIZE);
+  const gridSize = boardSize - boardPadding * 2;
+  const cellSize = Math.floor((gridSize - totalGap) / SIZE);
 
   const isGiven = useCallback(
     (row: number, col: number) => puzzle.grid[row][col] !== 0,
@@ -159,6 +173,7 @@ export default function SudokuScreen() {
 
   const handleNumberPress = useCallback(
     (value: number) => {
+      if (gameState !== 'playing') return;
       if (!selected) return;
       if (isGiven(selected.row, selected.col)) return;
       setGrid((prev) => {
@@ -167,10 +182,11 @@ export default function SudokuScreen() {
         return next;
       });
     },
-    [selected, isGiven]
+    [selected, isGiven, gameState]
   );
 
   const handleClear = useCallback(() => {
+    if (gameState !== 'playing') return;
     if (!selected) return;
     if (isGiven(selected.row, selected.col)) return;
     setGrid((prev) => {
@@ -178,7 +194,7 @@ export default function SudokuScreen() {
       next[selected.row][selected.col] = 0;
       return next;
     });
-  }, [selected, isGiven]);
+  }, [selected, isGiven, gameState]);
 
   const handleReset = useCallback(() => {
     setGrid(puzzle.grid.map((row) => [...row]));
@@ -234,7 +250,7 @@ export default function SudokuScreen() {
               <Text style={styles.helper}>Tap a square, then choose 1-6.</Text>
             </View>
 
-            <View style={[styles.board, { width: boardSize }]}>
+            <View style={[styles.board, { width: boardSize, padding: boardPadding }]}>
               {grid.map((row, rowIndex) => (
                 <View
                   key={`row-${rowIndex}`}
@@ -252,6 +268,7 @@ export default function SudokuScreen() {
                     const relatedCell =
                       selected && (selected.row === rowIndex || selected.col === colIndex);
                     const cellConflict = conflicts[rowIndex][colIndex];
+                    const rowGlow = rowComplete[rowIndex];
                     const borderRight =
                       colIndex % BOX_COLS === BOX_COLS - 1 && colIndex !== SIZE - 1
                         ? blockGap
@@ -259,15 +276,20 @@ export default function SudokuScreen() {
                     return (
                       <Pressable
                         key={`cell-${rowIndex}-${colIndex}`}
-                        onPress={() => setSelected({ row: rowIndex, col: colIndex })}
+                        disabled={gameState !== 'playing'}
+                        onPress={() => {
+                          if (gameState !== 'playing') return;
+                          setSelected({ row: rowIndex, col: colIndex });
+                        }}
                         style={[
                           styles.cell,
+                          rowGlow && styles.rowCompleteCell,
                           {
                             width: cellSize,
                             height: cellSize,
                             marginRight: borderRight,
                             backgroundColor: relatedCell
-                              ? 'rgba(255, 77, 109, 0.08)'
+                              ? HIGHLIGHT_BG
                               : Colors.surface,
                           },
                           isGiven(rowIndex, colIndex) && styles.givenCell,
@@ -291,54 +313,58 @@ export default function SudokuScreen() {
               ))}
             </View>
 
-            <View style={styles.pad}>
-              <View style={styles.padRow}>
-                {[1, 2, 3, 4, 5, 6].map((num) => (
+            {gameState === 'playing' ? (
+              <View style={[styles.pad, { width: boardSize }]}>
+                <View style={styles.padRow}>
+                  {[1, 2, 3, 4, 5, 6].map((num) => (
+                    <Pressable
+                      key={num}
+                      style={({ pressed }) => [
+                        styles.padButton,
+                        { width: cellSize },
+                        pressed && styles.padButtonPressed,
+                      ]}
+                      onPress={() => handleNumberPress(num)}
+                    >
+                      <Text style={styles.padText}>{num}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <View style={styles.padActions}>
                   <Pressable
-                    key={num}
                     style={({ pressed }) => [
-                      styles.padButton,
-                      pressed && styles.padButtonPressed,
+                      styles.clearButton,
+                      pressed && styles.clearButtonPressed,
                     ]}
-                    onPress={() => handleNumberPress(num)}
+                    onPress={handleClear}
                   >
-                    <Text style={styles.padText}>{num}</Text>
+                    <Text style={styles.clearText}>Clear</Text>
                   </Pressable>
-                ))}
-              </View>
-              <View style={styles.padActions}>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.clearButton,
-                    pressed && styles.clearButtonPressed,
-                  ]}
-                  onPress={handleClear}
-                >
-                  <Text style={styles.clearText}>Clear</Text>
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.resetButton,
-                    pressed && styles.resetButtonPressed,
-                  ]}
-                  onPress={handleReset}
-                >
-                  <Text style={styles.resetText}>Reset</Text>
-                </Pressable>
-              </View>
-              {gameState === 'playing' && (
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.resetButton,
+                      pressed && styles.resetButtonPressed,
+                    ]}
+                    onPress={handleReset}
+                  >
+                    <Text style={styles.resetText}>Reset</Text>
+                  </Pressable>
+                </View>
                 <View style={styles.timerRow}>
                   <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
                   {hasConflict && (
                     <Text style={styles.conflictHint}>Resolve conflicts to finish.</Text>
                   )}
                 </View>
-              )}
-            </View>
+              </View>
+            ) : (
+              <View style={[styles.lockedRow, { width: boardSize }]}>
+                <Text style={styles.lockedText}>Puzzle locked.</Text>
+              </View>
+            )}
 
             {gameState === 'won' && (
               <View style={styles.resultCard}>
-                <Text style={styles.resultEmoji}>✨</Text>
                 <Text style={styles.resultTitle}>Nice solve!</Text>
                 <Text style={styles.resultSubtitle}>
                   {formatTime(elapsedSeconds)} - {puzzle.difficulty}
@@ -441,7 +467,6 @@ const styles = StyleSheet.create({
   board: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
     alignSelf: 'center',
@@ -457,12 +482,16 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceLight,
   },
   selectedCell: {
-    borderColor: Colors.accent,
+    borderColor: HIGHLIGHT_COLOR,
     borderWidth: 2,
   },
   conflictCell: {
     borderColor: Colors.error,
     borderWidth: 2,
+  },
+  rowCompleteCell: {
+    backgroundColor: ROW_GLOW_BG,
+    borderColor: ROW_GLOW_BORDER,
   },
   cellText: {
     fontSize: FontSize.lg,
@@ -477,6 +506,7 @@ const styles = StyleSheet.create({
   },
   pad: {
     marginTop: Spacing.lg,
+    alignSelf: 'center',
   },
   padRow: {
     flexDirection: 'row',
@@ -554,6 +584,17 @@ const styles = StyleSheet.create({
     color: Colors.error,
     fontWeight: '600',
   },
+  lockedRow: {
+    marginTop: Spacing.lg,
+    alignSelf: 'center',
+    paddingVertical: Spacing.sm,
+  },
+  lockedText: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
   resultCard: {
     alignItems: 'center',
     backgroundColor: Colors.surface,
@@ -565,9 +606,6 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 10 },
     elevation: 4,
-  },
-  resultEmoji: {
-    fontSize: 44,
   },
   resultTitle: {
     fontSize: FontSize.xl,
