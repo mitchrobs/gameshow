@@ -61,7 +61,6 @@ export default function HomeScreen() {
       return (
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
-        storage.getItem(`wordle:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
         storage.getItem(`trivia:daily:${key}`) === '1'
