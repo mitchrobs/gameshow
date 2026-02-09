@@ -117,7 +117,6 @@ export default function SudokuScreen() {
   const [gameState, setGameState] = useState<GameState>('playing');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
-  const timerRef = useState<ReturnType<typeof setInterval> | null>(null)[0];
 
   const conflicts = useMemo(() => getConflicts(grid), [grid]);
   const isComplete = useMemo(
@@ -190,7 +189,7 @@ export default function SudokuScreen() {
   const shareText = useMemo(() => {
     return [
       `Mini Sudoku ${dateLabel}`,
-      `Solved in ${formatTime(elapsedSeconds)} • ${puzzle.difficulty}`,
+      `Solved in ${formatTime(elapsedSeconds)} - ${puzzle.difficulty}`,
       'https://mitchrobs.github.io/gameshow/',
     ].join('\n');
   }, [dateLabel, elapsedSeconds, puzzle.difficulty]);
@@ -231,7 +230,7 @@ export default function SudokuScreen() {
                   <Text style={styles.difficultyText}>{puzzle.difficulty}</Text>
                 </View>
               </View>
-              <Text style={styles.helper}>Tap a square, then choose 1–6.</Text>
+              <Text style={styles.helper}>Tap a square, then choose 1-6.</Text>
             </View>
 
             <View style={[styles.board, { width: boardSize }]}>
@@ -341,7 +340,7 @@ export default function SudokuScreen() {
                 <Text style={styles.resultEmoji}>✨</Text>
                 <Text style={styles.resultTitle}>Nice solve!</Text>
                 <Text style={styles.resultSubtitle}>
-                  {formatTime(elapsedSeconds)} • {puzzle.difficulty}
+                  {formatTime(elapsedSeconds)} - {puzzle.difficulty}
                 </Text>
                 <View style={styles.shareCard}>
                   <Text style={styles.shareTitle}>Share your result</Text>
