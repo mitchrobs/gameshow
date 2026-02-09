@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
+import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const SIZE = 6;
 const BOX_ROWS = 2;
@@ -154,6 +155,7 @@ export default function SudokuScreen() {
     const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
+    incrementGlobalPlayCount('sudoku');
   }, []);
 
   useEffect(() => {

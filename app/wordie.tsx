@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
 import { getDailyWordie } from '../src/data/wordiePuzzles';
+import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
@@ -60,7 +61,7 @@ function evaluateGuess(guess: string, answer: string): TileStatus[] {
   return result;
 }
 
-export default function WordleScreen() {
+export default function WordieScreen() {
   const router = useRouter();
   const answer = useMemo(() => getDailyWordie(), []);
   const [guesses, setGuesses] = useState<string[]>([]);
@@ -121,6 +122,7 @@ export default function WordleScreen() {
     const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
+    incrementGlobalPlayCount('wordie');
   }, []);
 
   const handleCopyResults = useCallback(async () => {

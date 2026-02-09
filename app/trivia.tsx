@@ -18,6 +18,7 @@ import {
   TriviaQuestion,
   TriviaDifficulty,
 } from '../src/data/triviaPuzzles';
+import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const QUESTION_COUNT = 8;
 const TIME_PER_QUESTION = 12;
@@ -194,6 +195,7 @@ export default function TriviaScreen() {
     const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
+    incrementGlobalPlayCount('trivia');
   }, []);
 
   const handleCopyResults = useCallback(async () => {

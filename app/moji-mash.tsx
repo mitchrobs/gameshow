@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
 import { getDailyPuzzle, getBonusPuzzle, MojiMashPuzzle } from '../src/data/mojiMashPuzzles';
+import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const MAX_WRONG_GUESSES = 5;
 const STORAGE_PREFIX = 'mojimash';
@@ -102,6 +103,7 @@ export default function MojiMashScreen() {
     const key = `${STORAGE_PREFIX}:playcount:${dateKey}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
+    incrementGlobalPlayCount('mojimash');
   }, []);
 
   useEffect(() => {

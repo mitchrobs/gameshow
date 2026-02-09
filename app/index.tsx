@@ -9,6 +9,7 @@ import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 import { getDailyWordie } from '../src/data/wordiePuzzles';
 import { getDailyTriviaCategories } from '../src/data/triviaPuzzles';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
+import { getGlobalPlayCounts } from '../src/globalPlayCount';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -60,7 +61,6 @@ export default function HomeScreen() {
       return (
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
-        storage.getItem(`wordle:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
         storage.getItem(`trivia:daily:${key}`) === '1'
@@ -75,16 +75,15 @@ export default function HomeScreen() {
     }
 
     setStreak(count);
+  }, []);
 
-    // Read play counts for today
-    const today = keyForDate(new Date());
-    const games = ['mojimash', 'wordie', 'sudoku', 'whodunit', 'trivia'];
-    const counts: Record<string, number> = {};
-    for (const game of games) {
-      const raw = storage.getItem(`${game}:playcount:${today}`);
-      counts[game] = raw ? parseInt(raw, 10) || 0 : 0;
-    }
-    setPlayCounts(counts);
+  useEffect(() => {
+    getGlobalPlayCounts(['mojimash', 'wordie', 'sudoku', 'whodunit', 'trivia'])
+      .then((counts) => {
+        if (Object.keys(counts).length > 0) {
+          setPlayCounts(counts);
+        }
+      });
   }, []);
 
   return (
@@ -149,7 +148,7 @@ export default function HomeScreen() {
             </Text>
             {(playCounts['mojimash'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
-                <Text style={styles.streakText}>Played {playCounts['mojimash']}x today</Text>
+                <Text style={styles.streakText}>{playCounts['mojimash']} plays today</Text>
               </View>
             )}
             <View style={styles.dailyCard}>
@@ -179,17 +178,17 @@ export default function HomeScreen() {
             </Text>
             {(playCounts['wordie'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
-                <Text style={styles.streakText}>Played {playCounts['wordie']}x today</Text>
+                <Text style={styles.streakText}>{playCounts['wordie']} plays today</Text>
               </View>
             )}
             <View style={styles.dailyCard}>
-              <View style={styles.wordlePreview}>
+              <View style={styles.wordiePreview}>
                 {Array.from({ length: 2 }).map((_, row) => (
-                  <View key={row} style={styles.wordleRow}>
+                  <View key={row} style={styles.wordieRow}>
                     {Array.from({ length: 5 }).map((_, col) => (
-                      <View key={col} style={styles.wordleTile}>
+                      <View key={col} style={styles.wordieTile}>
                         {row === 0 && col === 0 ? (
-                          <Text style={styles.wordleTileText}>{wordie[0]}</Text>
+                          <Text style={styles.wordieTileText}>{wordie[0]}</Text>
                         ) : null}
                       </View>
                     ))}
@@ -219,7 +218,7 @@ export default function HomeScreen() {
             </Text>
             {(playCounts['sudoku'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
-                <Text style={styles.streakText}>Played {playCounts['sudoku']}x today</Text>
+                <Text style={styles.streakText}>{playCounts['sudoku']} plays today</Text>
               </View>
             )}
             <View style={styles.dailyCard}>
@@ -265,7 +264,7 @@ export default function HomeScreen() {
             </Text>
             {(playCounts['trivia'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
-                <Text style={styles.streakText}>Played {playCounts['trivia']}x today</Text>
+                <Text style={styles.streakText}>{playCounts['trivia']} plays today</Text>
               </View>
             )}
             <View style={styles.dailyCard}>
@@ -302,7 +301,7 @@ export default function HomeScreen() {
             </Text>
             {(playCounts['whodunit'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
-                <Text style={styles.streakText}>Played {playCounts['whodunit']}x today</Text>
+                <Text style={styles.streakText}>{playCounts['whodunit']} plays today</Text>
               </View>
             )}
             <View style={styles.dailyCard}>
@@ -491,7 +490,7 @@ const styles = StyleSheet.create({
     height: 160,
     resizeMode: 'contain',
   },
-  wordlePreview: {
+  wordiePreview: {
     alignItems: 'center',
     marginVertical: Spacing.md,
     backgroundColor: Colors.surfaceLight,
@@ -499,11 +498,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     gap: Spacing.sm,
   },
-  wordleRow: {
+  wordieRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
   },
-  wordleTile: {
+  wordieTile: {
     width: 44,
     height: 44,
     borderRadius: 10,
@@ -513,7 +512,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  wordleTileText: {
+  wordieTileText: {
     fontSize: FontSize.lg,
     fontWeight: '800',
     color: Colors.text,
