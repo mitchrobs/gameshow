@@ -182,13 +182,13 @@ export default function HomeScreen() {
               </View>
             )}
             <View style={styles.dailyCard}>
-              <View style={styles.wordlePreview}>
+              <View style={styles.wordiePreview}>
                 {Array.from({ length: 2 }).map((_, row) => (
-                  <View key={row} style={styles.wordleRow}>
+                  <View key={row} style={styles.wordieRow}>
                     {Array.from({ length: 5 }).map((_, col) => (
-                      <View key={col} style={styles.wordleTile}>
+                      <View key={col} style={styles.wordieTile}>
                         {row === 0 && col === 0 ? (
-                          <Text style={styles.wordleTileText}>{wordie[0]}</Text>
+                          <Text style={styles.wordieTileText}>{wordie[0]}</Text>
                         ) : null}
                       </View>
                     ))}
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
     height: 160,
     resizeMode: 'contain',
   },
-  wordlePreview: {
+  wordiePreview: {
     alignItems: 'center',
     marginVertical: Spacing.md,
     backgroundColor: Colors.surfaceLight,
@@ -498,11 +498,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     gap: Spacing.sm,
   },
-  wordleRow: {
+  wordieRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
   },
-  wordleTile: {
+  wordieTile: {
     width: 44,
     height: 44,
     borderRadius: 10,
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  wordleTileText: {
+  wordieTileText: {
     fontSize: FontSize.lg,
     fontWeight: '800',
     color: Colors.text,

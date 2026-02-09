@@ -61,7 +61,7 @@ function evaluateGuess(guess: string, answer: string): TileStatus[] {
   return result;
 }
 
-export default function WordleScreen() {
+export default function WordieScreen() {
   const router = useRouter();
   const answer = useMemo(() => getDailyWordie(), []);
   const [guesses, setGuesses] = useState<string[]>([]);
