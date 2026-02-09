@@ -83,13 +83,10 @@ export default function WhodunitScreen() {
     if (index === -1) return null;
     return { index, clue: puzzle.clues[index] };
   }, [leadChoiceId, puzzle.clues]);
-  const unlockedClues = useMemo(
-    () =>
-      puzzle.clues
-        .map((clue, index) => ({ clue, index }))
-        .filter(({ index }) => revealedClues.has(index)),
-    [puzzle.clues, revealedClues]
-  );
+  const unlockedClues = useMemo(() => {
+    const ordered = puzzle.clues.filter((_, index) => revealedClues.has(index));
+    return ordered.map((clue, index) => ({ clue, displayNumber: index + 1 }));
+  }, [puzzle.clues, revealedClues]);
   const remainingLockedClues = useMemo(() => {
     const revealedOrder = puzzle.clues.filter((_, index) => revealedClues.has(index));
     const remaining = puzzle.clues.filter((clue, index) => clue.locked && !revealedClues.has(index));
@@ -289,9 +286,6 @@ export default function WhodunitScreen() {
                 <Text style={styles.caseVisualKicker}>{puzzle.setting.description}</Text>
                 <Text style={styles.caseVisualTitle}>{puzzle.caseName}</Text>
               </View>
-              <View style={styles.caseStamp}>
-                <Text style={styles.caseStampText}>OPEN</Text>
-              </View>
             </View>
             <Text style={styles.caseNarrative}>{puzzle.narrative}</Text>
             <View style={styles.caseBoardRow}>
@@ -331,9 +325,9 @@ export default function WhodunitScreen() {
               {unlockedClues.length === 0 ? (
                 <Text style={styles.caseUnlockedEmpty}>No clues yet.</Text>
               ) : (
-                unlockedClues.map(({ clue, index }) => (
+                unlockedClues.map(({ clue, displayNumber }) => (
                   <View key={clue.id} style={styles.caseUnlockedItem}>
-                    <Text style={styles.caseUnlockedNumber}>{index + 1}</Text>
+                    <Text style={styles.caseUnlockedNumber}>{displayNumber}</Text>
                     <Text style={styles.caseUnlockedText}>{clue.text}</Text>
                   </View>
                 ))
@@ -582,8 +576,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   scrollContent: {
-    padding: Spacing.md,
-    paddingBottom: Spacing.xl,
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xxl,
   },
   stickyHeader: {
     backgroundColor: Colors.background,
@@ -671,6 +665,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
+    paddingTop: Spacing.lg,
     marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -697,20 +692,6 @@ const styles = StyleSheet.create({
   caseVisualText: {
     flex: 1,
     minWidth: 0,
-  },
-  caseStamp: {
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  caseStampText: {
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 1,
-    color: Colors.textMuted,
   },
   caseVisualKicker: {
     fontSize: FontSize.sm,
@@ -768,7 +749,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceLight,
     borderRadius: BorderRadius.md,
     padding: Spacing.sm,
-    gap: Spacing.sm,
+    gap: Spacing.xs,
   },
   caseUnlockedTitle: {
     fontSize: FontSize.sm,
@@ -808,7 +789,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
-    marginBottom: Spacing.md,
+    paddingTop: Spacing.lg,
+    marginBottom: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -893,9 +875,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
+    paddingTop: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.lg,
   },
   suspectsHeaderRow: {
     flexDirection: 'row',
