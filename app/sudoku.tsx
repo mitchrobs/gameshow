@@ -149,7 +149,8 @@ export default function SudokuScreen() {
   const blockGap = 12;
   const maxBoard = 360;
   const boardSize = Math.min(maxBoard, width - Spacing.lg * 2);
-  const cellSize = Math.floor((boardSize - baseGap * (SIZE - 1) - blockGap) / SIZE);
+  const totalGap = baseGap * (SIZE - 2) + blockGap;
+  const cellSize = Math.floor((boardSize - totalGap) / SIZE);
 
   const isGiven = useCallback(
     (row: number, col: number) => puzzle.grid[row][col] !== 0,
