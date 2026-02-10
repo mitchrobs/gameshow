@@ -99,7 +99,6 @@ export default function BarterScreen() {
     () => capInventory(cloneInventory(puzzle.inventory))
   );
   const [tradesUsed, setTradesUsed] = useState(0);
-  const [currentStage, setCurrentStage] = useState(0);
   const [gameState, setGameState] = useState<GameState>('playing');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [lastTradeIndex, setLastTradeIndex] = useState<number | null>(null);
@@ -144,10 +143,7 @@ export default function BarterScreen() {
     return { wave1, wave2 };
   }, [puzzle.trades]);
 
-  const activeStage = currentStage + 1;
-  const visibleTrades = (lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1).filter(
-    (trade) => (trade.stage ?? activeStage) === activeStage
-  );
+  const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
 
   const startSummary = useMemo(() => {
     const entries = puzzle.goods
@@ -249,9 +245,6 @@ export default function BarterScreen() {
       if (lateTransition) return;
       if (tradesUsed >= puzzle.maxTrades) return;
       const trade = puzzle.trades[index];
-      const requiredStage = currentStage + 1;
-      const tradeStage = trade.stage ?? requiredStage;
-      if (tradeStage !== requiredStage) return;
       const canAfford = trade.give.every(
         (side) => inventory[side.good] >= side.qty
       );
@@ -267,7 +260,6 @@ export default function BarterScreen() {
       const nextTradesUsed = tradesUsed + 1;
       setInventory(cappedInventory);
       setTradesUsed(nextTradesUsed);
-      setCurrentStage(tradeStage);
       setLastTradeIndex(index);
 
       if (cappedInventory[puzzle.goal.good] >= puzzle.goal.qty) {
@@ -281,8 +273,6 @@ export default function BarterScreen() {
           : candidate.window === 'late'
       );
       const canStillTrade = candidateTrades.some((candidate) => {
-        const candidateStage = candidate.stage ?? tradeStage + 1;
-        if (candidateStage !== tradeStage + 1) return false;
         return candidate.give.every((side) => cappedInventory[side.good] >= side.qty);
       });
       if (!canStillTrade) {
@@ -293,7 +283,7 @@ export default function BarterScreen() {
         setGameState('lost');
       }
     },
-    [gameState, lateTransition, tradesUsed, puzzle, inventory, currentStage]
+    [gameState, lateTransition, tradesUsed, puzzle, inventory]
   );
 
   const handleCopyResults = useCallback(async () => {

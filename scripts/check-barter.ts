@@ -20,19 +20,18 @@ function applyTrade(inv: Inventory, trade: Trade): Inventory {
 
 function shortestPathLength(puzzle: ReturnType<typeof getDailyBarter>): number | null {
   const ids = puzzle.goods.map((g) => g.id);
-  const encode = (inv: Inventory, stage: number) =>
-    `${stage}|${ids.map((id) => inv[id]).join(',')}`;
-  const queue: Array<{ inv: Inventory; steps: number; stage: number }> = [
-    { inv: puzzle.inventory, steps: 0, stage: 0 },
+  const encode = (inv: Inventory, window: TradeWindow) =>
+    `${window}|${ids.map((id) => inv[id]).join(',')}`;
+  const queue: Array<{ inv: Inventory; steps: number }> = [
+    { inv: puzzle.inventory, steps: 0 },
   ];
-  const earlyVisited = new Map<string, number>();
-  const lateVisited = new Set<string>();
-  earlyVisited.set(encode(puzzle.inventory, 0), 0);
+  const visited = new Map<string, number>();
+  visited.set(encode(puzzle.inventory, 'early'), 0);
 
   while (queue.length > 0) {
     const current = queue.shift();
     if (!current) break;
-    const { inv, steps, stage } = current;
+    const { inv, steps } = current;
     if (steps >= puzzle.maxTrades) continue;
     const inEarly = steps < puzzle.earlyWindowTrades;
     const trades = puzzle.trades.filter((trade) =>
@@ -40,9 +39,6 @@ function shortestPathLength(puzzle: ReturnType<typeof getDailyBarter>): number |
     );
 
     for (const trade of trades) {
-      const requiredStage = stage + 1;
-      const tradeStage = trade.stage ?? requiredStage;
-      if (tradeStage !== requiredStage) continue;
       if (!canAfford(inv, trade)) continue;
       const next = applyTrade(inv, trade);
       const nextSteps = steps + 1;
@@ -51,16 +47,13 @@ function shortestPathLength(puzzle: ReturnType<typeof getDailyBarter>): number |
       }
       if (nextSteps >= puzzle.maxTrades) continue;
 
-      const key = encode(next, tradeStage);
-      if (nextSteps < puzzle.earlyWindowTrades) {
-        const prev = earlyVisited.get(key);
-        if (prev !== undefined && prev <= nextSteps) continue;
-        earlyVisited.set(key, nextSteps);
-      } else {
-        if (lateVisited.has(key)) continue;
-        lateVisited.add(key);
-      }
-      queue.push({ inv: next, steps: nextSteps, stage: tradeStage });
+      const nextWindow: TradeWindow =
+        nextSteps < puzzle.earlyWindowTrades ? 'early' : 'late';
+      const key = encode(next, nextWindow);
+      const prev = visited.get(key);
+      if (prev !== undefined && prev <= nextSteps) continue;
+      visited.set(key, nextSteps);
+      queue.push({ inv: next, steps: nextSteps });
     }
   }
 
@@ -76,12 +69,10 @@ function countChoices(
   for (let step = 0; step < Math.min(depth, puzzle.solution.length); step++) {
     const inEarly = step < puzzle.earlyWindowTrades;
     const window: TradeWindow = inEarly ? 'early' : 'late';
-    const stage = step + 1;
     const available = puzzle.trades.filter((trade) => {
       const tradeWindow = trade.window ?? 'early';
       if (window === 'early' && tradeWindow === 'late') return false;
       if (window === 'late' && tradeWindow !== 'late') return false;
-      if ((trade.stage ?? stage) !== stage) return false;
       return canAfford(inv, trade);
     });
     counts.push(available.length);
