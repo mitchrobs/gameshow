@@ -206,12 +206,16 @@ function buildPathGoods(
   par: number,
   goal: GoodId,
   rand: () => number,
-  _difficulty: BarterDifficulty
+  _difficulty: BarterDifficulty,
+  reservedGood?: GoodId
 ): GoodId[] {
-  const commons = goods.filter((id) => GOOD_MAP[id].tier === 'common' && id !== goal);
+  const commons = goods.filter(
+    (id) =>
+      GOOD_MAP[id].tier === 'common' && id !== goal && id !== reservedGood
+  );
   const startGood = commons.length > 0 ? seededPick(commons, rand) : seededPick(goods, rand);
   const remaining = seededShuffle(
-    goods.filter((id) => id !== startGood && id !== goal),
+    goods.filter((id) => id !== startGood && id !== goal && id !== reservedGood),
     rand
   );
 
@@ -221,10 +225,14 @@ function buildPathGoods(
     const minIndex = Math.min(3, path.length - 2);
     const insertIndex = randInt(rand, minIndex, path.length - 2);
     let candidates = goods.filter(
-      (id) => id !== goal && id !== path[insertIndex] && id !== path[insertIndex + 1]
+      (id) =>
+        id !== goal &&
+        id !== reservedGood &&
+        id !== path[insertIndex] &&
+        id !== path[insertIndex + 1]
     );
     if (candidates.length === 0) {
-      candidates = goods.filter((id) => id !== goal);
+      candidates = goods.filter((id) => id !== goal && id !== reservedGood);
     }
     const next = seededPick(candidates, rand);
     path.splice(insertIndex + 1, 0, next);
@@ -452,7 +460,7 @@ function applyLateFees(
 
 function createVariantTrades(
   solution: Trade[],
-  goods: GoodId[],
+  _goods: GoodId[],
   rand: () => number,
   existingKeys: Set<string>,
   window: TradeWindow,
@@ -464,14 +472,6 @@ function createVariantTrades(
       ? [windowTrades[0], ...seededShuffle(windowTrades.slice(1), rand)]
       : seededShuffle(windowTrades, rand);
   const variants: Trade[] = [];
-
-  const pickExtraGood = (trade: Trade): GoodId | null => {
-    const excluded = new Set<GoodId>([trade.get.good]);
-    trade.give.forEach((side) => excluded.add(side.good));
-    const candidates = goods.filter((id) => !excluded.has(id));
-    if (candidates.length === 0) return null;
-    return seededPick(candidates, rand);
-  };
 
   for (const trade of candidates) {
     if (variants.length >= count) break;
@@ -495,18 +495,6 @@ function createVariantTrades(
       variants.push(variant);
       continue;
     }
-
-    const extraGood = pickExtraGood(trade);
-    if (!extraGood) continue;
-    const variant: Trade = {
-      ...trade,
-      give: [...trade.give, { good: extraGood, qty: 1 }],
-      variant: true,
-    };
-    const key = tradeKey(variant);
-    if (existingKeys.has(key)) continue;
-    existingKeys.add(key);
-    variants.push(variant);
   }
 
   if (variants.length === 0 && windowTrades[0]) {
@@ -521,19 +509,6 @@ function createVariantTrades(
       const variant: Trade = {
         ...fallback,
         give: nextGive,
-        variant: true,
-      };
-      const key = tradeKey(variant);
-      if (!existingKeys.has(key)) {
-        existingKeys.add(key);
-        variants.push(variant);
-      }
-    } else {
-      const extraGood = pickExtraGood(fallback);
-      if (!extraGood) return variants;
-      const variant: Trade = {
-        ...fallback,
-        give: [...fallback.give, { good: extraGood, qty: 1 }],
         variant: true,
       };
       const key = tradeKey(variant);
@@ -607,7 +582,17 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     const goalGood = seededPick(rareGoods, rand);
     let goalQty = difficulty === 'Hard' ? 2 : rand() > 0.7 ? 2 : 1;
 
-    const pathGoods = buildPathGoods(pickedGoods, par, goalGood, rand, difficulty);
+    const nonGoalGoods = pickedGoods.filter((id) => id !== goalGood);
+    const reservedGood =
+      nonGoalGoods.length > 0 ? seededPick(nonGoalGoods, rand) : undefined;
+    const pathGoods = buildPathGoods(
+      pickedGoods,
+      par,
+      goalGood,
+      rand,
+      difficulty,
+      reservedGood
+    );
     let solution = buildTrades(pathGoods, goalQty, rand);
 
     const desiredDistractors = config.distractors ?? 0;
@@ -622,8 +607,8 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     );
     let allTrades = [...solution, ...distractors];
     const maxQty = getMaxTradeQuantity(allTrades, goalQty);
-    if (maxQty > 200) {
-      const factor = Math.ceil(maxQty / 200);
+    if (maxQty > 180) {
+      const factor = Math.ceil(maxQty / 180);
       solution = scaleTrades(solution, factor);
       distractors = scaleTrades(distractors, factor);
       goalQty = Math.max(1, Math.ceil(goalQty / factor));
@@ -634,19 +619,18 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     solution = windowed.solution;
     distractors = windowed.distractors;
 
-    const earlyFeeExclusions = new Set<GoodId>([goalGood]);
-    solution
-      .filter((trade) => trade.window === 'early')
-      .forEach((trade) => {
-        trade.give.forEach((side) => earlyFeeExclusions.add(side.good));
-        earlyFeeExclusions.add(trade.get.good);
-      });
+    const feeExclusions = new Set<GoodId>([goalGood]);
+    if (reservedGood) feeExclusions.add(reservedGood);
+    solution.forEach((trade) => {
+      trade.give.forEach((side) => feeExclusions.add(side.good));
+      feeExclusions.add(trade.get.good);
+    });
     const feeApplied = applyLateFees(
       solution,
       distractors,
       pickedGoods,
       rand,
-      earlyFeeExclusions
+      feeExclusions
     );
     solution = feeApplied.solution;
     distractors = feeApplied.distractors;
@@ -730,67 +714,51 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
         window
       );
       if (affordable < MIN_CHOICES_PER_STEP) {
-        const basePrimary = base.give[0]?.good;
-        const baseGiveGoods = new Set(base.give.map((side) => side.good));
-        const preferredCandidates = pickedGoods.filter(
-          (id) =>
-            id !== goalGood && id !== base.get.good && workingInventory[id] > 0
-        );
-        const fallbackCandidates = pickedGoods.filter(
-          (id) => id !== goalGood && id !== base.get.good
-        );
-        const candidatePool = [
-          ...preferredCandidates,
-          ...fallbackCandidates.filter((id) => !preferredCandidates.includes(id)),
-        ];
-        candidatePool.sort((a, b) => workingInventory[b] - workingInventory[a]);
         let created = false;
-        for (const candidate of candidatePool) {
-          const nextGive = base.give.map((side) =>
-            side.good === candidate ? { good: side.good, qty: side.qty + 1 } : side
-          );
-          if (!baseGiveGoods.has(candidate)) {
-            nextGive.push({ good: candidate, qty: 1 });
-          } else {
-            boostGood(candidate, (base.give.find((side) => side.good === candidate)?.qty ?? 0) + 1);
+        const baseGiveKey = tradeKey(base);
+        const decoyGood =
+          reservedGood && reservedGood !== base.get.good ? reservedGood : undefined;
+        if (decoyGood) {
+          let decoyQty = Math.max(1, Math.min(3, base.get.qty));
+          for (let attempt = 0; attempt < 3; attempt++) {
+            const decoy: Trade = {
+              give: base.give,
+              get: { good: decoyGood, qty: decoyQty },
+              window: base.window,
+              variant: true,
+            };
+            const key = tradeKey(decoy);
+            if (!existingKeys.has(key) && key !== baseGiveKey) {
+              existingKeys.add(key);
+              choiceTrades.push(decoy);
+              created = true;
+              break;
+            }
+            decoyQty += 1;
           }
-          const choiceTrade: Trade = {
-            ...base,
-            give: nextGive,
-            variant: true,
-          };
-          const key = tradeKey(choiceTrade);
-          if (existingKeys.has(key)) continue;
-          if (!canAfford(workingInventory, choiceTrade)) {
-            boostGood(candidate, nextGive.find((side) => side.good === candidate)?.qty ?? 1);
-          }
-          if (!canAfford(workingInventory, choiceTrade)) continue;
-          existingKeys.add(key);
-          choiceTrades.push(choiceTrade);
-          created = true;
-          break;
         }
-        if (!created && basePrimary) {
-          const baseQty = base.give.find((side) => side.good === basePrimary)?.qty ?? 0;
-          let extraQty = baseQty + 1;
-          while (extraQty <= 200) {
-            const nextGive = base.give.map((side) =>
-              side.good === basePrimary ? { good: side.good, qty: extraQty } : side
-            );
+        if (!created) {
+          const basePrimary = base.give[0]?.good;
+          if (basePrimary) {
+            const baseQty = base.give.find((side) => side.good === basePrimary)?.qty ?? 0;
+            const extraQty = Math.min(200, baseQty + 1);
             const choiceTrade: Trade = {
               ...base,
-              give: nextGive,
+              give: base.give.map((side) =>
+                side.good === basePrimary ? { good: side.good, qty: extraQty } : side
+              ),
               variant: true,
             };
             const key = tradeKey(choiceTrade);
             if (!existingKeys.has(key)) {
-              boostGood(basePrimary, extraQty);
-              existingKeys.add(key);
-              choiceTrades.push(choiceTrade);
-              created = true;
-              break;
+              if (basePrimary === pathGoods[0]) {
+                boostGood(basePrimary, extraQty);
+              }
+              if (canAfford(workingInventory, choiceTrade)) {
+                existingKeys.add(key);
+                choiceTrades.push(choiceTrade);
+              }
             }
-            extraQty += 1;
           }
         }
       }
