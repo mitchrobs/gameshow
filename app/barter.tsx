@@ -80,35 +80,23 @@ function formatTrade(trade: Trade): string {
 
 export default function BarterScreen() {
   const router = useRouter();
-  const [isReady, setIsReady] = useState(false);
-  useEffect(() => {
-    setIsReady(true);
-  }, []);
-  const puzzle = useMemo<BarterPuzzle | null>(
-    () => (isReady ? getDailyBarter() : null),
-    [isReady]
-  );
+  const puzzle = useMemo<BarterPuzzle>(() => getDailyBarter(), []);
   const { width } = useWindowDimensions();
   const isCompact = width < 400;
-  const dateKey = useMemo(() => (isReady ? getLocalDateKey() : ''), [isReady]);
+  const dateKey = useMemo(() => getLocalDateKey(), []);
   const dateLabel = useMemo(
     () =>
-      isReady
-        ? new Date().toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-          })
-        : '',
-    [isReady]
+      new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+      }),
+    []
   );
-  const dailyKey = useMemo(
-    () => (dateKey ? `${STORAGE_PREFIX}:daily:${dateKey}` : ''),
-    [dateKey]
-  );
+  const dailyKey = useMemo(() => `${STORAGE_PREFIX}:daily:${dateKey}`, [dateKey]);
 
   const [inventory, setInventory] = useState<Record<GoodId, number>>(
-    () => ({} as Record<GoodId, number>)
+    () => capInventory(cloneInventory(puzzle.inventory))
   );
   const [tradesUsed, setTradesUsed] = useState(0);
   const [gameState, setGameState] = useState<GameState>('playing');
@@ -121,20 +109,17 @@ export default function BarterScreen() {
   const [lateTransition, setLateTransition] = useState(false);
   const lateTransitionAnim = useRef(new Animated.Value(0)).current;
 
-  const goalGood = useMemo(() => (puzzle ? getGoodById(puzzle.goal.good) : null), [puzzle]);
-  const goalShort = puzzle && goalGood ? `${puzzle.goal.qty} ${goalGood.emoji}` : '';
-  const solvedAtPar = puzzle ? gameState === 'won' && tradesUsed <= puzzle.par : false;
-  const isMarinerMarket = puzzle ? puzzle.marketName === "Mariner's Market" : false;
-  const earlyWindowTrades = puzzle?.earlyWindowTrades ?? 4;
+  const goalGood = getGoodById(puzzle.goal.good);
+  const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
+  const solvedAtPar = gameState === 'won' && tradesUsed <= puzzle.par;
+  const isMarinerMarket = puzzle.marketName === "Mariner's Market";
+  const earlyWindowTrades = puzzle.earlyWindowTrades ?? 4;
   const lateWindowTrigger = earlyWindowTrades;
   const earlyWindowRemaining = Math.max(0, earlyWindowTrades - tradesUsed);
   const tradingWindowLabel = lateWindowOpen
     ? 'Late Window'
     : `Early Window · ${earlyWindowRemaining} left`;
   const marketAlertTone = useMemo(() => {
-    if (!puzzle) {
-      return { bg: '#fff4e5', border: '#f1c38a', text: '#8a4a0b' };
-    }
     switch (puzzle.marketEmoji) {
       case '🌶️':
         return { bg: '#fff0e8', border: '#f1b48c', text: '#8b3a12' };
@@ -152,9 +137,6 @@ export default function BarterScreen() {
   }, [puzzle.marketEmoji]);
 
   const tradeWaves = useMemo(() => {
-    if (!puzzle) {
-      return { wave1: [] as Trade[], wave2: [] as Trade[] };
-    }
     const wave1 = puzzle.trades.filter((trade) => trade.window !== 'late');
     const wave2 = puzzle.trades.filter((trade) => trade.window === 'late');
 
@@ -164,7 +146,6 @@ export default function BarterScreen() {
   const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
 
   const startSummary = useMemo(() => {
-    if (!puzzle) return '';
     const entries = puzzle.goods
       .filter((good) => puzzle.inventory[good.id] > 0)
       .map(
@@ -175,7 +156,6 @@ export default function BarterScreen() {
   }, [puzzle.goods, puzzle.inventory]);
 
   const shareText = useMemo(() => {
-    if (!puzzle || !goalGood) return '';
     const title = `🏺 Barter — ${dateLabel}`;
     const resultLine =
       gameState === 'won'
@@ -190,7 +170,7 @@ export default function BarterScreen() {
       elapsedSeconds
     )}`;
     return [title, resultLine, statLine, 'daybreak.com'].join('\n');
-  }, [dateLabel, gameState, solvedAtPar, puzzle?.par, puzzle?.maxTrades, tradesUsed, elapsedSeconds, puzzle, goalGood]);
+  }, [dateLabel, gameState, solvedAtPar, puzzle.par, puzzle.maxTrades, tradesUsed, elapsedSeconds]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -259,37 +239,6 @@ export default function BarterScreen() {
     setShowResult(true);
   }, [gameState]);
 
-  useEffect(() => {
-    if (!puzzle) return;
-    setInventory(capInventory(cloneInventory(puzzle.inventory)));
-    setTradesUsed(0);
-    setGameState('playing');
-    setElapsedSeconds(0);
-    setLastTradeIndex(null);
-    setShowResult(false);
-    setShareStatus(null);
-    setLateWindowOpen(false);
-    setLateTransition(false);
-    lateTransitionAnim.setValue(0);
-  }, [puzzle, lateTransitionAnim]);
-
-  if (!puzzle || !goalGood) {
-    return (
-      <>
-        <Stack.Screen
-          options={{
-            title: 'Barter',
-            headerBackTitle: 'Home',
-          }}
-        />
-        <SafeAreaView style={styles.container} edges={['bottom']}>
-          <View style={styles.loading}>
-            <Text style={styles.loadingText}>Loading market…</Text>
-          </View>
-        </SafeAreaView>
-      </>
-    );
-  }
 
   const handleTrade = useCallback(
     (index: number) => {
@@ -1037,17 +986,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.lg,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing.lg,
-  },
-  loadingText: {
-    fontSize: 14,
-    color: '#8a8174',
-    fontWeight: '600',
   },
   modalCard: {
     width: '100%',
