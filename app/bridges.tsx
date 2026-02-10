@@ -477,60 +477,6 @@ export default function BridgesScreen() {
     return map;
   }, [puzzle.islands, boardPadding, cellSize]);
 
-  const bridgeSegments = useMemo(() => {
-    const segments: JSX.Element[] = [];
-    bridgeList.forEach((bridge) => {
-      const start = islandPositions.get(bridge.island1);
-      const end = islandPositions.get(bridge.island2);
-      if (!start || !end) return;
-      const horizontal = start.y === end.y;
-      const offsets = bridge.count === 2 ? [-doubleOffset / 2, doubleOffset / 2] : [0];
-
-      offsets.forEach((offset, index) => {
-        if (horizontal) {
-          const left = Math.min(start.x, end.x) + islandRadius;
-          const width = Math.abs(start.x - end.x) - islandRadius * 2;
-          const top = start.y - lineThickness / 2 + offset;
-          segments.push(
-            <View
-              key={`${bridge.island1}-${bridge.island2}-${index}`}
-              style={[
-                styles.bridgeLine,
-                {
-                  left,
-                  top,
-                  width,
-                  height: lineThickness,
-                  borderRadius: lineThickness / 2,
-                },
-              ]}
-            />
-          );
-          return;
-        }
-        const top = Math.min(start.y, end.y) + islandRadius;
-        const height = Math.abs(start.y - end.y) - islandRadius * 2;
-        const left = start.x - lineThickness / 2 + offset;
-        segments.push(
-          <View
-            key={`${bridge.island1}-${bridge.island2}-${index}`}
-            style={[
-              styles.bridgeLine,
-              {
-                left,
-                top,
-                width: lineThickness,
-                height,
-                borderRadius: lineThickness / 2,
-              },
-            ]}
-          />
-        );
-      });
-    });
-    return segments;
-  }, [bridgeList, islandPositions, islandRadius, lineThickness, doubleOffset]);
-
   const dateLabel = useMemo(
     () =>
       new Date().toLocaleDateString('en-US', {
@@ -643,7 +589,55 @@ export default function BridgesScreen() {
 
               <View style={styles.boardWrap}>
                 <View style={[styles.board, { width: boardSize, height: boardSize }]}>
-                {bridgeSegments}
+                  {bridgeList.flatMap((bridge) => {
+                    const start = islandPositions.get(bridge.island1);
+                    const end = islandPositions.get(bridge.island2);
+                    if (!start || !end) return [];
+                    const horizontal = start.y === end.y;
+                    const offsets =
+                      bridge.count === 2 ? [-doubleOffset / 2, doubleOffset / 2] : [0];
+
+                    return offsets.map((offset, index) => {
+                      if (horizontal) {
+                        const left = Math.min(start.x, end.x) + islandRadius;
+                        const width = Math.abs(start.x - end.x) - islandRadius * 2;
+                        const top = start.y - lineThickness / 2 + offset;
+                        return (
+                          <View
+                            key={`${bridge.island1}-${bridge.island2}-${index}`}
+                            style={[
+                              styles.bridgeLine,
+                              {
+                                left,
+                                top,
+                                width,
+                                height: lineThickness,
+                                borderRadius: lineThickness / 2,
+                              },
+                            ]}
+                          />
+                        );
+                      }
+                      const top = Math.min(start.y, end.y) + islandRadius;
+                      const height = Math.abs(start.y - end.y) - islandRadius * 2;
+                      const left = start.x - lineThickness / 2 + offset;
+                      return (
+                        <View
+                          key={`${bridge.island1}-${bridge.island2}-${index}`}
+                          style={[
+                            styles.bridgeLine,
+                            {
+                              left,
+                              top,
+                              width: lineThickness,
+                              height,
+                              borderRadius: lineThickness / 2,
+                            },
+                          ]}
+                        />
+                      );
+                    });
+                  })}
 
                 {puzzle.islands.map((island) => {
                   const pos = islandPositions.get(island.id);
