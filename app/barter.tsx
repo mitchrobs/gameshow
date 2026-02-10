@@ -272,12 +272,14 @@ export default function BarterScreen() {
         }}
       />
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <View style={styles.ambientGlow} pointerEvents="none" />
+        {!isCompact && <View style={styles.ambientGlow} pointerEvents="none" />}
         <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[1]}>
           <View style={styles.page}>
-            <View style={styles.pageAccent}>
-              <View style={styles.pageAccentInner} />
-            </View>
+            {!isCompact && (
+              <View style={styles.pageAccent}>
+                <View style={styles.pageAccentInner} />
+              </View>
+            )}
             <View style={styles.header}>
               <Text style={styles.title}>Barter</Text>
               <Text style={styles.marketLabel}>Daily Market #{marketNumber}</Text>
@@ -287,8 +289,42 @@ export default function BarterScreen() {
 
           <View style={styles.stickyHeader}>
             <View style={styles.stickyInner}>
-              <View style={[styles.controlsRow, isCompact && styles.controlsRowCompact]}>
-                <View style={[styles.statsRow, isCompact && styles.statsRowCompact]}>
+              {isCompact ? (
+                <>
+                  <View style={styles.compactStatsRow}>
+                    <Text style={styles.compactStatsText}>
+                      Trades {tradesUsed}/{puzzle.maxTrades} · Par {puzzle.par}
+                    </Text>
+                    <Text style={styles.compactTimerText}>⏱ {formatTime(elapsedSeconds)}</Text>
+                  </View>
+                  <View style={styles.compactActionsRow}>
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.undoButtonCompact,
+                        (history.length === 0 || gameState !== 'playing') &&
+                          styles.undoButtonDisabled,
+                        pressed && history.length > 0 && gameState === 'playing'
+                          ? styles.undoButtonPressed
+                          : null,
+                      ]}
+                      onPress={handleUndo}
+                      disabled={history.length === 0 || gameState !== 'playing'}
+                    >
+                      <Text style={styles.undoButtonTextCompact}>Undo</Text>
+                    </Pressable>
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.resetButtonCompact,
+                        pressed && styles.resetButtonPressed,
+                      ]}
+                      onPress={handleReset}
+                    >
+                      <Text style={styles.resetButtonTextCompact}>Reset</Text>
+                    </Pressable>
+                  </View>
+                </>
+              ) : (
+                <View style={styles.controlsRow}>
                   <Animated.View style={[styles.tradeCounter, { transform: [{ scale: tradeBounce }] }]}>
                     <Text style={styles.tradeCounterText}>
                       Trades {tradesUsed}/{puzzle.maxTrades}
@@ -298,71 +334,91 @@ export default function BarterScreen() {
                   <View style={styles.timerChip}>
                     <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
                   </View>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.undoButton,
-                      (history.length === 0 || gameState !== 'playing') && styles.undoButtonDisabled,
-                      pressed && history.length > 0 && gameState === 'playing'
-                        ? styles.undoButtonPressed
-                        : null,
-                    ]}
-                    onPress={handleUndo}
-                    disabled={history.length === 0 || gameState !== 'playing'}
-                  >
-                    <Text style={styles.undoButtonText}>Undo</Text>
-                  </Pressable>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.resetButton,
-                      pressed && styles.resetButtonPressed,
-                    ]}
-                    onPress={handleReset}
-                  >
-                    <Text style={styles.resetButtonText}>Reset</Text>
-                  </Pressable>
-                </View>
-              </View>
-
-              <View style={styles.inventoryRow}>
-                {puzzle.goods.map((good) => {
-                  const count = inventory[good.id];
-                  return (
-                    <View
-                      key={good.id}
-                      style={[
-                        styles.inventoryCard,
-                        count === 0 && styles.inventoryCardEmpty,
-                        isCompact && styles.inventoryCardCompact,
+                  <View style={styles.controlButtons}>
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.undoButton,
+                        (history.length === 0 || gameState !== 'playing') &&
+                          styles.undoButtonDisabled,
+                        pressed && history.length > 0 && gameState === 'playing'
+                          ? styles.undoButtonPressed
+                          : null,
                       ]}
+                      onPress={handleUndo}
+                      disabled={history.length === 0 || gameState !== 'playing'}
                     >
-                      <Text style={[styles.inventoryEmoji, isCompact && styles.inventoryEmojiCompact]}>
-                        {good.emoji}
-                      </Text>
-                      <Text style={[styles.inventoryCount, isCompact && styles.inventoryCountCompact]}>
-                        {count}
-                      </Text>
-                      <Text style={[styles.inventoryLabel, isCompact && styles.inventoryLabelCompact]}>
-                        {good.name}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
+                      <Text style={styles.undoButtonText}>Undo</Text>
+                    </Pressable>
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.resetButton,
+                        pressed && styles.resetButtonPressed,
+                      ]}
+                      onPress={handleReset}
+                    >
+                      <Text style={styles.resetButtonText}>Reset</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+
+              {isCompact ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.inventoryScroll}
+                >
+                  {puzzle.goods.map((good) => {
+                    const count = inventory[good.id];
+                    return (
+                      <View
+                        key={good.id}
+                        style={[
+                          styles.inventoryPill,
+                          count === 0 && styles.inventoryCardEmpty,
+                        ]}
+                      >
+                        <Text style={styles.inventoryPillEmoji}>{good.emoji}</Text>
+                        <Text style={styles.inventoryPillCount}>{count}</Text>
+                      </View>
+                    );
+                  })}
+                </ScrollView>
+              ) : (
+                <View style={styles.inventoryRow}>
+                  {puzzle.goods.map((good) => {
+                    const count = inventory[good.id];
+                    return (
+                      <View
+                        key={good.id}
+                        style={[
+                          styles.inventoryCard,
+                          count === 0 && styles.inventoryCardEmpty,
+                        ]}
+                      >
+                        <Text style={styles.inventoryEmoji}>{good.emoji}</Text>
+                        <Text style={styles.inventoryCount}>{count}</Text>
+                        <Text style={styles.inventoryLabel}>{good.name}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
             </View>
           </View>
 
           <View style={styles.page}>
-            <View style={styles.goalCard}>
+            <View style={[styles.goalCard, isCompact && styles.goalCardCompact]}>
               <View style={styles.goalAccent} />
-              <View style={styles.goalContent}>
+              <View style={[styles.goalContent, isCompact && styles.goalContentCompact]}>
                 <Text style={styles.goalTitle}>Goal</Text>
-                <Text style={styles.goalText}>
+                <Text style={[styles.goalText, isCompact && styles.goalTextCompact]}>
                   Acquire {puzzle.goal.qty} {goalGood.emoji} {goalGood.name}
                 </Text>
               </View>
             </View>
 
-            <View style={styles.tradeList}>
+            <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
               {puzzle.trades.map((trade, index) => {
                 const giveGood = getGoodById(trade.give.good);
                 const getGood = getGoodById(trade.get.good);
@@ -384,20 +440,29 @@ export default function BarterScreen() {
                       styles.tradeCard,
                       canTrade ? styles.tradeCardAvailable : styles.tradeCardUnavailable,
                       lastTradeIndex === index && styles.tradeCardFlash,
+                      isCompact && styles.tradeCardCompact,
                     ]}
                   >
                     <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
                       <View style={styles.tradeInfo} pointerEvents="none">
                         <View style={styles.tradeSide}>
-                          <Text style={styles.tradeQty}>{trade.give.qty}</Text>
-                          <Text style={styles.tradeEmoji}>{giveGood.emoji}</Text>
-                          <Text style={styles.tradeLabel}>{giveGood.name}</Text>
+                          <Text style={[styles.tradeQty, isCompact && styles.tradeQtyCompact]}>
+                            {trade.give.qty}
+                          </Text>
+                          <Text style={[styles.tradeEmoji, isCompact && styles.tradeEmojiCompact]}>
+                            {giveGood.emoji}
+                          </Text>
+                          {!isCompact && <Text style={styles.tradeLabel}>{giveGood.name}</Text>}
                         </View>
                         <Text style={styles.tradeArrow}>→</Text>
                         <View style={styles.tradeSide}>
-                          <Text style={styles.tradeQty}>{trade.get.qty}</Text>
-                          <Text style={styles.tradeEmoji}>{getGood.emoji}</Text>
-                          <Text style={styles.tradeLabel}>{getGood.name}</Text>
+                          <Text style={[styles.tradeQty, isCompact && styles.tradeQtyCompact]}>
+                            {trade.get.qty}
+                          </Text>
+                          <Text style={[styles.tradeEmoji, isCompact && styles.tradeEmojiCompact]}>
+                            {getGood.emoji}
+                          </Text>
+                          {!isCompact && <Text style={styles.tradeLabel}>{getGood.name}</Text>}
                         </View>
                       </View>
                       <Pressable
