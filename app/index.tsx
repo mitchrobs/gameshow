@@ -41,7 +41,7 @@ export default function HomeScreen() {
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
       { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
-      { label: 'Barter', route: '/barter', emoji: '🏺', countKey: 'barter', isNew: true },
+      { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', isNew: true },
     ],
     []
   );
