@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
@@ -71,6 +72,8 @@ function formatTrade(trade: Trade): string {
 export default function BarterScreen() {
   const router = useRouter();
   const puzzle = useMemo<BarterPuzzle>(() => getDailyBarter(), []);
+  const { width } = useWindowDimensions();
+  const isCompact = width < 400;
   const dateKey = useMemo(() => getLocalDateKey(), []);
   const dateLabel = useMemo(
     () =>
@@ -284,17 +287,17 @@ export default function BarterScreen() {
 
           <View style={styles.stickyHeader}>
             <View style={styles.stickyInner}>
-              <View style={styles.controlsRow}>
-                <Animated.View style={[styles.tradeCounter, { transform: [{ scale: tradeBounce }] }]}>
-                  <Text style={styles.tradeCounterText}>
-                    Trades {tradesUsed}/{puzzle.maxTrades}
-                  </Text>
-                  <Text style={styles.tradeCounterSub}>Par {puzzle.par}</Text>
-                </Animated.View>
-                <View style={styles.timerChip}>
-                  <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
-                </View>
-                <View style={styles.controlButtons}>
+              <View style={[styles.controlsRow, isCompact && styles.controlsRowCompact]}>
+                <View style={[styles.statsRow, isCompact && styles.statsRowCompact]}>
+                  <Animated.View style={[styles.tradeCounter, { transform: [{ scale: tradeBounce }] }]}>
+                    <Text style={styles.tradeCounterText}>
+                      Trades {tradesUsed}/{puzzle.maxTrades}
+                    </Text>
+                    <Text style={styles.tradeCounterSub}>Par {puzzle.par}</Text>
+                  </Animated.View>
+                  <View style={styles.timerChip}>
+                    <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
+                  </View>
                   <Pressable
                     style={({ pressed }) => [
                       styles.undoButton,
@@ -329,11 +332,18 @@ export default function BarterScreen() {
                       style={[
                         styles.inventoryCard,
                         count === 0 && styles.inventoryCardEmpty,
+                        isCompact && styles.inventoryCardCompact,
                       ]}
                     >
-                      <Text style={styles.inventoryEmoji}>{good.emoji}</Text>
-                      <Text style={styles.inventoryCount}>{count}</Text>
-                      <Text style={styles.inventoryLabel}>{good.name}</Text>
+                      <Text style={[styles.inventoryEmoji, isCompact && styles.inventoryEmojiCompact]}>
+                        {good.emoji}
+                      </Text>
+                      <Text style={[styles.inventoryCount, isCompact && styles.inventoryCountCompact]}>
+                        {count}
+                      </Text>
+                      <Text style={[styles.inventoryLabel, isCompact && styles.inventoryLabelCompact]}>
+                        {good.name}
+                      </Text>
                     </View>
                   );
                 })}
@@ -376,7 +386,7 @@ export default function BarterScreen() {
                       lastTradeIndex === index && styles.tradeCardFlash,
                     ]}
                   >
-                    <View style={styles.tradeRow}>
+                    <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
                       <View style={styles.tradeInfo} pointerEvents="none">
                         <View style={styles.tradeSide}>
                           <Text style={styles.tradeQty}>{trade.give.qty}</Text>
@@ -395,6 +405,7 @@ export default function BarterScreen() {
                           styles.tradeButton,
                           !canTrade && styles.tradeButtonDisabled,
                           pressed && canTrade ? styles.tradeButtonPressed : null,
+                          isCompact && styles.tradeButtonCompact,
                         ]}
                         onPress={() => handleTrade(index)}
                         disabled={!canTrade}
@@ -569,7 +580,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#10b981',
   },
   header: {
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
     alignItems: 'center',
   },
   title: {
@@ -597,46 +608,54 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginBottom: Spacing.md,
   },
+  controlsRowCompact: {
+    marginBottom: Spacing.xs,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  statsRowCompact: {
+    gap: Spacing.xs,
+  },
   tradeCounter: {
     backgroundColor: '#0f2b21',
     borderRadius: BorderRadius.lg,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
     borderWidth: 1,
     borderColor: '#1e4d3a',
-    minWidth: 120,
+    minWidth: 98,
     alignItems: 'flex-start',
   },
   tradeCounterText: {
-    fontSize: FontSize.md,
+    fontSize: 13,
     fontWeight: '700',
     color: '#b8f5dc',
   },
   tradeCounterSub: {
     marginTop: 2,
-    fontSize: FontSize.sm,
+    fontSize: 10,
     color: '#4c9b7a',
   },
   timerChip: {
     backgroundColor: '#0f2b21',
     borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
     borderWidth: 1,
     borderColor: '#1e4d3a',
   },
   timerText: {
     color: '#8ad6b6',
-    fontSize: FontSize.sm,
+    fontSize: 12,
     fontWeight: '600',
   },
-  controlButtons: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
   undoButton: {
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: '#1e6f52',
@@ -651,12 +670,12 @@ const styles = StyleSheet.create({
   },
   undoButtonText: {
     color: '#8ad6b6',
-    fontSize: FontSize.sm,
+    fontSize: 12,
     fontWeight: '600',
   },
   resetButton: {
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: '#1e4d3a',
@@ -667,7 +686,7 @@ const styles = StyleSheet.create({
   },
   resetButtonText: {
     color: '#8ad6b6',
-    fontSize: FontSize.sm,
+    fontSize: 12,
     fontWeight: '600',
   },
   sectionHeader: {
@@ -702,8 +721,16 @@ const styles = StyleSheet.create({
   inventoryCardEmpty: {
     opacity: 0.35,
   },
+  inventoryCardCompact: {
+    minWidth: 70,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
   inventoryEmoji: {
     fontSize: 22,
+  },
+  inventoryEmojiCompact: {
+    fontSize: 18,
   },
   inventoryCount: {
     fontSize: FontSize.lg,
@@ -711,10 +738,18 @@ const styles = StyleSheet.create({
     color: '#b8f5dc',
     marginTop: 4,
   },
+  inventoryCountCompact: {
+    fontSize: 16,
+    marginTop: 2,
+  },
   inventoryLabel: {
     fontSize: 12,
     color: '#4c9b7a',
     marginTop: 2,
+  },
+  inventoryLabelCompact: {
+    fontSize: 10,
+    marginTop: 0,
   },
   goalCard: {
     flexDirection: 'row',
@@ -781,6 +816,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: Spacing.sm,
   },
+  tradeRowCompact: {
+    gap: Spacing.xs,
+  },
   tradeInfo: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -816,6 +854,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     alignItems: 'center',
     minWidth: 110,
+  },
+  tradeButtonCompact: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    minWidth: 88,
   },
   tradeButtonPressed: {
     backgroundColor: '#29b97d',

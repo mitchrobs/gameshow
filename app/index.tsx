@@ -10,6 +10,7 @@ import { getDailyWordie } from '../src/data/wordiePuzzles';
 import { getDailyTriviaCategories } from '../src/data/triviaPuzzles';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
 import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
+import { getDailyBridges } from '../src/data/bridgesPuzzles';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 
 export default function HomeScreen() {
@@ -20,6 +21,7 @@ export default function HomeScreen() {
   const triviaCategories = getDailyTriviaCategories();
   const sudoku = getDailySudoku();
   const barterPuzzle = getDailyBarter();
+  const bridgesPuzzle = getDailyBridges();
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const dateLabel = new Date().toLocaleDateString('en-US', {
@@ -39,6 +41,7 @@ export default function HomeScreen() {
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie' },
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
+      { label: 'Bridges', route: '/bridges', emoji: '🌉', countKey: 'bridges', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
       { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
       { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', isNew: true },
@@ -65,6 +68,7 @@ export default function HomeScreen() {
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
+        storage.getItem(`bridges:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
         storage.getItem(`trivia:daily:${key}`) === '1' ||
         storage.getItem(`barter:daily:${key}`) === '1'
@@ -82,7 +86,15 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    getGlobalPlayCounts(['mojimash', 'wordie', 'sudoku', 'whodunit', 'trivia', 'barter'])
+    getGlobalPlayCounts([
+      'mojimash',
+      'wordie',
+      'sudoku',
+      'bridges',
+      'whodunit',
+      'trivia',
+      'barter',
+    ])
       .then((counts) => {
         if (Object.keys(counts).length > 0) {
           setPlayCounts(counts);
@@ -324,34 +336,20 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.barterPreview}>
-                <View style={styles.barterInventoryRow}>
-                  {barterPuzzle.goods.slice(0, 4).map((good) => (
-                    <View key={good.id} style={styles.barterInventoryChip}>
-                      <Text style={styles.barterInventoryEmoji}>{good.emoji}</Text>
-                      <Text style={styles.barterInventoryQty}>
-                        {barterPuzzle.inventory[good.id]}
-                      </Text>
-                    </View>
-                  ))}
+                <Text style={styles.barterPreviewLabel}>Today&apos;s Goal</Text>
+                <View style={styles.barterPreviewGoal}>
+                  <Text style={styles.barterPreviewEmoji}>
+                    {getGoodById(barterPuzzle.goal.good).emoji}
+                  </Text>
+                  <Text style={styles.barterPreviewGoalText}>
+                    {barterPuzzle.goal.qty} {getGoodById(barterPuzzle.goal.good).name}
+                  </Text>
                 </View>
-                <View style={styles.barterTradePreview}>
-                  {barterPuzzle.trades.slice(0, 2).map((trade, index) => {
-                    const giveGood = getGoodById(trade.give.good);
-                    const getGood = getGoodById(trade.get.good);
-                    return (
-                      <View key={index} style={styles.barterTradeRow}>
-                        <Text style={styles.barterTradeText}>
-                          {trade.give.qty} {giveGood.emoji} → {trade.get.qty} {getGood.emoji}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </View>
-                <View style={styles.barterGoalRow}>
-                  <Text style={styles.barterGoalLabel}>Goal</Text>
-                  <Text style={styles.barterGoalText}>
-                    {barterPuzzle.goal.qty} {getGoodById(barterPuzzle.goal.good).emoji}{' '}
-                    {getGoodById(barterPuzzle.goal.good).name}
+                <View style={styles.barterPreviewMeta}>
+                  <Text style={styles.barterPreviewMetaText}>Par {barterPuzzle.par} trades</Text>
+                  <Text style={styles.barterPreviewMetaDivider}>•</Text>
+                  <Text style={styles.barterPreviewMetaText}>
+                    {barterPuzzle.goods.length} goods
                   </Text>
                 </View>
               </View>
@@ -720,64 +718,43 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.md,
-    gap: Spacing.sm,
-  },
-  barterInventoryRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  barterInventoryChip: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  barterInventoryEmoji: {
-    fontSize: 16,
-  },
-  barterInventoryQty: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-  },
-  barterTradePreview: {
-    width: '100%',
     gap: Spacing.xs,
   },
-  barterTradeRow: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.md,
-  },
-  barterTradeText: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    fontWeight: '600',
-  },
-  barterGoalRow: {
-    alignItems: 'center',
-    marginTop: Spacing.sm,
-  },
-  barterGoalLabel: {
-    fontSize: 11,
+  barterPreviewLabel: {
+    fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 1,
     color: Colors.textMuted,
     fontWeight: '600',
   },
-  barterGoalText: {
-    marginTop: 4,
-    fontSize: FontSize.sm,
+  barterPreviewGoal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  barterPreviewEmoji: {
+    fontSize: 24,
+  },
+  barterPreviewGoalText: {
+    fontSize: FontSize.md,
     fontWeight: '700',
     color: Colors.text,
+  },
+  barterPreviewMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: Spacing.sm,
+  },
+  barterPreviewMetaText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  barterPreviewMetaDivider: {
+    fontSize: 12,
+    color: Colors.textMuted,
   },
   whodunitPreview: {
     alignItems: 'center',
