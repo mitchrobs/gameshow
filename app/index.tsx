@@ -40,8 +40,8 @@ export default function HomeScreen() {
     if (hour < 18) return 'Good afternoon';
     return 'Good evening';
   }, []);
-  const quickLinks = useMemo(
-    () => [
+  const quickLinks = useMemo(() => {
+    const baseLinks = [
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie' },
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
@@ -49,9 +49,30 @@ export default function HomeScreen() {
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
       { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
       { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', isNew: true },
-    ],
-    []
-  );
+    ];
+
+    const entries = baseLinks.map((link, index) => ({
+      ...link,
+      baseIndex: index,
+      playCount: playCounts[link.countKey] ?? 0,
+    }));
+
+    const hotKeys = [...entries]
+      .sort((a, b) => b.playCount - a.playCount)
+      .filter((entry) => entry.playCount > 0)
+      .slice(0, 2)
+      .map((entry) => entry.countKey);
+
+    return entries
+      .map((entry) => ({ ...entry, isHot: hotKeys.includes(entry.countKey) }))
+      .sort((a, b) => {
+        const aRank = a.isHot ? 0 : a.isNew ? 1 : 2;
+        const bRank = b.isHot ? 0 : b.isNew ? 1 : 2;
+        if (aRank !== bRank) return aRank - bRank;
+        if (aRank === 0) return b.playCount - a.playCount || a.baseIndex - b.baseIndex;
+        return a.baseIndex - b.baseIndex;
+      });
+  }, [playCounts]);
 
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') {
@@ -147,6 +168,11 @@ export default function HomeScreen() {
                 >
                   <Text style={styles.quickLinkEmoji}>{item.emoji}</Text>
                   <Text style={styles.quickLinkLabel}>{item.label}</Text>
+                  {item.isHot && (
+                    <View style={styles.quickLinkHotBadge}>
+                      <Text style={styles.quickLinkHotText}>Hot</Text>
+                    </View>
+                  )}
                   {item.isNew && (
                     <View style={styles.quickLinkNewBadge}>
                       <Text style={styles.quickLinkNewText}>New</Text>
@@ -559,6 +585,22 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     color: Colors.textMuted,
+  },
+  quickLinkHotBadge: {
+    marginTop: Spacing.xs,
+    backgroundColor: '#fff7ed',
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#fb923c',
+  },
+  quickLinkHotText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#c2410c',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
   quickLinkNewBadge: {
     marginTop: Spacing.xs,
