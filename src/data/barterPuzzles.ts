@@ -147,8 +147,6 @@ function getDateKey(date: Date = new Date()): string {
 
 function getDifficultyForDate(date: Date = new Date()): BarterDifficulty {
   const day = date.getDay();
-  if (day === 1 || day === 2) return 'Easy';
-  if (day === 3 || day === 4) return 'Medium';
   if (day === 5 || day === 6) return 'Hard';
   return 'Medium';
 }

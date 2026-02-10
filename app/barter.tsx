@@ -34,11 +34,6 @@ const WEB_NO_SELECT =
       }
     : {};
 
-interface HistoryEntry {
-  inventory: Record<GoodId, number>;
-  tradesUsed: number;
-}
-
 function getLocalDateKey(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -89,7 +84,6 @@ export default function BarterScreen() {
     () => cloneInventory(puzzle.inventory)
   );
   const [tradesUsed, setTradesUsed] = useState(0);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [gameState, setGameState] = useState<GameState>('playing');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [lastTradeIndex, setLastTradeIndex] = useState<number | null>(null);
@@ -178,11 +172,6 @@ export default function BarterScreen() {
       const trade = puzzle.trades[index];
       if (inventory[trade.give.good] < trade.give.qty) return;
 
-      setHistory((prev) => [
-        ...prev,
-        { inventory: cloneInventory(inventory), tradesUsed },
-      ]);
-
       const nextInventory = cloneInventory(inventory);
       nextInventory[trade.give.good] -= trade.give.qty;
       nextInventory[trade.get.good] += trade.get.qty;
@@ -202,25 +191,6 @@ export default function BarterScreen() {
     },
     [gameState, tradesUsed, puzzle, inventory]
   );
-
-  const handleUndo = useCallback(() => {
-    if (gameState !== 'playing') return;
-    if (history.length === 0) return;
-    const last = history[history.length - 1];
-    setHistory(history.slice(0, -1));
-    setInventory(last.inventory);
-    setTradesUsed(last.tradesUsed);
-  }, [gameState, history]);
-
-  const handleReset = useCallback(() => {
-    setInventory(cloneInventory(puzzle.inventory));
-    setTradesUsed(0);
-    setHistory([]);
-    setGameState('playing');
-    setElapsedSeconds(0);
-    setShowResult(false);
-    setLastTradeIndex(null);
-  }, [puzzle.inventory]);
 
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;
@@ -267,7 +237,7 @@ export default function BarterScreen() {
                 Trade your goods to reach today&apos;s goal in as few trades as possible.
               </Text>
               <Text style={styles.introHint}>
-                Tap a vendor to trade. Undo is always available.
+                Tap a vendor to trade. Trades are final.
               </Text>
             </View>
           </View>
@@ -279,35 +249,6 @@ export default function BarterScreen() {
                   Trades {tradesUsed}/{puzzle.maxTrades} · Par {puzzle.par} · Goal {goalShort} ·{' '}
                   {formatTime(elapsedSeconds)}
                 </Text>
-              </View>
-              <View style={styles.summaryActions}>
-                <Pressable
-                  style={({ pressed }) => [
-                    isCompact ? styles.undoButtonCompact : styles.undoButton,
-                    (history.length === 0 || gameState !== 'playing') &&
-                      styles.undoButtonDisabled,
-                    pressed && history.length > 0 && gameState === 'playing'
-                      ? styles.undoButtonPressed
-                      : null,
-                  ]}
-                  onPress={handleUndo}
-                  disabled={history.length === 0 || gameState !== 'playing'}
-                >
-                  <Text style={isCompact ? styles.undoButtonTextCompact : styles.undoButtonText}>
-                    Undo
-                  </Text>
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => [
-                    isCompact ? styles.resetButtonCompact : styles.resetButton,
-                    pressed && styles.resetButtonPressed,
-                  ]}
-                  onPress={handleReset}
-                >
-                  <Text style={isCompact ? styles.resetButtonTextCompact : styles.resetButtonText}>
-                    Reset
-                  </Text>
-                </Pressable>
               </View>
 
               {isCompact ? (
@@ -352,6 +293,9 @@ export default function BarterScreen() {
           </View>
 
           <View style={styles.page}>
+            <View style={styles.vendorSection}>
+              <Text style={styles.vendorSectionTitle}>{puzzle.marketName} Vendors</Text>
+            </View>
             <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
               {puzzle.trades.map((trade, index) => {
                 const giveGood = getGoodById(trade.give.good);
@@ -377,10 +321,6 @@ export default function BarterScreen() {
                       isCompact && styles.tradeCardCompact,
                     ]}
                   >
-                    <View style={styles.vendorRow}>
-                      <Text style={styles.vendorLabel}>Vendor {index + 1}</Text>
-                      <Text style={styles.vendorHint}>Open daily</Text>
-                    </View>
                     <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
                       <View
                         style={[styles.tradeInfo, isCompact && styles.tradeInfoCompact]}
@@ -626,75 +566,6 @@ const styles = StyleSheet.create({
   summaryTextCompact: {
     fontSize: 10,
   },
-  summaryActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.xs,
-    marginBottom: Spacing.xs,
-  },
-  undoButton: {
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: '#e6e0d6',
-    backgroundColor: '#fffdf8',
-  },
-  undoButtonPressed: {
-    backgroundColor: '#f0ede8',
-  },
-  undoButtonDisabled: {
-    borderColor: '#e6e0d6',
-    opacity: 0.5,
-  },
-  undoButtonText: {
-    color: '#5f584f',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  resetButton: {
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: '#e6e0d6',
-    backgroundColor: '#fffdf8',
-  },
-  resetButtonPressed: {
-    backgroundColor: '#f0ede8',
-  },
-  resetButtonText: {
-    color: '#5f584f',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  undoButtonCompact: {
-    paddingVertical: 6,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: '#e6e0d6',
-    backgroundColor: '#fffdf8',
-  },
-  undoButtonTextCompact: {
-    color: '#5f584f',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  resetButtonCompact: {
-    paddingVertical: 6,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: '#e6e0d6',
-    backgroundColor: '#fffdf8',
-  },
-  resetButtonTextCompact: {
-    color: '#5f584f',
-    fontSize: 11,
-    fontWeight: '600',
-  },
   sectionHeader: {
     marginBottom: Spacing.sm,
   },
@@ -757,6 +628,16 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
     marginBottom: Spacing.md,
   },
+  vendorSection: {
+    marginBottom: Spacing.xs,
+  },
+  vendorSectionTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#5f584f',
+    textAlign: 'center',
+    letterSpacing: 0.4,
+  },
   tradeCard: {
     backgroundColor: '#fffdf8',
     borderRadius: BorderRadius.md,
@@ -769,23 +650,6 @@ const styles = StyleSheet.create({
   tradeCardCompact: {
     borderRadius: BorderRadius.md,
     padding: Spacing.xs,
-  },
-  vendorRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.xs,
-  },
-  vendorLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#1f1b16',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
-  vendorHint: {
-    fontSize: 10,
-    color: '#8a8174',
   },
   tradeCardAvailable: {
     borderColor: '#e6e0d6',
