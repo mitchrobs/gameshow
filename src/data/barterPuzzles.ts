@@ -267,6 +267,22 @@ function buildTrades(pathGoods: GoodId[], goalQty: number, rand: () => number): 
   return trades;
 }
 
+function getMaxTradeQuantity(trades: Trade[], goalQty: number): number {
+  let maxQty = goalQty;
+  for (const trade of trades) {
+    maxQty = Math.max(maxQty, trade.give.qty, trade.get.qty);
+  }
+  return maxQty;
+}
+
+function scaleTrades(trades: Trade[], factor: number): Trade[] {
+  const scale = (value: number) => Math.max(1, Math.ceil(value / factor));
+  return trades.map((trade) => ({
+    give: { good: trade.give.good, qty: scale(trade.give.qty) },
+    get: { good: trade.get.good, qty: scale(trade.get.qty) },
+  }));
+}
+
 function tradeKey(trade: Trade): string {
   return `${trade.give.qty}${trade.give.good}->${trade.get.qty}${trade.get.good}`;
 }
@@ -338,10 +354,30 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   const goods = orderGoods(pickedGoods);
   const rareGoods = goods.filter((g) => g.tier === 'rare').map((g) => g.id);
   const goalGood = seededPick(rareGoods, rand);
-  const goalQty = difficulty === 'Hard' ? 2 : rand() > 0.7 ? 2 : 1;
+  let goalQty = difficulty === 'Hard' ? 2 : rand() > 0.7 ? 2 : 1;
 
   const pathGoods = buildPathGoods(pickedGoods, par, goalGood, rand, difficulty);
-  const solution = buildTrades(pathGoods, goalQty, rand);
+  let solution = buildTrades(pathGoods, goalQty, rand);
+
+  const desiredDistractors = difficulty === 'Hard' ? 3 : Math.max(0, Math.min(3, 8 - par));
+  const blockedTargets = new Set(solution.map((trade) => trade.get.good));
+  let distractors = generateDistractors(
+    solution,
+    pickedGoods,
+    goalGood,
+    rand,
+    desiredDistractors,
+    blockedTargets
+  );
+  let allTrades = [...solution, ...distractors];
+  const maxQty = getMaxTradeQuantity(allTrades, goalQty);
+  if (maxQty > 100) {
+    const factor = Math.ceil(maxQty / 100);
+    solution = scaleTrades(solution, factor);
+    distractors = scaleTrades(distractors, factor);
+    goalQty = Math.max(1, Math.ceil(goalQty / factor));
+    allTrades = [...solution, ...distractors];
+  }
 
   const inventory = createEmptyInventory();
   const startTrade = solution[0];
@@ -352,18 +388,9 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       Math.floor(startTrade.give.qty * config.surplus)
     );
   }
+  inventory[startTrade.give.good] = Math.min(100, inventory[startTrade.give.good]);
 
-  const desiredDistractors = difficulty === 'Hard' ? 3 : Math.max(0, Math.min(3, 8 - par));
-  const blockedTargets = new Set(solution.map((trade) => trade.get.good));
-  const distractors = generateDistractors(
-    solution,
-    pickedGoods,
-    goalGood,
-    rand,
-    desiredDistractors,
-    blockedTargets
-  );
-  const trades = seededShuffle([...solution, ...distractors], rand);
+  const trades = seededShuffle(allTrades, rand);
 
   return {
     id: `barter-${seed}`,

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   Platform,
   Pressable,
   ScrollView,
@@ -23,6 +24,7 @@ import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 type GameState = 'playing' | 'won' | 'lost';
 
 const STORAGE_PREFIX = 'barter';
+const MAX_COUNT = 100;
 const WEB_NO_SELECT =
   Platform.OS === 'web'
     ? {
@@ -57,6 +59,14 @@ function cloneInventory(inv: Record<GoodId, number>): Record<GoodId, number> {
   return { ...inv };
 }
 
+function capInventory(inv: Record<GoodId, number>): Record<GoodId, number> {
+  const next = { ...inv };
+  (Object.keys(next) as GoodId[]).forEach((key) => {
+    next[key] = Math.min(MAX_COUNT, next[key]);
+  });
+  return next;
+}
+
 function formatTrade(trade: Trade): string {
   const giveGood = getGoodById(trade.give.good);
   const getGood = getGoodById(trade.get.good);
@@ -81,7 +91,7 @@ export default function BarterScreen() {
   const dailyKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
 
   const [inventory, setInventory] = useState<Record<GoodId, number>>(
-    () => cloneInventory(puzzle.inventory)
+    () => capInventory(cloneInventory(puzzle.inventory))
   );
   const [tradesUsed, setTradesUsed] = useState(0);
   const [gameState, setGameState] = useState<GameState>('playing');
@@ -90,11 +100,52 @@ export default function BarterScreen() {
   const [showResult, setShowResult] = useState(false);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [dailyCompleted, setDailyCompleted] = useState(false);
+  const [lateWindowOpen, setLateWindowOpen] = useState(false);
+  const [lateTransition, setLateTransition] = useState(false);
+  const lateTransitionAnim = useRef(new Animated.Value(0)).current;
 
   const goalGood = getGoodById(puzzle.goal.good);
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
   const solvedAtPar = gameState === 'won' && tradesUsed <= puzzle.par;
   const isMarinerMarket = puzzle.marketName === "Mariner's Market";
+  const vendorSectionTitle = puzzle.marketName.includes('Market')
+    ? `${puzzle.marketEmoji} Vendors`
+    : `${puzzle.marketEmoji} ${puzzle.marketName} Vendors`;
+  const lateWindowTrigger = useMemo(() => Math.max(2, Math.ceil(puzzle.par / 2)), [puzzle.par]);
+  const tradingWindowLabel = lateWindowOpen ? 'Late Trading Hours' : 'Early Trading Hours';
+
+  const tradeWaves = useMemo(() => {
+    const trades = [...puzzle.trades];
+    const firstSolution = puzzle.solution[0];
+    const tradeKey = (trade: Trade) =>
+      `${trade.give.good}:${trade.give.qty}->${trade.get.good}:${trade.get.qty}`;
+    const firstKey = firstSolution ? tradeKey(firstSolution) : '';
+    const minLate = Math.min(3, trades.length - 1);
+    const targetWave1 = Math.max(3, Math.floor(trades.length * 0.55));
+    const wave1Count = Math.min(trades.length - minLate, targetWave1);
+
+    const wave1 = trades.slice(0, wave1Count);
+    const wave2 = trades.slice(wave1Count);
+    if (firstKey && !wave1.some((trade) => tradeKey(trade) === firstKey)) {
+      const swapIndex = trades.findIndex((trade) => tradeKey(trade) === firstKey);
+      if (swapIndex >= 0 && wave1.length > 0) {
+        const swapTrade = trades[swapIndex];
+        const wave1Last = wave1[wave1.length - 1];
+        const wave1LastIndex = trades.indexOf(wave1Last);
+        if (wave1LastIndex >= 0) {
+          trades[wave1LastIndex] = swapTrade;
+          trades[swapIndex] = wave1Last;
+        }
+      }
+    }
+
+    return {
+      wave1: trades.slice(0, wave1Count),
+      wave2: trades.slice(wave1Count),
+    };
+  }, [puzzle.trades, puzzle.solution]);
+
+  const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
 
   const startSummary = useMemo(() => {
     const entries = puzzle.goods
@@ -162,6 +213,29 @@ export default function BarterScreen() {
   }, [lastTradeIndex]);
 
   useEffect(() => {
+    if (lateWindowOpen || lateTransition) return;
+    if (tradesUsed < lateWindowTrigger) return;
+    setLateTransition(true);
+    lateTransitionAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(lateTransitionAnim, {
+        toValue: 1,
+        duration: 220,
+        useNativeDriver: true,
+      }),
+      Animated.delay(700),
+      Animated.timing(lateTransitionAnim, {
+        toValue: 0,
+        duration: 220,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setLateTransition(false);
+      setLateWindowOpen(true);
+    });
+  }, [lateTransitionAnim, lateWindowOpen, lateTransition, tradesUsed, lateWindowTrigger]);
+
+  useEffect(() => {
     if (gameState === 'playing') return;
     setShowResult(true);
   }, [gameState]);
@@ -169,6 +243,7 @@ export default function BarterScreen() {
   const handleTrade = useCallback(
     (index: number) => {
       if (gameState !== 'playing') return;
+      if (lateTransition) return;
       if (tradesUsed >= puzzle.maxTrades) return;
       const trade = puzzle.trades[index];
       if (inventory[trade.give.good] < trade.give.qty) return;
@@ -176,21 +251,29 @@ export default function BarterScreen() {
       const nextInventory = cloneInventory(inventory);
       nextInventory[trade.give.good] -= trade.give.qty;
       nextInventory[trade.get.good] += trade.get.qty;
+      const cappedInventory = capInventory(nextInventory);
 
       const nextTradesUsed = tradesUsed + 1;
-      setInventory(nextInventory);
+      setInventory(cappedInventory);
       setTradesUsed(nextTradesUsed);
       setLastTradeIndex(index);
 
-      if (nextInventory[puzzle.goal.good] >= puzzle.goal.qty) {
+      if (cappedInventory[puzzle.goal.good] >= puzzle.goal.qty) {
         setGameState('won');
+        return;
+      }
+      const canStillTrade = visibleTrades.some(
+        (candidate) => cappedInventory[candidate.give.good] >= candidate.give.qty
+      );
+      if (!canStillTrade) {
+        setGameState('lost');
         return;
       }
       if (nextTradesUsed >= puzzle.maxTrades) {
         setGameState('lost');
       }
     },
-    [gameState, tradesUsed, puzzle, inventory]
+    [gameState, lateTransition, tradesUsed, puzzle, inventory, visibleTrades]
   );
 
   const handleCopyResults = useCallback(async () => {
@@ -227,17 +310,6 @@ export default function BarterScreen() {
               <Text style={[styles.title, isCompact && styles.titleCompact]}>Barter</Text>
               <Text style={[styles.dateLabel, isCompact && styles.dateLabelCompact]}>
                 {dateLabel}
-              </Text>
-            </View>
-            <View style={styles.introCard}>
-              <Text style={styles.introTitle}>
-                Welcome to {puzzle.marketName} {puzzle.marketEmoji}
-              </Text>
-              <Text style={styles.introBody}>
-                Trade your goods to reach today&apos;s goal in as few trades as possible.
-              </Text>
-              <Text style={styles.introHint}>
-                Tap a vendor to trade. Trades are final.
               </Text>
             </View>
           </View>
@@ -277,17 +349,50 @@ export default function BarterScreen() {
           </View>
 
           <View style={styles.page}>
-            <View style={styles.vendorSection}>
-              <Text style={styles.vendorSectionTitle}>
-                {puzzle.marketEmoji} {puzzle.marketName} Vendors
+            <View style={styles.introCard}>
+              <Text style={styles.introTitle}>
+                Welcome to {puzzle.marketName} {puzzle.marketEmoji}
+              </Text>
+              <Text style={styles.introBody}>
+                Trade your goods to reach today&apos;s goal in as few trades as possible.
+              </Text>
+              <Text style={styles.introHint}>
+                Tap a vendor to trade. Trades are final.
               </Text>
             </View>
+            {lateTransition && (
+              <Animated.View
+                style={[
+                  styles.transitionBanner,
+                  {
+                    opacity: lateTransitionAnim,
+                    transform: [
+                      {
+                        translateY: lateTransitionAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-6, 0],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <Text style={styles.transitionTitle}>Vendors are shuffling out</Text>
+                <Text style={styles.transitionBody}>Late trading hours begin soon.</Text>
+              </Animated.View>
+            )}
+            <View style={styles.vendorSection}>
+              <Text style={styles.vendorSectionTitle}>{vendorSectionTitle}</Text>
+              <Text style={styles.vendorSectionCaption}>{tradingWindowLabel}</Text>
+            </View>
             <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
-              {puzzle.trades.map((trade, index) => {
+              {visibleTrades.map((trade) => {
+                const tradeIndex = puzzle.trades.indexOf(trade);
                 const giveGood = getGoodById(trade.give.good);
                 const getGood = getGoodById(trade.get.good);
                 const canTrade =
                   gameState === 'playing' &&
+                  !lateTransition &&
                   tradesUsed < puzzle.maxTrades &&
                   inventory[trade.give.good] >= trade.give.qty;
                 let buttonLabel = 'Trade';
@@ -299,11 +404,11 @@ export default function BarterScreen() {
 
                 return (
                   <View
-                    key={`${trade.give.good}-${trade.get.good}-${index}`}
+                    key={`${trade.give.good}-${trade.get.good}-${tradeIndex}`}
                     style={[
                       styles.tradeCard,
                       canTrade ? styles.tradeCardAvailable : styles.tradeCardUnavailable,
-                      lastTradeIndex === index && styles.tradeCardFlash,
+                      lastTradeIndex === tradeIndex && styles.tradeCardFlash,
                       isCompact && styles.tradeCardCompact,
                       isMarinerMarket && styles.tradeCardMariner,
                     ]}
@@ -363,7 +468,7 @@ export default function BarterScreen() {
                           isCompact && styles.tradeButtonCompact,
                           isMarinerMarket && styles.tradeButtonMariner,
                         ]}
-                        onPress={() => handleTrade(index)}
+                        onPress={() => handleTrade(tradeIndex)}
                         disabled={!canTrade}
                       >
                         <Text
@@ -540,6 +645,24 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#8a8174',
   },
+  transitionBanner: {
+    backgroundColor: '#fffdf8',
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: '#e6e0d6',
+    padding: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  transitionTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1f1b16',
+  },
+  transitionBody: {
+    marginTop: 2,
+    fontSize: 11,
+    color: '#5f584f',
+  },
   title: {
     fontSize: 24,
     fontWeight: '800',
@@ -641,6 +764,12 @@ const styles = StyleSheet.create({
     color: '#5f584f',
     textAlign: 'center',
     letterSpacing: 0.4,
+  },
+  vendorSectionCaption: {
+    marginTop: 2,
+    fontSize: 11,
+    color: '#8a8174',
+    textAlign: 'center',
   },
   tradeCard: {
     backgroundColor: '#fffdf8',
