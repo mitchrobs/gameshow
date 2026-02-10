@@ -99,6 +99,7 @@ export default function BarterScreen() {
     () => capInventory(cloneInventory(puzzle.inventory))
   );
   const [tradesUsed, setTradesUsed] = useState(0);
+  const [currentStage, setCurrentStage] = useState(0);
   const [gameState, setGameState] = useState<GameState>('playing');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [lastTradeIndex, setLastTradeIndex] = useState<number | null>(null);
@@ -245,6 +246,9 @@ export default function BarterScreen() {
       if (lateTransition) return;
       if (tradesUsed >= puzzle.maxTrades) return;
       const trade = puzzle.trades[index];
+      const requiredStage = currentStage + 1;
+      const tradeStage = trade.stage ?? requiredStage;
+      if (tradeStage !== requiredStage) return;
       const canAfford = trade.give.every(
         (side) => inventory[side.good] >= side.qty
       );
@@ -260,15 +264,19 @@ export default function BarterScreen() {
       const nextTradesUsed = tradesUsed + 1;
       setInventory(cappedInventory);
       setTradesUsed(nextTradesUsed);
+      setCurrentStage(tradeStage);
       setLastTradeIndex(index);
 
       if (cappedInventory[puzzle.goal.good] >= puzzle.goal.qty) {
         setGameState('won');
         return;
       }
-      const canStillTrade = visibleTrades.some((candidate) =>
-        candidate.give.every((side) => cappedInventory[side.good] >= side.qty)
-      );
+      const canStillTrade = visibleTrades.some((candidate) => {
+        const nextStage = currentStage + 1;
+        const candidateStage = candidate.stage ?? nextStage;
+        if (candidateStage !== nextStage) return false;
+        return candidate.give.every((side) => cappedInventory[side.good] >= side.qty);
+      });
       if (!canStillTrade) {
         setGameState('lost');
         return;
@@ -277,7 +285,7 @@ export default function BarterScreen() {
         setGameState('lost');
       }
     },
-    [gameState, lateTransition, tradesUsed, puzzle, inventory, visibleTrades]
+    [gameState, lateTransition, tradesUsed, puzzle, inventory, visibleTrades, currentStage]
   );
 
   const handleCopyResults = useCallback(async () => {
@@ -410,7 +418,7 @@ export default function BarterScreen() {
                 ]}
               >
                 <Text style={[styles.transitionTitle, { color: marketAlertTone.text }]}>
-                  Alert: Vendors are shuffling
+                  Vendors are shuffling
                 </Text>
                 <Text style={[styles.transitionBody, { color: marketAlertTone.text }]}>
                   The late window opens shortly.
@@ -436,14 +444,20 @@ export default function BarterScreen() {
                   good: getGoodById(side.good),
                 }));
                 const getGood = getGoodById(trade.get.good);
+                const requiredStage = currentStage + 1;
+                const tradeStage = trade.stage ?? requiredStage;
+                const stageLocked = tradeStage !== requiredStage;
                 const canTrade =
                   gameState === 'playing' &&
                   !lateTransition &&
                   tradesUsed < puzzle.maxTrades &&
+                  !stageLocked &&
                   trade.give.every((side) => inventory[side.good] >= side.qty);
                 let buttonLabel = 'Trade';
                 if (gameState !== 'playing') {
                   buttonLabel = 'Closed';
+                } else if (stageLocked) {
+                  buttonLabel = 'Locked';
                 } else {
                   const missing = trade.give.find(
                     (side) => inventory[side.good] < side.qty
@@ -692,8 +706,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   transitionTitle: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
     color: '#8a4a0b',
   },
   transitionBody: {

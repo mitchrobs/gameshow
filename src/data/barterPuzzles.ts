@@ -29,6 +29,7 @@ export interface Trade {
   give: TradeSide[];
   get: TradeSide;
   window?: TradeWindow;
+  stage?: number;
 }
 
 export interface BarterGoal {
@@ -250,7 +251,7 @@ function buildTrades(pathGoods: GoodId[], goalQty: number, rand: () => number): 
     });
     needed[source] = giveQty;
   }
-  return trades;
+  return trades.map((trade, index) => ({ ...trade, stage: index + 1 }));
 }
 
 function getMaxTradeQuantity(trades: Trade[], goalQty: number): number {
@@ -270,6 +271,7 @@ function scaleTrades(trades: Trade[], factor: number): Trade[] {
     give: trade.give.map((side) => ({ good: side.good, qty: scale(side.qty) })),
     get: { good: trade.get.good, qty: scale(trade.get.qty) },
     window: trade.window,
+    stage: trade.stage,
   }));
 }
 
@@ -465,16 +467,19 @@ function createEarlyBranchTrades(
       give: [{ good: g0, qty: altGive }],
       get: { good: g2, qty: q2 },
       window: 'early',
+      stage: 1,
     },
     {
       give: [{ good: g2, qty: q2 }],
       get: { good: g1, qty: q1 },
       window: 'early',
+      stage: 2,
     },
     {
       give: [{ good: g1, qty: q1 }],
       get: { good: g3, qty: q3 },
       window: 'early',
+      stage: 3,
     },
   ];
 
@@ -583,57 +588,61 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     };
   };
 
-  const shortestPathLength = (puzzle: BarterPuzzle): number | null => {
-    const ids = puzzle.goods.map((g) => g.id);
-    const encode = (inv: Record<GoodId, number>) => ids.map((id) => inv[id]).join(',');
-    const queue: Array<{ inv: Record<GoodId, number>; steps: number }> = [
-      { inv: puzzle.inventory, steps: 0 },
-    ];
-    const earlyVisited = new Map<string, number>();
-    const lateVisited = new Set<string>();
-    earlyVisited.set(encode(puzzle.inventory), 0);
+    const shortestPathLength = (puzzle: BarterPuzzle): number | null => {
+      const ids = puzzle.goods.map((g) => g.id);
+      const encode = (inv: Record<GoodId, number>, stage: number) =>
+        `${stage}|${ids.map((id) => inv[id]).join(',')}`;
+      const queue: Array<{ inv: Record<GoodId, number>; steps: number; stage: number }> = [
+        { inv: puzzle.inventory, steps: 0, stage: 0 },
+      ];
+      const earlyVisited = new Map<string, number>();
+      const lateVisited = new Set<string>();
+      earlyVisited.set(encode(puzzle.inventory, 0), 0);
 
-    while (queue.length > 0) {
-      const current = queue.shift();
-      if (!current) break;
-      const { inv, steps } = current;
-      if (steps >= puzzle.maxTrades) continue;
-      const inEarly = steps < puzzle.earlyWindowTrades;
-      const trades = puzzle.trades.filter((trade) =>
-        inEarly ? (trade.window ?? 'early') !== 'late' : trade.window === 'late'
-      );
+      while (queue.length > 0) {
+        const current = queue.shift();
+        if (!current) break;
+        const { inv, steps, stage } = current;
+        if (steps >= puzzle.maxTrades) continue;
+        const inEarly = steps < puzzle.earlyWindowTrades;
+        const trades = puzzle.trades.filter((trade) =>
+          inEarly ? (trade.window ?? 'early') !== 'late' : trade.window === 'late'
+        );
 
-      for (const trade of trades) {
-        const canTrade = trade.give.every((side) => inv[side.good] >= side.qty);
-        if (!canTrade) continue;
-        const next = { ...inv };
-        trade.give.forEach((side) => {
-          next[side.good] -= side.qty;
-        });
-        next[trade.get.good] += trade.get.qty;
-        ids.forEach((id) => {
-          next[id] = Math.min(200, next[id]);
-        });
-        const nextSteps = steps + 1;
-        if (next[ puzzle.goal.good ] >= puzzle.goal.qty) {
-          return nextSteps;
+        for (const trade of trades) {
+          const requiredStage = stage + 1;
+          const tradeStage = trade.stage ?? requiredStage;
+          if (tradeStage !== requiredStage) continue;
+          const canTrade = trade.give.every((side) => inv[side.good] >= side.qty);
+          if (!canTrade) continue;
+          const next = { ...inv };
+          trade.give.forEach((side) => {
+            next[side.good] -= side.qty;
+          });
+          next[trade.get.good] += trade.get.qty;
+          ids.forEach((id) => {
+            next[id] = Math.min(200, next[id]);
+          });
+          const nextSteps = steps + 1;
+          if (next[ puzzle.goal.good ] >= puzzle.goal.qty) {
+            return nextSteps;
+          }
+          if (nextSteps >= puzzle.maxTrades) continue;
+
+          const key = encode(next, tradeStage);
+          if (nextSteps < puzzle.earlyWindowTrades) {
+            const prev = earlyVisited.get(key);
+            if (prev !== undefined && prev <= nextSteps) continue;
+            earlyVisited.set(key, nextSteps);
+          } else {
+            if (lateVisited.has(key)) continue;
+            lateVisited.add(key);
+          }
+          queue.push({ inv: next, steps: nextSteps, stage: tradeStage });
         }
-        if (nextSteps >= puzzle.maxTrades) continue;
-
-        const key = encode(next);
-        if (nextSteps < puzzle.earlyWindowTrades) {
-          const prev = earlyVisited.get(key);
-          if (prev !== undefined && prev <= nextSteps) continue;
-          earlyVisited.set(key, nextSteps);
-        } else {
-          if (lateVisited.has(key)) continue;
-          lateVisited.add(key);
-        }
-        queue.push({ inv: next, steps: nextSteps });
       }
-    }
-    return null;
-  };
+      return null;
+    };
 
   const hasBranch = (puzzle: BarterPuzzle): boolean => {
     const solutionKeys = new Set(puzzle.solution.map((trade) => tradeKey(trade)));
