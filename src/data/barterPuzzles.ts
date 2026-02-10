@@ -78,7 +78,7 @@ const TIER_RANK: Record<GoodTier, number> = {
 const DIFFICULTY_CONFIG = {
   Easy: { goods: 4, parRange: [3, 4], surplus: 0.5, slack: 2 },
   Medium: { goods: 5, parRange: [5, 6], surplus: 0.25, slack: 2 },
-  Hard: { goods: 6, parRange: [5, 9], surplus: 0, slack: 1 },
+  Hard: { goods: 6, parRange: [8, 10], surplus: 0, slack: 1 },
 } as const;
 
 const MARKETS = [
@@ -188,52 +188,29 @@ function buildPathGoods(
   par: number,
   goal: GoodId,
   rand: () => number,
-  difficulty: BarterDifficulty
+  _difficulty: BarterDifficulty
 ): GoodId[] {
-  const commons = goods.filter((id) => GOOD_MAP[id].tier === 'common');
-  const uncommons = goods.filter((id) => GOOD_MAP[id].tier === 'uncommon');
+  const commons = goods.filter((id) => GOOD_MAP[id].tier === 'common' && id !== goal);
+  const startGood = commons.length > 0 ? seededPick(commons, rand) : seededPick(goods, rand);
+  const remaining = seededShuffle(
+    goods.filter((id) => id !== startGood && id !== goal),
+    rand
+  );
 
-  const path: GoodId[] = [];
-  const startGood = seededPick(commons, rand);
-  path.push(startGood);
-  const used = new Set<GoodId>([startGood]);
+  const path: GoodId[] = [startGood, ...remaining, goal];
 
-  for (let i = 1; i < par; i++) {
-    const progress = i / par;
-    const shouldUseUncommon =
-      uncommons.length > 0 && (progress > 0.45 || (difficulty !== 'Easy' && progress > 0.2));
-    const tier = shouldUseUncommon ? 'uncommon' : 'common';
+  while (path.length - 1 < par) {
+    const insertIndex = randInt(rand, 0, path.length - 2);
     let candidates = goods.filter(
-      (id) =>
-        id !== goal &&
-        id !== startGood &&
-        id !== path[path.length - 1] &&
-        GOOD_MAP[id].tier === tier
+      (id) => id !== goal && id !== path[insertIndex] && id !== path[insertIndex + 1]
     );
-    if (difficulty !== 'Hard' && candidates.length > 0) {
-      candidates = candidates.filter((id) => !used.has(id));
-    }
     if (candidates.length === 0) {
-      candidates = goods.filter(
-        (id) => id !== goal && id !== startGood && id !== path[path.length - 1]
-      );
-    }
-    if (candidates.length === 0) {
-      candidates = goods.filter((id) => id !== goal && id !== path[path.length - 1]);
+      candidates = goods.filter((id) => id !== goal);
     }
     const next = seededPick(candidates, rand);
-    path.push(next);
-    used.add(next);
+    path.splice(insertIndex + 1, 0, next);
   }
 
-  if (difficulty !== 'Easy' && uncommons.length > 0) {
-    const hasUncommon = path.some((id) => GOOD_MAP[id].tier === 'uncommon');
-    if (!hasUncommon && path.length > 1) {
-      path[path.length - 1] = seededPick(uncommons, rand);
-    }
-  }
-
-  path.push(goal);
   return path;
 }
 

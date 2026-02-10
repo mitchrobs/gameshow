@@ -108,14 +108,12 @@ export default function BarterScreen() {
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
   const solvedAtPar = gameState === 'won' && tradesUsed <= puzzle.par;
   const isMarinerMarket = puzzle.marketName === "Mariner's Market";
-  const vendorSectionTitle = puzzle.marketName.includes('Market')
-    ? `${puzzle.marketEmoji} Vendors`
-    : `${puzzle.marketEmoji} ${puzzle.marketName} Vendors`;
+  const vendorSectionTitle = 'Vendors';
   const earlyWindowTrades = 4;
   const lateWindowTrigger = earlyWindowTrades;
   const tradingWindowLabel = lateWindowOpen
-    ? 'Late Trading Hours'
-    : `Early Trading Hours · ${earlyWindowTrades} trades max`;
+    ? 'Late Window'
+    : `Early Window · ${earlyWindowTrades} trades`;
 
   const tradeWaves = useMemo(() => {
     const trades = [...puzzle.trades];
@@ -224,13 +222,13 @@ export default function BarterScreen() {
     Animated.sequence([
       Animated.timing(lateTransitionAnim, {
         toValue: 1,
-        duration: 220,
+        duration: 600,
         useNativeDriver: true,
       }),
-      Animated.delay(700),
+      Animated.delay(1500),
       Animated.timing(lateTransitionAnim, {
         toValue: 0,
-        duration: 220,
+        duration: 600,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -321,12 +319,29 @@ export default function BarterScreen() {
           <View style={styles.stickyHeader}>
             <View style={styles.stickyInner}>
               <View style={styles.summaryCard}>
-                <View style={styles.summaryRow}>
-                <Text style={[styles.summaryText, isCompact && styles.summaryTextCompact]}>
-                  Trades {tradesUsed}/{puzzle.maxTrades} · Par {puzzle.par} · Goal {goalShort} ·{' '}
-                  {formatTime(elapsedSeconds)}
-                </Text>
-              </View>
+                <View style={[styles.summaryRow, isCompact && styles.summaryRowCompact]}>
+                  <View style={styles.summaryItem}>
+                    <Text style={styles.summaryLabel}>Trades</Text>
+                    <Text style={[styles.summaryValue, isCompact && styles.summaryValueCompact]}>
+                      {tradesUsed}/{puzzle.maxTrades}
+                    </Text>
+                  </View>
+                  <View style={styles.summaryItem}>
+                    <Text style={styles.summaryLabel}>Goal</Text>
+                    <Text style={[styles.summaryValue, isCompact && styles.summaryValueCompact]}>
+                      {goalShort}
+                    </Text>
+                  </View>
+                  <View style={styles.summaryItem}>
+                    <Text style={styles.summaryLabel}>Time</Text>
+                    <Text style={[styles.summaryValue, isCompact && styles.summaryValueCompact]}>
+                      {formatTime(elapsedSeconds)}
+                    </Text>
+                  </View>
+                  <View style={[styles.summaryItem, styles.summaryStatusItem]}>
+                    <Text style={styles.summaryStatusText}>{tradingWindowLabel}</Text>
+                  </View>
+                </View>
               </View>
 
               <View style={[styles.inventoryRow, isCompact && styles.inventoryRowCompact]}>
@@ -389,14 +404,6 @@ export default function BarterScreen() {
             )}
             <View style={styles.vendorSection}>
               <Text style={styles.vendorSectionTitle}>{vendorSectionTitle}</Text>
-              <Text
-                style={[
-                  styles.vendorSectionCaption,
-                  !lateWindowOpen && styles.vendorSectionCaptionEarly,
-                ]}
-              >
-                {tradingWindowLabel}
-              </Text>
             </View>
             <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
               {visibleTrades.map((trade) => {
@@ -692,9 +699,6 @@ const styles = StyleSheet.create({
   dateLabelCompact: {
     fontSize: 11,
   },
-  summaryRow: {
-    alignItems: 'flex-start',
-  },
   summaryCard: {
     backgroundColor: '#fffdf8',
     borderRadius: BorderRadius.md,
@@ -704,14 +708,49 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     marginBottom: Spacing.xs,
   },
-  summaryText: {
-    fontSize: 15,
-    color: '#5f584f',
-    fontWeight: '600',
-    textAlign: 'left',
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.xs,
   },
-  summaryTextCompact: {
+  summaryRowCompact: {
+    flexWrap: 'wrap',
+    rowGap: Spacing.xs,
+  },
+  summaryItem: {
+    flex: 1,
+    minWidth: 72,
+  },
+  summaryLabel: {
+    fontSize: 10,
+    color: '#8a8174',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  summaryValue: {
+    marginTop: 2,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1f1b16',
+  },
+  summaryValueCompact: {
     fontSize: 13,
+  },
+  summaryStatusItem: {
+    flex: 1.3,
+    alignItems: 'flex-start',
+  },
+  summaryStatusText: {
+    marginTop: 4,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    backgroundColor: '#efe7db',
+    color: '#5f584f',
+    fontSize: 11,
+    fontWeight: '600',
   },
   sectionHeader: {
     marginBottom: Spacing.sm,
@@ -785,15 +824,6 @@ const styles = StyleSheet.create({
     color: '#5f584f',
     textAlign: 'center',
     letterSpacing: 0.4,
-  },
-  vendorSectionCaption: {
-    marginTop: 2,
-    fontSize: 11,
-    color: '#8a8174',
-    textAlign: 'center',
-  },
-  vendorSectionCaptionEarly: {
-    marginBottom: Spacing.sm,
   },
   tradeCard: {
     backgroundColor: '#fffdf8',
