@@ -371,8 +371,8 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   );
   let allTrades = [...solution, ...distractors];
   const maxQty = getMaxTradeQuantity(allTrades, goalQty);
-  if (maxQty > 100) {
-    const factor = Math.ceil(maxQty / 100);
+  if (maxQty > 200) {
+    const factor = Math.ceil(maxQty / 200);
     solution = scaleTrades(solution, factor);
     distractors = scaleTrades(distractors, factor);
     goalQty = Math.max(1, Math.ceil(goalQty / factor));
@@ -388,7 +388,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       Math.floor(startTrade.give.qty * config.surplus)
     );
   }
-  inventory[startTrade.give.good] = Math.min(100, inventory[startTrade.give.good]);
+  inventory[startTrade.give.good] = Math.min(200, inventory[startTrade.give.good]);
 
   const trades = seededShuffle(allTrades, rand);
 

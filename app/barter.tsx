@@ -24,7 +24,7 @@ import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 type GameState = 'playing' | 'won' | 'lost';
 
 const STORAGE_PREFIX = 'barter';
-const MAX_COUNT = 100;
+const MAX_COUNT = 200;
 const WEB_NO_SELECT =
   Platform.OS === 'web'
     ? {
@@ -111,7 +111,7 @@ export default function BarterScreen() {
   const vendorSectionTitle = puzzle.marketName.includes('Market')
     ? `${puzzle.marketEmoji} Vendors`
     : `${puzzle.marketEmoji} ${puzzle.marketName} Vendors`;
-  const earlyWindowTrades = 3;
+  const earlyWindowTrades = 4;
   const lateWindowTrigger = earlyWindowTrades;
   const tradingWindowLabel = lateWindowOpen
     ? 'Late Trading Hours'
@@ -125,28 +125,29 @@ export default function BarterScreen() {
     const firstKey = firstSolution ? tradeKey(firstSolution) : '';
     const minLate = Math.min(3, trades.length - 1);
     const targetWave1 = Math.max(3, Math.floor(trades.length * 0.55));
-    const wave1Count = Math.min(trades.length - minLate, targetWave1);
 
-    const wave1 = trades.slice(0, wave1Count);
-    const wave2 = trades.slice(wave1Count);
+    const goalTrades = trades.filter((trade) => trade.get.good === puzzle.goal.good);
+    const nonGoalTrades = trades.filter((trade) => trade.get.good !== puzzle.goal.good);
+    const wave1Count = Math.min(
+      nonGoalTrades.length,
+      Math.max(1, Math.min(nonGoalTrades.length - minLate, targetWave1))
+    );
+
+    let wave1 = nonGoalTrades.slice(0, wave1Count);
+    let wave2 = [...nonGoalTrades.slice(wave1Count), ...goalTrades];
+
     if (firstKey && !wave1.some((trade) => tradeKey(trade) === firstKey)) {
-      const swapIndex = trades.findIndex((trade) => tradeKey(trade) === firstKey);
+      const swapIndex = wave2.findIndex((trade) => tradeKey(trade) === firstKey);
       if (swapIndex >= 0 && wave1.length > 0) {
-        const swapTrade = trades[swapIndex];
+        const swapTrade = wave2[swapIndex];
         const wave1Last = wave1[wave1.length - 1];
-        const wave1LastIndex = trades.indexOf(wave1Last);
-        if (wave1LastIndex >= 0) {
-          trades[wave1LastIndex] = swapTrade;
-          trades[swapIndex] = wave1Last;
-        }
+        wave1 = [...wave1.slice(0, -1), swapTrade];
+        wave2 = [...wave2.slice(0, swapIndex), wave1Last, ...wave2.slice(swapIndex + 1)];
       }
     }
 
-    return {
-      wave1: trades.slice(0, wave1Count),
-      wave2: trades.slice(wave1Count),
-    };
-  }, [puzzle.trades, puzzle.solution]);
+    return { wave1, wave2 };
+  }, [puzzle.trades, puzzle.solution, puzzle.goal.good]);
 
   const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
 
@@ -319,11 +320,13 @@ export default function BarterScreen() {
 
           <View style={styles.stickyHeader}>
             <View style={styles.stickyInner}>
-              <View style={styles.summaryRow}>
+              <View style={styles.summaryCard}>
+                <View style={styles.summaryRow}>
                 <Text style={[styles.summaryText, isCompact && styles.summaryTextCompact]}>
                   Trades {tradesUsed}/{puzzle.maxTrades} · Par {puzzle.par} · Goal {goalShort} ·{' '}
                   {formatTime(elapsedSeconds)}
                 </Text>
+              </View>
               </View>
 
               <View style={[styles.inventoryRow, isCompact && styles.inventoryRowCompact]}>
@@ -691,16 +694,24 @@ const styles = StyleSheet.create({
   },
   summaryRow: {
     alignItems: 'flex-start',
+  },
+  summaryCard: {
+    backgroundColor: '#fffdf8',
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: '#e6e0d6',
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
     marginBottom: Spacing.xs,
   },
   summaryText: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#5f584f',
     fontWeight: '600',
     textAlign: 'left',
   },
   summaryTextCompact: {
-    fontSize: 11,
+    fontSize: 13,
   },
   sectionHeader: {
     marginBottom: Spacing.sm,
