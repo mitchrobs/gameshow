@@ -271,8 +271,14 @@ export default function BarterScreen() {
         setGameState('won');
         return;
       }
-      const canStillTrade = visibleTrades.some((candidate) => {
-        const nextStage = tradeStage + 1;
+      const nextStage = tradeStage + 1;
+      const nextWindowIsEarly = nextStage <= puzzle.earlyWindowTrades;
+      const candidateTrades = puzzle.trades.filter((candidate) =>
+        nextWindowIsEarly
+          ? (candidate.window ?? 'early') !== 'late'
+          : candidate.window === 'late'
+      );
+      const canStillTrade = candidateTrades.some((candidate) => {
         const candidateStage = candidate.stage ?? nextStage;
         if (candidateStage !== nextStage) return false;
         return candidate.give.every((side) => cappedInventory[side.good] >= side.qty);
