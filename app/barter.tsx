@@ -613,13 +613,13 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 520,
     alignSelf: 'center',
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.md,
   },
   page: {
     width: '100%',
     maxWidth: 520,
     alignSelf: 'center',
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.md,
   },
   header: {
     marginBottom: Spacing.sm,
@@ -679,7 +679,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   tradeCounter: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffdf8',
     borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.sm,
@@ -699,7 +699,7 @@ const styles = StyleSheet.create({
     color: '#8a8174',
   },
   timerChip: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffdf8',
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
@@ -717,7 +717,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: '#e6e0d6',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffdf8',
   },
   undoButtonPressed: {
     backgroundColor: '#f0ede8',
@@ -737,7 +737,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: '#e6e0d6',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffdf8',
   },
   resetButtonPressed: {
     backgroundColor: '#f0ede8',
@@ -753,7 +753,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: '#e6e0d6',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffdf8',
   },
   undoButtonTextCompact: {
     color: '#5f584f',
@@ -766,7 +766,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: '#e6e0d6',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffdf8',
   },
   resetButtonTextCompact: {
     color: '#5f584f',
@@ -779,12 +779,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: Colors.text,
+    color: '#1f1b16',
   },
   sectionSubtitle: {
     marginTop: 2,
     fontSize: FontSize.sm,
-    color: Colors.textMuted,
+    color: '#8a8174',
   },
   inventoryRow: {
     flexDirection: 'row',
@@ -796,7 +796,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   inventoryCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffdf8',
     borderRadius: BorderRadius.md,
     borderWidth: 1,
     borderColor: '#e6e0d6',
@@ -830,7 +830,7 @@ const styles = StyleSheet.create({
   goalCard: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffdf8',
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
     borderColor: '#e6e0d6',
@@ -875,19 +875,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   tradeList: {
-    gap: Spacing.md,
+    gap: Spacing.sm,
     marginBottom: Spacing.xxl,
   },
   tradeListCompact: {
-    gap: Spacing.sm,
-    marginBottom: Spacing.lg,
+    gap: Spacing.xs,
+    marginBottom: Spacing.md,
   },
   tradeCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#fffdf8',
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.md,
+    borderColor: '#e6e0d6',
+    padding: Spacing.sm,
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -896,14 +896,14 @@ const styles = StyleSheet.create({
     padding: Spacing.sm,
   },
   tradeCardAvailable: {
-    borderColor: Colors.border,
+    borderColor: '#e6e0d6',
   },
   tradeCardUnavailable: {
-    borderColor: Colors.border,
+    borderColor: '#e6e0d6',
     opacity: 0.65,
   },
   tradeCardFlash: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: '#f0ede8',
   },
   tradeRow: {
     flexDirection: 'row',
@@ -929,55 +929,55 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   tradeQty: {
-    fontSize: FontSize.lg,
+    fontSize: 16,
     fontWeight: '800',
-    color: Colors.text,
+    color: '#1f1b16',
   },
   tradeQtyCompact: {
-    fontSize: 16,
+    fontSize: 14,
   },
   tradeEmoji: {
-    fontSize: 22,
+    fontSize: 18,
   },
   tradeEmojiCompact: {
-    fontSize: 18,
+    fontSize: 16,
   },
   tradeLabel: {
     fontSize: 12,
-    color: Colors.textMuted,
+    color: '#8a8174',
   },
   tradeArrow: {
-    fontSize: FontSize.lg,
-    color: Colors.textMuted,
+    fontSize: 18,
+    color: '#8a8174',
     fontWeight: '700',
   },
   tradeButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: '#1f1b16',
     borderRadius: BorderRadius.full,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     alignItems: 'center',
-    minWidth: 110,
+    minWidth: 96,
   },
   tradeButtonCompact: {
     paddingVertical: 6,
     paddingHorizontal: 10,
-    minWidth: 82,
+    minWidth: 72,
   },
   tradeButtonPressed: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: '#3a342d',
     transform: [{ scale: 0.99 }],
   },
   tradeButtonDisabled: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: '#eee9e3',
   },
   tradeButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
+    color: '#ffffff',
+    fontSize: 12,
     fontWeight: '700',
   },
   tradeButtonTextDisabled: {
-    color: Colors.textMuted,
+    color: '#9a9082',
   },
   tradesFooter: {
     alignItems: 'center',
@@ -985,7 +985,7 @@ const styles = StyleSheet.create({
   },
   tradesFooterText: {
     fontSize: FontSize.md,
-    color: Colors.textMuted,
+    color: '#8a8174',
     fontWeight: '700',
   },
   modalOverlay: {
@@ -1111,13 +1111,13 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   reviewButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: '#1f1b16',
     borderRadius: BorderRadius.sm,
     paddingVertical: Spacing.sm,
     alignItems: 'center',
   },
   reviewButtonPressed: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: '#3a342d',
   },
   reviewButtonText: {
     color: Colors.white,

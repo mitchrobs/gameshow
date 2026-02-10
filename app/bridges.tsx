@@ -173,6 +173,7 @@ export default function BridgesScreen() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [hintsUsed, setHintsUsed] = useState(0);
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
   const hasCountedRef = useRef(false);
 
   const islandMap = useMemo(() => {
@@ -429,6 +430,23 @@ export default function BridgesScreen() {
     setStatusMessage('Hint applied.');
   }, [bridges, puzzle.solution, gameState, anchorIsland]);
 
+  const handleCopyResults = useCallback(async () => {
+    if (Platform.OS !== 'web') return;
+    const clipboard = (globalThis as typeof globalThis & {
+      navigator?: { clipboard?: { writeText?: (text: string) => Promise<void> } };
+    }).navigator?.clipboard;
+    if (!clipboard?.writeText) {
+      setShareStatus('Copy not supported');
+      return;
+    }
+    try {
+      await clipboard.writeText(shareText);
+      setShareStatus('Copied to clipboard');
+    } catch {
+      setShareStatus('Copy failed');
+    }
+  }, [shareText]);
+
   const { width } = useWindowDimensions();
   const boardSize = Math.min(360, width - Spacing.lg * 2);
   const boardPadding = Spacing.md;
@@ -468,6 +486,27 @@ export default function BridgesScreen() {
     const seed = getDailySeed();
     return DAILY_LOCATIONS[seed % DAILY_LOCATIONS.length];
   }, []);
+
+  const shareText = useMemo(() => {
+    const resultLine = `Solved in ${formatTime(elapsedSeconds)} · Hints ${hintsUsed}`;
+    return [
+      `Bridges ${dateLabel} #${puzzleNumber}`,
+      resultLine,
+      `Today: ${dailyLocation.emoji} ${dailyLocation.label}`,
+      'https://mitchrobs.github.io/gameshow/',
+    ].join('\n');
+  }, [
+    dateLabel,
+    puzzleNumber,
+    elapsedSeconds,
+    hintsUsed,
+    dailyLocation.emoji,
+    dailyLocation.label,
+  ]);
+
+  useEffect(() => {
+    setShareStatus(null);
+  }, [shareText]);
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -610,9 +649,32 @@ export default function BridgesScreen() {
             {statusMessage && <Text style={styles.statusText}>{statusMessage}</Text>}
 
             {gameState === 'won' && (
-              <View style={styles.winBanner}>
-                <Text style={styles.winTitle}>Puzzle Complete</Text>
-                <Text style={styles.winSubtitle}>All islands connected. Nice work.</Text>
+              <View style={styles.resultCard}>
+                <Text style={styles.confetti}>🎉 ✨ 🎊</Text>
+                <Text style={styles.resultTitle}>Nice solve!</Text>
+                <Text style={styles.resultSubtitle}>
+                  {formatTime(elapsedSeconds)} · {hintsUsed} hints
+                </Text>
+                <View style={styles.shareCard}>
+                  <Text style={styles.shareTitle}>Share your result</Text>
+                  <View style={styles.shareBox}>
+                    <Text selectable style={styles.shareText}>
+                      {shareText}
+                    </Text>
+                  </View>
+                  {Platform.OS === 'web' && (
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.shareButton,
+                        pressed && styles.shareButtonPressed,
+                      ]}
+                      onPress={handleCopyResults}
+                    >
+                      <Text style={styles.shareButtonText}>Copy results</Text>
+                    </Pressable>
+                  )}
+                  {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
+                </View>
               </View>
             )}
 
@@ -806,24 +868,75 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontSize: 13,
   },
-  winBanner: {
+  resultCard: {
     marginTop: Spacing.lg,
-    padding: Spacing.md,
+    padding: Spacing.lg,
     borderRadius: BorderRadius.lg,
-    backgroundColor: 'rgba(91, 138, 114, 0.15)',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(91, 138, 114, 0.35)',
+    borderColor: Colors.border,
     alignItems: 'center',
   },
-  winTitle: {
-    fontSize: 16,
+  confetti: {
+    fontSize: 22,
+  },
+  resultTitle: {
+    marginTop: Spacing.sm,
+    fontSize: 18,
     fontWeight: '700',
     color: Colors.text,
   },
-  winSubtitle: {
+  resultSubtitle: {
     marginTop: 4,
     fontSize: 13,
     color: Colors.textSecondary,
+  },
+  shareCard: {
+    marginTop: Spacing.md,
+    width: '100%',
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  shareTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  shareBox: {
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: Spacing.sm,
+  },
+  shareText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    lineHeight: 18,
+  },
+  shareButton: {
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+  },
+  shareButtonPressed: {
+    opacity: 0.9,
+  },
+  shareButtonText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+  },
+  shareStatus: {
+    marginTop: Spacing.xs,
+    fontSize: 12,
+    color: Colors.textMuted,
   },
   actions: {
     marginTop: Spacing.xl,
