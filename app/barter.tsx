@@ -444,7 +444,10 @@ export default function BarterScreen() {
                     ]}
                   >
                     <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
-                      <View style={styles.tradeInfo} pointerEvents="none">
+                      <View
+                        style={[styles.tradeInfo, isCompact && styles.tradeInfoCompact]}
+                        pointerEvents="none"
+                      >
                         <View style={styles.tradeSide}>
                           <Text style={[styles.tradeQty, isCompact && styles.tradeQtyCompact]}>
                             {trade.give.qty}
@@ -490,11 +493,13 @@ export default function BarterScreen() {
               })}
             </View>
 
-            <View style={styles.tradesFooter}>
-              <Text style={styles.tradesFooterText}>
-                Trades used: {tradesUsed} / {puzzle.maxTrades}
-              </Text>
-            </View>
+            {!isCompact && (
+              <View style={styles.tradesFooter}>
+                <Text style={styles.tradesFooterText}>
+                  Trades used: {tradesUsed} / {puzzle.maxTrades}
+                </Text>
+              </View>
+            )}
           </View>
         </ScrollView>
 
@@ -606,6 +611,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   scrollContent: {
+    paddingTop: Spacing.sm,
     paddingBottom: Spacing.xxl,
   },
   stickyHeader: {
@@ -950,6 +956,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     gap: Spacing.sm,
+  },
+  tradeInfoCompact: {
+    gap: Spacing.xs,
   },
   tradeSide: {
     alignItems: 'center',
