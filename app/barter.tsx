@@ -251,7 +251,7 @@ export default function BarterScreen() {
                 </Text>
               </View>
 
-              <View style={styles.inventoryRow}>
+              <View style={[styles.inventoryRow, isCompact && styles.inventoryRowCompact]}>
                 {puzzle.goods.map((good) => {
                   const count = inventory[good.id];
                   return (
@@ -587,6 +587,9 @@ const styles = StyleSheet.create({
     flexWrap: 'nowrap',
     gap: Spacing.xs,
     justifyContent: 'space-between',
+  },
+  inventoryRowCompact: {
+    gap: 4,
   },
   inventoryCard: {
     backgroundColor: '#fffdf8',
