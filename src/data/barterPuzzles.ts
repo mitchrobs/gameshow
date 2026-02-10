@@ -92,6 +92,8 @@ const MAX_PATH_LENGTH = 11;
 const MIN_EARLY_PATHS = 1;
 const MIN_SOLUTION_PATHS = 2;
 const PATH_COUNT_CAP = 3;
+const CHOICE_DEPTH = 4;
+const MIN_CHOICES_PER_STEP = 2;
 
 const MARKETS = [
   { name: 'Silk Road Bazaar', emoji: '🧵' },
@@ -545,6 +547,50 @@ function createVariantTrades(
   return variants;
 }
 
+function canAfford(inv: Record<GoodId, number>, trade: Trade): boolean {
+  return trade.give.every((side) => inv[side.good] >= side.qty);
+}
+
+function applyTrade(inv: Record<GoodId, number>, trade: Trade): Record<GoodId, number> {
+  const next = { ...inv };
+  trade.give.forEach((side) => {
+    next[side.good] -= side.qty;
+  });
+  next[trade.get.good] += trade.get.qty;
+  (Object.keys(next) as GoodId[]).forEach((id) => {
+    next[id] = Math.min(200, next[id]);
+  });
+  return next;
+}
+
+function countAffordableTrades(
+  inv: Record<GoodId, number>,
+  trades: Trade[],
+  window: TradeWindow
+): number {
+  return trades.filter((trade) => {
+    const tradeWindow = trade.window ?? 'early';
+    if (window === 'early' && tradeWindow === 'late') return false;
+    if (window === 'late' && tradeWindow !== 'late') return false;
+    return canAfford(inv, trade);
+  }).length;
+}
+
+function hasChoicesOnSolution(puzzle: BarterPuzzle, depth: number): boolean {
+  const steps = Math.min(depth, puzzle.solution.length);
+  let inv: Record<GoodId, number> = { ...puzzle.inventory };
+  for (let i = 0; i < steps; i++) {
+    const trade = puzzle.solution[i];
+    if (!trade) break;
+    const window = trade.window ?? 'early';
+    const available = countAffordableTrades(inv, puzzle.trades, window);
+    if (available < MIN_CHOICES_PER_STEP) return false;
+    if (!canAfford(inv, trade)) return false;
+    inv = applyTrade(inv, trade);
+  }
+  return true;
+}
+
 function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   const baseSeed = seed;
 
@@ -661,8 +707,102 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       inventory[goodId] = Math.min(200, inventory[goodId]);
     });
 
+    const choiceTrades: Trade[] = [];
+    const choiceDepth = Math.min(CHOICE_DEPTH, solution.length);
+    const workingInventory = { ...inventory };
+    const combinedTrades = () => [...solution, ...distractors, ...variantTrades, ...choiceTrades];
+
+    const boostGood = (good: GoodId, qty: number) => {
+      if (inventory[good] < qty) {
+        const nextQty = Math.min(200, qty);
+        inventory[good] = nextQty;
+        workingInventory[good] = nextQty;
+      }
+    };
+
+    for (let step = 0; step < choiceDepth; step++) {
+      const base = solution[step];
+      if (!base) break;
+      const window = base.window ?? 'early';
+      const affordable = countAffordableTrades(
+        workingInventory,
+        combinedTrades(),
+        window
+      );
+      if (affordable < MIN_CHOICES_PER_STEP) {
+        const basePrimary = base.give[0]?.good;
+        const baseGiveGoods = new Set(base.give.map((side) => side.good));
+        const preferredCandidates = pickedGoods.filter(
+          (id) =>
+            id !== goalGood && id !== base.get.good && workingInventory[id] > 0
+        );
+        const fallbackCandidates = pickedGoods.filter(
+          (id) => id !== goalGood && id !== base.get.good
+        );
+        const candidatePool = [
+          ...preferredCandidates,
+          ...fallbackCandidates.filter((id) => !preferredCandidates.includes(id)),
+        ];
+        candidatePool.sort((a, b) => workingInventory[b] - workingInventory[a]);
+        let created = false;
+        for (const candidate of candidatePool) {
+          const nextGive = base.give.map((side) =>
+            side.good === candidate ? { good: side.good, qty: side.qty + 1 } : side
+          );
+          if (!baseGiveGoods.has(candidate)) {
+            nextGive.push({ good: candidate, qty: 1 });
+          } else {
+            boostGood(candidate, (base.give.find((side) => side.good === candidate)?.qty ?? 0) + 1);
+          }
+          const choiceTrade: Trade = {
+            ...base,
+            give: nextGive,
+            variant: true,
+          };
+          const key = tradeKey(choiceTrade);
+          if (existingKeys.has(key)) continue;
+          if (!canAfford(workingInventory, choiceTrade)) {
+            boostGood(candidate, nextGive.find((side) => side.good === candidate)?.qty ?? 1);
+          }
+          if (!canAfford(workingInventory, choiceTrade)) continue;
+          existingKeys.add(key);
+          choiceTrades.push(choiceTrade);
+          created = true;
+          break;
+        }
+        if (!created && basePrimary) {
+          const baseQty = base.give.find((side) => side.good === basePrimary)?.qty ?? 0;
+          let extraQty = baseQty + 1;
+          while (extraQty <= 200) {
+            const nextGive = base.give.map((side) =>
+              side.good === basePrimary ? { good: side.good, qty: extraQty } : side
+            );
+            const choiceTrade: Trade = {
+              ...base,
+              give: nextGive,
+              variant: true,
+            };
+            const key = tradeKey(choiceTrade);
+            if (!existingKeys.has(key)) {
+              boostGood(basePrimary, extraQty);
+              existingKeys.add(key);
+              choiceTrades.push(choiceTrade);
+              created = true;
+              break;
+            }
+            extraQty += 1;
+          }
+        }
+      }
+
+      if (canAfford(workingInventory, base)) {
+        const next = applyTrade(workingInventory, base);
+        Object.assign(workingInventory, next);
+      }
+    }
+
     const trades = seededShuffle(
-      [...solution, ...distractors, ...variantTrades],
+      [...solution, ...distractors, ...variantTrades, ...choiceTrades],
       rand
     );
 
@@ -858,6 +998,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       PATH_COUNT_CAP
     );
     const solutionPaths = countSolutions(candidate, PATH_COUNT_CAP);
+    const choicesOk = hasChoicesOnSolution(candidate, CHOICE_DEPTH);
     const earlyVariantCount = candidate.trades.filter(
       (trade) => trade.variant && (trade.window ?? 'early') !== 'late'
     ).length;
@@ -869,7 +1010,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
         (trade.window ?? 'early') !== 'late' &&
         trade.give.every((side) => candidate.inventory[side.good] >= side.qty)
     ).length;
-    if (shortest !== null) {
+    if (shortest !== null && choicesOk) {
       const shortestInRange =
         shortest >= MIN_PATH_LENGTH && shortest <= MAX_PATH_LENGTH ? 1000 : 0;
       const branchScore = Math.min(PATH_COUNT_CAP, earlyVariantCount + lateVariantCount);
@@ -888,6 +1029,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       candidate.par <= MAX_PATH_LENGTH &&
       earlyPaths >= MIN_EARLY_PATHS &&
       solutionPaths >= MIN_SOLUTION_PATHS &&
+      choicesOk &&
       earlyVariantCount > 0 &&
       lateVariantCount > 0 &&
       startAffordableTrades >= 2
