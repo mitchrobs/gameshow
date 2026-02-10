@@ -330,7 +330,8 @@ export default function BridgesScreen() {
         }
         return updated;
       });
-      setAnchorIsland(id);
+      setAnchorIsland(null);
+      setFocusedIsland(null);
     },
     [anchorIsland, bridges, neighborPairs, bridgeList, islandMap, gameState]
   );
@@ -422,6 +423,8 @@ export default function BridgesScreen() {
     const [key, count] = pending;
     setHistory((prev) => [...prev, { bridges: cloneBridges(bridges), anchor: anchorIsland }]);
     setBridges((prev) => ({ ...prev, [key]: count }));
+    setAnchorIsland(null);
+    setFocusedIsland(null);
     setHintsUsed((prev) => prev + 1);
     setStatusMessage('Hint applied.');
   }, [bridges, puzzle.solution, gameState, anchorIsland]);
@@ -494,18 +497,15 @@ export default function BridgesScreen() {
               </View>
             </View>
             <Text style={styles.howTo}>
-              Tap an island, then a neighbor in the same row or column to cycle 1, 2, or 0
-              bridges. Each number shows the exact bridges needed. Bridges cannot cross and
-              all islands must connect.
+              Connect islands with bridges so each island's number matches its bridge count.
+              Bridges run horizontally or vertically, can be single or double, and cannot
+              cross. All islands must be connected into one group.
             </Text>
           </View>
 
           <View style={styles.statsRow}>
             <View style={styles.statPill}>
               <Text style={styles.statText}>⏱ {formatTime(elapsedSeconds)}</Text>
-            </View>
-            <View style={styles.statPill}>
-              <Text style={styles.statText}>★ {puzzle.difficulty}</Text>
             </View>
             <View style={styles.statPill}>
               <Text style={styles.statText}>Hints {hintsUsed}</Text>
