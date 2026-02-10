@@ -94,6 +94,7 @@ export default function BarterScreen() {
   const goalGood = getGoodById(puzzle.goal.good);
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
   const solvedAtPar = gameState === 'won' && tradesUsed <= puzzle.par;
+  const isMarinerMarket = puzzle.marketName === "Mariner's Market";
 
   const startSummary = useMemo(() => {
     const entries = puzzle.goods
@@ -224,15 +225,14 @@ export default function BarterScreen() {
           <View style={styles.page}>
             <View style={styles.header}>
               <Text style={[styles.title, isCompact && styles.titleCompact]}>Barter</Text>
-              <Text style={[styles.marketName, isCompact && styles.marketNameCompact]}>
-                {puzzle.marketName}
-              </Text>
               <Text style={[styles.dateLabel, isCompact && styles.dateLabelCompact]}>
                 {dateLabel}
               </Text>
             </View>
             <View style={styles.introCard}>
-              <Text style={styles.introTitle}>Welcome to the market</Text>
+              <Text style={styles.introTitle}>
+                Welcome to {puzzle.marketName} {puzzle.marketEmoji}
+              </Text>
               <Text style={styles.introBody}>
                 Trade your goods to reach today&apos;s goal in as few trades as possible.
               </Text>
@@ -251,50 +251,36 @@ export default function BarterScreen() {
                 </Text>
               </View>
 
-              {isCompact ? (
-                <View style={[styles.inventoryRow, styles.inventoryRowTight]}>
-                  {puzzle.goods.map((good) => {
-                    const count = inventory[good.id];
-                    return (
-                      <View
-                        key={good.id}
-                        style={[
-                          styles.inventoryCard,
-                          styles.inventoryCardTight,
-                          count === 0 && styles.inventoryCardEmpty,
-                        ]}
-                      >
-                        <Text style={styles.inventoryEmojiTight}>{good.emoji}</Text>
-                        <Text style={styles.inventoryCountTight}>{count}</Text>
-                      </View>
-                    );
-                  })}
-                </View>
-              ) : (
-                <View style={styles.inventoryRow}>
-                  {puzzle.goods.map((good) => {
-                    const count = inventory[good.id];
-                    return (
-                      <View
-                        key={good.id}
-                        style={[
-                          styles.inventoryCard,
-                          count === 0 && styles.inventoryCardEmpty,
-                        ]}
-                      >
-                        <Text style={styles.inventoryEmoji}>{good.emoji}</Text>
-                        <Text style={styles.inventoryCount}>{count}</Text>
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
+              <View style={styles.inventoryRow}>
+                {puzzle.goods.map((good) => {
+                  const count = inventory[good.id];
+                  return (
+                    <View
+                      key={good.id}
+                      style={[
+                        styles.inventoryCard,
+                        isCompact && styles.inventoryCardCompact,
+                        count === 0 && styles.inventoryCardEmpty,
+                      ]}
+                    >
+                      <Text style={[styles.inventoryEmoji, isCompact && styles.inventoryEmojiCompact]}>
+                        {good.emoji}
+                      </Text>
+                      <Text style={[styles.inventoryCount, isCompact && styles.inventoryCountCompact]}>
+                        {count}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
             </View>
           </View>
 
           <View style={styles.page}>
             <View style={styles.vendorSection}>
-              <Text style={styles.vendorSectionTitle}>{puzzle.marketName} Vendors</Text>
+              <Text style={styles.vendorSectionTitle}>
+                {puzzle.marketEmoji} {puzzle.marketName} Vendors
+              </Text>
             </View>
             <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
               {puzzle.trades.map((trade, index) => {
@@ -319,6 +305,7 @@ export default function BarterScreen() {
                       canTrade ? styles.tradeCardAvailable : styles.tradeCardUnavailable,
                       lastTradeIndex === index && styles.tradeCardFlash,
                       isCompact && styles.tradeCardCompact,
+                      isMarinerMarket && styles.tradeCardMariner,
                     ]}
                   >
                     <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
@@ -327,19 +314,43 @@ export default function BarterScreen() {
                         pointerEvents="none"
                       >
                         <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
-                          <Text style={[styles.tradeQty, isCompact && styles.tradeQtyCompact]}>
+                          <Text
+                            style={[
+                              styles.tradeQty,
+                              isCompact && styles.tradeQtyCompact,
+                              isMarinerMarket && styles.tradeQtyMariner,
+                            ]}
+                          >
                             {trade.give.qty}
                           </Text>
-                          <Text style={[styles.tradeEmoji, isCompact && styles.tradeEmojiCompact]}>
+                          <Text
+                            style={[
+                              styles.tradeEmoji,
+                              isCompact && styles.tradeEmojiCompact,
+                              isMarinerMarket && styles.tradeEmojiMariner,
+                            ]}
+                          >
                             {giveGood.emoji}
                           </Text>
                         </View>
                         <Text style={styles.tradeArrow}>→</Text>
                         <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
-                          <Text style={[styles.tradeQty, isCompact && styles.tradeQtyCompact]}>
+                          <Text
+                            style={[
+                              styles.tradeQty,
+                              isCompact && styles.tradeQtyCompact,
+                              isMarinerMarket && styles.tradeQtyMariner,
+                            ]}
+                          >
                             {trade.get.qty}
                           </Text>
-                          <Text style={[styles.tradeEmoji, isCompact && styles.tradeEmojiCompact]}>
+                          <Text
+                            style={[
+                              styles.tradeEmoji,
+                              isCompact && styles.tradeEmojiCompact,
+                              isMarinerMarket && styles.tradeEmojiMariner,
+                            ]}
+                          >
                             {getGood.emoji}
                           </Text>
                         </View>
@@ -350,6 +361,7 @@ export default function BarterScreen() {
                           !canTrade && styles.tradeButtonDisabled,
                           pressed && canTrade ? styles.tradeButtonPressed : null,
                           isCompact && styles.tradeButtonCompact,
+                          isMarinerMarket && styles.tradeButtonMariner,
                         ]}
                         onPress={() => handleTrade(index)}
                         disabled={!canTrade}
@@ -536,15 +548,6 @@ const styles = StyleSheet.create({
   titleCompact: {
     fontSize: 20,
   },
-  marketName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#5f584f',
-    marginTop: 2,
-  },
-  marketNameCompact: {
-    fontSize: 12,
-  },
   dateLabel: {
     fontSize: 12,
     color: '#8a8174',
@@ -581,11 +584,8 @@ const styles = StyleSheet.create({
   },
   inventoryRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     gap: Spacing.xs,
-    justifyContent: 'center',
-  },
-  inventoryRowTight: {
     justifyContent: 'space-between',
   },
   inventoryCard: {
@@ -593,14 +593,15 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     borderWidth: 1,
     borderColor: '#e6e0d6',
-    paddingVertical: 6,
-    paddingHorizontal: 6,
-    minWidth: 82,
+    paddingVertical: 5,
+    paddingHorizontal: 4,
+    flex: 1,
+    minWidth: 0,
     alignItems: 'center',
   },
-  inventoryCardTight: {
-    minWidth: 0,
-    flexBasis: '22%',
+  inventoryCardCompact: {
+    paddingVertical: 4,
+    paddingHorizontal: 3,
   },
   inventoryCardEmpty: {
     opacity: 0.35,
@@ -608,8 +609,8 @@ const styles = StyleSheet.create({
   inventoryEmoji: {
     fontSize: 18,
   },
-  inventoryEmojiTight: {
-    fontSize: 16,
+  inventoryEmojiCompact: {
+    fontSize: 15,
   },
   inventoryCount: {
     fontSize: 16,
@@ -617,8 +618,8 @@ const styles = StyleSheet.create({
     color: '#1f1b16',
     marginTop: 2,
   },
-  inventoryCountTight: {
-    fontSize: 13,
+  inventoryCountCompact: {
+    fontSize: 12,
   },
   tradeList: {
     gap: Spacing.sm,
@@ -650,6 +651,10 @@ const styles = StyleSheet.create({
   tradeCardCompact: {
     borderRadius: BorderRadius.md,
     padding: Spacing.xs,
+  },
+  tradeCardMariner: {
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
   },
   tradeCardAvailable: {
     borderColor: '#e6e0d6',
@@ -697,11 +702,17 @@ const styles = StyleSheet.create({
   tradeQtyCompact: {
     fontSize: 13,
   },
+  tradeQtyMariner: {
+    fontSize: 16,
+  },
   tradeEmoji: {
     fontSize: 16,
   },
   tradeEmojiCompact: {
     fontSize: 14,
+  },
+  tradeEmojiMariner: {
+    fontSize: 18,
   },
   tradeLabel: {
     fontSize: 12,
@@ -724,6 +735,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     minWidth: 72,
+  },
+  tradeButtonMariner: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    minWidth: 96,
   },
   tradeButtonPressed: {
     backgroundColor: '#3a342d',
