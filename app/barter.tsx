@@ -68,9 +68,14 @@ function capInventory(inv: Record<GoodId, number>): Record<GoodId, number> {
 }
 
 function formatTrade(trade: Trade): string {
-  const giveGood = getGoodById(trade.give.good);
+  const giveParts = trade.give
+    .map((side) => {
+      const good = getGoodById(side.good);
+      return `${side.qty} ${good.emoji}`;
+    })
+    .join(' + ');
   const getGood = getGoodById(trade.get.good);
-  return `${trade.give.qty} ${giveGood.emoji} → ${trade.get.qty} ${getGood.emoji}`;
+  return `${giveParts} → ${trade.get.qty} ${getGood.emoji}`;
 }
 
 export default function BarterScreen() {
@@ -223,10 +228,15 @@ export default function BarterScreen() {
       if (lateTransition) return;
       if (tradesUsed >= puzzle.maxTrades) return;
       const trade = puzzle.trades[index];
-      if (inventory[trade.give.good] < trade.give.qty) return;
+      const canAfford = trade.give.every(
+        (side) => inventory[side.good] >= side.qty
+      );
+      if (!canAfford) return;
 
       const nextInventory = cloneInventory(inventory);
-      nextInventory[trade.give.good] -= trade.give.qty;
+      trade.give.forEach((side) => {
+        nextInventory[side.good] -= side.qty;
+      });
       nextInventory[trade.get.good] += trade.get.qty;
       const cappedInventory = capInventory(nextInventory);
 
@@ -239,8 +249,8 @@ export default function BarterScreen() {
         setGameState('won');
         return;
       }
-      const canStillTrade = visibleTrades.some(
-        (candidate) => cappedInventory[candidate.give.good] >= candidate.give.qty
+      const canStillTrade = visibleTrades.some((candidate) =>
+        candidate.give.every((side) => cappedInventory[side.good] >= side.qty)
       );
       if (!canStillTrade) {
         setGameState('lost');
@@ -398,23 +408,32 @@ export default function BarterScreen() {
             >
               {visibleTrades.map((trade) => {
                 const tradeIndex = puzzle.trades.indexOf(trade);
-                const giveGood = getGoodById(trade.give.good);
+                const giveGoods = trade.give.map((side) => ({
+                  side,
+                  good: getGoodById(side.good),
+                }));
                 const getGood = getGoodById(trade.get.good);
                 const canTrade =
                   gameState === 'playing' &&
                   !lateTransition &&
                   tradesUsed < puzzle.maxTrades &&
-                  inventory[trade.give.good] >= trade.give.qty;
+                  trade.give.every((side) => inventory[side.good] >= side.qty);
                 let buttonLabel = 'Trade';
                 if (gameState !== 'playing') {
                   buttonLabel = 'Closed';
-                } else if (inventory[trade.give.good] < trade.give.qty) {
-                  buttonLabel = `Need ${trade.give.qty} ${giveGood.emoji}`;
+                } else {
+                  const missing = trade.give.find(
+                    (side) => inventory[side.good] < side.qty
+                  );
+                  if (missing) {
+                    const missingGood = getGoodById(missing.good);
+                    buttonLabel = `Need ${missing.qty} ${missingGood.emoji}`;
+                  }
                 }
 
                 return (
                   <View
-                    key={`${trade.give.good}-${trade.get.good}-${tradeIndex}`}
+                    key={`trade-${tradeIndex}`}
                     style={[
                       styles.tradeCard,
                       canTrade ? styles.tradeCardAvailable : styles.tradeCardUnavailable,
@@ -429,24 +448,37 @@ export default function BarterScreen() {
                         pointerEvents="none"
                       >
                         <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
-                          <Text
-                            style={[
-                              styles.tradeQty,
-                              isCompact && styles.tradeQtyCompact,
-                              isMarinerMarket && styles.tradeQtyMariner,
-                            ]}
-                          >
-                            {trade.give.qty}
-                          </Text>
-                          <Text
-                            style={[
-                              styles.tradeEmoji,
-                              isCompact && styles.tradeEmojiCompact,
-                              isMarinerMarket && styles.tradeEmojiMariner,
-                            ]}
-                          >
-                            {giveGood.emoji}
-                          </Text>
+                          {giveGoods.map(({ side, good }, index) => (
+                            <View
+                              key={`${side.good}-${index}`}
+                              style={[
+                                styles.tradeGiveItem,
+                                isCompact && styles.tradeGiveItemCompact,
+                              ]}
+                            >
+                              <Text
+                                style={[
+                                  styles.tradeQty,
+                                  isCompact && styles.tradeQtyCompact,
+                                  isMarinerMarket && styles.tradeQtyMariner,
+                                ]}
+                              >
+                                {side.qty}
+                              </Text>
+                              <Text
+                                style={[
+                                  styles.tradeEmoji,
+                                  isCompact && styles.tradeEmojiCompact,
+                                  isMarinerMarket && styles.tradeEmojiMariner,
+                                ]}
+                              >
+                                {good.emoji}
+                              </Text>
+                              {index < giveGoods.length - 1 && (
+                                <Text style={styles.tradePlus}>+</Text>
+                              )}
+                            </View>
+                          ))}
                         </View>
                         <Text style={styles.tradeArrow}>→</Text>
                         <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
@@ -842,6 +874,14 @@ const styles = StyleSheet.create({
   tradeSideCompact: {
     gap: 4,
   },
+  tradeGiveItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  tradeGiveItemCompact: {
+    gap: 3,
+  },
   tradeQty: {
     fontSize: 15,
     fontWeight: '800',
@@ -861,6 +901,12 @@ const styles = StyleSheet.create({
   },
   tradeEmojiMariner: {
     fontSize: 18,
+  },
+  tradePlus: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#8a8174',
+    marginHorizontal: 2,
   },
   tradeLabel: {
     fontSize: 12,

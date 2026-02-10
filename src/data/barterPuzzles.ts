@@ -26,7 +26,7 @@ export interface TradeSide {
 export type TradeWindow = 'early' | 'late';
 
 export interface Trade {
-  give: TradeSide;
+  give: TradeSide[];
   get: TradeSide;
   window?: TradeWindow;
 }
@@ -245,7 +245,7 @@ function buildTrades(pathGoods: GoodId[], goalQty: number, rand: () => number): 
     const getQty = needed[target];
     const giveQty = getGiveQty(source, target, getQty, rand);
     trades.unshift({
-      give: { good: source, qty: giveQty },
+      give: [{ good: source, qty: giveQty }],
       get: { good: target, qty: getQty },
     });
     needed[source] = giveQty;
@@ -256,7 +256,10 @@ function buildTrades(pathGoods: GoodId[], goalQty: number, rand: () => number): 
 function getMaxTradeQuantity(trades: Trade[], goalQty: number): number {
   let maxQty = goalQty;
   for (const trade of trades) {
-    maxQty = Math.max(maxQty, trade.give.qty, trade.get.qty);
+    for (const give of trade.give) {
+      maxQty = Math.max(maxQty, give.qty);
+    }
+    maxQty = Math.max(maxQty, trade.get.qty);
   }
   return maxQty;
 }
@@ -264,25 +267,40 @@ function getMaxTradeQuantity(trades: Trade[], goalQty: number): number {
 function scaleTrades(trades: Trade[], factor: number): Trade[] {
   const scale = (value: number) => Math.max(1, Math.ceil(value / factor));
   return trades.map((trade) => ({
-    give: { good: trade.give.good, qty: scale(trade.give.qty) },
+    give: trade.give.map((side) => ({ good: side.good, qty: scale(side.qty) })),
     get: { good: trade.get.good, qty: scale(trade.get.qty) },
     window: trade.window,
   }));
 }
 
 function tradeKey(trade: Trade): string {
-  return `${trade.give.qty}${trade.give.good}->${trade.get.qty}${trade.get.good}`;
+  const giveKey = trade.give
+    .slice()
+    .sort((a, b) => {
+      const diff = (GOOD_INDEX.get(a.good) ?? 0) - (GOOD_INDEX.get(b.good) ?? 0);
+      return diff === 0 ? a.qty - b.qty : diff;
+    })
+    .map((side) => `${side.qty}${side.good}`)
+    .join('+');
+  return `${giveKey}->${trade.get.qty}${trade.get.good}`;
 }
 
 function makeReverseTrade(trade: Trade, rand: () => number): Trade {
+  const primaryGive = trade.give[0];
+  if (!primaryGive) {
+    return {
+      give: [{ good: trade.get.good, qty: trade.get.qty }],
+      get: { good: trade.get.good, qty: trade.get.qty },
+    };
+  }
   const giveQty = trade.get.qty;
   const giveGood = trade.get.good;
-  const minReturn = Math.max(1, Math.floor(trade.give.qty * 0.4));
-  const maxReturn = Math.max(minReturn, Math.floor(trade.give.qty * 0.7));
+  const minReturn = Math.max(1, Math.floor(primaryGive.qty * 0.4));
+  const maxReturn = Math.max(minReturn, Math.floor(primaryGive.qty * 0.7));
   const getQty = randInt(rand, minReturn, maxReturn);
   return {
-    give: { good: giveGood, qty: giveQty },
-    get: { good: trade.give.good, qty: getQty },
+    give: [{ good: giveGood, qty: giveQty }],
+    get: { good: primaryGive.good, qty: getQty },
   };
 }
 
@@ -318,7 +336,7 @@ function generateDistractors(
     const getQty = randInt(rand, 1, 2);
     const giveQty = Math.max(getQty + 1, getQty * randInt(rand, 2, 3));
     const candidate: Trade = {
-      give: { good: giveGood, qty: giveQty },
+      give: [{ good: giveGood, qty: giveQty }],
       get: { good: getGood, qty: getQty },
     };
     const key = tradeKey(candidate);
@@ -367,6 +385,58 @@ function applyTradeWindows(
   };
 }
 
+function getLateFeeQty(primaryQty: number): number {
+  const base = Math.floor(primaryQty * 0.1);
+  return Math.max(1, Math.min(3, base));
+}
+
+function pickFeeGood(
+  excluded: Set<GoodId>,
+  commons: GoodId[],
+  goods: GoodId[],
+  rand: () => number
+): GoodId | null {
+  let candidates = commons.filter((id) => !excluded.has(id));
+  if (candidates.length === 0) {
+    candidates = goods.filter((id) => !excluded.has(id));
+  }
+  if (candidates.length === 0) return null;
+  return seededPick(candidates, rand);
+}
+
+function applyLateFees(
+  solution: Trade[],
+  distractors: Trade[],
+  goods: GoodId[],
+  rand: () => number
+): { solution: Trade[]; distractors: Trade[]; feeTotals: Record<GoodId, number> } {
+  const commons = goods.filter((id) => GOOD_MAP[id].tier === 'common');
+  const feeTotals = createEmptyInventory();
+
+  const addFee = (trade: Trade, countFees: boolean): Trade => {
+    if (trade.window !== 'late') return trade;
+    const primary = trade.give[0];
+    if (!primary) return trade;
+    const excluded = new Set(trade.give.map((side) => side.good));
+    const feeGood = pickFeeGood(excluded, commons, goods, rand);
+    if (!feeGood) return trade;
+    const feeQty = getLateFeeQty(primary.qty);
+    if (countFees) {
+      feeTotals[feeGood] += feeQty;
+    }
+    return {
+      ...trade,
+      give: [...trade.give, { good: feeGood, qty: feeQty }],
+    };
+  };
+
+  return {
+    solution: solution.map((trade) => addFee(trade, true)),
+    distractors: distractors.map((trade) => addFee(trade, false)),
+    feeTotals,
+  };
+}
+
 function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   const rand = mulberry32(seed);
   const difficulty = getDifficultyForDate(date);
@@ -407,16 +477,33 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   solution = windowed.solution;
   distractors = windowed.distractors;
 
+  const feeApplied = applyLateFees(solution, distractors, pickedGoods, rand);
+  solution = feeApplied.solution;
+  distractors = feeApplied.distractors;
+
   const inventory = createEmptyInventory();
   const startTrade = solution[0];
-  inventory[startTrade.give.good] = startTrade.give.qty;
-  if (config.surplus > 0) {
-    inventory[startTrade.give.good] += Math.max(
-      1,
-      Math.floor(startTrade.give.qty * config.surplus)
-    );
+  const startGive = startTrade?.give[0];
+  if (startGive) {
+    inventory[startGive.good] = startGive.qty;
   }
-  inventory[startTrade.give.good] = Math.min(200, inventory[startTrade.give.good]);
+  if (config.surplus > 0) {
+    if (startGive) {
+      inventory[startGive.good] += Math.max(
+        1,
+        Math.floor(startGive.qty * config.surplus)
+      );
+    }
+  }
+  (Object.keys(feeApplied.feeTotals) as GoodId[]).forEach((goodId) => {
+    const qty = feeApplied.feeTotals[goodId];
+    if (qty > 0) {
+      inventory[goodId] += qty;
+    }
+  });
+  (Object.keys(inventory) as GoodId[]).forEach((goodId) => {
+    inventory[goodId] = Math.min(200, inventory[goodId]);
+  });
 
   const trades = seededShuffle([...solution, ...distractors], rand);
 
