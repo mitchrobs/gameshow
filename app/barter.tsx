@@ -612,6 +612,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xxl,
   },
   stickyHeader: {
@@ -632,7 +633,6 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 520,
     alignSelf: 'center',
-    paddingHorizontal: Spacing.lg,
   },
   pageAccent: {
     height: 6,
