@@ -108,44 +108,28 @@ export default function BarterScreen() {
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
   const solvedAtPar = gameState === 'won' && tradesUsed <= puzzle.par;
   const isMarinerMarket = puzzle.marketName === "Mariner's Market";
-  const vendorSectionTitle = 'Vendors';
   const earlyWindowTrades = 4;
   const lateWindowTrigger = earlyWindowTrades;
+  const earlyWindowRemaining = Math.max(0, earlyWindowTrades - tradesUsed);
   const tradingWindowLabel = lateWindowOpen
     ? 'Late Window'
-    : `Early Window · ${earlyWindowTrades} trades`;
+    : `Early Window · ${earlyWindowRemaining} left`;
 
   const tradeWaves = useMemo(() => {
-    const trades = [...puzzle.trades];
-    const firstSolution = puzzle.solution[0];
     const tradeKey = (trade: Trade) =>
       `${trade.give.good}:${trade.give.qty}->${trade.get.good}:${trade.get.qty}`;
-    const firstKey = firstSolution ? tradeKey(firstSolution) : '';
-    const minLate = Math.min(3, trades.length - 1);
-    const targetWave1 = Math.max(3, Math.floor(trades.length * 0.55));
-
-    const goalTrades = trades.filter((trade) => trade.get.good === puzzle.goal.good);
-    const nonGoalTrades = trades.filter((trade) => trade.get.good !== puzzle.goal.good);
-    const wave1Count = Math.min(
-      nonGoalTrades.length,
-      Math.max(1, Math.min(nonGoalTrades.length - minLate, targetWave1))
+    const earlyKeys = new Set(
+      puzzle.solution.slice(0, earlyWindowTrades).map((trade) => tradeKey(trade))
+    );
+    const lateKeys = new Set(
+      puzzle.solution.slice(earlyWindowTrades).map((trade) => tradeKey(trade))
     );
 
-    let wave1 = nonGoalTrades.slice(0, wave1Count);
-    let wave2 = [...nonGoalTrades.slice(wave1Count), ...goalTrades];
-
-    if (firstKey && !wave1.some((trade) => tradeKey(trade) === firstKey)) {
-      const swapIndex = wave2.findIndex((trade) => tradeKey(trade) === firstKey);
-      if (swapIndex >= 0 && wave1.length > 0) {
-        const swapTrade = wave2[swapIndex];
-        const wave1Last = wave1[wave1.length - 1];
-        wave1 = [...wave1.slice(0, -1), swapTrade];
-        wave2 = [...wave2.slice(0, swapIndex), wave1Last, ...wave2.slice(swapIndex + 1)];
-      }
-    }
+    const wave1 = puzzle.trades.filter((trade) => earlyKeys.has(tradeKey(trade)));
+    const wave2 = puzzle.trades.filter((trade) => lateKeys.has(tradeKey(trade)));
 
     return { wave1, wave2 };
-  }, [puzzle.trades, puzzle.solution, puzzle.goal.good]);
+  }, [puzzle.trades, puzzle.solution, earlyWindowTrades]);
 
   const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
 
@@ -222,13 +206,13 @@ export default function BarterScreen() {
     Animated.sequence([
       Animated.timing(lateTransitionAnim, {
         toValue: 1,
-        duration: 600,
+        duration: 1000,
         useNativeDriver: true,
       }),
-      Animated.delay(1500),
+      Animated.delay(2500),
       Animated.timing(lateTransitionAnim, {
         toValue: 0,
-        duration: 600,
+        duration: 1000,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -339,7 +323,14 @@ export default function BarterScreen() {
                     </Text>
                   </View>
                   <View style={[styles.summaryItem, styles.summaryStatusItem]}>
-                    <Text style={styles.summaryStatusText}>{tradingWindowLabel}</Text>
+                    <Text
+                      style={[
+                        styles.summaryStatusText,
+                        lateWindowOpen ? styles.summaryStatusLate : styles.summaryStatusEarly,
+                      ]}
+                    >
+                      {tradingWindowLabel}
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -398,14 +389,22 @@ export default function BarterScreen() {
                   },
                 ]}
               >
-                <Text style={styles.transitionTitle}>Vendors are shuffling out</Text>
+                <Text style={styles.transitionTitle}>Alert: Vendors are shuffling</Text>
                 <Text style={styles.transitionBody}>Late trading hours begin soon.</Text>
               </Animated.View>
             )}
-            <View style={styles.vendorSection}>
-              <Text style={styles.vendorSectionTitle}>{vendorSectionTitle}</Text>
-            </View>
-            <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
+            <Animated.View
+              style={[
+                styles.tradeList,
+                isCompact && styles.tradeListCompact,
+                {
+                  opacity: lateTransitionAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0],
+                  }),
+                },
+              ]}
+            >
               {visibleTrades.map((trade) => {
                 const tradeIndex = puzzle.trades.indexOf(trade);
                 const giveGood = getGoodById(trade.give.good);
@@ -504,15 +503,8 @@ export default function BarterScreen() {
                   </View>
                 );
               })}
-            </View>
+            </Animated.View>
 
-            {!isCompact && (
-              <View style={styles.tradesFooter}>
-                <Text style={styles.tradesFooterText}>
-                  Trades used: {tradesUsed} / {puzzle.maxTrades}
-                </Text>
-              </View>
-            )}
           </View>
         </ScrollView>
 
@@ -537,7 +529,7 @@ export default function BarterScreen() {
               <View style={styles.resultStats}>
                 <View style={styles.resultStat}>
                   <Text style={styles.resultStatValue}>
-                    {tradesUsed}/{puzzle.par}
+                    {tradesUsed}/{puzzle.maxTrades}
                   </Text>
                   <Text style={styles.resultStatLabel}>Trades</Text>
                 </View>
@@ -546,17 +538,6 @@ export default function BarterScreen() {
                   <Text style={styles.resultStatLabel}>Time</Text>
                 </View>
               </View>
-
-              {gameState === 'lost' && (
-                <View style={styles.solutionBox}>
-                  <Text style={styles.solutionTitle}>Optimal route</Text>
-                  {puzzle.solution.map((trade, idx) => (
-                    <Text key={idx} style={styles.solutionLine}>
-                      {idx + 1}. {formatTrade(trade)}
-                    </Text>
-                  ))}
-                </View>
-              )}
 
               <View style={styles.shareCard}>
                 <Text style={styles.shareTitle}>Share your result</Text>
@@ -582,19 +563,10 @@ export default function BarterScreen() {
               <View style={styles.resultActions}>
                 <Pressable
                   style={({ pressed }) => [
-                    styles.reviewButton,
-                    pressed && styles.reviewButtonPressed,
-                  ]}
-                  onPress={() => setShowResult(false)}
-                >
-                  <Text style={styles.reviewButtonText}>Review Trades</Text>
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => [
                     styles.homeButton,
                     pressed && styles.homeButtonPressed,
                   ]}
-                  onPress={() => router.back()}
+                  onPress={() => router.replace('/')}
                 >
                   <Text style={styles.homeButtonText}>Back to games</Text>
                 </Pressable>
@@ -666,22 +638,22 @@ const styles = StyleSheet.create({
     color: '#8a8174',
   },
   transitionBanner: {
-    backgroundColor: '#fffdf8',
+    backgroundColor: '#fff4e5',
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e6e0d6',
+    borderColor: '#f1c38a',
     padding: Spacing.sm,
     marginBottom: Spacing.sm,
   },
   transitionTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#1f1b16',
+    color: '#8a4a0b',
   },
   transitionBody: {
     marginTop: 2,
     fontSize: 11,
-    color: '#5f584f',
+    color: '#8a4a0b',
   },
   title: {
     fontSize: 24,
@@ -720,7 +692,8 @@ const styles = StyleSheet.create({
   },
   summaryItem: {
     flex: 1,
-    minWidth: 72,
+    flexBasis: 0,
+    minWidth: 0,
   },
   summaryLabel: {
     fontSize: 10,
@@ -751,6 +724,14 @@ const styles = StyleSheet.create({
     color: '#5f584f',
     fontSize: 11,
     fontWeight: '600',
+  },
+  summaryStatusEarly: {
+    backgroundColor: '#e5f0ff',
+    color: '#2b4b74',
+  },
+  summaryStatusLate: {
+    backgroundColor: '#f3e3ff',
+    color: '#5b2a7a',
   },
   sectionHeader: {
     marginBottom: Spacing.sm,
@@ -814,16 +795,6 @@ const styles = StyleSheet.create({
   tradeListCompact: {
     gap: Spacing.xs,
     marginBottom: Spacing.md,
-  },
-  vendorSection: {
-    marginBottom: Spacing.xs,
-  },
-  vendorSectionTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#5f584f',
-    textAlign: 'center',
-    letterSpacing: 0.4,
   },
   tradeCard: {
     backgroundColor: '#fffdf8',
@@ -942,15 +913,6 @@ const styles = StyleSheet.create({
   tradeButtonTextDisabled: {
     color: '#9a9082',
   },
-  tradesFooter: {
-    alignItems: 'center',
-    paddingVertical: Spacing.lg,
-  },
-  tradesFooterText: {
-    fontSize: FontSize.md,
-    color: '#8a8174',
-    fontWeight: '700',
-  },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(10, 16, 24, 0.45)',
@@ -1008,23 +970,6 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     marginTop: 2,
   },
-  solutionBox: {
-    marginTop: Spacing.lg,
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-  },
-  solutionTitle: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: Colors.text,
-    marginBottom: Spacing.sm,
-  },
-  solutionLine: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    marginBottom: 4,
-  },
   shareCard: {
     marginTop: Spacing.lg,
     backgroundColor: Colors.surfaceLight,
@@ -1072,20 +1017,6 @@ const styles = StyleSheet.create({
   resultActions: {
     marginTop: Spacing.lg,
     gap: Spacing.sm,
-  },
-  reviewButton: {
-    backgroundColor: '#1f1b16',
-    borderRadius: BorderRadius.sm,
-    paddingVertical: Spacing.sm,
-    alignItems: 'center',
-  },
-  reviewButtonPressed: {
-    backgroundColor: '#3a342d',
-  },
-  reviewButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
-    fontWeight: '600',
   },
   homeButton: {
     backgroundColor: Colors.surface,
