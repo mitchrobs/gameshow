@@ -174,6 +174,7 @@ export default function BridgesScreen() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [showIntro, setShowIntro] = useState(true);
   const hasCountedRef = useRef(false);
 
   const islandMap = useMemo(() => {
@@ -268,12 +269,12 @@ export default function BridgesScreen() {
   }, [gameState]);
 
   useEffect(() => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || showIntro) return;
     const timer = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, [gameState]);
+  }, [gameState, showIntro]);
 
   useEffect(() => {
     if (!statusMessage) return;
@@ -430,6 +431,11 @@ export default function BridgesScreen() {
     setStatusMessage('Hint applied.');
   }, [bridges, puzzle.solution, gameState, anchorIsland]);
 
+  const handleBegin = useCallback(() => {
+    setShowIntro(false);
+    setElapsedSeconds(0);
+  }, []);
+
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;
     const clipboard = (globalThis as typeof globalThis & {
@@ -486,6 +492,9 @@ export default function BridgesScreen() {
     const seed = getDailySeed();
     return DAILY_LOCATIONS[seed % DAILY_LOCATIONS.length];
   }, []);
+  const locationNarrative = useMemo(() => {
+    return `Today you're charting the ${dailyLocation.label}, a scattered chain of islands that need to be linked before nightfall.`;
+  }, [dailyLocation.label]);
 
   const shareText = useMemo(() => {
     const resultLine = `Solved in ${formatTime(elapsedSeconds)} · Hints ${hintsUsed}`;
@@ -535,24 +544,48 @@ export default function BridgesScreen() {
                 <Text style={styles.locationText}>{dailyLocation.label}</Text>
               </View>
             </View>
-            <Text style={styles.howTo}>
-              Connect islands with bridges so each island's number matches its bridge count.
-              Bridges run horizontally or vertically, can be single or double, and cannot
-              cross. All islands must be connected into one group.
-            </Text>
           </View>
 
-          <View style={styles.statsRow}>
-            <View style={styles.statPill}>
-              <Text style={styles.statText}>⏱ {formatTime(elapsedSeconds)}</Text>
+          {showIntro ? (
+            <View style={styles.introCard}>
+              <Text style={styles.introTitle}>
+                Welcome to {dailyLocation.label}
+              </Text>
+              <Text style={styles.introBody}>{locationNarrative}</Text>
+              <Text style={styles.introSectionTitle}>Objective</Text>
+              <Text style={styles.introBody}>
+                Connect islands with bridges so each island's number matches its bridge count.
+                Bridges run horizontally or vertically, can be single or double, and cannot
+                cross. All islands must be connected into one group.
+              </Text>
+              <Text style={styles.introSectionTitle}>How to play</Text>
+              <Text style={styles.introBody}>
+                Tap an island, then a neighbor in the same row or column to cycle 1, 2, or 0
+                bridges. Tap again to remove bridges.
+              </Text>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.introButton,
+                  pressed && styles.introButtonPressed,
+                ]}
+                onPress={handleBegin}
+              >
+                <Text style={styles.introButtonText}>Begin Puzzle</Text>
+              </Pressable>
             </View>
-            <View style={styles.statPill}>
-              <Text style={styles.statText}>Hints {hintsUsed}</Text>
-            </View>
-          </View>
+          ) : (
+            <>
+              <View style={styles.statsRow}>
+                <View style={styles.statPill}>
+                  <Text style={styles.statText}>⏱ {formatTime(elapsedSeconds)}</Text>
+                </View>
+                <View style={styles.statPill}>
+                  <Text style={styles.statText}>Hints {hintsUsed}</Text>
+                </View>
+              </View>
 
-          <View style={styles.boardWrap}>
-            <View style={[styles.board, { width: boardSize, height: boardSize }]}>
+              <View style={styles.boardWrap}>
+                <View style={[styles.board, { width: boardSize, height: boardSize }]}>
                 {bridgeList.flatMap((bridge) => {
                   const start = islandPositions.get(bridge.island1);
                   const end = islandPositions.get(bridge.island2);
@@ -648,74 +681,76 @@ export default function BridgesScreen() {
 
             {statusMessage && <Text style={styles.statusText}>{statusMessage}</Text>}
 
-            {gameState === 'won' && (
-              <View style={styles.resultCard}>
-                <Text style={styles.confetti}>🎉 ✨ 🎊</Text>
-                <Text style={styles.resultTitle}>Nice solve!</Text>
-                <Text style={styles.resultSubtitle}>
-                  {formatTime(elapsedSeconds)} · {hintsUsed} hints
-                </Text>
-                <View style={styles.shareCard}>
-                  <Text style={styles.shareTitle}>Share your result</Text>
-                  <View style={styles.shareBox}>
-                    <Text selectable style={styles.shareText}>
-                      {shareText}
-                    </Text>
+              {gameState === 'won' && (
+                <View style={styles.resultCard}>
+                  <Text style={styles.confetti}>🎉 ✨ 🎊</Text>
+                  <Text style={styles.resultTitle}>Nice solve!</Text>
+                  <Text style={styles.resultSubtitle}>
+                    {formatTime(elapsedSeconds)} · {hintsUsed} hints
+                  </Text>
+                  <View style={styles.shareCard}>
+                    <Text style={styles.shareTitle}>Share your result</Text>
+                    <View style={styles.shareBox}>
+                      <Text selectable style={styles.shareText}>
+                        {shareText}
+                      </Text>
+                    </View>
+                    {Platform.OS === 'web' && (
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.shareButton,
+                          pressed && styles.shareButtonPressed,
+                        ]}
+                        onPress={handleCopyResults}
+                      >
+                        <Text style={styles.shareButtonText}>Copy results</Text>
+                      </Pressable>
+                    )}
+                    {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
                   </View>
-                  {Platform.OS === 'web' && (
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.shareButton,
-                        pressed && styles.shareButtonPressed,
-                      ]}
-                      onPress={handleCopyResults}
-                    >
-                      <Text style={styles.shareButtonText}>Copy results</Text>
-                    </Pressable>
-                  )}
-                  {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
+                </View>
+              )}
+
+              <View style={styles.actions}>
+                <View style={styles.actionRow}>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.actionButton,
+                      pressed && styles.actionButtonPressed,
+                      history.length === 0 && styles.actionButtonDisabled,
+                    ]}
+                    onPress={handleUndo}
+                    disabled={history.length === 0}
+                  >
+                    <Text style={styles.actionButtonText}>Undo</Text>
+                  </Pressable>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.actionButton,
+                      pressed && styles.actionButtonPressed,
+                    ]}
+                    onPress={handleReset}
+                  >
+                    <Text style={styles.actionButtonText}>Reset</Text>
+                  </Pressable>
+                </View>
+
+                <View style={styles.actionRow}>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.actionButton,
+                      pressed && styles.actionButtonPressed,
+                    ]}
+                    onPress={handleHint}
+                  >
+                    <Text style={styles.actionButtonText}>
+                      Hint{hintsUsed > 0 ? ` (${hintsUsed})` : ''}
+                    </Text>
+                  </Pressable>
                 </View>
               </View>
-            )}
-
-          <View style={styles.actions}>
-            <View style={styles.actionRow}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  pressed && styles.actionButtonPressed,
-                  history.length === 0 && styles.actionButtonDisabled,
-                ]}
-                onPress={handleUndo}
-                disabled={history.length === 0}
-              >
-                <Text style={styles.actionButtonText}>Undo</Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  pressed && styles.actionButtonPressed,
-                ]}
-                onPress={handleReset}
-              >
-                <Text style={styles.actionButtonText}>Reset</Text>
-              </Pressable>
-            </View>
-
-            <View style={styles.actionRow}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  pressed && styles.actionButtonPressed,
-                ]}
-                onPress={handleHint}
-              >
-                <Text style={styles.actionButtonText}>
-                  Hint{hintsUsed > 0 ? ` (${hintsUsed})` : ''}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
+            </>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
