@@ -81,6 +81,11 @@ export default function BarterScreen() {
       }),
     []
   );
+  const marketNumber = useMemo(() => {
+    const match = puzzle.id.match(/barter-(\d+)/);
+    const seed = match ? parseInt(match[1], 10) : 0;
+    return String(seed % 1000).padStart(3, '0');
+  }, [puzzle.id]);
   const dailyKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
 
   const [inventory, setInventory] = useState<Record<GoodId, number>>(
@@ -264,77 +269,79 @@ export default function BarterScreen() {
         }}
       />
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.ambientGlow} pointerEvents="none" />
+        <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[1]}>
           <View style={styles.page}>
             <View style={styles.pageAccent}>
               <View style={styles.pageAccentInner} />
             </View>
             <View style={styles.header}>
               <Text style={styles.title}>Barter</Text>
-              <Text style={styles.subtitle}>
-                Trade goods through today&apos;s market to reach the goal.
-              </Text>
+              <Text style={styles.marketLabel}>Daily Market #{marketNumber}</Text>
               <Text style={styles.dateLabel}>{dateLabel}</Text>
             </View>
+          </View>
 
-            <View style={styles.controlsRow}>
-              <Animated.View style={[styles.tradeCounter, { transform: [{ scale: tradeBounce }] }]}>
-                <Text style={styles.tradeCounterText}>
-                  Trades {tradesUsed}/{puzzle.maxTrades}
-                </Text>
-                <Text style={styles.tradeCounterSub}>Par {puzzle.par}</Text>
-              </Animated.View>
-              <View style={styles.timerChip}>
-                <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
-              </View>
-              <View style={styles.controlButtons}>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.undoButton,
-                    (history.length === 0 || gameState !== 'playing') && styles.undoButtonDisabled,
-                    pressed && history.length > 0 && gameState === 'playing'
-                      ? styles.undoButtonPressed
-                      : null,
-                  ]}
-                  onPress={handleUndo}
-                  disabled={history.length === 0 || gameState !== 'playing'}
-                >
-                  <Text style={styles.undoButtonText}>Undo</Text>
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.resetButton,
-                    pressed && styles.resetButtonPressed,
-                  ]}
-                  onPress={handleReset}
-                >
-                  <Text style={styles.resetButtonText}>Reset</Text>
-                </Pressable>
-              </View>
-            </View>
-
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Inventory</Text>
-            </View>
-            <View style={styles.inventoryRow}>
-              {puzzle.goods.map((good) => {
-                const count = inventory[good.id];
-                return (
-                  <View
-                    key={good.id}
-                    style={[
-                      styles.inventoryCard,
-                      count === 0 && styles.inventoryCardEmpty,
+          <View style={styles.stickyHeader}>
+            <View style={styles.stickyInner}>
+              <View style={styles.controlsRow}>
+                <Animated.View style={[styles.tradeCounter, { transform: [{ scale: tradeBounce }] }]}>
+                  <Text style={styles.tradeCounterText}>
+                    Trades {tradesUsed}/{puzzle.maxTrades}
+                  </Text>
+                  <Text style={styles.tradeCounterSub}>Par {puzzle.par}</Text>
+                </Animated.View>
+                <View style={styles.timerChip}>
+                  <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
+                </View>
+                <View style={styles.controlButtons}>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.undoButton,
+                      (history.length === 0 || gameState !== 'playing') && styles.undoButtonDisabled,
+                      pressed && history.length > 0 && gameState === 'playing'
+                        ? styles.undoButtonPressed
+                        : null,
                     ]}
+                    onPress={handleUndo}
+                    disabled={history.length === 0 || gameState !== 'playing'}
                   >
-                    <Text style={styles.inventoryEmoji}>{good.emoji}</Text>
-                    <Text style={styles.inventoryCount}>{count}</Text>
-                    <Text style={styles.inventoryLabel}>{good.name}</Text>
-                  </View>
-                );
-              })}
-            </View>
+                    <Text style={styles.undoButtonText}>Undo</Text>
+                  </Pressable>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.resetButton,
+                      pressed && styles.resetButtonPressed,
+                    ]}
+                    onPress={handleReset}
+                  >
+                    <Text style={styles.resetButtonText}>Reset</Text>
+                  </Pressable>
+                </View>
+              </View>
 
+              <View style={styles.inventoryRow}>
+                {puzzle.goods.map((good) => {
+                  const count = inventory[good.id];
+                  return (
+                    <View
+                      key={good.id}
+                      style={[
+                        styles.inventoryCard,
+                        count === 0 && styles.inventoryCardEmpty,
+                      ]}
+                    >
+                      <Text style={styles.inventoryEmoji}>{good.emoji}</Text>
+                      <Text style={styles.inventoryCount}>{count}</Text>
+                      <Text style={styles.inventoryLabel}>{good.name}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.page}>
             <View style={styles.goalCard}>
               <View style={styles.goalAccent} />
               <View style={styles.goalContent}>
@@ -343,11 +350,6 @@ export default function BarterScreen() {
                   Acquire {puzzle.goal.qty} {goalGood.emoji} {goalGood.name}
                 </Text>
               </View>
-            </View>
-
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Market Trades</Text>
-              <Text style={styles.sectionSubtitle}>Trade in any order. Trades never run out.</Text>
             </View>
 
             <View style={styles.tradeList}>
@@ -374,40 +376,48 @@ export default function BarterScreen() {
                       lastTradeIndex === index && styles.tradeCardFlash,
                     ]}
                   >
-                    <View style={styles.tradeRow} pointerEvents="none">
-                      <View style={styles.tradeSide}>
-                        <Text style={styles.tradeQty}>{trade.give.qty}</Text>
-                        <Text style={styles.tradeEmoji}>{giveGood.emoji}</Text>
-                        <Text style={styles.tradeLabel}>{giveGood.name}</Text>
+                    <View style={styles.tradeRow}>
+                      <View style={styles.tradeInfo} pointerEvents="none">
+                        <View style={styles.tradeSide}>
+                          <Text style={styles.tradeQty}>{trade.give.qty}</Text>
+                          <Text style={styles.tradeEmoji}>{giveGood.emoji}</Text>
+                          <Text style={styles.tradeLabel}>{giveGood.name}</Text>
+                        </View>
+                        <Text style={styles.tradeArrow}>→</Text>
+                        <View style={styles.tradeSide}>
+                          <Text style={styles.tradeQty}>{trade.get.qty}</Text>
+                          <Text style={styles.tradeEmoji}>{getGood.emoji}</Text>
+                          <Text style={styles.tradeLabel}>{getGood.name}</Text>
+                        </View>
                       </View>
-                      <Text style={styles.tradeArrow}>→</Text>
-                      <View style={styles.tradeSide}>
-                        <Text style={styles.tradeQty}>{trade.get.qty}</Text>
-                        <Text style={styles.tradeEmoji}>{getGood.emoji}</Text>
-                        <Text style={styles.tradeLabel}>{getGood.name}</Text>
-                      </View>
-                    </View>
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.tradeButton,
-                        !canTrade && styles.tradeButtonDisabled,
-                        pressed && canTrade ? styles.tradeButtonPressed : null,
-                      ]}
-                      onPress={() => handleTrade(index)}
-                      disabled={!canTrade}
-                    >
-                      <Text
-                        style={[
-                          styles.tradeButtonText,
-                          !canTrade && styles.tradeButtonTextDisabled,
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.tradeButton,
+                          !canTrade && styles.tradeButtonDisabled,
+                          pressed && canTrade ? styles.tradeButtonPressed : null,
                         ]}
+                        onPress={() => handleTrade(index)}
+                        disabled={!canTrade}
                       >
-                        {buttonLabel}
-                      </Text>
-                    </Pressable>
+                        <Text
+                          style={[
+                            styles.tradeButtonText,
+                            !canTrade && styles.tradeButtonTextDisabled,
+                          ]}
+                        >
+                          {buttonLabel}
+                        </Text>
+                      </Pressable>
+                    </View>
                   </View>
                 );
               })}
+            </View>
+
+            <View style={styles.tradesFooter}>
+              <Text style={styles.tradesFooterText}>
+                Trades used: {tradesUsed} / {puzzle.maxTrades}
+              </Text>
             </View>
           </View>
         </ScrollView>
@@ -506,11 +516,35 @@ export default function BarterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#041a12',
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: -120,
+    left: '50%',
+    width: 520,
+    height: 520,
+    marginLeft: -260,
+    borderRadius: 260,
+    backgroundColor: '#0b3a29',
+    opacity: 0.6,
   },
   scrollContent: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xxl,
+  },
+  stickyHeader: {
+    backgroundColor: '#041a12',
+    borderBottomWidth: 1,
+    borderBottomColor: '#0f2b21',
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.md,
+    zIndex: 10,
+  },
+  stickyInner: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
   },
   page: {
     width: '100%',
@@ -524,6 +558,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     overflow: 'hidden',
     marginBottom: Spacing.md,
+    alignSelf: 'center',
   },
   pageAccentInner: {
     position: 'absolute',
@@ -535,60 +570,63 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: Spacing.md,
+    alignItems: 'center',
   },
   title: {
     fontSize: FontSize.xxl,
     fontWeight: '800',
-    color: Colors.text,
+    color: '#b8f5dc',
   },
-  subtitle: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
+  marketLabel: {
+    fontSize: 12,
+    letterSpacing: 2.6,
+    textTransform: 'uppercase',
+    color: '#2f7b5e',
     marginTop: Spacing.xs,
-    maxWidth: 420,
+    fontWeight: '700',
   },
   dateLabel: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    marginTop: Spacing.xs,
+    fontSize: 12,
+    color: '#2f7b5e',
+    marginTop: 2,
   },
   controlsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
     flexWrap: 'wrap',
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   tradeCounter: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#0f2b21',
     borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#1e4d3a',
     minWidth: 120,
     alignItems: 'flex-start',
   },
   tradeCounterText: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: Colors.text,
+    color: '#b8f5dc',
   },
   tradeCounterSub: {
     marginTop: 2,
     fontSize: FontSize.sm,
-    color: Colors.textMuted,
+    color: '#4c9b7a',
   },
   timerChip: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#0f2b21',
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#1e4d3a',
   },
   timerText: {
-    color: Colors.textSecondary,
+    color: '#8ad6b6',
     fontSize: FontSize.sm,
     fontWeight: '600',
   },
@@ -601,18 +639,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#0d7c5f',
+    borderColor: '#1e6f52',
     backgroundColor: 'transparent',
   },
   undoButtonPressed: {
-    backgroundColor: '#e6f4ef',
+    backgroundColor: '#133a2c',
   },
   undoButtonDisabled: {
-    borderColor: Colors.border,
+    borderColor: '#1e4d3a',
     opacity: 0.5,
   },
   undoButtonText: {
-    color: '#0d7c5f',
+    color: '#8ad6b6',
     fontSize: FontSize.sm,
     fontWeight: '600',
   },
@@ -621,14 +659,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
+    borderColor: '#1e4d3a',
+    backgroundColor: '#0f2b21',
   },
   resetButtonPressed: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: '#133a2c',
   },
   resetButtonText: {
-    color: Colors.textSecondary,
+    color: '#8ad6b6',
     fontSize: FontSize.sm,
     fontWeight: '600',
   },
@@ -638,31 +676,31 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: Colors.text,
+    color: '#b8f5dc',
   },
   sectionSubtitle: {
     marginTop: 2,
     fontSize: FontSize.sm,
-    color: Colors.textMuted,
+    color: '#4c9b7a',
   },
   inventoryRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.sm,
-    marginBottom: Spacing.lg,
+    justifyContent: 'center',
   },
   inventoryCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#0f2b21',
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#1e4d3a',
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
     minWidth: 90,
     alignItems: 'center',
   },
   inventoryCardEmpty: {
-    opacity: 0.45,
+    opacity: 0.35,
   },
   inventoryEmoji: {
     fontSize: 22,
@@ -670,43 +708,44 @@ const styles = StyleSheet.create({
   inventoryCount: {
     fontSize: FontSize.lg,
     fontWeight: '800',
-    color: Colors.text,
+    color: '#b8f5dc',
     marginTop: 4,
   },
   inventoryLabel: {
     fontSize: 12,
-    color: Colors.textMuted,
+    color: '#4c9b7a',
     marginTop: 2,
   },
   goalCard: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    backgroundColor: Colors.surface,
+    backgroundColor: '#0f2b21',
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#1e4d3a',
     marginBottom: Spacing.lg,
     overflow: 'hidden',
   },
   goalAccent: {
     width: 6,
-    backgroundColor: '#10b981',
+    backgroundColor: '#1d8f63',
   },
   goalContent: {
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
     flex: 1,
+    alignItems: 'center',
   },
   goalTitle: {
     fontSize: FontSize.sm,
-    color: Colors.textMuted,
+    color: '#4c9b7a',
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '700',
   },
   goalText: {
     fontSize: FontSize.md,
-    color: Colors.text,
+    color: '#b8f5dc',
     marginTop: Spacing.xs,
     fontWeight: '700',
   },
@@ -715,10 +754,10 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xxl,
   },
   tradeCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#0f2b21',
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#1e4d3a',
     padding: Spacing.md,
     shadowColor: '#000000',
     shadowOpacity: 0.04,
@@ -727,19 +766,25 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   tradeCardAvailable: {
-    borderColor: '#10b981',
+    borderColor: '#1d8f63',
   },
   tradeCardUnavailable: {
-    borderColor: Colors.border,
-    opacity: 0.75,
+    borderColor: '#1e4d3a',
+    opacity: 0.65,
   },
   tradeCardFlash: {
-    backgroundColor: '#dcfce7',
+    backgroundColor: '#144032',
   },
   tradeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: Spacing.sm,
+  },
+  tradeInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
     gap: Spacing.sm,
   },
   tradeSide: {
@@ -750,41 +795,51 @@ const styles = StyleSheet.create({
   tradeQty: {
     fontSize: FontSize.lg,
     fontWeight: '800',
-    color: Colors.text,
+    color: '#b8f5dc',
   },
   tradeEmoji: {
     fontSize: 22,
   },
   tradeLabel: {
     fontSize: 12,
-    color: Colors.textMuted,
+    color: '#4c9b7a',
   },
   tradeArrow: {
     fontSize: FontSize.lg,
-    color: Colors.textSecondary,
+    color: '#2f7b5e',
     fontWeight: '700',
   },
   tradeButton: {
-    marginTop: Spacing.md,
-    backgroundColor: '#0d7c5f',
-    borderRadius: BorderRadius.sm,
+    backgroundColor: '#1d8f63',
+    borderRadius: BorderRadius.full,
     paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
     alignItems: 'center',
+    minWidth: 110,
   },
   tradeButtonPressed: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#29b97d',
     transform: [{ scale: 0.99 }],
   },
   tradeButtonDisabled: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: '#0b261c',
   },
   tradeButtonText: {
-    color: Colors.white,
+    color: '#b8f5dc',
     fontSize: FontSize.sm,
     fontWeight: '700',
   },
   tradeButtonTextDisabled: {
-    color: Colors.textMuted,
+    color: '#2f7b5e',
+  },
+  tradesFooter: {
+    alignItems: 'center',
+    paddingVertical: Spacing.lg,
+  },
+  tradesFooterText: {
+    fontSize: FontSize.md,
+    color: '#2f7b5e',
+    fontWeight: '700',
   },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -939,4 +994,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
