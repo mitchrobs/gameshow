@@ -410,7 +410,8 @@ function applyLateFees(
   solution: Trade[],
   distractors: Trade[],
   goods: GoodId[],
-  rand: () => number
+  rand: () => number,
+  excludedFeeGoods: Set<GoodId>
 ): { solution: Trade[]; distractors: Trade[]; feeTotals: Record<GoodId, number> } {
   const commons = goods.filter((id) => GOOD_MAP[id].tier === 'common');
   const feeTotals = createEmptyInventory();
@@ -420,6 +421,7 @@ function applyLateFees(
     const primary = trade.give[0];
     if (!primary) return trade;
     const excluded = new Set(trade.give.map((side) => side.good));
+    excludedFeeGoods.forEach((id) => excluded.add(id));
     const feeGood = pickFeeGood(excluded, commons, goods, rand);
     if (!feeGood) return trade;
     const feeQty = getLateFeeQty(primary.qty);
@@ -529,7 +531,14 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     solution = windowed.solution;
     distractors = windowed.distractors;
 
-    const feeApplied = applyLateFees(solution, distractors, pickedGoods, rand);
+  const earlyFeeExclusions = new Set<GoodId>();
+  solution
+    .filter((trade) => trade.window === 'early')
+    .forEach((trade) => {
+      trade.give.forEach((side) => earlyFeeExclusions.add(side.good));
+      earlyFeeExclusions.add(trade.get.good);
+    });
+  const feeApplied = applyLateFees(solution, distractors, pickedGoods, rand, earlyFeeExclusions);
     solution = feeApplied.solution;
     distractors = feeApplied.distractors;
     const branchBundle = createEarlyBranchTrades(solution, rand);
