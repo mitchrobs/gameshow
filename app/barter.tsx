@@ -367,10 +367,10 @@ export default function BarterScreen() {
                 Welcome to {puzzle.marketName} {puzzle.marketEmoji}
               </Text>
               <Text style={styles.introBody}>
-                Trade your goods to reach today&apos;s goal in as few trades as possible.
+                Trade your goods to reach today&apos;s goal in as few trades as possible. Trades are split into early and late windows.
               </Text>
               <Text style={styles.introHint}>
-                Tap a vendor to trade. Trades are final.
+                Tap a vendor to trade. Late trades can require two items.
               </Text>
             </View>
             {lateTransition && (
@@ -390,8 +390,8 @@ export default function BarterScreen() {
                   },
                 ]}
               >
-                <Text style={styles.transitionTitle}>Alert: Vendors are shuffling</Text>
-                <Text style={styles.transitionBody}>Late trading hours begin soon.</Text>
+                <Text style={styles.transitionTitle}>Market shift: Vendors are shuffling</Text>
+                <Text style={styles.transitionBody}>The late window opens shortly.</Text>
               </Animated.View>
             )}
             <Animated.View
