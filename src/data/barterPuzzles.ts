@@ -40,6 +40,7 @@ export interface BarterPuzzle {
   dateKey: string;
   difficulty: BarterDifficulty;
   marketName: string;
+  marketEmoji: string;
   goods: Good[];
   inventory: Record<GoodId, number>;
   goal: BarterGoal;
@@ -77,31 +78,31 @@ const TIER_RANK: Record<GoodTier, number> = {
 const DIFFICULTY_CONFIG = {
   Easy: { goods: 4, parRange: [3, 4], surplus: 0.5, slack: 2 },
   Medium: { goods: 5, parRange: [5, 6], surplus: 0.25, slack: 2 },
-  Hard: { goods: 6, parRange: [7, 8], surplus: 0, slack: 1 },
+  Hard: { goods: 6, parRange: [8, 9], surplus: 0, slack: 1 },
 } as const;
 
-const MARKET_NAMES = [
-  'Silk Road Bazaar',
-  'Spice Wharf',
-  'Golden Caravan',
-  'Jade Exchange',
-  'Porcelain Court',
-  'Saffron Arcade',
-  'Lantern Market',
-  'Amber Row',
-  'Salt & Timber Yard',
-  'Copperstone Square',
-  'Moonlit Souk',
-  'Rivergate Trades',
-  'Crimson Ledger',
-  'Starlit Agora',
-  'Indigo Harbor',
-  'Windmill Exchange',
-  'Oasis Ledger',
-  'Tea Road Arcade',
-  'Mariner’s Market',
-  'Atlas Bazaar',
-  'Sunrise Caravan',
+const MARKETS = [
+  { name: 'Silk Road Bazaar', emoji: '🧵' },
+  { name: 'Spice Wharf', emoji: '🌶️' },
+  { name: 'Golden Caravan', emoji: '🐪' },
+  { name: 'Jade Exchange', emoji: '🏺' },
+  { name: 'Porcelain Court', emoji: '🫖' },
+  { name: 'Saffron Arcade', emoji: '🟧' },
+  { name: 'Lantern Market', emoji: '🏮' },
+  { name: 'Amber Row', emoji: '🟠' },
+  { name: 'Salt & Timber Yard', emoji: '🧂' },
+  { name: 'Copperstone Square', emoji: '🪙' },
+  { name: 'Moonlit Souk', emoji: '🌙' },
+  { name: 'Rivergate Trades', emoji: '🌊' },
+  { name: 'Crimson Ledger', emoji: '🟥' },
+  { name: 'Starlit Agora', emoji: '✨' },
+  { name: 'Indigo Harbor', emoji: '⚓️' },
+  { name: 'Windmill Exchange', emoji: '🌬️' },
+  { name: 'Oasis Ledger', emoji: '🌴' },
+  { name: 'Tea Road Arcade', emoji: '🍵' },
+  { name: "Mariner's Market", emoji: '⚓️' },
+  { name: 'Atlas Bazaar', emoji: '🗺️' },
+  { name: 'Sunrise Caravan', emoji: '🌅' },
 ];
 
 // ── Seeded random ──────────────────────────────────────────────
@@ -146,9 +147,7 @@ function getDateKey(date: Date = new Date()): string {
 }
 
 function getDifficultyForDate(date: Date = new Date()): BarterDifficulty {
-  const day = date.getDay();
-  if (day === 5 || day === 6) return 'Hard';
-  return 'Medium';
+  return 'Hard';
 }
 
 function createEmptyInventory(): Record<GoodId, number> {
@@ -289,10 +288,13 @@ function generateDistractors(
   goods: GoodId[],
   goal: GoodId,
   rand: () => number,
-  count: number
+  count: number,
+  blockedTargets?: Set<GoodId>
 ): Trade[] {
   const trades: Trade[] = [];
   const used = new Set(optimal.map((t) => tradeKey(t)));
+  const targetPool = goods.filter((good) => !blockedTargets?.has(good));
+  const targetFallback = targetPool.length === 0;
 
   const reversed = seededShuffle(optimal, rand);
   for (const trade of reversed) {
@@ -307,7 +309,7 @@ function generateDistractors(
 
   while (trades.length < count) {
     const giveGood = seededPick(goods, rand);
-    const getGood = seededPick(goods, rand);
+    const getGood = seededPick(targetFallback ? goods : targetPool, rand);
     if (giveGood === getGood || getGood === goal) continue;
 
     const getQty = randInt(rand, 1, 2);
@@ -351,15 +353,24 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     );
   }
 
-  const desiredDistractors = Math.max(0, Math.min(3, 8 - par));
-  const distractors = generateDistractors(solution, pickedGoods, goalGood, rand, desiredDistractors);
+  const desiredDistractors = difficulty === 'Hard' ? 3 : Math.max(0, Math.min(3, 8 - par));
+  const blockedTargets = new Set(solution.map((trade) => trade.get.good));
+  const distractors = generateDistractors(
+    solution,
+    pickedGoods,
+    goalGood,
+    rand,
+    desiredDistractors,
+    blockedTargets
+  );
   const trades = seededShuffle([...solution, ...distractors], rand);
 
   return {
     id: `barter-${seed}`,
     dateKey: getDateKey(date),
     difficulty,
-    marketName: MARKET_NAMES[seed % MARKET_NAMES.length],
+    marketName: MARKETS[seed % MARKETS.length].name,
+    marketEmoji: MARKETS[seed % MARKETS.length].emoji,
     goods,
     inventory,
     goal: { good: goalGood, qty: goalQty },
