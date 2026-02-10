@@ -106,6 +106,7 @@ export default function BarterScreen() {
   const tradeBounce = useRef(new Animated.Value(1)).current;
 
   const goalGood = getGoodById(puzzle.goal.good);
+  const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
   const solvedAtPar = gameState === 'won' && tradesUsed <= puzzle.par;
 
   const startSummary = useMemo(() => {
@@ -287,6 +288,15 @@ export default function BarterScreen() {
                 </>
               )}
             </View>
+            <View style={styles.introCard}>
+              <Text style={styles.introTitle}>Welcome to the market</Text>
+              <Text style={styles.introBody}>
+                Trade your goods to reach today&apos;s goal in as few trades as possible.
+              </Text>
+              <Text style={styles.introHint}>
+                Tap a vendor to trade. Undo is always available.
+              </Text>
+            </View>
           </View>
 
           <View style={styles.stickyHeader}>
@@ -295,7 +305,7 @@ export default function BarterScreen() {
                 <>
                   <View style={styles.compactStatsRow}>
                     <Text style={styles.compactStatsText}>
-                      Trades {tradesUsed}/{puzzle.maxTrades} · Par {puzzle.par}
+                      Trades {tradesUsed}/{puzzle.maxTrades} · Goal {goalShort}
                     </Text>
                     <Text style={styles.compactTimerText}>⏱ {formatTime(elapsedSeconds)}</Text>
                   </View>
@@ -335,6 +345,9 @@ export default function BarterScreen() {
                   </Animated.View>
                   <View style={styles.timerChip}>
                     <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
+                  </View>
+                  <View style={styles.goalChip}>
+                    <Text style={styles.goalChipText}>Goal {goalShort}</Text>
                   </View>
                   <View style={styles.controlButtons}>
                     <Pressable
@@ -406,16 +419,6 @@ export default function BarterScreen() {
           </View>
 
           <View style={styles.page}>
-            <View style={[styles.goalCard, isCompact && styles.goalCardCompact]}>
-              <View style={[styles.goalAccent, isCompact && styles.goalAccentCompact]} />
-              <View style={[styles.goalContent, isCompact && styles.goalContentCompact]}>
-                <Text style={styles.goalTitle}>Goal</Text>
-                <Text style={[styles.goalText, isCompact && styles.goalTextCompact]}>
-                  Acquire {puzzle.goal.qty} {goalGood.emoji} {goalGood.name}
-                </Text>
-              </View>
-            </View>
-
             <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
               {puzzle.trades.map((trade, index) => {
                 const giveGood = getGoodById(trade.give.good);
@@ -441,6 +444,10 @@ export default function BarterScreen() {
                       isCompact && styles.tradeCardCompact,
                     ]}
                   >
+                    <View style={styles.vendorRow}>
+                      <Text style={styles.vendorLabel}>Vendor {index + 1}</Text>
+                      <Text style={styles.vendorHint}>Open daily</Text>
+                    </View>
                     <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
                       <View
                         style={[styles.tradeInfo, isCompact && styles.tradeInfoCompact]}
@@ -625,6 +632,29 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     alignItems: 'center',
   },
+  introCard: {
+    backgroundColor: '#fffdf8',
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: '#e6e0d6',
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  introTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1f1b16',
+  },
+  introBody: {
+    marginTop: 4,
+    fontSize: 12,
+    color: '#5f584f',
+  },
+  introHint: {
+    marginTop: 2,
+    fontSize: 11,
+    color: '#8a8174',
+  },
   compactHeaderLine: {
     fontSize: 11,
     color: '#8a8174',
@@ -677,6 +707,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.xs,
     marginBottom: Spacing.xs,
+  },
+  goalChip: {
+    backgroundColor: '#fffdf8',
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#e6e0d6',
+  },
+  goalChipText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#5f584f',
   },
   tradeCounter: {
     backgroundColor: '#fffdf8',
@@ -827,53 +870,6 @@ const styles = StyleSheet.create({
   inventoryCountTight: {
     fontSize: 13,
   },
-  goalCard: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    backgroundColor: '#fffdf8',
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: '#e6e0d6',
-    marginBottom: Spacing.md,
-    overflow: 'hidden',
-  },
-  goalAccent: {
-    width: 6,
-    backgroundColor: '#1f1b16',
-  },
-  goalAccentCompact: {
-    width: 3,
-  },
-  goalContent: {
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    flex: 1,
-    alignItems: 'center',
-  },
-  goalCardCompact: {
-    borderRadius: BorderRadius.md,
-    marginBottom: Spacing.md,
-  },
-  goalContentCompact: {
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-  },
-  goalTitle: {
-    fontSize: 11,
-    color: '#8a8174',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    fontWeight: '700',
-  },
-  goalText: {
-    fontSize: 14,
-    color: '#1f1b16',
-    marginTop: 2,
-    fontWeight: '700',
-  },
-  goalTextCompact: {
-    fontSize: 12,
-  },
   tradeList: {
     gap: Spacing.sm,
     marginBottom: Spacing.xxl,
@@ -884,7 +880,7 @@ const styles = StyleSheet.create({
   },
   tradeCard: {
     backgroundColor: '#fffdf8',
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
     borderColor: '#e6e0d6',
     padding: Spacing.sm,
@@ -893,7 +889,24 @@ const styles = StyleSheet.create({
   },
   tradeCardCompact: {
     borderRadius: BorderRadius.md,
-    padding: Spacing.sm,
+    padding: Spacing.xs,
+  },
+  vendorRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.xs,
+  },
+  vendorLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#1f1b16',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  vendorHint: {
+    fontSize: 10,
+    color: '#8a8174',
   },
   tradeCardAvailable: {
     borderColor: '#e6e0d6',
@@ -929,35 +942,35 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   tradeQty: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
     color: '#1f1b16',
   },
   tradeQtyCompact: {
-    fontSize: 14,
+    fontSize: 13,
   },
   tradeEmoji: {
-    fontSize: 18,
+    fontSize: 16,
   },
   tradeEmojiCompact: {
-    fontSize: 16,
+    fontSize: 14,
   },
   tradeLabel: {
     fontSize: 12,
     color: '#8a8174',
   },
   tradeArrow: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#8a8174',
     fontWeight: '700',
   },
   tradeButton: {
     backgroundColor: '#1f1b16',
     borderRadius: BorderRadius.full,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     alignItems: 'center',
-    minWidth: 96,
+    minWidth: 84,
   },
   tradeButtonCompact: {
     paddingVertical: 6,
@@ -973,7 +986,7 @@ const styles = StyleSheet.create({
   },
   tradeButtonText: {
     color: '#ffffff',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   tradeButtonTextDisabled: {
