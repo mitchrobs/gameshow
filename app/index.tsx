@@ -277,6 +277,104 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Bridges card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.bridgesKicker}>Logic Puzzle</Text>
+                <Text style={styles.gameTitle}>Bridges</Text>
+              </View>
+              <View style={styles.newBadge}>
+                <Text style={styles.newBadgeText}>New</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              Connect the islands with bridges. No crossings, one connected network.
+            </Text>
+            {(playCounts['bridges'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['bridges']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.bridgesPreview}>
+                <View style={styles.bridgesPreviewBoard}>
+                  {bridgesPuzzle.solution.slice(0, 6).map((bridge, index) => {
+                    const a = bridgesPuzzle.islands.find((i) => i.id === bridge.island1);
+                    const b = bridgesPuzzle.islands.find((i) => i.id === bridge.island2);
+                    if (!a || !b) return null;
+                    const size = 180;
+                    const padding = 16;
+                    const cell = (size - padding * 2) / (bridgesPuzzle.gridSize - 1);
+                    const ax = padding + a.col * cell;
+                    const ay = padding + a.row * cell;
+                    const bx = padding + b.col * cell;
+                    const by = padding + b.row * cell;
+                    const horizontal = ay === by;
+                    const length = horizontal ? Math.abs(ax - bx) : Math.abs(ay - by);
+                    const thickness = 3;
+                    const offset = thickness + 2;
+                    const offsets = bridge.count === 2 ? [-offset / 2, offset / 2] : [0];
+
+                    return offsets.map((lineOffset, lineIndex) => (
+                      <View
+                        key={`bridge-${index}-${lineIndex}`}
+                        style={[
+                          styles.bridgesPreviewLine,
+                          horizontal
+                            ? {
+                                left: Math.min(ax, bx) + 12,
+                                top: ay - thickness / 2 + lineOffset,
+                                width: length - 24,
+                                height: thickness,
+                                borderRadius: thickness / 2,
+                              }
+                            : {
+                                left: ax - thickness / 2 + lineOffset,
+                                top: Math.min(ay, by) + 12,
+                                width: thickness,
+                                height: length - 24,
+                                borderRadius: thickness / 2,
+                              },
+                        ]}
+                      />
+                    ));
+                  })}
+
+                  {bridgesPuzzle.islands.map((island) => {
+                    const size = 180;
+                    const padding = 16;
+                    const cell = (size - padding * 2) / (bridgesPuzzle.gridSize - 1);
+                    const x = padding + island.col * cell;
+                    const y = padding + island.row * cell;
+                    return (
+                      <View
+                        key={island.id}
+                        style={[
+                          styles.bridgesPreviewIsland,
+                          { left: x - 14, top: y - 14 },
+                        ]}
+                      >
+                        <Text style={styles.bridgesPreviewIslandText}>
+                          {island.requiredBridges}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/bridges')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
           {/* Trivia card */}
           <View style={styles.gameSection}>
             <View style={styles.gameLabel}>
