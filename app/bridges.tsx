@@ -439,23 +439,6 @@ export default function BridgesScreen() {
     setStatusMessage(null);
   }, []);
 
-  const handleCopyResults = useCallback(async () => {
-    if (Platform.OS !== 'web') return;
-    const clipboard = (globalThis as typeof globalThis & {
-      navigator?: { clipboard?: { writeText?: (text: string) => Promise<void> } };
-    }).navigator?.clipboard;
-    if (!clipboard?.writeText) {
-      setShareStatus('Copy not supported');
-      return;
-    }
-    try {
-      await clipboard.writeText(shareText);
-      setShareStatus('Copied to clipboard');
-    } catch {
-      setShareStatus('Copy failed');
-    }
-  }, [shareText]);
-
   const { width } = useWindowDimensions();
   const boardSize = Math.max(240, Math.min(360, width - Spacing.lg * 2));
   const boardPadding = Spacing.md;
@@ -518,6 +501,23 @@ export default function BridgesScreen() {
 
   useEffect(() => {
     setShareStatus(null);
+  }, [shareText]);
+
+  const handleCopyResults = useCallback(async () => {
+    if (Platform.OS !== 'web') return;
+    const clipboard = (globalThis as typeof globalThis & {
+      navigator?: { clipboard?: { writeText?: (text: string) => Promise<void> } };
+    }).navigator?.clipboard;
+    if (!clipboard?.writeText) {
+      setShareStatus('Copy not supported');
+      return;
+    }
+    try {
+      await clipboard.writeText(shareText);
+      setShareStatus('Copied to clipboard');
+    } catch {
+      setShareStatus('Copy failed');
+    }
   }, [shareText]);
 
   return (

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Animated,
   Platform,
   Pressable,
   ScrollView,
@@ -84,11 +83,6 @@ export default function BarterScreen() {
       }),
     []
   );
-  const marketNumber = useMemo(() => {
-    const match = puzzle.id.match(/barter-(\d+)/);
-    const seed = match ? parseInt(match[1], 10) : 0;
-    return String(seed % 1000).padStart(3, '0');
-  }, [puzzle.id]);
   const dailyKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
 
   const [inventory, setInventory] = useState<Record<GoodId, number>>(
@@ -102,8 +96,6 @@ export default function BarterScreen() {
   const [showResult, setShowResult] = useState(false);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [dailyCompleted, setDailyCompleted] = useState(false);
-
-  const tradeBounce = useRef(new Animated.Value(1)).current;
 
   const goalGood = getGoodById(puzzle.goal.good);
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
@@ -178,21 +170,6 @@ export default function BarterScreen() {
     if (gameState === 'playing') return;
     setShowResult(true);
   }, [gameState]);
-
-  useEffect(() => {
-    Animated.sequence([
-      Animated.timing(tradeBounce, {
-        toValue: 1.08,
-        duration: 140,
-        useNativeDriver: true,
-      }),
-      Animated.timing(tradeBounce, {
-        toValue: 1,
-        duration: 140,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [tradesUsed, tradeBounce]);
 
   const handleTrade = useCallback(
     (index: number) => {
@@ -276,17 +253,13 @@ export default function BarterScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[1]}>
           <View style={styles.page}>
             <View style={styles.header}>
-              {!isCompact && <Text style={styles.title}>Barter</Text>}
-              {isCompact ? (
-                <Text style={styles.compactHeaderLine}>
-                  Daily Market #{marketNumber} · {dateLabel}
-                </Text>
-              ) : (
-                <>
-                  <Text style={styles.marketLabel}>Daily Market #{marketNumber}</Text>
-                  <Text style={styles.dateLabel}>{dateLabel}</Text>
-                </>
-              )}
+              <Text style={[styles.title, isCompact && styles.titleCompact]}>Barter</Text>
+              <Text style={[styles.marketName, isCompact && styles.marketNameCompact]}>
+                {puzzle.marketName}
+              </Text>
+              <Text style={[styles.dateLabel, isCompact && styles.dateLabelCompact]}>
+                {dateLabel}
+              </Text>
             </View>
             <View style={styles.introCard}>
               <Text style={styles.introTitle}>Welcome to the market</Text>
@@ -301,81 +274,41 @@ export default function BarterScreen() {
 
           <View style={styles.stickyHeader}>
             <View style={styles.stickyInner}>
-              {isCompact ? (
-                <>
-                  <View style={styles.compactStatsRow}>
-                    <Text style={styles.compactStatsText}>
-                      Trades {tradesUsed}/{puzzle.maxTrades} · Goal {goalShort}
-                    </Text>
-                    <Text style={styles.compactTimerText}>⏱ {formatTime(elapsedSeconds)}</Text>
-                  </View>
-                  <View style={styles.compactActionsRow}>
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.undoButtonCompact,
-                        (history.length === 0 || gameState !== 'playing') &&
-                          styles.undoButtonDisabled,
-                        pressed && history.length > 0 && gameState === 'playing'
-                          ? styles.undoButtonPressed
-                          : null,
-                      ]}
-                      onPress={handleUndo}
-                      disabled={history.length === 0 || gameState !== 'playing'}
-                    >
-                      <Text style={styles.undoButtonTextCompact}>Undo</Text>
-                    </Pressable>
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.resetButtonCompact,
-                        pressed && styles.resetButtonPressed,
-                      ]}
-                      onPress={handleReset}
-                    >
-                      <Text style={styles.resetButtonTextCompact}>Reset</Text>
-                    </Pressable>
-                  </View>
-                </>
-              ) : (
-                <View style={styles.controlsRow}>
-                  <Animated.View style={[styles.tradeCounter, { transform: [{ scale: tradeBounce }] }]}>
-                    <Text style={styles.tradeCounterText}>
-                      Trades {tradesUsed}/{puzzle.maxTrades}
-                    </Text>
-                    <Text style={styles.tradeCounterSub}>Par {puzzle.par}</Text>
-                  </Animated.View>
-                  <View style={styles.timerChip}>
-                    <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
-                  </View>
-                  <View style={styles.goalChip}>
-                    <Text style={styles.goalChipText}>Goal {goalShort}</Text>
-                  </View>
-                  <View style={styles.controlButtons}>
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.undoButton,
-                        (history.length === 0 || gameState !== 'playing') &&
-                          styles.undoButtonDisabled,
-                        pressed && history.length > 0 && gameState === 'playing'
-                          ? styles.undoButtonPressed
-                          : null,
-                      ]}
-                      onPress={handleUndo}
-                      disabled={history.length === 0 || gameState !== 'playing'}
-                    >
-                      <Text style={styles.undoButtonText}>Undo</Text>
-                    </Pressable>
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.resetButton,
-                        pressed && styles.resetButtonPressed,
-                      ]}
-                      onPress={handleReset}
-                    >
-                      <Text style={styles.resetButtonText}>Reset</Text>
-                    </Pressable>
-                  </View>
-                </View>
-              )}
+              <View style={styles.summaryRow}>
+                <Text style={[styles.summaryText, isCompact && styles.summaryTextCompact]}>
+                  Trades {tradesUsed}/{puzzle.maxTrades} · Par {puzzle.par} · Goal {goalShort} ·{' '}
+                  {formatTime(elapsedSeconds)}
+                </Text>
+              </View>
+              <View style={styles.summaryActions}>
+                <Pressable
+                  style={({ pressed }) => [
+                    isCompact ? styles.undoButtonCompact : styles.undoButton,
+                    (history.length === 0 || gameState !== 'playing') &&
+                      styles.undoButtonDisabled,
+                    pressed && history.length > 0 && gameState === 'playing'
+                      ? styles.undoButtonPressed
+                      : null,
+                  ]}
+                  onPress={handleUndo}
+                  disabled={history.length === 0 || gameState !== 'playing'}
+                >
+                  <Text style={isCompact ? styles.undoButtonTextCompact : styles.undoButtonText}>
+                    Undo
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={({ pressed }) => [
+                    isCompact ? styles.resetButtonCompact : styles.resetButton,
+                    pressed && styles.resetButtonPressed,
+                  ]}
+                  onPress={handleReset}
+                >
+                  <Text style={isCompact ? styles.resetButtonTextCompact : styles.resetButtonText}>
+                    Reset
+                  </Text>
+                </Pressable>
+              </View>
 
               {isCompact ? (
                 <View style={[styles.inventoryRow, styles.inventoryRowTight]}>
@@ -655,104 +588,50 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#8a8174',
   },
-  compactHeaderLine: {
-    fontSize: 11,
-    color: '#8a8174',
-    fontWeight: '600',
-  },
   title: {
     fontSize: 24,
     fontWeight: '800',
     color: '#1f1b16',
   },
-  marketLabel: {
-    fontSize: 11,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    color: '#8a8174',
+  titleCompact: {
+    fontSize: 20,
+  },
+  marketName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#5f584f',
     marginTop: 2,
-    fontWeight: '600',
+  },
+  marketNameCompact: {
+    fontSize: 12,
   },
   dateLabel: {
     fontSize: 12,
     color: '#8a8174',
     marginTop: 2,
   },
-  controlsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    flexWrap: 'wrap',
-    marginBottom: Spacing.sm,
+  dateLabelCompact: {
+    fontSize: 11,
   },
-  compactStatsRow: {
-    flexDirection: 'row',
+  summaryRow: {
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.sm,
     marginBottom: Spacing.xs,
   },
-  compactStatsText: {
+  summaryText: {
     fontSize: 11,
     color: '#5f584f',
     fontWeight: '600',
+    textAlign: 'center',
   },
-  compactTimerText: {
-    fontSize: 11,
-    color: '#5f584f',
-    fontWeight: '600',
+  summaryTextCompact: {
+    fontSize: 10,
   },
-  compactActionsRow: {
+  summaryActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: Spacing.xs,
     marginBottom: Spacing.xs,
-  },
-  goalChip: {
-    backgroundColor: '#fffdf8',
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: '#e6e0d6',
-  },
-  goalChipText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#5f584f',
-  },
-  tradeCounter: {
-    backgroundColor: '#fffdf8',
-    borderRadius: BorderRadius.lg,
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.sm,
-    borderWidth: 1,
-    borderColor: '#e6e0d6',
-    minWidth: 98,
-    alignItems: 'flex-start',
-  },
-  tradeCounterText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#1f1b16',
-  },
-  tradeCounterSub: {
-    marginTop: 2,
-    fontSize: 9,
-    color: '#8a8174',
-  },
-  timerChip: {
-    backgroundColor: '#fffdf8',
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderWidth: 1,
-    borderColor: '#e6e0d6',
-  },
-  timerText: {
-    color: '#5f584f',
-    fontSize: 11,
-    fontWeight: '600',
   },
   undoButton: {
     paddingVertical: Spacing.xs,

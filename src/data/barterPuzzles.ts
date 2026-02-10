@@ -39,6 +39,7 @@ export interface BarterPuzzle {
   id: string;
   dateKey: string;
   difficulty: BarterDifficulty;
+  marketName: string;
   goods: Good[];
   inventory: Record<GoodId, number>;
   goal: BarterGoal;
@@ -78,6 +79,30 @@ const DIFFICULTY_CONFIG = {
   Medium: { goods: 5, parRange: [5, 6], surplus: 0.25, slack: 2 },
   Hard: { goods: 6, parRange: [7, 8], surplus: 0, slack: 1 },
 } as const;
+
+const MARKET_NAMES = [
+  'Silk Road Bazaar',
+  'Spice Wharf',
+  'Golden Caravan',
+  'Jade Exchange',
+  'Porcelain Court',
+  'Saffron Arcade',
+  'Lantern Market',
+  'Amber Row',
+  'Salt & Timber Yard',
+  'Copperstone Square',
+  'Moonlit Souk',
+  'Rivergate Trades',
+  'Crimson Ledger',
+  'Starlit Agora',
+  'Indigo Harbor',
+  'Windmill Exchange',
+  'Oasis Ledger',
+  'Tea Road Arcade',
+  'Mariner’s Market',
+  'Atlas Bazaar',
+  'Sunrise Caravan',
+];
 
 // ── Seeded random ──────────────────────────────────────────────
 
@@ -336,6 +361,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     id: `barter-${seed}`,
     dateKey: getDateKey(date),
     difficulty,
+    marketName: MARKET_NAMES[seed % MARKET_NAMES.length],
     goods,
     inventory,
     goal: { good: goalGood, qty: goalQty },
