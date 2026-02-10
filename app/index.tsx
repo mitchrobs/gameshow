@@ -9,6 +9,7 @@ import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 import { getDailyWordie } from '../src/data/wordiePuzzles';
 import { getDailyTriviaCategories } from '../src/data/triviaPuzzles';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
+import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 
 export default function HomeScreen() {
@@ -18,6 +19,7 @@ export default function HomeScreen() {
   const wordie = getDailyWordie();
   const triviaCategories = getDailyTriviaCategories();
   const sudoku = getDailySudoku();
+  const barterPuzzle = getDailyBarter();
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const dateLabel = new Date().toLocaleDateString('en-US', {
@@ -39,6 +41,7 @@ export default function HomeScreen() {
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
       { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
+      { label: 'Barter', route: '/barter', emoji: '🏺', countKey: 'barter', isNew: true },
     ],
     []
   );
@@ -63,7 +66,8 @@ export default function HomeScreen() {
         storage.getItem(`wordie:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
-        storage.getItem(`trivia:daily:${key}`) === '1'
+        storage.getItem(`trivia:daily:${key}`) === '1' ||
+        storage.getItem(`barter:daily:${key}`) === '1'
       );
     };
 
@@ -78,7 +82,7 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    getGlobalPlayCounts(['mojimash', 'wordie', 'sudoku', 'whodunit', 'trivia'])
+    getGlobalPlayCounts(['mojimash', 'wordie', 'sudoku', 'whodunit', 'trivia', 'barter'])
       .then((counts) => {
         if (Object.keys(counts).length > 0) {
           setPlayCounts(counts);
@@ -127,6 +131,11 @@ export default function HomeScreen() {
                 >
                   <Text style={styles.quickLinkEmoji}>{item.emoji}</Text>
                   <Text style={styles.quickLinkLabel}>{item.label}</Text>
+                  {item.isNew && (
+                    <View style={styles.quickLinkNewBadge}>
+                      <Text style={styles.quickLinkNewText}>New</Text>
+                    </View>
+                  )}
                   {(playCounts[item.countKey] ?? 0) > 0 && (
                     <Text style={styles.quickLinkCount}>{playCounts[item.countKey]} plays</Text>
                   )}
@@ -293,6 +302,71 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Barter card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.barterKicker}>Resource Exchange</Text>
+                <Text style={styles.gameTitle}>Barter</Text>
+              </View>
+              <View style={styles.newBadge}>
+                <Text style={styles.newBadgeText}>New</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              A daily trade-chain puzzle inspired by historic markets. Reach the goal in as few
+              swaps as possible.
+            </Text>
+            {(playCounts['barter'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['barter']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.barterPreview}>
+                <View style={styles.barterInventoryRow}>
+                  {barterPuzzle.goods.slice(0, 4).map((good) => (
+                    <View key={good.id} style={styles.barterInventoryChip}>
+                      <Text style={styles.barterInventoryEmoji}>{good.emoji}</Text>
+                      <Text style={styles.barterInventoryQty}>
+                        {barterPuzzle.inventory[good.id]}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+                <View style={styles.barterTradePreview}>
+                  {barterPuzzle.trades.slice(0, 2).map((trade, index) => {
+                    const giveGood = getGoodById(trade.give.good);
+                    const getGood = getGoodById(trade.get.good);
+                    return (
+                      <View key={index} style={styles.barterTradeRow}>
+                        <Text style={styles.barterTradeText}>
+                          {trade.give.qty} {giveGood.emoji} → {trade.get.qty} {getGood.emoji}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+                <View style={styles.barterGoalRow}>
+                  <Text style={styles.barterGoalLabel}>Goal</Text>
+                  <Text style={styles.barterGoalText}>
+                    {barterPuzzle.goal.qty} {getGoodById(barterPuzzle.goal.good).emoji}{' '}
+                    {getGoodById(barterPuzzle.goal.good).name}
+                  </Text>
+                </View>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/barter')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
           {/* Whodunit card */}
           <View style={styles.gameSection}>
             <View style={styles.gameLabel}>
@@ -436,8 +510,30 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.textMuted,
   },
+  quickLinkNewBadge: {
+    marginTop: Spacing.xs,
+    backgroundColor: '#ecfdf5',
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#10b981',
+  },
+  quickLinkNewText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#0d7c5f',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
   gameSection: {
     marginBottom: Spacing.xl,
+  },
+  gameLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
   },
   gameLabel: {
     marginBottom: Spacing.xs,
@@ -460,6 +556,31 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     marginTop: Spacing.sm,
     maxWidth: 420,
+  },
+  barterKicker: {
+    color: '#0d7c5f',
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
+  newBadge: {
+    marginTop: Spacing.xs,
+    backgroundColor: '#ecfdf5',
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: '#10b981',
+    alignSelf: 'flex-start',
+  },
+  newBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0d7c5f',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   streakPill: {
     marginTop: Spacing.sm,
@@ -591,6 +712,72 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
     fontWeight: '600',
+  },
+  barterPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+  },
+  barterInventoryRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  barterInventoryChip: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  barterInventoryEmoji: {
+    fontSize: 16,
+  },
+  barterInventoryQty: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+  },
+  barterTradePreview: {
+    width: '100%',
+    gap: Spacing.xs,
+  },
+  barterTradeRow: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+  },
+  barterTradeText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  barterGoalRow: {
+    alignItems: 'center',
+    marginTop: Spacing.sm,
+  },
+  barterGoalLabel: {
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    color: Colors.textMuted,
+    fontWeight: '600',
+  },
+  barterGoalText: {
+    marginTop: 4,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.text,
   },
   whodunitPreview: {
     alignItems: 'center',
