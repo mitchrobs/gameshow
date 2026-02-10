@@ -272,7 +272,7 @@ export default function BarterScreen() {
         return;
       }
       const canStillTrade = visibleTrades.some((candidate) => {
-        const nextStage = currentStage + 1;
+        const nextStage = tradeStage + 1;
         const candidateStage = candidate.stage ?? nextStage;
         if (candidateStage !== nextStage) return false;
         return candidate.give.every((side) => cappedInventory[side.good] >= side.qty);
