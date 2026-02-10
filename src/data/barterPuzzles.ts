@@ -78,7 +78,7 @@ const TIER_RANK: Record<GoodTier, number> = {
 const DIFFICULTY_CONFIG = {
   Easy: { goods: 4, parRange: [3, 4], surplus: 0.5, slack: 2 },
   Medium: { goods: 5, parRange: [5, 6], surplus: 0.25, slack: 2 },
-  Hard: { goods: 6, parRange: [8, 9], surplus: 0, slack: 1 },
+  Hard: { goods: 6, parRange: [5, 9], surplus: 0, slack: 1 },
 } as const;
 
 const MARKETS = [

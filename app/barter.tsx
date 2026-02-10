@@ -111,8 +111,11 @@ export default function BarterScreen() {
   const vendorSectionTitle = puzzle.marketName.includes('Market')
     ? `${puzzle.marketEmoji} Vendors`
     : `${puzzle.marketEmoji} ${puzzle.marketName} Vendors`;
-  const lateWindowTrigger = useMemo(() => Math.max(2, Math.ceil(puzzle.par / 2)), [puzzle.par]);
-  const tradingWindowLabel = lateWindowOpen ? 'Late Trading Hours' : 'Early Trading Hours';
+  const earlyWindowTrades = 3;
+  const lateWindowTrigger = earlyWindowTrades;
+  const tradingWindowLabel = lateWindowOpen
+    ? 'Late Trading Hours'
+    : `Early Trading Hours · ${earlyWindowTrades} trades max`;
 
   const tradeWaves = useMemo(() => {
     const trades = [...puzzle.trades];
@@ -383,7 +386,14 @@ export default function BarterScreen() {
             )}
             <View style={styles.vendorSection}>
               <Text style={styles.vendorSectionTitle}>{vendorSectionTitle}</Text>
-              <Text style={styles.vendorSectionCaption}>{tradingWindowLabel}</Text>
+              <Text
+                style={[
+                  styles.vendorSectionCaption,
+                  !lateWindowOpen && styles.vendorSectionCaptionEarly,
+                ]}
+              >
+                {tradingWindowLabel}
+              </Text>
             </View>
             <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
               {visibleTrades.map((trade) => {
@@ -680,17 +690,17 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   summaryRow: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: Spacing.xs,
   },
   summaryText: {
-    fontSize: 11,
+    fontSize: 13,
     color: '#5f584f',
     fontWeight: '600',
-    textAlign: 'center',
+    textAlign: 'left',
   },
   summaryTextCompact: {
-    fontSize: 10,
+    fontSize: 11,
   },
   sectionHeader: {
     marginBottom: Spacing.sm,
@@ -770,6 +780,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#8a8174',
     textAlign: 'center',
+  },
+  vendorSectionCaptionEarly: {
+    marginBottom: Spacing.sm,
   },
   tradeCard: {
     backgroundColor: '#fffdf8',
