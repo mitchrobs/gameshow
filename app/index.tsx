@@ -21,6 +21,30 @@ export default function HomeScreen() {
   const triviaCategories = getDailyTriviaCategories();
   const sudoku = getDailySudoku();
   const barterPuzzle = getDailyBarter();
+  const bridgesPreviewSize = 180;
+  const bridgesPreviewPadding = 16;
+  const bridgesPreviewCell = (bridgesPreviewSize - bridgesPreviewPadding * 2) / 4;
+  const bridgesPreviewSlots = [
+    { row: 0, col: 0 },
+    { row: 0, col: 4 },
+    { row: 4, col: 0 },
+    { row: 4, col: 4 },
+  ];
+  const bridgesPreviewNodes = bridgesPreviewSlots.map((slot, index) => {
+    const island = bridgesPuzzle.islands[index];
+    return {
+      id: island?.id ?? index,
+      row: slot.row,
+      col: slot.col,
+      label: island?.requiredBridges ?? 2,
+    };
+  });
+  const bridgesPreviewLines = [
+    { from: 0, to: 1, count: 2 },
+    { from: 0, to: 2, count: 1 },
+    { from: 1, to: 3, count: 1 },
+    { from: 2, to: 3, count: 2 },
+  ];
   const bridgesPuzzle = getDailyBridges();
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
@@ -298,18 +322,20 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.bridgesPreview}>
-                <View style={styles.bridgesPreviewBoard}>
-                  {bridgesPuzzle.solution.slice(0, 6).map((bridge, index) => {
-                    const a = bridgesPuzzle.islands.find((i) => i.id === bridge.island1);
-                    const b = bridgesPuzzle.islands.find((i) => i.id === bridge.island2);
+                <View
+                  style={[
+                    styles.bridgesPreviewBoard,
+                    { width: bridgesPreviewSize, height: bridgesPreviewSize },
+                  ]}
+                >
+                  {bridgesPreviewLines.map((bridge, index) => {
+                    const a = bridgesPreviewNodes[bridge.from];
+                    const b = bridgesPreviewNodes[bridge.to];
                     if (!a || !b) return null;
-                    const size = 180;
-                    const padding = 16;
-                    const cell = (size - padding * 2) / (bridgesPuzzle.gridSize - 1);
-                    const ax = padding + a.col * cell;
-                    const ay = padding + a.row * cell;
-                    const bx = padding + b.col * cell;
-                    const by = padding + b.row * cell;
+                    const ax = bridgesPreviewPadding + a.col * bridgesPreviewCell;
+                    const ay = bridgesPreviewPadding + a.row * bridgesPreviewCell;
+                    const bx = bridgesPreviewPadding + b.col * bridgesPreviewCell;
+                    const by = bridgesPreviewPadding + b.row * bridgesPreviewCell;
                     const horizontal = ay === by;
                     const length = horizontal ? Math.abs(ax - bx) : Math.abs(ay - by);
                     const thickness = 3;
@@ -323,17 +349,17 @@ export default function HomeScreen() {
                           styles.bridgesPreviewLine,
                           horizontal
                             ? {
-                                left: Math.min(ax, bx) + 12,
+                                left: Math.min(ax, bx),
                                 top: ay - thickness / 2 + lineOffset,
-                                width: length - 24,
+                                width: length,
                                 height: thickness,
                                 borderRadius: thickness / 2,
                               }
                             : {
                                 left: ax - thickness / 2 + lineOffset,
-                                top: Math.min(ay, by) + 12,
+                                top: Math.min(ay, by),
                                 width: thickness,
-                                height: length - 24,
+                                height: length,
                                 borderRadius: thickness / 2,
                               },
                         ]}
@@ -341,12 +367,9 @@ export default function HomeScreen() {
                     ));
                   })}
 
-                  {bridgesPuzzle.islands.map((island) => {
-                    const size = 180;
-                    const padding = 16;
-                    const cell = (size - padding * 2) / (bridgesPuzzle.gridSize - 1);
-                    const x = padding + island.col * cell;
-                    const y = padding + island.row * cell;
+                  {bridgesPreviewNodes.map((island) => {
+                    const x = bridgesPreviewPadding + island.col * bridgesPreviewCell;
+                    const y = bridgesPreviewPadding + island.row * bridgesPreviewCell;
                     return (
                       <View
                         key={island.id}
@@ -356,7 +379,7 @@ export default function HomeScreen() {
                         ]}
                       >
                         <Text style={styles.bridgesPreviewIslandText}>
-                          {island.requiredBridges}
+                          {island.label}
                         </Text>
                       </View>
                     );
