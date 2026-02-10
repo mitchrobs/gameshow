@@ -272,18 +272,20 @@ export default function BarterScreen() {
         }}
       />
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        {!isCompact && <View style={styles.ambientGlow} pointerEvents="none" />}
         <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[1]}>
           <View style={styles.page}>
-            {!isCompact && (
-              <View style={styles.pageAccent}>
-                <View style={styles.pageAccentInner} />
-              </View>
-            )}
             <View style={styles.header}>
-              <Text style={styles.title}>Barter</Text>
-              <Text style={styles.marketLabel}>Daily Market #{marketNumber}</Text>
-              <Text style={styles.dateLabel}>{dateLabel}</Text>
+              {!isCompact && <Text style={styles.title}>Barter</Text>}
+              {isCompact ? (
+                <Text style={styles.compactHeaderLine}>
+                  Daily Market #{marketNumber} · {dateLabel}
+                </Text>
+              ) : (
+                <>
+                  <Text style={styles.marketLabel}>Daily Market #{marketNumber}</Text>
+                  <Text style={styles.dateLabel}>{dateLabel}</Text>
+                </>
+              )}
             </View>
           </View>
 
@@ -409,7 +411,7 @@ export default function BarterScreen() {
 
           <View style={styles.page}>
             <View style={[styles.goalCard, isCompact && styles.goalCardCompact]}>
-              <View style={styles.goalAccent} />
+              <View style={[styles.goalAccent, isCompact && styles.goalAccentCompact]} />
               <View style={[styles.goalContent, isCompact && styles.goalContentCompact]}>
                 <Text style={styles.goalTitle}>Goal</Text>
                 <Text style={[styles.goalText, isCompact && styles.goalTextCompact]}>
@@ -597,80 +599,59 @@ export default function BarterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#041a12',
-  },
-  ambientGlow: {
-    position: 'absolute',
-    top: -120,
-    left: '50%',
-    width: 520,
-    height: 520,
-    marginLeft: -260,
-    borderRadius: 260,
-    backgroundColor: '#0b3a29',
-    opacity: 0.6,
+    backgroundColor: Colors.background,
   },
   scrollContent: {
     paddingTop: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xxl,
   },
   stickyHeader: {
-    backgroundColor: '#041a12',
+    backgroundColor: Colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#0f2b21',
-    paddingHorizontal: Spacing.lg,
+    borderBottomColor: Colors.border,
+    paddingHorizontal: 0,
     paddingBottom: Spacing.sm,
     zIndex: 10,
     width: '100%',
+    alignItems: 'center',
   },
   stickyInner: {
     width: '100%',
     maxWidth: 520,
     alignSelf: 'center',
+    paddingHorizontal: Spacing.lg,
   },
   page: {
     width: '100%',
     maxWidth: 520,
     alignSelf: 'center',
-  },
-  pageAccent: {
-    height: 6,
-    width: 120,
-    backgroundColor: '#0d7c5f',
-    borderRadius: 999,
-    overflow: 'hidden',
-    marginBottom: Spacing.md,
-    alignSelf: 'center',
-  },
-  pageAccentInner: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: '40%',
-    backgroundColor: '#10b981',
+    paddingHorizontal: Spacing.lg,
   },
   header: {
     marginBottom: Spacing.sm,
     alignItems: 'center',
   },
+  compactHeaderLine: {
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '600',
+  },
   title: {
     fontSize: FontSize.xxl,
     fontWeight: '800',
-    color: '#b8f5dc',
+    color: Colors.text,
   },
   marketLabel: {
     fontSize: 12,
-    letterSpacing: 2.6,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
-    color: '#2f7b5e',
+    color: Colors.textMuted,
     marginTop: Spacing.xs,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   dateLabel: {
     fontSize: 12,
-    color: '#2f7b5e',
+    color: Colors.textMuted,
     marginTop: 2,
   },
   controlsRow: {
@@ -689,50 +670,50 @@ const styles = StyleSheet.create({
   },
   compactStatsText: {
     fontSize: 12,
-    color: '#8ad6b6',
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
   compactTimerText: {
     fontSize: 12,
-    color: '#8ad6b6',
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
   compactActionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   tradeCounter: {
-    backgroundColor: '#0f2b21',
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.sm,
     borderWidth: 1,
-    borderColor: '#1e4d3a',
+    borderColor: Colors.border,
     minWidth: 98,
     alignItems: 'flex-start',
   },
   tradeCounterText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#b8f5dc',
+    color: Colors.text,
   },
   tradeCounterSub: {
     marginTop: 2,
     fontSize: 10,
-    color: '#4c9b7a',
+    color: Colors.textMuted,
   },
   timerChip: {
-    backgroundColor: '#0f2b21',
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
     borderWidth: 1,
-    borderColor: '#1e4d3a',
+    borderColor: Colors.border,
   },
   timerText: {
-    color: '#8ad6b6',
+    color: Colors.textSecondary,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -741,18 +722,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#1e6f52',
-    backgroundColor: 'transparent',
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
   },
   undoButtonPressed: {
-    backgroundColor: '#133a2c',
+    backgroundColor: Colors.surfaceLight,
   },
   undoButtonDisabled: {
-    borderColor: '#1e4d3a',
+    borderColor: Colors.border,
     opacity: 0.5,
   },
   undoButtonText: {
-    color: '#8ad6b6',
+    color: Colors.textSecondary,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -761,14 +742,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#1e4d3a',
-    backgroundColor: '#0f2b21',
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
   },
   resetButtonPressed: {
-    backgroundColor: '#133a2c',
+    backgroundColor: Colors.surfaceLight,
   },
   resetButtonText: {
-    color: '#8ad6b6',
+    color: Colors.textSecondary,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -777,11 +758,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#1e6f52',
-    backgroundColor: 'transparent',
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
   },
   undoButtonTextCompact: {
-    color: '#8ad6b6',
+    color: Colors.textSecondary,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -790,11 +771,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#1e4d3a',
-    backgroundColor: '#0f2b21',
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
   },
   resetButtonTextCompact: {
-    color: '#8ad6b6',
+    color: Colors.textSecondary,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -804,12 +785,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: '#b8f5dc',
+    color: Colors.text,
   },
   sectionSubtitle: {
     marginTop: 2,
     fontSize: FontSize.sm,
-    color: '#4c9b7a',
+    color: Colors.textMuted,
   },
   inventoryRow: {
     flexDirection: 'row',
@@ -822,10 +803,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
   },
   inventoryCard: {
-    backgroundColor: '#0f2b21',
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#1e4d3a',
+    borderColor: Colors.border,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
     minWidth: 90,
@@ -840,12 +821,12 @@ const styles = StyleSheet.create({
   inventoryCount: {
     fontSize: FontSize.lg,
     fontWeight: '800',
-    color: '#b8f5dc',
+    color: Colors.text,
     marginTop: 4,
   },
   inventoryLabel: {
     fontSize: 12,
-    color: '#4c9b7a',
+    color: Colors.textMuted,
     marginTop: 2,
   },
   inventoryPill: {
@@ -856,8 +837,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#1e4d3a',
-    backgroundColor: '#0f2b21',
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
   },
   inventoryPillEmoji: {
     fontSize: 16,
@@ -865,21 +846,24 @@ const styles = StyleSheet.create({
   inventoryPillCount: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#b8f5dc',
+    color: Colors.text,
   },
   goalCard: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    backgroundColor: '#0f2b21',
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: '#1e4d3a',
+    borderColor: Colors.border,
     marginBottom: Spacing.lg,
     overflow: 'hidden',
   },
   goalAccent: {
     width: 6,
-    backgroundColor: '#1d8f63',
+    backgroundColor: Colors.text,
+  },
+  goalAccentCompact: {
+    width: 3,
   },
   goalContent: {
     paddingVertical: Spacing.md,
@@ -897,14 +881,14 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     fontSize: FontSize.sm,
-    color: '#4c9b7a',
+    color: Colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '700',
   },
   goalText: {
     fontSize: FontSize.md,
-    color: '#b8f5dc',
+    color: Colors.text,
     marginTop: Spacing.xs,
     fontWeight: '700',
   },
@@ -920,10 +904,10 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   tradeCard: {
-    backgroundColor: '#0f2b21',
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: '#1e4d3a',
+    borderColor: Colors.border,
     padding: Spacing.md,
     shadowOpacity: 0,
     elevation: 0,
@@ -933,14 +917,14 @@ const styles = StyleSheet.create({
     padding: Spacing.sm,
   },
   tradeCardAvailable: {
-    borderColor: '#1d8f63',
+    borderColor: Colors.border,
   },
   tradeCardUnavailable: {
-    borderColor: '#1e4d3a',
+    borderColor: Colors.border,
     opacity: 0.65,
   },
   tradeCardFlash: {
-    backgroundColor: '#144032',
+    backgroundColor: Colors.surfaceLight,
   },
   tradeRow: {
     flexDirection: 'row',
@@ -968,7 +952,7 @@ const styles = StyleSheet.create({
   tradeQty: {
     fontSize: FontSize.lg,
     fontWeight: '800',
-    color: '#b8f5dc',
+    color: Colors.text,
   },
   tradeQtyCompact: {
     fontSize: 16,
@@ -981,15 +965,15 @@ const styles = StyleSheet.create({
   },
   tradeLabel: {
     fontSize: 12,
-    color: '#4c9b7a',
+    color: Colors.textMuted,
   },
   tradeArrow: {
     fontSize: FontSize.lg,
-    color: '#2f7b5e',
+    color: Colors.textMuted,
     fontWeight: '700',
   },
   tradeButton: {
-    backgroundColor: '#1d8f63',
+    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.full,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.lg,
@@ -1002,19 +986,19 @@ const styles = StyleSheet.create({
     minWidth: 82,
   },
   tradeButtonPressed: {
-    backgroundColor: '#29b97d',
+    backgroundColor: Colors.primaryLight,
     transform: [{ scale: 0.99 }],
   },
   tradeButtonDisabled: {
-    backgroundColor: '#0b261c',
+    backgroundColor: Colors.surfaceLight,
   },
   tradeButtonText: {
-    color: '#b8f5dc',
+    color: Colors.white,
     fontSize: FontSize.sm,
     fontWeight: '700',
   },
   tradeButtonTextDisabled: {
-    color: '#2f7b5e',
+    color: Colors.textMuted,
   },
   tradesFooter: {
     alignItems: 'center',
@@ -1022,7 +1006,7 @@ const styles = StyleSheet.create({
   },
   tradesFooterText: {
     fontSize: FontSize.md,
-    color: '#2f7b5e',
+    color: Colors.textMuted,
     fontWeight: '700',
   },
   modalOverlay: {
@@ -1148,13 +1132,13 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   reviewButton: {
-    backgroundColor: '#0d7c5f',
+    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.sm,
     paddingVertical: Spacing.sm,
     alignItems: 'center',
   },
   reviewButtonPressed: {
-    backgroundColor: '#10b981',
+    backgroundColor: Colors.primaryLight,
   },
   reviewButtonText: {
     color: Colors.white,

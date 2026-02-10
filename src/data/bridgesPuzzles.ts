@@ -170,9 +170,11 @@ function applyRequirements(puzzle: BridgesSeedPuzzle): BridgesPuzzle {
 }
 
 export const bridgesPuzzles: BridgesPuzzle[] = BASE_PUZZLES.map(applyRequirements);
+const easyBridgesPuzzles = bridgesPuzzles.filter((puzzle) => puzzle.difficulty === 'Easy');
 
 export function getDailyBridges(date: Date = new Date()): BridgesPuzzle {
   const seed = getDailySeed(date);
-  const index = seed % bridgesPuzzles.length;
-  return bridgesPuzzles[index];
+  const pool = easyBridgesPuzzles.length > 0 ? easyBridgesPuzzles : bridgesPuzzles;
+  const index = seed % pool.length;
+  return pool[index];
 }

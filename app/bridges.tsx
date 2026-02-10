@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { BorderRadius, Colors, FontSize, Spacing } from '../src/constants/theme';
 import {
-  bridgesPuzzles,
+  getDailyBridges,
   BridgesBridge,
   BridgesIsland,
   BridgesPuzzle,
@@ -72,10 +72,6 @@ function getDailySeed(date: Date = new Date()): number {
   const m = date.getMonth() + 1;
   const d = date.getDate();
   return y * 10000 + m * 100 + d;
-}
-
-function getDailyIndex(date: Date = new Date()): number {
-  return getDailySeed(date) % bridgesPuzzles.length;
 }
 
 function makeBridgeKey(a: number, b: number): string {
@@ -159,11 +155,7 @@ function wouldCross(
 
 export default function BridgesScreen() {
   const dateKey = useMemo(() => getLocalDateKey(), []);
-  const [puzzleIndex, setPuzzleIndex] = useState(() => getDailyIndex());
-  const puzzle: BridgesPuzzle = useMemo(
-    () => bridgesPuzzles[puzzleIndex % bridgesPuzzles.length],
-    [puzzleIndex]
-  );
+  const puzzle: BridgesPuzzle = useMemo(() => getDailyBridges(), []);
   const [bridges, setBridges] = useState<BridgeState>({});
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [anchorIsland, setAnchorIsland] = useState<number | null>(null);
@@ -259,10 +251,6 @@ export default function BridgesScreen() {
   }, [dateKey]);
 
   useEffect(() => {
-    hasCountedRef.current = false;
-  }, [puzzleIndex]);
-
-  useEffect(() => {
     if (gameState !== 'won' || hasCountedRef.current) return;
     hasCountedRef.current = true;
     incrementGlobalPlayCount('bridges');
@@ -275,17 +263,6 @@ export default function BridgesScreen() {
     }, 1000);
     return () => clearInterval(timer);
   }, [gameState]);
-
-  useEffect(() => {
-    setBridges({});
-    setHistory([]);
-    setAnchorIsland(null);
-    setFocusedIsland(null);
-    setElapsedSeconds(0);
-    setGameState('playing');
-    setHintsUsed(0);
-    setStatusMessage(null);
-  }, [puzzleIndex]);
 
   useEffect(() => {
     if (!statusMessage) return;
@@ -439,10 +416,6 @@ export default function BridgesScreen() {
     setStatusMessage('Hint applied.');
   }, [bridges, puzzle.solution, gameState, anchorIsland]);
 
-  const handleNewGame = useCallback(() => {
-    setPuzzleIndex((prev) => (prev + 1) % bridgesPuzzles.length);
-  }, []);
-
   const { width } = useWindowDimensions();
   const boardSize = Math.min(360, width - Spacing.lg * 2);
   const boardPadding = Spacing.md;
@@ -481,7 +454,16 @@ export default function BridgesScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen options={{ title: 'Bridges', headerBackTitle: 'Home' }} />
+      <Stack.Screen
+        options={{
+          title: 'Bridges',
+          headerBackTitle: 'Home',
+          headerStyle: { backgroundColor: Colors.background },
+          headerTintColor: Colors.text,
+          headerShadowVisible: false,
+          headerTitleStyle: { fontWeight: '700' },
+        }}
+      />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.page}>
           <View style={styles.pageAccent} />
@@ -491,8 +473,9 @@ export default function BridgesScreen() {
               Daily puzzle #{puzzleNumber} · {dateLabel}
             </Text>
             <Text style={styles.howTo}>
-              Connect islands with 1-2 bridges horizontally or vertically. Bridges cannot
-              cross, and all islands must be connected.
+              Tap an island, then a neighbor in the same row or column to cycle 1, 2, or 0
+              bridges. Each number shows the exact bridges needed. Bridges cannot cross and
+              all islands must connect.
             </Text>
           </View>
 
@@ -647,16 +630,6 @@ export default function BridgesScreen() {
                 <Text style={styles.actionButtonText}>
                   Hint{hintsUsed > 0 ? ` (${hintsUsed})` : ''}
                 </Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  styles.actionButtonPrimary,
-                  pressed && styles.actionButtonPrimaryPressed,
-                ]}
-                onPress={handleNewGame}
-              >
-                <Text style={styles.actionButtonPrimaryText}>New Game</Text>
               </Pressable>
             </View>
           </View>
@@ -830,18 +803,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '600',
     color: Colors.text,
-  },
-  actionButtonPrimary: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  actionButtonPrimaryPressed: {
-    transform: [{ scale: 0.98 }],
-    opacity: 0.9,
-  },
-  actionButtonPrimaryText: {
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: Colors.white,
   },
 });

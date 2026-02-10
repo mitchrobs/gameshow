@@ -22,30 +22,10 @@ export default function HomeScreen() {
   const sudoku = getDailySudoku();
   const barterPuzzle = getDailyBarter();
   const bridgesPuzzle = getDailyBridges();
-  const bridgesPreviewSize = 180;
-  const bridgesPreviewPadding = 16;
-  const bridgesPreviewCell = (bridgesPreviewSize - bridgesPreviewPadding * 2) / 4;
-  const bridgesPreviewSlots = [
-    { row: 0, col: 0 },
-    { row: 0, col: 4 },
-    { row: 4, col: 0 },
-    { row: 4, col: 4 },
-  ];
-  const bridgesPreviewNodes = bridgesPreviewSlots.map((slot, index) => {
-    const island = bridgesPuzzle.islands[index];
-    return {
-      id: island?.id ?? index,
-      row: slot.row,
-      col: slot.col,
-      label: island?.requiredBridges ?? 2,
-    };
-  });
-  const bridgesPreviewLines = [
-    { from: 0, to: 1, count: 2 },
-    { from: 0, to: 2, count: 1 },
-    { from: 1, to: 3, count: 1 },
-    { from: 2, to: 3, count: 2 },
-  ];
+  const bridgesPreviewValues = useMemo(() => {
+    const values = bridgesPuzzle.islands.slice(0, 3).map((island) => island.requiredBridges);
+    return values.length === 3 ? values : [2, 3, 1];
+  }, [bridgesPuzzle]);
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const dateLabel = new Date().toLocaleDateString('en-US', {
@@ -65,7 +45,7 @@ export default function HomeScreen() {
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie' },
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
-      { label: 'Bridges', route: '/bridges', emoji: '🌉', countKey: 'bridges', isNew: true },
+      { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
       { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
       { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', isNew: true },
@@ -313,7 +293,7 @@ export default function HomeScreen() {
               </View>
             </View>
             <Text style={styles.blurb}>
-              Connect the islands with bridges. No crossings, one connected network.
+              Match each island&apos;s number with bridges. Connect all islands with no crossings.
             </Text>
             {(playCounts['bridges'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
@@ -322,69 +302,20 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.bridgesPreview}>
-                <View
-                  style={[
-                    styles.bridgesPreviewBoard,
-                    { width: bridgesPreviewSize, height: bridgesPreviewSize },
-                  ]}
-                >
-                  {bridgesPreviewLines.map((bridge, index) => {
-                    const a = bridgesPreviewNodes[bridge.from];
-                    const b = bridgesPreviewNodes[bridge.to];
-                    if (!a || !b) return null;
-                    const ax = bridgesPreviewPadding + a.col * bridgesPreviewCell;
-                    const ay = bridgesPreviewPadding + a.row * bridgesPreviewCell;
-                    const bx = bridgesPreviewPadding + b.col * bridgesPreviewCell;
-                    const by = bridgesPreviewPadding + b.row * bridgesPreviewCell;
-                    const horizontal = ay === by;
-                    const length = horizontal ? Math.abs(ax - bx) : Math.abs(ay - by);
-                    const thickness = 3;
-                    const offset = thickness + 2;
-                    const offsets = bridge.count === 2 ? [-offset / 2, offset / 2] : [0];
-
-                    return offsets.map((lineOffset, lineIndex) => (
-                      <View
-                        key={`bridge-${index}-${lineIndex}`}
-                        style={[
-                          styles.bridgesPreviewLine,
-                          horizontal
-                            ? {
-                                left: Math.min(ax, bx),
-                                top: ay - thickness / 2 + lineOffset,
-                                width: length,
-                                height: thickness,
-                                borderRadius: thickness / 2,
-                              }
-                            : {
-                                left: ax - thickness / 2 + lineOffset,
-                                top: Math.min(ay, by),
-                                width: thickness,
-                                height: length,
-                                borderRadius: thickness / 2,
-                              },
-                        ]}
-                      />
-                    ));
-                  })}
-
-                  {bridgesPreviewNodes.map((island) => {
-                    const x = bridgesPreviewPadding + island.col * bridgesPreviewCell;
-                    const y = bridgesPreviewPadding + island.row * bridgesPreviewCell;
-                    return (
-                      <View
-                        key={island.id}
-                        style={[
-                          styles.bridgesPreviewIsland,
-                          { left: x - 14, top: y - 14 },
-                        ]}
-                      >
-                        <Text style={styles.bridgesPreviewIslandText}>
-                          {island.label}
-                        </Text>
+                <Text style={styles.bridgesPreviewEmoji}>🏝️</Text>
+                <View style={styles.bridgesPreviewRow}>
+                  {bridgesPreviewValues.map((value, index) => (
+                    <View key={`bridge-preview-${index}`} style={styles.bridgesPreviewRowItem}>
+                      <View style={styles.bridgesPreviewIsland}>
+                        <Text style={styles.bridgesPreviewIslandText}>{value}</Text>
                       </View>
-                    );
-                  })}
+                      {index < bridgesPreviewValues.length - 1 && (
+                        <View style={styles.bridgesPreviewConnector} />
+                      )}
+                    </View>
+                  ))}
                 </View>
+                <Text style={styles.bridgesPreviewCaption}>Tap islands to add bridges.</Text>
               </View>
               <Pressable
                 style={({ pressed }) => [
@@ -786,35 +717,49 @@ const styles = StyleSheet.create({
   bridgesPreview: {
     alignItems: 'center',
     marginVertical: Spacing.md,
-    backgroundColor: '#0e1b2b',
+    backgroundColor: Colors.surfaceLight,
     borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
   },
-  bridgesPreviewBoard: {
-    width: 180,
-    height: 180,
-    position: 'relative',
+  bridgesPreviewEmoji: {
+    fontSize: 22,
   },
-  bridgesPreviewLine: {
-    position: 'absolute',
-    backgroundColor: '#6b7f99',
+  bridgesPreviewRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bridgesPreviewRowItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   bridgesPreviewIsland: {
-    position: 'absolute',
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#132337',
-    borderWidth: 2,
-    borderColor: '#4fc3ff',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bridgesPreviewIslandText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#cfeaff',
+    color: Colors.textSecondary,
+  },
+  bridgesPreviewConnector: {
+    width: 28,
+    height: 3,
+    marginHorizontal: Spacing.xs,
+    borderRadius: 2,
+    backgroundColor: Colors.textMuted,
+  },
+  bridgesPreviewCaption: {
+    fontSize: 12,
+    color: Colors.textMuted,
   },
   sudokuRow: {
     flexDirection: 'row',
