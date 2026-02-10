@@ -172,7 +172,9 @@ function buildPathGoods(
   const uncommons = goods.filter((id) => GOOD_MAP[id].tier === 'uncommon');
 
   const path: GoodId[] = [];
-  path.push(seededPick(commons, rand));
+  const startGood = seededPick(commons, rand);
+  path.push(startGood);
+  const used = new Set<GoodId>([startGood]);
 
   for (let i = 1; i < par; i++) {
     const progress = i / par;
@@ -182,13 +184,24 @@ function buildPathGoods(
     let candidates = goods.filter(
       (id) =>
         id !== goal &&
+        id !== startGood &&
         id !== path[path.length - 1] &&
         GOOD_MAP[id].tier === tier
     );
+    if (difficulty !== 'Hard' && candidates.length > 0) {
+      candidates = candidates.filter((id) => !used.has(id));
+    }
+    if (candidates.length === 0) {
+      candidates = goods.filter(
+        (id) => id !== goal && id !== startGood && id !== path[path.length - 1]
+      );
+    }
     if (candidates.length === 0) {
       candidates = goods.filter((id) => id !== goal && id !== path[path.length - 1]);
     }
-    path.push(seededPick(candidates, rand));
+    const next = seededPick(candidates, rand);
+    path.push(next);
+    used.add(next);
   }
 
   if (difficulty !== 'Easy' && uncommons.length > 0) {
@@ -340,4 +353,3 @@ export function getDailyBarter(date: Date = new Date()): BarterPuzzle {
 export function getGoodById(id: GoodId): Good {
   return GOOD_MAP[id];
 }
-

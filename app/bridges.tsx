@@ -339,7 +339,7 @@ export default function BridgesScreen() {
   );
 
   useEffect(() => {
-    if (Platform.OS !== 'web') return;
+    if (Platform.OS !== 'web' || showIntro) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       const key = event.key;
@@ -376,7 +376,7 @@ export default function BridgesScreen() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [focusedIsland, neighborLookup, puzzle.islands, handleIslandPress]);
+  }, [focusedIsland, neighborLookup, puzzle.islands, handleIslandPress, showIntro]);
 
   const handleUndo = useCallback(() => {
     setHistory((prev) => {
@@ -434,6 +434,9 @@ export default function BridgesScreen() {
   const handleBegin = useCallback(() => {
     setShowIntro(false);
     setElapsedSeconds(0);
+    setAnchorIsland(null);
+    setFocusedIsland(null);
+    setStatusMessage(null);
   }, []);
 
   const handleCopyResults = useCallback(async () => {
@@ -820,11 +823,47 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text,
   },
-  howTo: {
-    marginTop: Spacing.sm,
+  introCard: {
+    marginTop: Spacing.md,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: Spacing.sm,
+  },
+  introTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  introSectionTitle: {
+    marginTop: Spacing.xs,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    color: Colors.textMuted,
+    fontWeight: '600',
+  },
+  introBody: {
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
     lineHeight: 20,
+  },
+  introButton: {
+    marginTop: Spacing.md,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+  },
+  introButtonPressed: {
+    opacity: 0.9,
+  },
+  introButtonText: {
+    color: Colors.white,
+    fontSize: FontSize.md,
+    fontWeight: '600',
   },
   statsRow: {
     flexDirection: 'row',

@@ -453,7 +453,7 @@ export default function BarterScreen() {
                         style={[styles.tradeInfo, isCompact && styles.tradeInfoCompact]}
                         pointerEvents="none"
                       >
-                        <View style={styles.tradeSide}>
+                        <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
                           <Text style={[styles.tradeQty, isCompact && styles.tradeQtyCompact]}>
                             {trade.give.qty}
                           </Text>
@@ -462,7 +462,7 @@ export default function BarterScreen() {
                           </Text>
                         </View>
                         <Text style={styles.tradeArrow}>→</Text>
-                        <View style={styles.tradeSide}>
+                        <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
                           <Text style={[styles.tradeQty, isCompact && styles.tradeQtyCompact]}>
                             {trade.get.qty}
                           </Text>
@@ -937,9 +937,14 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   tradeSide: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     flex: 1,
-    gap: 2,
+    gap: 6,
+  },
+  tradeSideCompact: {
+    gap: 4,
   },
   tradeQty: {
     fontSize: 15,
