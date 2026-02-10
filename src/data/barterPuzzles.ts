@@ -119,6 +119,8 @@ const MARKETS = [
   { name: 'Sunrise Caravan', emoji: '🌅' },
 ];
 
+const DAILY_CACHE = new Map<string, BarterPuzzle>();
+
 // ── Seeded random ──────────────────────────────────────────────
 
 function mulberry32(seed: number) {
@@ -990,23 +992,17 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   let fallback: BarterPuzzle | null = null;
   let fallbackScore = -Infinity;
 
-  for (let attempt = 0; attempt < 512; attempt++) {
+  for (let attempt = 0; attempt < 240; attempt++) {
     const candidateSeed = baseSeed + attempt * 7919;
     const baseCandidate = buildCandidate(candidateSeed);
     const baseGoalQty = baseCandidate.goal.qty;
     const candidates = [baseCandidate];
-    for (let extra = 1; extra <= 8; extra++) {
+    for (let extra = 1; extra <= 6; extra++) {
       candidates.push(buildCandidate(candidateSeed, baseGoalQty + extra));
     }
 
     for (const candidate of candidates) {
       const shortest = shortestPathLength(candidate);
-      const earlyPaths = countPathsToStage(
-        candidate,
-        candidate.earlyWindowTrades,
-        PATH_COUNT_CAP
-      );
-      const solutionPaths = countSolutions(candidate, PATH_COUNT_CAP);
       const choicesOk = hasChoicesOnSolution(candidate, CHOICE_DEPTH);
       const earlyVariantCount = candidate.trades.filter(
         (trade) => trade.variant && (trade.window ?? 'early') !== 'late'
@@ -1026,26 +1022,34 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
         const shortestInRange =
           shortest >= MIN_PATH_LENGTH && shortest <= MAX_PATH_LENGTH ? 1000 : 0;
         const branchScore = Math.min(PATH_COUNT_CAP, earlyVariantCount + lateVariantCount);
-        const solutionScore = solutionPaths;
-        const score = shortestInRange + branchScore * 10 + solutionScore;
+        const score = shortestInRange + shortest * 2 + branchScore * 10;
         if (score > fallbackScore) {
           fallbackScore = score;
           fallback = candidate;
         }
       }
-      if (
+      const meetsLength =
         shortest !== null &&
         shortest >= MIN_PATH_LENGTH &&
         shortest <= MAX_PATH_LENGTH &&
         candidate.par >= MIN_PATH_LENGTH &&
-        candidate.par <= MAX_PATH_LENGTH &&
-        earlyPaths >= MIN_EARLY_PATHS &&
-        solutionPaths >= MIN_SOLUTION_PATHS &&
+        candidate.par <= MAX_PATH_LENGTH;
+      const meetsBasics =
         choicesOk &&
         earlyVariantCount > 0 &&
         lateVariantCount > 0 &&
         lateGoalTrades > 0 &&
-        startAffordableTrades >= 2
+        startAffordableTrades >= 2;
+      if (!meetsLength || !meetsBasics) continue;
+      const earlyPaths = countPathsToStage(
+        candidate,
+        candidate.earlyWindowTrades,
+        PATH_COUNT_CAP
+      );
+      const solutionPaths = countSolutions(candidate, PATH_COUNT_CAP);
+      if (
+        earlyPaths >= MIN_EARLY_PATHS &&
+        solutionPaths >= MIN_SOLUTION_PATHS
       ) {
         return { ...candidate, par: shortest };
       }
@@ -1056,7 +1060,12 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
 }
 
 export function getDailyBarter(date: Date = new Date()): BarterPuzzle {
-  return generatePuzzle(getDailySeed(date), date);
+  const key = getDateKey(date);
+  const cached = DAILY_CACHE.get(key);
+  if (cached) return cached;
+  const puzzle = generatePuzzle(getDailySeed(date), date);
+  DAILY_CACHE.set(key, puzzle);
+  return puzzle;
 }
 
 export function getGoodById(id: GoodId): Good {
