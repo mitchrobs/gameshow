@@ -171,10 +171,14 @@ function applyRequirements(puzzle: BridgesSeedPuzzle): BridgesPuzzle {
 
 export const bridgesPuzzles: BridgesPuzzle[] = BASE_PUZZLES.map(applyRequirements);
 const easyBridgesPuzzles = bridgesPuzzles.filter((puzzle) => puzzle.difficulty === 'Easy');
+const mediumBridgesPuzzles = bridgesPuzzles.filter((puzzle) => puzzle.difficulty === 'Medium');
 
 export function getDailyBridges(date: Date = new Date()): BridgesPuzzle {
   const seed = getDailySeed(date);
-  const pool = easyBridgesPuzzles.length > 0 ? easyBridgesPuzzles : bridgesPuzzles;
+  const pool =
+    easyBridgesPuzzles.length + mediumBridgesPuzzles.length > 0
+      ? [...easyBridgesPuzzles, ...mediumBridgesPuzzles]
+      : bridgesPuzzles;
   const index = seed % pool.length;
   return pool[index];
 }
