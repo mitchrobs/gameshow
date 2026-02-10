@@ -445,7 +445,7 @@ export default function BridgesScreen() {
 
   const { width } = useWindowDimensions();
   const boardSize = Math.min(360, width - Spacing.lg * 2);
-  const boardPadding = 18;
+  const boardPadding = Spacing.md;
   const innerSize = boardSize - boardPadding * 2;
   const cellSize = innerSize / Math.max(1, puzzle.gridSize - 1);
   const islandSize = Math.min(52, Math.max(32, cellSize * 0.9));
