@@ -606,7 +606,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   scrollContent: {
-    padding: Spacing.lg,
     paddingBottom: Spacing.xxl,
   },
   stickyHeader: {
@@ -614,8 +613,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#0f2b21',
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
+    paddingBottom: Spacing.sm,
     zIndex: 10,
+    width: '100%',
   },
   stickyInner: {
     width: '100%',
@@ -626,6 +626,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 520,
     alignSelf: 'center',
+    paddingHorizontal: Spacing.lg,
   },
   pageAccent: {
     height: 6,
@@ -671,19 +672,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.sm,
     flexWrap: 'wrap',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
-  controlsRowCompact: {
-    marginBottom: Spacing.xs,
-  },
-  statsRow: {
+  compactStatsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
-  statsRowCompact: {
+  compactStatsText: {
+    fontSize: 12,
+    color: '#8ad6b6',
+    fontWeight: '600',
+  },
+  compactTimerText: {
+    fontSize: 12,
+    color: '#8ad6b6',
+    fontWeight: '600',
+  },
+  compactActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.xs,
+    marginBottom: Spacing.sm,
   },
   tradeCounter: {
     backgroundColor: '#0f2b21',
@@ -754,6 +766,32 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  undoButtonCompact: {
+    paddingVertical: 6,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: '#1e6f52',
+    backgroundColor: 'transparent',
+  },
+  undoButtonTextCompact: {
+    color: '#8ad6b6',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  resetButtonCompact: {
+    paddingVertical: 6,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: '#1e4d3a',
+    backgroundColor: '#0f2b21',
+  },
+  resetButtonTextCompact: {
+    color: '#8ad6b6',
+    fontSize: 12,
+    fontWeight: '600',
+  },
   sectionHeader: {
     marginBottom: Spacing.sm,
   },
@@ -773,6 +811,10 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     justifyContent: 'center',
   },
+  inventoryScroll: {
+    gap: Spacing.xs,
+    paddingVertical: Spacing.xs,
+  },
   inventoryCard: {
     backgroundColor: '#0f2b21',
     borderRadius: BorderRadius.md,
@@ -786,16 +828,8 @@ const styles = StyleSheet.create({
   inventoryCardEmpty: {
     opacity: 0.35,
   },
-  inventoryCardCompact: {
-    minWidth: 70,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-  },
   inventoryEmoji: {
     fontSize: 22,
-  },
-  inventoryEmojiCompact: {
-    fontSize: 18,
   },
   inventoryCount: {
     fontSize: FontSize.lg,
@@ -803,18 +837,29 @@ const styles = StyleSheet.create({
     color: '#b8f5dc',
     marginTop: 4,
   },
-  inventoryCountCompact: {
-    fontSize: 16,
-    marginTop: 2,
-  },
   inventoryLabel: {
     fontSize: 12,
     color: '#4c9b7a',
     marginTop: 2,
   },
-  inventoryLabelCompact: {
-    fontSize: 10,
-    marginTop: 0,
+  inventoryPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: '#1e4d3a',
+    backgroundColor: '#0f2b21',
+  },
+  inventoryPillEmoji: {
+    fontSize: 16,
+  },
+  inventoryPillCount: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#b8f5dc',
   },
   goalCard: {
     flexDirection: 'row',
@@ -836,6 +881,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
+  goalCardCompact: {
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.md,
+  },
+  goalContentCompact: {
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+  },
   goalTitle: {
     fontSize: FontSize.sm,
     color: '#4c9b7a',
@@ -849,9 +902,16 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
     fontWeight: '700',
   },
+  goalTextCompact: {
+    fontSize: FontSize.sm,
+  },
   tradeList: {
     gap: Spacing.md,
     marginBottom: Spacing.xxl,
+  },
+  tradeListCompact: {
+    gap: Spacing.sm,
+    marginBottom: Spacing.lg,
   },
   tradeCard: {
     backgroundColor: '#0f2b21',
@@ -859,11 +919,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#1e4d3a',
     padding: Spacing.md,
-    shadowColor: '#000000',
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  tradeCardCompact: {
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm,
   },
   tradeCardAvailable: {
     borderColor: '#1d8f63',
@@ -900,8 +961,14 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#b8f5dc',
   },
+  tradeQtyCompact: {
+    fontSize: 16,
+  },
   tradeEmoji: {
     fontSize: 22,
+  },
+  tradeEmojiCompact: {
+    fontSize: 18,
   },
   tradeLabel: {
     fontSize: 12,
@@ -922,8 +989,8 @@ const styles = StyleSheet.create({
   },
   tradeButtonCompact: {
     paddingVertical: 6,
-    paddingHorizontal: 12,
-    minWidth: 88,
+    paddingHorizontal: 10,
+    minWidth: 82,
   },
   tradeButtonPressed: {
     backgroundColor: '#29b97d',
