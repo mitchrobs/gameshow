@@ -531,7 +531,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     solution = windowed.solution;
     distractors = windowed.distractors;
 
-  const earlyFeeExclusions = new Set<GoodId>();
+  const earlyFeeExclusions = new Set<GoodId>([goalGood]);
   solution
     .filter((trade) => trade.window === 'early')
     .forEach((trade) => {
@@ -563,15 +563,16 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
         inventory[goodId] += qty;
       }
     });
-    if (branchBundle) {
-      inventory[branchBundle.startGood] = Math.max(
-        inventory[branchBundle.startGood],
-        branchBundle.startQty
-      );
-    }
-    (Object.keys(inventory) as GoodId[]).forEach((goodId) => {
-      inventory[goodId] = Math.min(200, inventory[goodId]);
-    });
+  if (branchBundle) {
+    inventory[branchBundle.startGood] = Math.max(
+      inventory[branchBundle.startGood],
+      branchBundle.startQty
+    );
+  }
+  inventory[goalGood] = 0;
+  (Object.keys(inventory) as GoodId[]).forEach((goodId) => {
+    inventory[goodId] = Math.min(200, inventory[goodId]);
+  });
 
     const branchTrades = branchBundle ? branchBundle.branch : [];
     const existingKeys = new Set(
