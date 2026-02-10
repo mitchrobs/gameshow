@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
-import { BorderRadius, FontSize, Spacing } from '../src/constants/theme';
+import { BorderRadius, Colors, FontSize, Spacing } from '../src/constants/theme';
 import {
   bridgesPuzzles,
   BridgesBridge,
@@ -37,40 +37,16 @@ interface HistoryEntry {
 
 const STORAGE_PREFIX = 'bridges';
 
-const PALETTE = {
-  background: '#0b1422',
-  backgroundDeep: '#07101c',
-  surface: '#0f1a2b',
-  surfaceStrong: '#132338',
-  glow: 'rgba(50, 140, 220, 0.25)',
-  text: '#d4ecff',
-  textMuted: '#6f8ba8',
-  textSoft: '#9db6cc',
-  accent: '#86d1ff',
+const BRIDGES_COLORS = {
+  accent: '#e8a838',
+  board: '#f5f0e8',
+  boardBorder: '#e3dccf',
   bridge: '#6b7f99',
-  bridgeStrong: '#88a8c4',
-  islandFill: '#0f2033',
-  islandBorder: '#3fb6ff',
-  islandText: '#cfeaff',
-  islandSatisfied: '#5b8a72',
-  islandSatisfiedText: '#ecf7f1',
-  islandOver: '#d64045',
-  islandOverText: '#ffe7ea',
-  selection: '#e8a838',
-  buttonDark: '#15263b',
-  buttonDarkBorder: '#1e3954',
-  buttonAccent: '#1da2e2',
-  buttonAccentText: '#e5f8ff',
+  island: '#2d3142',
+  islandText: '#f5f0e8',
+  satisfied: '#5b8a72',
+  over: '#d64045',
 };
-
-const THEMES = [
-  { emoji: '🌴', label: 'Pacific Islands' },
-  { emoji: '❄️', label: 'Arctic Drift' },
-  { emoji: '🏜️', label: 'Desert Trails' },
-  { emoji: '🌋', label: 'Volcanic Rim' },
-  { emoji: '🏝️', label: 'Coral Keys' },
-  { emoji: '🌌', label: 'Midnight Sky' },
-];
 
 function getLocalDateKey(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -488,10 +464,15 @@ export default function BridgesScreen() {
     return map;
   }, [puzzle.islands, boardPadding, cellSize]);
 
-  const theme = useMemo(() => {
-    const seed = getDailySeed();
-    return THEMES[seed % THEMES.length];
-  }, []);
+  const dateLabel = useMemo(
+    () =>
+      new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+    []
+  );
 
   const puzzleNumber = useMemo(() => {
     const seed = getDailySeed();
@@ -499,44 +480,36 @@ export default function BridgesScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <Stack.Screen
-        options={{
-          title: 'Bridges',
-          headerStyle: { backgroundColor: PALETTE.background },
-          headerTintColor: PALETTE.text,
-          headerShadowVisible: false,
-          headerTitleStyle: { fontWeight: '700' },
-        }}
-      />
-      <View style={styles.background}>
-        <View style={styles.glowTop} />
-        <View style={styles.glowBottom} />
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.page}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Bridges</Text>
-              <Text style={styles.subtitle}>DAILY PUZZLE #{puzzleNumber}</Text>
-              <View style={styles.todayRow}>
-                <Text style={styles.todayLabel}>Today:</Text>
-                <View style={styles.todayTag}>
-                  <Text style={styles.todayEmoji}>{theme.emoji}</Text>
-                  <Text style={styles.todayText}>{theme.label}</Text>
-                </View>
-              </View>
-            </View>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <Stack.Screen options={{ title: 'Bridges', headerBackTitle: 'Home' }} />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.page}>
+          <View style={styles.pageAccent} />
+          <View style={styles.header}>
+            <Text style={styles.title}>Bridges</Text>
+            <Text style={styles.subtitle}>
+              Daily puzzle #{puzzleNumber} · {dateLabel}
+            </Text>
+            <Text style={styles.howTo}>
+              Connect islands with 1-2 bridges horizontally or vertically. Bridges cannot
+              cross, and all islands must be connected.
+            </Text>
+          </View>
 
-            <View style={styles.statsRow}>
-              <View style={styles.statPill}>
-                <Text style={styles.statText}>⏱ {formatTime(elapsedSeconds)}</Text>
-              </View>
-              <View style={styles.statPill}>
-                <Text style={styles.statText}>★ {puzzle.difficulty}</Text>
-              </View>
+          <View style={styles.statsRow}>
+            <View style={styles.statPill}>
+              <Text style={styles.statText}>⏱ {formatTime(elapsedSeconds)}</Text>
             </View>
+            <View style={styles.statPill}>
+              <Text style={styles.statText}>★ {puzzle.difficulty}</Text>
+            </View>
+            <View style={styles.statPill}>
+              <Text style={styles.statText}>Hints {hintsUsed}</Text>
+            </View>
+          </View>
 
-            <View style={styles.boardWrap}>
-              <View style={[styles.board, { width: boardSize, height: boardSize }]}>
+          <View style={styles.boardWrap}>
+            <View style={[styles.board, { width: boardSize, height: boardSize }]}>
                 {bridgeList.flatMap((bridge) => {
                   const start = islandPositions.get(bridge.island1);
                   const end = islandPositions.get(bridge.island2);
@@ -620,11 +593,7 @@ export default function BridgesScreen() {
                       onPress={() => handleIslandPress(island.id)}
                     >
                       <Text
-                        style={[
-                          styles.islandText,
-                          isSatisfied && styles.islandTextSatisfied,
-                          isOver && styles.islandTextOver,
-                        ]}
+                        style={styles.islandText}
                       >
                         {island.requiredBridges}
                       </Text>
@@ -643,90 +612,67 @@ export default function BridgesScreen() {
               </View>
             )}
 
-            <View style={styles.actions}>
-              <View style={styles.actionRow}>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.actionButton,
-                    pressed && styles.actionButtonPressed,
-                    history.length === 0 && styles.actionButtonDisabled,
-                  ]}
-                  onPress={handleUndo}
-                  disabled={history.length === 0}
-                >
-                  <Text style={styles.actionButtonText}>↩ Undo</Text>
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.actionButton,
-                    pressed && styles.actionButtonPressed,
-                  ]}
-                  onPress={handleReset}
-                >
-                  <Text style={styles.actionButtonText}>Reset</Text>
-                </Pressable>
-              </View>
+          <View style={styles.actions}>
+            <View style={styles.actionRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  pressed && styles.actionButtonPressed,
+                  history.length === 0 && styles.actionButtonDisabled,
+                ]}
+                onPress={handleUndo}
+                disabled={history.length === 0}
+              >
+                <Text style={styles.actionButtonText}>Undo</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  pressed && styles.actionButtonPressed,
+                ]}
+                onPress={handleReset}
+              >
+                <Text style={styles.actionButtonText}>Reset</Text>
+              </Pressable>
+            </View>
 
-              <View style={styles.actionRow}>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.actionButton,
-                    pressed && styles.actionButtonPressed,
-                  ]}
-                  onPress={handleHint}
-                >
-                  <Text style={styles.actionButtonText}>
-                    Hint{hintsUsed > 0 ? ` (${hintsUsed})` : ''}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.actionButton,
-                    styles.actionButtonAccent,
-                    pressed && styles.actionButtonAccentPressed,
-                  ]}
-                  onPress={handleNewGame}
-                >
-                  <Text style={styles.actionButtonAccentText}>New Game</Text>
-                </Pressable>
-              </View>
+            <View style={styles.actionRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  pressed && styles.actionButtonPressed,
+                ]}
+                onPress={handleHint}
+              >
+                <Text style={styles.actionButtonText}>
+                  Hint{hintsUsed > 0 ? ` (${hintsUsed})` : ''}
+                </Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  styles.actionButtonPrimary,
+                  pressed && styles.actionButtonPrimaryPressed,
+                ]}
+                onPress={handleNewGame}
+              >
+                <Text style={styles.actionButtonPrimaryText}>New Game</Text>
+              </Pressable>
             </View>
           </View>
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
+  container: {
     flex: 1,
-    backgroundColor: PALETTE.background,
-  },
-  background: {
-    flex: 1,
-    backgroundColor: PALETTE.background,
-  },
-  glowTop: {
-    position: 'absolute',
-    top: -120,
-    left: -80,
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: PALETTE.glow,
-  },
-  glowBottom: {
-    position: 'absolute',
-    bottom: -160,
-    right: -60,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(40, 100, 160, 0.25)',
+    backgroundColor: Colors.background,
   },
   scrollContent: {
-    paddingHorizontal: Spacing.lg,
+    padding: Spacing.lg,
     paddingBottom: Spacing.xxl,
   },
   page: {
@@ -734,150 +680,127 @@ const styles = StyleSheet.create({
     maxWidth: 520,
     alignSelf: 'center',
   },
+  pageAccent: {
+    height: 6,
+    width: 90,
+    backgroundColor: BRIDGES_COLORS.accent,
+    borderRadius: 999,
+    marginBottom: Spacing.md,
+  },
   header: {
-    alignItems: 'center',
-    marginTop: Spacing.xl,
+    marginBottom: Spacing.md,
   },
   title: {
-    fontSize: 34,
-    fontWeight: '700',
-    color: PALETTE.text,
+    fontSize: FontSize.xxl,
+    fontWeight: '800',
+    color: Colors.text,
   },
   subtitle: {
-    marginTop: 8,
-    fontSize: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    color: PALETTE.textMuted,
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: Spacing.xs,
   },
-  todayRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  howTo: {
     marginTop: Spacing.sm,
-    gap: 8,
-  },
-  todayLabel: {
-    fontSize: 15,
-    color: PALETTE.textSoft,
-  },
-  todayTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: PALETTE.surfaceStrong,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    gap: 6,
-  },
-  todayEmoji: {
-    fontSize: 14,
-  },
-  todayText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: PALETTE.accent,
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 20,
   },
   statsRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    flexWrap: 'wrap',
     gap: Spacing.sm,
     marginTop: Spacing.md,
   },
   statPill: {
-    backgroundColor: PALETTE.surfaceStrong,
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
-    paddingVertical: 6,
+    paddingVertical: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   statText: {
     fontSize: 13,
     fontWeight: '600',
-    color: PALETTE.text,
+    color: Colors.textSecondary,
   },
   boardWrap: {
-    marginTop: Spacing.xl,
+    marginTop: Spacing.lg,
     alignItems: 'center',
   },
   board: {
-    backgroundColor: PALETTE.surface,
-    borderRadius: BorderRadius.xl,
+    backgroundColor: BRIDGES_COLORS.board,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: BRIDGES_COLORS.boardBorder,
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
   },
   bridgeLine: {
     position: 'absolute',
-    backgroundColor: PALETTE.bridge,
+    backgroundColor: BRIDGES_COLORS.bridge,
   },
   island: {
     position: 'absolute',
     borderRadius: 999,
-    backgroundColor: PALETTE.islandFill,
+    backgroundColor: BRIDGES_COLORS.island,
     borderWidth: 2,
-    borderColor: PALETTE.islandBorder,
+    borderColor: BRIDGES_COLORS.island,
     alignItems: 'center',
     justifyContent: 'center',
   },
   islandPressed: {
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.97 }],
   },
   islandSelected: {
-    borderColor: PALETTE.selection,
-    shadowColor: PALETTE.selection,
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 0 },
+    borderColor: BRIDGES_COLORS.accent,
+    shadowColor: BRIDGES_COLORS.accent,
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
   },
   islandFocused: {
-    borderColor: PALETTE.accent,
-    shadowColor: PALETTE.accent,
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 0 },
+    borderColor: BRIDGES_COLORS.bridge,
   },
   islandSatisfied: {
-    borderColor: PALETTE.islandSatisfied,
-    backgroundColor: 'rgba(91, 138, 114, 0.18)',
+    backgroundColor: BRIDGES_COLORS.satisfied,
+    borderColor: BRIDGES_COLORS.satisfied,
   },
   islandOver: {
-    borderColor: PALETTE.islandOver,
-    backgroundColor: 'rgba(214, 64, 69, 0.2)',
+    backgroundColor: BRIDGES_COLORS.over,
+    borderColor: BRIDGES_COLORS.over,
   },
   islandText: {
     fontSize: 16,
     fontWeight: '700',
-    color: PALETTE.islandText,
-  },
-  islandTextSatisfied: {
-    color: PALETTE.islandSatisfiedText,
-  },
-  islandTextOver: {
-    color: PALETTE.islandOverText,
+    color: BRIDGES_COLORS.islandText,
   },
   statusText: {
     marginTop: Spacing.md,
     textAlign: 'center',
-    color: PALETTE.textSoft,
+    color: Colors.textMuted,
     fontSize: 13,
   },
   winBanner: {
     marginTop: Spacing.lg,
     padding: Spacing.md,
     borderRadius: BorderRadius.lg,
-    backgroundColor: 'rgba(29, 162, 226, 0.18)',
+    backgroundColor: 'rgba(91, 138, 114, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(29, 162, 226, 0.35)',
+    borderColor: 'rgba(91, 138, 114, 0.35)',
     alignItems: 'center',
   },
   winTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: PALETTE.text,
+    color: Colors.text,
   },
   winSubtitle: {
     marginTop: 4,
     fontSize: 13,
-    color: PALETTE.textSoft,
+    color: Colors.textSecondary,
   },
   actions: {
     marginTop: Spacing.xl,
@@ -891,9 +814,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.lg,
-    backgroundColor: PALETTE.buttonDark,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: PALETTE.buttonDarkBorder,
+    borderColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -906,19 +829,19 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: FontSize.md,
     fontWeight: '600',
-    color: PALETTE.text,
+    color: Colors.text,
   },
-  actionButtonAccent: {
-    backgroundColor: PALETTE.buttonAccent,
-    borderColor: PALETTE.buttonAccent,
+  actionButtonPrimary: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
-  actionButtonAccentPressed: {
+  actionButtonPrimaryPressed: {
     transform: [{ scale: 0.98 }],
     opacity: 0.9,
   },
-  actionButtonAccentText: {
+  actionButtonPrimaryText: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: PALETTE.buttonAccentText,
+    color: Colors.white,
   },
 });

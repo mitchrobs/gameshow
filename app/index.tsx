@@ -21,6 +21,7 @@ export default function HomeScreen() {
   const triviaCategories = getDailyTriviaCategories();
   const sudoku = getDailySudoku();
   const barterPuzzle = getDailyBarter();
+  const bridgesPuzzle = getDailyBridges();
   const bridgesPreviewSize = 180;
   const bridgesPreviewPadding = 16;
   const bridgesPreviewCell = (bridgesPreviewSize - bridgesPreviewPadding * 2) / 4;
@@ -45,7 +46,6 @@ export default function HomeScreen() {
     { from: 1, to: 3, count: 1 },
     { from: 2, to: 3, count: 2 },
   ];
-  const bridgesPuzzle = getDailyBridges();
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const dateLabel = new Date().toLocaleDateString('en-US', {
