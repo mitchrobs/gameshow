@@ -174,7 +174,6 @@ export default function BridgesScreen() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
-  const [showIntro, setShowIntro] = useState(true);
   const hasCountedRef = useRef(false);
 
   const islandMap = useMemo(() => {
@@ -269,12 +268,12 @@ export default function BridgesScreen() {
   }, [gameState]);
 
   useEffect(() => {
-    if (gameState !== 'playing' || showIntro) return;
+    if (gameState !== 'playing') return;
     const timer = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, [gameState, showIntro]);
+  }, [gameState]);
 
   useEffect(() => {
     if (!statusMessage) return;
@@ -339,7 +338,7 @@ export default function BridgesScreen() {
   );
 
   useEffect(() => {
-    if (Platform.OS !== 'web' || showIntro) return;
+    if (Platform.OS !== 'web') return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       const key = event.key;
@@ -376,7 +375,7 @@ export default function BridgesScreen() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [focusedIsland, neighborLookup, puzzle.islands, handleIslandPress, showIntro]);
+  }, [focusedIsland, neighborLookup, puzzle.islands, handleIslandPress]);
 
   const handleUndo = useCallback(() => {
     setHistory((prev) => {
@@ -431,14 +430,6 @@ export default function BridgesScreen() {
     setStatusMessage('Hint applied.');
   }, [bridges, puzzle.solution, gameState, anchorIsland]);
 
-  const handleBegin = useCallback(() => {
-    setShowIntro(false);
-    setElapsedSeconds(0);
-    setAnchorIsland(null);
-    setFocusedIsland(null);
-    setStatusMessage(null);
-  }, []);
-
   const { width } = useWindowDimensions();
   const boardSize = Math.max(240, Math.min(360, width - Spacing.lg * 2));
   const boardPadding = Spacing.md;
@@ -478,9 +469,6 @@ export default function BridgesScreen() {
     const seed = getDailySeed();
     return DAILY_LOCATIONS[seed % DAILY_LOCATIONS.length];
   }, []);
-  const locationNarrative = useMemo(() => {
-    return `Today you're charting the ${dailyLocation.label}, a scattered chain of islands that need to be linked before nightfall.`;
-  }, [dailyLocation.label]);
 
   const shareText = useMemo(() => {
     const resultLine = `Solved in ${formatTime(elapsedSeconds)} · Hints ${hintsUsed}`;
@@ -547,97 +535,79 @@ export default function BridgesScreen() {
                 <Text style={styles.locationText}>{dailyLocation.label}</Text>
               </View>
             </View>
+            <Text style={styles.sectionTitle}>Objective</Text>
+            <Text style={styles.sectionBody}>
+              Connect islands with bridges so each island's number matches its bridge count.
+              Bridges run horizontally or vertically, can be single or double, and cannot
+              cross. All islands must be connected into one group.
+            </Text>
+            <Text style={styles.sectionTitle}>How to play</Text>
+            <Text style={styles.sectionBody}>
+              Tap an island, then a neighbor in the same row or column to cycle 1, 2, or 0
+              bridges. Tap again to remove bridges.
+            </Text>
           </View>
 
-          {showIntro ? (
-            <View style={styles.introCard}>
-              <Text style={styles.introTitle}>
-                Welcome to {dailyLocation.label}
-              </Text>
-              <Text style={styles.introBody}>{locationNarrative}</Text>
-              <Text style={styles.introSectionTitle}>Objective</Text>
-              <Text style={styles.introBody}>
-                Connect islands with bridges so each island's number matches its bridge count.
-                Bridges run horizontally or vertically, can be single or double, and cannot
-                cross. All islands must be connected into one group.
-              </Text>
-              <Text style={styles.introSectionTitle}>How to play</Text>
-              <Text style={styles.introBody}>
-                Tap an island, then a neighbor in the same row or column to cycle 1, 2, or 0
-                bridges. Tap again to remove bridges.
-              </Text>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.introButton,
-                  pressed && styles.introButtonPressed,
-                ]}
-                onPress={handleBegin}
-              >
-                <Text style={styles.introButtonText}>Begin Puzzle</Text>
-              </Pressable>
+          <View style={styles.statsRow}>
+            <View style={styles.statPill}>
+              <Text style={styles.statText}>⏱ {formatTime(elapsedSeconds)}</Text>
             </View>
-          ) : (
-            <>
-              <View style={styles.statsRow}>
-                <View style={styles.statPill}>
-                  <Text style={styles.statText}>⏱ {formatTime(elapsedSeconds)}</Text>
-                </View>
-                <View style={styles.statPill}>
-                  <Text style={styles.statText}>Hints {hintsUsed}</Text>
-                </View>
-              </View>
+            <View style={styles.statPill}>
+              <Text style={styles.statText}>Hints {hintsUsed}</Text>
+            </View>
+          </View>
 
-              <View style={styles.boardWrap}>
-                <View style={[styles.board, { width: boardSize, height: boardSize }]}>
-                  {bridgeList.flatMap((bridge) => {
-                    const start = islandPositions.get(bridge.island1);
-                    const end = islandPositions.get(bridge.island2);
-                    if (!start || !end) return [];
-                    const horizontal = start.y === end.y;
-                    const offsets =
-                      bridge.count === 2 ? [-doubleOffset / 2, doubleOffset / 2] : [0];
+          <View style={styles.boardWrap}>
+            <View style={[styles.board, { width: boardSize, height: boardSize }]}>
+              {bridgeList.flatMap((bridge) => {
+                const start = islandPositions.get(bridge.island1);
+                const end = islandPositions.get(bridge.island2);
+                if (!start || !end) return [];
+                const horizontal = start.y === end.y;
+                const offsets =
+                  bridge.count === 2 ? [-doubleOffset / 2, doubleOffset / 2] : [0];
 
-                    return offsets.map((offset, index) => {
-                      if (horizontal) {
-                        const left = Math.min(start.x, end.x) + islandRadius;
-                        const width = Math.abs(start.x - end.x) - islandRadius * 2;
-                        const top = start.y - lineThickness / 2 + offset;
-                        return (
-                          <View
-                            key={`${bridge.island1}-${bridge.island2}-${index}`}
-                            style={[
-                              styles.bridgeLine,
-                              {
-                                left,
-                                top,
-                                width,
-                                height: lineThickness,
-                                borderRadius: lineThickness / 2,
-                              },
-                            ]}
-                          />
-                        );
-                      }
-                      const top = Math.min(start.y, end.y) + islandRadius;
-                      const height = Math.abs(start.y - end.y) - islandRadius * 2;
-                      const left = start.x - lineThickness / 2 + offset;
-                      return (
-                        <View
-                          key={`${bridge.island1}-${bridge.island2}-${index}`}
-                          style={[
-                            styles.bridgeLine,
-                            {
-                              left,
-                              top,
-                              width: lineThickness,
-                              height,
-                              borderRadius: lineThickness / 2,
-                            },
-                          ]}
-                        />
-                      );
-                    });
-                  })}
+                return offsets.map((offset, index) => {
+                  if (horizontal) {
+                    const left = Math.min(start.x, end.x) + islandRadius;
+                    const width = Math.abs(start.x - end.x) - islandRadius * 2;
+                    const top = start.y - lineThickness / 2 + offset;
+                    return (
+                      <View
+                        key={`${bridge.island1}-${bridge.island2}-${index}`}
+                        style={[
+                          styles.bridgeLine,
+                          {
+                            left,
+                            top,
+                            width,
+                            height: lineThickness,
+                            borderRadius: lineThickness / 2,
+                          },
+                        ]}
+                      />
+                    );
+                  }
+                  const top = Math.min(start.y, end.y) + islandRadius;
+                  const height = Math.abs(start.y - end.y) - islandRadius * 2;
+                  const left = start.x - lineThickness / 2 + offset;
+                  return (
+                    <View
+                      key={`${bridge.island1}-${bridge.island2}-${index}`}
+                      style={[
+                        styles.bridgeLine,
+                        {
+                          left,
+                          top,
+                          width: lineThickness,
+                          height,
+                          borderRadius: lineThickness / 2,
+                        },
+                      ]}
+                    />
+                  );
+                });
+              })}
 
                 {puzzle.islands.map((island) => {
                   const pos = islandPositions.get(island.id);
@@ -715,46 +685,44 @@ export default function BridgesScreen() {
                 </View>
               )}
 
-              <View style={styles.actions}>
-                <View style={styles.actionRow}>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.actionButton,
-                      pressed && styles.actionButtonPressed,
-                      history.length === 0 && styles.actionButtonDisabled,
-                    ]}
-                    onPress={handleUndo}
-                    disabled={history.length === 0}
-                  >
-                    <Text style={styles.actionButtonText}>Undo</Text>
-                  </Pressable>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.actionButton,
-                      pressed && styles.actionButtonPressed,
-                    ]}
-                    onPress={handleReset}
-                  >
-                    <Text style={styles.actionButtonText}>Reset</Text>
-                  </Pressable>
-                </View>
+          <View style={styles.actions}>
+            <View style={styles.actionRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  pressed && styles.actionButtonPressed,
+                  history.length === 0 && styles.actionButtonDisabled,
+                ]}
+                onPress={handleUndo}
+                disabled={history.length === 0}
+              >
+                <Text style={styles.actionButtonText}>Undo</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  pressed && styles.actionButtonPressed,
+                ]}
+                onPress={handleReset}
+              >
+                <Text style={styles.actionButtonText}>Reset</Text>
+              </Pressable>
+            </View>
 
-                <View style={styles.actionRow}>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.actionButton,
-                      pressed && styles.actionButtonPressed,
-                    ]}
-                    onPress={handleHint}
-                  >
-                    <Text style={styles.actionButtonText}>
-                      Hint{hintsUsed > 0 ? ` (${hintsUsed})` : ''}
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-            </>
-          )}
+            <View style={styles.actionRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  pressed && styles.actionButtonPressed,
+                ]}
+                onPress={handleHint}
+              >
+                <Text style={styles.actionButtonText}>
+                  Hint{hintsUsed > 0 ? ` (${hintsUsed})` : ''}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -824,47 +792,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text,
   },
-  introCard: {
-    marginTop: Spacing.md,
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.lg,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    gap: Spacing.sm,
-  },
-  introTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  introSectionTitle: {
-    marginTop: Spacing.xs,
+  sectionTitle: {
+    marginTop: Spacing.sm,
     fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 1,
     color: Colors.textMuted,
     fontWeight: '600',
   },
-  introBody: {
+  sectionBody: {
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
     lineHeight: 20,
-  },
-  introButton: {
-    marginTop: Spacing.md,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.sm,
-    alignItems: 'center',
-  },
-  introButtonPressed: {
-    opacity: 0.9,
-  },
-  introButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.md,
-    fontWeight: '600',
+    marginTop: 4,
   },
   statsRow: {
     flexDirection: 'row',
