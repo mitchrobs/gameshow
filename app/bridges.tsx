@@ -317,46 +317,6 @@ export default function BridgesScreen() {
     return () => clearTimeout(timeout);
   }, [statusMessage]);
 
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const key = event.key;
-      if (
-        key !== 'ArrowUp' &&
-        key !== 'ArrowDown' &&
-        key !== 'ArrowLeft' &&
-        key !== 'ArrowRight' &&
-        key !== 'Enter' &&
-        key !== ' '
-      ) {
-        return;
-      }
-      event.preventDefault();
-      const currentId = focusedIsland ?? puzzle.islands[0]?.id ?? null;
-      if (currentId === null) return;
-
-      if (key === 'Enter' || key === ' ') {
-        handleIslandPress(currentId);
-        return;
-      }
-
-      const lookup = neighborLookup[currentId];
-      let nextId: number | undefined;
-      if (key === 'ArrowLeft') nextId = lookup.left;
-      if (key === 'ArrowRight') nextId = lookup.right;
-      if (key === 'ArrowUp') nextId = lookup.up;
-      if (key === 'ArrowDown') nextId = lookup.down;
-
-      if (typeof nextId === 'number') {
-        setFocusedIsland(nextId);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [focusedIsland, neighborLookup, puzzle.islands, anchorIsland, bridges]);
-
   const handleIslandPress = useCallback(
     (id: number) => {
       if (gameState !== 'playing') return;
@@ -412,6 +372,46 @@ export default function BridgesScreen() {
     [anchorIsland, bridges, neighborPairs, bridgeList, islandMap, gameState]
   );
 
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key;
+      if (
+        key !== 'ArrowUp' &&
+        key !== 'ArrowDown' &&
+        key !== 'ArrowLeft' &&
+        key !== 'ArrowRight' &&
+        key !== 'Enter' &&
+        key !== ' '
+      ) {
+        return;
+      }
+      event.preventDefault();
+      const currentId = focusedIsland ?? puzzle.islands[0]?.id ?? null;
+      if (currentId === null) return;
+
+      if (key === 'Enter' || key === ' ') {
+        handleIslandPress(currentId);
+        return;
+      }
+
+      const lookup = neighborLookup[currentId];
+      let nextId: number | undefined;
+      if (key === 'ArrowLeft') nextId = lookup.left;
+      if (key === 'ArrowRight') nextId = lookup.right;
+      if (key === 'ArrowUp') nextId = lookup.up;
+      if (key === 'ArrowDown') nextId = lookup.down;
+
+      if (typeof nextId === 'number') {
+        setFocusedIsland(nextId);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [focusedIsland, neighborLookup, puzzle.islands, handleIslandPress]);
+
   const handleUndo = useCallback(() => {
     setHistory((prev) => {
       if (prev.length === 0) return prev;
@@ -420,15 +420,20 @@ export default function BridgesScreen() {
       if (last) {
         setBridges(last.bridges);
         setAnchorIsland(last.anchor);
+        if (gameState === 'won') {
+          setGameState('playing');
+        }
       }
       return next;
     });
-  }, []);
+  }, [gameState]);
 
   const handleReset = useCallback(() => {
     setBridges({});
     setHistory([]);
     setAnchorIsland(null);
+    setFocusedIsland(null);
+    setHintsUsed(0);
     setStatusMessage('Board cleared.');
     setGameState('playing');
     setElapsedSeconds(0);
