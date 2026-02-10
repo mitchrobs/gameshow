@@ -365,27 +365,24 @@ export default function BarterScreen() {
               )}
 
               {isCompact ? (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.inventoryScroll}
-                >
+                <View style={[styles.inventoryRow, styles.inventoryRowTight]}>
                   {puzzle.goods.map((good) => {
                     const count = inventory[good.id];
                     return (
                       <View
                         key={good.id}
                         style={[
-                          styles.inventoryPill,
+                          styles.inventoryCard,
+                          styles.inventoryCardTight,
                           count === 0 && styles.inventoryCardEmpty,
                         ]}
                       >
-                        <Text style={styles.inventoryPillEmoji}>{good.emoji}</Text>
-                        <Text style={styles.inventoryPillCount}>{count}</Text>
+                        <Text style={styles.inventoryEmojiTight}>{good.emoji}</Text>
+                        <Text style={styles.inventoryCountTight}>{count}</Text>
                       </View>
                     );
                   })}
-                </ScrollView>
+                </View>
               ) : (
                 <View style={styles.inventoryRow}>
                   {puzzle.goods.map((good) => {
@@ -400,7 +397,6 @@ export default function BarterScreen() {
                       >
                         <Text style={styles.inventoryEmoji}>{good.emoji}</Text>
                         <Text style={styles.inventoryCount}>{count}</Text>
-                        <Text style={styles.inventoryLabel}>{good.name}</Text>
                       </View>
                     );
                   })}
@@ -457,7 +453,6 @@ export default function BarterScreen() {
                           <Text style={[styles.tradeEmoji, isCompact && styles.tradeEmojiCompact]}>
                             {giveGood.emoji}
                           </Text>
-                          {!isCompact && <Text style={styles.tradeLabel}>{giveGood.name}</Text>}
                         </View>
                         <Text style={styles.tradeArrow}>→</Text>
                         <View style={styles.tradeSide}>
@@ -467,7 +462,6 @@ export default function BarterScreen() {
                           <Text style={[styles.tradeEmoji, isCompact && styles.tradeEmojiCompact]}>
                             {getGood.emoji}
                           </Text>
-                          {!isCompact && <Text style={styles.tradeLabel}>{getGood.name}</Text>}
                         </View>
                       </View>
                       <Pressable
@@ -599,16 +593,16 @@ export default function BarterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#f6f3ef',
   },
   scrollContent: {
     paddingTop: Spacing.sm,
     paddingBottom: Spacing.xxl,
   },
   stickyHeader: {
-    backgroundColor: Colors.background,
+    backgroundColor: '#f6f3ef',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: '#e6e0d6',
     paddingHorizontal: 0,
     paddingBottom: Spacing.sm,
     zIndex: 10,
@@ -632,26 +626,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   compactHeaderLine: {
-    fontSize: 12,
-    color: Colors.textMuted,
+    fontSize: 11,
+    color: '#8a8174',
     fontWeight: '600',
   },
   title: {
-    fontSize: FontSize.xxl,
+    fontSize: 24,
     fontWeight: '800',
-    color: Colors.text,
+    color: '#1f1b16',
   },
   marketLabel: {
-    fontSize: 12,
-    letterSpacing: 1.2,
+    fontSize: 11,
+    letterSpacing: 1,
     textTransform: 'uppercase',
-    color: Colors.textMuted,
-    marginTop: Spacing.xs,
+    color: '#8a8174',
+    marginTop: 2,
     fontWeight: '600',
   },
   dateLabel: {
     fontSize: 12,
-    color: Colors.textMuted,
+    color: '#8a8174',
     marginTop: 2,
   },
   controlsRow: {
@@ -669,13 +663,13 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   compactStatsText: {
-    fontSize: 12,
-    color: Colors.textSecondary,
+    fontSize: 11,
+    color: '#5f584f',
     fontWeight: '600',
   },
   compactTimerText: {
-    fontSize: 12,
-    color: Colors.textSecondary,
+    fontSize: 11,
+    color: '#5f584f',
     fontWeight: '600',
   },
   compactActionsRow: {
@@ -685,36 +679,36 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   tradeCounter: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#ffffff',
     borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.sm,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#e6e0d6',
     minWidth: 98,
     alignItems: 'flex-start',
   },
   tradeCounterText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
-    color: Colors.text,
+    color: '#1f1b16',
   },
   tradeCounterSub: {
     marginTop: 2,
-    fontSize: 10,
-    color: Colors.textMuted,
+    fontSize: 9,
+    color: '#8a8174',
   },
   timerChip: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#ffffff',
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#e6e0d6',
   },
   timerText: {
-    color: Colors.textSecondary,
-    fontSize: 12,
+    color: '#5f584f',
+    fontSize: 11,
     fontWeight: '600',
   },
   undoButton: {
@@ -722,19 +716,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
+    borderColor: '#e6e0d6',
+    backgroundColor: '#ffffff',
   },
   undoButtonPressed: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: '#f0ede8',
   },
   undoButtonDisabled: {
-    borderColor: Colors.border,
+    borderColor: '#e6e0d6',
     opacity: 0.5,
   },
   undoButtonText: {
-    color: Colors.textSecondary,
-    fontSize: 12,
+    color: '#5f584f',
+    fontSize: 11,
     fontWeight: '600',
   },
   resetButton: {
@@ -742,15 +736,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
+    borderColor: '#e6e0d6',
+    backgroundColor: '#ffffff',
   },
   resetButtonPressed: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: '#f0ede8',
   },
   resetButtonText: {
-    color: Colors.textSecondary,
-    fontSize: 12,
+    color: '#5f584f',
+    fontSize: 11,
     fontWeight: '600',
   },
   undoButtonCompact: {
@@ -758,12 +752,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
+    borderColor: '#e6e0d6',
+    backgroundColor: '#ffffff',
   },
   undoButtonTextCompact: {
-    color: Colors.textSecondary,
-    fontSize: 12,
+    color: '#5f584f',
+    fontSize: 11,
     fontWeight: '600',
   },
   resetButtonCompact: {
@@ -771,12 +765,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
+    borderColor: '#e6e0d6',
+    backgroundColor: '#ffffff',
   },
   resetButtonTextCompact: {
-    color: Colors.textSecondary,
-    fontSize: 12,
+    color: '#5f584f',
+    fontSize: 11,
     fontWeight: '600',
   },
   sectionHeader: {
@@ -795,79 +789,64 @@ const styles = StyleSheet.create({
   inventoryRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.sm,
+    gap: Spacing.xs,
     justifyContent: 'center',
   },
-  inventoryScroll: {
-    gap: Spacing.xs,
-    paddingVertical: Spacing.xs,
+  inventoryRowTight: {
+    justifyContent: 'space-between',
   },
   inventoryCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#ffffff',
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: Colors.border,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    minWidth: 90,
+    borderColor: '#e6e0d6',
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    minWidth: 82,
     alignItems: 'center',
+  },
+  inventoryCardTight: {
+    minWidth: 0,
+    flexBasis: '22%',
   },
   inventoryCardEmpty: {
     opacity: 0.35,
   },
   inventoryEmoji: {
-    fontSize: 22,
+    fontSize: 18,
   },
-  inventoryCount: {
-    fontSize: FontSize.lg,
-    fontWeight: '800',
-    color: Colors.text,
-    marginTop: 4,
-  },
-  inventoryLabel: {
-    fontSize: 12,
-    color: Colors.textMuted,
-    marginTop: 2,
-  },
-  inventoryPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 6,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
-  },
-  inventoryPillEmoji: {
+  inventoryEmojiTight: {
     fontSize: 16,
   },
-  inventoryPillCount: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.text,
+  inventoryCount: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1f1b16',
+    marginTop: 2,
+  },
+  inventoryCountTight: {
+    fontSize: 13,
   },
   goalCard: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    backgroundColor: Colors.surface,
+    backgroundColor: '#ffffff',
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: Spacing.lg,
+    borderColor: '#e6e0d6',
+    marginBottom: Spacing.md,
     overflow: 'hidden',
   },
   goalAccent: {
     width: 6,
-    backgroundColor: Colors.text,
+    backgroundColor: '#1f1b16',
   },
   goalAccentCompact: {
     width: 3,
   },
   goalContent: {
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     flex: 1,
     alignItems: 'center',
   },
@@ -880,20 +859,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
   },
   goalTitle: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
+    fontSize: 11,
+    color: '#8a8174',
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '700',
   },
   goalText: {
-    fontSize: FontSize.md,
-    color: Colors.text,
-    marginTop: Spacing.xs,
+    fontSize: 14,
+    color: '#1f1b16',
+    marginTop: 2,
     fontWeight: '700',
   },
   goalTextCompact: {
-    fontSize: FontSize.sm,
+    fontSize: 12,
   },
   tradeList: {
     gap: Spacing.md,
