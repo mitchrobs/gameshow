@@ -23,9 +23,12 @@ export interface TradeSide {
   qty: number;
 }
 
+export type TradeWindow = 'early' | 'late';
+
 export interface Trade {
   give: TradeSide;
   get: TradeSide;
+  window?: TradeWindow;
 }
 
 export interface BarterGoal {
@@ -48,6 +51,7 @@ export interface BarterPuzzle {
   solution: Trade[];
   par: number;
   maxTrades: number;
+  earlyWindowTrades: number;
 }
 
 const GOODS: Good[] = [
@@ -76,9 +80,9 @@ const TIER_RANK: Record<GoodTier, number> = {
 };
 
 const DIFFICULTY_CONFIG = {
-  Easy: { goods: 4, parRange: [3, 4], surplus: 0.5, slack: 2 },
-  Medium: { goods: 5, parRange: [5, 6], surplus: 0.25, slack: 2 },
-  Hard: { goods: 6, parRange: [8, 8], surplus: 0, slack: 1 },
+  Easy: { goods: 4, parRange: [3, 4], surplus: 0.5, slack: 2, distractors: 1 },
+  Medium: { goods: 5, parRange: [5, 6], surplus: 0.25, slack: 2, distractors: 2 },
+  Hard: { goods: 6, parRange: [8, 8], surplus: 0, slack: 2, distractors: 2 },
 } as const;
 
 const MARKETS = [
@@ -131,6 +135,11 @@ function seededShuffle<T>(arr: T[], rand: () => number): T[] {
 
 function randInt(rand: () => number, min: number, max: number): number {
   return Math.floor(rand() * (max - min + 1)) + min;
+}
+
+function getEarlyWindowTrades(par: number): number {
+  const target = Math.round(par * 0.5);
+  return Math.max(1, Math.min(par - 1, Math.max(2, target)));
 }
 
 function getDailySeed(date: Date = new Date()): number {
@@ -257,6 +266,7 @@ function scaleTrades(trades: Trade[], factor: number): Trade[] {
   return trades.map((trade) => ({
     give: { good: trade.give.good, qty: scale(trade.give.qty) },
     get: { good: trade.get.good, qty: scale(trade.get.qty) },
+    window: trade.window,
   }));
 }
 
@@ -321,11 +331,48 @@ function generateDistractors(
   return trades;
 }
 
+function applyTradeWindows(
+  solution: Trade[],
+  distractors: Trade[],
+  earlyWindowTrades: number,
+  rand: () => number
+): { solution: Trade[]; distractors: Trade[] } {
+  const earlyCount = Math.max(1, Math.min(earlyWindowTrades, solution.length - 1));
+  const earlySolution = solution
+    .slice(0, earlyCount)
+    .map((trade) => ({ ...trade, window: 'early' as TradeWindow }));
+  const lateSolution = solution
+    .slice(earlyCount)
+    .map((trade) => ({ ...trade, window: 'late' as TradeWindow }));
+
+  const shuffledDistractors = seededShuffle(distractors, rand);
+  const minLate = shuffledDistractors.length >= 2 ? 1 : 0;
+  const desiredEarly = shuffledDistractors.length
+    ? Math.max(1, Math.round(shuffledDistractors.length * 0.6))
+    : 0;
+  const earlyDistractorCount = Math.min(
+    shuffledDistractors.length - minLate,
+    desiredEarly
+  );
+  const earlyDistractors = shuffledDistractors
+    .slice(0, earlyDistractorCount)
+    .map((trade) => ({ ...trade, window: 'early' as TradeWindow }));
+  const lateDistractors = shuffledDistractors
+    .slice(earlyDistractorCount)
+    .map((trade) => ({ ...trade, window: 'late' as TradeWindow }));
+
+  return {
+    solution: [...earlySolution, ...lateSolution],
+    distractors: [...earlyDistractors, ...lateDistractors],
+  };
+}
+
 function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   const rand = mulberry32(seed);
   const difficulty = getDifficultyForDate(date);
   const config = DIFFICULTY_CONFIG[difficulty];
   const par = randInt(rand, config.parRange[0], config.parRange[1]);
+  const earlyWindowTrades = getEarlyWindowTrades(par);
 
   const pickedGoods = pickGoods(rand, config.goods);
   const goods = orderGoods(pickedGoods);
@@ -336,7 +383,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   const pathGoods = buildPathGoods(pickedGoods, par, goalGood, rand, difficulty);
   let solution = buildTrades(pathGoods, goalQty, rand);
 
-  const desiredDistractors = 0;
+  const desiredDistractors = config.distractors ?? 0;
   const blockedTargets = new Set(solution.map((trade) => trade.get.good));
   let distractors = generateDistractors(
     solution,
@@ -356,6 +403,10 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     allTrades = [...solution, ...distractors];
   }
 
+  const windowed = applyTradeWindows(solution, distractors, earlyWindowTrades, rand);
+  solution = windowed.solution;
+  distractors = windowed.distractors;
+
   const inventory = createEmptyInventory();
   const startTrade = solution[0];
   inventory[startTrade.give.good] = startTrade.give.qty;
@@ -367,7 +418,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   }
   inventory[startTrade.give.good] = Math.min(200, inventory[startTrade.give.good]);
 
-  const trades = seededShuffle(allTrades, rand);
+  const trades = seededShuffle([...solution, ...distractors], rand);
 
   return {
     id: `barter-${seed}`,
@@ -382,6 +433,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     solution,
     par,
     maxTrades: par + config.slack,
+    earlyWindowTrades,
   };
 }
 

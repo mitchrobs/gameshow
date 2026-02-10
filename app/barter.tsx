@@ -108,7 +108,7 @@ export default function BarterScreen() {
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
   const solvedAtPar = gameState === 'won' && tradesUsed <= puzzle.par;
   const isMarinerMarket = puzzle.marketName === "Mariner's Market";
-  const earlyWindowTrades = 4;
+  const earlyWindowTrades = puzzle.earlyWindowTrades ?? 4;
   const lateWindowTrigger = earlyWindowTrades;
   const earlyWindowRemaining = Math.max(0, earlyWindowTrades - tradesUsed);
   const tradingWindowLabel = lateWindowOpen
@@ -116,22 +116,13 @@ export default function BarterScreen() {
     : `Early Window · ${earlyWindowRemaining} left`;
 
   const tradeWaves = useMemo(() => {
-    const tradeKey = (trade: Trade) =>
-      `${trade.give.good}:${trade.give.qty}->${trade.get.good}:${trade.get.qty}`;
-    const earlyKeys = new Set(
-      puzzle.solution.slice(0, earlyWindowTrades).map((trade) => tradeKey(trade))
-    );
-    const lateKeys = new Set(
-      puzzle.solution.slice(earlyWindowTrades).map((trade) => tradeKey(trade))
-    );
-
-    const wave1 = puzzle.trades.filter((trade) => earlyKeys.has(tradeKey(trade)));
-    const wave2 = puzzle.trades.filter((trade) => lateKeys.has(tradeKey(trade)));
+    const wave1 = puzzle.trades.filter((trade) => trade.window !== 'late');
+    const wave2 = puzzle.trades.filter((trade) => trade.window === 'late');
 
     return { wave1, wave2 };
-  }, [puzzle.trades, puzzle.solution, earlyWindowTrades]);
+  }, [puzzle.trades]);
 
-  const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
+  const visibleTrades = lateWindowOpen ? puzzle.trades : tradeWaves.wave1;
 
   const startSummary = useMemo(() => {
     const entries = puzzle.goods
