@@ -30,6 +30,7 @@ export interface Trade {
   get: TradeSide;
   window?: TradeWindow;
   stage?: number;
+  variant?: boolean;
 }
 
 export interface BarterGoal {
@@ -83,11 +84,11 @@ const TIER_RANK: Record<GoodTier, number> = {
 const DIFFICULTY_CONFIG = {
   Easy: { goods: 4, parRange: [3, 4], surplus: 0.5, slack: 2, distractors: 1 },
   Medium: { goods: 5, parRange: [5, 6], surplus: 0.25, slack: 2, distractors: 2 },
-  Hard: { goods: 6, parRange: [8, 10], surplus: 0, slack: 2, distractors: 0 },
+  Hard: { goods: 6, parRange: [8, 11], surplus: 0, slack: 2, distractors: 0 },
 } as const;
 
 const MIN_PATH_LENGTH = 8;
-const MAX_PATH_LENGTH = 10;
+const MAX_PATH_LENGTH = 11;
 const MIN_EARLY_PATHS = 2;
 const MIN_SOLUTION_PATHS = 2;
 const PATH_COUNT_CAP = 3;
@@ -447,103 +448,41 @@ function applyLateFees(
   };
 }
 
-function getTradeWindowForStage(stage: number, earlyWindowTrades: number): TradeWindow {
-  return stage <= earlyWindowTrades ? 'early' : 'late';
-}
-
-function createBranchTrades(
+function createVariantTrades(
   solution: Trade[],
-  startIndex: number,
-  earlyWindowTrades: number,
   rand: () => number,
-  existingKeys: Set<string>
-): Trade[] | null {
-  const first = solution[startIndex];
-  const second = solution[startIndex + 1];
-  const third = solution[startIndex + 2];
-  if (!first || !second || !third) return null;
-  const primaryFirst = first.give[0];
-  const primarySecond = second.give[0];
-  const primaryThird = third.give[0];
-  if (!primaryFirst || !primarySecond || !primaryThird) return null;
+  existingKeys: Set<string>,
+  window: TradeWindow,
+  count: number
+): Trade[] {
+  const candidates = seededShuffle(
+    solution.filter((trade) => trade.window === window),
+    rand
+  );
+  const variants: Trade[] = [];
 
-  const g0 = primaryFirst.good;
-  const q0 = primaryFirst.qty;
-  const g1 = first.get.good;
-  const q1 = first.get.qty;
-  const g2 = second.get.good;
-  const q2 = second.get.qty;
-  const g3 = third.get.good;
-  const q3 = third.get.qty;
-  if (g0 === g2 || g1 === g3 || g0 === g1 || g2 === g3) {
-    return null;
-  }
-
-  const stage1 = first.stage ?? startIndex + 1;
-  const stage2 = stage1 + 1;
-  const stage3 = stage1 + 2;
-  if (
-    (second.stage ?? startIndex + 2) !== stage2 ||
-    (third.stage ?? startIndex + 3) !== stage3
-  ) {
-    return null;
-  }
-
-  const maxGive = Math.max(1, q0);
-  const targetGive = getGiveQty(g0, g2, q2, rand);
-  const preferredGive = Math.max(1, Math.min(maxGive, targetGive));
-
-  let branchFirst: Trade | null = null;
-  const attempted = new Set<number>();
-  const candidateQtys = [
-    preferredGive,
-    maxGive,
-    Math.max(1, Math.floor(maxGive * 0.7)),
-    Math.max(1, Math.floor(maxGive * 0.5)),
-  ];
-  for (let i = 0; i < 4; i++) {
-    candidateQtys.push(randInt(rand, 1, maxGive));
-  }
-  for (const qty of candidateQtys) {
-    if (attempted.has(qty)) continue;
-    attempted.add(qty);
-    const candidate: Trade = {
-      give: [{ good: g0, qty }],
-      get: { good: g2, qty: q2 },
-      window: getTradeWindowForStage(stage1, earlyWindowTrades),
-      stage: stage1,
+  for (const trade of candidates) {
+    if (variants.length >= count) break;
+    const primary = trade.give[0];
+    if (!primary || primary.qty <= 1) continue;
+    const deltaMax = Math.max(1, Math.floor(primary.qty * 0.3));
+    const newQty = Math.max(1, primary.qty - randInt(rand, 1, deltaMax));
+    if (newQty === primary.qty) continue;
+    const nextGive = trade.give.map((side, index) =>
+      index === 0 ? { good: side.good, qty: newQty } : side
+    );
+    const variant: Trade = {
+      ...trade,
+      give: nextGive,
+      variant: true,
     };
-    if (!existingKeys.has(tradeKey(candidate))) {
-      branchFirst = candidate;
-      break;
-    }
-  }
-  if (!branchFirst) return null;
-
-  const branch: Trade[] = [
-    branchFirst,
-    {
-      give: [{ good: g2, qty: q2 }],
-      get: { good: g1, qty: q1 },
-      window: getTradeWindowForStage(stage2, earlyWindowTrades),
-      stage: stage2,
-    },
-    {
-      give: [{ good: g1, qty: q1 }],
-      get: { good: g3, qty: q3 },
-      window: getTradeWindowForStage(stage3, earlyWindowTrades),
-      stage: stage3,
-    },
-  ];
-
-  const branchKeys = new Set<string>();
-  for (const trade of branch) {
-    const key = tradeKey(trade);
-    if (existingKeys.has(key) || branchKeys.has(key)) return null;
-    branchKeys.add(key);
+    const key = tradeKey(variant);
+    if (existingKeys.has(key)) continue;
+    existingKeys.add(key);
+    variants.push(variant);
   }
 
-  return branch;
+  return variants;
 }
 
 function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
@@ -609,38 +548,21 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     const existingKeys = new Set(
       [...solution, ...distractors].map((trade) => tradeKey(trade))
     );
-    const branchTrades: Trade[] = [];
-    const earlyBranch = createBranchTrades(
+    const earlyVariants = createVariantTrades(
       solution,
-      0,
-      earlyWindowTrades,
       rand,
-      existingKeys
+      existingKeys,
+      'early',
+      2
     );
-    if (earlyBranch) {
-      earlyBranch.forEach((trade) => existingKeys.add(tradeKey(trade)));
-      branchTrades.push(...earlyBranch);
-    }
-
-    const lateStartIndices = seededShuffle(
-      solution
-        .map((_, index) => index)
-        .filter((index) => index >= earlyWindowTrades && index + 2 < solution.length),
-      rand
+    const lateVariants = createVariantTrades(
+      solution,
+      rand,
+      existingKeys,
+      'late',
+      2
     );
-    for (const startIndex of lateStartIndices) {
-      const lateBranch = createBranchTrades(
-        solution,
-        startIndex,
-        earlyWindowTrades,
-        rand,
-        existingKeys
-      );
-      if (!lateBranch) continue;
-      lateBranch.forEach((trade) => existingKeys.add(tradeKey(trade)));
-      branchTrades.push(...lateBranch);
-      break;
-    }
+    const variantTrades = [...earlyVariants, ...lateVariants];
 
     const inventory = createEmptyInventory();
     const startTrade = solution[0];
@@ -668,7 +590,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     });
 
     const trades = seededShuffle(
-      [...solution, ...distractors, ...branchTrades],
+      [...solution, ...distractors, ...variantTrades],
       rand
     );
 
@@ -684,26 +606,25 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       trades,
       solution,
       par,
-      maxTrades: par + config.slack,
+      maxTrades: Math.min(par + config.slack, 12),
       earlyWindowTrades,
     };
   };
 
     const shortestPathLength = (puzzle: BarterPuzzle): number | null => {
       const ids = puzzle.goods.map((g) => g.id);
-      const encode = (inv: Record<GoodId, number>, stage: number) =>
-        `${stage}|${ids.map((id) => inv[id]).join(',')}`;
-      const queue: Array<{ inv: Record<GoodId, number>; steps: number; stage: number }> = [
-        { inv: puzzle.inventory, steps: 0, stage: 0 },
+      const encode = (inv: Record<GoodId, number>, window: TradeWindow) =>
+        `${window}|${ids.map((id) => inv[id]).join(',')}`;
+      const queue: Array<{ inv: Record<GoodId, number>; steps: number }> = [
+        { inv: puzzle.inventory, steps: 0 },
       ];
-      const earlyVisited = new Map<string, number>();
-      const lateVisited = new Set<string>();
-      earlyVisited.set(encode(puzzle.inventory, 0), 0);
+      const visited = new Map<string, number>();
+      visited.set(encode(puzzle.inventory, 'early'), 0);
 
       while (queue.length > 0) {
         const current = queue.shift();
         if (!current) break;
-        const { inv, steps, stage } = current;
+        const { inv, steps } = current;
         if (steps >= puzzle.maxTrades) continue;
         const inEarly = steps < puzzle.earlyWindowTrades;
         const trades = puzzle.trades.filter((trade) =>
@@ -711,9 +632,6 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
         );
 
         for (const trade of trades) {
-          const requiredStage = stage + 1;
-          const tradeStage = trade.stage ?? requiredStage;
-          if (tradeStage !== requiredStage) continue;
           const canTrade = trade.give.every((side) => inv[side.good] >= side.qty);
           if (!canTrade) continue;
           const next = { ...inv };
@@ -725,21 +643,18 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
             next[id] = Math.min(200, next[id]);
           });
           const nextSteps = steps + 1;
-          if (next[ puzzle.goal.good ] >= puzzle.goal.qty) {
+          if (next[puzzle.goal.good] >= puzzle.goal.qty) {
             return nextSteps;
           }
           if (nextSteps >= puzzle.maxTrades) continue;
 
-          const key = encode(next, tradeStage);
-          if (nextSteps < puzzle.earlyWindowTrades) {
-            const prev = earlyVisited.get(key);
-            if (prev !== undefined && prev <= nextSteps) continue;
-            earlyVisited.set(key, nextSteps);
-          } else {
-            if (lateVisited.has(key)) continue;
-            lateVisited.add(key);
-          }
-          queue.push({ inv: next, steps: nextSteps, stage: tradeStage });
+          const nextWindow: TradeWindow =
+            nextSteps < puzzle.earlyWindowTrades ? 'early' : 'late';
+          const key = encode(next, nextWindow);
+          const prev = visited.get(key);
+          if (prev !== undefined && prev <= nextSteps) continue;
+          visited.set(key, nextSteps);
+          queue.push({ inv: next, steps: nextSteps });
         }
       }
       return null;
@@ -766,9 +681,6 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
 
         for (const { inv, count } of states.values()) {
           for (const trade of trades) {
-            const requiredStage = steps + 1;
-            const tradeStage = trade.stage ?? requiredStage;
-            if (tradeStage !== requiredStage) continue;
             const canTrade = trade.give.every((side) => inv[side.good] >= side.qty);
             if (!canTrade) continue;
 
@@ -822,9 +734,6 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
 
         for (const { inv, count } of states.values()) {
           for (const trade of trades) {
-            const requiredStage = steps + 1;
-            const tradeStage = trade.stage ?? requiredStage;
-            if (tradeStage !== requiredStage) continue;
             const canTrade = trade.give.every((side) => inv[side.good] >= side.qty);
             if (!canTrade) continue;
 
@@ -874,6 +783,17 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       PATH_COUNT_CAP
     );
     const solutionPaths = countSolutions(candidate, PATH_COUNT_CAP);
+    const earlyVariantCount = candidate.trades.filter(
+      (trade) => trade.variant && (trade.window ?? 'early') !== 'late'
+    ).length;
+    const lateVariantCount = candidate.trades.filter(
+      (trade) => trade.variant && trade.window === 'late'
+    ).length;
+    const startAffordableTrades = candidate.trades.filter(
+      (trade) =>
+        (trade.window ?? 'early') !== 'late' &&
+        trade.give.every((side) => candidate.inventory[side.good] >= side.qty)
+    ).length;
     if (
       shortest !== null &&
       shortest >= MIN_PATH_LENGTH &&
@@ -881,7 +801,10 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       candidate.par >= MIN_PATH_LENGTH &&
       candidate.par <= MAX_PATH_LENGTH &&
       earlyPaths >= MIN_EARLY_PATHS &&
-      solutionPaths >= MIN_SOLUTION_PATHS
+      solutionPaths >= MIN_SOLUTION_PATHS &&
+      earlyVariantCount > 0 &&
+      lateVariantCount > 0 &&
+      startAffordableTrades >= 2
     ) {
       return candidate;
     }
