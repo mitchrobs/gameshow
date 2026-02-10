@@ -48,6 +48,15 @@ const BRIDGES_COLORS = {
   over: '#d64045',
 };
 
+const DAILY_LOCATIONS = [
+  { emoji: '🏝️', label: 'Pacific Islands' },
+  { emoji: '❄️', label: 'Arctic Drift' },
+  { emoji: '🏜️', label: 'Desert Trails' },
+  { emoji: '🌋', label: 'Volcanic Rim' },
+  { emoji: '🌿', label: 'Rainforest Path' },
+  { emoji: '🌌', label: 'Midnight Sky' },
+];
+
 function getLocalDateKey(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -239,6 +248,7 @@ export default function BridgesScreen() {
     if (gameState !== 'playing') return;
     if (!isSolved) return;
     setGameState('won');
+    setAnchorIsland(null);
     getStorage()?.setItem(`${STORAGE_PREFIX}:daily:${dateKey}`, '1');
   }, [gameState, isSolved, dateKey]);
 
@@ -451,6 +461,10 @@ export default function BridgesScreen() {
     const seed = getDailySeed();
     return String(seed % 1000).padStart(3, '0');
   }, []);
+  const dailyLocation = useMemo(() => {
+    const seed = getDailySeed();
+    return DAILY_LOCATIONS[seed % DAILY_LOCATIONS.length];
+  }, []);
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -472,6 +486,13 @@ export default function BridgesScreen() {
             <Text style={styles.subtitle}>
               Daily puzzle #{puzzleNumber} · {dateLabel}
             </Text>
+            <View style={styles.locationRow}>
+              <Text style={styles.locationLabel}>Today:</Text>
+              <View style={styles.locationChip}>
+                <Text style={styles.locationEmoji}>{dailyLocation.emoji}</Text>
+                <Text style={styles.locationText}>{dailyLocation.label}</Text>
+              </View>
+            </View>
             <Text style={styles.howTo}>
               Tap an island, then a neighbor in the same row or column to cycle 1, 2, or 0
               bridges. Each number shows the exact bridges needed. Bridges cannot cross and
@@ -672,6 +693,35 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     marginTop: Spacing.xs,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  locationLabel: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+  },
+  locationChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  locationEmoji: {
+    fontSize: 14,
+  },
+  locationText: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.text,
   },
   howTo: {
     marginTop: Spacing.sm,
