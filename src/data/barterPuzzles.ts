@@ -82,7 +82,7 @@ const TIER_RANK: Record<GoodTier, number> = {
 const DIFFICULTY_CONFIG = {
   Easy: { goods: 4, parRange: [3, 4], surplus: 0.5, slack: 2, distractors: 1 },
   Medium: { goods: 5, parRange: [5, 6], surplus: 0.25, slack: 2, distractors: 2 },
-  Hard: { goods: 6, parRange: [10, 10], surplus: 0, slack: 2, distractors: 2 },
+  Hard: { goods: 6, parRange: [10, 10], surplus: 0, slack: 2, distractors: 0 },
 } as const;
 
 const MARKETS = [
@@ -138,8 +138,7 @@ function randInt(rand: () => number, min: number, max: number): number {
 }
 
 function getEarlyWindowTrades(par: number): number {
-  const target = Math.round(par * 0.5);
-  return Math.max(1, Math.min(par - 1, Math.max(2, target)));
+  return Math.max(2, Math.min(par - 1, 3));
 }
 
 function getDailySeed(date: Date = new Date()): number {
@@ -209,7 +208,8 @@ function buildPathGoods(
   const path: GoodId[] = [startGood, ...remaining, goal];
 
   while (path.length - 1 < par) {
-    const insertIndex = randInt(rand, 0, path.length - 2);
+    const minIndex = Math.min(3, path.length - 2);
+    const insertIndex = randInt(rand, minIndex, path.length - 2);
     let candidates = goods.filter(
       (id) => id !== goal && id !== path[insertIndex] && id !== path[insertIndex + 1]
     );
@@ -437,6 +437,50 @@ function applyLateFees(
   };
 }
 
+function createEarlyBranchTrades(
+  solution: Trade[],
+  rand: () => number
+): { branch: Trade[]; startGood: GoodId; startQty: number } | null {
+  if (solution.length < 3) return null;
+  const [first, second, third] = solution;
+  if (!first || !second || !third) return null;
+  if (first.give.length !== 1 || second.give.length !== 1 || third.give.length !== 1) {
+    return null;
+  }
+  const g0 = first.give[0].good;
+  const q0 = first.give[0].qty;
+  const g1 = first.get.good;
+  const q1 = first.get.qty;
+  const g2 = second.get.good;
+  const q2 = second.get.qty;
+  const g3 = third.get.good;
+  const q3 = third.get.qty;
+  if (g0 === g2 || g1 === g3 || g0 === g1 || g2 === g3) {
+    return null;
+  }
+
+  const altGive = Math.min(200, Math.max(1, getGiveQty(g0, g2, q2, rand)));
+  const branch: Trade[] = [
+    {
+      give: [{ good: g0, qty: altGive }],
+      get: { good: g2, qty: q2 },
+      window: 'early',
+    },
+    {
+      give: [{ good: g2, qty: q2 }],
+      get: { good: g1, qty: q1 },
+      window: 'early',
+    },
+    {
+      give: [{ good: g1, qty: q1 }],
+      get: { good: g3, qty: q3 },
+      window: 'early',
+    },
+  ];
+
+  return { branch, startGood: g0, startQty: Math.max(q0, altGive) };
+}
+
 function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   const rand = mulberry32(seed);
   const difficulty = getDifficultyForDate(date);
@@ -480,6 +524,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
   const feeApplied = applyLateFees(solution, distractors, pickedGoods, rand);
   solution = feeApplied.solution;
   distractors = feeApplied.distractors;
+  const branchBundle = createEarlyBranchTrades(solution, rand);
 
   const inventory = createEmptyInventory();
   const startTrade = solution[0];
@@ -501,11 +546,20 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       inventory[goodId] += qty;
     }
   });
+  if (branchBundle) {
+    inventory[branchBundle.startGood] = Math.max(
+      inventory[branchBundle.startGood],
+      branchBundle.startQty
+    );
+  }
   (Object.keys(inventory) as GoodId[]).forEach((goodId) => {
     inventory[goodId] = Math.min(200, inventory[goodId]);
   });
 
-  const trades = seededShuffle([...solution, ...distractors], rand);
+  const branchTrades = branchBundle ? branchBundle.branch : [];
+  const existingKeys = new Set([...solution, ...distractors].map((trade) => tradeKey(trade)));
+  const uniqueBranch = branchTrades.filter((trade) => !existingKeys.has(tradeKey(trade)));
+  const trades = seededShuffle([...solution, ...distractors, ...uniqueBranch], rand);
 
   return {
     id: `barter-${seed}`,

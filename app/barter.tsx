@@ -119,6 +119,22 @@ export default function BarterScreen() {
   const tradingWindowLabel = lateWindowOpen
     ? 'Late Window'
     : `Early Window · ${earlyWindowRemaining} left`;
+  const marketAlertTone = useMemo(() => {
+    switch (puzzle.marketEmoji) {
+      case '🌶️':
+        return { bg: '#fff0e8', border: '#f1b48c', text: '#8b3a12' };
+      case '🏺':
+        return { bg: '#fff4e5', border: '#e9c79a', text: '#7a4a1a' };
+      case '⚓️':
+        return { bg: '#e9f3ff', border: '#9dbde6', text: '#2d4f7a' };
+      case '🧵':
+        return { bg: '#f1edff', border: '#c4b6f3', text: '#4a3b84' };
+      case '🫖':
+        return { bg: '#f7f0e8', border: '#d7c2a7', text: '#6a4c2a' };
+      default:
+        return { bg: '#fff4e5', border: '#f1c38a', text: '#8a4a0b' };
+    }
+  }, [puzzle.marketEmoji]);
 
   const tradeWaves = useMemo(() => {
     const wave1 = puzzle.trades.filter((trade) => trade.window !== 'late');
@@ -127,7 +143,7 @@ export default function BarterScreen() {
     return { wave1, wave2 };
   }, [puzzle.trades]);
 
-  const visibleTrades = lateWindowOpen ? puzzle.trades : tradeWaves.wave1;
+  const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
 
   const startSummary = useMemo(() => {
     const entries = puzzle.goods
@@ -199,21 +215,22 @@ export default function BarterScreen() {
     if (tradesUsed < lateWindowTrigger) return;
     setLateTransition(true);
     lateTransitionAnim.setValue(0);
-    Animated.sequence([
-      Animated.timing(lateTransitionAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      Animated.delay(2500),
-      Animated.timing(lateTransitionAnim, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setLateTransition(false);
+    Animated.timing(lateTransitionAnim, {
+      toValue: 1,
+      duration: 1200,
+      useNativeDriver: true,
+    }).start(() => {
       setLateWindowOpen(true);
+      Animated.sequence([
+        Animated.delay(2500),
+        Animated.timing(lateTransitionAnim, {
+          toValue: 0,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setLateTransition(false);
+      });
     });
   }, [lateTransitionAnim, lateWindowOpen, lateTransition, tradesUsed, lateWindowTrigger]);
 
@@ -379,6 +396,8 @@ export default function BarterScreen() {
                   styles.transitionBanner,
                   {
                     opacity: lateTransitionAnim,
+                    backgroundColor: marketAlertTone.bg,
+                    borderColor: marketAlertTone.border,
                     transform: [
                       {
                         translateY: lateTransitionAnim.interpolate({
@@ -390,8 +409,12 @@ export default function BarterScreen() {
                   },
                 ]}
               >
-                <Text style={styles.transitionTitle}>Market shift: Vendors are shuffling</Text>
-                <Text style={styles.transitionBody}>The late window opens shortly.</Text>
+                <Text style={[styles.transitionTitle, { color: marketAlertTone.text }]}>
+                  Alert: Vendors are shuffling
+                </Text>
+                <Text style={[styles.transitionBody, { color: marketAlertTone.text }]}>
+                  The late window opens shortly.
+                </Text>
               </Animated.View>
             )}
             <Animated.View
