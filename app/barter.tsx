@@ -126,9 +126,10 @@ export default function BarterScreen() {
   const earlyWindowTrades = puzzle.earlyWindowTrades ?? 4;
   const lateWindowTrigger = earlyWindowTrades;
   const earlyWindowRemaining = Math.max(0, earlyWindowTrades - tradesUsed);
-  const tradingWindowLabel = lateWindowOpen
-    ? 'Late Window'
-    : `Early Window · ${earlyWindowRemaining} left`;
+  const tradingWindowTitle = lateWindowOpen ? 'Late Window' : 'Early Window';
+  const tradingWindowCounter = lateWindowOpen
+    ? 'Vendors refreshed'
+    : `${earlyWindowRemaining} trades left`;
   const marketAlertTone = useMemo(() => {
     const dark = theme.mode === 'dark';
     switch (puzzle.marketEmoji) {
@@ -371,14 +372,15 @@ export default function BarterScreen() {
                     </Text>
                   </View>
                   <View style={[styles.summaryItem, styles.summaryStatusItem]}>
-                    <Text
+                    <View
                       style={[
-                        styles.summaryStatusText,
+                        styles.summaryStatusPill,
                         lateWindowOpen ? styles.summaryStatusLate : styles.summaryStatusEarly,
                       ]}
                     >
-                      {tradingWindowLabel}
-                    </Text>
+                      <Text style={styles.summaryStatusTitle}>{tradingWindowTitle}</Text>
+                      <Text style={styles.summaryStatusCounter}>{tradingWindowCounter}</Text>
+                    </View>
                   </View>
                 </View>
               </View>
@@ -414,10 +416,8 @@ export default function BarterScreen() {
                 Welcome to {puzzle.marketName} {puzzle.marketEmoji}
               </Text>
               <Text style={styles.introBody}>
-                Trade your goods to reach today&apos;s goal in as few trades as possible. Trades are split into early and late windows.
-              </Text>
-              <Text style={styles.introHint}>
-                Tap a vendor to trade. Late trades can require two items.
+                Objective: acquire {goalShort}. You have {puzzle.maxTrades} total trades ({earlyWindowTrades} early,
+                {Math.max(0, puzzle.maxTrades - earlyWindowTrades)} late), so every exchange matters.
               </Text>
             </View>
             {lateTransition && (
@@ -726,11 +726,7 @@ const createStyles = (
     marginTop: 4,
     fontSize: 12,
     color: inkMuted,
-  },
-  introHint: {
-    marginTop: 2,
-    fontSize: 11,
-    color: inkSoft,
+    lineHeight: 17,
   },
   transitionBanner: {
     backgroundColor: '#fff4e5',
@@ -809,24 +805,34 @@ const createStyles = (
     flex: 1.3,
     alignItems: 'flex-start',
   },
-  summaryStatusText: {
-    marginTop: 4,
+  summaryStatusPill: {
+    marginTop: 2,
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.full,
-    backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#efe7db',
-    color: inkMuted,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: borderSoft,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    minWidth: 112,
+  },
+  summaryStatusTitle: {
     fontSize: 11,
+    fontWeight: '700',
+    color: inkStrong,
+  },
+  summaryStatusCounter: {
+    marginTop: 2,
+    fontSize: 10,
     fontWeight: '600',
+    color: inkMuted,
   },
   summaryStatusEarly: {
-    backgroundColor: '#e5f0ff',
-    color: '#2b4b74',
+    backgroundColor: '#ecf4ff',
+    borderColor: '#b9d3f5',
   },
   summaryStatusLate: {
-    backgroundColor: '#f3e3ff',
-    color: '#5b2a7a',
+    backgroundColor: '#f5edff',
+    borderColor: '#cfb8f2',
   },
   sectionHeader: {
     marginBottom: Spacing.sm,
