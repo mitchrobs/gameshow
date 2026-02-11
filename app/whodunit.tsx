@@ -155,21 +155,19 @@ export default function WhodunitScreen() {
     storage?.setItem(storageKey, '1');
   }, [gameState, storageKey]);
 
-  useEffect(() => {
-    const storage = getStorage();
-    if (!storage) return;
-    const key = `${STORAGE_PREFIX}:playcount:${dateKey}`;
-    const current = parseInt(storage.getItem(key) || '0', 10);
-    storage.setItem(key, String(current + 1));
-  }, []);
+  const hasStartedRef = useRef(false);
+  const markPlayStarted = useCallback(() => {
+    if (hasStartedRef.current) return;
+    hasStartedRef.current = true;
 
-  const hasCountedRef = useRef(false);
-  useEffect(() => {
-    if (gameState !== 'playing' && !hasCountedRef.current) {
-      hasCountedRef.current = true;
-      incrementGlobalPlayCount('whodunit');
+    const storage = getStorage();
+    if (storage) {
+      const key = `${STORAGE_PREFIX}:playcount:${dateKey}`;
+      const current = parseInt(storage.getItem(key) || '0', 10);
+      storage.setItem(key, String(current + 1));
     }
-  }, [gameState]);
+    incrementGlobalPlayCount('whodunit');
+  }, [dateKey]);
 
   const totalTime = elapsedSeconds + timePenalty;
 
@@ -177,6 +175,7 @@ export default function WhodunitScreen() {
     (index: number) => {
       if (gameState !== 'playing') return;
       if (revealedClues.has(index)) return;
+      markPlayStarted();
 
       const newRevealed = new Set(revealedClues);
       newRevealed.add(index);
@@ -186,7 +185,7 @@ export default function WhodunitScreen() {
 
       // No auto-elimination — player decides who to eliminate
     },
-    [gameState, revealedClues]
+    [gameState, markPlayStarted, revealedClues]
   );
 
   const handleSelectLead = useCallback(
@@ -195,6 +194,7 @@ export default function WhodunitScreen() {
       if (leadChoiceId) return;
       const clueIndex = puzzle.clues.findIndex((c) => c.id === choiceId);
       if (clueIndex === -1) return;
+      markPlayStarted();
       if (!revealedClues.has(clueIndex)) {
         const next = new Set(revealedClues);
         next.add(clueIndex);
@@ -205,21 +205,23 @@ export default function WhodunitScreen() {
       }
       setLeadChoiceId(choiceId);
     },
-    [gameState, leadChoiceId, puzzle.clues, revealedClues]
+    [gameState, leadChoiceId, markPlayStarted, puzzle.clues, revealedClues]
   );
 
   const handleSelectSuspect = useCallback(
     (index: number) => {
       if (gameState !== 'playing') return;
       if (eliminatedSuspects.has(index)) return;
+      markPlayStarted();
       setSelectedSuspect((prev) => (prev === index ? null : index));
     },
-    [gameState, eliminatedSuspects]
+    [gameState, eliminatedSuspects, markPlayStarted]
   );
 
   const handleToggleEliminate = useCallback(
     (index: number) => {
       if (gameState !== 'playing') return;
+      markPlayStarted();
       setEliminatedSuspects((prev) => {
         const next = new Set(prev);
         if (next.has(index)) {
@@ -233,17 +235,18 @@ export default function WhodunitScreen() {
         setSelectedSuspect(null);
       }
     },
-    [gameState, selectedSuspect]
+    [gameState, markPlayStarted, selectedSuspect]
   );
 
   const handleAccuse = useCallback(() => {
     if (selectedSuspect === null || gameState !== 'playing') return;
+    markPlayStarted();
     if (selectedSuspect === puzzle.killerIndex) {
       setGameState('won');
     } else {
       setGameState('lost');
     }
-  }, [selectedSuspect, gameState, puzzle.killerIndex]);
+  }, [selectedSuspect, gameState, markPlayStarted, puzzle.killerIndex]);
 
   const shareText = useMemo(() => {
     const result = gameState === 'won' ? '✅ Case Closed' : '❌ Wrong Suspect';
@@ -294,94 +297,119 @@ export default function WhodunitScreen() {
         >
           <View style={styles.stickyHeader}>
             <View style={styles.stickyHeaderInner}>
-              <View style={styles.pageAccent} />
-              <View style={styles.caseHeaderRow}>
-                <View>
-                  <Text style={styles.caseTitle}>Whodunit</Text>
-                  <Text style={styles.caseNumber}>
-                    Case #{String(puzzle.caseNumber).padStart(3, '0')} — {puzzle.caseName}
+              <View style={styles.stickyHeaderRow}>
+                <View style={styles.stickyCaseMeta}>
+                  <Text style={styles.stickyCaseId}>
+                    Case #{String(puzzle.caseNumber).padStart(3, '0')}
+                  </Text>
+                  <Text
+                    style={styles.stickyCaseName}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {puzzle.caseName}
                   </Text>
                 </View>
-                {gameState === 'playing' && (
-                  <View style={styles.headerMeta}>
-                    <Text style={styles.timerText}>⏱ {formatTime(totalTime)}</Text>
-                    <View style={styles.cluePill}>
-                      <Text style={styles.cluePillText}>
-                        Clues {cluesUsed}/{totalClues}
-                      </Text>
-                    </View>
-                  </View>
-                )}
+                <View style={styles.stickyStatsRow}>
+                  {gameState === 'playing' ? (
+                    <>
+                      <View style={styles.stickyChip}>
+                        <Text style={styles.stickyChipText}>
+                          Time {formatTime(totalTime)}
+                        </Text>
+                      </View>
+                      <View style={styles.stickyChip}>
+                        <Text style={styles.stickyChipText}>
+                          Clues {cluesUsed}/{totalClues}
+                        </Text>
+                      </View>
+                      {timePenalty > 0 && (
+                        <View style={[styles.stickyChip, styles.stickyChipPenalty]}>
+                          <Text style={styles.stickyChipPenaltyText}>+{timePenalty}s</Text>
+                        </View>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <View style={styles.stickyChip}>
+                        <Text style={styles.stickyChipText}>
+                          {gameState === 'won' ? 'Solved' : 'Missed'}
+                        </Text>
+                      </View>
+                      <View style={styles.stickyChip}>
+                        <Text style={styles.stickyChipText}>
+                          Time {formatTime(totalTime)}
+                        </Text>
+                      </View>
+                    </>
+                  )}
+                </View>
               </View>
-              {gameState === 'playing' && timePenalty > 0 && (
-                <Text style={styles.penaltyText}>
-                  (+{timePenalty}s penalty)
-                </Text>
-              )}
             </View>
           </View>
 
           <View style={styles.page}>
+            <View style={styles.pageAccent} />
 
-          {/* Unified case board */}
-          <View style={styles.caseBoard}>
-            <Text style={styles.caseBoardTitle}>Case Board</Text>
-            <View style={styles.caseVisual}>
-              <View style={styles.caseVisualBadge}>
-                <Text style={styles.caseVisualEmoji}>{puzzle.setting.icon}</Text>
+            {/* Unified case board */}
+            <View style={styles.caseBoard}>
+              <Text style={styles.caseBoardTitle}>Case Board</Text>
+              <View style={styles.caseVisual}>
+                <View style={styles.caseVisualBadge}>
+                  <Text style={styles.caseVisualEmoji}>{puzzle.setting.icon}</Text>
+                </View>
+                <View style={styles.caseVisualText}>
+                  <Text style={styles.caseVisualKicker}>{puzzle.setting.description}</Text>
+                  <Text style={styles.caseVisualTitle}>{puzzle.caseName}</Text>
+                </View>
               </View>
-              <View style={styles.caseVisualText}>
-                <Text style={styles.caseVisualKicker}>{puzzle.setting.description}</Text>
-                <Text style={styles.caseVisualTitle}>{puzzle.caseName}</Text>
+              <Text style={styles.caseNarrative}>{puzzle.narrative}</Text>
+              <View style={styles.caseBoardRow}>
+                <View style={styles.caseChip}>
+                  <Text style={styles.caseChipLabel}>Victim</Text>
+                  <Text style={styles.caseChipValue}>
+                    {puzzle.victim.name} ({puzzle.victim.title})
+                  </Text>
+                </View>
+                <View style={styles.caseChip}>
+                  <Text style={styles.caseChipLabel}>Setting</Text>
+                  <Text style={styles.caseChipValue}>{puzzle.setting.description}</Text>
+                </View>
+              </View>
+              <View style={styles.caseBoardRow}>
+                <View style={styles.caseChip}>
+                  <Text style={styles.caseChipLabel}>Weapon</Text>
+                  <Text style={styles.caseChipValue}>{puzzle.weapon.name}</Text>
+                </View>
+                <View style={styles.caseChip}>
+                  <Text style={styles.caseChipLabel}>Room</Text>
+                  <Text style={styles.caseChipValue}>{puzzle.room.name}</Text>
+                </View>
+              </View>
+              <View style={styles.caseBoardRow}>
+                <View style={styles.caseChip}>
+                  <Text style={styles.caseChipLabel}>Time of death</Text>
+                  <Text style={styles.caseChipValue}>{puzzle.timeOfDeath}</Text>
+                </View>
+                <View style={styles.caseChip}>
+                  <Text style={styles.caseChipLabel}>Window</Text>
+                  <Text style={styles.caseChipValue}>{puzzle.timeWindow}</Text>
+                </View>
+              </View>
+              <View style={styles.caseUnlocked}>
+                <Text style={styles.caseUnlockedTitle}>Unlocked clues</Text>
+                {unlockedClues.length === 0 ? (
+                  <Text style={styles.caseUnlockedEmpty}>No clues yet.</Text>
+                ) : (
+                  unlockedClues.map(({ clue, displayNumber }) => (
+                    <View key={clue.id} style={styles.caseUnlockedItem}>
+                      <Text style={styles.caseUnlockedNumber}>{displayNumber}</Text>
+                      <Text style={styles.caseUnlockedText}>{clue.text}</Text>
+                    </View>
+                  ))
+                )}
               </View>
             </View>
-            <Text style={styles.caseNarrative}>{puzzle.narrative}</Text>
-            <View style={styles.caseBoardRow}>
-              <View style={styles.caseChip}>
-                <Text style={styles.caseChipLabel}>Victim</Text>
-                <Text style={styles.caseChipValue}>
-                  {puzzle.victim.name} ({puzzle.victim.title})
-                </Text>
-              </View>
-              <View style={styles.caseChip}>
-                <Text style={styles.caseChipLabel}>Setting</Text>
-                <Text style={styles.caseChipValue}>{puzzle.setting.description}</Text>
-              </View>
-            </View>
-            <View style={styles.caseBoardRow}>
-              <View style={styles.caseChip}>
-                <Text style={styles.caseChipLabel}>Weapon</Text>
-                <Text style={styles.caseChipValue}>{puzzle.weapon.name}</Text>
-              </View>
-              <View style={styles.caseChip}>
-                <Text style={styles.caseChipLabel}>Room</Text>
-                <Text style={styles.caseChipValue}>{puzzle.room.name}</Text>
-              </View>
-            </View>
-            <View style={styles.caseBoardRow}>
-              <View style={styles.caseChip}>
-                <Text style={styles.caseChipLabel}>Time of death</Text>
-                <Text style={styles.caseChipValue}>{puzzle.timeOfDeath}</Text>
-              </View>
-              <View style={styles.caseChip}>
-                <Text style={styles.caseChipLabel}>Window</Text>
-                <Text style={styles.caseChipValue}>{puzzle.timeWindow}</Text>
-              </View>
-            </View>
-            <View style={styles.caseUnlocked}>
-              <Text style={styles.caseUnlockedTitle}>Unlocked clues</Text>
-              {unlockedClues.length === 0 ? (
-                <Text style={styles.caseUnlockedEmpty}>No clues yet.</Text>
-              ) : (
-                unlockedClues.map(({ clue, displayNumber }) => (
-                  <View key={clue.id} style={styles.caseUnlockedItem}>
-                    <Text style={styles.caseUnlockedNumber}>{displayNumber}</Text>
-                    <Text style={styles.caseUnlockedText}>{clue.text}</Text>
-                  </View>
-                ))
-              )}
-            </View>
-          </View>
 
           {/* Suspects board */}
           <View style={[styles.suspectsBoard, styles.noSelect]}>
@@ -657,7 +685,7 @@ const createStyles = (
   },
   stickyHeader: {
     backgroundColor: Colors.background,
-    paddingTop: Spacing.sm,
+    paddingTop: Spacing.xs,
     paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
@@ -668,7 +696,7 @@ const createStyles = (
     maxWidth: 520,
     alignSelf: 'center',
     width: '100%',
-    paddingBottom: Spacing.sm,
+    paddingBottom: Spacing.xs,
   },
   page: {
     ...ui.page,
@@ -678,57 +706,58 @@ const createStyles = (
     marginBottom: Spacing.md,
   },
 
-  // Case header
-  caseHeaderRow: {
+  stickyHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    minHeight: 54,
     gap: Spacing.md,
-    flexWrap: 'wrap',
-    rowGap: Spacing.xs,
+    flexWrap: 'nowrap',
   },
-  caseTitle: {
-    fontSize: FontSize.xxl,
-    fontWeight: '800',
-    color: Colors.text,
-    fontStyle: 'italic',
+  stickyCaseMeta: {
+    flex: 1,
+    minWidth: 0,
   },
-  caseNumber: {
-    fontSize: FontSize.sm,
+  stickyCaseId: {
+    fontSize: 12,
     color: Colors.textMuted,
     textTransform: 'uppercase',
-    letterSpacing: 1.1,
-    marginTop: Spacing.xs,
+    letterSpacing: 0.9,
     fontWeight: '600',
   },
-  headerMeta: {
-    alignItems: 'flex-start',
-    gap: Spacing.xs,
-  },
-  timerText: {
+  stickyCaseName: {
     fontSize: FontSize.md,
     fontWeight: '700',
     color: Colors.text,
+    marginTop: 2,
   },
-  penaltyText: {
-    fontSize: FontSize.sm,
-    color: screenAccent.main,
-    fontWeight: '600',
-    marginTop: Spacing.xs,
+  stickyStatsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    flexShrink: 0,
   },
-  cluePill: {
+  stickyChip: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.sm,
     paddingVertical: 4,
     borderWidth: 1,
     borderColor: Colors.border,
-    alignSelf: 'flex-start',
   },
-  cluePillText: {
+  stickyChipText: {
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
     fontWeight: '600',
+  },
+  stickyChipPenalty: {
+    backgroundColor: screenAccent.soft,
+    borderColor: screenAccent.main,
+  },
+  stickyChipPenaltyText: {
+    fontSize: FontSize.sm,
+    color: screenAccent.main,
+    fontWeight: '700',
   },
 
   // Narrative

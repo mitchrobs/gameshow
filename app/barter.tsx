@@ -93,6 +93,7 @@ export default function BarterScreen() {
   const puzzle = useMemo<BarterPuzzle>(() => getDailyBarter(), []);
   const { width } = useWindowDimensions();
   const isCompact = width < 400;
+  const canGoBack = router.canGoBack();
   const dateKey = useMemo(() => getLocalDateKey(), []);
   const dateLabel = useMemo(
     () =>
@@ -333,14 +334,32 @@ export default function BarterScreen() {
   }, [shareText]);
 
   return (
-    <>
-      <Stack.Screen
-        options={{
-          title: 'Barter',
-          headerBackTitle: 'Home',
-        }}
-      />
       <SafeAreaView style={styles.container} edges={['bottom']}>
+        <Stack.Screen
+          options={{
+            title: 'Barter',
+            headerBackTitle: 'Home',
+            headerStyle: { backgroundColor: Colors.background },
+            headerTintColor: Colors.text,
+            headerShadowVisible: false,
+            headerTitleStyle: { fontWeight: '700' },
+            ...(canGoBack
+              ? {}
+              : {
+                  headerLeft: () => (
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.headerFallbackButton,
+                        pressed && styles.headerFallbackButtonPressed,
+                      ]}
+                      onPress={() => router.replace('/')}
+                    >
+                      <Text style={styles.headerFallbackButtonText}>← Home</Text>
+                    </Pressable>
+                  ),
+                }),
+          }}
+        />
         <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[1]}>
           <View style={styles.page}>
             <View style={styles.header}>
@@ -653,7 +672,6 @@ export default function BarterScreen() {
           </View>
         )}
       </SafeAreaView>
-    </>
   );
 }
 
@@ -712,6 +730,19 @@ const createStyles = (
   header: {
     marginBottom: Spacing.sm,
     alignItems: 'center',
+  },
+  headerFallbackButton: {
+    borderRadius: BorderRadius.sm,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  headerFallbackButtonPressed: {
+    backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#f3efe8',
+  },
+  headerFallbackButtonText: {
+    color: inkStrong,
+    fontSize: 13,
+    fontWeight: '600',
   },
   introCard: {
     backgroundColor: paper,
