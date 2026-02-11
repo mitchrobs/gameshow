@@ -563,7 +563,6 @@ const createStyles = (
     ...ui.page,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.sm,
-    backgroundColor: Colors.backgroundSoft,
     zIndex: 2,
   },
   topbar: {
