@@ -119,10 +119,12 @@ export default function BarterScreen() {
   const [lateTransition, setLateTransition] = useState(false);
   const lateTransitionAnim = useRef(new Animated.Value(0)).current;
 
+  const marketName = puzzle.marketName?.trim() || 'Daily Market';
+  const marketEmoji = puzzle.marketEmoji || '🏺';
   const goalGood = getGoodById(puzzle.goal.good);
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
   const solvedAtPar = gameState === 'won' && tradesUsed <= puzzle.par;
-  const isMarinerMarket = puzzle.marketName === "Mariner's Market";
+  const isMarinerMarket = marketName === "Mariner's Market";
   const earlyWindowTrades = puzzle.earlyWindowTrades ?? 4;
   const lateWindowTrigger = earlyWindowTrades;
   const earlyWindowRemaining = Math.max(0, earlyWindowTrades - tradesUsed);
@@ -132,7 +134,7 @@ export default function BarterScreen() {
     : `${earlyWindowRemaining} trades left`;
   const marketAlertTone = useMemo(() => {
     const dark = theme.mode === 'dark';
-    switch (puzzle.marketEmoji) {
+    switch (marketEmoji) {
       case '🌶️':
         return dark
           ? { bg: 'rgba(255, 138, 92, 0.18)', border: 'rgba(255, 138, 92, 0.36)', text: '#ffd4bf' }
@@ -158,7 +160,7 @@ export default function BarterScreen() {
           ? { bg: screenAccent.soft, border: screenAccent.badgeBorder, text: Colors.text }
           : { bg: '#fff4e5', border: '#f1c38a', text: '#8a4a0b' };
     }
-  }, [puzzle.marketEmoji, theme.mode, screenAccent, Colors.text]);
+  }, [marketEmoji, theme.mode, screenAccent, Colors.text]);
 
   const tradeWaves = useMemo(() => {
     const wave1 = puzzle.trades.filter((trade) => trade.window !== 'late');
@@ -413,11 +415,11 @@ export default function BarterScreen() {
           <View style={styles.page}>
             <View style={styles.introCard}>
               <Text style={styles.introTitle}>
-                Welcome to {puzzle.marketName} {puzzle.marketEmoji}
+                Welcome to {marketName} {marketEmoji}
               </Text>
               <Text style={styles.introBody}>
-                Objective: acquire {goalShort}. You have {puzzle.maxTrades} total trades ({earlyWindowTrades} early,
-                {Math.max(0, puzzle.maxTrades - earlyWindowTrades)} late), so every exchange matters.
+                Objective: turn your starting goods into {goalShort} within {puzzle.maxTrades} trades.
+                Use the first {earlyWindowTrades} trades to prepare, then close in during the late window.
               </Text>
             </View>
             {lateTransition && (
@@ -812,27 +814,33 @@ const createStyles = (
     borderWidth: 1,
     borderColor: borderSoft,
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 7,
     minWidth: 112,
+    shadowColor: '#000',
+    shadowOpacity: theme.mode === 'dark' ? 0.12 : 0.04,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
   },
   summaryStatusTitle: {
     fontSize: 11,
     fontWeight: '700',
     color: inkStrong,
+    letterSpacing: 0.2,
   },
   summaryStatusCounter: {
     marginTop: 2,
     fontSize: 10,
     fontWeight: '600',
     color: inkMuted,
+    letterSpacing: 0.15,
   },
   summaryStatusEarly: {
-    backgroundColor: '#ecf4ff',
-    borderColor: '#b9d3f5',
+    backgroundColor: '#e8f3ff',
+    borderColor: '#9fc1ea',
   },
   summaryStatusLate: {
-    backgroundColor: '#f5edff',
-    borderColor: '#cfb8f2',
+    backgroundColor: '#f3ebff',
+    borderColor: '#c2a9ec',
   },
   sectionHeader: {
     marginBottom: Spacing.sm,
