@@ -10,7 +10,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
+import {
+  type ThemeTokens,
+  resolveScreenAccent,
+  useDaybreakTheme,
+} from '../src/constants/theme';
+import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { getDailyWordie } from '../src/data/wordiePuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
@@ -62,6 +67,10 @@ function evaluateGuess(guess: string, answer: string): TileStatus[] {
 }
 
 export default function WordieScreen() {
+  const theme = useDaybreakTheme();
+  const screenAccent = useMemo(() => resolveScreenAccent('wordie', theme), [theme]);
+  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
+  const Colors = theme.colors;
   const router = useRouter();
   const answer = useMemo(() => getDailyWordie(), []);
   const [guesses, setGuesses] = useState<string[]>([]);
@@ -268,25 +277,30 @@ export default function WordieScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (
+  theme: ThemeTokens,
+  screenAccent: ReturnType<typeof resolveScreenAccent>
+) => {
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
+  const FontSize = theme.fontSize;
+  const BorderRadius = theme.borderRadius;
+  const ui = createDaybreakPrimitives(theme, screenAccent);
+
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSoft,
   },
   scrollContent: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xxl,
   },
   page: {
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
+    ...ui.page,
   },
   pageAccent: {
-    height: 6,
-    width: 80,
-    backgroundColor: '#2f6bff',
-    borderRadius: 999,
+    ...ui.accentBar,
     marginBottom: Spacing.md,
   },
   header: {
@@ -324,16 +338,16 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
   },
   tileCorrect: {
-    backgroundColor: '#4caf50',
-    borderColor: '#4caf50',
+    backgroundColor: Colors.success,
+    borderColor: Colors.success,
   },
   tilePresent: {
-    backgroundColor: '#f4b400',
-    borderColor: '#f4b400',
+    backgroundColor: screenAccent.main,
+    borderColor: screenAccent.main,
   },
   tileAbsent: {
-    backgroundColor: '#9aa0a6',
-    borderColor: '#9aa0a6',
+    backgroundColor: Colors.textMuted,
+    borderColor: Colors.textMuted,
   },
   tileText: {
     fontSize: FontSize.lg,
@@ -371,14 +385,8 @@ const styles = StyleSheet.create({
   },
   resultCard: {
     alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
+    ...ui.card,
     padding: Spacing.lg,
-    shadowColor: '#000000',
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 4,
   },
   resultEmoji: {
     fontSize: 64,
@@ -422,19 +430,16 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   shareButton: {
-    backgroundColor: Colors.primary,
+    ...ui.cta,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.sm,
-    alignItems: 'center',
     marginTop: Spacing.sm,
   },
   shareButtonPressed: {
-    backgroundColor: Colors.primaryLight,
+    ...ui.ctaPressed,
   },
   shareButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
+    ...ui.ctaText,
   },
   shareStatus: {
     marginTop: Spacing.xs,
@@ -456,4 +461,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '600',
   },
-});
+  });
+};

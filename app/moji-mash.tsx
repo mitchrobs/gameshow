@@ -13,7 +13,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
+import {
+  type ThemeTokens,
+  resolveScreenAccent,
+  useDaybreakTheme,
+} from '../src/constants/theme';
+import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { getDailyPuzzle, MojiMashPuzzle } from '../src/data/mojiMashPuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
@@ -36,6 +41,10 @@ function getStorage(): Storage | null {
 }
 
 export default function MojiMashScreen() {
+  const theme = useDaybreakTheme();
+  const screenAccent = useMemo(() => resolveScreenAccent('moji-mash', theme), [theme]);
+  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
+  const Colors = theme.colors;
   const router = useRouter();
   const dateKey = useMemo(() => getLocalDateKey(), []);
   const dateLabel = useMemo(
@@ -380,10 +389,20 @@ export default function MojiMashScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (
+  theme: ThemeTokens,
+  screenAccent: ReturnType<typeof resolveScreenAccent>
+) => {
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
+  const FontSize = theme.fontSize;
+  const BorderRadius = theme.borderRadius;
+  const ui = createDaybreakPrimitives(theme, screenAccent);
+
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSoft,
   },
   flex: {
     flex: 1,
@@ -393,28 +412,18 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xxl,
   },
   page: {
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
+    ...ui.page,
   },
   pageAccent: {
-    height: 6,
-    width: 80,
-    backgroundColor: '#6d4aff',
-    borderRadius: 999,
+    ...ui.accentBar,
     marginBottom: Spacing.md,
   },
   emojiContainer: {
     alignItems: 'center',
     paddingVertical: Spacing.xl,
-    backgroundColor: Colors.surface,
+    ...ui.glassCard,
     borderRadius: BorderRadius.lg,
     marginBottom: Spacing.lg,
-    shadowColor: '#000000',
-    shadowOpacity: 0.06,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 3,
   },
   genmojiImage: {
     width: 140,
@@ -463,7 +472,7 @@ const styles = StyleSheet.create({
   },
   slotFound: {
     borderColor: Colors.success,
-    backgroundColor: 'rgba(24, 169, 87, 0.12)',
+    backgroundColor: theme.mode === 'dark' ? 'rgba(79, 180, 119, 0.2)' : 'rgba(24, 169, 87, 0.12)',
   },
   slotText: {
     fontSize: FontSize.lg,
@@ -508,7 +517,7 @@ const styles = StyleSheet.create({
   hintLabel: {
     fontSize: FontSize.sm,
     fontWeight: '700',
-    color: Colors.accent,
+    color: screenAccent.main,
     marginBottom: Spacing.xs,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -616,19 +625,16 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   shareButton: {
-    backgroundColor: Colors.primary,
+    ...ui.cta,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.sm,
-    alignItems: 'center',
     marginTop: Spacing.sm,
   },
   shareButtonPressed: {
-    backgroundColor: Colors.primaryLight,
+    ...ui.ctaPressed,
   },
   shareButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
+    ...ui.ctaText,
   },
   shareStatus: {
     marginTop: Spacing.xs,
@@ -647,26 +653,25 @@ const styles = StyleSheet.create({
   answerWords: {
     fontSize: FontSize.lg,
     fontWeight: '700',
-    color: Colors.accent,
+    color: screenAccent.main,
     marginTop: Spacing.xs,
   },
   practiceButton: {
-    backgroundColor: Colors.primary,
+    ...ui.cta,
     borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.xl,
     marginTop: Spacing.lg,
   },
   practiceButtonPressed: {
-    backgroundColor: Colors.primaryLight,
+    ...ui.ctaPressed,
   },
   practiceButtonDisabled: {
     opacity: 0.5,
   },
   practiceButtonText: {
-    color: Colors.white,
+    ...ui.ctaText,
     fontSize: FontSize.md,
-    fontWeight: '700',
+    textTransform: 'none',
+    letterSpacing: 0.7,
   },
   homeButton: {
     borderRadius: BorderRadius.md,
@@ -682,4 +687,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '600',
   },
-});
+  });
+};

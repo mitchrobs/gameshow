@@ -10,7 +10,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
+import {
+  type ThemeTokens,
+  resolveScreenAccent,
+  useDaybreakTheme,
+} from '../src/constants/theme';
+import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
@@ -18,8 +23,6 @@ const SIZE = 6;
 const BOX_ROWS = 2;
 const BOX_COLS = 3;
 const STORAGE_PREFIX = 'sudoku';
-const HIGHLIGHT_COLOR = '#3b82f6';
-const HIGHLIGHT_BG = 'rgba(59, 130, 246, 0.12)';
 const ROW_GLOW_BG = 'rgba(79, 180, 119, 0.14)';
 const ROW_GLOW_BORDER = 'rgba(79, 180, 119, 0.4)';
 
@@ -105,6 +108,11 @@ function getConflicts(grid: number[][]): boolean[][] {
 }
 
 export default function SudokuScreen() {
+  const theme = useDaybreakTheme();
+  const screenAccent = useMemo(() => resolveScreenAccent('sudoku', theme), [theme]);
+  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
   const router = useRouter();
   const puzzle = useMemo(() => getDailySudoku(), []);
   const dateLabel = useMemo(
@@ -306,7 +314,7 @@ export default function SudokuScreen() {
                             height: cellSize,
                             marginRight: borderRight,
                             backgroundColor: relatedCell
-                              ? HIGHLIGHT_BG
+                              ? screenAccent.soft
                               : Colors.surface,
                           },
                           isGiven(rowIndex, colIndex) && styles.givenCell,
@@ -421,25 +429,30 @@ export default function SudokuScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (
+  theme: ThemeTokens,
+  screenAccent: ReturnType<typeof resolveScreenAccent>
+) => {
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
+  const FontSize = theme.fontSize;
+  const BorderRadius = theme.borderRadius;
+  const ui = createDaybreakPrimitives(theme, screenAccent);
+
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSoft,
   },
   scrollContent: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xxl,
   },
   page: {
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
+    ...ui.page,
   },
   pageAccent: {
-    height: 6,
-    width: 80,
-    backgroundColor: '#4fb477',
-    borderRadius: 999,
+    ...ui.accentBar,
     marginBottom: Spacing.md,
   },
   header: {
@@ -496,7 +509,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceLight,
   },
   selectedCell: {
-    borderColor: HIGHLIGHT_COLOR,
+    borderColor: screenAccent.main,
     borderWidth: 2,
   },
   conflictCell: {
@@ -604,15 +617,9 @@ const styles = StyleSheet.create({
   },
   resultCard: {
     alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
+    ...ui.card,
     padding: Spacing.lg,
     marginTop: Spacing.lg,
-    shadowColor: '#000000',
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 4,
   },
   resultTitle: {
     fontSize: FontSize.xl,
@@ -653,19 +660,16 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   shareButton: {
-    backgroundColor: Colors.primary,
+    ...ui.cta,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.sm,
-    alignItems: 'center',
     marginTop: Spacing.sm,
   },
   shareButtonPressed: {
-    backgroundColor: Colors.primaryLight,
+    ...ui.ctaPressed,
   },
   shareButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
+    ...ui.ctaText,
   },
   shareStatus: {
     marginTop: Spacing.xs,
@@ -687,4 +691,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '600',
   },
-});
+  });
+};

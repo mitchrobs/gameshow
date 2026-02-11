@@ -1,19 +1,30 @@
-export const Colors = {
-  background: '#f4f6fb',
-  surface: '#ffffff',
-  surfaceLight: '#eef1f7',
-  primary: '#111111',
-  primaryLight: '#2b2b2b',
-  accent: '#ff4d6d',
-  success: '#18a957',
-  error: '#e04444',
-  errorLight: '#f7b2b2',
-  text: '#111111',
-  textSecondary: '#616776',
-  textMuted: '#8c93a5',
-  border: '#e1e6ef',
-  white: '#ffffff',
-};
+import { useMemo } from 'react';
+import { type ViewStyle, useColorScheme } from 'react-native';
+
+export type ThemeMode = 'light' | 'dark';
+
+export interface ThemePalette {
+  background: string;
+  backgroundSoft: string;
+  surface: string;
+  surfaceElevated: string;
+  surfaceLight: string;
+  surfaceGlass: string;
+  primary: string;
+  primaryLight: string;
+  accent: string;
+  success: string;
+  error: string;
+  errorLight: string;
+  text: string;
+  textSecondary: string;
+  textMuted: string;
+  border: string;
+  line: string;
+  white: string;
+  overlay: string;
+  shadow: string;
+}
 
 export const Spacing = {
   xs: 4,
@@ -22,7 +33,7 @@ export const Spacing = {
   lg: 24,
   xl: 32,
   xxl: 48,
-};
+} as const;
 
 export const FontSize = {
   sm: 14,
@@ -31,7 +42,7 @@ export const FontSize = {
   xl: 24,
   xxl: 32,
   display: 48,
-};
+} as const;
 
 export const BorderRadius = {
   sm: 8,
@@ -39,4 +50,181 @@ export const BorderRadius = {
   lg: 16,
   xl: 24,
   full: 9999,
+} as const;
+
+interface ThemeShadows {
+  card: ViewStyle;
+  elevated: ViewStyle;
+  glass: ViewStyle;
+}
+
+export interface ThemeTokens {
+  mode: ThemeMode;
+  colors: ThemePalette;
+  spacing: typeof Spacing;
+  fontSize: typeof FontSize;
+  borderRadius: typeof BorderRadius;
+  typography: {
+    sans: string;
+    display: string;
+  };
+  shadows: ThemeShadows;
+}
+
+export type ScreenAccentId =
+  | 'home'
+  | 'moji-mash'
+  | 'wordie'
+  | 'sudoku'
+  | 'trivia'
+  | 'bridges'
+  | 'whodunit'
+  | 'barter';
+
+export interface ScreenAccentTokens {
+  main: string;
+  soft: string;
+  contrast: string;
+  glow: string;
+  badgeBg: string;
+  badgeBorder: string;
+  badgeText: string;
+}
+
+const LIGHT_COLORS: ThemePalette = {
+  background: '#fafbfd',
+  backgroundSoft: '#f3f6fb',
+  surface: '#ffffff',
+  surfaceElevated: '#ffffff',
+  surfaceLight: '#eef2f8',
+  surfaceGlass: 'rgba(255, 255, 255, 0.78)',
+  primary: '#0b0b0b',
+  primaryLight: '#22252d',
+  accent: '#ff3b30',
+  success: '#18a957',
+  error: '#e04444',
+  errorLight: '#f7b2b2',
+  text: '#0b0b0b',
+  textSecondary: '#4d5360',
+  textMuted: '#6a7180',
+  border: 'rgba(11, 11, 11, 0.14)',
+  line: 'rgba(11, 11, 11, 0.12)',
+  white: '#ffffff',
+  overlay: 'rgba(10, 16, 24, 0.45)',
+  shadow: '#0b0b0b',
 };
+
+const DARK_COLORS: ThemePalette = {
+  background: '#0b0f15',
+  backgroundSoft: '#0f141d',
+  surface: '#151c26',
+  surfaceElevated: '#1b2430',
+  surfaceLight: '#232f3e',
+  surfaceGlass: 'rgba(21, 28, 38, 0.75)',
+  primary: '#f7f7f7',
+  primaryLight: '#d9dde3',
+  accent: '#ff5a51',
+  success: '#4fb477',
+  error: '#ff6b6b',
+  errorLight: '#523437',
+  text: '#f7f7f7',
+  textSecondary: '#d3d8e0',
+  textMuted: '#9ca7b8',
+  border: 'rgba(255, 255, 255, 0.18)',
+  line: 'rgba(255, 255, 255, 0.2)',
+  white: '#ffffff',
+  overlay: 'rgba(5, 8, 12, 0.68)',
+  shadow: '#000000',
+};
+
+function createTheme(mode: ThemeMode): ThemeTokens {
+  const colors = mode === 'dark' ? DARK_COLORS : LIGHT_COLORS;
+  return {
+    mode,
+    colors,
+    spacing: Spacing,
+    fontSize: FontSize,
+    borderRadius: BorderRadius,
+    typography: {
+      sans: 'Sora, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      display: 'Sora, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    },
+    shadows: {
+      card: {
+        shadowColor: colors.shadow,
+        shadowOpacity: mode === 'dark' ? 0.24 : 0.08,
+        shadowRadius: mode === 'dark' ? 24 : 16,
+        shadowOffset: { width: 0, height: mode === 'dark' ? 14 : 10 },
+        elevation: mode === 'dark' ? 7 : 4,
+      },
+      elevated: {
+        shadowColor: colors.shadow,
+        shadowOpacity: mode === 'dark' ? 0.32 : 0.12,
+        shadowRadius: mode === 'dark' ? 28 : 20,
+        shadowOffset: { width: 0, height: mode === 'dark' ? 16 : 12 },
+        elevation: mode === 'dark' ? 10 : 6,
+      },
+      glass: {
+        shadowColor: colors.shadow,
+        shadowOpacity: mode === 'dark' ? 0.2 : 0.06,
+        shadowRadius: mode === 'dark' ? 18 : 12,
+        shadowOffset: { width: 0, height: mode === 'dark' ? 12 : 8 },
+        elevation: mode === 'dark' ? 6 : 3,
+      },
+    },
+  };
+}
+
+const LIGHT_THEME = createTheme('light');
+const DARK_THEME = createTheme('dark');
+
+export function resolveTheme(mode: ThemeMode): ThemeTokens {
+  return mode === 'dark' ? DARK_THEME : LIGHT_THEME;
+}
+
+export function useDaybreakTheme(): ThemeTokens {
+  const colorScheme = useColorScheme();
+  const mode: ThemeMode = colorScheme === 'dark' ? 'dark' : 'light';
+  return useMemo(() => resolveTheme(mode), [mode]);
+}
+
+function alpha(hex: string, opacity: number): string {
+  const normalized = hex.replace('#', '');
+  if (normalized.length !== 6) {
+    return hex;
+  }
+  const r = parseInt(normalized.slice(0, 2), 16);
+  const g = parseInt(normalized.slice(2, 4), 16);
+  const b = parseInt(normalized.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
+
+const SCREEN_ACCENT_HEX: Record<ScreenAccentId, string> = {
+  home: '#ff3b30',
+  'moji-mash': '#6d4aff',
+  wordie: '#2f6bff',
+  sudoku: '#4fb477',
+  trivia: '#00a48a',
+  bridges: '#e8a838',
+  whodunit: '#7f1d1d',
+  barter: '#0d7c5f',
+};
+
+export function resolveScreenAccent(
+  accent: ScreenAccentId,
+  theme: ThemeTokens
+): ScreenAccentTokens {
+  const main = SCREEN_ACCENT_HEX[accent];
+  return {
+    main,
+    soft: alpha(main, theme.mode === 'dark' ? 0.3 : 0.12),
+    contrast: theme.mode === 'dark' ? '#f7f7f7' : '#0b0b0b',
+    glow: alpha(main, theme.mode === 'dark' ? 0.4 : 0.24),
+    badgeBg: alpha(main, theme.mode === 'dark' ? 0.2 : 0.1),
+    badgeBorder: alpha(main, theme.mode === 'dark' ? 0.45 : 0.28),
+    badgeText: theme.mode === 'dark' ? '#f7f7f7' : main,
+  };
+}
+
+// Backwards-compatible exports for files that still import these directly.
+export const Colors = LIGHT_THEME.colors;

@@ -11,7 +11,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-import { BorderRadius, Colors, FontSize, Spacing } from '../src/constants/theme';
+import {
+  type ThemeTokens,
+  resolveScreenAccent,
+  useDaybreakTheme,
+} from '../src/constants/theme';
+import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import {
   BarterPuzzle,
   GoodId,
@@ -79,6 +84,11 @@ function formatTrade(trade: Trade): string {
 }
 
 export default function BarterScreen() {
+  const theme = useDaybreakTheme();
+  const screenAccent = useMemo(() => resolveScreenAccent('barter', theme), [theme]);
+  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
   const router = useRouter();
   const puzzle = useMemo<BarterPuzzle>(() => getDailyBarter(), []);
   const { width } = useWindowDimensions();
@@ -120,21 +130,34 @@ export default function BarterScreen() {
     ? 'Late Window'
     : `Early Window · ${earlyWindowRemaining} left`;
   const marketAlertTone = useMemo(() => {
+    const dark = theme.mode === 'dark';
     switch (puzzle.marketEmoji) {
       case '🌶️':
-        return { bg: '#fff0e8', border: '#f1b48c', text: '#8b3a12' };
+        return dark
+          ? { bg: 'rgba(255, 138, 92, 0.18)', border: 'rgba(255, 138, 92, 0.36)', text: '#ffd4bf' }
+          : { bg: '#fff0e8', border: '#f1b48c', text: '#8b3a12' };
       case '🏺':
-        return { bg: '#fff4e5', border: '#e9c79a', text: '#7a4a1a' };
+        return dark
+          ? { bg: 'rgba(232, 168, 56, 0.18)', border: 'rgba(232, 168, 56, 0.36)', text: '#ffe0a8' }
+          : { bg: '#fff4e5', border: '#e9c79a', text: '#7a4a1a' };
       case '⚓️':
-        return { bg: '#e9f3ff', border: '#9dbde6', text: '#2d4f7a' };
+        return dark
+          ? { bg: 'rgba(116, 173, 255, 0.18)', border: 'rgba(116, 173, 255, 0.36)', text: '#c9e2ff' }
+          : { bg: '#e9f3ff', border: '#9dbde6', text: '#2d4f7a' };
       case '🧵':
-        return { bg: '#f1edff', border: '#c4b6f3', text: '#4a3b84' };
+        return dark
+          ? { bg: 'rgba(170, 141, 255, 0.2)', border: 'rgba(170, 141, 255, 0.36)', text: '#dfd0ff' }
+          : { bg: '#f1edff', border: '#c4b6f3', text: '#4a3b84' };
       case '🫖':
-        return { bg: '#f7f0e8', border: '#d7c2a7', text: '#6a4c2a' };
+        return dark
+          ? { bg: 'rgba(215, 194, 167, 0.2)', border: 'rgba(215, 194, 167, 0.36)', text: '#efdbc5' }
+          : { bg: '#f7f0e8', border: '#d7c2a7', text: '#6a4c2a' };
       default:
-        return { bg: '#fff4e5', border: '#f1c38a', text: '#8a4a0b' };
+        return dark
+          ? { bg: screenAccent.soft, border: screenAccent.badgeBorder, text: Colors.text }
+          : { bg: '#fff4e5', border: '#f1c38a', text: '#8a4a0b' };
     }
-  }, [puzzle.marketEmoji]);
+  }, [puzzle.marketEmoji, theme.mode, screenAccent, Colors.text]);
 
   const tradeWaves = useMemo(() => {
     const wave1 = puzzle.trades.filter((trade) => trade.window !== 'late');
@@ -632,19 +655,40 @@ export default function BarterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (
+  theme: ThemeTokens,
+  screenAccent: ReturnType<typeof resolveScreenAccent>
+) => {
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
+  const FontSize = theme.fontSize;
+  const BorderRadius = theme.borderRadius;
+  const ui = createDaybreakPrimitives(theme, screenAccent);
+  const paper = theme.mode === 'dark' ? Colors.surfaceElevated : '#fffdf8';
+  const paperMuted = theme.mode === 'dark' ? Colors.surfaceLight : '#f0ede8';
+  const canvas = theme.mode === 'dark' ? Colors.backgroundSoft : '#f6f3ef';
+  const borderSoft = theme.mode === 'dark' ? Colors.border : '#e6e0d6';
+  const inkStrong = theme.mode === 'dark' ? Colors.text : '#1f1b16';
+  const inkMuted = theme.mode === 'dark' ? Colors.textSecondary : '#5f584f';
+  const inkSoft = theme.mode === 'dark' ? Colors.textMuted : '#8a8174';
+  const darkButtonBg = theme.mode === 'dark' ? Colors.primary : '#1f1b16';
+  const darkButtonPressed = theme.mode === 'dark' ? Colors.primaryLight : '#3a342d';
+  const disabledBg = theme.mode === 'dark' ? Colors.surfaceLight : '#eee9e3';
+  const disabledText = theme.mode === 'dark' ? Colors.textMuted : '#9a9082';
+
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f3ef',
+    backgroundColor: canvas,
   },
   scrollContent: {
     paddingTop: Spacing.sm,
     paddingBottom: Spacing.xxl,
   },
   stickyHeader: {
-    backgroundColor: '#f6f3ef',
+    backgroundColor: canvas,
     borderBottomWidth: 1,
-    borderBottomColor: '#e6e0d6',
+    borderBottomColor: borderSoft,
     paddingHorizontal: 0,
     paddingBottom: Spacing.sm,
     zIndex: 10,
@@ -658,9 +702,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
   },
   page: {
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
+    ...ui.page,
     paddingHorizontal: Spacing.md,
   },
   header: {
@@ -668,27 +710,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   introCard: {
-    backgroundColor: '#fffdf8',
+    backgroundColor: paper,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: '#e6e0d6',
+    borderColor: borderSoft,
     padding: Spacing.md,
     marginBottom: Spacing.md,
   },
   introTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1f1b16',
+    color: inkStrong,
   },
   introBody: {
     marginTop: 4,
     fontSize: 12,
-    color: '#5f584f',
+    color: inkMuted,
   },
   introHint: {
     marginTop: 2,
     fontSize: 11,
-    color: '#8a8174',
+    color: inkSoft,
   },
   transitionBanner: {
     backgroundColor: '#fff4e5',
@@ -711,24 +753,24 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#1f1b16',
+    color: inkStrong,
   },
   titleCompact: {
     fontSize: 20,
   },
   dateLabel: {
     fontSize: 12,
-    color: '#8a8174',
+    color: inkSoft,
     marginTop: 2,
   },
   dateLabelCompact: {
     fontSize: 11,
   },
   summaryCard: {
-    backgroundColor: '#fffdf8',
+    backgroundColor: paper,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e6e0d6',
+    borderColor: borderSoft,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.sm,
     marginBottom: Spacing.xs,
@@ -750,7 +792,7 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 10,
-    color: '#8a8174',
+    color: inkSoft,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
@@ -758,7 +800,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 15,
     fontWeight: '700',
-    color: '#1f1b16',
+    color: inkStrong,
   },
   summaryValueCompact: {
     fontSize: 13,
@@ -773,8 +815,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
-    backgroundColor: '#efe7db',
-    color: '#5f584f',
+    backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#efe7db',
+    color: inkMuted,
     fontSize: 11,
     fontWeight: '600',
   },
@@ -792,12 +834,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: '#1f1b16',
+    color: inkStrong,
   },
   sectionSubtitle: {
     marginTop: 2,
     fontSize: FontSize.sm,
-    color: '#8a8174',
+    color: inkSoft,
   },
   inventoryRow: {
     flexDirection: 'row',
@@ -809,10 +851,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   inventoryCard: {
-    backgroundColor: '#fffdf8',
+    backgroundColor: paper,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e6e0d6',
+    borderColor: borderSoft,
     paddingVertical: 5,
     paddingHorizontal: 4,
     flex: 1,
@@ -835,7 +877,7 @@ const styles = StyleSheet.create({
   inventoryCount: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#1f1b16',
+    color: inkStrong,
     marginTop: 2,
   },
   inventoryCountCompact: {
@@ -850,10 +892,10 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   tradeCard: {
-    backgroundColor: '#fffdf8',
+    backgroundColor: paper,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e6e0d6',
+    borderColor: borderSoft,
     padding: Spacing.sm,
     shadowOpacity: 0,
     elevation: 0,
@@ -867,14 +909,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
   },
   tradeCardAvailable: {
-    borderColor: '#e6e0d6',
+    borderColor: borderSoft,
   },
   tradeCardUnavailable: {
-    borderColor: '#e6e0d6',
+    borderColor: borderSoft,
     opacity: 0.65,
   },
   tradeCardFlash: {
-    backgroundColor: '#f0ede8',
+    backgroundColor: paperMuted,
   },
   tradeRow: {
     flexDirection: 'row',
@@ -915,7 +957,7 @@ const styles = StyleSheet.create({
   tradeQty: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#1f1b16',
+    color: inkStrong,
   },
   tradeQtyCompact: {
     fontSize: 13,
@@ -935,20 +977,20 @@ const styles = StyleSheet.create({
   tradePlus: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#8a8174',
+    color: inkSoft,
     marginHorizontal: 2,
   },
   tradeLabel: {
     fontSize: 12,
-    color: '#8a8174',
+    color: inkSoft,
   },
   tradeArrow: {
     fontSize: 16,
-    color: '#8a8174',
+    color: inkSoft,
     fontWeight: '700',
   },
   tradeButton: {
-    backgroundColor: '#1f1b16',
+    backgroundColor: darkButtonBg,
     borderRadius: BorderRadius.full,
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -966,11 +1008,11 @@ const styles = StyleSheet.create({
     minWidth: 96,
   },
   tradeButtonPressed: {
-    backgroundColor: '#3a342d',
+    backgroundColor: darkButtonPressed,
     transform: [{ scale: 0.99 }],
   },
   tradeButtonDisabled: {
-    backgroundColor: '#eee9e3',
+    backgroundColor: disabledBg,
   },
   tradeButtonText: {
     color: '#ffffff',
@@ -978,7 +1020,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   tradeButtonTextDisabled: {
-    color: '#9a9082',
+    color: disabledText,
   },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -995,10 +1037,7 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
     borderWidth: 1,
     borderColor: Colors.border,
-    shadowColor: '#000000',
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 12 },
+    ...theme.shadows.elevated,
     ...WEB_NO_SELECT,
   },
   resultEmoji: {
@@ -1061,19 +1100,18 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   shareButton: {
+    ...ui.cta,
     marginTop: Spacing.sm,
-    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.sm,
     paddingVertical: Spacing.sm,
-    alignItems: 'center',
   },
   shareButtonPressed: {
-    backgroundColor: Colors.primaryLight,
+    ...ui.ctaPressed,
   },
   shareButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
-    fontWeight: '600',
+    ...ui.ctaText,
+    textTransform: 'none',
+    letterSpacing: 0.6,
   },
   shareStatus: {
     marginTop: Spacing.xs,
@@ -1101,4 +1139,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: '600',
   },
-});
+  });
+};

@@ -1,21 +1,46 @@
-import { View, StyleSheet } from 'react-native';
+import { Platform, Text, TextInput, View, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Colors } from '../src/constants/theme';
+import { useEffect, useMemo } from 'react';
+import { type ThemeTokens, useDaybreakTheme } from '../src/constants/theme';
 
 export default function RootLayout() {
+  const theme = useDaybreakTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    const fontStyle = { fontFamily: theme.typography.sans };
+
+    Text.defaultProps = Text.defaultProps ?? {};
+    Text.defaultProps.style = fontStyle;
+
+    TextInput.defaultProps = TextInput.defaultProps ?? {};
+    TextInput.defaultProps.style = fontStyle;
+  }, [theme.typography.sans]);
+
   return (
     <SafeAreaProvider>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
       <View style={styles.app}>
         <Stack
           screenOptions={{
-            headerStyle: { backgroundColor: Colors.background },
-            headerTintColor: Colors.text,
-            headerTitleStyle: { fontWeight: '700' },
-            contentStyle: { backgroundColor: Colors.background },
+            headerStyle: { backgroundColor: theme.colors.background },
+            headerTintColor: theme.colors.text,
+            headerTitleStyle: {
+              fontWeight: '700',
+              color: theme.colors.text,
+            },
+            headerLargeTitleStyle: {
+              color: theme.colors.text,
+            },
+            contentStyle: {
+              backgroundColor: theme.colors.background,
+            },
             headerShadowVisible: false,
+            headerTitleAlign: 'left',
             animation: 'slide_from_right',
           }}
         />
@@ -24,8 +49,9 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  app: {
-    flex: 1,
-  },
-});
+const createStyles = (_theme: ThemeTokens) =>
+  StyleSheet.create({
+    app: {
+      flex: 1,
+    },
+  });

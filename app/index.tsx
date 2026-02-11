@@ -2,7 +2,12 @@ import { View, Text, StyleSheet, Pressable, Image, Platform, ScrollView } from '
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
+import {
+  type ThemeTokens,
+  resolveScreenAccent,
+  useDaybreakTheme,
+} from '../src/constants/theme';
+import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { BUILD_ID } from '../src/constants/build';
 import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
@@ -14,6 +19,9 @@ import { getDailyBridges } from '../src/data/bridgesPuzzles';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 
 export default function HomeScreen() {
+  const theme = useDaybreakTheme();
+  const screenAccent = useMemo(() => resolveScreenAccent('home', theme), [theme]);
+  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
   const router = useRouter();
   const puzzle = getDailyPuzzle();
   const whodunit = getDailyWhodunit();
@@ -492,19 +500,29 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (
+  theme: ThemeTokens,
+  screenAccent: ReturnType<typeof resolveScreenAccent>
+) => {
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
+  const FontSize = theme.fontSize;
+  const BorderRadius = theme.borderRadius;
+  const ui = createDaybreakPrimitives(theme, screenAccent);
+  const bridgesAccent = resolveScreenAccent('bridges', theme);
+  const barterAccent = resolveScreenAccent('barter', theme);
+
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSoft,
   },
   scrollContent: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xxl,
   },
   page: {
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
+    ...ui.page,
   },
   header: {
     paddingTop: Spacing.xxl,
@@ -554,19 +572,11 @@ const styles = StyleSheet.create({
     paddingRight: Spacing.lg,
   },
   quickLinkCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
+    ...ui.glassCard,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
     minWidth: 120,
     alignItems: 'center',
-    shadowColor: '#000000',
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
   },
   quickLinkCardPressed: {
     transform: [{ scale: 0.98 }],
@@ -588,33 +598,33 @@ const styles = StyleSheet.create({
   },
   quickLinkHotBadge: {
     marginTop: Spacing.xs,
-    backgroundColor: '#fff7ed',
+    backgroundColor: screenAccent.badgeBg,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderWidth: 1,
-    borderColor: '#fb923c',
+    borderColor: screenAccent.badgeBorder,
   },
   quickLinkHotText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#c2410c',
+    color: screenAccent.badgeText,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
   quickLinkNewBadge: {
     marginTop: Spacing.xs,
-    backgroundColor: '#ecfdf5',
+    backgroundColor: barterAccent.badgeBg,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderWidth: 1,
-    borderColor: '#10b981',
+    borderColor: barterAccent.badgeBorder,
   },
   quickLinkNewText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#0d7c5f',
+    color: barterAccent.badgeText,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
@@ -650,7 +660,7 @@ const styles = StyleSheet.create({
     maxWidth: 420,
   },
   bridgesKicker: {
-    color: '#1b7fb3',
+    color: bridgesAccent.main,
     fontSize: FontSize.sm,
     fontWeight: '700',
     letterSpacing: 1.2,
@@ -658,7 +668,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   barterKicker: {
-    color: '#0d7c5f',
+    color: barterAccent.main,
     fontSize: FontSize.sm,
     fontWeight: '700',
     letterSpacing: 1.2,
@@ -667,30 +677,25 @@ const styles = StyleSheet.create({
   },
   newBadge: {
     marginTop: Spacing.xs,
-    backgroundColor: '#ecfdf5',
+    backgroundColor: barterAccent.badgeBg,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     paddingVertical: 4,
     borderWidth: 1,
-    borderColor: '#10b981',
+    borderColor: barterAccent.badgeBorder,
     alignSelf: 'flex-start',
   },
   newBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#0d7c5f',
+    color: barterAccent.badgeText,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   streakPill: {
     marginTop: Spacing.sm,
     alignSelf: 'flex-start',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    ...ui.pill,
   },
   streakText: {
     color: Colors.textSecondary,
@@ -698,15 +703,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   dailyCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
+    ...ui.card,
     padding: Spacing.xl,
     marginTop: Spacing.md,
-    shadowColor: '#000000',
-    shadowOpacity: 0.06,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 4,
   },
   preview: {
     alignItems: 'center',
@@ -942,20 +941,18 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   playButton: {
-    backgroundColor: Colors.primary,
+    ...ui.cta,
     borderRadius: BorderRadius.sm,
-    paddingVertical: Spacing.md,
-    alignItems: 'center',
     marginTop: Spacing.lg,
   },
   playButtonPressed: {
-    backgroundColor: Colors.primaryLight,
-    transform: [{ scale: 0.99 }],
+    ...ui.ctaPressed,
   },
   playButtonText: {
-    color: Colors.white,
+    ...ui.ctaText,
     fontSize: FontSize.md,
-    fontWeight: '600',
+    letterSpacing: 0.7,
+    textTransform: 'none',
   },
   buildFooter: {
     alignItems: 'center',
@@ -965,4 +962,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textMuted,
   },
-});
+  });
+};

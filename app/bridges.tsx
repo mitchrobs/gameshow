@@ -10,7 +10,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
-import { BorderRadius, Colors, FontSize, Spacing } from '../src/constants/theme';
+import {
+  type ThemeTokens,
+  resolveScreenAccent,
+  useDaybreakTheme,
+} from '../src/constants/theme';
+import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import {
   getDailyBridges,
   BridgesBridge,
@@ -36,17 +41,6 @@ interface HistoryEntry {
 }
 
 const STORAGE_PREFIX = 'bridges';
-
-const BRIDGES_COLORS = {
-  accent: '#e8a838',
-  board: '#f5f0e8',
-  boardBorder: '#e3dccf',
-  bridge: '#6b7f99',
-  island: '#2d3142',
-  islandText: '#f5f0e8',
-  satisfied: '#5b8a72',
-  over: '#d64045',
-};
 
 const DAILY_LOCATIONS = [
   { emoji: '🏝️', label: 'Pacific Islands' },
@@ -163,6 +157,11 @@ function wouldCross(
 }
 
 export default function BridgesScreen() {
+  const theme = useDaybreakTheme();
+  const screenAccent = useMemo(() => resolveScreenAccent('bridges', theme), [theme]);
+  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
   const dateKey = useMemo(() => getLocalDateKey(), []);
   const puzzle: BridgesPuzzle = useMemo(() => getDailyBridges(), []);
   const [bridges, setBridges] = useState<BridgeState>({});
@@ -729,25 +728,41 @@ export default function BridgesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (
+  theme: ThemeTokens,
+  screenAccent: ReturnType<typeof resolveScreenAccent>
+) => {
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
+  const FontSize = theme.fontSize;
+  const BorderRadius = theme.borderRadius;
+  const ui = createDaybreakPrimitives(theme, screenAccent);
+  const bridgesPalette = {
+    accent: screenAccent.main,
+    board: theme.mode === 'dark' ? theme.colors.surfaceElevated : '#f5f0e8',
+    boardBorder: theme.colors.border,
+    bridge: theme.mode === 'dark' ? '#9cb3d3' : '#6b7f99',
+    island: theme.mode === 'dark' ? '#2a3240' : '#2d3142',
+    islandText: theme.colors.white,
+    satisfied: theme.colors.success,
+    over: theme.colors.error,
+  };
+
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSoft,
   },
   scrollContent: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xxl,
   },
   page: {
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
+    ...ui.page,
   },
   pageAccent: {
-    height: 6,
+    ...ui.accentBar,
     width: 90,
-    backgroundColor: BRIDGES_COLORS.accent,
-    borderRadius: 999,
     marginBottom: Spacing.md,
   },
   header: {
@@ -830,24 +845,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   board: {
-    backgroundColor: BRIDGES_COLORS.board,
+    backgroundColor: bridgesPalette.board,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: BRIDGES_COLORS.boardBorder,
+    borderColor: bridgesPalette.boardBorder,
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
   },
   bridgeLine: {
     position: 'absolute',
-    backgroundColor: BRIDGES_COLORS.bridge,
+    backgroundColor: bridgesPalette.bridge,
   },
   island: {
     position: 'absolute',
     borderRadius: 999,
-    backgroundColor: BRIDGES_COLORS.island,
+    backgroundColor: bridgesPalette.island,
     borderWidth: 2,
-    borderColor: BRIDGES_COLORS.island,
+    borderColor: bridgesPalette.island,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -855,27 +870,27 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.97 }],
   },
   islandSelected: {
-    borderColor: BRIDGES_COLORS.accent,
-    shadowColor: BRIDGES_COLORS.accent,
+    borderColor: bridgesPalette.accent,
+    shadowColor: bridgesPalette.accent,
     shadowOpacity: 0.3,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
   },
   islandFocused: {
-    borderColor: BRIDGES_COLORS.bridge,
+    borderColor: bridgesPalette.bridge,
   },
   islandSatisfied: {
-    backgroundColor: BRIDGES_COLORS.satisfied,
-    borderColor: BRIDGES_COLORS.satisfied,
+    backgroundColor: bridgesPalette.satisfied,
+    borderColor: bridgesPalette.satisfied,
   },
   islandOver: {
-    backgroundColor: BRIDGES_COLORS.over,
-    borderColor: BRIDGES_COLORS.over,
+    backgroundColor: bridgesPalette.over,
+    borderColor: bridgesPalette.over,
   },
   islandText: {
     fontSize: 16,
     fontWeight: '700',
-    color: BRIDGES_COLORS.islandText,
+    color: bridgesPalette.islandText,
   },
   statusText: {
     marginTop: Spacing.md,
@@ -885,11 +900,8 @@ const styles = StyleSheet.create({
   },
   resultCard: {
     marginTop: Spacing.lg,
+    ...ui.card,
     padding: Spacing.lg,
-    borderRadius: BorderRadius.lg,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
     alignItems: 'center',
   },
   confetti: {
@@ -934,19 +946,18 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   shareButton: {
+    ...ui.cta,
     marginTop: Spacing.sm,
-    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.sm,
-    alignItems: 'center',
   },
   shareButtonPressed: {
     opacity: 0.9,
   },
   shareButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
-    fontWeight: '600',
+    ...ui.ctaText,
+    textTransform: 'none',
+    letterSpacing: 0.6,
   },
   shareStatus: {
     marginTop: Spacing.xs,
@@ -965,9 +976,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.lg,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.surfaceGlass,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.line,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -982,4 +993,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text,
   },
-});
+  });
+};

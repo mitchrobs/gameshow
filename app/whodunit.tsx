@@ -9,7 +9,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-import { Colors, Spacing, FontSize, BorderRadius } from '../src/constants/theme';
+import {
+  type ThemeTokens,
+  resolveScreenAccent,
+  useDaybreakTheme,
+} from '../src/constants/theme';
+import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import {
   getDailyWhodunit,
   getDateLabel,
@@ -53,6 +58,10 @@ function formatTime(seconds: number): string {
 }
 
 export default function WhodunitScreen() {
+  const theme = useDaybreakTheme();
+  const screenAccent = useMemo(() => resolveScreenAccent('whodunit', theme), [theme]);
+  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
+  const Colors = theme.colors;
   const router = useRouter();
   const dateKey = useMemo(() => getLocalDateKey(), []);
   const dateLabel = useMemo(() => getDateLabel(), []);
@@ -627,10 +636,20 @@ export default function WhodunitScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (
+  theme: ThemeTokens,
+  screenAccent: ReturnType<typeof resolveScreenAccent>
+) => {
+  const Colors = theme.colors;
+  const Spacing = theme.spacing;
+  const FontSize = theme.fontSize;
+  const BorderRadius = theme.borderRadius;
+  const ui = createDaybreakPrimitives(theme, screenAccent);
+
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSoft,
   },
   scrollContent: {
     padding: Spacing.lg,
@@ -652,15 +671,10 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.sm,
   },
   page: {
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
+    ...ui.page,
   },
   pageAccent: {
-    height: 6,
-    width: 80,
-    backgroundColor: '#7f1d1d',
-    borderRadius: 999,
+    ...ui.accentBar,
     marginBottom: Spacing.md,
   },
 
@@ -698,7 +712,7 @@ const styles = StyleSheet.create({
   },
   penaltyText: {
     fontSize: FontSize.sm,
-    color: Colors.accent,
+    color: screenAccent.main,
     fontWeight: '600',
     marginTop: Spacing.xs,
   },
@@ -828,7 +842,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: Colors.accent,
+    backgroundColor: screenAccent.main,
     color: Colors.white,
     textAlign: 'center',
     lineHeight: 20,
@@ -881,9 +895,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.border,
   },
   leadChoiceSelected: {
-    borderColor: Colors.accent,
-    backgroundColor: 'rgba(255, 77, 109, 0.08)',
-    shadowColor: Colors.accent,
+    borderColor: screenAccent.main,
+    backgroundColor: screenAccent.soft,
+    shadowColor: screenAccent.main,
     shadowOpacity: 0.25,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
@@ -908,7 +922,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   leadRadioDotActive: {
-    backgroundColor: Colors.accent,
+    backgroundColor: screenAccent.main,
   },
   leadChoiceContent: {
     flex: 1,
@@ -996,9 +1010,9 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   suspectSelected: {
-    borderColor: Colors.accent,
-    backgroundColor: 'rgba(255, 77, 109, 0.06)',
-    shadowColor: Colors.accent,
+    borderColor: screenAccent.main,
+    backgroundColor: screenAccent.soft,
+    shadowColor: screenAccent.main,
     shadowOpacity: 0.3,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -1043,7 +1057,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.accent,
+    backgroundColor: screenAccent.main,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 2,
@@ -1102,7 +1116,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.accent,
+    backgroundColor: screenAccent.main,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
@@ -1128,7 +1142,7 @@ const styles = StyleSheet.create({
   remainingCluesTitle: {
     fontSize: FontSize.sm,
     fontWeight: '700',
-    color: Colors.accent,
+    color: screenAccent.main,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1144,10 +1158,10 @@ const styles = StyleSheet.create({
 
   // Accuse button
   accuseButton: {
-    backgroundColor: Colors.accent,
+    ...ui.cta,
+    backgroundColor: screenAccent.main,
     borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.sm,
-    alignItems: 'center',
     marginBottom: Spacing.md,
   },
   accuseButtonPressed: {
@@ -1158,9 +1172,8 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   accuseButtonText: {
-    color: Colors.white,
+    ...ui.ctaText,
     fontSize: FontSize.lg,
-    fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1173,15 +1186,9 @@ const styles = StyleSheet.create({
 
   // Result
   resultCard: {
+    ...ui.card,
     alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
-    shadowColor: '#000000',
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 4,
   },
   resultEmoji: {
     fontSize: 64,
@@ -1194,7 +1201,7 @@ const styles = StyleSheet.create({
   },
   resultReveal: {
     fontSize: FontSize.md,
-    color: Colors.accent,
+    color: screenAccent.main,
     fontWeight: '600',
     marginTop: Spacing.sm,
   },
@@ -1274,19 +1281,18 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   shareButton: {
-    backgroundColor: Colors.primary,
+    ...ui.cta,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.xs,
-    alignItems: 'center',
     marginTop: Spacing.xs,
   },
   shareButtonPressed: {
-    backgroundColor: Colors.primaryLight,
+    ...ui.ctaPressed,
   },
   shareButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
+    ...ui.ctaText,
+    textTransform: 'none',
+    letterSpacing: 0.6,
   },
   shareStatus: {
     marginTop: Spacing.xs,
@@ -1310,4 +1316,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '600',
   },
-});
+  });
+};
