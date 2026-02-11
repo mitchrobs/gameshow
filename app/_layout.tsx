@@ -3,10 +3,14 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect, useMemo } from 'react';
-import { type ThemeTokens, useDaybreakTheme } from '../src/constants/theme';
+import {
+  DaybreakThemeProvider,
+  type ThemeTokens,
+  useResolvedDaybreakTheme,
+} from '../src/constants/theme';
 
 export default function RootLayout() {
-  const theme = useDaybreakTheme();
+  const theme = useResolvedDaybreakTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   useEffect(() => {
@@ -42,30 +46,32 @@ export default function RootLayout() {
   }, [theme.colors.backgroundSoft, theme.mode]);
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
-      <View style={styles.app}>
-        <Stack
-          screenOptions={{
-            headerStyle: { backgroundColor: theme.colors.backgroundSoft },
-            headerTintColor: theme.colors.text,
-            headerTitleStyle: {
-              fontWeight: '700',
-              color: theme.colors.text,
-            },
-            headerLargeTitleStyle: {
-              color: theme.colors.text,
-            },
-            contentStyle: {
-              backgroundColor: theme.colors.backgroundSoft,
-            },
-            headerShadowVisible: false,
-            headerTitleAlign: 'left',
-            animation: 'slide_from_right',
-          }}
-        />
-      </View>
-    </SafeAreaProvider>
+    <DaybreakThemeProvider value={theme}>
+      <SafeAreaProvider>
+        <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
+        <View style={styles.app}>
+          <Stack
+            screenOptions={{
+              headerStyle: { backgroundColor: theme.colors.backgroundSoft },
+              headerTintColor: theme.colors.text,
+              headerTitleStyle: {
+                fontWeight: '700',
+                color: theme.colors.text,
+              },
+              headerLargeTitleStyle: {
+                color: theme.colors.text,
+              },
+              contentStyle: {
+                backgroundColor: theme.colors.backgroundSoft,
+              },
+              headerShadowVisible: false,
+              headerTitleAlign: 'left',
+              animation: 'slide_from_right',
+            }}
+          />
+        </View>
+      </SafeAreaProvider>
+    </DaybreakThemeProvider>
   );
 }
 

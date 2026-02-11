@@ -1,18 +1,21 @@
-import { useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  createElement,
+  type PropsWithChildren,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   Appearance,
   Platform,
   type ColorSchemeName,
   type ViewStyle,
+  useColorScheme,
 } from 'react-native';
 
 export type ThemeMode = 'light' | 'dark';
-
-declare global {
-  interface Window {
-    __DAYBREAK_THEME__?: ThemeMode;
-  }
-}
 
 export interface ThemePalette {
   background: string;
@@ -202,43 +205,17 @@ function coerceThemeMode(value: string | null | undefined): ThemeMode | null {
   return null;
 }
 
-function getMatchMediaMode(): ThemeMode | null {
+function getWebPreferredMode(): ThemeMode | null {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return null;
   }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-function getCssPreferredMode(): ThemeMode | null {
-  if (typeof document === 'undefined' || typeof window === 'undefined') return null;
+  const mediaMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (mediaMode) return mediaMode;
+  if (typeof document === 'undefined') return null;
   const root = document.documentElement;
   if (!root) return null;
   const cssMode = window.getComputedStyle(root).getPropertyValue('--daybreak-system-theme').trim();
   return coerceThemeMode(cssMode);
-}
-
-function applyWebThemeMarkers(mode: ThemeMode): void {
-  if (typeof window !== 'undefined') {
-    window.__DAYBREAK_THEME__ = mode;
-  }
-  if (typeof document !== 'undefined') {
-    const root = document.documentElement;
-    if (root) {
-      root.dataset.daybreakTheme = mode;
-      root.style.colorScheme = mode;
-    }
-  }
-}
-
-function getWebPreferredMode(): ThemeMode | null {
-  if (typeof window === 'undefined') return null;
-  const mediaMode = getMatchMediaMode();
-  if (mediaMode) return mediaMode;
-  const cssMode = getCssPreferredMode();
-  if (cssMode) return cssMode;
-  const windowMode = coerceThemeMode(window.__DAYBREAK_THEME__);
-  if (windowMode) return windowMode;
-  return null;
 }
 
 function getInitialMode(): ThemeMode {
@@ -248,14 +225,14 @@ function getInitialMode(): ThemeMode {
   return toThemeMode(Appearance.getColorScheme());
 }
 
-export function useDaybreakTheme(): ThemeTokens {
+export function useResolvedDaybreakTheme(): ThemeTokens {
+  const colorScheme = useColorScheme();
   const [mode, setMode] = useState<ThemeMode>(() => getInitialMode());
 
   useEffect(() => {
     if (Platform.OS === 'web') {
       const apply = () => {
-        const nextMode = getWebPreferredMode() ?? toThemeMode(Appearance.getColorScheme());
-        applyWebThemeMarkers(nextMode);
+        const nextMode = getWebPreferredMode() ?? toThemeMode(colorScheme);
         setMode((prevMode) => (prevMode === nextMode ? prevMode : nextMode));
       };
 
@@ -313,21 +290,31 @@ export function useDaybreakTheme(): ThemeTokens {
       };
     }
 
-    const applyNative = () => {
-      setMode(toThemeMode(Appearance.getColorScheme()));
-    };
+    const nextMode = toThemeMode(colorScheme);
+    setMode((prevMode) => (prevMode === nextMode ? prevMode : nextMode));
 
-    applyNative();
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      setMode(toThemeMode(colorScheme));
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+    return undefined;
+  }, [colorScheme]);
 
   return useMemo(() => resolveTheme(mode), [mode]);
+}
+
+const DaybreakThemeContext = createContext<ThemeTokens | null>(null);
+
+interface DaybreakThemeProviderProps extends PropsWithChildren {
+  value: ThemeTokens;
+}
+
+export function DaybreakThemeProvider({ value, children }: DaybreakThemeProviderProps) {
+  return createElement(DaybreakThemeContext.Provider, { value }, children);
+}
+
+export function useDaybreakTheme(): ThemeTokens {
+  const theme = useContext(DaybreakThemeContext);
+  if (!theme) {
+    throw new Error('useDaybreakTheme must be used within DaybreakThemeProvider.');
+  }
+  return theme;
 }
 
 function alpha(hex: string, opacity: number): string {
