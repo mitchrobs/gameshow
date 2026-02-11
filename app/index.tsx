@@ -511,6 +511,17 @@ const createStyles = (
   const ui = createDaybreakPrimitives(theme, screenAccent);
   const bridgesAccent = resolveScreenAccent('bridges', theme);
   const barterAccent = resolveScreenAccent('barter', theme);
+  const hotBadge = theme.mode === 'dark'
+    ? {
+        bg: screenAccent.badgeBg,
+        border: screenAccent.badgeBorder,
+        text: screenAccent.badgeText,
+      }
+    : {
+        bg: '#fff1df',
+        border: '#f2bc79',
+        text: '#8a4300',
+      };
 
   return StyleSheet.create({
   container: {
@@ -606,17 +617,17 @@ const createStyles = (
   },
   quickLinkHotBadge: {
     marginTop: Spacing.xs,
-    backgroundColor: screenAccent.badgeBg,
+    backgroundColor: hotBadge.bg,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderWidth: 1,
-    borderColor: screenAccent.badgeBorder,
+    borderColor: hotBadge.border,
   },
   quickLinkHotText: {
     fontSize: 11,
     fontWeight: '700',
-    color: screenAccent.badgeText,
+    color: hotBadge.text,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
