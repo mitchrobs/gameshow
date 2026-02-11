@@ -139,17 +139,17 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <Stack.Screen
         options={{
-          headerTitleAlign: 'left',
-          headerTitle: () => (
-            <View style={styles.headerTitle}>
-              <Text style={styles.headerTitleText}>Daybreak Games</Text>
-              <Text style={styles.headerTaglineText}>For the curious</Text>
-            </View>
-          ),
+          headerShown: false,
         }}
       />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.page}>
+          <View style={styles.topbar}>
+            <View style={styles.topbarLeft}>
+              <Text style={styles.wordmark}>Daybreak</Text>
+            </View>
+          </View>
+
           <View style={styles.header}>
             <Text style={styles.greetingText}>{greeting}</Text>
             <Text style={styles.dateSubtitle}>{dateLabel}</Text>
@@ -524,8 +524,29 @@ const createStyles = (
   page: {
     ...ui.page,
   },
+  topbar: {
+    marginTop: Spacing.md,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: Colors.line,
+    borderRadius: 18,
+    backgroundColor: Colors.surfaceGlass,
+    ...theme.shadows.glass,
+  },
+  topbarLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  wordmark: {
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    letterSpacing: 3.2,
+    textTransform: 'uppercase',
+    color: Colors.text,
+  },
   header: {
-    paddingTop: Spacing.xxl,
+    paddingTop: Spacing.xl,
     paddingBottom: Spacing.lg,
   },
   greetingText: {
@@ -533,19 +554,6 @@ const createStyles = (
     fontWeight: '700',
     color: Colors.text,
     marginBottom: Spacing.xs,
-  },
-  headerTitle: {
-    paddingVertical: 4,
-  },
-  headerTitleText: {
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  headerTaglineText: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-    marginTop: 2,
   },
   dateSubtitle: {
     fontSize: FontSize.md,
