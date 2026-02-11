@@ -673,6 +673,8 @@ const createStyles = (
   const inkStrong = theme.mode === 'dark' ? Colors.text : '#1f1b16';
   const inkMuted = theme.mode === 'dark' ? Colors.textSecondary : '#5f584f';
   const inkSoft = theme.mode === 'dark' ? Colors.textMuted : '#8a8174';
+  const windowPillStrong = theme.mode === 'dark' ? '#1a2c46' : inkStrong;
+  const windowPillMuted = theme.mode === 'dark' ? '#39587f' : inkMuted;
   const darkButtonBg = theme.mode === 'dark' ? Colors.primary : '#1f1b16';
   const darkButtonPressed = theme.mode === 'dark' ? Colors.primaryLight : '#3a342d';
   const disabledBg = theme.mode === 'dark' ? Colors.surfaceLight : '#eee9e3';
@@ -824,14 +826,14 @@ const createStyles = (
   summaryStatusTitle: {
     fontSize: 11,
     fontWeight: '700',
-    color: inkStrong,
+    color: windowPillStrong,
     letterSpacing: 0.2,
   },
   summaryStatusCounter: {
     marginTop: 2,
     fontSize: 10,
     fontWeight: '600',
-    color: inkMuted,
+    color: windowPillMuted,
     letterSpacing: 0.15,
   },
   summaryStatusEarly: {
