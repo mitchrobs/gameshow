@@ -153,14 +153,25 @@ export default function HomeScreen() {
           headerShown: false,
         }}
       />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.page}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        stickyHeaderIndices={[0]}
+      >
+        <View style={styles.topbarSticky}>
           <View style={styles.topbar}>
             <View style={styles.topbarLeft}>
               <Text style={styles.wordmark}>Daybreak</Text>
             </View>
+            {streak > 0 && (
+              <View style={styles.topbarStreak}>
+                <Text style={styles.streakText}>{streak}-day streak</Text>
+              </View>
+            )}
           </View>
+        </View>
 
+        <View style={styles.page}>
           <View style={styles.header}>
             <Text style={styles.greetingText}>{greeting}</Text>
             <Text style={styles.dateSubtitle}>{dateLabel}</Text>
@@ -203,11 +214,6 @@ export default function HomeScreen() {
                 </Pressable>
               ))}
             </ScrollView>
-            {streak > 0 && (
-              <View style={styles.streakPill}>
-                <Text style={styles.streakText}>{streak}-day streak</Text>
-              </View>
-            )}
           </View>
 
           {/* Moji Mash card */}
@@ -553,19 +559,34 @@ const createStyles = (
   page: {
     ...ui.page,
   },
+  topbarSticky: {
+    ...ui.page,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.sm,
+    backgroundColor: Colors.backgroundSoft,
+    zIndex: 2,
+  },
   topbar: {
-    marginTop: Spacing.md,
     paddingVertical: 14,
     paddingHorizontal: 18,
     borderWidth: 1,
     borderColor: Colors.line,
     borderRadius: 18,
     backgroundColor: Colors.surfaceGlass,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
     ...theme.shadows.glass,
   },
   topbarLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  topbarStreak: {
+    ...ui.pill,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
   },
   wordmark: {
     fontSize: FontSize.md,
