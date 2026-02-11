@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { type ViewStyle, useColorScheme } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Platform, type ViewStyle, useColorScheme } from 'react-native';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -184,7 +184,39 @@ export function resolveTheme(mode: ThemeMode): ThemeTokens {
 
 export function useDaybreakTheme(): ThemeTokens {
   const colorScheme = useColorScheme();
-  const mode: ThemeMode = colorScheme === 'dark' ? 'dark' : 'light';
+  const [webScheme, setWebScheme] = useState<ThemeMode | null>(null);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined' || !window.matchMedia) {
+      return;
+    }
+
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = () => {
+      setWebScheme(media.matches ? 'dark' : 'light');
+    };
+
+    apply();
+
+    if (typeof media.addEventListener === 'function') {
+      media.addEventListener('change', apply);
+      return () => media.removeEventListener('change', apply);
+    }
+
+    // Legacy Safari.
+    // eslint-disable-next-line deprecation/deprecation
+    media.addListener(apply);
+    // eslint-disable-next-line deprecation/deprecation
+    return () => media.removeListener(apply);
+  }, []);
+
+  const mode: ThemeMode =
+    Platform.OS === 'web'
+      ? webScheme ?? (colorScheme === 'dark' ? 'dark' : 'light')
+      : colorScheme === 'dark'
+      ? 'dark'
+      : 'light';
+
   return useMemo(() => resolveTheme(mode), [mode]);
 }
 
