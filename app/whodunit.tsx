@@ -7,6 +7,7 @@ import {
   ScrollView,
   Platform,
   Animated,
+  Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
@@ -200,7 +201,8 @@ export default function WhodunitScreen() {
       setLeadChoiceId(choiceId);
       Animated.timing(leadCardAnim, {
         toValue: 0,
-        duration: 200,
+        duration: 320,
+        easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }).start(() => {
         setShowLeadCard(false);
@@ -306,13 +308,6 @@ export default function WhodunitScreen() {
                 <View style={styles.stickyCaseMeta}>
                   <Text style={styles.stickyCaseId}>
                     Case #{String(puzzle.caseNumber).padStart(3, '0')}
-                  </Text>
-                  <Text
-                    style={styles.stickyCaseName}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {puzzle.caseName}
                   </Text>
                 </View>
                 <View style={styles.stickyStatsRow}>
@@ -700,8 +695,6 @@ const createStyles = (
     elevation: 4,
   },
   stickyHeaderInner: {
-    maxWidth: 520,
-    alignSelf: 'center',
     width: '100%',
     paddingBottom: Spacing.xs,
   },
@@ -722,8 +715,7 @@ const createStyles = (
     flexWrap: 'nowrap',
   },
   stickyCaseMeta: {
-    flex: 1,
-    minWidth: 0,
+    flexShrink: 0,
   },
   stickyCaseId: {
     fontSize: 12,
@@ -731,12 +723,6 @@ const createStyles = (
     textTransform: 'uppercase',
     letterSpacing: 0.9,
     fontWeight: '600',
-  },
-  stickyCaseName: {
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: Colors.text,
-    marginTop: 2,
   },
   stickyStatsRow: {
     flexDirection: 'row',
