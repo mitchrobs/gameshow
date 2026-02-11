@@ -6,6 +6,7 @@ import {
   Pressable,
   ScrollView,
   Platform,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
@@ -91,7 +92,9 @@ export default function WhodunitScreen() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
+  const [showLeadCard, setShowLeadCard] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const leadCardAnim = useRef(new Animated.Value(1)).current;
 
   const cluesUsed = revealedClues.size;
   const totalClues = puzzle.clues.length;
@@ -100,15 +103,6 @@ export default function WhodunitScreen() {
     const choice = puzzle.leadChoices.find((c) => c.clueId === leadChoiceId);
     return choice?.label ?? null;
   }, [leadChoiceId, puzzle.leadChoices]);
-  const latestClue = useMemo(() => {
-    if (revealedOrder.length === 0) return null;
-    const latestIndex = revealedOrder[revealedOrder.length - 1];
-    return {
-      index: latestIndex,
-      clue: puzzle.clues[latestIndex],
-      displayNumber: revealedOrder.length,
-    };
-  }, [puzzle.clues, revealedOrder]);
   const unlockedClues = useMemo(
     () =>
       revealedOrder.map((index, orderIndex) => ({
@@ -204,8 +198,15 @@ export default function WhodunitScreen() {
         );
       }
       setLeadChoiceId(choiceId);
+      Animated.timing(leadCardAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowLeadCard(false);
+      });
     },
-    [gameState, leadChoiceId, markPlayStarted, puzzle.clues, revealedClues]
+    [gameState, leadCardAnim, leadChoiceId, markPlayStarted, puzzle.clues, revealedClues]
   );
 
   const handleSelectSuspect = useCallback(
@@ -287,6 +288,10 @@ export default function WhodunitScreen() {
         options={{
           title: 'Whodunit',
           headerBackTitle: 'Home',
+          headerStyle: { backgroundColor: Colors.background },
+          headerTintColor: Colors.text,
+          headerShadowVisible: false,
+          headerTitleStyle: { fontWeight: '700' },
         }}
       />
       <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -408,8 +413,80 @@ export default function WhodunitScreen() {
                     </View>
                   ))
                 )}
+                {leadChoiceId !== null && (
+                  <View style={styles.caseLockedClues}>
+                    {remainingLockedClues.length === 0 ? (
+                      <Text style={styles.caseLockedCluesEmpty}>No more clues left.</Text>
+                    ) : (
+                      remainingLockedClues.map(({ clue, index }) => (
+                        <Pressable
+                          key={clue.id}
+                          style={({ pressed }) => [
+                            styles.lockedClue,
+                            styles.caseLockedClueItem,
+                            pressed && styles.lockedCluePressed,
+                          ]}
+                          onPress={() => handleRevealClue(index)}
+                          disabled={gameState !== 'playing'}
+                        >
+                          <View style={styles.clueNumberLocked}>
+                            <Text style={styles.clueNumberText}>•</Text>
+                          </View>
+                          <Text style={styles.lockedClueText}>Tap to reveal +{TIME_PENALTY}s</Text>
+                        </Pressable>
+                      ))
+                    )}
+                    {leadChoiceLabel && (
+                      <Text style={styles.caseLeadPicked}>Lead chosen: {leadChoiceLabel}</Text>
+                    )}
+                  </View>
+                )}
               </View>
             </View>
+
+          {/* Lead choice */}
+          {showLeadCard && (
+            <Animated.View
+              style={[
+                styles.leadCardAnimated,
+                {
+                  opacity: leadCardAnim,
+                  transform: [{ scaleY: leadCardAnim }],
+                },
+              ]}
+            >
+              <View style={styles.leadCard}>
+                <Text style={styles.leadTitle}>{puzzle.leadPrompt}</Text>
+                <Text style={styles.leadSubtitle}>
+                  Pick one lead to reveal a clue immediately.
+                </Text>
+                {leadChoiceId === null ? (
+                  <View style={styles.leadChoiceRow}>
+                    {puzzle.leadChoices.map((choice) => (
+                      <Pressable
+                        key={choice.clueId}
+                        style={({ pressed }) => [
+                          styles.leadChoice,
+                          pressed && styles.leadChoicePressed,
+                        ]}
+                        onPress={() => handleSelectLead(choice.clueId)}
+                      >
+                        <View style={styles.leadRadio}>
+                          <View style={styles.leadRadioDot} />
+                        </View>
+                        <View style={styles.leadChoiceContent}>
+                          <Text style={styles.leadChoiceLabel}>{choice.label}</Text>
+                          <Text style={styles.leadChoiceDesc}>{choice.description}</Text>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                ) : (
+                  <Text style={styles.leadPicked}>Lead locked in. Updating clues...</Text>
+                )}
+              </View>
+            </Animated.View>
+          )}
 
           {/* Suspects board */}
           <View style={[styles.suspectsBoard, styles.noSelect]}>
@@ -488,76 +565,6 @@ export default function WhodunitScreen() {
             >
               Tap to select • Long-press to eliminate
             </Text>
-          </View>
-
-          {/* Lead choice */}
-          <View style={styles.leadCard}>
-            <Text style={styles.leadTitle}>
-              {leadChoiceId ? 'Remaining clues' : puzzle.leadPrompt}
-            </Text>
-            <Text style={styles.leadSubtitle}>
-              {leadChoiceId
-                ? `Each clue adds +${TIME_PENALTY}s to your time.`
-                : 'Pick one lead to reveal a clue immediately.'}
-            </Text>
-            {leadChoiceId === null ? (
-              <View style={styles.leadChoiceRow}>
-                {puzzle.leadChoices.map((choice) => (
-                  <Pressable
-                    key={choice.clueId}
-                    style={({ pressed }) => [
-                      styles.leadChoice,
-                      pressed && styles.leadChoicePressed,
-                    ]}
-                    onPress={() => handleSelectLead(choice.clueId)}
-                  >
-                    <View style={styles.leadRadio}>
-                      <View style={styles.leadRadioDot} />
-                    </View>
-                    <View style={styles.leadChoiceContent}>
-                      <Text style={styles.leadChoiceLabel}>{choice.label}</Text>
-                      <Text style={styles.leadChoiceDesc}>{choice.description}</Text>
-                    </View>
-                  </Pressable>
-                ))}
-              </View>
-            ) : (
-              <View style={styles.leadResultSection}>
-                <View style={styles.leadResultCard}>
-                  <View style={styles.leadResultNumber}>
-                    <Text style={styles.leadResultNumberText}>
-                      {latestClue?.displayNumber ?? '•'}
-                    </Text>
-                  </View>
-                  <Text style={styles.leadResultText}>
-                    {latestClue?.clue.text ?? 'Lead resolved.'}
-                  </Text>
-                </View>
-                {remainingLockedClues.length === 0 ? (
-                  <Text style={styles.remainingCluesEmpty}>No more clues left.</Text>
-                ) : (
-                  remainingLockedClues.map(({ clue, index }) => (
-                    <Pressable
-                      key={clue.id}
-                      style={({ pressed }) => [
-                        styles.lockedClue,
-                        pressed && styles.lockedCluePressed,
-                      ]}
-                      onPress={() => handleRevealClue(index)}
-                      disabled={gameState !== 'playing'}
-                    >
-                      <View style={styles.clueNumberLocked}>
-                        <Text style={styles.clueNumberText}>•</Text>
-                      </View>
-                      <Text style={styles.lockedClueText}>Tap to reveal +{TIME_PENALTY}s</Text>
-                    </Pressable>
-                  ))
-                )}
-                {leadChoiceLabel && (
-                  <Text style={styles.leadPicked}>Lead chosen: {leadChoiceLabel}</Text>
-                )}
-              </View>
-            )}
           </View>
 
           {/* Accusation button */}
@@ -738,12 +745,12 @@ const createStyles = (
     flexShrink: 0,
   },
   stickyChip: {
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.surfaceElevated,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 4,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.line,
   },
   stickyChipText: {
     fontSize: FontSize.sm,
@@ -851,6 +858,22 @@ const createStyles = (
     padding: Spacing.sm,
     gap: Spacing.xs,
   },
+  caseLockedClues: {
+    marginTop: Spacing.sm,
+    gap: Spacing.xs,
+  },
+  caseLockedClueItem: {
+    marginTop: 0,
+  },
+  caseLockedCluesEmpty: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+  },
+  caseLeadPicked: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: Spacing.xs,
+  },
   caseUnlockedTitle: {
     fontSize: FontSize.sm,
     fontWeight: '700',
@@ -893,6 +916,9 @@ const createStyles = (
     marginBottom: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
+  },
+  leadCardAnimated: {
+    overflow: 'hidden',
   },
   leadTitle: {
     fontSize: FontSize.sm,
@@ -1128,63 +1154,6 @@ const createStyles = (
     flexShrink: 1,
     minWidth: 0,
   },
-  leadResultSection: {
-    gap: Spacing.md,
-  },
-  leadResultCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: Spacing.sm,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  leadResultNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: screenAccent.main,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  leadResultNumberText: {
-    color: Colors.white,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  leadResultText: {
-    fontSize: FontSize.md,
-    color: Colors.text,
-    lineHeight: 22,
-    flex: 1,
-    minWidth: 0,
-  },
-  remainingCluesHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    marginTop: Spacing.xs,
-  },
-  remainingCluesTitle: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: screenAccent.main,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-  },
-  remainingCluesPenalty: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-    fontWeight: '600',
-  },
-  remainingCluesEmpty: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-  },
-
   // Accuse button
   accuseButton: {
     ...ui.cta,
