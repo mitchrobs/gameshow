@@ -1,7 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Platform, type ViewStyle, useColorScheme } from 'react-native';
+import {
+  Appearance,
+  Platform,
+  type ColorSchemeName,
+  type ViewStyle,
+} from 'react-native';
 
 export type ThemeMode = 'light' | 'dark';
+
+declare global {
+  interface Window {
+    __DAYBREAK_THEME__?: ThemeMode;
+  }
+}
 
 export interface ThemePalette {
   background: string;
@@ -182,40 +193,139 @@ export function resolveTheme(mode: ThemeMode): ThemeTokens {
   return mode === 'dark' ? DARK_THEME : LIGHT_THEME;
 }
 
+function toThemeMode(scheme: ColorSchemeName | null | undefined): ThemeMode {
+  return scheme === 'dark' ? 'dark' : 'light';
+}
+
+function coerceThemeMode(value: string | null | undefined): ThemeMode | null {
+  if (value === 'dark' || value === 'light') return value;
+  return null;
+}
+
+function getMatchMediaMode(): ThemeMode | null {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return null;
+  }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function getCssPreferredMode(): ThemeMode | null {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return null;
+  const root = document.documentElement;
+  if (!root) return null;
+  const cssMode = window.getComputedStyle(root).getPropertyValue('--daybreak-system-theme').trim();
+  return coerceThemeMode(cssMode);
+}
+
+function applyWebThemeMarkers(mode: ThemeMode): void {
+  if (typeof window !== 'undefined') {
+    window.__DAYBREAK_THEME__ = mode;
+  }
+  if (typeof document !== 'undefined') {
+    const root = document.documentElement;
+    if (root) {
+      root.dataset.daybreakTheme = mode;
+      root.style.colorScheme = mode;
+    }
+  }
+}
+
+function getWebPreferredMode(): ThemeMode | null {
+  if (typeof window === 'undefined') return null;
+  const mediaMode = getMatchMediaMode();
+  if (mediaMode) return mediaMode;
+  const cssMode = getCssPreferredMode();
+  if (cssMode) return cssMode;
+  const windowMode = coerceThemeMode(window.__DAYBREAK_THEME__);
+  if (windowMode) return windowMode;
+  return null;
+}
+
+function getInitialMode(): ThemeMode {
+  if (Platform.OS === 'web') {
+    return getWebPreferredMode() ?? toThemeMode(Appearance.getColorScheme());
+  }
+  return toThemeMode(Appearance.getColorScheme());
+}
+
 export function useDaybreakTheme(): ThemeTokens {
-  const colorScheme = useColorScheme();
-  const [webScheme, setWebScheme] = useState<ThemeMode | null>(null);
+  const [mode, setMode] = useState<ThemeMode>(() => getInitialMode());
 
   useEffect(() => {
-    if (Platform.OS !== 'web' || typeof window === 'undefined' || !window.matchMedia) {
-      return;
+    if (Platform.OS === 'web') {
+      const apply = () => {
+        const nextMode = getWebPreferredMode() ?? toThemeMode(Appearance.getColorScheme());
+        applyWebThemeMarkers(nextMode);
+        setMode((prevMode) => (prevMode === nextMode ? prevMode : nextMode));
+      };
+
+      apply();
+
+      const onVisibility = () => apply();
+      const onFocus = () => apply();
+      if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', onVisibility);
+      }
+      if (typeof window !== 'undefined') {
+        window.addEventListener('focus', onFocus);
+        window.addEventListener('pageshow', onFocus);
+      }
+
+      const media =
+        typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+          ? window.matchMedia('(prefers-color-scheme: dark)')
+          : null;
+
+      if (media && typeof media.addEventListener === 'function') {
+        media.addEventListener('change', apply);
+      } else if (media) {
+        // Legacy Safari.
+        // eslint-disable-next-line deprecation/deprecation
+        media.addListener(apply);
+      }
+
+      const appearanceSubscription = Appearance.addChangeListener(() => {
+        apply();
+      });
+
+      // Some browsers settle preferred color scheme shortly after hydration.
+      const settleTimeout =
+        typeof window !== 'undefined' ? window.setTimeout(() => apply(), 80) : null;
+
+      return () => {
+        if (media && typeof media.removeEventListener === 'function') {
+          media.removeEventListener('change', apply);
+        } else if (media) {
+          // eslint-disable-next-line deprecation/deprecation
+          media.removeListener(apply);
+        }
+        appearanceSubscription.remove();
+        if (typeof document !== 'undefined') {
+          document.removeEventListener('visibilitychange', onVisibility);
+        }
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('focus', onFocus);
+          window.removeEventListener('pageshow', onFocus);
+          if (settleTimeout !== null) {
+            window.clearTimeout(settleTimeout);
+          }
+        }
+      };
     }
 
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    const apply = () => {
-      setWebScheme(media.matches ? 'dark' : 'light');
+    const applyNative = () => {
+      setMode(toThemeMode(Appearance.getColorScheme()));
     };
 
-    apply();
+    applyNative();
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      setMode(toThemeMode(colorScheme));
+    });
 
-    if (typeof media.addEventListener === 'function') {
-      media.addEventListener('change', apply);
-      return () => media.removeEventListener('change', apply);
-    }
-
-    // Legacy Safari.
-    // eslint-disable-next-line deprecation/deprecation
-    media.addListener(apply);
-    // eslint-disable-next-line deprecation/deprecation
-    return () => media.removeListener(apply);
+    return () => {
+      subscription.remove();
+    };
   }, []);
-
-  const mode: ThemeMode =
-    Platform.OS === 'web'
-      ? webScheme ?? (colorScheme === 'dark' ? 'dark' : 'light')
-      : colorScheme === 'dark'
-      ? 'dark'
-      : 'light';
 
   return useMemo(() => resolveTheme(mode), [mode]);
 }
