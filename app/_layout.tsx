@@ -21,13 +21,33 @@ export default function RootLayout() {
     TextInput.defaultProps.style = fontStyle;
   }, [theme.typography.sans]);
 
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+
+    const bg = theme.colors.backgroundSoft;
+    const root = document.documentElement;
+    const body = document.body;
+    const appRoot = document.getElementById('root');
+
+    root.style.backgroundColor = bg;
+    root.style.colorScheme = theme.mode;
+    root.dataset.daybreakTheme = theme.mode;
+
+    if (body) {
+      body.style.backgroundColor = bg;
+    }
+    if (appRoot) {
+      appRoot.style.backgroundColor = bg;
+    }
+  }, [theme.colors.backgroundSoft, theme.mode]);
+
   return (
     <SafeAreaProvider>
       <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
       <View style={styles.app}>
         <Stack
           screenOptions={{
-            headerStyle: { backgroundColor: theme.colors.background },
+            headerStyle: { backgroundColor: theme.colors.backgroundSoft },
             headerTintColor: theme.colors.text,
             headerTitleStyle: {
               fontWeight: '700',
@@ -37,7 +57,7 @@ export default function RootLayout() {
               color: theme.colors.text,
             },
             contentStyle: {
-              backgroundColor: theme.colors.background,
+              backgroundColor: theme.colors.backgroundSoft,
             },
             headerShadowVisible: false,
             headerTitleAlign: 'left',
@@ -49,9 +69,10 @@ export default function RootLayout() {
   );
 }
 
-const createStyles = (_theme: ThemeTokens) =>
+const createStyles = (theme: ThemeTokens) =>
   StyleSheet.create({
     app: {
       flex: 1,
+      backgroundColor: theme.colors.backgroundSoft,
     },
   });

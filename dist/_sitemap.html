@@ -1,7 +1,23 @@
 <!DOCTYPE html><html  lang="en"><head><title data-rh="true"></title><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="color-scheme" content="light dark"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/><style>
-              :root { --daybreak-system-theme: light; }
+              :root {
+                --daybreak-system-theme: light;
+                --daybreak-bg: #fafbfd;
+                --daybreak-bg-soft: #f3f6fb;
+              }
+              html, body, #root {
+                height: 100%;
+                min-height: 100%;
+                background-color: var(--daybreak-bg-soft);
+              }
+              body {
+                overscroll-behavior-y: none;
+              }
               @media (prefers-color-scheme: dark) {
-                :root { --daybreak-system-theme: dark; }
+                :root {
+                  --daybreak-system-theme: dark;
+                  --daybreak-bg: #0b0f15;
+                  --daybreak-bg-soft: #0f141d;
+                }
               }
             </style><script>
               (function () {
@@ -12,10 +28,19 @@
                   : null;
                 var apply = function () {
                   var mode = media && media.matches ? 'dark' : 'light';
+                  var bg = mode === 'dark' ? '#0f141d' : '#f3f6fb';
                   window.__DAYBREAK_THEME__ = mode;
                   if (root) {
                     root.dataset.daybreakTheme = mode;
                     root.style.colorScheme = mode;
+                    root.style.backgroundColor = bg;
+                  }
+                  if (document.body) {
+                    document.body.style.backgroundColor = bg;
+                  }
+                  var appRoot = document.getElementById('root');
+                  if (appRoot) {
+                    appRoot.style.backgroundColor = bg;
                   }
                 };
                 apply();
@@ -41,6 +66,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 [stylesheet-group="2"]{}
 .r-11mg6pl{border-bottom-color:rgba(255,255,255,1.00);border-left-color:rgba(255,255,255,1.00);border-right-color:rgba(255,255,255,1.00);border-top-color:rgba(255,255,255,1.00);}
 .r-13awgt0{flex:1;}
+.r-16wdvdy{border-bottom-color:rgba(255,59,48,0.28);border-left-color:rgba(255,59,48,0.28);border-right-color:rgba(255,59,48,0.28);border-top-color:rgba(255,59,48,0.28);}
 .r-1867qdf{border-bottom-left-radius:16px;border-bottom-right-radius:16px;border-top-left-radius:16px;border-top-right-radius:16px;}
 .r-1awa8pu{border-bottom-color:rgba(101,119,134,1.00);border-left-color:rgba(101,119,134,1.00);border-right-color:rgba(101,119,134,1.00);border-top-color:rgba(101,119,134,1.00);}
 .r-1bq2mok{margin:3px;}
@@ -333,6 +359,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1ra79i3{flex-basis:15%;}
 .r-1rehruk{background-color:rgba(224,68,68,0.15);}
 .r-1rnoaur{overflow-y:auto;}
+.r-1rsyfco{background-color:rgba(255,59,48,0.10);}
 .r-1rxb9bi{row-gap:4px;}
 .r-1ry2gx{background-color:rgba(246,243,239,1.00);}
 .r-1smd7e2{letter-spacing:0.8px;}
@@ -562,5 +589,5 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 @keyframes r-1pzkwqh{0%{transform:translateY(100%);}100%{transform:translateY(0%);}}
 @keyframes r-imtty0{0%{opacity:0;}100%{opacity:1;}}
 @keyframes r-q67da2{0%{transform:translateX(-100%);}100%{transform:translateX(400%);}}
-@keyframes r-t2lo5v{0%{opacity:1;}100%{opacity:0;}}</style><script type="module">globalThis.__EXPO_ROUTER_HYDRATE__=true;</script><link rel="icon" href="/gameshow/favicon.ico" /></head><body><div id="root"><div class="css-g5y9jx r-13awgt0"></div></div><script src="/gameshow/_expo/static/js/web/entry-cbad0ed8e6d28a86c7dc765b59d9b7e2.js" defer></script>
+@keyframes r-t2lo5v{0%{opacity:1;}100%{opacity:0;}}</style><script type="module">globalThis.__EXPO_ROUTER_HYDRATE__=true;</script><link rel="icon" href="/gameshow/favicon.ico" /></head><body><div id="root"><div class="css-g5y9jx r-13awgt0"></div></div><script src="/gameshow/_expo/static/js/web/entry-d8ac81179c7b6058f9e47914de4ef4a2.js" defer></script>
 </body></html>

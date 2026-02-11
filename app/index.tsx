@@ -18,6 +18,17 @@ import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
 import { getDailyBridges } from '../src/data/bridgesPuzzles';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 
+const WEB_NO_SELECT =
+  Platform.OS === 'web'
+    ? {
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTouchCallout: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        touchAction: 'manipulation',
+      }
+    : {};
+
 export default function HomeScreen() {
   const theme = useDaybreakTheme();
   const screenAccent = useMemo(() => resolveScreenAccent('home', theme), [theme]);
@@ -142,7 +153,7 @@ export default function HomeScreen() {
           headerShown: false,
         }}
       />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.page}>
           <View style={styles.topbar}>
             <View style={styles.topbarLeft}>
@@ -511,6 +522,7 @@ const createStyles = (
   const ui = createDaybreakPrimitives(theme, screenAccent);
   const bridgesAccent = resolveScreenAccent('bridges', theme);
   const barterAccent = resolveScreenAccent('barter', theme);
+  const quickLinkPressed = theme.mode === 'dark' ? screenAccent.soft : screenAccent.badgeBg;
   const hotBadge = theme.mode === 'dark'
     ? {
         bg: screenAccent.badgeBg,
@@ -528,9 +540,15 @@ const createStyles = (
     flex: 1,
     backgroundColor: Colors.backgroundSoft,
   },
+  scrollView: {
+    flex: 1,
+    backgroundColor: Colors.backgroundSoft,
+  },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xxl,
+    backgroundColor: Colors.backgroundSoft,
   },
   page: {
     ...ui.page,
@@ -592,12 +610,15 @@ const createStyles = (
   },
   quickLinkCard: {
     ...ui.glassCard,
+    ...WEB_NO_SELECT,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
     minWidth: 120,
     alignItems: 'center',
   },
   quickLinkCardPressed: {
+    backgroundColor: quickLinkPressed,
+    borderColor: screenAccent.badgeBorder,
     transform: [{ scale: 0.98 }],
   },
   quickLinkEmoji: {

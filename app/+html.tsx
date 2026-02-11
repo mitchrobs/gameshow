@@ -15,9 +15,25 @@ export default function Root({ children }: PropsWithChildren) {
         <style
           dangerouslySetInnerHTML={{
             __html: `
-              :root { --daybreak-system-theme: light; }
+              :root {
+                --daybreak-system-theme: light;
+                --daybreak-bg: #fafbfd;
+                --daybreak-bg-soft: #f3f6fb;
+              }
+              html, body, #root {
+                height: 100%;
+                min-height: 100%;
+                background-color: var(--daybreak-bg-soft);
+              }
+              body {
+                overscroll-behavior-y: none;
+              }
               @media (prefers-color-scheme: dark) {
-                :root { --daybreak-system-theme: dark; }
+                :root {
+                  --daybreak-system-theme: dark;
+                  --daybreak-bg: #0b0f15;
+                  --daybreak-bg-soft: #0f141d;
+                }
               }
             `,
           }}
@@ -33,10 +49,19 @@ export default function Root({ children }: PropsWithChildren) {
                   : null;
                 var apply = function () {
                   var mode = media && media.matches ? 'dark' : 'light';
+                  var bg = mode === 'dark' ? '#0f141d' : '#f3f6fb';
                   window.__DAYBREAK_THEME__ = mode;
                   if (root) {
                     root.dataset.daybreakTheme = mode;
                     root.style.colorScheme = mode;
+                    root.style.backgroundColor = bg;
+                  }
+                  if (document.body) {
+                    document.body.style.backgroundColor = bg;
+                  }
+                  var appRoot = document.getElementById('root');
+                  if (appRoot) {
+                    appRoot.style.backgroundColor = bg;
                   }
                 };
                 apply();
