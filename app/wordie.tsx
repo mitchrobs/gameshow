@@ -29,6 +29,11 @@ function getLocalDateKey(date: Date = new Date()): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
+function getDateFromLocalDateKey(dateKey: string): Date {
+  const [year, month, day] = dateKey.split('-').map((part) => parseInt(part, 10));
+  return new Date(year, month - 1, day);
+}
+
 function getStorage(): Storage | null {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     return window.localStorage;
@@ -72,20 +77,33 @@ export default function WordieScreen() {
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
   const Colors = theme.colors;
   const router = useRouter();
-  const answer = useMemo(() => getDailyWordie(), []);
+  const [dateKey, setDateKey] = useState(() => getLocalDateKey());
+  const activeDate = useMemo(() => getDateFromLocalDateKey(dateKey), [dateKey]);
+  const answer = useMemo(() => getDailyWordie(activeDate), [activeDate]);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<GameState>('playing');
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const hasCountedRef = useRef(false);
   const dateLabel = useMemo(
     () =>
-      new Date().toLocaleDateString('en-US', {
+      activeDate.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
       }),
-    []
+    [activeDate]
   );
+
+  useEffect(() => {
+    const checkDateRollover = () => {
+      const nextKey = getLocalDateKey();
+      setDateKey((currentKey) => (currentKey === nextKey ? currentKey : nextKey));
+    };
+    checkDateRollover();
+    const intervalId = setInterval(checkDateRollover, 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   const handleSubmit = useCallback(() => {
     if (gameState !== 'playing') return;
@@ -126,14 +144,20 @@ export default function WordieScreen() {
   }, [shareText]);
 
   useEffect(() => {
+    setGuesses([]);
+    setCurrentGuess('');
+    setGameState('playing');
+    setShareStatus(null);
+    hasCountedRef.current = false;
+  }, [dateKey]);
+
+  useEffect(() => {
     const storage = getStorage();
     if (!storage) return;
-    const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
+    const key = `${STORAGE_PREFIX}:playcount:${dateKey}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
-  }, []);
-
-  const hasCountedRef = useRef(false);
+  }, [dateKey]);
   useEffect(() => {
     if (gameState !== 'playing' && !hasCountedRef.current) {
       hasCountedRef.current = true;

@@ -368,8 +368,8 @@ function getShuffledIndices(length: number, seed: number): number[] {
 const DAILY_ORDER = getShuffledIndices(WORDS.length, DAILY_SEED);
 
 function getLocalDayIndex(date: Date): number {
-  const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  return Math.floor(localMidnight.getTime() / DAY_MS);
+  // Convert the local calendar date into a stable ordinal day number.
+  return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS);
 }
 
 export function getDailyWordieIndex(date: Date = new Date()): number {
