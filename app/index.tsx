@@ -16,6 +16,7 @@ import { getDailyTriviaCategories } from '../src/data/triviaPuzzles';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
 import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
 import { getDailyBridges } from '../src/data/bridgesPuzzles';
+import { getDailyMiniCrossword } from '../src/data/miniCrosswordPuzzles';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 
 const WEB_NO_SELECT =
@@ -41,6 +42,16 @@ export default function HomeScreen() {
   const sudoku = getDailySudoku();
   const barterPuzzle = getDailyBarter();
   const bridgesPuzzle = getDailyBridges();
+  const miniCrossword = getDailyMiniCrossword();
+  const miniCrosswordPreview = useMemo(() => {
+    const map = new Map<string, { isBlock: boolean; number?: number }>();
+    miniCrossword.cells.forEach((cell) => {
+      map.set(`${cell.row}:${cell.col}`, { isBlock: cell.isBlock, number: cell.number });
+    });
+    return Array.from({ length: miniCrossword.size }, (_, row) =>
+      Array.from({ length: miniCrossword.size }, (_, col) => map.get(`${row}:${col}`))
+    );
+  }, [miniCrossword]);
   const bridgesPreviewValues = useMemo(() => {
     const values = bridgesPuzzle.islands.slice(0, 3).map((island) => island.requiredBridges);
     return values.length === 3 ? values : [2, 3, 1];
@@ -63,6 +74,13 @@ export default function HomeScreen() {
     const baseLinks = [
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie' },
+      {
+        label: 'Mini Crossword',
+        route: '/mini-crossword',
+        emoji: '✍️',
+        countKey: 'crossword',
+        isNew: true,
+      },
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
       { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
@@ -111,6 +129,7 @@ export default function HomeScreen() {
       return (
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
+        storage.getItem(`crossword:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
         storage.getItem(`bridges:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
@@ -133,6 +152,7 @@ export default function HomeScreen() {
     getGlobalPlayCounts([
       'mojimash',
       'wordie',
+      'crossword',
       'sudoku',
       'bridges',
       'whodunit',
@@ -280,6 +300,60 @@ export default function HomeScreen() {
                   pressed && styles.playButtonPressed,
                 ]}
                 onPress={() => router.push('/wordie')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Mini Crossword card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.crosswordKicker}>Word Grid</Text>
+                <Text style={styles.gameTitle}>Mini Crossword</Text>
+              </View>
+              <View style={styles.newBadge}>
+                <Text style={styles.newBadgeText}>New</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              A quick 5x5 crossword with fresh clues every day.
+            </Text>
+            {(playCounts['crossword'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['crossword']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.crosswordPreview}>
+                {miniCrosswordPreview.map((row, rowIndex) => (
+                  <View key={`crossword-row-${rowIndex}`} style={styles.crosswordPreviewRow}>
+                    {row.map((cell, colIndex) => (
+                      <View
+                        key={`crossword-${rowIndex}-${colIndex}`}
+                        style={[
+                          styles.crosswordPreviewCell,
+                          cell?.isBlock && styles.crosswordPreviewBlock,
+                        ]}
+                      >
+                        {!cell?.isBlock && cell?.number ? (
+                          <Text style={styles.crosswordPreviewNumber}>{cell.number}</Text>
+                        ) : null}
+                      </View>
+                    ))}
+                  </View>
+                ))}
+                <Text style={styles.crosswordPreviewMeta}>
+                  {miniCrossword.across.length} across • {miniCrossword.down.length} down
+                </Text>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/mini-crossword')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
@@ -528,6 +602,7 @@ const createStyles = (
   const ui = createDaybreakPrimitives(theme, screenAccent);
   const bridgesAccent = resolveScreenAccent('bridges', theme);
   const barterAccent = resolveScreenAccent('barter', theme);
+  const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
   const quickLinkPressed = theme.mode === 'dark' ? screenAccent.soft : screenAccent.badgeBg;
   const hotBadge = theme.mode === 'dark'
     ? {
@@ -735,6 +810,14 @@ const createStyles = (
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
   },
+  crosswordKicker: {
+    color: crosswordAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
   newBadge: {
     marginTop: Spacing.xs,
     backgroundColor: barterAccent.badgeBg,
@@ -805,6 +888,45 @@ const createStyles = (
     fontSize: FontSize.lg,
     fontWeight: '800',
     color: Colors.text,
+  },
+  crosswordPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    gap: 4,
+  },
+  crosswordPreviewRow: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  crosswordPreviewCell: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    paddingLeft: 2,
+    paddingTop: 1,
+  },
+  crosswordPreviewBlock: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primaryLight,
+  },
+  crosswordPreviewNumber: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: Colors.textMuted,
+  },
+  crosswordPreviewMeta: {
+    marginTop: Spacing.xs,
+    fontSize: 12,
+    color: Colors.textMuted,
   },
   sudokuPreview: {
     alignItems: 'center',

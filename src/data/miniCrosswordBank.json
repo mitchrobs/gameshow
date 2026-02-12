@@ -1,0 +1,8456 @@
+{
+  "templates": [
+    {
+      "id": "harbor-left",
+      "rows": [
+        ".....",
+        ".....",
+        ".....",
+        "##...",
+        "##..."
+      ]
+    },
+    {
+      "id": "harbor-right",
+      "rows": [
+        ".....",
+        ".....",
+        ".....",
+        "...##",
+        "...##"
+      ]
+    },
+    {
+      "id": "harbor-gates",
+      "rows": [
+        ".....",
+        ".....",
+        ".....",
+        "#...#",
+        "#...#"
+      ]
+    },
+    {
+      "id": "trail-left",
+      "rows": [
+        "##...",
+        "##...",
+        ".....",
+        ".....",
+        "....."
+      ]
+    },
+    {
+      "id": "trail-right",
+      "rows": [
+        "...##",
+        "...##",
+        ".....",
+        ".....",
+        "....."
+      ]
+    }
+  ],
+  "entries": [
+    {
+      "answer": "AAL",
+      "clue": "Reorder these letters: ALA"
+    },
+    {
+      "answer": "AAM",
+      "clue": "Anagram: AMA"
+    },
+    {
+      "answer": "ABA",
+      "clue": "Scrambled letters: AAB"
+    },
+    {
+      "answer": "ABB",
+      "clue": "Reorder these letters: BAB"
+    },
+    {
+      "answer": "ABE",
+      "clue": "Reorder these letters: EAB"
+    },
+    {
+      "answer": "ABO",
+      "clue": "Anagram: OBA"
+    },
+    {
+      "answer": "ABU",
+      "clue": "Anagram: BAU"
+    },
+    {
+      "answer": "ACH",
+      "clue": "Anagram: HCA"
+    },
+    {
+      "answer": "ADA",
+      "clue": "Anagram: AAD"
+    },
+    {
+      "answer": "ADE",
+      "clue": "Scrambled letters: EAD"
+    },
+    {
+      "answer": "ADO",
+      "clue": "Reorder these letters: OAD"
+    },
+    {
+      "answer": "AER",
+      "clue": "Anagram: EAR"
+    },
+    {
+      "answer": "AES",
+      "clue": "Scrambled letters: EAS"
+    },
+    {
+      "answer": "AFT",
+      "clue": "Anagram: FTA"
+    },
+    {
+      "answer": "AGE",
+      "clue": "Scrambled letters: EAG"
+    },
+    {
+      "answer": "AGO",
+      "clue": "Reorder these letters: OAG"
+    },
+    {
+      "answer": "AGY",
+      "clue": "Anagram: YGA"
+    },
+    {
+      "answer": "AHA",
+      "clue": "Scrambled letters: AAH"
+    },
+    {
+      "answer": "AHO",
+      "clue": "Anagram: HOA"
+    },
+    {
+      "answer": "AHT",
+      "clue": "Reorder these letters: HAT"
+    },
+    {
+      "answer": "AID",
+      "clue": "Reorder these letters: DIA"
+    },
+    {
+      "answer": "AIM",
+      "clue": "Reorder these letters: AMI"
+    },
+    {
+      "answer": "AIT",
+      "clue": "Anagram: TIA"
+    },
+    {
+      "answer": "AKA",
+      "clue": "Scrambled letters: AAK"
+    },
+    {
+      "answer": "AKE",
+      "clue": "Reorder these letters: AEK"
+    },
+    {
+      "answer": "AKU",
+      "clue": "Anagram: KUA"
+    },
+    {
+      "answer": "ALB",
+      "clue": "Anagram: BLA"
+    },
+    {
+      "answer": "ALE",
+      "clue": "Anagram: LAE"
+    },
+    {
+      "answer": "ALK",
+      "clue": "Anagram: AKL"
+    },
+    {
+      "answer": "ALL",
+      "clue": "Scrambled letters: LAL"
+    },
+    {
+      "answer": "ALO",
+      "clue": "Scrambled letters: OLA"
+    },
+    {
+      "answer": "ALP",
+      "clue": "Reorder these letters: LPA"
+    },
+    {
+      "answer": "ALT",
+      "clue": "Anagram: LTA"
+    },
+    {
+      "answer": "ALY",
+      "clue": "Reorder these letters: YAL"
+    },
+    {
+      "answer": "AMA",
+      "clue": "Anagram: AAM"
+    },
+    {
+      "answer": "AME",
+      "clue": "Scrambled letters: MEA"
+    },
+    {
+      "answer": "AMI",
+      "clue": "Reorder these letters: IAM"
+    },
+    {
+      "answer": "AMP",
+      "clue": "Anagram: APM"
+    },
+    {
+      "answer": "AMT",
+      "clue": "Scrambled letters: TMA"
+    },
+    {
+      "answer": "AMY",
+      "clue": "Anagram: YMA"
+    },
+    {
+      "answer": "AND",
+      "clue": "Scrambled letters: DNA"
+    },
+    {
+      "answer": "ANN",
+      "clue": "Reorder these letters: NAN"
+    },
+    {
+      "answer": "ANT",
+      "clue": "Reorder these letters: NAT"
+    },
+    {
+      "answer": "APE",
+      "clue": "Scrambled letters: PAE"
+    },
+    {
+      "answer": "ARA",
+      "clue": "Reorder these letters: RAA"
+    },
+    {
+      "answer": "ARC",
+      "clue": "Scrambled letters: CRA"
+    },
+    {
+      "answer": "ARE",
+      "clue": "Anagram: RAE"
+    },
+    {
+      "answer": "ARK",
+      "clue": "Anagram: KRA"
+    },
+    {
+      "answer": "ARM",
+      "clue": "Reorder these letters: RAM"
+    },
+    {
+      "answer": "ARN",
+      "clue": "Anagram: NRA"
+    },
+    {
+      "answer": "ARO",
+      "clue": "Scrambled letters: OAR"
+    },
+    {
+      "answer": "ART",
+      "clue": "Anagram: TRA"
+    },
+    {
+      "answer": "ARU",
+      "clue": "Scrambled letters: UAR"
+    },
+    {
+      "answer": "ARY",
+      "clue": "Reorder these letters: AYR"
+    },
+    {
+      "answer": "ASA",
+      "clue": "Anagram: SAA"
+    },
+    {
+      "answer": "ASE",
+      "clue": "Scrambled letters: EAS"
+    },
+    {
+      "answer": "ASH",
+      "clue": "Scrambled letters: SHA"
+    },
+    {
+      "answer": "ASP",
+      "clue": "Anagram: PSA"
+    },
+    {
+      "answer": "ASS",
+      "clue": "Anagram: SAS"
+    },
+    {
+      "answer": "AST",
+      "clue": "Scrambled letters: TAS"
+    },
+    {
+      "answer": "ATA",
+      "clue": "Scrambled letters: AAT"
+    },
+    {
+      "answer": "ATE",
+      "clue": "Reorder these letters: TAE"
+    },
+    {
+      "answer": "ATI",
+      "clue": "Anagram: TAI"
+    },
+    {
+      "answer": "AUK",
+      "clue": "Anagram: UAK"
+    },
+    {
+      "answer": "AUM",
+      "clue": "Reorder these letters: MAU"
+    },
+    {
+      "answer": "AUS",
+      "clue": "Reorder these letters: SAU"
+    },
+    {
+      "answer": "AVA",
+      "clue": "Anagram: VAA"
+    },
+    {
+      "answer": "AVE",
+      "clue": "Scrambled letters: EAV"
+    },
+    {
+      "answer": "AVO",
+      "clue": "Reorder these letters: OVA"
+    },
+    {
+      "answer": "AWA",
+      "clue": "Scrambled letters: WAA"
+    },
+    {
+      "answer": "AWD",
+      "clue": "Scrambled letters: ADW"
+    },
+    {
+      "answer": "AWE",
+      "clue": "Reorder these letters: WEA"
+    },
+    {
+      "answer": "AWL",
+      "clue": "Anagram: LAW"
+    },
+    {
+      "answer": "AWN",
+      "clue": "Reorder these letters: WAN"
+    },
+    {
+      "answer": "BAA",
+      "clue": "Scrambled letters: ABA"
+    },
+    {
+      "answer": "BAC",
+      "clue": "Anagram: BCA"
+    },
+    {
+      "answer": "BAD",
+      "clue": "Scrambled letters: ABD"
+    },
+    {
+      "answer": "BAE",
+      "clue": "Reorder these letters: EBA"
+    },
+    {
+      "answer": "BAG",
+      "clue": "Scrambled letters: AGB"
+    },
+    {
+      "answer": "BAP",
+      "clue": "Scrambled letters: ABP"
+    },
+    {
+      "answer": "BAS",
+      "clue": "Scrambled letters: SBA"
+    },
+    {
+      "answer": "BAT",
+      "clue": "Reorder these letters: TAB"
+    },
+    {
+      "answer": "BED",
+      "clue": "Reorder these letters: DBE"
+    },
+    {
+      "answer": "BEE",
+      "clue": "Anagram: EEB"
+    },
+    {
+      "answer": "BEG",
+      "clue": "Reorder these letters: GEB"
+    },
+    {
+      "answer": "BEL",
+      "clue": "Scrambled letters: EBL"
+    },
+    {
+      "answer": "BER",
+      "clue": "Scrambled letters: ERB"
+    },
+    {
+      "answer": "BES",
+      "clue": "Reorder these letters: BSE"
+    },
+    {
+      "answer": "BET",
+      "clue": "Anagram: TBE"
+    },
+    {
+      "answer": "BID",
+      "clue": "Anagram: DIB"
+    },
+    {
+      "answer": "BIG",
+      "clue": "Anagram: GIB"
+    },
+    {
+      "answer": "BIM",
+      "clue": "Anagram: BMI"
+    },
+    {
+      "answer": "BIN",
+      "clue": "Scrambled letters: INB"
+    },
+    {
+      "answer": "BIT",
+      "clue": "Scrambled letters: BTI"
+    },
+    {
+      "answer": "BOA",
+      "clue": "Anagram: BAO"
+    },
+    {
+      "answer": "BOB",
+      "clue": "Scrambled letters: BBO"
+    },
+    {
+      "answer": "BOM",
+      "clue": "Anagram: MBO"
+    },
+    {
+      "answer": "BON",
+      "clue": "Scrambled letters: BNO"
+    },
+    {
+      "answer": "BOO",
+      "clue": "Reorder these letters: OBO"
+    },
+    {
+      "answer": "BOP",
+      "clue": "Anagram: BPO"
+    },
+    {
+      "answer": "BOR",
+      "clue": "Reorder these letters: ORB"
+    },
+    {
+      "answer": "BOS",
+      "clue": "Anagram: OBS"
+    },
+    {
+      "answer": "BOT",
+      "clue": "Scrambled letters: OBT"
+    },
+    {
+      "answer": "BOW",
+      "clue": "Scrambled letters: BWO"
+    },
+    {
+      "answer": "BUB",
+      "clue": "Scrambled letters: UBB"
+    },
+    {
+      "answer": "BUD",
+      "clue": "Anagram: UBD"
+    },
+    {
+      "answer": "BUG",
+      "clue": "Anagram: UBG"
+    },
+    {
+      "answer": "BUM",
+      "clue": "Anagram: MBU"
+    },
+    {
+      "answer": "BUN",
+      "clue": "Scrambled letters: UNB"
+    },
+    {
+      "answer": "BUR",
+      "clue": "Reorder these letters: RUB"
+    },
+    {
+      "answer": "BUS",
+      "clue": "Anagram: BSU"
+    },
+    {
+      "answer": "BUT",
+      "clue": "Scrambled letters: UBT"
+    },
+    {
+      "answer": "BUY",
+      "clue": "Anagram: YBU"
+    },
+    {
+      "answer": "BYE",
+      "clue": "Reorder these letters: BEY"
+    },
+    {
+      "answer": "CAB",
+      "clue": "Anagram: BCA"
+    },
+    {
+      "answer": "CAG",
+      "clue": "Reorder these letters: GCA"
+    },
+    {
+      "answer": "CAL",
+      "clue": "Scrambled letters: LAC"
+    },
+    {
+      "answer": "CAM",
+      "clue": "Reorder these letters: MCA"
+    },
+    {
+      "answer": "CAN",
+      "clue": "Anagram: ACN"
+    },
+    {
+      "answer": "CAR",
+      "clue": "Scrambled letters: CRA"
+    },
+    {
+      "answer": "CAT",
+      "clue": "Anagram: ACT"
+    },
+    {
+      "answer": "CAW",
+      "clue": "Anagram: CWA"
+    },
+    {
+      "answer": "CAY",
+      "clue": "Reorder these letters: CYA"
+    },
+    {
+      "answer": "CEE",
+      "clue": "Scrambled letters: EEC"
+    },
+    {
+      "answer": "CEL",
+      "clue": "Reorder these letters: ELC"
+    },
+    {
+      "answer": "CEP",
+      "clue": "Anagram: PCE"
+    },
+    {
+      "answer": "CHA",
+      "clue": "Anagram: HAC"
+    },
+    {
+      "answer": "CHI",
+      "clue": "Reorder these letters: IHC"
+    },
+    {
+      "answer": "CHO",
+      "clue": "Reorder these letters: OHC"
+    },
+    {
+      "answer": "CID",
+      "clue": "Scrambled letters: DIC"
+    },
+    {
+      "answer": "CIG",
+      "clue": "Scrambled letters: IGC"
+    },
+    {
+      "answer": "CIT",
+      "clue": "Reorder these letters: CTI"
+    },
+    {
+      "answer": "CLY",
+      "clue": "Scrambled letters: YLC"
+    },
+    {
+      "answer": "COD",
+      "clue": "Scrambled letters: OCD"
+    },
+    {
+      "answer": "COE",
+      "clue": "Reorder these letters: OCE"
+    },
+    {
+      "answer": "COG",
+      "clue": "Scrambled letters: GCO"
+    },
+    {
+      "answer": "COL",
+      "clue": "Anagram: CLO"
+    },
+    {
+      "answer": "CON",
+      "clue": "Reorder these letters: CNO"
+    },
+    {
+      "answer": "COO",
+      "clue": "Anagram: OCO"
+    },
+    {
+      "answer": "COP",
+      "clue": "Scrambled letters: CPO"
+    },
+    {
+      "answer": "COR",
+      "clue": "Anagram: ROC"
+    },
+    {
+      "answer": "COT",
+      "clue": "Reorder these letters: TOC"
+    },
+    {
+      "answer": "COW",
+      "clue": "Reorder these letters: WOC"
+    },
+    {
+      "answer": "COY",
+      "clue": "Scrambled letters: OCY"
+    },
+    {
+      "answer": "CRO",
+      "clue": "Anagram: ROC"
+    },
+    {
+      "answer": "CUB",
+      "clue": "Reorder these letters: CBU"
+    },
+    {
+      "answer": "CUE",
+      "clue": "Reorder these letters: ECU"
+    },
+    {
+      "answer": "CUP",
+      "clue": "Scrambled letters: PUC"
+    },
+    {
+      "answer": "CUR",
+      "clue": "Anagram: RCU"
+    },
+    {
+      "answer": "CUT",
+      "clue": "Reorder these letters: TUC"
+    },
+    {
+      "answer": "DAB",
+      "clue": "Scrambled letters: BDA"
+    },
+    {
+      "answer": "DAD",
+      "clue": "Anagram: DDA"
+    },
+    {
+      "answer": "DAE",
+      "clue": "Scrambled letters: AED"
+    },
+    {
+      "answer": "DAG",
+      "clue": "Anagram: AGD"
+    },
+    {
+      "answer": "DAH",
+      "clue": "Scrambled letters: HDA"
+    },
+    {
+      "answer": "DAK",
+      "clue": "Scrambled letters: AKD"
+    },
+    {
+      "answer": "DAL",
+      "clue": "Reorder these letters: ALD"
+    },
+    {
+      "answer": "DAM",
+      "clue": "Anagram: ADM"
+    },
+    {
+      "answer": "DAN",
+      "clue": "Scrambled letters: ADN"
+    },
+    {
+      "answer": "DAO",
+      "clue": "Reorder these letters: DOA"
+    },
+    {
+      "answer": "DAP",
+      "clue": "Anagram: PDA"
+    },
+    {
+      "answer": "DAS",
+      "clue": "Anagram: ASD"
+    },
+    {
+      "answer": "DAW",
+      "clue": "Scrambled letters: DWA"
+    },
+    {
+      "answer": "DAY",
+      "clue": "Anagram: DYA"
+    },
+    {
+      "answer": "DEB",
+      "clue": "Reorder these letters: BDE"
+    },
+    {
+      "answer": "DEE",
+      "clue": "Reorder these letters: EED"
+    },
+    {
+      "answer": "DEG",
+      "clue": "Scrambled letters: DGE"
+    },
+    {
+      "answer": "DEL",
+      "clue": "Anagram: LED"
+    },
+    {
+      "answer": "DEV",
+      "clue": "Scrambled letters: DVE"
+    },
+    {
+      "answer": "DEW",
+      "clue": "Reorder these letters: WDE"
+    },
+    {
+      "answer": "DEY",
+      "clue": "Scrambled letters: EDY"
+    },
+    {
+      "answer": "DHA",
+      "clue": "Scrambled letters: DAH"
+    },
+    {
+      "answer": "DHU",
+      "clue": "Anagram: UDH"
+    },
+    {
+      "answer": "DIB",
+      "clue": "Anagram: BID"
+    },
+    {
+      "answer": "DID",
+      "clue": "Reorder these letters: IDD"
+    },
+    {
+      "answer": "DIE",
+      "clue": "Anagram: DEI"
+    },
+    {
+      "answer": "DIP",
+      "clue": "Reorder these letters: PID"
+    },
+    {
+      "answer": "DIS",
+      "clue": "Reorder these letters: SID"
+    },
+    {
+      "answer": "DIT",
+      "clue": "Anagram: TDI"
+    },
+    {
+      "answer": "DIV",
+      "clue": "Reorder these letters: IDV"
+    },
+    {
+      "answer": "DOB",
+      "clue": "Anagram: ODB"
+    },
+    {
+      "answer": "DOC",
+      "clue": "Scrambled letters: CDO"
+    },
+    {
+      "answer": "DOD",
+      "clue": "Reorder these letters: DDO"
+    },
+    {
+      "answer": "DOE",
+      "clue": "Anagram: OED"
+    },
+    {
+      "answer": "DOG",
+      "clue": "Reorder these letters: GDO"
+    },
+    {
+      "answer": "DOL",
+      "clue": "Scrambled letters: LOD"
+    },
+    {
+      "answer": "DOM",
+      "clue": "Reorder these letters: OMD"
+    },
+    {
+      "answer": "DOP",
+      "clue": "Reorder these letters: PDO"
+    },
+    {
+      "answer": "DOR",
+      "clue": "Scrambled letters: ODR"
+    },
+    {
+      "answer": "DOS",
+      "clue": "Reorder these letters: SDO"
+    },
+    {
+      "answer": "DOT",
+      "clue": "Anagram: OTD"
+    },
+    {
+      "answer": "DOW",
+      "clue": "Anagram: WOD"
+    },
+    {
+      "answer": "DRY",
+      "clue": "Reorder these letters: YDR"
+    },
+    {
+      "answer": "DUB",
+      "clue": "Anagram: UDB"
+    },
+    {
+      "answer": "DUD",
+      "clue": "Reorder these letters: DDU"
+    },
+    {
+      "answer": "DUE",
+      "clue": "Anagram: EDU"
+    },
+    {
+      "answer": "DUM",
+      "clue": "Reorder these letters: UMD"
+    },
+    {
+      "answer": "DUN",
+      "clue": "Anagram: UDN"
+    },
+    {
+      "answer": "DUP",
+      "clue": "Reorder these letters: UPD"
+    },
+    {
+      "answer": "DYE",
+      "clue": "Scrambled letters: DEY"
+    },
+    {
+      "answer": "EAR",
+      "clue": "Anagram: REA"
+    },
+    {
+      "answer": "EAT",
+      "clue": "Reorder these letters: ETA"
+    },
+    {
+      "answer": "EBB",
+      "clue": "Anagram: BBE"
+    },
+    {
+      "answer": "EDH",
+      "clue": "Reorder these letters: EHD"
+    },
+    {
+      "answer": "EDO",
+      "clue": "Anagram: EOD"
+    },
+    {
+      "answer": "EER",
+      "clue": "Scrambled letters: ERE"
+    },
+    {
+      "answer": "EFT",
+      "clue": "Scrambled letters: FET"
+    },
+    {
+      "answer": "EGG",
+      "clue": "Scrambled letters: GEG"
+    },
+    {
+      "answer": "EKE",
+      "clue": "Anagram: KEE"
+    },
+    {
+      "answer": "ELB",
+      "clue": "Scrambled letters: EBL"
+    },
+    {
+      "answer": "ELI",
+      "clue": "Reorder these letters: LEI"
+    },
+    {
+      "answer": "ELK",
+      "clue": "Scrambled letters: LKE"
+    },
+    {
+      "answer": "ELL",
+      "clue": "Reorder these letters: LEL"
+    },
+    {
+      "answer": "ELS",
+      "clue": "Anagram: LSE"
+    },
+    {
+      "answer": "EME",
+      "clue": "Reorder these letters: EEM"
+    },
+    {
+      "answer": "EMM",
+      "clue": "Scrambled letters: MME"
+    },
+    {
+      "answer": "EMU",
+      "clue": "Anagram: MUE"
+    },
+    {
+      "answer": "END",
+      "clue": "Reorder these letters: NED"
+    },
+    {
+      "answer": "ENS",
+      "clue": "Reorder these letters: SNE"
+    },
+    {
+      "answer": "ERA",
+      "clue": "Anagram: AER"
+    },
+    {
+      "answer": "ERE",
+      "clue": "Scrambled letters: REE"
+    },
+    {
+      "answer": "ERG",
+      "clue": "Anagram: RGE"
+    },
+    {
+      "answer": "ERS",
+      "clue": "Anagram: SRE"
+    },
+    {
+      "answer": "ESS",
+      "clue": "Scrambled letters: SES"
+    },
+    {
+      "answer": "ETA",
+      "clue": "Reorder these letters: TEA"
+    },
+    {
+      "answer": "EWE",
+      "clue": "Anagram: WEE"
+    },
+    {
+      "answer": "EYN",
+      "clue": "Reorder these letters: NYE"
+    },
+    {
+      "answer": "FAD",
+      "clue": "Reorder these letters: DFA"
+    },
+    {
+      "answer": "FAE",
+      "clue": "Anagram: FEA"
+    },
+    {
+      "answer": "FAG",
+      "clue": "Reorder these letters: FGA"
+    },
+    {
+      "answer": "FAM",
+      "clue": "Reorder these letters: AFM"
+    },
+    {
+      "answer": "FAN",
+      "clue": "Anagram: NAF"
+    },
+    {
+      "answer": "FAR",
+      "clue": "Scrambled letters: ARF"
+    },
+    {
+      "answer": "FAT",
+      "clue": "Anagram: AFT"
+    },
+    {
+      "answer": "FED",
+      "clue": "Anagram: DEF"
+    },
+    {
+      "answer": "FEE",
+      "clue": "Scrambled letters: EEF"
+    },
+    {
+      "answer": "FEI",
+      "clue": "Reorder these letters: IFE"
+    },
+    {
+      "answer": "FEN",
+      "clue": "Scrambled letters: FNE"
+    },
+    {
+      "answer": "FET",
+      "clue": "Scrambled letters: EFT"
+    },
+    {
+      "answer": "FEU",
+      "clue": "Reorder these letters: UEF"
+    },
+    {
+      "answer": "FIB",
+      "clue": "Reorder these letters: BFI"
+    },
+    {
+      "answer": "FID",
+      "clue": "Scrambled letters: FDI"
+    },
+    {
+      "answer": "FIE",
+      "clue": "Reorder these letters: IEF"
+    },
+    {
+      "answer": "FIG",
+      "clue": "Scrambled letters: IFG"
+    },
+    {
+      "answer": "FIN",
+      "clue": "Reorder these letters: INF"
+    },
+    {
+      "answer": "FIP",
+      "clue": "Scrambled letters: PFI"
+    },
+    {
+      "answer": "FIR",
+      "clue": "Anagram: RFI"
+    },
+    {
+      "answer": "FLO",
+      "clue": "Anagram: FOL"
+    },
+    {
+      "answer": "FLU",
+      "clue": "Anagram: ULF"
+    },
+    {
+      "answer": "FLY",
+      "clue": "Scrambled letters: YLF"
+    },
+    {
+      "answer": "FOB",
+      "clue": "Reorder these letters: OBF"
+    },
+    {
+      "answer": "FOD",
+      "clue": "Scrambled letters: OFD"
+    },
+    {
+      "answer": "FOE",
+      "clue": "Reorder these letters: FEO"
+    },
+    {
+      "answer": "FOG",
+      "clue": "Scrambled letters: OFG"
+    },
+    {
+      "answer": "FON",
+      "clue": "Reorder these letters: NFO"
+    },
+    {
+      "answer": "FOO",
+      "clue": "Anagram: OFO"
+    },
+    {
+      "answer": "FOP",
+      "clue": "Scrambled letters: OPF"
+    },
+    {
+      "answer": "FOR",
+      "clue": "Anagram: ROF"
+    },
+    {
+      "answer": "FOW",
+      "clue": "Reorder these letters: WOF"
+    },
+    {
+      "answer": "FOY",
+      "clue": "Scrambled letters: YFO"
+    },
+    {
+      "answer": "FRY",
+      "clue": "Scrambled letters: RFY"
+    },
+    {
+      "answer": "FUD",
+      "clue": "Scrambled letters: DFU"
+    },
+    {
+      "answer": "FUG",
+      "clue": "Scrambled letters: FGU"
+    },
+    {
+      "answer": "FUM",
+      "clue": "Scrambled letters: MUF"
+    },
+    {
+      "answer": "FUN",
+      "clue": "Reorder these letters: NUF"
+    },
+    {
+      "answer": "FUR",
+      "clue": "Anagram: RUF"
+    },
+    {
+      "answer": "GAB",
+      "clue": "Scrambled letters: GBA"
+    },
+    {
+      "answer": "GAD",
+      "clue": "Anagram: ADG"
+    },
+    {
+      "answer": "GAN",
+      "clue": "Scrambled letters: GNA"
+    },
+    {
+      "answer": "GAR",
+      "clue": "Reorder these letters: ARG"
+    },
+    {
+      "answer": "GAS",
+      "clue": "Anagram: ASG"
+    },
+    {
+      "answer": "GAU",
+      "clue": "Reorder these letters: UGA"
+    },
+    {
+      "answer": "GAW",
+      "clue": "Scrambled letters: WGA"
+    },
+    {
+      "answer": "GED",
+      "clue": "Scrambled letters: GDE"
+    },
+    {
+      "answer": "GEL",
+      "clue": "Anagram: LEG"
+    },
+    {
+      "answer": "GEM",
+      "clue": "Scrambled letters: EGM"
+    },
+    {
+      "answer": "GEN",
+      "clue": "Reorder these letters: GNE"
+    },
+    {
+      "answer": "GEO",
+      "clue": "Anagram: EOG"
+    },
+    {
+      "answer": "GER",
+      "clue": "Anagram: RGE"
+    },
+    {
+      "answer": "GES",
+      "clue": "Scrambled letters: GSE"
+    },
+    {
+      "answer": "GET",
+      "clue": "Reorder these letters: EGT"
+    },
+    {
+      "answer": "GIB",
+      "clue": "Anagram: BIG"
+    },
+    {
+      "answer": "GID",
+      "clue": "Reorder these letters: GDI"
+    },
+    {
+      "answer": "GIE",
+      "clue": "Anagram: IGE"
+    },
+    {
+      "answer": "GIF",
+      "clue": "Scrambled letters: FGI"
+    },
+    {
+      "answer": "GIG",
+      "clue": "Reorder these letters: GGI"
+    },
+    {
+      "answer": "GIL",
+      "clue": "Scrambled letters: LGI"
+    },
+    {
+      "answer": "GIM",
+      "clue": "Reorder these letters: MIG"
+    },
+    {
+      "answer": "GIN",
+      "clue": "Anagram: GNI"
+    },
+    {
+      "answer": "GIO",
+      "clue": "Scrambled letters: OIG"
+    },
+    {
+      "answer": "GIT",
+      "clue": "Anagram: ITG"
+    },
+    {
+      "answer": "GNU",
+      "clue": "Anagram: UNG"
+    },
+    {
+      "answer": "GOA",
+      "clue": "Reorder these letters: OGA"
+    },
+    {
+      "answer": "GOB",
+      "clue": "Anagram: BGO"
+    },
+    {
+      "answer": "GOD",
+      "clue": "Reorder these letters: ODG"
+    },
+    {
+      "answer": "GOG",
+      "clue": "Reorder these letters: GGO"
+    },
+    {
+      "answer": "GOI",
+      "clue": "Scrambled letters: IOG"
+    },
+    {
+      "answer": "GOL",
+      "clue": "Scrambled letters: OLG"
+    },
+    {
+      "answer": "GON",
+      "clue": "Anagram: NOG"
+    },
+    {
+      "answer": "GOO",
+      "clue": "Scrambled letters: OGO"
+    },
+    {
+      "answer": "GOS",
+      "clue": "Reorder these letters: OSG"
+    },
+    {
+      "answer": "GOT",
+      "clue": "Anagram: TOG"
+    },
+    {
+      "answer": "GOY",
+      "clue": "Reorder these letters: GYO"
+    },
+    {
+      "answer": "GRA",
+      "clue": "Reorder these letters: ARG"
+    },
+    {
+      "answer": "GUD",
+      "clue": "Reorder these letters: DGU"
+    },
+    {
+      "answer": "GUE",
+      "clue": "Anagram: EUG"
+    },
+    {
+      "answer": "GUL",
+      "clue": "Scrambled letters: ULG"
+    },
+    {
+      "answer": "GUN",
+      "clue": "Anagram: NGU"
+    },
+    {
+      "answer": "GUP",
+      "clue": "Reorder these letters: PUG"
+    },
+    {
+      "answer": "GUR",
+      "clue": "Scrambled letters: RUG"
+    },
+    {
+      "answer": "GUS",
+      "clue": "Reorder these letters: USG"
+    },
+    {
+      "answer": "GUT",
+      "clue": "Anagram: TGU"
+    },
+    {
+      "answer": "GYM",
+      "clue": "Anagram: MGY"
+    },
+    {
+      "answer": "GYP",
+      "clue": "Anagram: PYG"
+    },
+    {
+      "answer": "HAD",
+      "clue": "Scrambled letters: ADH"
+    },
+    {
+      "answer": "HAG",
+      "clue": "Scrambled letters: GAH"
+    },
+    {
+      "answer": "HAK",
+      "clue": "Reorder these letters: KHA"
+    },
+    {
+      "answer": "HAL",
+      "clue": "Anagram: LAH"
+    },
+    {
+      "answer": "HAN",
+      "clue": "Reorder these letters: AHN"
+    },
+    {
+      "answer": "HAO",
+      "clue": "Anagram: OHA"
+    },
+    {
+      "answer": "HAP",
+      "clue": "Scrambled letters: HPA"
+    },
+    {
+      "answer": "HAT",
+      "clue": "Reorder these letters: TAH"
+    },
+    {
+      "answer": "HAU",
+      "clue": "Anagram: AUH"
+    },
+    {
+      "answer": "HAY",
+      "clue": "Scrambled letters: AYH"
+    },
+    {
+      "answer": "HEI",
+      "clue": "Scrambled letters: EHI"
+    },
+    {
+      "answer": "HEM",
+      "clue": "Reorder these letters: EHM"
+    },
+    {
+      "answer": "HEN",
+      "clue": "Anagram: NHE"
+    },
+    {
+      "answer": "HEP",
+      "clue": "Reorder these letters: EPH"
+    },
+    {
+      "answer": "HER",
+      "clue": "Scrambled letters: RHE"
+    },
+    {
+      "answer": "HET",
+      "clue": "Anagram: THE"
+    },
+    {
+      "answer": "HEW",
+      "clue": "Anagram: WEH"
+    },
+    {
+      "answer": "HEY",
+      "clue": "Reorder these letters: YEH"
+    },
+    {
+      "answer": "HIA",
+      "clue": "Anagram: HAI"
+    },
+    {
+      "answer": "HID",
+      "clue": "Anagram: HDI"
+    },
+    {
+      "answer": "HIE",
+      "clue": "Scrambled letters: EIH"
+    },
+    {
+      "answer": "HIM",
+      "clue": "Anagram: IHM"
+    },
+    {
+      "answer": "HIP",
+      "clue": "Anagram: HPI"
+    },
+    {
+      "answer": "HIT",
+      "clue": "Scrambled letters: ITH"
+    },
+    {
+      "answer": "HOD",
+      "clue": "Anagram: DOH"
+    },
+    {
+      "answer": "HOE",
+      "clue": "Scrambled letters: EOH"
+    },
+    {
+      "answer": "HON",
+      "clue": "Scrambled letters: HNO"
+    },
+    {
+      "answer": "HOP",
+      "clue": "Anagram: OPH"
+    },
+    {
+      "answer": "HOT",
+      "clue": "Scrambled letters: TOH"
+    },
+    {
+      "answer": "HOW",
+      "clue": "Scrambled letters: OHW"
+    },
+    {
+      "answer": "HOY",
+      "clue": "Anagram: YOH"
+    },
+    {
+      "answer": "HSI",
+      "clue": "Anagram: SIH"
+    },
+    {
+      "answer": "HUB",
+      "clue": "Scrambled letters: UHB"
+    },
+    {
+      "answer": "HUD",
+      "clue": "Anagram: UDH"
+    },
+    {
+      "answer": "HUG",
+      "clue": "Anagram: GHU"
+    },
+    {
+      "answer": "HUH",
+      "clue": "Scrambled letters: HHU"
+    },
+    {
+      "answer": "HUI",
+      "clue": "Reorder these letters: UHI"
+    },
+    {
+      "answer": "HUK",
+      "clue": "Scrambled letters: KHU"
+    },
+    {
+      "answer": "HUM",
+      "clue": "Anagram: UHM"
+    },
+    {
+      "answer": "HUP",
+      "clue": "Anagram: PUH"
+    },
+    {
+      "answer": "HYP",
+      "clue": "Scrambled letters: YPH"
+    },
+    {
+      "answer": "IAN",
+      "clue": "Anagram: NAI"
+    },
+    {
+      "answer": "ICE",
+      "clue": "Reorder these letters: EIC"
+    },
+    {
+      "answer": "ICH",
+      "clue": "Reorder these letters: CHI"
+    },
+    {
+      "answer": "IDA",
+      "clue": "Reorder these letters: AID"
+    },
+    {
+      "answer": "IDE",
+      "clue": "Anagram: EDI"
+    },
+    {
+      "answer": "IFE",
+      "clue": "Reorder these letters: IEF"
+    },
+    {
+      "answer": "IHI",
+      "clue": "Reorder these letters: HII"
+    },
+    {
+      "answer": "ILA",
+      "clue": "Scrambled letters: IAL"
+    },
+    {
+      "answer": "ILK",
+      "clue": "Reorder these letters: LKI"
+    },
+    {
+      "answer": "ILL",
+      "clue": "Anagram: LIL"
+    },
+    {
+      "answer": "IMP",
+      "clue": "Reorder these letters: PIM"
+    },
+    {
+      "answer": "IMU",
+      "clue": "Scrambled letters: UMI"
+    },
+    {
+      "answer": "IND",
+      "clue": "Anagram: NDI"
+    },
+    {
+      "answer": "INK",
+      "clue": "Scrambled letters: KNI"
+    },
+    {
+      "answer": "INN",
+      "clue": "Scrambled letters: NNI"
+    },
+    {
+      "answer": "INO",
+      "clue": "Reorder these letters: OIN"
+    },
+    {
+      "answer": "ION",
+      "clue": "Reorder these letters: INO"
+    },
+    {
+      "answer": "IRE",
+      "clue": "Reorder these letters: EIR"
+    },
+    {
+      "answer": "IRK",
+      "clue": "Reorder these letters: KIR"
+    },
+    {
+      "answer": "ISO",
+      "clue": "Scrambled letters: SIO"
+    },
+    {
+      "answer": "IST",
+      "clue": "Anagram: SIT"
+    },
+    {
+      "answer": "ITO",
+      "clue": "Reorder these letters: TOI"
+    },
+    {
+      "answer": "ITS",
+      "clue": "Anagram: TSI"
+    },
+    {
+      "answer": "IVA",
+      "clue": "Reorder these letters: VIA"
+    },
+    {
+      "answer": "IVY",
+      "clue": "Reorder these letters: VYI"
+    },
+    {
+      "answer": "IWA",
+      "clue": "Anagram: IAW"
+    },
+    {
+      "answer": "KAI",
+      "clue": "Anagram: AKI"
+    },
+    {
+      "answer": "KAN",
+      "clue": "Reorder these letters: NKA"
+    },
+    {
+      "answer": "KAT",
+      "clue": "Reorder these letters: ATK"
+    },
+    {
+      "answer": "KAW",
+      "clue": "Reorder these letters: WKA"
+    },
+    {
+      "answer": "KAY",
+      "clue": "Scrambled letters: AKY"
+    },
+    {
+      "answer": "KEA",
+      "clue": "Reorder these letters: AKE"
+    },
+    {
+      "answer": "KEB",
+      "clue": "Anagram: EBK"
+    },
+    {
+      "answer": "KED",
+      "clue": "Reorder these letters: DEK"
+    },
+    {
+      "answer": "KEE",
+      "clue": "Anagram: EKE"
+    },
+    {
+      "answer": "KEF",
+      "clue": "Scrambled letters: EFK"
+    },
+    {
+      "answer": "KEN",
+      "clue": "Anagram: ENK"
+    },
+    {
+      "answer": "KEP",
+      "clue": "Reorder these letters: KPE"
+    },
+    {
+      "answer": "KET",
+      "clue": "Anagram: KTE"
+    },
+    {
+      "answer": "KEY",
+      "clue": "Reorder these letters: YKE"
+    },
+    {
+      "answer": "KIL",
+      "clue": "Reorder these letters: IKL"
+    },
+    {
+      "answer": "KIN",
+      "clue": "Scrambled letters: NKI"
+    },
+    {
+      "answer": "KIP",
+      "clue": "Anagram: IKP"
+    },
+    {
+      "answer": "KIT",
+      "clue": "Scrambled letters: IKT"
+    },
+    {
+      "answer": "KOA",
+      "clue": "Anagram: AKO"
+    },
+    {
+      "answer": "KOB",
+      "clue": "Scrambled letters: OKB"
+    },
+    {
+      "answer": "KOI",
+      "clue": "Reorder these letters: OKI"
+    },
+    {
+      "answer": "KOL",
+      "clue": "Reorder these letters: OKL"
+    },
+    {
+      "answer": "KON",
+      "clue": "Scrambled letters: NKO"
+    },
+    {
+      "answer": "KOP",
+      "clue": "Anagram: OKP"
+    },
+    {
+      "answer": "KOR",
+      "clue": "Reorder these letters: RKO"
+    },
+    {
+      "answer": "KOS",
+      "clue": "Anagram: SOK"
+    },
+    {
+      "answer": "KRA",
+      "clue": "Anagram: ARK"
+    },
+    {
+      "answer": "KUI",
+      "clue": "Reorder these letters: KIU"
+    },
+    {
+      "answer": "KYL",
+      "clue": "Anagram: LYK"
+    },
+    {
+      "answer": "KYU",
+      "clue": "Anagram: UYK"
+    },
+    {
+      "answer": "LAC",
+      "clue": "Scrambled letters: LCA"
+    },
+    {
+      "answer": "LAD",
+      "clue": "Reorder these letters: DLA"
+    },
+    {
+      "answer": "LAI",
+      "clue": "Scrambled letters: IAL"
+    },
+    {
+      "answer": "LAK",
+      "clue": "Anagram: ALK"
+    },
+    {
+      "answer": "LAM",
+      "clue": "Reorder these letters: MAL"
+    },
+    {
+      "answer": "LAN",
+      "clue": "Anagram: ALN"
+    },
+    {
+      "answer": "LAP",
+      "clue": "Reorder these letters: APL"
+    },
+    {
+      "answer": "LAR",
+      "clue": "Scrambled letters: ALR"
+    },
+    {
+      "answer": "LAS",
+      "clue": "Reorder these letters: SLA"
+    },
+    {
+      "answer": "LAW",
+      "clue": "Anagram: WLA"
+    },
+    {
+      "answer": "LEA",
+      "clue": "Anagram: EAL"
+    },
+    {
+      "answer": "LEG",
+      "clue": "Anagram: GLE"
+    },
+    {
+      "answer": "LEI",
+      "clue": "Reorder these letters: EIL"
+    },
+    {
+      "answer": "LEK",
+      "clue": "Scrambled letters: KLE"
+    },
+    {
+      "answer": "LEO",
+      "clue": "Reorder these letters: LOE"
+    },
+    {
+      "answer": "LES",
+      "clue": "Anagram: SEL"
+    },
+    {
+      "answer": "LET",
+      "clue": "Scrambled letters: TLE"
+    },
+    {
+      "answer": "LEU",
+      "clue": "Reorder these letters: EUL"
+    },
+    {
+      "answer": "LEW",
+      "clue": "Scrambled letters: WLE"
+    },
+    {
+      "answer": "LID",
+      "clue": "Scrambled letters: IDL"
+    },
+    {
+      "answer": "LIF",
+      "clue": "Anagram: ILF"
+    },
+    {
+      "answer": "LIM",
+      "clue": "Scrambled letters: LMI"
+    },
+    {
+      "answer": "LIP",
+      "clue": "Scrambled letters: PLI"
+    },
+    {
+      "answer": "LIS",
+      "clue": "Scrambled letters: SIL"
+    },
+    {
+      "answer": "LIT",
+      "clue": "Reorder these letters: TIL"
+    },
+    {
+      "answer": "LIV",
+      "clue": "Scrambled letters: VLI"
+    },
+    {
+      "answer": "LOA",
+      "clue": "Scrambled letters: OLA"
+    },
+    {
+      "answer": "LOB",
+      "clue": "Reorder these letters: OLB"
+    },
+    {
+      "answer": "LOD",
+      "clue": "Scrambled letters: DLO"
+    },
+    {
+      "answer": "LOF",
+      "clue": "Anagram: FLO"
+    },
+    {
+      "answer": "LOG",
+      "clue": "Scrambled letters: OGL"
+    },
+    {
+      "answer": "LOO",
+      "clue": "Anagram: OOL"
+    },
+    {
+      "answer": "LOP",
+      "clue": "Scrambled letters: POL"
+    },
+    {
+      "answer": "LOT",
+      "clue": "Reorder these letters: TOL"
+    },
+    {
+      "answer": "LOU",
+      "clue": "Anagram: UOL"
+    },
+    {
+      "answer": "LOW",
+      "clue": "Reorder these letters: WLO"
+    },
+    {
+      "answer": "LOY",
+      "clue": "Scrambled letters: OLY"
+    },
+    {
+      "answer": "LUC",
+      "clue": "Anagram: UCL"
+    },
+    {
+      "answer": "LUE",
+      "clue": "Reorder these letters: LEU"
+    },
+    {
+      "answer": "LUG",
+      "clue": "Scrambled letters: LGU"
+    },
+    {
+      "answer": "LUI",
+      "clue": "Anagram: LIU"
+    },
+    {
+      "answer": "LUO",
+      "clue": "Anagram: OLU"
+    },
+    {
+      "answer": "LUR",
+      "clue": "Anagram: ULR"
+    },
+    {
+      "answer": "LUT",
+      "clue": "Reorder these letters: TLU"
+    },
+    {
+      "answer": "LYE",
+      "clue": "Anagram: YLE"
+    },
+    {
+      "answer": "MAB",
+      "clue": "Scrambled letters: ABM"
+    },
+    {
+      "answer": "MAC",
+      "clue": "Reorder these letters: CMA"
+    },
+    {
+      "answer": "MAD",
+      "clue": "Anagram: ADM"
+    },
+    {
+      "answer": "MAE",
+      "clue": "Scrambled letters: EMA"
+    },
+    {
+      "answer": "MAG",
+      "clue": "Anagram: MGA"
+    },
+    {
+      "answer": "MAH",
+      "clue": "Scrambled letters: AHM"
+    },
+    {
+      "answer": "MAL",
+      "clue": "Reorder these letters: MLA"
+    },
+    {
+      "answer": "MAM",
+      "clue": "Anagram: MMA"
+    },
+    {
+      "answer": "MAP",
+      "clue": "Anagram: APM"
+    },
+    {
+      "answer": "MAR",
+      "clue": "Reorder these letters: MRA"
+    },
+    {
+      "answer": "MAS",
+      "clue": "Anagram: SMA"
+    },
+    {
+      "answer": "MAT",
+      "clue": "Scrambled letters: MTA"
+    },
+    {
+      "answer": "MAU",
+      "clue": "Reorder these letters: UMA"
+    },
+    {
+      "answer": "MAW",
+      "clue": "Scrambled letters: AWM"
+    },
+    {
+      "answer": "MAY",
+      "clue": "Anagram: YAM"
+    },
+    {
+      "answer": "MEG",
+      "clue": "Scrambled letters: GME"
+    },
+    {
+      "answer": "MEL",
+      "clue": "Anagram: MLE"
+    },
+    {
+      "answer": "MEM",
+      "clue": "Scrambled letters: EMM"
+    },
+    {
+      "answer": "MEN",
+      "clue": "Reorder these letters: EMN"
+    },
+    {
+      "answer": "MEO",
+      "clue": "Anagram: EMO"
+    },
+    {
+      "answer": "MER",
+      "clue": "Anagram: EMR"
+    },
+    {
+      "answer": "MES",
+      "clue": "Scrambled letters: MSE"
+    },
+    {
+      "answer": "MET",
+      "clue": "Reorder these letters: TME"
+    },
+    {
+      "answer": "MEW",
+      "clue": "Reorder these letters: EMW"
+    },
+    {
+      "answer": "MHO",
+      "clue": "Anagram: MOH"
+    },
+    {
+      "answer": "MID",
+      "clue": "Reorder these letters: DMI"
+    },
+    {
+      "answer": "MIL",
+      "clue": "Scrambled letters: MLI"
+    },
+    {
+      "answer": "MIM",
+      "clue": "Reorder these letters: IMM"
+    },
+    {
+      "answer": "MIR",
+      "clue": "Scrambled letters: IRM"
+    },
+    {
+      "answer": "MOB",
+      "clue": "Anagram: OBM"
+    },
+    {
+      "answer": "MOD",
+      "clue": "Reorder these letters: DMO"
+    },
+    {
+      "answer": "MOI",
+      "clue": "Scrambled letters: IOM"
+    },
+    {
+      "answer": "MON",
+      "clue": "Anagram: ONM"
+    },
+    {
+      "answer": "MOO",
+      "clue": "Scrambled letters: OMO"
+    },
+    {
+      "answer": "MOR",
+      "clue": "Scrambled letters: ROM"
+    },
+    {
+      "answer": "MOT",
+      "clue": "Anagram: TOM"
+    },
+    {
+      "answer": "MOW",
+      "clue": "Anagram: MWO"
+    },
+    {
+      "answer": "MOY",
+      "clue": "Reorder these letters: OYM"
+    },
+    {
+      "answer": "MRU",
+      "clue": "Scrambled letters: MUR"
+    },
+    {
+      "answer": "MUD",
+      "clue": "Reorder these letters: MDU"
+    },
+    {
+      "answer": "MUN",
+      "clue": "Anagram: NUM"
+    },
+    {
+      "answer": "MUS",
+      "clue": "Reorder these letters: MSU"
+    },
+    {
+      "answer": "NAA",
+      "clue": "Scrambled letters: ANA"
+    },
+    {
+      "answer": "NAE",
+      "clue": "Reorder these letters: EAN"
+    },
+    {
+      "answer": "NAG",
+      "clue": "Scrambled letters: NGA"
+    },
+    {
+      "answer": "NAK",
+      "clue": "Reorder these letters: AKN"
+    },
+    {
+      "answer": "NAM",
+      "clue": "Scrambled letters: MNA"
+    },
+    {
+      "answer": "NAN",
+      "clue": "Reorder these letters: NNA"
+    },
+    {
+      "answer": "NAP",
+      "clue": "Scrambled letters: PAN"
+    },
+    {
+      "answer": "NAR",
+      "clue": "Anagram: RAN"
+    },
+    {
+      "answer": "NAT",
+      "clue": "Reorder these letters: ANT"
+    },
+    {
+      "answer": "NAW",
+      "clue": "Reorder these letters: AWN"
+    },
+    {
+      "answer": "NAY",
+      "clue": "Scrambled letters: YNA"
+    },
+    {
+      "answer": "NEB",
+      "clue": "Anagram: BNE"
+    },
+    {
+      "answer": "NED",
+      "clue": "Reorder these letters: NDE"
+    },
+    {
+      "answer": "NEE",
+      "clue": "Anagram: EEN"
+    },
+    {
+      "answer": "NEF",
+      "clue": "Scrambled letters: EFN"
+    },
+    {
+      "answer": "NEI",
+      "clue": "Scrambled letters: NIE"
+    },
+    {
+      "answer": "NEO",
+      "clue": "Scrambled letters: NOE"
+    },
+    {
+      "answer": "NEP",
+      "clue": "Reorder these letters: PNE"
+    },
+    {
+      "answer": "NET",
+      "clue": "Anagram: ETN"
+    },
+    {
+      "answer": "NIB",
+      "clue": "Scrambled letters: NBI"
+    },
+    {
+      "answer": "NID",
+      "clue": "Anagram: DNI"
+    },
+    {
+      "answer": "NIG",
+      "clue": "Anagram: GIN"
+    },
+    {
+      "answer": "NIM",
+      "clue": "Anagram: MNI"
+    },
+    {
+      "answer": "NIP",
+      "clue": "Anagram: NPI"
+    },
+    {
+      "answer": "NOA",
+      "clue": "Anagram: ONA"
+    },
+    {
+      "answer": "NOB",
+      "clue": "Scrambled letters: BON"
+    },
+    {
+      "answer": "NOG",
+      "clue": "Anagram: ONG"
+    },
+    {
+      "answer": "NON",
+      "clue": "Scrambled letters: ONN"
+    },
+    {
+      "answer": "NOT",
+      "clue": "Scrambled letters: ONT"
+    },
+    {
+      "answer": "NOW",
+      "clue": "Scrambled letters: WON"
+    },
+    {
+      "answer": "NOY",
+      "clue": "Anagram: YNO"
+    },
+    {
+      "answer": "NUB",
+      "clue": "Scrambled letters: UBN"
+    },
+    {
+      "answer": "NUL",
+      "clue": "Reorder these letters: UNL"
+    },
+    {
+      "answer": "NUN",
+      "clue": "Scrambled letters: UNN"
+    },
+    {
+      "answer": "NUT",
+      "clue": "Scrambled letters: UNT"
+    },
+    {
+      "answer": "NYE",
+      "clue": "Reorder these letters: EYN"
+    },
+    {
+      "answer": "OAF",
+      "clue": "Scrambled letters: OFA"
+    },
+    {
+      "answer": "OAM",
+      "clue": "Reorder these letters: AOM"
+    },
+    {
+      "answer": "OAR",
+      "clue": "Scrambled letters: ROA"
+    },
+    {
+      "answer": "OAT",
+      "clue": "Anagram: AOT"
+    },
+    {
+      "answer": "OBI",
+      "clue": "Reorder these letters: IBO"
+    },
+    {
+      "answer": "OCH",
+      "clue": "Reorder these letters: COH"
+    },
+    {
+      "answer": "OCK",
+      "clue": "Reorder these letters: KOC"
+    },
+    {
+      "answer": "ODA",
+      "clue": "Reorder these letters: AOD"
+    },
+    {
+      "answer": "ODD",
+      "clue": "Reorder these letters: DOD"
+    },
+    {
+      "answer": "ODE",
+      "clue": "Anagram: OED"
+    },
+    {
+      "answer": "ODS",
+      "clue": "Reorder these letters: OSD"
+    },
+    {
+      "answer": "OER",
+      "clue": "Reorder these letters: REO"
+    },
+    {
+      "answer": "OES",
+      "clue": "Anagram: SOE"
+    },
+    {
+      "answer": "OFF",
+      "clue": "Anagram: FOF"
+    },
+    {
+      "answer": "OFT",
+      "clue": "Reorder these letters: TFO"
+    },
+    {
+      "answer": "OHM",
+      "clue": "Anagram: MHO"
+    },
+    {
+      "answer": "OHO",
+      "clue": "Reorder these letters: HOO"
+    },
+    {
+      "answer": "OKA",
+      "clue": "Anagram: KOA"
+    },
+    {
+      "answer": "OKI",
+      "clue": "Reorder these letters: IKO"
+    },
+    {
+      "answer": "OLD",
+      "clue": "Scrambled letters: ODL"
+    },
+    {
+      "answer": "OLM",
+      "clue": "Scrambled letters: MOL"
+    },
+    {
+      "answer": "ONA",
+      "clue": "Anagram: ANO"
+    },
+    {
+      "answer": "ONE",
+      "clue": "Scrambled letters: OEN"
+    },
+    {
+      "answer": "ONS",
+      "clue": "Anagram: SON"
+    },
+    {
+      "answer": "OPE",
+      "clue": "Anagram: PEO"
+    },
+    {
+      "answer": "ORC",
+      "clue": "Anagram: COR"
+    },
+    {
+      "answer": "ORE",
+      "clue": "Reorder these letters: REO"
+    },
+    {
+      "answer": "ORF",
+      "clue": "Anagram: OFR"
+    },
+    {
+      "answer": "ORT",
+      "clue": "Reorder these letters: TOR"
+    },
+    {
+      "answer": "ORY",
+      "clue": "Scrambled letters: RYO"
+    },
+    {
+      "answer": "OSC",
+      "clue": "Scrambled letters: SCO"
+    },
+    {
+      "answer": "OSE",
+      "clue": "Anagram: SOE"
+    },
+    {
+      "answer": "OUF",
+      "clue": "Anagram: OFU"
+    },
+    {
+      "answer": "OUR",
+      "clue": "Anagram: ROU"
+    },
+    {
+      "answer": "OUT",
+      "clue": "Reorder these letters: UOT"
+    },
+    {
+      "answer": "OVA",
+      "clue": "Reorder these letters: VAO"
+    },
+    {
+      "answer": "OWD",
+      "clue": "Anagram: WDO"
+    },
+    {
+      "answer": "OWE",
+      "clue": "Scrambled letters: WOE"
+    },
+    {
+      "answer": "OWK",
+      "clue": "Scrambled letters: WKO"
+    },
+    {
+      "answer": "OWL",
+      "clue": "Reorder these letters: LWO"
+    },
+    {
+      "answer": "PAC",
+      "clue": "Reorder these letters: ACP"
+    },
+    {
+      "answer": "PAD",
+      "clue": "Anagram: DPA"
+    },
+    {
+      "answer": "PAL",
+      "clue": "Reorder these letters: LPA"
+    },
+    {
+      "answer": "PAM",
+      "clue": "Anagram: APM"
+    },
+    {
+      "answer": "PAN",
+      "clue": "Scrambled letters: NPA"
+    },
+    {
+      "answer": "PAP",
+      "clue": "Anagram: APP"
+    },
+    {
+      "answer": "PAT",
+      "clue": "Scrambled letters: TPA"
+    },
+    {
+      "answer": "PAU",
+      "clue": "Reorder these letters: PUA"
+    },
+    {
+      "answer": "PAY",
+      "clue": "Anagram: YAP"
+    },
+    {
+      "answer": "PEA",
+      "clue": "Scrambled letters: PAE"
+    },
+    {
+      "answer": "PED",
+      "clue": "Scrambled letters: PDE"
+    },
+    {
+      "answer": "PEE",
+      "clue": "Reorder these letters: EEP"
+    },
+    {
+      "answer": "PEG",
+      "clue": "Scrambled letters: EPG"
+    },
+    {
+      "answer": "PEP",
+      "clue": "Scrambled letters: PPE"
+    },
+    {
+      "answer": "PER",
+      "clue": "Anagram: PRE"
+    },
+    {
+      "answer": "PES",
+      "clue": "Scrambled letters: SPE"
+    },
+    {
+      "answer": "PET",
+      "clue": "Reorder these letters: ETP"
+    },
+    {
+      "answer": "PHO",
+      "clue": "Anagram: HPO"
+    },
+    {
+      "answer": "PIA",
+      "clue": "Reorder these letters: PAI"
+    },
+    {
+      "answer": "PIC",
+      "clue": "Scrambled letters: CPI"
+    },
+    {
+      "answer": "PIE",
+      "clue": "Anagram: IEP"
+    },
+    {
+      "answer": "PIG",
+      "clue": "Reorder these letters: GPI"
+    },
+    {
+      "answer": "PIM",
+      "clue": "Reorder these letters: IMP"
+    },
+    {
+      "answer": "PIP",
+      "clue": "Reorder these letters: PPI"
+    },
+    {
+      "answer": "PIR",
+      "clue": "Scrambled letters: IPR"
+    },
+    {
+      "answer": "PIT",
+      "clue": "Anagram: ITP"
+    },
+    {
+      "answer": "PLY",
+      "clue": "Reorder these letters: YPL"
+    },
+    {
+      "answer": "POA",
+      "clue": "Reorder these letters: OAP"
+    },
+    {
+      "answer": "POD",
+      "clue": "Reorder these letters: PDO"
+    },
+    {
+      "answer": "POE",
+      "clue": "Anagram: EPO"
+    },
+    {
+      "answer": "POI",
+      "clue": "Scrambled letters: OIP"
+    },
+    {
+      "answer": "POL",
+      "clue": "Scrambled letters: LPO"
+    },
+    {
+      "answer": "POM",
+      "clue": "Reorder these letters: OMP"
+    },
+    {
+      "answer": "PON",
+      "clue": "Anagram: OPN"
+    },
+    {
+      "answer": "POP",
+      "clue": "Reorder these letters: OPP"
+    },
+    {
+      "answer": "POT",
+      "clue": "Anagram: OTP"
+    },
+    {
+      "answer": "POW",
+      "clue": "Anagram: WPO"
+    },
+    {
+      "answer": "POY",
+      "clue": "Reorder these letters: PYO"
+    },
+    {
+      "answer": "PRO",
+      "clue": "Scrambled letters: ORP"
+    },
+    {
+      "answer": "PSI",
+      "clue": "Reorder these letters: PIS"
+    },
+    {
+      "answer": "PUB",
+      "clue": "Anagram: BUP"
+    },
+    {
+      "answer": "PUD",
+      "clue": "Reorder these letters: DUP"
+    },
+    {
+      "answer": "PUL",
+      "clue": "Scrambled letters: ULP"
+    },
+    {
+      "answer": "PUN",
+      "clue": "Anagram: NPU"
+    },
+    {
+      "answer": "PUR",
+      "clue": "Scrambled letters: PRU"
+    },
+    {
+      "answer": "PUS",
+      "clue": "Reorder these letters: SPU"
+    },
+    {
+      "answer": "PUT",
+      "clue": "Anagram: UTP"
+    },
+    {
+      "answer": "PYA",
+      "clue": "Anagram: PAY"
+    },
+    {
+      "answer": "PYR",
+      "clue": "Reorder these letters: PRY"
+    },
+    {
+      "answer": "RAB",
+      "clue": "Anagram: BRA"
+    },
+    {
+      "answer": "RAD",
+      "clue": "Reorder these letters: DAR"
+    },
+    {
+      "answer": "RAG",
+      "clue": "Reorder these letters: GAR"
+    },
+    {
+      "answer": "RAM",
+      "clue": "Reorder these letters: RMA"
+    },
+    {
+      "answer": "RAN",
+      "clue": "Anagram: ANR"
+    },
+    {
+      "answer": "RAP",
+      "clue": "Reorder these letters: ARP"
+    },
+    {
+      "answer": "RAS",
+      "clue": "Reorder these letters: ARS"
+    },
+    {
+      "answer": "RAT",
+      "clue": "Anagram: RTA"
+    },
+    {
+      "answer": "RAW",
+      "clue": "Anagram: ARW"
+    },
+    {
+      "answer": "RAY",
+      "clue": "Reorder these letters: YRA"
+    },
+    {
+      "answer": "REA",
+      "clue": "Anagram: AER"
+    },
+    {
+      "answer": "RED",
+      "clue": "Anagram: ERD"
+    },
+    {
+      "answer": "REE",
+      "clue": "Scrambled letters: ERE"
+    },
+    {
+      "answer": "REH",
+      "clue": "Scrambled letters: ERH"
+    },
+    {
+      "answer": "REL",
+      "clue": "Reorder these letters: LER"
+    },
+    {
+      "answer": "REP",
+      "clue": "Anagram: ERP"
+    },
+    {
+      "answer": "REV",
+      "clue": "Anagram: EVR"
+    },
+    {
+      "answer": "RHE",
+      "clue": "Scrambled letters: HER"
+    },
+    {
+      "answer": "RHO",
+      "clue": "Reorder these letters: OHR"
+    },
+    {
+      "answer": "RIA",
+      "clue": "Scrambled letters: IAR"
+    },
+    {
+      "answer": "RID",
+      "clue": "Scrambled letters: IRD"
+    },
+    {
+      "answer": "RIE",
+      "clue": "Reorder these letters: REI"
+    },
+    {
+      "answer": "RIO",
+      "clue": "Anagram: ROI"
+    },
+    {
+      "answer": "RIP",
+      "clue": "Scrambled letters: IPR"
+    },
+    {
+      "answer": "RIT",
+      "clue": "Reorder these letters: TRI"
+    },
+    {
+      "answer": "ROB",
+      "clue": "Reorder these letters: BRO"
+    },
+    {
+      "answer": "ROD",
+      "clue": "Scrambled letters: DRO"
+    },
+    {
+      "answer": "ROG",
+      "clue": "Scrambled letters: RGO"
+    },
+    {
+      "answer": "ROK",
+      "clue": "Reorder these letters: RKO"
+    },
+    {
+      "answer": "RON",
+      "clue": "Reorder these letters: NOR"
+    },
+    {
+      "answer": "ROT",
+      "clue": "Reorder these letters: ORT"
+    },
+    {
+      "answer": "ROW",
+      "clue": "Reorder these letters: ORW"
+    },
+    {
+      "answer": "ROY",
+      "clue": "Scrambled letters: RYO"
+    },
+    {
+      "answer": "RUA",
+      "clue": "Scrambled letters: UAR"
+    },
+    {
+      "answer": "RUG",
+      "clue": "Scrambled letters: RGU"
+    },
+    {
+      "answer": "RUM",
+      "clue": "Scrambled letters: MRU"
+    },
+    {
+      "answer": "RUN",
+      "clue": "Reorder these letters: NUR"
+    },
+    {
+      "answer": "RUS",
+      "clue": "Scrambled letters: URS"
+    },
+    {
+      "answer": "RUT",
+      "clue": "Reorder these letters: RTU"
+    },
+    {
+      "answer": "SAA",
+      "clue": "Anagram: ASA"
+    },
+    {
+      "answer": "SAB",
+      "clue": "Scrambled letters: ABS"
+    },
+    {
+      "answer": "SAC",
+      "clue": "Reorder these letters: CSA"
+    },
+    {
+      "answer": "SAD",
+      "clue": "Anagram: DAS"
+    },
+    {
+      "answer": "SAH",
+      "clue": "Scrambled letters: ASH"
+    },
+    {
+      "answer": "SAI",
+      "clue": "Reorder these letters: ASI"
+    },
+    {
+      "answer": "SAK",
+      "clue": "Scrambled letters: KSA"
+    },
+    {
+      "answer": "SAL",
+      "clue": "Reorder these letters: ASL"
+    },
+    {
+      "answer": "SAM",
+      "clue": "Anagram: MSA"
+    },
+    {
+      "answer": "SAO",
+      "clue": "Reorder these letters: AOS"
+    },
+    {
+      "answer": "SAP",
+      "clue": "Anagram: SPA"
+    },
+    {
+      "answer": "SAR",
+      "clue": "Reorder these letters: SRA"
+    },
+    {
+      "answer": "SAT",
+      "clue": "Scrambled letters: STA"
+    },
+    {
+      "answer": "SAW",
+      "clue": "Scrambled letters: WAS"
+    },
+    {
+      "answer": "SAY",
+      "clue": "Anagram: YSA"
+    },
+    {
+      "answer": "SEA",
+      "clue": "Scrambled letters: AES"
+    },
+    {
+      "answer": "SEC",
+      "clue": "Anagram: SCE"
+    },
+    {
+      "answer": "SEN",
+      "clue": "Reorder these letters: NSE"
+    },
+    {
+      "answer": "SET",
+      "clue": "Reorder these letters: EST"
+    },
+    {
+      "answer": "SEW",
+      "clue": "Reorder these letters: WES"
+    },
+    {
+      "answer": "SEY",
+      "clue": "Scrambled letters: ESY"
+    },
+    {
+      "answer": "SHA",
+      "clue": "Scrambled letters: SAH"
+    },
+    {
+      "answer": "SHE",
+      "clue": "Reorder these letters: EHS"
+    },
+    {
+      "answer": "SHI",
+      "clue": "Anagram: HIS"
+    },
+    {
+      "answer": "SHO",
+      "clue": "Anagram: SOH"
+    },
+    {
+      "answer": "SHU",
+      "clue": "Anagram: UHS"
+    },
+    {
+      "answer": "SHY",
+      "clue": "Scrambled letters: HSY"
+    },
+    {
+      "answer": "SIA",
+      "clue": "Reorder these letters: ISA"
+    },
+    {
+      "answer": "SIB",
+      "clue": "Anagram: BSI"
+    },
+    {
+      "answer": "SIC",
+      "clue": "Scrambled letters: CIS"
+    },
+    {
+      "answer": "SID",
+      "clue": "Reorder these letters: IDS"
+    },
+    {
+      "answer": "SIE",
+      "clue": "Anagram: ISE"
+    },
+    {
+      "answer": "SIG",
+      "clue": "Reorder these letters: SGI"
+    },
+    {
+      "answer": "SIL",
+      "clue": "Scrambled letters: ILS"
+    },
+    {
+      "answer": "SIM",
+      "clue": "Reorder these letters: ISM"
+    },
+    {
+      "answer": "SIN",
+      "clue": "Anagram: NIS"
+    },
+    {
+      "answer": "SIP",
+      "clue": "Reorder these letters: IPS"
+    },
+    {
+      "answer": "SIR",
+      "clue": "Scrambled letters: RSI"
+    },
+    {
+      "answer": "SIS",
+      "clue": "Reorder these letters: ISS"
+    },
+    {
+      "answer": "SIT",
+      "clue": "Anagram: TIS"
+    },
+    {
+      "answer": "SKY",
+      "clue": "Scrambled letters: KSY"
+    },
+    {
+      "answer": "SLA",
+      "clue": "Reorder these letters: ALS"
+    },
+    {
+      "answer": "SLY",
+      "clue": "Reorder these letters: LYS"
+    },
+    {
+      "answer": "SMA",
+      "clue": "Anagram: MSA"
+    },
+    {
+      "answer": "SNY",
+      "clue": "Scrambled letters: NYS"
+    },
+    {
+      "answer": "SOB",
+      "clue": "Anagram: BSO"
+    },
+    {
+      "answer": "SOC",
+      "clue": "Scrambled letters: SCO"
+    },
+    {
+      "answer": "SOD",
+      "clue": "Reorder these letters: DSO"
+    },
+    {
+      "answer": "SOG",
+      "clue": "Reorder these letters: GOS"
+    },
+    {
+      "answer": "SOH",
+      "clue": "Anagram: OHS"
+    },
+    {
+      "answer": "SOL",
+      "clue": "Scrambled letters: OLS"
+    },
+    {
+      "answer": "SON",
+      "clue": "Anagram: NSO"
+    },
+    {
+      "answer": "SOP",
+      "clue": "Reorder these letters: POS"
+    },
+    {
+      "answer": "SOU",
+      "clue": "Scrambled letters: SUO"
+    },
+    {
+      "answer": "SOV",
+      "clue": "Reorder these letters: VSO"
+    },
+    {
+      "answer": "SOY",
+      "clue": "Reorder these letters: YOS"
+    },
+    {
+      "answer": "SPA",
+      "clue": "Anagram: ASP"
+    },
+    {
+      "answer": "SPY",
+      "clue": "Anagram: PYS"
+    },
+    {
+      "answer": "SSI",
+      "clue": "Reorder these letters: SIS"
+    },
+    {
+      "answer": "SSU",
+      "clue": "Reorder these letters: SUS"
+    },
+    {
+      "answer": "STU",
+      "clue": "Anagram: TUS"
+    },
+    {
+      "answer": "STY",
+      "clue": "Scrambled letters: YTS"
+    },
+    {
+      "answer": "SUB",
+      "clue": "Anagram: SBU"
+    },
+    {
+      "answer": "SUE",
+      "clue": "Anagram: USE"
+    },
+    {
+      "answer": "SUI",
+      "clue": "Scrambled letters: USI"
+    },
+    {
+      "answer": "SUK",
+      "clue": "Anagram: UKS"
+    },
+    {
+      "answer": "SUN",
+      "clue": "Anagram: NUS"
+    },
+    {
+      "answer": "SUR",
+      "clue": "Scrambled letters: RSU"
+    },
+    {
+      "answer": "SUS",
+      "clue": "Reorder these letters: USS"
+    },
+    {
+      "answer": "SUU",
+      "clue": "Scrambled letters: UUS"
+    },
+    {
+      "answer": "SWA",
+      "clue": "Scrambled letters: WSA"
+    },
+    {
+      "answer": "SYD",
+      "clue": "Anagram: SDY"
+    },
+    {
+      "answer": "TAA",
+      "clue": "Scrambled letters: AAT"
+    },
+    {
+      "answer": "TAB",
+      "clue": "Reorder these letters: BAT"
+    },
+    {
+      "answer": "TAD",
+      "clue": "Scrambled letters: ADT"
+    },
+    {
+      "answer": "TAG",
+      "clue": "Scrambled letters: GTA"
+    },
+    {
+      "answer": "TAI",
+      "clue": "Anagram: AIT"
+    },
+    {
+      "answer": "TAL",
+      "clue": "Anagram: TLA"
+    },
+    {
+      "answer": "TAM",
+      "clue": "Scrambled letters: MTA"
+    },
+    {
+      "answer": "TAN",
+      "clue": "Reorder these letters: NAT"
+    },
+    {
+      "answer": "TAO",
+      "clue": "Anagram: TOA"
+    },
+    {
+      "answer": "TAP",
+      "clue": "Scrambled letters: PAT"
+    },
+    {
+      "answer": "TAV",
+      "clue": "Scrambled letters: ATV"
+    },
+    {
+      "answer": "TAW",
+      "clue": "Reorder these letters: WTA"
+    },
+    {
+      "answer": "TAY",
+      "clue": "Scrambled letters: YAT"
+    },
+    {
+      "answer": "TEC",
+      "clue": "Scrambled letters: ECT"
+    },
+    {
+      "answer": "TED",
+      "clue": "Reorder these letters: EDT"
+    },
+    {
+      "answer": "TEE",
+      "clue": "Anagram: ETE"
+    },
+    {
+      "answer": "TEG",
+      "clue": "Reorder these letters: TGE"
+    },
+    {
+      "answer": "TEN",
+      "clue": "Anagram: NTE"
+    },
+    {
+      "answer": "TEW",
+      "clue": "Anagram: WTE"
+    },
+    {
+      "answer": "THE",
+      "clue": "Anagram: TEH"
+    },
+    {
+      "answer": "THO",
+      "clue": "Scrambled letters: TOH"
+    },
+    {
+      "answer": "THY",
+      "clue": "Reorder these letters: YTH"
+    },
+    {
+      "answer": "TIB",
+      "clue": "Scrambled letters: BTI"
+    },
+    {
+      "answer": "TIC",
+      "clue": "Reorder these letters: ITC"
+    },
+    {
+      "answer": "TIE",
+      "clue": "Scrambled letters: EIT"
+    },
+    {
+      "answer": "TIG",
+      "clue": "Anagram: TGI"
+    },
+    {
+      "answer": "TIL",
+      "clue": "Reorder these letters: TLI"
+    },
+    {
+      "answer": "TIM",
+      "clue": "Anagram: ITM"
+    },
+    {
+      "answer": "TIN",
+      "clue": "Scrambled letters: TNI"
+    },
+    {
+      "answer": "TIT",
+      "clue": "Scrambled letters: ITT"
+    },
+    {
+      "answer": "TOA",
+      "clue": "Anagram: AOT"
+    },
+    {
+      "answer": "TOD",
+      "clue": "Anagram: ODT"
+    },
+    {
+      "answer": "TOG",
+      "clue": "Anagram: GTO"
+    },
+    {
+      "answer": "TOI",
+      "clue": "Reorder these letters: OTI"
+    },
+    {
+      "answer": "TOM",
+      "clue": "Anagram: OTM"
+    },
+    {
+      "answer": "TON",
+      "clue": "Scrambled letters: OTN"
+    },
+    {
+      "answer": "TOO",
+      "clue": "Reorder these letters: OTO"
+    },
+    {
+      "answer": "TOP",
+      "clue": "Anagram: POT"
+    },
+    {
+      "answer": "TOT",
+      "clue": "Scrambled letters: OTT"
+    },
+    {
+      "answer": "TOU",
+      "clue": "Reorder these letters: UOT"
+    },
+    {
+      "answer": "TOW",
+      "clue": "Scrambled letters: WTO"
+    },
+    {
+      "answer": "TOY",
+      "clue": "Anagram: OTY"
+    },
+    {
+      "answer": "TRA",
+      "clue": "Anagram: TAR"
+    },
+    {
+      "answer": "TRI",
+      "clue": "Reorder these letters: ITR"
+    },
+    {
+      "answer": "TRY",
+      "clue": "Anagram: YTR"
+    },
+    {
+      "answer": "TUA",
+      "clue": "Anagram: UTA"
+    },
+    {
+      "answer": "TUB",
+      "clue": "Scrambled letters: UTB"
+    },
+    {
+      "answer": "TUE",
+      "clue": "Scrambled letters: UTE"
+    },
+    {
+      "answer": "TUG",
+      "clue": "Anagram: GTU"
+    },
+    {
+      "answer": "TUI",
+      "clue": "Reorder these letters: UTI"
+    },
+    {
+      "answer": "TUM",
+      "clue": "Anagram: TMU"
+    },
+    {
+      "answer": "TUN",
+      "clue": "Scrambled letters: UTN"
+    },
+    {
+      "answer": "TUP",
+      "clue": "Anagram: UTP"
+    },
+    {
+      "answer": "TUR",
+      "clue": "Reorder these letters: UTR"
+    },
+    {
+      "answer": "TUT",
+      "clue": "Scrambled letters: UTT"
+    },
+    {
+      "answer": "TWA",
+      "clue": "Reorder these letters: TAW"
+    },
+    {
+      "answer": "TWI",
+      "clue": "Scrambled letters: IWT"
+    },
+    {
+      "answer": "TWO",
+      "clue": "Scrambled letters: OTW"
+    },
+    {
+      "answer": "TYE",
+      "clue": "Reorder these letters: YET"
+    },
+    {
+      "answer": "TYG",
+      "clue": "Scrambled letters: GTY"
+    },
+    {
+      "answer": "UBI",
+      "clue": "Reorder these letters: BUI"
+    },
+    {
+      "answer": "UCA",
+      "clue": "Scrambled letters: AUC"
+    },
+    {
+      "answer": "UDO",
+      "clue": "Scrambled letters: UOD"
+    },
+    {
+      "answer": "UGH",
+      "clue": "Anagram: UHG"
+    },
+    {
+      "answer": "UKE",
+      "clue": "Scrambled letters: UEK"
+    },
+    {
+      "answer": "ULA",
+      "clue": "Scrambled letters: LUA"
+    },
+    {
+      "answer": "ULE",
+      "clue": "Reorder these letters: EUL"
+    },
+    {
+      "answer": "ULL",
+      "clue": "Anagram: LUL"
+    },
+    {
+      "answer": "ULU",
+      "clue": "Anagram: LUU"
+    },
+    {
+      "answer": "UMP",
+      "clue": "Reorder these letters: PUM"
+    },
+    {
+      "answer": "UNA",
+      "clue": "Anagram: NUA"
+    },
+    {
+      "answer": "UPO",
+      "clue": "Scrambled letters: OPU"
+    },
+    {
+      "answer": "URA",
+      "clue": "Scrambled letters: AUR"
+    },
+    {
+      "answer": "URD",
+      "clue": "Scrambled letters: UDR"
+    },
+    {
+      "answer": "URE",
+      "clue": "Reorder these letters: EUR"
+    },
+    {
+      "answer": "URF",
+      "clue": "Anagram: UFR"
+    },
+    {
+      "answer": "URI",
+      "clue": "Anagram: RIU"
+    },
+    {
+      "answer": "URN",
+      "clue": "Reorder these letters: NUR"
+    },
+    {
+      "answer": "URO",
+      "clue": "Anagram: ORU"
+    },
+    {
+      "answer": "URS",
+      "clue": "Scrambled letters: SUR"
+    },
+    {
+      "answer": "USH",
+      "clue": "Anagram: HUS"
+    },
+    {
+      "answer": "UST",
+      "clue": "Anagram: TUS"
+    },
+    {
+      "answer": "UTA",
+      "clue": "Anagram: ATU"
+    },
+    {
+      "answer": "UTU",
+      "clue": "Reorder these letters: UUT"
+    },
+    {
+      "answer": "UVA",
+      "clue": "Reorder these letters: VUA"
+    },
+    {
+      "answer": "VAG",
+      "clue": "Anagram: AVG"
+    },
+    {
+      "answer": "VAI",
+      "clue": "Reorder these letters: VIA"
+    },
+    {
+      "answer": "VAL",
+      "clue": "Reorder these letters: LVA"
+    },
+    {
+      "answer": "VAN",
+      "clue": "Scrambled letters: ANV"
+    },
+    {
+      "answer": "VAS",
+      "clue": "Anagram: VSA"
+    },
+    {
+      "answer": "VAT",
+      "clue": "Scrambled letters: ATV"
+    },
+    {
+      "answer": "VAU",
+      "clue": "Reorder these letters: UAV"
+    },
+    {
+      "answer": "VEE",
+      "clue": "Reorder these letters: EVE"
+    },
+    {
+      "answer": "VET",
+      "clue": "Reorder these letters: EVT"
+    },
+    {
+      "answer": "VIA",
+      "clue": "Reorder these letters: AVI"
+    },
+    {
+      "answer": "VIC",
+      "clue": "Scrambled letters: ICV"
+    },
+    {
+      "answer": "VIM",
+      "clue": "Reorder these letters: MIV"
+    },
+    {
+      "answer": "VIP",
+      "clue": "Reorder these letters: IVP"
+    },
+    {
+      "answer": "VOD",
+      "clue": "Reorder these letters: DOV"
+    },
+    {
+      "answer": "VOE",
+      "clue": "Anagram: VEO"
+    },
+    {
+      "answer": "VOL",
+      "clue": "Scrambled letters: OVL"
+    },
+    {
+      "answer": "VOW",
+      "clue": "Anagram: VWO"
+    },
+    {
+      "answer": "VUG",
+      "clue": "Reorder these letters: UGV"
+    },
+    {
+      "answer": "WAB",
+      "clue": "Reorder these letters: BAW"
+    },
+    {
+      "answer": "WAC",
+      "clue": "Anagram: ACW"
+    },
+    {
+      "answer": "WAF",
+      "clue": "Anagram: FWA"
+    },
+    {
+      "answer": "WAG",
+      "clue": "Scrambled letters: GAW"
+    },
+    {
+      "answer": "WAH",
+      "clue": "Reorder these letters: AHW"
+    },
+    {
+      "answer": "WAN",
+      "clue": "Reorder these letters: WNA"
+    },
+    {
+      "answer": "WAP",
+      "clue": "Scrambled letters: APW"
+    },
+    {
+      "answer": "WAR",
+      "clue": "Anagram: RAW"
+    },
+    {
+      "answer": "WAS",
+      "clue": "Scrambled letters: SWA"
+    },
+    {
+      "answer": "WAW",
+      "clue": "Reorder these letters: AWW"
+    },
+    {
+      "answer": "WAY",
+      "clue": "Scrambled letters: YWA"
+    },
+    {
+      "answer": "WEA",
+      "clue": "Reorder these letters: WAE"
+    },
+    {
+      "answer": "WEB",
+      "clue": "Anagram: EBW"
+    },
+    {
+      "answer": "WEI",
+      "clue": "Scrambled letters: IWE"
+    },
+    {
+      "answer": "WEM",
+      "clue": "Reorder these letters: MWE"
+    },
+    {
+      "answer": "WEN",
+      "clue": "Anagram: WNE"
+    },
+    {
+      "answer": "WES",
+      "clue": "Reorder these letters: SEW"
+    },
+    {
+      "answer": "WET",
+      "clue": "Anagram: TEW"
+    },
+    {
+      "answer": "WEY",
+      "clue": "Reorder these letters: EWY"
+    },
+    {
+      "answer": "WHY",
+      "clue": "Reorder these letters: YWH"
+    },
+    {
+      "answer": "WID",
+      "clue": "Anagram: DIW"
+    },
+    {
+      "answer": "WIG",
+      "clue": "Anagram: IGW"
+    },
+    {
+      "answer": "WIM",
+      "clue": "Anagram: WMI"
+    },
+    {
+      "answer": "WIN",
+      "clue": "Scrambled letters: NWI"
+    },
+    {
+      "answer": "WIR",
+      "clue": "Reorder these letters: RWI"
+    },
+    {
+      "answer": "WIS",
+      "clue": "Anagram: SIW"
+    },
+    {
+      "answer": "WIT",
+      "clue": "Scrambled letters: WTI"
+    },
+    {
+      "answer": "WOB",
+      "clue": "Scrambled letters: WBO"
+    },
+    {
+      "answer": "WOD",
+      "clue": "Anagram: OWD"
+    },
+    {
+      "answer": "WOE",
+      "clue": "Scrambled letters: OWE"
+    },
+    {
+      "answer": "WON",
+      "clue": "Scrambled letters: NWO"
+    },
+    {
+      "answer": "WOP",
+      "clue": "Anagram: WPO"
+    },
+    {
+      "answer": "WOT",
+      "clue": "Scrambled letters: TOW"
+    },
+    {
+      "answer": "WOW",
+      "clue": "Scrambled letters: OWW"
+    },
+    {
+      "answer": "WOY",
+      "clue": "Anagram: OYW"
+    },
+    {
+      "answer": "WRO",
+      "clue": "Reorder these letters: RWO"
+    },
+    {
+      "answer": "WRY",
+      "clue": "Anagram: YRW"
+    },
+    {
+      "answer": "WUN",
+      "clue": "Scrambled letters: UWN"
+    },
+    {
+      "answer": "WUT",
+      "clue": "Scrambled letters: UWT"
+    },
+    {
+      "answer": "WYE",
+      "clue": "Reorder these letters: YWE"
+    },
+    {
+      "answer": "YAD",
+      "clue": "Anagram: ADY"
+    },
+    {
+      "answer": "YAH",
+      "clue": "Scrambled letters: YHA"
+    },
+    {
+      "answer": "YAK",
+      "clue": "Scrambled letters: KYA"
+    },
+    {
+      "answer": "YAM",
+      "clue": "Anagram: AMY"
+    },
+    {
+      "answer": "YAN",
+      "clue": "Scrambled letters: YNA"
+    },
+    {
+      "answer": "YAS",
+      "clue": "Anagram: ASY"
+    },
+    {
+      "answer": "YAT",
+      "clue": "Scrambled letters: TAY"
+    },
+    {
+      "answer": "YAW",
+      "clue": "Scrambled letters: WYA"
+    },
+    {
+      "answer": "YEN",
+      "clue": "Reorder these letters: EYN"
+    },
+    {
+      "answer": "YEP",
+      "clue": "Scrambled letters: PYE"
+    },
+    {
+      "answer": "YER",
+      "clue": "Anagram: EYR"
+    },
+    {
+      "answer": "YES",
+      "clue": "Scrambled letters: EYS"
+    },
+    {
+      "answer": "YET",
+      "clue": "Reorder these letters: TYE"
+    },
+    {
+      "answer": "YID",
+      "clue": "Reorder these letters: DYI"
+    },
+    {
+      "answer": "YIN",
+      "clue": "Anagram: INY"
+    },
+    {
+      "answer": "YIS",
+      "clue": "Reorder these letters: SYI"
+    },
+    {
+      "answer": "YOK",
+      "clue": "Anagram: OYK"
+    },
+    {
+      "answer": "YOM",
+      "clue": "Reorder these letters: OMY"
+    },
+    {
+      "answer": "YON",
+      "clue": "Anagram: NOY"
+    },
+    {
+      "answer": "YOR",
+      "clue": "Scrambled letters: RYO"
+    },
+    {
+      "answer": "YOT",
+      "clue": "Anagram: TYO"
+    },
+    {
+      "answer": "YUN",
+      "clue": "Anagram: NYU"
+    },
+    {
+      "answer": "YUS",
+      "clue": "Reorder these letters: SUY"
+    },
+    {
+      "answer": "AARON",
+      "clue": "Anagram: ORANA"
+    },
+    {
+      "answer": "ABBEY",
+      "clue": "Scrambled letters: ABBYE"
+    },
+    {
+      "answer": "ABBIE",
+      "clue": "Anagram: BBAEI"
+    },
+    {
+      "answer": "ABELE",
+      "clue": "Anagram: BLEAE"
+    },
+    {
+      "answer": "ABHOR",
+      "clue": "Scrambled letters: OHRAB"
+    },
+    {
+      "answer": "ABODE",
+      "clue": "Reorder these letters: EDBOA"
+    },
+    {
+      "answer": "ABOIL",
+      "clue": "Reorder these letters: OIABL"
+    },
+    {
+      "answer": "ABRUS",
+      "clue": "Anagram: BRUSA"
+    },
+    {
+      "answer": "ABUNA",
+      "clue": "Reorder these letters: AUABN"
+    },
+    {
+      "answer": "ABURA",
+      "clue": "Anagram: ARBUA"
+    },
+    {
+      "answer": "ACCOY",
+      "clue": "Scrambled letters: AYCCO"
+    },
+    {
+      "answer": "ACKEY",
+      "clue": "Reorder these letters: YCEKA"
+    },
+    {
+      "answer": "ACOCK",
+      "clue": "Reorder these letters: CCOKA"
+    },
+    {
+      "answer": "ACRON",
+      "clue": "Reorder these letters: NRAOC"
+    },
+    {
+      "answer": "ADAWE",
+      "clue": "Anagram: EAADW"
+    },
+    {
+      "answer": "ADEEP",
+      "clue": "Anagram: EDAPE"
+    },
+    {
+      "answer": "ADOBE",
+      "clue": "Reorder these letters: BAEOD"
+    },
+    {
+      "answer": "AFLAT",
+      "clue": "Anagram: AFLTA"
+    },
+    {
+      "answer": "AFOAM",
+      "clue": "Reorder these letters: AAMFO"
+    },
+    {
+      "answer": "AGAVE",
+      "clue": "Reorder these letters: AGVEA"
+    },
+    {
+      "answer": "AGHAN",
+      "clue": "Anagram: HANAG"
+    },
+    {
+      "answer": "AGING",
+      "clue": "Scrambled letters: AGGIN"
+    },
+    {
+      "answer": "AGITA",
+      "clue": "Scrambled letters: TAAGI"
+    },
+    {
+      "answer": "AGNUS",
+      "clue": "Scrambled letters: GSUAN"
+    },
+    {
+      "answer": "AGOHO",
+      "clue": "Anagram: OOAHG"
+    },
+    {
+      "answer": "AGONE",
+      "clue": "Reorder these letters: ENAGO"
+    },
+    {
+      "answer": "AHINT",
+      "clue": "Anagram: ANHTI"
+    },
+    {
+      "answer": "AHONG",
+      "clue": "Reorder these letters: AHOGN"
+    },
+    {
+      "answer": "AHWAL",
+      "clue": "Reorder these letters: ALWAH"
+    },
+    {
+      "answer": "AIRAN",
+      "clue": "Anagram: AANIR"
+    },
+    {
+      "answer": "AITCH",
+      "clue": "Scrambled letters: AICHT"
+    },
+    {
+      "answer": "AKALI",
+      "clue": "Anagram: KLAIA"
+    },
+    {
+      "answer": "AKEBI",
+      "clue": "Anagram: IBKEA"
+    },
+    {
+      "answer": "AKEKI",
+      "clue": "Anagram: KAIKE"
+    },
+    {
+      "answer": "ALAMO",
+      "clue": "Reorder these letters: LOMAA"
+    },
+    {
+      "answer": "ALBUS",
+      "clue": "Anagram: BLUAS"
+    },
+    {
+      "answer": "ALBYN",
+      "clue": "Reorder these letters: ANLBY"
+    },
+    {
+      "answer": "ALDUS",
+      "clue": "Reorder these letters: LSDAU"
+    },
+    {
+      "answer": "ALEFT",
+      "clue": "Scrambled letters: TEALF"
+    },
+    {
+      "answer": "ALIBI",
+      "clue": "Reorder these letters: LBIAI"
+    },
+    {
+      "answer": "ALLOW",
+      "clue": "Reorder these letters: LWOAL"
+    },
+    {
+      "answer": "ALOIS",
+      "clue": "Scrambled letters: ASLOI"
+    },
+    {
+      "answer": "ALOSA",
+      "clue": "Reorder these letters: ALSOA"
+    },
+    {
+      "answer": "ALPHA",
+      "clue": "Scrambled letters: LHAAP"
+    },
+    {
+      "answer": "ALPID",
+      "clue": "Reorder these letters: DPALI"
+    },
+    {
+      "answer": "ALTHO",
+      "clue": "Scrambled letters: LOHAT"
+    },
+    {
+      "answer": "ALTIN",
+      "clue": "Scrambled letters: NTAIL"
+    },
+    {
+      "answer": "AMIDE",
+      "clue": "Scrambled letters: MEDIA"
+    },
+    {
+      "answer": "AMIGO",
+      "clue": "Reorder these letters: GAMOI"
+    },
+    {
+      "answer": "AMINO",
+      "clue": "Anagram: OMNIA"
+    },
+    {
+      "answer": "AMISS",
+      "clue": "Anagram: ISSAM"
+    },
+    {
+      "answer": "AMMER",
+      "clue": "Scrambled letters: REAMM"
+    },
+    {
+      "answer": "AMOLE",
+      "clue": "Anagram: ELMOA"
+    },
+    {
+      "answer": "AMONG",
+      "clue": "Scrambled letters: AGNOM"
+    },
+    {
+      "answer": "AMPLY",
+      "clue": "Anagram: LAPYM"
+    },
+    {
+      "answer": "ANCHA",
+      "clue": "Reorder these letters: ACANH"
+    },
+    {
+      "answer": "ANGKA",
+      "clue": "Anagram: KGAAN"
+    },
+    {
+      "answer": "ANGST",
+      "clue": "Anagram: ANSTG"
+    },
+    {
+      "answer": "ANGUS",
+      "clue": "Scrambled letters: NUSAG"
+    },
+    {
+      "answer": "ANIGH",
+      "clue": "Reorder these letters: INAHG"
+    },
+    {
+      "answer": "ANIME",
+      "clue": "Reorder these letters: ANEIM"
+    },
+    {
+      "answer": "ANNAM",
+      "clue": "Anagram: NAANM"
+    },
+    {
+      "answer": "ANNET",
+      "clue": "Reorder these letters: TNAEN"
+    },
+    {
+      "answer": "ANSEL",
+      "clue": "Reorder these letters: ANELS"
+    },
+    {
+      "answer": "APEAK",
+      "clue": "Anagram: EKAAP"
+    },
+    {
+      "answer": "APHID",
+      "clue": "Scrambled letters: HIDAP"
+    },
+    {
+      "answer": "APIAN",
+      "clue": "Scrambled letters: ANPIA"
+    },
+    {
+      "answer": "APIUM",
+      "clue": "Reorder these letters: MIUAP"
+    },
+    {
+      "answer": "AREAL",
+      "clue": "Anagram: LAEAR"
+    },
+    {
+      "answer": "ARETE",
+      "clue": "Anagram: TAREE"
+    },
+    {
+      "answer": "ARNUT",
+      "clue": "Scrambled letters: TURAN"
+    },
+    {
+      "answer": "AROCK",
+      "clue": "Reorder these letters: COARK"
+    },
+    {
+      "answer": "AROMA",
+      "clue": "Reorder these letters: RAMAO"
+    },
+    {
+      "answer": "AROSE",
+      "clue": "Anagram: SREOA"
+    },
+    {
+      "answer": "ARUAC",
+      "clue": "Scrambled letters: RAUCA"
+    },
+    {
+      "answer": "ARVEL",
+      "clue": "Anagram: ERLVA"
+    },
+    {
+      "answer": "ASAPH",
+      "clue": "Reorder these letters: APASH"
+    },
+    {
+      "answer": "ASCII",
+      "clue": "Scrambled letters: ICASI"
+    },
+    {
+      "answer": "ASCRY",
+      "clue": "Reorder these letters: SYCRA"
+    },
+    {
+      "answer": "ASIDE",
+      "clue": "Scrambled letters: IEADS"
+    },
+    {
+      "answer": "ASKIP",
+      "clue": "Scrambled letters: IASKP"
+    },
+    {
+      "answer": "ASLOP",
+      "clue": "Reorder these letters: OLPSA"
+    },
+    {
+      "answer": "ASOAK",
+      "clue": "Scrambled letters: AOASK"
+    },
+    {
+      "answer": "ASPIC",
+      "clue": "Reorder these letters: PCASI"
+    },
+    {
+      "answer": "ASWAY",
+      "clue": "Reorder these letters: ASAYW"
+    },
+    {
+      "answer": "ASYLA",
+      "clue": "Anagram: YAALS"
+    },
+    {
+      "answer": "ATAVI",
+      "clue": "Scrambled letters: AATIV"
+    },
+    {
+      "answer": "ATMID",
+      "clue": "Scrambled letters: ATDIM"
+    },
+    {
+      "answer": "ATWIN",
+      "clue": "Anagram: TNWAI"
+    },
+    {
+      "answer": "AUCAN",
+      "clue": "Anagram: CNAAU"
+    },
+    {
+      "answer": "AUGER",
+      "clue": "Anagram: RGEUA"
+    },
+    {
+      "answer": "AURIR",
+      "clue": "Anagram: UIRAR"
+    },
+    {
+      "answer": "AVAST",
+      "clue": "Reorder these letters: SAATV"
+    },
+    {
+      "answer": "AVERY",
+      "clue": "Scrambled letters: EAYVR"
+    },
+    {
+      "answer": "AWALD",
+      "clue": "Scrambled letters: AWLAD"
+    },
+    {
+      "answer": "AWHET",
+      "clue": "Reorder these letters: THAEW"
+    },
+    {
+      "answer": "BACON",
+      "clue": "Scrambled letters: OCBAN"
+    },
+    {
+      "answer": "BADLY",
+      "clue": "Scrambled letters: DAYLB"
+    },
+    {
+      "answer": "BAGGY",
+      "clue": "Reorder these letters: YBGGA"
+    },
+    {
+      "answer": "BAHAI",
+      "clue": "Reorder these letters: ABHAI"
+    },
+    {
+      "answer": "BAHAM",
+      "clue": "Anagram: BAMAH"
+    },
+    {
+      "answer": "BAKEN",
+      "clue": "Reorder these letters: EBNAK"
+    },
+    {
+      "answer": "BALAK",
+      "clue": "Reorder these letters: ALBKA"
+    },
+    {
+      "answer": "BALTI",
+      "clue": "Scrambled letters: IABTL"
+    },
+    {
+      "answer": "BARBE",
+      "clue": "Anagram: EBARB"
+    },
+    {
+      "answer": "BARGH",
+      "clue": "Reorder these letters: RHBGA"
+    },
+    {
+      "answer": "BAROI",
+      "clue": "Reorder these letters: BIORA"
+    },
+    {
+      "answer": "BASTE",
+      "clue": "Scrambled letters: BATES"
+    },
+    {
+      "answer": "BATEL",
+      "clue": "Anagram: LTEAB"
+    },
+    {
+      "answer": "BEADY",
+      "clue": "Anagram: BEAYD"
+    },
+    {
+      "answer": "BEARD",
+      "clue": "Reorder these letters: ADBRE"
+    },
+    {
+      "answer": "BEBED",
+      "clue": "Reorder these letters: DBBEE"
+    },
+    {
+      "answer": "BEBOP",
+      "clue": "Anagram: OEBBP"
+    },
+    {
+      "answer": "BECRY",
+      "clue": "Scrambled letters: RCEYB"
+    },
+    {
+      "answer": "BEDEW",
+      "clue": "Reorder these letters: WEEDB"
+    },
+    {
+      "answer": "BEDOG",
+      "clue": "Reorder these letters: EODGB"
+    },
+    {
+      "answer": "BEETY",
+      "clue": "Reorder these letters: BETEY"
+    },
+    {
+      "answer": "BEFOG",
+      "clue": "Scrambled letters: EOFGB"
+    },
+    {
+      "answer": "BEFOP",
+      "clue": "Scrambled letters: BEOPF"
+    },
+    {
+      "answer": "BEGAR",
+      "clue": "Reorder these letters: ABREG"
+    },
+    {
+      "answer": "BEGUN",
+      "clue": "Anagram: UGBNE"
+    },
+    {
+      "answer": "BEISA",
+      "clue": "Reorder these letters: BESIA"
+    },
+    {
+      "answer": "BELAH",
+      "clue": "Anagram: HBEAL"
+    },
+    {
+      "answer": "BELAY",
+      "clue": "Reorder these letters: LBEYA"
+    },
+    {
+      "answer": "BELGA",
+      "clue": "Reorder these letters: GBLEA"
+    },
+    {
+      "answer": "BELIE",
+      "clue": "Reorder these letters: ELEBI"
+    },
+    {
+      "answer": "BENDY",
+      "clue": "Scrambled letters: BEDNY"
+    },
+    {
+      "answer": "BERRI",
+      "clue": "Anagram: REIRB"
+    },
+    {
+      "answer": "BERYL",
+      "clue": "Scrambled letters: BEYLR"
+    },
+    {
+      "answer": "BESIN",
+      "clue": "Anagram: SINEB"
+    },
+    {
+      "answer": "BESIT",
+      "clue": "Anagram: TSEBI"
+    },
+    {
+      "answer": "BESOT",
+      "clue": "Anagram: EOTBS"
+    },
+    {
+      "answer": "BEWET",
+      "clue": "Anagram: BTEWE"
+    },
+    {
+      "answer": "BEWIG",
+      "clue": "Anagram: WBEIG"
+    },
+    {
+      "answer": "BIHAI",
+      "clue": "Scrambled letters: IAIBH"
+    },
+    {
+      "answer": "BILCH",
+      "clue": "Anagram: IBCLH"
+    },
+    {
+      "answer": "BINGO",
+      "clue": "Scrambled letters: OIBGN"
+    },
+    {
+      "answer": "BIPOD",
+      "clue": "Anagram: DIPBO"
+    },
+    {
+      "answer": "BIRON",
+      "clue": "Anagram: RBION"
+    },
+    {
+      "answer": "BITTY",
+      "clue": "Anagram: TYBTI"
+    },
+    {
+      "answer": "BLAKE",
+      "clue": "Anagram: LEAKB"
+    },
+    {
+      "answer": "BLAME",
+      "clue": "Reorder these letters: BMALE"
+    },
+    {
+      "answer": "BLATE",
+      "clue": "Anagram: TELAB"
+    },
+    {
+      "answer": "BLINK",
+      "clue": "Reorder these letters: KIBLN"
+    },
+    {
+      "answer": "BLITE",
+      "clue": "Reorder these letters: TLIBE"
+    },
+    {
+      "answer": "BLOWN",
+      "clue": "Reorder these letters: WLBNO"
+    },
+    {
+      "answer": "BOBAC",
+      "clue": "Scrambled letters: BBCAO"
+    },
+    {
+      "answer": "BOIKO",
+      "clue": "Anagram: OBIKO"
+    },
+    {
+      "answer": "BOKOM",
+      "clue": "Scrambled letters: KMOOB"
+    },
+    {
+      "answer": "BOLUS",
+      "clue": "Reorder these letters: BLUSO"
+    },
+    {
+      "answer": "BONCE",
+      "clue": "Reorder these letters: BCOEN"
+    },
+    {
+      "answer": "BONED",
+      "clue": "Anagram: DBONE"
+    },
+    {
+      "answer": "BOSKY",
+      "clue": "Reorder these letters: SBOKY"
+    },
+    {
+      "answer": "BOSOM",
+      "clue": "Anagram: MBOSO"
+    },
+    {
+      "answer": "BOWED",
+      "clue": "Anagram: DEBOW"
+    },
+    {
+      "answer": "BOWET",
+      "clue": "Scrambled letters: WEBOT"
+    },
+    {
+      "answer": "BRAHM",
+      "clue": "Reorder these letters: AMBRH"
+    },
+    {
+      "answer": "BRAID",
+      "clue": "Anagram: BIDRA"
+    },
+    {
+      "answer": "BRANK",
+      "clue": "Anagram: ABRNK"
+    },
+    {
+      "answer": "BRANT",
+      "clue": "Anagram: ATBRN"
+    },
+    {
+      "answer": "BRAVA",
+      "clue": "Scrambled letters: VARAB"
+    },
+    {
+      "answer": "BREED",
+      "clue": "Anagram: REDBE"
+    },
+    {
+      "answer": "BREME",
+      "clue": "Anagram: EEMBR"
+    },
+    {
+      "answer": "BRIBE",
+      "clue": "Reorder these letters: REIBB"
+    },
+    {
+      "answer": "BROIL",
+      "clue": "Scrambled letters: IOLBR"
+    },
+    {
+      "answer": "BROSE",
+      "clue": "Scrambled letters: RBOSE"
+    },
+    {
+      "answer": "BUGRE",
+      "clue": "Scrambled letters: REUGB"
+    },
+    {
+      "answer": "BULKY",
+      "clue": "Scrambled letters: LKYUB"
+    },
+    {
+      "answer": "BURAO",
+      "clue": "Reorder these letters: RBUOA"
+    },
+    {
+      "answer": "BURKA",
+      "clue": "Scrambled letters: KBAUR"
+    },
+    {
+      "answer": "BURNY",
+      "clue": "Scrambled letters: RYUNB"
+    },
+    {
+      "answer": "BURSA",
+      "clue": "Anagram: SRABU"
+    },
+    {
+      "answer": "BURST",
+      "clue": "Scrambled letters: RUBST"
+    },
+    {
+      "answer": "BUTEA",
+      "clue": "Anagram: ATBUE"
+    },
+    {
+      "answer": "BUTTY",
+      "clue": "Anagram: BTTYU"
+    },
+    {
+      "answer": "BYWAY",
+      "clue": "Anagram: YYWAB"
+    },
+    {
+      "answer": "CABAS",
+      "clue": "Scrambled letters: AASCB"
+    },
+    {
+      "answer": "CABIO",
+      "clue": "Reorder these letters: ABICO"
+    },
+    {
+      "answer": "CACAM",
+      "clue": "Reorder these letters: MACAC"
+    },
+    {
+      "answer": "CACUR",
+      "clue": "Anagram: UCACR"
+    },
+    {
+      "answer": "CADER",
+      "clue": "Anagram: ECRAD"
+    },
+    {
+      "answer": "CADEW",
+      "clue": "Reorder these letters: DCAEW"
+    },
+    {
+      "answer": "CAHOT",
+      "clue": "Scrambled letters: HATOC"
+    },
+    {
+      "answer": "CAIRD",
+      "clue": "Scrambled letters: IACDR"
+    },
+    {
+      "answer": "CAPSA",
+      "clue": "Anagram: SAAPC"
+    },
+    {
+      "answer": "CARET",
+      "clue": "Scrambled letters: ERTCA"
+    },
+    {
+      "answer": "CARID",
+      "clue": "Scrambled letters: DCRAI"
+    },
+    {
+      "answer": "CAROL",
+      "clue": "Anagram: ORLCA"
+    },
+    {
+      "answer": "CARUM",
+      "clue": "Scrambled letters: AURMC"
+    },
+    {
+      "answer": "CARYA",
+      "clue": "Reorder these letters: ARCAY"
+    },
+    {
+      "answer": "CASEL",
+      "clue": "Anagram: ELSAC"
+    },
+    {
+      "answer": "CATHY",
+      "clue": "Reorder these letters: CYATH"
+    },
+    {
+      "answer": "CAVAL",
+      "clue": "Reorder these letters: AVLCA"
+    },
+    {
+      "answer": "CAWKY",
+      "clue": "Reorder these letters: CKYAW"
+    },
+    {
+      "answer": "CEDER",
+      "clue": "Scrambled letters: EDRCE"
+    },
+    {
+      "answer": "CENSE",
+      "clue": "Anagram: CENES"
+    },
+    {
+      "answer": "CERAL",
+      "clue": "Reorder these letters: CEALR"
+    },
+    {
+      "answer": "CETYL",
+      "clue": "Scrambled letters: YECLT"
+    },
+    {
+      "answer": "CHAFT",
+      "clue": "Scrambled letters: AFCHT"
+    },
+    {
+      "answer": "CHAGA",
+      "clue": "Scrambled letters: GAHCA"
+    },
+    {
+      "answer": "CHAMP",
+      "clue": "Scrambled letters: HACMP"
+    },
+    {
+      "answer": "CHANE",
+      "clue": "Anagram: CANEH"
+    },
+    {
+      "answer": "CHANG",
+      "clue": "Reorder these letters: ANGCH"
+    },
+    {
+      "answer": "CHAUK",
+      "clue": "Scrambled letters: HACUK"
+    },
+    {
+      "answer": "CHENG",
+      "clue": "Anagram: HNEGC"
+    },
+    {
+      "answer": "CHESS",
+      "clue": "Reorder these letters: SEHCS"
+    },
+    {
+      "answer": "CHIEF",
+      "clue": "Anagram: CEHFI"
+    },
+    {
+      "answer": "CHILI",
+      "clue": "Scrambled letters: HCLII"
+    },
+    {
+      "answer": "CHIMU",
+      "clue": "Reorder these letters: IUHMC"
+    },
+    {
+      "answer": "CHIPS",
+      "clue": "Anagram: SIHCP"
+    },
+    {
+      "answer": "CHIRK",
+      "clue": "Anagram: KHRIC"
+    },
+    {
+      "answer": "CHIRO",
+      "clue": "Scrambled letters: CHIOR"
+    },
+    {
+      "answer": "CHITA",
+      "clue": "Scrambled letters: CHTAI"
+    },
+    {
+      "answer": "CHLOE",
+      "clue": "Anagram: HCOLE"
+    },
+    {
+      "answer": "CHOLD",
+      "clue": "Reorder these letters: HLCDO"
+    },
+    {
+      "answer": "CHRIA",
+      "clue": "Reorder these letters: ACHRI"
+    },
+    {
+      "answer": "CHRIS",
+      "clue": "Reorder these letters: RCHIS"
+    },
+    {
+      "answer": "CHUNK",
+      "clue": "Reorder these letters: CHUKN"
+    },
+    {
+      "answer": "CHURM",
+      "clue": "Reorder these letters: HMCUR"
+    },
+    {
+      "answer": "CINDY",
+      "clue": "Anagram: NCIDY"
+    },
+    {
+      "answer": "CINEL",
+      "clue": "Anagram: ENCIL"
+    },
+    {
+      "answer": "CIRCE",
+      "clue": "Scrambled letters: CIERC"
+    },
+    {
+      "answer": "CLAIM",
+      "clue": "Scrambled letters: CLIMA"
+    },
+    {
+      "answer": "CLAME",
+      "clue": "Anagram: AECML"
+    },
+    {
+      "answer": "CLARA",
+      "clue": "Scrambled letters: AACRL"
+    },
+    {
+      "answer": "CLARK",
+      "clue": "Reorder these letters: RCLKA"
+    },
+    {
+      "answer": "CLAVY",
+      "clue": "Reorder these letters: CVYLA"
+    },
+    {
+      "answer": "CLEEK",
+      "clue": "Reorder these letters: ECLKE"
+    },
+    {
+      "answer": "CLOMB",
+      "clue": "Reorder these letters: MBLOC"
+    },
+    {
+      "answer": "COCLE",
+      "clue": "Scrambled letters: ECCOL"
+    },
+    {
+      "answer": "CODER",
+      "clue": "Reorder these letters: OREDC"
+    },
+    {
+      "answer": "CODON",
+      "clue": "Reorder these letters: DONOC"
+    },
+    {
+      "answer": "COMER",
+      "clue": "Reorder these letters: COREM"
+    },
+    {
+      "answer": "COMMA",
+      "clue": "Reorder these letters: AMCOM"
+    },
+    {
+      "answer": "CONCH",
+      "clue": "Anagram: CCHON"
+    },
+    {
+      "answer": "CONOR",
+      "clue": "Scrambled letters: CONRO"
+    },
+    {
+      "answer": "CONTE",
+      "clue": "Reorder these letters: COTEN"
+    },
+    {
+      "answer": "CORER",
+      "clue": "Scrambled letters: RRCOE"
+    },
+    {
+      "answer": "CORYL",
+      "clue": "Anagram: CRYLO"
+    },
+    {
+      "answer": "COSET",
+      "clue": "Scrambled letters: SOECT"
+    },
+    {
+      "answer": "COTHY",
+      "clue": "Scrambled letters: OYTHC"
+    },
+    {
+      "answer": "COUTH",
+      "clue": "Anagram: OHUCT"
+    },
+    {
+      "answer": "COVET",
+      "clue": "Scrambled letters: OTCVE"
+    },
+    {
+      "answer": "COYAN",
+      "clue": "Anagram: CONAY"
+    },
+    {
+      "answer": "COYOL",
+      "clue": "Anagram: LOOCY"
+    },
+    {
+      "answer": "CRAIN",
+      "clue": "Reorder these letters: NRACI"
+    },
+    {
+      "answer": "CRANE",
+      "clue": "Scrambled letters: RCAEN"
+    },
+    {
+      "answer": "CREDO",
+      "clue": "Reorder these letters: ODREC"
+    },
+    {
+      "answer": "CREEM",
+      "clue": "Scrambled letters: RCEME"
+    },
+    {
+      "answer": "CRIBO",
+      "clue": "Scrambled letters: BICRO"
+    },
+    {
+      "answer": "CRONY",
+      "clue": "Reorder these letters: RYOCN"
+    },
+    {
+      "answer": "CROOD",
+      "clue": "Anagram: DOCRO"
+    },
+    {
+      "answer": "CROOK",
+      "clue": "Scrambled letters: ROKCO"
+    },
+    {
+      "answer": "CROON",
+      "clue": "Scrambled letters: NCROO"
+    },
+    {
+      "answer": "CRUCK",
+      "clue": "Scrambled letters: UCCKR"
+    },
+    {
+      "answer": "CRUEL",
+      "clue": "Scrambled letters: CRLEU"
+    },
+    {
+      "answer": "CUDDY",
+      "clue": "Reorder these letters: UYCDD"
+    },
+    {
+      "answer": "CULET",
+      "clue": "Anagram: CTULE"
+    },
+    {
+      "answer": "CULLA",
+      "clue": "Anagram: LAULC"
+    },
+    {
+      "answer": "CULPA",
+      "clue": "Scrambled letters: PALCU"
+    },
+    {
+      "answer": "CUMAL",
+      "clue": "Scrambled letters: LUMCA"
+    },
+    {
+      "answer": "CUMAR",
+      "clue": "Scrambled letters: RCMAU"
+    },
+    {
+      "answer": "CUPAY",
+      "clue": "Reorder these letters: CYUPA"
+    },
+    {
+      "answer": "CUSIE",
+      "clue": "Reorder these letters: CEISU"
+    },
+    {
+      "answer": "CUTIS",
+      "clue": "Reorder these letters: USICT"
+    },
+    {
+      "answer": "CYCAD",
+      "clue": "Reorder these letters: CDAYC"
+    },
+    {
+      "answer": "DALLY",
+      "clue": "Reorder these letters: LLYAD"
+    },
+    {
+      "answer": "DAMME",
+      "clue": "Reorder these letters: AMMDE"
+    },
+    {
+      "answer": "DAMON",
+      "clue": "Scrambled letters: MONAD"
+    },
+    {
+      "answer": "DAMPY",
+      "clue": "Scrambled letters: YMPAD"
+    },
+    {
+      "answer": "DANIC",
+      "clue": "Anagram: INDCA"
+    },
+    {
+      "answer": "DANIO",
+      "clue": "Anagram: OIAND"
+    },
+    {
+      "answer": "DANNY",
+      "clue": "Anagram: ANYDN"
+    },
+    {
+      "answer": "DASSY",
+      "clue": "Scrambled letters: SASDY"
+    },
+    {
+      "answer": "DEBAR",
+      "clue": "Reorder these letters: RDEBA"
+    },
+    {
+      "answer": "DECIL",
+      "clue": "Reorder these letters: EICLD"
+    },
+    {
+      "answer": "DEEDY",
+      "clue": "Anagram: DEDYE"
+    },
+    {
+      "answer": "DEGAS",
+      "clue": "Reorder these letters: ASEGD"
+    },
+    {
+      "answer": "DEINO",
+      "clue": "Scrambled letters: IDOEN"
+    },
+    {
+      "answer": "DEIST",
+      "clue": "Reorder these letters: DSETI"
+    },
+    {
+      "answer": "DEKKO",
+      "clue": "Anagram: DEKOK"
+    },
+    {
+      "answer": "DELTA",
+      "clue": "Reorder these letters: TLADE"
+    },
+    {
+      "answer": "DENEB",
+      "clue": "Reorder these letters: NBEED"
+    },
+    {
+      "answer": "DENIS",
+      "clue": "Reorder these letters: INDSE"
+    },
+    {
+      "answer": "DERIC",
+      "clue": "Reorder these letters: EIRCD"
+    },
+    {
+      "answer": "DETIN",
+      "clue": "Anagram: DEINT"
+    },
+    {
+      "answer": "DEWAN",
+      "clue": "Scrambled letters: ADENW"
+    },
+    {
+      "answer": "DEWEY",
+      "clue": "Scrambled letters: YEEDW"
+    },
+    {
+      "answer": "DIAMB",
+      "clue": "Scrambled letters: MDBAI"
+    },
+    {
+      "answer": "DIANE",
+      "clue": "Reorder these letters: DNAIE"
+    },
+    {
+      "answer": "DIDNA",
+      "clue": "Scrambled letters: IANDD"
+    },
+    {
+      "answer": "DIMER",
+      "clue": "Anagram: EIDMR"
+    },
+    {
+      "answer": "DIOON",
+      "clue": "Reorder these letters: ONDIO"
+    },
+    {
+      "answer": "DITTO",
+      "clue": "Scrambled letters: TIDOT"
+    },
+    {
+      "answer": "DIVER",
+      "clue": "Anagram: IRDEV"
+    },
+    {
+      "answer": "DIVUS",
+      "clue": "Reorder these letters: IVDUS"
+    },
+    {
+      "answer": "DOEST",
+      "clue": "Reorder these letters: DOETS"
+    },
+    {
+      "answer": "DOGAL",
+      "clue": "Reorder these letters: OAGLD"
+    },
+    {
+      "answer": "DOGMA",
+      "clue": "Anagram: MOAGD"
+    },
+    {
+      "answer": "DOLIA",
+      "clue": "Scrambled letters: DIOAL"
+    },
+    {
+      "answer": "DOLPH",
+      "clue": "Anagram: HLPOD"
+    },
+    {
+      "answer": "DOMBA",
+      "clue": "Scrambled letters: MABOD"
+    },
+    {
+      "answer": "DOMPT",
+      "clue": "Scrambled letters: PODTM"
+    },
+    {
+      "answer": "DONAR",
+      "clue": "Anagram: DOARN"
+    },
+    {
+      "answer": "DONEE",
+      "clue": "Anagram: EONED"
+    },
+    {
+      "answer": "DONIA",
+      "clue": "Anagram: IDOAN"
+    },
+    {
+      "answer": "DONOR",
+      "clue": "Reorder these letters: DOORN"
+    },
+    {
+      "answer": "DOOMS",
+      "clue": "Reorder these letters: DOMSO"
+    },
+    {
+      "answer": "DORMY",
+      "clue": "Reorder these letters: OYRDM"
+    },
+    {
+      "answer": "DOUAR",
+      "clue": "Scrambled letters: RUDAO"
+    },
+    {
+      "answer": "DOUBT",
+      "clue": "Scrambled letters: TUODB"
+    },
+    {
+      "answer": "DOWDY",
+      "clue": "Scrambled letters: DODWY"
+    },
+    {
+      "answer": "DOYLE",
+      "clue": "Anagram: DOELY"
+    },
+    {
+      "answer": "DREAD",
+      "clue": "Scrambled letters: RADED"
+    },
+    {
+      "answer": "DREAM",
+      "clue": "Scrambled letters: ERDMA"
+    },
+    {
+      "answer": "DRENG",
+      "clue": "Reorder these letters: ENDRG"
+    },
+    {
+      "answer": "DROGH",
+      "clue": "Anagram: DROHG"
+    },
+    {
+      "answer": "DROME",
+      "clue": "Anagram: MEROD"
+    },
+    {
+      "answer": "DRONY",
+      "clue": "Anagram: RDYON"
+    },
+    {
+      "answer": "DROSS",
+      "clue": "Reorder these letters: DORSS"
+    },
+    {
+      "answer": "DROUK",
+      "clue": "Reorder these letters: UDOKR"
+    },
+    {
+      "answer": "DRUID",
+      "clue": "Scrambled letters: DIRUD"
+    },
+    {
+      "answer": "DRUNK",
+      "clue": "Scrambled letters: KDRUN"
+    },
+    {
+      "answer": "DRUPE",
+      "clue": "Anagram: REPDU"
+    },
+    {
+      "answer": "DRUSE",
+      "clue": "Anagram: UDRSE"
+    },
+    {
+      "answer": "DRYAD",
+      "clue": "Anagram: RDADY"
+    },
+    {
+      "answer": "DRYLY",
+      "clue": "Reorder these letters: YYLDR"
+    },
+    {
+      "answer": "DUALA",
+      "clue": "Reorder these letters: LAUAD"
+    },
+    {
+      "answer": "DUBBA",
+      "clue": "Reorder these letters: DBUAB"
+    },
+    {
+      "answer": "DULIA",
+      "clue": "Scrambled letters: UDLAI"
+    },
+    {
+      "answer": "DUMBA",
+      "clue": "Scrambled letters: UAMBD"
+    },
+    {
+      "answer": "DUMMY",
+      "clue": "Anagram: YMMDU"
+    },
+    {
+      "answer": "DUMPY",
+      "clue": "Anagram: MUDPY"
+    },
+    {
+      "answer": "DUNGY",
+      "clue": "Scrambled letters: NYGDU"
+    },
+    {
+      "answer": "DUPPY",
+      "clue": "Anagram: YPUDP"
+    },
+    {
+      "answer": "DUROC",
+      "clue": "Anagram: ROCUD"
+    },
+    {
+      "answer": "DURRY",
+      "clue": "Scrambled letters: YRURD"
+    },
+    {
+      "answer": "DURYL",
+      "clue": "Scrambled letters: RUYDL"
+    },
+    {
+      "answer": "DUSIO",
+      "clue": "Scrambled letters: ODUSI"
+    },
+    {
+      "answer": "ECOLE",
+      "clue": "Anagram: EOECL"
+    },
+    {
+      "answer": "EDUCT",
+      "clue": "Scrambled letters: CEDUT"
+    },
+    {
+      "answer": "EGEST",
+      "clue": "Scrambled letters: EGSET"
+    },
+    {
+      "answer": "EIGHT",
+      "clue": "Anagram: THEGI"
+    },
+    {
+      "answer": "EKRON",
+      "clue": "Reorder these letters: NERKO"
+    },
+    {
+      "answer": "ELBOW",
+      "clue": "Reorder these letters: BLOEW"
+    },
+    {
+      "answer": "ELDER",
+      "clue": "Scrambled letters: RLEDE"
+    },
+    {
+      "answer": "ELITE",
+      "clue": "Reorder these letters: LIETE"
+    },
+    {
+      "answer": "ELMER",
+      "clue": "Scrambled letters: REMEL"
+    },
+    {
+      "answer": "ELOAH",
+      "clue": "Scrambled letters: ELAOH"
+    },
+    {
+      "answer": "ELRIC",
+      "clue": "Scrambled letters: ICLRE"
+    },
+    {
+      "answer": "ELSIN",
+      "clue": "Scrambled letters: LNIES"
+    },
+    {
+      "answer": "ELVIS",
+      "clue": "Anagram: ELISV"
+    },
+    {
+      "answer": "EMBED",
+      "clue": "Scrambled letters: EEBMD"
+    },
+    {
+      "answer": "EMBER",
+      "clue": "Anagram: EERMB"
+    },
+    {
+      "answer": "EMBUS",
+      "clue": "Reorder these letters: MSBEU"
+    },
+    {
+      "answer": "ENATE",
+      "clue": "Reorder these letters: ETENA"
+    },
+    {
+      "answer": "ENDER",
+      "clue": "Anagram: NREDE"
+    },
+    {
+      "answer": "ENIAC",
+      "clue": "Scrambled letters: NACIE"
+    },
+    {
+      "answer": "ENTIA",
+      "clue": "Anagram: IANTE"
+    },
+    {
+      "answer": "EPOCH",
+      "clue": "Scrambled letters: CHPOE"
+    },
+    {
+      "answer": "EPOPT",
+      "clue": "Reorder these letters: EPTPO"
+    },
+    {
+      "answer": "ERGOT",
+      "clue": "Scrambled letters: ETRGO"
+    },
+    {
+      "answer": "ESTUS",
+      "clue": "Reorder these letters: SUTSE"
+    },
+    {
+      "answer": "ETHYL",
+      "clue": "Anagram: TYLEH"
+    },
+    {
+      "answer": "ETTLE",
+      "clue": "Scrambled letters: EETLT"
+    },
+    {
+      "answer": "EVERT",
+      "clue": "Anagram: VTREE"
+    },
+    {
+      "answer": "EWERY",
+      "clue": "Anagram: YRWEE"
+    },
+    {
+      "answer": "FABES",
+      "clue": "Reorder these letters: SBFAE"
+    },
+    {
+      "answer": "FAGUS",
+      "clue": "Reorder these letters: AUGSF"
+    },
+    {
+      "answer": "FAHAM",
+      "clue": "Scrambled letters: FHMAA"
+    },
+    {
+      "answer": "FAINS",
+      "clue": "Anagram: NASIF"
+    },
+    {
+      "answer": "FAITH",
+      "clue": "Scrambled letters: AHTIF"
+    },
+    {
+      "answer": "FAKIR",
+      "clue": "Reorder these letters: KRFIA"
+    },
+    {
+      "answer": "FANGY",
+      "clue": "Scrambled letters: NYAGF"
+    },
+    {
+      "answer": "FATAL",
+      "clue": "Anagram: AAFLT"
+    },
+    {
+      "answer": "FAULD",
+      "clue": "Scrambled letters: AFLDU"
+    },
+    {
+      "answer": "FAVUS",
+      "clue": "Reorder these letters: SVFAU"
+    },
+    {
+      "answer": "FAYAL",
+      "clue": "Reorder these letters: AFLAY"
+    },
+    {
+      "answer": "FEAST",
+      "clue": "Reorder these letters: FESAT"
+    },
+    {
+      "answer": "FEIST",
+      "clue": "Scrambled letters: ETFIS"
+    },
+    {
+      "answer": "FELON",
+      "clue": "Anagram: FENOL"
+    },
+    {
+      "answer": "FERIA",
+      "clue": "Reorder these letters: FIEAR"
+    },
+    {
+      "answer": "FERIO",
+      "clue": "Scrambled letters: IOFER"
+    },
+    {
+      "answer": "FERME",
+      "clue": "Scrambled letters: MFEER"
+    },
+    {
+      "answer": "FERNY",
+      "clue": "Scrambled letters: RYNEF"
+    },
+    {
+      "answer": "FERRY",
+      "clue": "Reorder these letters: ERFRY"
+    },
+    {
+      "answer": "FETUS",
+      "clue": "Scrambled letters: FTSEU"
+    },
+    {
+      "answer": "FEUED",
+      "clue": "Scrambled letters: EEUDF"
+    },
+    {
+      "answer": "FIBRY",
+      "clue": "Reorder these letters: IRFBY"
+    },
+    {
+      "answer": "FIDGE",
+      "clue": "Anagram: FEGID"
+    },
+    {
+      "answer": "FIFER",
+      "clue": "Scrambled letters: FFIER"
+    },
+    {
+      "answer": "FIGHT",
+      "clue": "Scrambled letters: GFITH"
+    },
+    {
+      "answer": "FIKIE",
+      "clue": "Anagram: FIIKE"
+    },
+    {
+      "answer": "FINER",
+      "clue": "Anagram: REFNI"
+    },
+    {
+      "answer": "FIRED",
+      "clue": "Reorder these letters: FIERD"
+    },
+    {
+      "answer": "FLACK",
+      "clue": "Reorder these letters: KCFAL"
+    },
+    {
+      "answer": "FLANK",
+      "clue": "Scrambled letters: KANLF"
+    },
+    {
+      "answer": "FLEAM",
+      "clue": "Anagram: MFLEA"
+    },
+    {
+      "answer": "FLEWS",
+      "clue": "Scrambled letters: FLWES"
+    },
+    {
+      "answer": "FLING",
+      "clue": "Reorder these letters: GLIFN"
+    },
+    {
+      "answer": "FLIRT",
+      "clue": "Scrambled letters: LRTFI"
+    },
+    {
+      "answer": "FLOCK",
+      "clue": "Scrambled letters: CKOLF"
+    },
+    {
+      "answer": "FLONG",
+      "clue": "Reorder these letters: FLNGO"
+    },
+    {
+      "answer": "FLOSS",
+      "clue": "Scrambled letters: FLSSO"
+    },
+    {
+      "answer": "FLOWN",
+      "clue": "Anagram: WLFNO"
+    },
+    {
+      "answer": "FLUKY",
+      "clue": "Reorder these letters: YUKFL"
+    },
+    {
+      "answer": "FLURR",
+      "clue": "Reorder these letters: FURLR"
+    },
+    {
+      "answer": "FOALY",
+      "clue": "Scrambled letters: OFAYL"
+    },
+    {
+      "answer": "FOAMY",
+      "clue": "Reorder these letters: OYAFM"
+    },
+    {
+      "answer": "FOLIE",
+      "clue": "Scrambled letters: FOELI"
+    },
+    {
+      "answer": "FORCE",
+      "clue": "Scrambled letters: CFEOR"
+    },
+    {
+      "answer": "FORKY",
+      "clue": "Reorder these letters: KFROY"
+    },
+    {
+      "answer": "FRAIK",
+      "clue": "Reorder these letters: FRKIA"
+    },
+    {
+      "answer": "FRAIL",
+      "clue": "Anagram: LIFRA"
+    },
+    {
+      "answer": "FRASE",
+      "clue": "Anagram: ASFRE"
+    },
+    {
+      "answer": "FRAUD",
+      "clue": "Scrambled letters: UAFRD"
+    },
+    {
+      "answer": "FRAYN",
+      "clue": "Anagram: YANRF"
+    },
+    {
+      "answer": "FRETT",
+      "clue": "Reorder these letters: TRFTE"
+    },
+    {
+      "answer": "FREYR",
+      "clue": "Reorder these letters: FEYRR"
+    },
+    {
+      "answer": "FROND",
+      "clue": "Reorder these letters: FDNOR"
+    },
+    {
+      "answer": "FROOM",
+      "clue": "Anagram: RFOMO"
+    },
+    {
+      "answer": "FROTH",
+      "clue": "Anagram: FHRTO"
+    },
+    {
+      "answer": "FUNDS",
+      "clue": "Anagram: FSUND"
+    },
+    {
+      "answer": "FUTWA",
+      "clue": "Scrambled letters: ATUFW"
+    },
+    {
+      "answer": "GABLE",
+      "clue": "Reorder these letters: LBGAE"
+    },
+    {
+      "answer": "GAGER",
+      "clue": "Scrambled letters: AGEGR"
+    },
+    {
+      "answer": "GALAH",
+      "clue": "Scrambled letters: GHAAL"
+    },
+    {
+      "answer": "GAMBA",
+      "clue": "Reorder these letters: AGMBA"
+    },
+    {
+      "answer": "GAMIN",
+      "clue": "Scrambled letters: AMGIN"
+    },
+    {
+      "answer": "GAMUT",
+      "clue": "Scrambled letters: GAUMT"
+    },
+    {
+      "answer": "GANCH",
+      "clue": "Reorder these letters: GNCHA"
+    },
+    {
+      "answer": "GANSY",
+      "clue": "Reorder these letters: AYGSN"
+    },
+    {
+      "answer": "GAPES",
+      "clue": "Reorder these letters: PGSAE"
+    },
+    {
+      "answer": "GARCE",
+      "clue": "Anagram: ECGRA"
+    },
+    {
+      "answer": "GATED",
+      "clue": "Anagram: ATDGE"
+    },
+    {
+      "answer": "GEIRA",
+      "clue": "Anagram: REIAG"
+    },
+    {
+      "answer": "GEMOT",
+      "clue": "Reorder these letters: ETMGO"
+    },
+    {
+      "answer": "GENOA",
+      "clue": "Reorder these letters: NEGAO"
+    },
+    {
+      "answer": "GEOID",
+      "clue": "Anagram: GEIOD"
+    },
+    {
+      "answer": "GERAH",
+      "clue": "Reorder these letters: HGREA"
+    },
+    {
+      "answer": "GETIC",
+      "clue": "Scrambled letters: ECTGI"
+    },
+    {
+      "answer": "GILIM",
+      "clue": "Scrambled letters: IMILG"
+    },
+    {
+      "answer": "GIMEL",
+      "clue": "Anagram: LMEIG"
+    },
+    {
+      "answer": "GIRSE",
+      "clue": "Anagram: GISER"
+    },
+    {
+      "answer": "GLACE",
+      "clue": "Anagram: AECGL"
+    },
+    {
+      "answer": "GLAIK",
+      "clue": "Anagram: LIAKG"
+    },
+    {
+      "answer": "GLASS",
+      "clue": "Anagram: SALGS"
+    },
+    {
+      "answer": "GLYPH",
+      "clue": "Scrambled letters: YLPGH"
+    },
+    {
+      "answer": "GNOME",
+      "clue": "Reorder these letters: MGNEO"
+    },
+    {
+      "answer": "GOBBE",
+      "clue": "Anagram: BEOBG"
+    },
+    {
+      "answer": "GOLGI",
+      "clue": "Scrambled letters: LGGOI"
+    },
+    {
+      "answer": "GOLLY",
+      "clue": "Scrambled letters: GOYLL"
+    },
+    {
+      "answer": "GOLOE",
+      "clue": "Reorder these letters: OOLGE"
+    },
+    {
+      "answer": "GONAL",
+      "clue": "Anagram: ANGOL"
+    },
+    {
+      "answer": "GOOLS",
+      "clue": "Scrambled letters: GOOSL"
+    },
+    {
+      "answer": "GORAN",
+      "clue": "Anagram: NOGAR"
+    },
+    {
+      "answer": "GORER",
+      "clue": "Reorder these letters: GRORE"
+    },
+    {
+      "answer": "GORRY",
+      "clue": "Scrambled letters: YRRGO"
+    },
+    {
+      "answer": "GOUDY",
+      "clue": "Reorder these letters: UYDGO"
+    },
+    {
+      "answer": "GOUGE",
+      "clue": "Anagram: GOUEG"
+    },
+    {
+      "answer": "GOUMI",
+      "clue": "Scrambled letters: UIGOM"
+    },
+    {
+      "answer": "GRAVE",
+      "clue": "Scrambled letters: EVRAG"
+    },
+    {
+      "answer": "GREBE",
+      "clue": "Anagram: EBREG"
+    },
+    {
+      "answer": "GREGO",
+      "clue": "Anagram: REGGO"
+    },
+    {
+      "answer": "GRICE",
+      "clue": "Reorder these letters: IEGCR"
+    },
+    {
+      "answer": "GRIDE",
+      "clue": "Anagram: GDREI"
+    },
+    {
+      "answer": "GROUF",
+      "clue": "Anagram: GORFU"
+    },
+    {
+      "answer": "GROWN",
+      "clue": "Scrambled letters: RNOWG"
+    },
+    {
+      "answer": "GRUFF",
+      "clue": "Anagram: UFFGR"
+    },
+    {
+      "answer": "GRUNT",
+      "clue": "Scrambled letters: TUNGR"
+    },
+    {
+      "answer": "GUACO",
+      "clue": "Scrambled letters: UGCOA"
+    },
+    {
+      "answer": "GUARA",
+      "clue": "Reorder these letters: AAGUR"
+    },
+    {
+      "answer": "GUASA",
+      "clue": "Anagram: GUAAS"
+    },
+    {
+      "answer": "GUIGE",
+      "clue": "Anagram: EIGUG"
+    },
+    {
+      "answer": "GULAR",
+      "clue": "Scrambled letters: ALRGU"
+    },
+    {
+      "answer": "GULLY",
+      "clue": "Scrambled letters: LGULY"
+    },
+    {
+      "answer": "GULPY",
+      "clue": "Reorder these letters: LUGPY"
+    },
+    {
+      "answer": "GUMBO",
+      "clue": "Anagram: BUGMO"
+    },
+    {
+      "answer": "GUMMY",
+      "clue": "Anagram: UYMGM"
+    },
+    {
+      "answer": "GUNDY",
+      "clue": "Scrambled letters: GUDNY"
+    },
+    {
+      "answer": "GUNNY",
+      "clue": "Reorder these letters: NNGYU"
+    },
+    {
+      "answer": "GURRY",
+      "clue": "Scrambled letters: GURYR"
+    },
+    {
+      "answer": "HABAB",
+      "clue": "Scrambled letters: BBAAH"
+    },
+    {
+      "answer": "HACHE",
+      "clue": "Anagram: HEACH"
+    },
+    {
+      "answer": "HAIDA",
+      "clue": "Scrambled letters: AIHAD"
+    },
+    {
+      "answer": "HALMA",
+      "clue": "Scrambled letters: HLMAA"
+    },
+    {
+      "answer": "HAMAL",
+      "clue": "Scrambled letters: MALHA"
+    },
+    {
+      "answer": "HANKY",
+      "clue": "Scrambled letters: NKHAY"
+    },
+    {
+      "answer": "HARSH",
+      "clue": "Reorder these letters: HASHR"
+    },
+    {
+      "answer": "HASTE",
+      "clue": "Scrambled letters: SHEAT"
+    },
+    {
+      "answer": "HATER",
+      "clue": "Anagram: HAERT"
+    },
+    {
+      "answer": "HATTI",
+      "clue": "Anagram: TTAHI"
+    },
+    {
+      "answer": "HAULM",
+      "clue": "Anagram: LAMUH"
+    },
+    {
+      "answer": "HAUSA",
+      "clue": "Scrambled letters: AUHSA"
+    },
+    {
+      "answer": "HAUSE",
+      "clue": "Reorder these letters: EUSAH"
+    },
+    {
+      "answer": "HAVOC",
+      "clue": "Anagram: CAOVH"
+    },
+    {
+      "answer": "HEAPS",
+      "clue": "Anagram: HEPSA"
+    },
+    {
+      "answer": "HEDGE",
+      "clue": "Scrambled letters: EEHGD"
+    },
+    {
+      "answer": "HELOT",
+      "clue": "Reorder these letters: THELO"
+    },
+    {
+      "answer": "HEMEN",
+      "clue": "Reorder these letters: EHNEM"
+    },
+    {
+      "answer": "HILDA",
+      "clue": "Anagram: AIHDL"
+    },
+    {
+      "answer": "HIPPO",
+      "clue": "Anagram: HOIPP"
+    },
+    {
+      "answer": "HISPA",
+      "clue": "Scrambled letters: SHIPA"
+    },
+    {
+      "answer": "HITCH",
+      "clue": "Reorder these letters: THHIC"
+    },
+    {
+      "answer": "HOLEY",
+      "clue": "Scrambled letters: OYHLE"
+    },
+    {
+      "answer": "HOMEY",
+      "clue": "Reorder these letters: HYOME"
+    },
+    {
+      "answer": "HONEY",
+      "clue": "Anagram: HONYE"
+    },
+    {
+      "answer": "HOOFY",
+      "clue": "Reorder these letters: HOFOY"
+    },
+    {
+      "answer": "HOOSE",
+      "clue": "Scrambled letters: OHOSE"
+    },
+    {
+      "answer": "HOTEL",
+      "clue": "Reorder these letters: LHTEO"
+    },
+    {
+      "answer": "HOUSE",
+      "clue": "Scrambled letters: HUOES"
+    },
+    {
+      "answer": "HOVEL",
+      "clue": "Scrambled letters: OHVEL"
+    },
+    {
+      "answer": "HUBBA",
+      "clue": "Anagram: ABBUH"
+    },
+    {
+      "answer": "HUMET",
+      "clue": "Anagram: TMEHU"
+    },
+    {
+      "answer": "HUMOR",
+      "clue": "Reorder these letters: RUMHO"
+    },
+    {
+      "answer": "HUMPY",
+      "clue": "Scrambled letters: PYHUM"
+    },
+    {
+      "answer": "HURRY",
+      "clue": "Reorder these letters: RHRYU"
+    },
+    {
+      "answer": "HYING",
+      "clue": "Reorder these letters: GNHIY"
+    },
+    {
+      "answer": "HYPER",
+      "clue": "Reorder these letters: YRPHE"
+    },
+    {
+      "answer": "IDIOT",
+      "clue": "Reorder these letters: IIDOT"
+    },
+    {
+      "answer": "IDISM",
+      "clue": "Reorder these letters: MDSII"
+    },
+    {
+      "answer": "IDITE",
+      "clue": "Scrambled letters: TIIDE"
+    },
+    {
+      "answer": "IERNE",
+      "clue": "Reorder these letters: ERINE"
+    },
+    {
+      "answer": "IGLOO",
+      "clue": "Anagram: LOGOI"
+    },
+    {
+      "answer": "IKONA",
+      "clue": "Scrambled letters: IONAK"
+    },
+    {
+      "answer": "ILEUM",
+      "clue": "Reorder these letters: EMILU"
+    },
+    {
+      "answer": "ILIUM",
+      "clue": "Anagram: MIUIL"
+    },
+    {
+      "answer": "ILOKO",
+      "clue": "Scrambled letters: OOILK"
+    },
+    {
+      "answer": "INDIC",
+      "clue": "Reorder these letters: CIIDN"
+    },
+    {
+      "answer": "INDUE",
+      "clue": "Scrambled letters: UNDIE"
+    },
+    {
+      "answer": "INERM",
+      "clue": "Scrambled letters: ENMRI"
+    },
+    {
+      "answer": "INKEN",
+      "clue": "Scrambled letters: KENIN"
+    },
+    {
+      "answer": "INRUN",
+      "clue": "Anagram: NNRUI"
+    },
+    {
+      "answer": "KAPOK",
+      "clue": "Reorder these letters: KOKPA"
+    },
+    {
+      "answer": "KATAR",
+      "clue": "Reorder these letters: TRKAA"
+    },
+    {
+      "answer": "KATHA",
+      "clue": "Scrambled letters: AHAKT"
+    },
+    {
+      "answer": "KAYAK",
+      "clue": "Anagram: AKKAY"
+    },
+    {
+      "answer": "KEAWE",
+      "clue": "Reorder these letters: EWKEA"
+    },
+    {
+      "answer": "KEDAR",
+      "clue": "Reorder these letters: AKRED"
+    },
+    {
+      "answer": "KEENA",
+      "clue": "Reorder these letters: KNAEE"
+    },
+    {
+      "answer": "KEFIR",
+      "clue": "Anagram: REKIF"
+    },
+    {
+      "answer": "KEITA",
+      "clue": "Anagram: KEAIT"
+    },
+    {
+      "answer": "KELEP",
+      "clue": "Anagram: EKEPL"
+    },
+    {
+      "answer": "KETAL",
+      "clue": "Anagram: LAETK"
+    },
+    {
+      "answer": "KHILA",
+      "clue": "Scrambled letters: IAKLH"
+    },
+    {
+      "answer": "KHOND",
+      "clue": "Anagram: DHOKN"
+    },
+    {
+      "answer": "KHUAI",
+      "clue": "Scrambled letters: HKAIU"
+    },
+    {
+      "answer": "KIKAR",
+      "clue": "Scrambled letters: KIKRA"
+    },
+    {
+      "answer": "KIOWA",
+      "clue": "Scrambled letters: WIKOA"
+    },
+    {
+      "answer": "KISWA",
+      "clue": "Reorder these letters: WIASK"
+    },
+    {
+      "answer": "KITHE",
+      "clue": "Scrambled letters: THKIE"
+    },
+    {
+      "answer": "KNAPE",
+      "clue": "Scrambled letters: KNPEA"
+    },
+    {
+      "answer": "KNEED",
+      "clue": "Reorder these letters: DNEEK"
+    },
+    {
+      "answer": "KOKRA",
+      "clue": "Scrambled letters: AORKK"
+    },
+    {
+      "answer": "KONAK",
+      "clue": "Anagram: AKNOK"
+    },
+    {
+      "answer": "KOORG",
+      "clue": "Reorder these letters: KOOGR"
+    },
+    {
+      "answer": "KRAFT",
+      "clue": "Scrambled letters: TAFRK"
+    },
+    {
+      "answer": "KRONA",
+      "clue": "Scrambled letters: KROAN"
+    },
+    {
+      "answer": "KUDOS",
+      "clue": "Anagram: UDKOS"
+    },
+    {
+      "answer": "KUMNI",
+      "clue": "Scrambled letters: KUMIN"
+    },
+    {
+      "answer": "KUSAN",
+      "clue": "Reorder these letters: UKSAN"
+    },
+    {
+      "answer": "KUSHA",
+      "clue": "Reorder these letters: HKAUS"
+    },
+    {
+      "answer": "KVASS",
+      "clue": "Reorder these letters: VSSKA"
+    },
+    {
+      "answer": "KYRIE",
+      "clue": "Scrambled letters: EIKRY"
+    },
+    {
+      "answer": "LAANG",
+      "clue": "Scrambled letters: ALNAG"
+    },
+    {
+      "answer": "LACTO",
+      "clue": "Reorder these letters: OLCTA"
+    },
+    {
+      "answer": "LADEN",
+      "clue": "Reorder these letters: NLDEA"
+    },
+    {
+      "answer": "LAETI",
+      "clue": "Scrambled letters: AELTI"
+    },
+    {
+      "answer": "LAMBA",
+      "clue": "Scrambled letters: ALMBA"
+    },
+    {
+      "answer": "LAMIA",
+      "clue": "Reorder these letters: AAIML"
+    },
+    {
+      "answer": "LANCE",
+      "clue": "Scrambled letters: ACELN"
+    },
+    {
+      "answer": "LANUM",
+      "clue": "Anagram: MNALU"
+    },
+    {
+      "answer": "LARIA",
+      "clue": "Scrambled letters: ARALI"
+    },
+    {
+      "answer": "LASER",
+      "clue": "Anagram: ERLAS"
+    },
+    {
+      "answer": "LAUGH",
+      "clue": "Anagram: HGAUL"
+    },
+    {
+      "answer": "LAVIC",
+      "clue": "Scrambled letters: LAICV"
+    },
+    {
+      "answer": "LEECH",
+      "clue": "Reorder these letters: LHCEE"
+    },
+    {
+      "answer": "LEGES",
+      "clue": "Reorder these letters: EEGLS"
+    },
+    {
+      "answer": "LEMUR",
+      "clue": "Reorder these letters: LRUEM"
+    },
+    {
+      "answer": "LENIS",
+      "clue": "Scrambled letters: LEINS"
+    },
+    {
+      "answer": "LEUCH",
+      "clue": "Anagram: LUCHE"
+    },
+    {
+      "answer": "LEUMA",
+      "clue": "Anagram: MAUEL"
+    },
+    {
+      "answer": "LIARD",
+      "clue": "Scrambled letters: IRADL"
+    },
+    {
+      "answer": "LIMBY",
+      "clue": "Anagram: LMIYB"
+    },
+    {
+      "answer": "LIMEN",
+      "clue": "Scrambled letters: NEIML"
+    },
+    {
+      "answer": "LIMMA",
+      "clue": "Reorder these letters: MALMI"
+    },
+    {
+      "answer": "LIMPY",
+      "clue": "Reorder these letters: MLIPY"
+    },
+    {
+      "answer": "LLAMA",
+      "clue": "Reorder these letters: LMLAA"
+    },
+    {
+      "answer": "LODUR",
+      "clue": "Anagram: RUOLD"
+    },
+    {
+      "answer": "LOESS",
+      "clue": "Anagram: SSOLE"
+    },
+    {
+      "answer": "LONGA",
+      "clue": "Anagram: GLOAN"
+    },
+    {
+      "answer": "LORUM",
+      "clue": "Anagram: OMRUL"
+    },
+    {
+      "answer": "LOTIC",
+      "clue": "Scrambled letters: LOTCI"
+    },
+    {
+      "answer": "LOULU",
+      "clue": "Reorder these letters: ULOLU"
+    },
+    {
+      "answer": "LOUTY",
+      "clue": "Reorder these letters: YLOTU"
+    },
+    {
+      "answer": "LOYAL",
+      "clue": "Scrambled letters: ALLOY"
+    },
+    {
+      "answer": "LUIAN",
+      "clue": "Reorder these letters: UNAIL"
+    },
+    {
+      "answer": "LUKAS",
+      "clue": "Anagram: AUSKL"
+    },
+    {
+      "answer": "LUNCH",
+      "clue": "Anagram: HUNLC"
+    },
+    {
+      "answer": "LUNGE",
+      "clue": "Scrambled letters: GNLUE"
+    },
+    {
+      "answer": "LURAL",
+      "clue": "Anagram: RLLUA"
+    },
+    {
+      "answer": "LURID",
+      "clue": "Anagram: DRLUI"
+    },
+    {
+      "answer": "LUSKY",
+      "clue": "Anagram: UYKLS"
+    },
+    {
+      "answer": "LYCID",
+      "clue": "Scrambled letters: ILDYC"
+    },
+    {
+      "answer": "LYSSA",
+      "clue": "Anagram: LSYAS"
+    },
+    {
+      "answer": "MADIA",
+      "clue": "Anagram: AIMDA"
+    },
+    {
+      "answer": "MAFOO",
+      "clue": "Scrambled letters: OOAMF"
+    },
+    {
+      "answer": "MAGMA",
+      "clue": "Scrambled letters: AMAMG"
+    },
+    {
+      "answer": "MAGOG",
+      "clue": "Anagram: MAOGG"
+    },
+    {
+      "answer": "MAIDU",
+      "clue": "Reorder these letters: MUDIA"
+    },
+    {
+      "answer": "MAIDY",
+      "clue": "Anagram: DAYIM"
+    },
+    {
+      "answer": "MAINT",
+      "clue": "Reorder these letters: ATMNI"
+    },
+    {
+      "answer": "MAKER",
+      "clue": "Reorder these letters: EAKMR"
+    },
+    {
+      "answer": "MALMY",
+      "clue": "Anagram: YMAML"
+    },
+    {
+      "answer": "MALVA",
+      "clue": "Anagram: ALVAM"
+    },
+    {
+      "answer": "MAMIE",
+      "clue": "Scrambled letters: EMMAI"
+    },
+    {
+      "answer": "MANGE",
+      "clue": "Anagram: AGEMN"
+    },
+    {
+      "answer": "MANGO",
+      "clue": "Scrambled letters: NGOMA"
+    },
+    {
+      "answer": "MANGY",
+      "clue": "Reorder these letters: NAGMY"
+    },
+    {
+      "answer": "MANIU",
+      "clue": "Anagram: AUMIN"
+    },
+    {
+      "answer": "MANLY",
+      "clue": "Scrambled letters: AYMLN"
+    },
+    {
+      "answer": "MARIS",
+      "clue": "Reorder these letters: MIASR"
+    },
+    {
+      "answer": "MARTY",
+      "clue": "Scrambled letters: RAMTY"
+    },
+    {
+      "answer": "MAUND",
+      "clue": "Scrambled letters: AUMND"
+    },
+    {
+      "answer": "MAYAN",
+      "clue": "Reorder these letters: NYMAA"
+    },
+    {
+      "answer": "MAYER",
+      "clue": "Scrambled letters: MEARY"
+    },
+    {
+      "answer": "MEANT",
+      "clue": "Scrambled letters: METNA"
+    },
+    {
+      "answer": "MECCA",
+      "clue": "Anagram: CCAME"
+    },
+    {
+      "answer": "MEEKS",
+      "clue": "Scrambled letters: EMESK"
+    },
+    {
+      "answer": "MENSK",
+      "clue": "Scrambled letters: MEKSN"
+    },
+    {
+      "answer": "MEREL",
+      "clue": "Scrambled letters: EMELR"
+    },
+    {
+      "answer": "MESNE",
+      "clue": "Scrambled letters: ESMNE"
+    },
+    {
+      "answer": "METOL",
+      "clue": "Scrambled letters: TLEOM"
+    },
+    {
+      "answer": "MEUSE",
+      "clue": "Reorder these letters: SUMEE"
+    },
+    {
+      "answer": "MIAOW",
+      "clue": "Anagram: WAOMI"
+    },
+    {
+      "answer": "MIKIE",
+      "clue": "Scrambled letters: IIKEM"
+    },
+    {
+      "answer": "MIKIR",
+      "clue": "Reorder these letters: KRIIM"
+    },
+    {
+      "answer": "MILLE",
+      "clue": "Reorder these letters: IMLLE"
+    },
+    {
+      "answer": "MIMUS",
+      "clue": "Reorder these letters: MUSIM"
+    },
+    {
+      "answer": "MITCH",
+      "clue": "Scrambled letters: CTMIH"
+    },
+    {
+      "answer": "MNEME",
+      "clue": "Scrambled letters: MNEEM"
+    },
+    {
+      "answer": "MOGGY",
+      "clue": "Anagram: MGOYG"
+    },
+    {
+      "answer": "MOGUL",
+      "clue": "Scrambled letters: OUGLM"
+    },
+    {
+      "answer": "MOIRA",
+      "clue": "Scrambled letters: RMAOI"
+    },
+    {
+      "answer": "MOIST",
+      "clue": "Anagram: MOTSI"
+    },
+    {
+      "answer": "MOLDY",
+      "clue": "Reorder these letters: OLMDY"
+    },
+    {
+      "answer": "MONGO",
+      "clue": "Anagram: GMONO"
+    },
+    {
+      "answer": "MONNY",
+      "clue": "Reorder these letters: OMYNN"
+    },
+    {
+      "answer": "MONTH",
+      "clue": "Anagram: HNOMT"
+    },
+    {
+      "answer": "MOODY",
+      "clue": "Reorder these letters: ODYMO"
+    },
+    {
+      "answer": "MOORY",
+      "clue": "Scrambled letters: RYMOO"
+    },
+    {
+      "answer": "MOPLA",
+      "clue": "Reorder these letters: APLOM"
+    },
+    {
+      "answer": "MOREL",
+      "clue": "Reorder these letters: RMOLE"
+    },
+    {
+      "answer": "MORIN",
+      "clue": "Reorder these letters: RNOIM"
+    },
+    {
+      "answer": "MORTH",
+      "clue": "Scrambled letters: MTOHR"
+    },
+    {
+      "answer": "MOSTE",
+      "clue": "Reorder these letters: ESOMT"
+    },
+    {
+      "answer": "MOUND",
+      "clue": "Anagram: MODNU"
+    },
+    {
+      "answer": "MOUSE",
+      "clue": "Anagram: MEOSU"
+    },
+    {
+      "answer": "MOYEN",
+      "clue": "Reorder these letters: OEYNM"
+    },
+    {
+      "answer": "MUCKY",
+      "clue": "Anagram: KUMYC"
+    },
+    {
+      "answer": "MUCUS",
+      "clue": "Scrambled letters: MUSUC"
+    },
+    {
+      "answer": "MUKTI",
+      "clue": "Scrambled letters: MIUKT"
+    },
+    {
+      "answer": "MULGA",
+      "clue": "Reorder these letters: LUMAG"
+    },
+    {
+      "answer": "MUMPS",
+      "clue": "Anagram: SMMUP"
+    },
+    {
+      "answer": "MUNGA",
+      "clue": "Scrambled letters: NAGMU"
+    },
+    {
+      "answer": "MURKY",
+      "clue": "Anagram: KYMUR"
+    },
+    {
+      "answer": "MURRA",
+      "clue": "Scrambled letters: RUARM"
+    },
+    {
+      "answer": "MYALL",
+      "clue": "Reorder these letters: LALYM"
+    },
+    {
+      "answer": "MYOPS",
+      "clue": "Anagram: YOMPS"
+    },
+    {
+      "answer": "NABAK",
+      "clue": "Scrambled letters: ANBAK"
+    },
+    {
+      "answer": "NACRE",
+      "clue": "Scrambled letters: ACRNE"
+    },
+    {
+      "answer": "NANDA",
+      "clue": "Anagram: ADANN"
+    },
+    {
+      "answer": "NANDU",
+      "clue": "Reorder these letters: DNUNA"
+    },
+    {
+      "answer": "NAPPE",
+      "clue": "Anagram: NAPEP"
+    },
+    {
+      "answer": "NATAL",
+      "clue": "Reorder these letters: ANATL"
+    },
+    {
+      "answer": "NATTY",
+      "clue": "Scrambled letters: NTYTA"
+    },
+    {
+      "answer": "NAUMK",
+      "clue": "Reorder these letters: MAKUN"
+    },
+    {
+      "answer": "NEEDY",
+      "clue": "Scrambled letters: NEDYE"
+    },
+    {
+      "answer": "NEUME",
+      "clue": "Anagram: EUNEM"
+    },
+    {
+      "answer": "NGAPI",
+      "clue": "Scrambled letters: GNPAI"
+    },
+    {
+      "answer": "NICOL",
+      "clue": "Scrambled letters: ICNOL"
+    },
+    {
+      "answer": "NIFTY",
+      "clue": "Scrambled letters: NFYIT"
+    },
+    {
+      "answer": "NINUT",
+      "clue": "Reorder these letters: NNIUT"
+    },
+    {
+      "answer": "NITER",
+      "clue": "Reorder these letters: NTIRE"
+    },
+    {
+      "answer": "NODDY",
+      "clue": "Scrambled letters: DYNOD"
+    },
+    {
+      "answer": "NODED",
+      "clue": "Reorder these letters: NEODD"
+    },
+    {
+      "answer": "NOMIC",
+      "clue": "Reorder these letters: ICOMN"
+    },
+    {
+      "answer": "NONLY",
+      "clue": "Scrambled letters: LNNOY"
+    },
+    {
+      "answer": "NORIA",
+      "clue": "Reorder these letters: ONIAR"
+    },
+    {
+      "answer": "NORTH",
+      "clue": "Reorder these letters: TROHN"
+    },
+    {
+      "answer": "NOSED",
+      "clue": "Reorder these letters: DENOS"
+    },
+    {
+      "answer": "NOTUS",
+      "clue": "Scrambled letters: STONU"
+    },
+    {
+      "answer": "NUBIA",
+      "clue": "Scrambled letters: NBIAU"
+    },
+    {
+      "answer": "NUNCH",
+      "clue": "Reorder these letters: CHNNU"
+    },
+    {
+      "answer": "NUNKY",
+      "clue": "Anagram: UNNKY"
+    },
+    {
+      "answer": "NYDIA",
+      "clue": "Scrambled letters: INYAD"
+    },
+    {
+      "answer": "NYORO",
+      "clue": "Reorder these letters: NOYOR"
+    },
+    {
+      "answer": "OBEAH",
+      "clue": "Anagram: HOEAB"
+    },
+    {
+      "answer": "OBOLE",
+      "clue": "Anagram: OOLEB"
+    },
+    {
+      "answer": "OCHER",
+      "clue": "Anagram: CREHO"
+    },
+    {
+      "answer": "OCREA",
+      "clue": "Reorder these letters: AEORC"
+    },
+    {
+      "answer": "OCTAN",
+      "clue": "Scrambled letters: CNATO"
+    },
+    {
+      "answer": "ODEUM",
+      "clue": "Anagram: UEOMD"
+    },
+    {
+      "answer": "OHELO",
+      "clue": "Anagram: ELOOH"
+    },
+    {
+      "answer": "OMANI",
+      "clue": "Anagram: INMAO"
+    },
+    {
+      "answer": "ONCIA",
+      "clue": "Reorder these letters: NIAOC"
+    },
+    {
+      "answer": "OOPAK",
+      "clue": "Anagram: POOAK"
+    },
+    {
+      "answer": "OPATA",
+      "clue": "Scrambled letters: TAAOP"
+    },
+    {
+      "answer": "OPHIS",
+      "clue": "Anagram: OHPSI"
+    },
+    {
+      "answer": "ORACH",
+      "clue": "Reorder these letters: OCARH"
+    },
+    {
+      "answer": "ORNIS",
+      "clue": "Reorder these letters: IONSR"
+    },
+    {
+      "answer": "ORTET",
+      "clue": "Reorder these letters: TRETO"
+    },
+    {
+      "answer": "OSKAR",
+      "clue": "Anagram: OSARK"
+    },
+    {
+      "answer": "OTARY",
+      "clue": "Anagram: OAYTR"
+    },
+    {
+      "answer": "OTATE",
+      "clue": "Anagram: OETAT"
+    },
+    {
+      "answer": "OUGHT",
+      "clue": "Scrambled letters: GUHOT"
+    },
+    {
+      "answer": "OUTLY",
+      "clue": "Reorder these letters: TOUYL"
+    },
+    {
+      "answer": "OVINE",
+      "clue": "Scrambled letters: IEONV"
+    },
+    {
+      "answer": "PACER",
+      "clue": "Anagram: PCERA"
+    },
+    {
+      "answer": "PALAY",
+      "clue": "Anagram: AAYLP"
+    },
+    {
+      "answer": "PALLA",
+      "clue": "Reorder these letters: LAPLA"
+    },
+    {
+      "answer": "PALTA",
+      "clue": "Scrambled letters: APTAL"
+    },
+    {
+      "answer": "PAPER",
+      "clue": "Scrambled letters: REPPA"
+    },
+    {
+      "answer": "PARGE",
+      "clue": "Scrambled letters: AGREP"
+    },
+    {
+      "answer": "PARUS",
+      "clue": "Reorder these letters: RSUAP"
+    },
+    {
+      "answer": "PASHM",
+      "clue": "Reorder these letters: SPMAH"
+    },
+    {
+      "answer": "PASTE",
+      "clue": "Anagram: PATES"
+    },
+    {
+      "answer": "PASUL",
+      "clue": "Reorder these letters: ALPSU"
+    },
+    {
+      "answer": "PATCH",
+      "clue": "Reorder these letters: THCPA"
+    },
+    {
+      "answer": "PATHY",
+      "clue": "Anagram: PYHAT"
+    },
+    {
+      "answer": "PATTU",
+      "clue": "Reorder these letters: UTAPT"
+    },
+    {
+      "answer": "PATTY",
+      "clue": "Anagram: YTAPT"
+    },
+    {
+      "answer": "PAVAN",
+      "clue": "Reorder these letters: AAVPN"
+    },
+    {
+      "answer": "PAYOR",
+      "clue": "Reorder these letters: PORAY"
+    },
+    {
+      "answer": "PEACH",
+      "clue": "Reorder these letters: CPAEH"
+    },
+    {
+      "answer": "PEBAN",
+      "clue": "Scrambled letters: PABEN"
+    },
+    {
+      "answer": "PECHT",
+      "clue": "Anagram: CTPHE"
+    },
+    {
+      "answer": "PECOS",
+      "clue": "Anagram: CSOEP"
+    },
+    {
+      "answer": "PEKOE",
+      "clue": "Anagram: EKOEP"
+    },
+    {
+      "answer": "PELEW",
+      "clue": "Anagram: LWPEE"
+    },
+    {
+      "answer": "PENDA",
+      "clue": "Anagram: PADEN"
+    },
+    {
+      "answer": "PERSE",
+      "clue": "Reorder these letters: SEPER"
+    },
+    {
+      "answer": "PERUN",
+      "clue": "Scrambled letters: NRUEP"
+    },
+    {
+      "answer": "PFUND",
+      "clue": "Anagram: UDPNF"
+    },
+    {
+      "answer": "PHORA",
+      "clue": "Anagram: HOPRA"
+    },
+    {
+      "answer": "PIANO",
+      "clue": "Anagram: ONIPA"
+    },
+    {
+      "answer": "PICAL",
+      "clue": "Scrambled letters: CLPAI"
+    },
+    {
+      "answer": "PICRA",
+      "clue": "Scrambled letters: PIRCA"
+    },
+    {
+      "answer": "PIKLE",
+      "clue": "Scrambled letters: IPLKE"
+    },
+    {
+      "answer": "PILEA",
+      "clue": "Anagram: IAELP"
+    },
+    {
+      "answer": "PILUS",
+      "clue": "Scrambled letters: LUSIP"
+    },
+    {
+      "answer": "PINDA",
+      "clue": "Scrambled letters: PDAIN"
+    },
+    {
+      "answer": "PINON",
+      "clue": "Scrambled letters: OINNP"
+    },
+    {
+      "answer": "PLANK",
+      "clue": "Reorder these letters: LAPNK"
+    },
+    {
+      "answer": "PLENY",
+      "clue": "Reorder these letters: LYNPE"
+    },
+    {
+      "answer": "PODAL",
+      "clue": "Reorder these letters: ODAPL"
+    },
+    {
+      "answer": "POHNA",
+      "clue": "Reorder these letters: PONAH"
+    },
+    {
+      "answer": "POKER",
+      "clue": "Scrambled letters: KOREP"
+    },
+    {
+      "answer": "POKOM",
+      "clue": "Anagram: KPOOM"
+    },
+    {
+      "answer": "POMBO",
+      "clue": "Anagram: OBOPM"
+    },
+    {
+      "answer": "POMME",
+      "clue": "Scrambled letters: MEOMP"
+    },
+    {
+      "answer": "PONDO",
+      "clue": "Anagram: DNOPO"
+    },
+    {
+      "answer": "PONEY",
+      "clue": "Reorder these letters: EOPYN"
+    },
+    {
+      "answer": "PONGA",
+      "clue": "Scrambled letters: GONAP"
+    },
+    {
+      "answer": "PONGO",
+      "clue": "Anagram: ONPGO"
+    },
+    {
+      "answer": "POOLY",
+      "clue": "Scrambled letters: LOOPY"
+    },
+    {
+      "answer": "PORGY",
+      "clue": "Reorder these letters: YRPOG"
+    },
+    {
+      "answer": "PORKY",
+      "clue": "Anagram: YORPK"
+    },
+    {
+      "answer": "PORUS",
+      "clue": "Scrambled letters: RSOUP"
+    },
+    {
+      "answer": "POSEY",
+      "clue": "Scrambled letters: EPSYO"
+    },
+    {
+      "answer": "POUCE",
+      "clue": "Reorder these letters: UCPOE"
+    },
+    {
+      "answer": "PRIMA",
+      "clue": "Reorder these letters: PRAMI"
+    },
+    {
+      "answer": "PROSO",
+      "clue": "Scrambled letters: SPOOR"
+    },
+    {
+      "answer": "PSHAW",
+      "clue": "Anagram: HWPSA"
+    },
+    {
+      "answer": "PUGGI",
+      "clue": "Reorder these letters: GPUGI"
+    },
+    {
+      "answer": "PUIST",
+      "clue": "Anagram: UPITS"
+    },
+    {
+      "answer": "PUNTO",
+      "clue": "Scrambled letters: PNOUT"
+    },
+    {
+      "answer": "PUPIL",
+      "clue": "Scrambled letters: PPULI"
+    },
+    {
+      "answer": "PURGE",
+      "clue": "Anagram: EUPGR"
+    },
+    {
+      "answer": "PYLIC",
+      "clue": "Scrambled letters: PYLCI"
+    },
+    {
+      "answer": "PYLON",
+      "clue": "Anagram: PYOLN"
+    },
+    {
+      "answer": "PYRUS",
+      "clue": "Reorder these letters: YPSUR"
+    },
+    {
+      "answer": "RABID",
+      "clue": "Anagram: RIABD"
+    },
+    {
+      "answer": "RADIO",
+      "clue": "Scrambled letters: IDRAO"
+    },
+    {
+      "answer": "RAKAN",
+      "clue": "Reorder these letters: ARNAK"
+    },
+    {
+      "answer": "RALLY",
+      "clue": "Scrambled letters: ALYRL"
+    },
+    {
+      "answer": "RAMAL",
+      "clue": "Reorder these letters: ARMLA"
+    },
+    {
+      "answer": "RANCE",
+      "clue": "Scrambled letters: CNREA"
+    },
+    {
+      "answer": "RANID",
+      "clue": "Anagram: RAIND"
+    },
+    {
+      "answer": "RATAL",
+      "clue": "Anagram: LTAAR"
+    },
+    {
+      "answer": "RATER",
+      "clue": "Scrambled letters: TREAR"
+    },
+    {
+      "answer": "RAVEN",
+      "clue": "Reorder these letters: NERVA"
+    },
+    {
+      "answer": "REAVE",
+      "clue": "Reorder these letters: EAVER"
+    },
+    {
+      "answer": "REBIA",
+      "clue": "Scrambled letters: ABREI"
+    },
+    {
+      "answer": "REDAN",
+      "clue": "Reorder these letters: NREDA"
+    },
+    {
+      "answer": "REEDY",
+      "clue": "Reorder these letters: EREDY"
+    },
+    {
+      "answer": "REEFY",
+      "clue": "Scrambled letters: EYFRE"
+    },
+    {
+      "answer": "REESK",
+      "clue": "Anagram: KESER"
+    },
+    {
+      "answer": "REGAL",
+      "clue": "Anagram: GALRE"
+    },
+    {
+      "answer": "REGMA",
+      "clue": "Scrambled letters: RMGEA"
+    },
+    {
+      "answer": "REGUR",
+      "clue": "Reorder these letters: EUGRR"
+    },
+    {
+      "answer": "RELET",
+      "clue": "Reorder these letters: ERLET"
+    },
+    {
+      "answer": "REMIT",
+      "clue": "Scrambled letters: MTEIR"
+    },
+    {
+      "answer": "RESIN",
+      "clue": "Scrambled letters: NSRIE"
+    },
+    {
+      "answer": "REUEL",
+      "clue": "Anagram: EERUL"
+    },
+    {
+      "answer": "REVEL",
+      "clue": "Scrambled letters: LVEER"
+    },
+    {
+      "answer": "RHINO",
+      "clue": "Anagram: HONRI"
+    },
+    {
+      "answer": "RIATA",
+      "clue": "Anagram: AIRAT"
+    },
+    {
+      "answer": "RICER",
+      "clue": "Scrambled letters: IRECR"
+    },
+    {
+      "answer": "RINGY",
+      "clue": "Anagram: NIGYR"
+    },
+    {
+      "answer": "RIPAL",
+      "clue": "Scrambled letters: LIPRA"
+    },
+    {
+      "answer": "RISER",
+      "clue": "Reorder these letters: SRIER"
+    },
+    {
+      "answer": "RIVET",
+      "clue": "Scrambled letters: RTIVE"
+    },
+    {
+      "answer": "ROGUE",
+      "clue": "Reorder these letters: ERGUO"
+    },
+    {
+      "answer": "ROLEO",
+      "clue": "Scrambled letters: ELORO"
+    },
+    {
+      "answer": "RONCO",
+      "clue": "Scrambled letters: NROOC"
+    },
+    {
+      "answer": "RONGA",
+      "clue": "Anagram: ORNAG"
+    },
+    {
+      "answer": "ROSED",
+      "clue": "Anagram: DEOSR"
+    },
+    {
+      "answer": "ROSET",
+      "clue": "Scrambled letters: ROSTE"
+    },
+    {
+      "answer": "ROSIN",
+      "clue": "Reorder these letters: NRSOI"
+    },
+    {
+      "answer": "ROUGE",
+      "clue": "Reorder these letters: EUROG"
+    },
+    {
+      "answer": "ROUSE",
+      "clue": "Reorder these letters: ORUES"
+    },
+    {
+      "answer": "ROWEL",
+      "clue": "Anagram: WLROE"
+    },
+    {
+      "answer": "ROWEN",
+      "clue": "Reorder these letters: RNOEW"
+    },
+    {
+      "answer": "RUING",
+      "clue": "Reorder these letters: GRINU"
+    },
+    {
+      "answer": "RULER",
+      "clue": "Scrambled letters: EURLR"
+    },
+    {
+      "answer": "RUNBY",
+      "clue": "Scrambled letters: RYBUN"
+    },
+    {
+      "answer": "SABIA",
+      "clue": "Scrambled letters: AISBA"
+    },
+    {
+      "answer": "SABOT",
+      "clue": "Reorder these letters: OBSTA"
+    },
+    {
+      "answer": "SAGAI",
+      "clue": "Anagram: IAAGS"
+    },
+    {
+      "answer": "SAHME",
+      "clue": "Anagram: AHMSE"
+    },
+    {
+      "answer": "SALTY",
+      "clue": "Scrambled letters: YLTSA"
+    },
+    {
+      "answer": "SALVO",
+      "clue": "Reorder these letters: ALSVO"
+    },
+    {
+      "answer": "SANTO",
+      "clue": "Reorder these letters: TNAOS"
+    },
+    {
+      "answer": "SAPEK",
+      "clue": "Anagram: KPEAS"
+    },
+    {
+      "answer": "SAPLE",
+      "clue": "Scrambled letters: LEPAS"
+    },
+    {
+      "answer": "SAPOR",
+      "clue": "Reorder these letters: ARSPO"
+    },
+    {
+      "answer": "SARUS",
+      "clue": "Reorder these letters: SASUR"
+    },
+    {
+      "answer": "SAVOR",
+      "clue": "Reorder these letters: OASRV"
+    },
+    {
+      "answer": "SAVVY",
+      "clue": "Scrambled letters: SAVYV"
+    },
+    {
+      "answer": "SCAFF",
+      "clue": "Scrambled letters: SFCAF"
+    },
+    {
+      "answer": "SCALD",
+      "clue": "Reorder these letters: SLCDA"
+    },
+    {
+      "answer": "SCANT",
+      "clue": "Reorder these letters: CSANT"
+    },
+    {
+      "answer": "SCARF",
+      "clue": "Scrambled letters: AFRSC"
+    },
+    {
+      "answer": "SCARY",
+      "clue": "Reorder these letters: SCAYR"
+    },
+    {
+      "answer": "SCASE",
+      "clue": "Scrambled letters: EASCS"
+    },
+    {
+      "answer": "SCAWL",
+      "clue": "Anagram: SCWLA"
+    },
+    {
+      "answer": "SCHUH",
+      "clue": "Scrambled letters: HCUHS"
+    },
+    {
+      "answer": "SCOKE",
+      "clue": "Scrambled letters: CSKEO"
+    },
+    {
+      "answer": "SCOTE",
+      "clue": "Scrambled letters: OTECS"
+    },
+    {
+      "answer": "SCRAN",
+      "clue": "Anagram: SCRNA"
+    },
+    {
+      "answer": "SCRUB",
+      "clue": "Reorder these letters: BCURS"
+    },
+    {
+      "answer": "SEAVE",
+      "clue": "Anagram: EVEAS"
+    },
+    {
+      "answer": "SEDAN",
+      "clue": "Anagram: NSDEA"
+    },
+    {
+      "answer": "SEEDY",
+      "clue": "Anagram: YEDES"
+    },
+    {
+      "answer": "SEPIA",
+      "clue": "Scrambled letters: SEIPA"
+    },
+    {
+      "answer": "SEPTI",
+      "clue": "Reorder these letters: SPEIT"
+    },
+    {
+      "answer": "SERUT",
+      "clue": "Scrambled letters: ERSUT"
+    },
+    {
+      "answer": "SESTI",
+      "clue": "Reorder these letters: ISSET"
+    },
+    {
+      "answer": "SETUP",
+      "clue": "Reorder these letters: PTSEU"
+    },
+    {
+      "answer": "SEVER",
+      "clue": "Reorder these letters: RVESE"
+    },
+    {
+      "answer": "SHAHI",
+      "clue": "Reorder these letters: ISAHH"
+    },
+    {
+      "answer": "SHALT",
+      "clue": "Reorder these letters: LHTAS"
+    },
+    {
+      "answer": "SHAMA",
+      "clue": "Reorder these letters: HAMAS"
+    },
+    {
+      "answer": "SHAME",
+      "clue": "Anagram: ESAHM"
+    },
+    {
+      "answer": "SHANE",
+      "clue": "Scrambled letters: HNAES"
+    },
+    {
+      "answer": "SHAPE",
+      "clue": "Anagram: PSEHA"
+    },
+    {
+      "answer": "SHAPS",
+      "clue": "Reorder these letters: ASSHP"
+    },
+    {
+      "answer": "SHARN",
+      "clue": "Reorder these letters: SHRNA"
+    },
+    {
+      "answer": "SHAUL",
+      "clue": "Anagram: SHLUA"
+    },
+    {
+      "answer": "SHAUP",
+      "clue": "Scrambled letters: SAHPU"
+    },
+    {
+      "answer": "SHAWM",
+      "clue": "Anagram: SHWAM"
+    },
+    {
+      "answer": "SHAWN",
+      "clue": "Scrambled letters: SWHNA"
+    },
+    {
+      "answer": "SHEAN",
+      "clue": "Scrambled letters: EHSNA"
+    },
+    {
+      "answer": "SHEIK",
+      "clue": "Anagram: KISHE"
+    },
+    {
+      "answer": "SHEOL",
+      "clue": "Scrambled letters: SHOLE"
+    },
+    {
+      "answer": "SHIED",
+      "clue": "Reorder these letters: EDHIS"
+    },
+    {
+      "answer": "SHISN",
+      "clue": "Reorder these letters: HSINS"
+    },
+    {
+      "answer": "SHIVE",
+      "clue": "Reorder these letters: IVEHS"
+    },
+    {
+      "answer": "SHOER",
+      "clue": "Scrambled letters: OREHS"
+    },
+    {
+      "answer": "SHOLE",
+      "clue": "Scrambled letters: SHOEL"
+    },
+    {
+      "answer": "SHOOK",
+      "clue": "Scrambled letters: OOHSK"
+    },
+    {
+      "answer": "SHOOL",
+      "clue": "Reorder these letters: SOHLO"
+    },
+    {
+      "answer": "SHOTE",
+      "clue": "Anagram: EHTOS"
+    },
+    {
+      "answer": "SHOVE",
+      "clue": "Reorder these letters: SHOEV"
+    },
+    {
+      "answer": "SHREW",
+      "clue": "Anagram: ESRWH"
+    },
+    {
+      "answer": "SHROG",
+      "clue": "Anagram: HSROG"
+    },
+    {
+      "answer": "SHUBA",
+      "clue": "Reorder these letters: SBHAU"
+    },
+    {
+      "answer": "SHUNE",
+      "clue": "Anagram: NUESH"
+    },
+    {
+      "answer": "SIDED",
+      "clue": "Scrambled letters: SDEID"
+    },
+    {
+      "answer": "SIKAR",
+      "clue": "Anagram: RKSIA"
+    },
+    {
+      "answer": "SINCE",
+      "clue": "Scrambled letters: ESNCI"
+    },
+    {
+      "answer": "SINEW",
+      "clue": "Anagram: WSINE"
+    },
+    {
+      "answer": "SINKY",
+      "clue": "Reorder these letters: KSNYI"
+    },
+    {
+      "answer": "SIREN",
+      "clue": "Scrambled letters: ENSIR"
+    },
+    {
+      "answer": "SIRIH",
+      "clue": "Reorder these letters: RHSII"
+    },
+    {
+      "answer": "SIRIS",
+      "clue": "Scrambled letters: SSIRI"
+    },
+    {
+      "answer": "SIROC",
+      "clue": "Anagram: SIOCR"
+    },
+    {
+      "answer": "SIRUP",
+      "clue": "Scrambled letters: SRPIU"
+    },
+    {
+      "answer": "SITUS",
+      "clue": "Anagram: SSTUI"
+    },
+    {
+      "answer": "SKAIR",
+      "clue": "Anagram: SKIRA"
+    },
+    {
+      "answer": "SKIFT",
+      "clue": "Scrambled letters: KTFSI"
+    },
+    {
+      "answer": "SKIRP",
+      "clue": "Anagram: KISRP"
+    },
+    {
+      "answer": "SKITE",
+      "clue": "Anagram: EKTIS"
+    },
+    {
+      "answer": "SLAIT",
+      "clue": "Anagram: SLTIA"
+    },
+    {
+      "answer": "SLANK",
+      "clue": "Reorder these letters: NSLKA"
+    },
+    {
+      "answer": "SLASH",
+      "clue": "Scrambled letters: SHLAS"
+    },
+    {
+      "answer": "SLATY",
+      "clue": "Scrambled letters: AYTLS"
+    },
+    {
+      "answer": "SLAVI",
+      "clue": "Reorder these letters: VAISL"
+    },
+    {
+      "answer": "SLICH",
+      "clue": "Reorder these letters: LICSH"
+    },
+    {
+      "answer": "SLINK",
+      "clue": "Scrambled letters: NKSLI"
+    },
+    {
+      "answer": "SLOAN",
+      "clue": "Anagram: ANLOS"
+    },
+    {
+      "answer": "SLONK",
+      "clue": "Scrambled letters: LOKSN"
+    },
+    {
+      "answer": "SLOOM",
+      "clue": "Scrambled letters: SMLOO"
+    },
+    {
+      "answer": "SLYLY",
+      "clue": "Reorder these letters: LLYYS"
+    },
+    {
+      "answer": "SMACK",
+      "clue": "Scrambled letters: KSAMC"
+    },
+    {
+      "answer": "SMALT",
+      "clue": "Scrambled letters: SMTLA"
+    },
+    {
+      "answer": "SMICH",
+      "clue": "Anagram: IMSHC"
+    },
+    {
+      "answer": "SMIRK",
+      "clue": "Anagram: MIKSR"
+    },
+    {
+      "answer": "SMOLT",
+      "clue": "Anagram: MOLTS"
+    },
+    {
+      "answer": "SMOOS",
+      "clue": "Reorder these letters: MSOOS"
+    },
+    {
+      "answer": "SMOUT",
+      "clue": "Anagram: OMSUT"
+    },
+    {
+      "answer": "SNATH",
+      "clue": "Scrambled letters: SNTHA"
+    },
+    {
+      "answer": "SNIPE",
+      "clue": "Reorder these letters: SEPIN"
+    },
+    {
+      "answer": "SNIVY",
+      "clue": "Scrambled letters: VYISN"
+    },
+    {
+      "answer": "SNOOT",
+      "clue": "Scrambled letters: NTSOO"
+    },
+    {
+      "answer": "SNOWL",
+      "clue": "Scrambled letters: SNWOL"
+    },
+    {
+      "answer": "SOAKY",
+      "clue": "Scrambled letters: AKSOY"
+    },
+    {
+      "answer": "SODIC",
+      "clue": "Scrambled letters: IOCDS"
+    },
+    {
+      "answer": "SODOM",
+      "clue": "Reorder these letters: OOMDS"
+    },
+    {
+      "answer": "SOFIA",
+      "clue": "Scrambled letters: OSIFA"
+    },
+    {
+      "answer": "SOGER",
+      "clue": "Anagram: SOERG"
+    },
+    {
+      "answer": "SOLDI",
+      "clue": "Scrambled letters: LDSOI"
+    },
+    {
+      "answer": "SOLEA",
+      "clue": "Anagram: OEASL"
+    },
+    {
+      "answer": "SONAR",
+      "clue": "Anagram: ROANS"
+    },
+    {
+      "answer": "SONGY",
+      "clue": "Scrambled letters: SOGNY"
+    },
+    {
+      "answer": "SOOTH",
+      "clue": "Scrambled letters: HSOOT"
+    },
+    {
+      "answer": "SORUS",
+      "clue": "Scrambled letters: SUROS"
+    },
+    {
+      "answer": "SOUPY",
+      "clue": "Reorder these letters: USPYO"
+    },
+    {
+      "answer": "SOUSE",
+      "clue": "Anagram: SEOUS"
+    },
+    {
+      "answer": "SOWAR",
+      "clue": "Anagram: OSWRA"
+    },
+    {
+      "answer": "SPACK",
+      "clue": "Scrambled letters: CPAKS"
+    },
+    {
+      "answer": "SPAID",
+      "clue": "Anagram: PIDSA"
+    },
+    {
+      "answer": "SPALL",
+      "clue": "Reorder these letters: LLPAS"
+    },
+    {
+      "answer": "SPANG",
+      "clue": "Reorder these letters: GNPAS"
+    },
+    {
+      "answer": "SPART",
+      "clue": "Scrambled letters: SPRTA"
+    },
+    {
+      "answer": "SPECE",
+      "clue": "Reorder these letters: SECEP"
+    },
+    {
+      "answer": "SPELT",
+      "clue": "Reorder these letters: TSPEL"
+    },
+    {
+      "answer": "SPICY",
+      "clue": "Reorder these letters: CIYPS"
+    },
+    {
+      "answer": "SPIER",
+      "clue": "Anagram: ESPIR"
+    },
+    {
+      "answer": "SPIFF",
+      "clue": "Scrambled letters: PFSFI"
+    },
+    {
+      "answer": "SPITE",
+      "clue": "Reorder these letters: TPEIS"
+    },
+    {
+      "answer": "SPODE",
+      "clue": "Scrambled letters: SODEP"
+    },
+    {
+      "answer": "SPOKE",
+      "clue": "Reorder these letters: EPSKO"
+    },
+    {
+      "answer": "SPOOM",
+      "clue": "Reorder these letters: OOSPM"
+    },
+    {
+      "answer": "SPORT",
+      "clue": "Anagram: RTSPO"
+    },
+    {
+      "answer": "SPREW",
+      "clue": "Reorder these letters: SERPW"
+    },
+    {
+      "answer": "SPRIT",
+      "clue": "Anagram: RTISP"
+    },
+    {
+      "answer": "STAAB",
+      "clue": "Anagram: ABTAS"
+    },
+    {
+      "answer": "STAGE",
+      "clue": "Anagram: ESATG"
+    },
+    {
+      "answer": "STAIO",
+      "clue": "Anagram: OTIAS"
+    },
+    {
+      "answer": "STALE",
+      "clue": "Reorder these letters: LAEST"
+    },
+    {
+      "answer": "STANK",
+      "clue": "Scrambled letters: KTNAS"
+    },
+    {
+      "answer": "STARY",
+      "clue": "Scrambled letters: RSATY"
+    },
+    {
+      "answer": "STAWN",
+      "clue": "Scrambled letters: WSANT"
+    },
+    {
+      "answer": "STEER",
+      "clue": "Anagram: TSEER"
+    },
+    {
+      "answer": "STEID",
+      "clue": "Reorder these letters: EDIST"
+    },
+    {
+      "answer": "STENT",
+      "clue": "Reorder these letters: TTSNE"
+    },
+    {
+      "answer": "STERI",
+      "clue": "Scrambled letters: IESRT"
+    },
+    {
+      "answer": "STERK",
+      "clue": "Anagram: SKTER"
+    },
+    {
+      "answer": "STICH",
+      "clue": "Scrambled letters: IHSTC"
+    },
+    {
+      "answer": "STILL",
+      "clue": "Reorder these letters: ILTLS"
+    },
+    {
+      "answer": "STINE",
+      "clue": "Anagram: IESNT"
+    },
+    {
+      "answer": "STIRP",
+      "clue": "Anagram: TIRPS"
+    },
+    {
+      "answer": "STITE",
+      "clue": "Anagram: EISTT"
+    },
+    {
+      "answer": "STOCK",
+      "clue": "Scrambled letters: CTSOK"
+    },
+    {
+      "answer": "STOND",
+      "clue": "Reorder these letters: STNDO"
+    },
+    {
+      "answer": "STOOD",
+      "clue": "Anagram: TSOOD"
+    },
+    {
+      "answer": "STOOP",
+      "clue": "Anagram: STOPO"
+    },
+    {
+      "answer": "STOPE",
+      "clue": "Reorder these letters: STOEP"
+    },
+    {
+      "answer": "STORE",
+      "clue": "Scrambled letters: SETOR"
+    },
+    {
+      "answer": "STRID",
+      "clue": "Anagram: RISDT"
+    },
+    {
+      "answer": "STUDE",
+      "clue": "Reorder these letters: SEDUT"
+    },
+    {
+      "answer": "STULM",
+      "clue": "Anagram: SMLTU"
+    },
+    {
+      "answer": "STUMP",
+      "clue": "Scrambled letters: PTSMU"
+    },
+    {
+      "answer": "STUPA",
+      "clue": "Scrambled letters: AUSPT"
+    },
+    {
+      "answer": "SUCRE",
+      "clue": "Reorder these letters: CESRU"
+    },
+    {
+      "answer": "SUDAN",
+      "clue": "Scrambled letters: ASNUD"
+    },
+    {
+      "answer": "SUDDY",
+      "clue": "Anagram: YSUDD"
+    },
+    {
+      "answer": "SUDIC",
+      "clue": "Scrambled letters: DUSCI"
+    },
+    {
+      "answer": "SUDSY",
+      "clue": "Anagram: DUSSY"
+    },
+    {
+      "answer": "SUEDE",
+      "clue": "Reorder these letters: DSUEE"
+    },
+    {
+      "answer": "SUEVE",
+      "clue": "Reorder these letters: EUEVS"
+    },
+    {
+      "answer": "SUGAN",
+      "clue": "Scrambled letters: SUGNA"
+    },
+    {
+      "answer": "SUMAC",
+      "clue": "Reorder these letters: UAMCS"
+    },
+    {
+      "answer": "SUMAK",
+      "clue": "Scrambled letters: KAUMS"
+    },
+    {
+      "answer": "SUNNI",
+      "clue": "Scrambled letters: NSUNI"
+    },
+    {
+      "answer": "SURAL",
+      "clue": "Scrambled letters: ARLSU"
+    },
+    {
+      "answer": "SURGE",
+      "clue": "Anagram: EGUSR"
+    },
+    {
+      "answer": "SURGY",
+      "clue": "Reorder these letters: GYSUR"
+    },
+    {
+      "answer": "SURRA",
+      "clue": "Scrambled letters: UARSR"
+    },
+    {
+      "answer": "SUSIE",
+      "clue": "Anagram: ISESU"
+    },
+    {
+      "answer": "SWANG",
+      "clue": "Anagram: GNWAS"
+    },
+    {
+      "answer": "SWARD",
+      "clue": "Scrambled letters: ARDSW"
+    },
+    {
+      "answer": "SWELL",
+      "clue": "Scrambled letters: LSWEL"
+    },
+    {
+      "answer": "SWIPY",
+      "clue": "Scrambled letters: SPYIW"
+    },
+    {
+      "answer": "SWIRD",
+      "clue": "Anagram: WSIRD"
+    },
+    {
+      "answer": "SYBIL",
+      "clue": "Anagram: IYSBL"
+    },
+    {
+      "answer": "SYLPH",
+      "clue": "Scrambled letters: HLPSY"
+    },
+    {
+      "answer": "SYRUP",
+      "clue": "Reorder these letters: UPRSY"
+    },
+    {
+      "answer": "TACCA",
+      "clue": "Anagram: CTCAA"
+    },
+    {
+      "answer": "TACIT",
+      "clue": "Scrambled letters: CTTIA"
+    },
+    {
+      "answer": "TAFFY",
+      "clue": "Anagram: FAYFT"
+    },
+    {
+      "answer": "TAGUA",
+      "clue": "Scrambled letters: AUTAG"
+    },
+    {
+      "answer": "TAKAO",
+      "clue": "Reorder these letters: AOAKT"
+    },
+    {
+      "answer": "TAKYR",
+      "clue": "Reorder these letters: ARKYT"
+    },
+    {
+      "answer": "TALER",
+      "clue": "Scrambled letters: REATL"
+    },
+    {
+      "answer": "TALPA",
+      "clue": "Scrambled letters: PTAAL"
+    },
+    {
+      "answer": "TAPPA",
+      "clue": "Reorder these letters: ATPAP"
+    },
+    {
+      "answer": "TATIE",
+      "clue": "Anagram: ITTAE"
+    },
+    {
+      "answer": "TAULI",
+      "clue": "Reorder these letters: ITULA"
+    },
+    {
+      "answer": "TAUNT",
+      "clue": "Anagram: UTNTA"
+    },
+    {
+      "answer": "TAURI",
+      "clue": "Reorder these letters: TUAIR"
+    },
+    {
+      "answer": "TAWIE",
+      "clue": "Anagram: WTAIE"
+    },
+    {
+      "answer": "TAWPI",
+      "clue": "Reorder these letters: TPAIW"
+    },
+    {
+      "answer": "TAWSE",
+      "clue": "Scrambled letters: AESTW"
+    },
+    {
+      "answer": "TEATY",
+      "clue": "Scrambled letters: EATYT"
+    },
+    {
+      "answer": "TECUM",
+      "clue": "Scrambled letters: UTECM"
+    },
+    {
+      "answer": "TEEMS",
+      "clue": "Scrambled letters: ESMTE"
+    },
+    {
+      "answer": "TEEST",
+      "clue": "Reorder these letters: ESTET"
+    },
+    {
+      "answer": "TENAI",
+      "clue": "Anagram: AENIT"
+    },
+    {
+      "answer": "TENNE",
+      "clue": "Anagram: TENEN"
+    },
+    {
+      "answer": "TENON",
+      "clue": "Scrambled letters: TNENO"
+    },
+    {
+      "answer": "TEPAL",
+      "clue": "Reorder these letters: ALPET"
+    },
+    {
+      "answer": "THARF",
+      "clue": "Scrambled letters: FRTHA"
+    },
+    {
+      "answer": "THAWY",
+      "clue": "Scrambled letters: TAHYW"
+    },
+    {
+      "answer": "THERM",
+      "clue": "Anagram: RTHEM"
+    },
+    {
+      "answer": "THICK",
+      "clue": "Reorder these letters: IKCTH"
+    },
+    {
+      "answer": "THOKE",
+      "clue": "Scrambled letters: KEOTH"
+    },
+    {
+      "answer": "THONG",
+      "clue": "Anagram: OTGHN"
+    },
+    {
+      "answer": "THORP",
+      "clue": "Scrambled letters: RHTPO"
+    },
+    {
+      "answer": "THORT",
+      "clue": "Reorder these letters: TOTHR"
+    },
+    {
+      "answer": "THOSE",
+      "clue": "Anagram: THESO"
+    },
+    {
+      "answer": "THROW",
+      "clue": "Reorder these letters: HWRTO"
+    },
+    {
+      "answer": "TIBBU",
+      "clue": "Reorder these letters: BTIUB"
+    },
+    {
+      "answer": "TIBBY",
+      "clue": "Anagram: BTIYB"
+    },
+    {
+      "answer": "TICUL",
+      "clue": "Scrambled letters: LCTUI"
+    },
+    {
+      "answer": "TIGER",
+      "clue": "Scrambled letters: GETRI"
+    },
+    {
+      "answer": "TILTH",
+      "clue": "Reorder these letters: LTIHT"
+    },
+    {
+      "answer": "TIPSY",
+      "clue": "Scrambled letters: SYPTI"
+    },
+    {
+      "answer": "TIRER",
+      "clue": "Anagram: TRIRE"
+    },
+    {
+      "answer": "TOADY",
+      "clue": "Scrambled letters: ADOYT"
+    },
+    {
+      "answer": "TOAST",
+      "clue": "Reorder these letters: OSTTA"
+    },
+    {
+      "answer": "TOITY",
+      "clue": "Scrambled letters: YTIOT"
+    },
+    {
+      "answer": "TOKAY",
+      "clue": "Reorder these letters: OTKYA"
+    },
+    {
+      "answer": "TOMMY",
+      "clue": "Scrambled letters: OTYMM"
+    },
+    {
+      "answer": "TOOTH",
+      "clue": "Reorder these letters: TOHOT"
+    },
+    {
+      "answer": "TORCH",
+      "clue": "Anagram: TORHC"
+    },
+    {
+      "answer": "TORSK",
+      "clue": "Scrambled letters: TKSOR"
+    },
+    {
+      "answer": "TORSO",
+      "clue": "Reorder these letters: TROOS"
+    },
+    {
+      "answer": "TOSSY",
+      "clue": "Scrambled letters: YSSOT"
+    },
+    {
+      "answer": "TOWAN",
+      "clue": "Anagram: TOWNA"
+    },
+    {
+      "answer": "TOWNY",
+      "clue": "Anagram: TONYW"
+    },
+    {
+      "answer": "TRADE",
+      "clue": "Reorder these letters: EDTAR"
+    },
+    {
+      "answer": "TRANT",
+      "clue": "Anagram: NATRT"
+    },
+    {
+      "answer": "TRAPS",
+      "clue": "Scrambled letters: PARST"
+    },
+    {
+      "answer": "TRASS",
+      "clue": "Scrambled letters: RSTSA"
+    },
+    {
+      "answer": "TRIAD",
+      "clue": "Anagram: IDTAR"
+    },
+    {
+      "answer": "TRIBE",
+      "clue": "Reorder these letters: ETIBR"
+    },
+    {
+      "answer": "TRICA",
+      "clue": "Reorder these letters: ACTIR"
+    },
+    {
+      "answer": "TRIED",
+      "clue": "Scrambled letters: RTIDE"
+    },
+    {
+      "answer": "TRILL",
+      "clue": "Scrambled letters: LITLR"
+    },
+    {
+      "answer": "TROAD",
+      "clue": "Anagram: RAODT"
+    },
+    {
+      "answer": "TROIC",
+      "clue": "Scrambled letters: OTRIC"
+    },
+    {
+      "answer": "TRUBU",
+      "clue": "Anagram: TRBUU"
+    },
+    {
+      "answer": "TRUCE",
+      "clue": "Anagram: TRUEC"
+    },
+    {
+      "answer": "TRUDY",
+      "clue": "Anagram: URDTY"
+    },
+    {
+      "answer": "TRULY",
+      "clue": "Reorder these letters: UYTLR"
+    },
+    {
+      "answer": "TUBAE",
+      "clue": "Anagram: TAEUB"
+    },
+    {
+      "answer": "TUBER",
+      "clue": "Reorder these letters: RTBEU"
+    },
+    {
+      "answer": "TUBIG",
+      "clue": "Scrambled letters: UTIGB"
+    },
+    {
+      "answer": "TUKRA",
+      "clue": "Scrambled letters: KTAUR"
+    },
+    {
+      "answer": "TULSI",
+      "clue": "Reorder these letters: UITLS"
+    },
+    {
+      "answer": "TUNCA",
+      "clue": "Scrambled letters: CUNAT"
+    },
+    {
+      "answer": "TUNIC",
+      "clue": "Anagram: UCINT"
+    },
+    {
+      "answer": "TURMA",
+      "clue": "Anagram: AUMRT"
+    },
+    {
+      "answer": "TURUS",
+      "clue": "Reorder these letters: URTSU"
+    },
+    {
+      "answer": "TWANA",
+      "clue": "Scrambled letters: AANTW"
+    },
+    {
+      "answer": "TWEAK",
+      "clue": "Reorder these letters: WTAEK"
+    },
+    {
+      "answer": "TWEET",
+      "clue": "Anagram: TTWEE"
+    },
+    {
+      "answer": "TWEIL",
+      "clue": "Reorder these letters: ETWLI"
+    },
+    {
+      "answer": "TWERE",
+      "clue": "Scrambled letters: ETERW"
+    },
+    {
+      "answer": "TWIST",
+      "clue": "Anagram: TWITS"
+    },
+    {
+      "answer": "TYING",
+      "clue": "Reorder these letters: NTYIG"
+    },
+    {
+      "answer": "UHLLO",
+      "clue": "Scrambled letters: UHOLL"
+    },
+    {
+      "answer": "UKASE",
+      "clue": "Reorder these letters: SUEKA"
+    },
+    {
+      "answer": "ULMIC",
+      "clue": "Anagram: IMCUL"
+    },
+    {
+      "answer": "UMBRA",
+      "clue": "Anagram: BARUM"
+    },
+    {
+      "answer": "UNADD",
+      "clue": "Scrambled letters: DAUND"
+    },
+    {
+      "answer": "UNBAG",
+      "clue": "Reorder these letters: GNABU"
+    },
+    {
+      "answer": "UNBIT",
+      "clue": "Reorder these letters: TBUIN"
+    },
+    {
+      "answer": "UNBOY",
+      "clue": "Scrambled letters: UOBNY"
+    },
+    {
+      "answer": "UNCUT",
+      "clue": "Anagram: CNTUU"
+    },
+    {
+      "answer": "UNDUG",
+      "clue": "Anagram: UNUGD"
+    },
+    {
+      "answer": "UNFED",
+      "clue": "Scrambled letters: FDUEN"
+    },
+    {
+      "answer": "UNGUM",
+      "clue": "Anagram: NMUGU"
+    },
+    {
+      "answer": "UNHAT",
+      "clue": "Anagram: HUNTA"
+    },
+    {
+      "answer": "UNIAT",
+      "clue": "Scrambled letters: UNATI"
+    },
+    {
+      "answer": "UNIFY",
+      "clue": "Reorder these letters: UNIYF"
+    },
+    {
+      "answer": "UNION",
+      "clue": "Anagram: ONNIU"
+    },
+    {
+      "answer": "UNKEN",
+      "clue": "Scrambled letters: KUNNE"
+    },
+    {
+      "answer": "UNKET",
+      "clue": "Scrambled letters: UKNTE"
+    },
+    {
+      "answer": "UNLAW",
+      "clue": "Scrambled letters: LUNAW"
+    },
+    {
+      "answer": "UNLET",
+      "clue": "Reorder these letters: TLNUE"
+    },
+    {
+      "answer": "UNLIE",
+      "clue": "Anagram: LIUNE"
+    },
+    {
+      "answer": "UNMAD",
+      "clue": "Scrambled letters: ANDMU"
+    },
+    {
+      "answer": "UNORN",
+      "clue": "Anagram: NNRUO"
+    },
+    {
+      "answer": "UNOWN",
+      "clue": "Reorder these letters: UONNW"
+    },
+    {
+      "answer": "UNSON",
+      "clue": "Scrambled letters: NNOUS"
+    },
+    {
+      "answer": "UNTAR",
+      "clue": "Scrambled letters: TRNAU"
+    },
+    {
+      "answer": "UPBID",
+      "clue": "Anagram: DUBPI"
+    },
+    {
+      "answer": "UPGET",
+      "clue": "Reorder these letters: GEPTU"
+    },
+    {
+      "answer": "UPLAY",
+      "clue": "Reorder these letters: ALPYU"
+    },
+    {
+      "answer": "UPSEY",
+      "clue": "Scrambled letters: USYPE"
+    },
+    {
+      "answer": "UPTIE",
+      "clue": "Scrambled letters: ETIPU"
+    },
+    {
+      "answer": "URBIC",
+      "clue": "Scrambled letters: CURBI"
+    },
+    {
+      "answer": "URLAR",
+      "clue": "Anagram: ALURR"
+    },
+    {
+      "answer": "URMAN",
+      "clue": "Anagram: URANM"
+    },
+    {
+      "answer": "URNAL",
+      "clue": "Reorder these letters: ULANR"
+    },
+    {
+      "answer": "URSON",
+      "clue": "Reorder these letters: UROSN"
+    },
+    {
+      "answer": "USENT",
+      "clue": "Anagram: STUNE"
+    },
+    {
+      "answer": "USTER",
+      "clue": "Scrambled letters: SERUT"
+    },
+    {
+      "answer": "USURY",
+      "clue": "Scrambled letters: RUYUS"
+    },
+    {
+      "answer": "UTEES",
+      "clue": "Anagram: SEUET"
+    },
+    {
+      "answer": "UTTER",
+      "clue": "Reorder these letters: TTERU"
+    },
+    {
+      "answer": "VADIM",
+      "clue": "Anagram: VDIMA"
+    },
+    {
+      "answer": "VAKIA",
+      "clue": "Scrambled letters: AAKIV"
+    },
+    {
+      "answer": "VALSE",
+      "clue": "Scrambled letters: ALVSE"
+    },
+    {
+      "answer": "VALUE",
+      "clue": "Anagram: LUVEA"
+    },
+    {
+      "answer": "VAPOR",
+      "clue": "Reorder these letters: VRAPO"
+    },
+    {
+      "answer": "VARDA",
+      "clue": "Anagram: DRVAA"
+    },
+    {
+      "answer": "VATIC",
+      "clue": "Anagram: ITCVA"
+    },
+    {
+      "answer": "VEDIC",
+      "clue": "Anagram: ECIDV"
+    },
+    {
+      "answer": "VEERY",
+      "clue": "Reorder these letters: VEREY"
+    },
+    {
+      "answer": "VELIC",
+      "clue": "Reorder these letters: EILCV"
+    },
+    {
+      "answer": "VENIE",
+      "clue": "Anagram: INEVE"
+    },
+    {
+      "answer": "VENIN",
+      "clue": "Anagram: VEINN"
+    },
+    {
+      "answer": "VENUS",
+      "clue": "Reorder these letters: SNVEU"
+    },
+    {
+      "answer": "VIAND",
+      "clue": "Scrambled letters: INADV"
+    },
+    {
+      "answer": "VICIA",
+      "clue": "Scrambled letters: IAIVC"
+    },
+    {
+      "answer": "VINAL",
+      "clue": "Anagram: NAVIL"
+    },
+    {
+      "answer": "VIRTU",
+      "clue": "Reorder these letters: RUITV"
+    },
+    {
+      "answer": "VISIE",
+      "clue": "Anagram: IISVE"
+    },
+    {
+      "answer": "VITAL",
+      "clue": "Anagram: LTVIA"
+    },
+    {
+      "answer": "VITTA",
+      "clue": "Reorder these letters: AITTV"
+    },
+    {
+      "answer": "VIVEK",
+      "clue": "Reorder these letters: EKVIV"
+    },
+    {
+      "answer": "VIVES",
+      "clue": "Scrambled letters: VEVIS"
+    },
+    {
+      "answer": "VOULI",
+      "clue": "Anagram: OLUIV"
+    },
+    {
+      "answer": "VULVA",
+      "clue": "Reorder these letters: VULAV"
+    },
+    {
+      "answer": "VYING",
+      "clue": "Scrambled letters: IGNYV"
+    },
+    {
+      "answer": "WACKE",
+      "clue": "Anagram: WCKEA"
+    },
+    {
+      "answer": "WAIST",
+      "clue": "Reorder these letters: TSAWI"
+    },
+    {
+      "answer": "WAIVE",
+      "clue": "Reorder these letters: EAWVI"
+    },
+    {
+      "answer": "WAKES",
+      "clue": "Scrambled letters: SAEKW"
+    },
+    {
+      "answer": "WAKON",
+      "clue": "Anagram: OWAKN"
+    },
+    {
+      "answer": "WALLY",
+      "clue": "Anagram: YLLAW"
+    },
+    {
+      "answer": "WALTH",
+      "clue": "Anagram: THWAL"
+    },
+    {
+      "answer": "WAMEL",
+      "clue": "Reorder these letters: LMEAW"
+    },
+    {
+      "answer": "WARCH",
+      "clue": "Scrambled letters: WACHR"
+    },
+    {
+      "answer": "WAVER",
+      "clue": "Reorder these letters: WRAVE"
+    },
+    {
+      "answer": "WELSH",
+      "clue": "Anagram: HESLW"
+    },
+    {
+      "answer": "WENDI",
+      "clue": "Anagram: WEIDN"
+    },
+    {
+      "answer": "WHASE",
+      "clue": "Scrambled letters: SAWHE"
+    },
+    {
+      "answer": "WHEAM",
+      "clue": "Scrambled letters: HWEMA"
+    },
+    {
+      "answer": "WHEIN",
+      "clue": "Scrambled letters: EINWH"
+    },
+    {
+      "answer": "WHEKI",
+      "clue": "Scrambled letters: KEWHI"
+    },
+    {
+      "answer": "WHEWT",
+      "clue": "Anagram: WHTWE"
+    },
+    {
+      "answer": "WHICH",
+      "clue": "Reorder these letters: WHCIH"
+    },
+    {
+      "answer": "WHIFT",
+      "clue": "Reorder these letters: ITFHW"
+    },
+    {
+      "answer": "WHISK",
+      "clue": "Anagram: IKWHS"
+    },
+    {
+      "answer": "WHITS",
+      "clue": "Anagram: ISTWH"
+    },
+    {
+      "answer": "WINNA",
+      "clue": "Anagram: ANNIW"
+    },
+    {
+      "answer": "WOADY",
+      "clue": "Scrambled letters: AYWOD"
+    },
+    {
+      "answer": "WODGE",
+      "clue": "Reorder these letters: WOGDE"
+    },
+    {
+      "answer": "WODGY",
+      "clue": "Scrambled letters: GDOYW"
+    },
+    {
+      "answer": "WONNA",
+      "clue": "Anagram: WONAN"
+    },
+    {
+      "answer": "WOOFY",
+      "clue": "Reorder these letters: WOFYO"
+    },
+    {
+      "answer": "WORKY",
+      "clue": "Scrambled letters: WYRKO"
+    },
+    {
+      "answer": "WORLD",
+      "clue": "Reorder these letters: RLDOW"
+    },
+    {
+      "answer": "WORTH",
+      "clue": "Reorder these letters: OTWRH"
+    },
+    {
+      "answer": "WRACK",
+      "clue": "Scrambled letters: KAWRC"
+    },
+    {
+      "answer": "WRIDE",
+      "clue": "Scrambled letters: DWERI"
+    },
+    {
+      "answer": "WRUNG",
+      "clue": "Scrambled letters: WGRUN"
+    },
+    {
+      "answer": "WRYLY",
+      "clue": "Anagram: YYLWR"
+    },
+    {
+      "answer": "YACHT",
+      "clue": "Reorder these letters: THAYC"
+    },
+    {
+      "answer": "YAKUT",
+      "clue": "Reorder these letters: YAUKT"
+    },
+    {
+      "answer": "YAMEL",
+      "clue": "Scrambled letters: MEYAL"
+    },
+    {
+      "answer": "YARAK",
+      "clue": "Scrambled letters: AYARK"
+    },
+    {
+      "answer": "YOUNG",
+      "clue": "Anagram: GUNYO"
+    },
+    {
+      "answer": "YUROK",
+      "clue": "Reorder these letters: UKOYR"
+    }
+  ]
+}
