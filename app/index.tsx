@@ -82,7 +82,7 @@ export default function HomeScreen() {
         isNew: true,
       },
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
-      { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges', isNew: true },
+      { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges' },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
       { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
       { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', isNew: true },
@@ -408,14 +408,9 @@ export default function HomeScreen() {
 
           {/* Bridges card */}
           <View style={styles.gameSection}>
-            <View style={styles.gameLabelRow}>
-              <View style={styles.gameLabel}>
-                <Text style={styles.bridgesKicker}>Logic Puzzle</Text>
-                <Text style={styles.gameTitle}>Bridges</Text>
-              </View>
-              <View style={styles.newBadge}>
-                <Text style={styles.newBadgeText}>Beta</Text>
-              </View>
+            <View style={styles.gameLabel}>
+              <Text style={styles.bridgesKicker}>Logic Puzzle</Text>
+              <Text style={styles.gameTitle}>Bridges</Text>
             </View>
             <Text style={styles.blurb}>
               Match each island&apos;s number with bridges. Connect all islands with no crossings.
