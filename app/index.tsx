@@ -225,7 +225,7 @@ export default function HomeScreen() {
                   )}
                   {item.isNew && (
                     <View style={styles.quickLinkNewBadge}>
-                      <Text style={styles.quickLinkNewText}>New</Text>
+                      <Text style={styles.quickLinkNewText}>Beta</Text>
                     </View>
                   )}
                   {(playCounts[item.countKey] ?? 0) > 0 && (
@@ -314,7 +314,7 @@ export default function HomeScreen() {
                 <Text style={styles.gameTitle}>Mini Crossword</Text>
               </View>
               <View style={styles.newBadge}>
-                <Text style={styles.newBadgeText}>New</Text>
+                <Text style={styles.newBadgeText}>Beta</Text>
               </View>
             </View>
             <Text style={styles.blurb}>
@@ -414,7 +414,7 @@ export default function HomeScreen() {
                 <Text style={styles.gameTitle}>Bridges</Text>
               </View>
               <View style={styles.newBadge}>
-                <Text style={styles.newBadgeText}>New</Text>
+                <Text style={styles.newBadgeText}>Beta</Text>
               </View>
             </View>
             <Text style={styles.blurb}>
@@ -499,7 +499,7 @@ export default function HomeScreen() {
                 <Text style={styles.gameTitle}>Barter</Text>
               </View>
               <View style={styles.newBadge}>
-                <Text style={styles.newBadgeText}>New</Text>
+                <Text style={styles.newBadgeText}>Beta</Text>
               </View>
             </View>
             <Text style={styles.blurb}>
