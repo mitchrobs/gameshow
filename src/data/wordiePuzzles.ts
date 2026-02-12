@@ -372,7 +372,22 @@ function getLocalDayIndex(date: Date): number {
   return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS);
 }
 
+function getLocalDateKey(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+const DAILY_INDEX_OVERRIDES: Record<string, number> = {
+  // One-off replacement for Thursday, February 12, 2026.
+  '2026-02-12': WORDS.indexOf('ROAST'),
+};
+
 export function getDailyWordieIndex(date: Date = new Date()): number {
+  const overrideIndex = DAILY_INDEX_OVERRIDES[getLocalDateKey(date)];
+  if (Number.isInteger(overrideIndex) && overrideIndex >= 0 && overrideIndex < WORDS.length) {
+    return overrideIndex;
+  }
   const dayIndex = getLocalDayIndex(date);
   return DAILY_ORDER[dayIndex % DAILY_ORDER.length];
 }
