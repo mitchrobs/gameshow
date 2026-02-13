@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
+  Animated,
+  Easing,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
-  Platform,
+  StyleSheet,
+  Text,
   TextInput,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
@@ -23,7 +27,8 @@ import {
 } from '../src/data/miniCrosswordPuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
-type GameState = 'playing' | 'won';
+type GameState = 'playing' | 'won-main';
+type BonusPhase = 'hidden' | 'animating' | 'ready';
 
 interface ActiveCell {
   row: number;
@@ -32,6 +37,7 @@ interface ActiveCell {
 
 const STORAGE_PREFIX = 'crossword';
 const MAX_HINTS = 1;
+const KEYBOARD_OFFSET = 86;
 const WEB_NO_SELECT =
   Platform.OS === 'web'
     ? {
@@ -75,7 +81,6 @@ export default function MiniCrosswordScreen() {
   const theme = useDaybreakTheme();
   const screenAccent = useMemo(() => resolveScreenAccent('mini-crossword', theme), [theme]);
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
-  const Colors = theme.colors;
   const router = useRouter();
 
   const [dateKey, setDateKey] = useState(() => getLocalDateKey());
@@ -90,7 +95,9 @@ export default function MiniCrosswordScreen() {
       }),
     [activeDate]
   );
+
   const dailyKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
+  const bonusKey = `${STORAGE_PREFIX}:bonus:${dateKey}`;
 
   const [entries, setEntries] = useState<Record<string, string>>({});
   const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
@@ -101,8 +108,16 @@ export default function MiniCrosswordScreen() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [checkedWrongKeys, setCheckedWrongKeys] = useState<string[]>([]);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [bonusEntry, setBonusEntry] = useState('');
+  const [bonusSolved, setBonusSolved] = useState(false);
+  const [bonusStatus, setBonusStatus] = useState<string | null>(null);
+  const [bonusPhase, setBonusPhase] = useState<BonusPhase>('hidden');
+
   const hasCountedRef = useRef(false);
+  const bonusAnimationStartedRef = useRef(false);
   const inputRefs = useRef<Record<string, TextInput | null>>({});
+  const bonusAnim = useRef(new Animated.Value(0)).current;
 
   const cellMap = useMemo(() => {
     const map = new Map<string, { row: number; col: number; isBlock: boolean; solution: string; number?: number }>();
@@ -170,6 +185,20 @@ export default function MiniCrosswordScreen() {
   );
 
   const fillProgress = `${solvedCount}/${playableCellCount}`;
+  const isIPhoneTyping = Platform.OS === 'ios' && isKeyboardVisible;
+
+  const bonusTranslateY = useMemo(
+    () => bonusAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }),
+    [bonusAnim]
+  );
+  const bonusOpacity = useMemo(
+    () => bonusAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 1] }),
+    [bonusAnim]
+  );
+  const bonusScale = useMemo(
+    () => bonusAnim.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }),
+    [bonusAnim]
+  );
 
   useEffect(() => {
     const checkDateRollover = () => {
@@ -182,17 +211,25 @@ export default function MiniCrosswordScreen() {
   }, []);
 
   useEffect(() => {
+    const firstClue = puzzle.across[0] ?? puzzle.down[0] ?? null;
     setEntries({});
-    setActiveCell(null);
-    setDirection('across');
+    setActiveCell(firstClue ? { row: firstClue.row, col: firstClue.col } : null);
+    setDirection(firstClue?.direction ?? 'across');
     setGameState('playing');
     setElapsedSeconds(0);
     setHintsUsed(0);
     setStatusMessage(null);
     setShareStatus(null);
     setCheckedWrongKeys([]);
+    setKeyboardVisible(false);
+    setBonusEntry('');
+    setBonusStatus(null);
+    setBonusPhase('hidden');
+    bonusAnim.setValue(0);
+    bonusAnimationStartedRef.current = false;
+    setBonusSolved(getStorage()?.getItem(bonusKey) === '1');
     hasCountedRef.current = false;
-  }, [dateKey, puzzle.id]);
+  }, [bonusAnim, bonusKey, dateKey, puzzle.id, puzzle.across, puzzle.down]);
 
   useEffect(() => {
     const storage = getStorage();
@@ -211,18 +248,68 @@ export default function MiniCrosswordScreen() {
   }, [gameState]);
 
   useEffect(() => {
-    if (gameState !== 'playing') return;
-    if (solvedCount !== playableCellCount || playableCellCount === 0) return;
-    setGameState('won');
-    setStatusMessage('Puzzle solved!');
-    getStorage()?.setItem(dailyKey, '1');
-  }, [gameState, solvedCount, playableCellCount, dailyKey]);
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardVisible(false));
+    const didShowSub =
+      Platform.OS === 'ios'
+        ? Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
+        : null;
+    const didHideSub =
+      Platform.OS === 'ios'
+        ? Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
+        : null;
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+      didShowSub?.remove();
+      didHideSub?.remove();
+    };
+  }, []);
 
   useEffect(() => {
-    if (gameState !== 'won' || hasCountedRef.current) return;
+    if (gameState !== 'playing') return;
+    if (solvedCount !== playableCellCount || playableCellCount === 0) return;
+
+    setGameState('won-main');
+    setStatusMessage('Puzzle solved!');
+    getStorage()?.setItem(dailyKey, '1');
+  }, [dailyKey, gameState, playableCellCount, solvedCount]);
+
+  useEffect(() => {
+    if (gameState !== 'won-main' || hasCountedRef.current) return;
     hasCountedRef.current = true;
     incrementGlobalPlayCount('crossword');
   }, [gameState]);
+
+  useEffect(() => {
+    if (gameState !== 'won-main') return;
+
+    if (bonusSolved) {
+      setBonusPhase('ready');
+      bonusAnim.setValue(1);
+      return;
+    }
+
+    if (bonusAnimationStartedRef.current) return;
+    bonusAnimationStartedRef.current = true;
+    setBonusPhase('animating');
+    bonusAnim.setValue(0);
+
+    Animated.sequence([
+      Animated.timing(bonusAnim, {
+        toValue: 1,
+        duration: 1200,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.delay(180),
+    ]).start(() => {
+      setBonusPhase('ready');
+    });
+  }, [bonusAnim, bonusSolved, gameState]);
 
   const focusCell = useCallback((row: number, col: number) => {
     const key = cellKey(row, col);
@@ -359,7 +446,8 @@ export default function MiniCrosswordScreen() {
     }
 
     const preferred = unsolvedKeys.filter((key) => activeClueCellSet.has(key));
-    const targetKey = (preferred[0] ?? unsolvedKeys[0]) as string;
+    const pool = preferred.length > 0 ? preferred : unsolvedKeys;
+    const targetKey = pool[Math.floor(Math.random() * pool.length)] as string;
     const cell = cellMap.get(targetKey);
     if (!cell || cell.isBlock) return;
 
@@ -380,13 +468,34 @@ export default function MiniCrosswordScreen() {
     [focusCell]
   );
 
+  const handleBonusCheck = useCallback(() => {
+    if (gameState !== 'won-main') return;
+    if (bonusPhase !== 'ready' || bonusSolved) return;
+
+    const guess = bonusEntry.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 7);
+    if (guess.length < 7) {
+      setBonusStatus('Enter all 7 letters before checking.');
+      return;
+    }
+
+    if (guess === puzzle.bonus.answer) {
+      setBonusSolved(true);
+      setBonusStatus('Bonus solved. Nice pull.');
+      getStorage()?.setItem(bonusKey, '1');
+      return;
+    }
+
+    setBonusStatus('Not this one yet. Try another arrangement.');
+  }, [bonusEntry, bonusKey, bonusPhase, bonusSolved, gameState, puzzle.bonus.answer]);
+
   const shareText = useMemo(() => {
     return [
       `Mini Crossword ${dateLabel}`,
       `Solved in ${formatTime(elapsedSeconds)} · Hints ${hintsUsed}/${MAX_HINTS}`,
-      'https://mitchrobs.github.io/gameshow/',
+      `Bonus: ${bonusSolved ? '✅' : '⬜'}`,
+      'https://mitchrobs.github.io/gameshow/#/mini-crossword',
     ].join('\n');
-  }, [dateLabel, elapsedSeconds, hintsUsed]);
+  }, [bonusSolved, dateLabel, elapsedSeconds, hintsUsed]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -413,158 +522,230 @@ export default function MiniCrosswordScreen() {
     <>
       <Stack.Screen options={{ title: 'Mini Crossword', headerBackTitle: 'Home' }} />
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <View style={styles.page}>
-            <View style={styles.pageAccent} />
-            <View style={styles.header}>
-              <Text style={styles.title}>Mini Crossword</Text>
-              <Text style={styles.subtitle}>Fill the 5x5 daily crossword.</Text>
-              <Text style={styles.metaText}>{dateLabel}</Text>
-              <Text style={styles.metaText}>Progress {fillProgress}</Text>
-            </View>
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoider}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={KEYBOARD_OFFSET}
+        >
+          <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+            <View style={styles.page}>
+              <View style={styles.pageAccent} />
+              <View style={styles.header}>
+                <Text style={styles.title}>Mini Crossword</Text>
+                <Text style={styles.subtitle}>Fill the 5x5 daily crossword.</Text>
+                <Text style={styles.metaText}>{dateLabel}</Text>
+                <Text style={styles.metaText}>Progress {fillProgress}</Text>
+              </View>
 
-            <View style={styles.boardCard}>
-              <View style={styles.grid}>
-                {Array.from({ length: puzzle.size }).map((_, row) => (
-                  <View key={`row-${row}`} style={styles.gridRow}>
-                    {Array.from({ length: puzzle.size }).map((__, col) => {
-                      const key = cellKey(row, col);
-                      const cell = cellMap.get(key);
-                      if (!cell || cell.isBlock) {
-                        return <View key={key} style={styles.blockCell} />;
-                      }
-                      const isActive = activeCell?.row === row && activeCell?.col === col;
-                      const isInActiveClue = activeClueCellSet.has(key);
-                      const isWrong = wrongKeySet.has(key);
-                      return (
-                        <Pressable
-                          key={key}
-                          style={({ pressed }) => [
-                            styles.letterCell,
-                            isInActiveClue && styles.letterCellClue,
-                            isActive && styles.letterCellActive,
-                            isWrong && styles.letterCellWrong,
-                            pressed && styles.letterCellPressed,
-                          ]}
-                          onPress={() => selectCell(row, col)}
-                        >
-                          {cell.number ? <Text style={styles.cellNumber}>{cell.number}</Text> : null}
-                          <TextInput
-                            ref={(node) => {
-                              inputRefs.current[key] = node;
-                            }}
-                            style={styles.cellInput}
-                            value={entries[key] ?? ''}
-                            onFocus={() => {
-                              setActiveCell({ row, col });
-                            }}
-                            onChangeText={(value) => handleCellText(row, col, value)}
-                            onKeyPress={(event) => handleKeyPress(row, col, event.nativeEvent.key)}
-                            maxLength={1}
-                            autoCapitalize="characters"
-                            autoCorrect={false}
-                            selectionColor={screenAccent.main}
-                          />
-                        </Pressable>
-                      );
-                    })}
+              <View style={styles.boardCard}>
+                <View style={styles.activeClueStrip}>
+                  <View style={styles.activeClueTopRow}>
+                    <Text style={styles.activeClueLabel}>
+                      {activeClue ? `${activeClue.direction === 'across' ? 'Across' : 'Down'} ${activeClue.number}` : 'Across'}
+                    </Text>
+                    <View style={styles.themePill}>
+                      <Text style={styles.themePillText}>{puzzle.theme.label}</Text>
+                    </View>
                   </View>
-                ))}
-              </View>
-
-              <View style={styles.controlsRow}>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.actionButton,
-                    pressed && styles.actionButtonPressed,
-                  ]}
-                  onPress={handleCheck}
-                >
-                  <Text style={styles.actionButtonText}>Check</Text>
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.actionButton,
-                    hintsUsed >= MAX_HINTS && styles.actionButtonDisabled,
-                    pressed && hintsUsed < MAX_HINTS && styles.actionButtonPressed,
-                  ]}
-                  onPress={handleHint}
-                  disabled={hintsUsed >= MAX_HINTS}
-                >
-                  <Text style={styles.actionButtonText}>Hint ({MAX_HINTS - hintsUsed})</Text>
-                </Pressable>
-              </View>
-
-              <Text style={styles.statusText}>{statusMessage ?? 'Tap a clue or cell to start.'}</Text>
-            </View>
-
-            <View style={styles.cluesCard}>
-              <Text style={styles.cluesTitle}>Across</Text>
-              {puzzle.across.map((clue) => (
-                <Pressable
-                  key={clue.id}
-                  style={({ pressed }) => [
-                    styles.clueRow,
-                    activeClue?.id === clue.id && styles.clueRowActive,
-                    pressed && styles.clueRowPressed,
-                  ]}
-                  onPress={() => handleSelectClue(clue)}
-                >
-                  <Text style={styles.clueNumber}>{clue.number}.</Text>
-                  <Text style={styles.clueText}>
-                    {clue.clue} ({clue.answer.length})
-                  </Text>
-                </Pressable>
-              ))}
-
-              <Text style={styles.cluesTitle}>Down</Text>
-              {puzzle.down.map((clue) => (
-                <Pressable
-                  key={clue.id}
-                  style={({ pressed }) => [
-                    styles.clueRow,
-                    activeClue?.id === clue.id && styles.clueRowActive,
-                    pressed && styles.clueRowPressed,
-                  ]}
-                  onPress={() => handleSelectClue(clue)}
-                >
-                  <Text style={styles.clueNumber}>{clue.number}.</Text>
-                  <Text style={styles.clueText}>
-                    {clue.clue} ({clue.answer.length})
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {gameState === 'won' && (
-              <View style={styles.shareCard}>
-                <Text style={styles.shareTitle}>Share your result</Text>
-                <View style={styles.shareBox}>
-                  <Text selectable style={styles.shareText}>
-                    {shareText}
+                  <Text style={styles.activeClueText}>
+                    {activeClue
+                      ? `${activeClue.clue} (${activeClue.answer.length})`
+                      : 'Tap a clue or cell to start.'}
                   </Text>
                 </View>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.shareButton,
-                    pressed && styles.shareButtonPressed,
-                  ]}
-                  onPress={handleCopyResults}
-                >
-                  <Text style={styles.shareButtonText}>Copy results</Text>
-                </Pressable>
-                {shareStatus ? <Text style={styles.shareStatus}>{shareStatus}</Text> : null}
-              </View>
-            )}
 
-            <Pressable
-              style={({ pressed }) => [styles.homeButton, pressed && styles.homeButtonPressed]}
-              onPress={() => router.back()}
-            >
-              <Text style={styles.homeButtonText}>Back to games</Text>
-            </Pressable>
-          </View>
-        </ScrollView>
+                <View style={styles.grid}>
+                  {Array.from({ length: puzzle.size }).map((_, row) => (
+                    <View key={`row-${row}`} style={styles.gridRow}>
+                      {Array.from({ length: puzzle.size }).map((__, col) => {
+                        const key = cellKey(row, col);
+                        const cell = cellMap.get(key);
+                        if (!cell || cell.isBlock) {
+                          return <View key={key} style={styles.blockCell} />;
+                        }
+                        const isActive = activeCell?.row === row && activeCell?.col === col;
+                        const isInActiveClue = activeClueCellSet.has(key);
+                        const isWrong = wrongKeySet.has(key);
+                        return (
+                          <Pressable
+                            key={key}
+                            style={({ pressed }) => [
+                              styles.letterCell,
+                              isInActiveClue && styles.letterCellClue,
+                              isActive && styles.letterCellActive,
+                              isWrong && styles.letterCellWrong,
+                              pressed && styles.letterCellPressed,
+                            ]}
+                            onPress={() => selectCell(row, col)}
+                          >
+                            {cell.number ? <Text style={styles.cellNumber}>{cell.number}</Text> : null}
+                            <TextInput
+                              ref={(node) => {
+                                inputRefs.current[key] = node;
+                              }}
+                              style={styles.cellInput}
+                              value={entries[key] ?? ''}
+                              onFocus={() => {
+                                setActiveCell({ row, col });
+                              }}
+                              onChangeText={(value) => handleCellText(row, col, value)}
+                              onKeyPress={(event) => handleKeyPress(row, col, event.nativeEvent.key)}
+                              maxLength={1}
+                              autoCapitalize="characters"
+                              autoCorrect={false}
+                              editable={gameState === 'playing'}
+                              selectionColor={screenAccent.main}
+                            />
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  ))}
+                </View>
+
+                <View style={styles.controlsRow}>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.actionButton,
+                      pressed && styles.actionButtonPressed,
+                    ]}
+                    onPress={handleCheck}
+                  >
+                    <Text style={styles.actionButtonText}>Check</Text>
+                  </Pressable>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.actionButton,
+                      hintsUsed >= MAX_HINTS && styles.actionButtonDisabled,
+                      pressed && hintsUsed < MAX_HINTS && styles.actionButtonPressed,
+                    ]}
+                    onPress={handleHint}
+                    disabled={hintsUsed >= MAX_HINTS}
+                  >
+                    <Text style={styles.actionButtonText}>Hint ({MAX_HINTS - hintsUsed})</Text>
+                  </Pressable>
+                </View>
+
+                <Text style={styles.statusText}>{statusMessage ?? 'Tap a clue or cell to start.'}</Text>
+              </View>
+
+              {isIPhoneTyping ? (
+                <View style={styles.cluesCollapsedCard}>
+                  <Text style={styles.cluesCollapsedText}>Clue list hidden while typing.</Text>
+                </View>
+              ) : (
+                <View style={styles.cluesCard}>
+                  <Text style={styles.cluesTitle}>Across</Text>
+                  {puzzle.across.map((clue) => (
+                    <Pressable
+                      key={clue.id}
+                      style={({ pressed }) => [
+                        styles.clueRow,
+                        activeClue?.id === clue.id && styles.clueRowActive,
+                        pressed && styles.clueRowPressed,
+                      ]}
+                      onPress={() => handleSelectClue(clue)}
+                    >
+                      <Text style={styles.clueNumber}>{clue.number}.</Text>
+                      <Text style={styles.clueText}>
+                        {clue.clue} ({clue.answer.length})
+                      </Text>
+                    </Pressable>
+                  ))}
+
+                  <Text style={styles.cluesTitle}>Down</Text>
+                  {puzzle.down.map((clue) => (
+                    <Pressable
+                      key={clue.id}
+                      style={({ pressed }) => [
+                        styles.clueRow,
+                        activeClue?.id === clue.id && styles.clueRowActive,
+                        pressed && styles.clueRowPressed,
+                      ]}
+                      onPress={() => handleSelectClue(clue)}
+                    >
+                      <Text style={styles.clueNumber}>{clue.number}.</Text>
+                      <Text style={styles.clueText}>
+                        {clue.clue} ({clue.answer.length})
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+
+              {gameState === 'won-main' && (
+                <Animated.View
+                  style={[
+                    styles.bonusCard,
+                    {
+                      opacity: bonusOpacity,
+                      transform: [{ translateY: bonusTranslateY }, { scale: bonusScale }],
+                    },
+                  ]}
+                >
+                  <Text style={styles.bonusTitle}>7-Letter Bonus</Text>
+                  <Text style={styles.bonusInstruction}>{puzzle.bonus.instructionText}</Text>
+                  <Text style={styles.bonusClue}>Clue: {puzzle.bonus.clue}</Text>
+                  <TextInput
+                    style={styles.bonusInput}
+                    value={bonusEntry}
+                    onChangeText={(value) => {
+                      setBonusEntry(value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 7));
+                      setBonusStatus(null);
+                    }}
+                    maxLength={7}
+                    autoCapitalize="characters"
+                    autoCorrect={false}
+                    editable={bonusPhase === 'ready' && !bonusSolved}
+                    selectionColor={screenAccent.main}
+                    placeholder="7 letters"
+                    placeholderTextColor={theme.colors.textMuted}
+                  />
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.bonusButton,
+                      (bonusPhase !== 'ready' || bonusSolved) && styles.bonusButtonDisabled,
+                      pressed && bonusPhase === 'ready' && !bonusSolved && styles.bonusButtonPressed,
+                    ]}
+                    onPress={handleBonusCheck}
+                    disabled={bonusPhase !== 'ready' || bonusSolved}
+                  >
+                    <Text style={styles.bonusButtonText}>{bonusSolved ? 'Bonus solved' : 'Check bonus'}</Text>
+                  </Pressable>
+                  {bonusStatus ? <Text style={styles.bonusStatus}>{bonusStatus}</Text> : null}
+                </Animated.View>
+              )}
+
+              {gameState === 'won-main' && (
+                <View style={styles.shareCard}>
+                  <Text style={styles.shareTitle}>Share your result</Text>
+                  <View style={styles.shareBox}>
+                    <Text selectable style={styles.shareText}>
+                      {shareText}
+                    </Text>
+                  </View>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.shareButton,
+                      pressed && styles.shareButtonPressed,
+                    ]}
+                    onPress={handleCopyResults}
+                  >
+                    <Text style={styles.shareButtonText}>Copy results</Text>
+                  </Pressable>
+                  {shareStatus ? <Text style={styles.shareStatus}>{shareStatus}</Text> : null}
+                </View>
+              )}
+
+              <Pressable
+                style={({ pressed }) => [styles.homeButton, pressed && styles.homeButtonPressed]}
+                onPress={() => router.back()}
+              >
+                <Text style={styles.homeButtonText}>Back to games</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </>
   );
@@ -584,6 +765,9 @@ const createStyles = (
     container: {
       flex: 1,
       backgroundColor: Colors.backgroundSoft,
+    },
+    keyboardAvoider: {
+      flex: 1,
     },
     scrollContent: {
       padding: Spacing.lg,
@@ -616,6 +800,48 @@ const createStyles = (
       padding: Spacing.md,
       marginBottom: Spacing.md,
       ...WEB_NO_SELECT,
+    },
+    activeClueStrip: {
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.soft,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.sm,
+      marginBottom: Spacing.md,
+    },
+    activeClueTopRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 4,
+      gap: Spacing.sm,
+    },
+    activeClueLabel: {
+      fontSize: FontSize.sm,
+      color: Colors.textSecondary,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
+    activeClueText: {
+      fontSize: FontSize.sm,
+      color: Colors.text,
+      lineHeight: 20,
+      fontWeight: '600',
+    },
+    themePill: {
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 4,
+    },
+    themePillText: {
+      fontSize: 12,
+      color: screenAccent.badgeText,
+      fontWeight: '700',
     },
     grid: {
       alignItems: 'center',
@@ -720,6 +946,17 @@ const createStyles = (
       color: Colors.textMuted,
       minHeight: 18,
     },
+    cluesCollapsedCard: {
+      ...ui.card,
+      padding: Spacing.md,
+      marginBottom: Spacing.md,
+      alignItems: 'center',
+    },
+    cluesCollapsedText: {
+      fontSize: FontSize.sm,
+      color: Colors.textMuted,
+      fontWeight: '600',
+    },
     cluesCard: {
       ...ui.card,
       padding: Spacing.md,
@@ -758,6 +995,69 @@ const createStyles = (
       fontSize: FontSize.sm,
       color: Colors.textSecondary,
       lineHeight: 20,
+    },
+    bonusCard: {
+      ...ui.card,
+      padding: Spacing.md,
+      marginBottom: Spacing.md,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.soft,
+    },
+    bonusTitle: {
+      fontSize: FontSize.md,
+      color: Colors.text,
+      fontWeight: '800',
+      marginBottom: Spacing.xs,
+    },
+    bonusInstruction: {
+      fontSize: FontSize.sm,
+      color: Colors.textSecondary,
+      lineHeight: 20,
+      marginBottom: Spacing.sm,
+    },
+    bonusClue: {
+      fontSize: FontSize.sm,
+      color: Colors.text,
+      fontWeight: '700',
+      marginBottom: Spacing.sm,
+    },
+    bonusInput: {
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: Colors.surface,
+      color: Colors.text,
+      paddingVertical: Spacing.sm,
+      paddingHorizontal: Spacing.md,
+      letterSpacing: 6,
+      textTransform: 'uppercase',
+      fontWeight: '800',
+      textAlign: 'center',
+      marginBottom: Spacing.sm,
+    },
+    bonusButton: {
+      ...ui.cta,
+      borderRadius: BorderRadius.md,
+      paddingVertical: Spacing.sm,
+    },
+    bonusButtonPressed: {
+      ...ui.ctaPressed,
+    },
+    bonusButtonDisabled: {
+      opacity: 0.55,
+    },
+    bonusButtonText: {
+      ...ui.ctaText,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
+    bonusStatus: {
+      marginTop: Spacing.xs,
+      fontSize: FontSize.sm,
+      color: Colors.textMuted,
+      textAlign: 'center',
+      minHeight: 18,
     },
     shareCard: {
       ...ui.card,
