@@ -9,6 +9,11 @@
                 min-height: 100%;
                 background-color: var(--daybreak-bg-soft);
               }
+              #root > div,
+              #root > div > div,
+              #root > div > div > div {
+                background-color: var(--daybreak-bg-soft) !important;
+              }
               body {
                 overscroll-behavior-y: none;
               }
@@ -26,6 +31,20 @@
                 var media = typeof window.matchMedia === 'function'
                   ? window.matchMedia('(prefers-color-scheme: dark)')
                   : null;
+                var paint = function (node, bg, mode) {
+                  if (!node) return;
+                  node.style.backgroundColor = bg;
+                  node.dataset.daybreakTheme = mode;
+                };
+                var paintShell = function (bg, mode) {
+                  var appRoot = document.getElementById('root');
+                  paint(appRoot, bg, mode);
+                  var shellNode = appRoot;
+                  for (var i = 0; i < 4 && shellNode; i += 1) {
+                    shellNode = shellNode.firstElementChild;
+                    paint(shellNode, bg, mode);
+                  }
+                };
                 var apply = function () {
                   var mode = media && media.matches ? 'dark' : 'light';
                   var bg = mode === 'dark' ? '#0f141d' : '#f3f6fb';
@@ -38,10 +57,7 @@
                   if (document.body) {
                     document.body.style.backgroundColor = bg;
                   }
-                  var appRoot = document.getElementById('root');
-                  if (appRoot) {
-                    appRoot.style.backgroundColor = bg;
-                  }
+                  paintShell(bg, mode);
                 };
                 apply();
                 if (media) {
@@ -712,5 +728,5 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 @keyframes r-1pzkwqh{0%{transform:translateY(100%);}100%{transform:translateY(0%);}}
 @keyframes r-imtty0{0%{opacity:0;}100%{opacity:1;}}
 @keyframes r-q67da2{0%{transform:translateX(-100%);}100%{transform:translateX(400%);}}
-@keyframes r-t2lo5v{0%{opacity:1;}100%{opacity:0;}}</style><script type="module">globalThis.__EXPO_ROUTER_HYDRATE__=true;</script><link rel="icon" href="/gameshow/favicon.ico" /></head><body><div id="root"><div class="css-g5y9jx r-13awgt0"></div></div><script src="/gameshow/_expo/static/js/web/entry-241d8a9e0237504e7b9e9c546a03a187.js" defer></script>
+@keyframes r-t2lo5v{0%{opacity:1;}100%{opacity:0;}}</style><script type="module">globalThis.__EXPO_ROUTER_HYDRATE__=true;</script><link rel="icon" href="/gameshow/favicon.ico" /></head><body><div id="root"><div class="css-g5y9jx r-13awgt0"></div></div><script src="/gameshow/_expo/static/js/web/entry-71d64c8d333f4156601f9d9afdd31dd7.js" defer></script>
 </body></html>

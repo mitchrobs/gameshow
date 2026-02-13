@@ -25,6 +25,11 @@ export default function Root({ children }: PropsWithChildren) {
                 min-height: 100%;
                 background-color: var(--daybreak-bg-soft);
               }
+              #root > div,
+              #root > div > div,
+              #root > div > div > div {
+                background-color: var(--daybreak-bg-soft) !important;
+              }
               body {
                 overscroll-behavior-y: none;
               }
@@ -47,6 +52,20 @@ export default function Root({ children }: PropsWithChildren) {
                 var media = typeof window.matchMedia === 'function'
                   ? window.matchMedia('(prefers-color-scheme: dark)')
                   : null;
+                var paint = function (node, bg, mode) {
+                  if (!node) return;
+                  node.style.backgroundColor = bg;
+                  node.dataset.daybreakTheme = mode;
+                };
+                var paintShell = function (bg, mode) {
+                  var appRoot = document.getElementById('root');
+                  paint(appRoot, bg, mode);
+                  var shellNode = appRoot;
+                  for (var i = 0; i < 4 && shellNode; i += 1) {
+                    shellNode = shellNode.firstElementChild;
+                    paint(shellNode, bg, mode);
+                  }
+                };
                 var apply = function () {
                   var mode = media && media.matches ? 'dark' : 'light';
                   var bg = mode === 'dark' ? '#0f141d' : '#f3f6fb';
@@ -59,10 +78,7 @@ export default function Root({ children }: PropsWithChildren) {
                   if (document.body) {
                     document.body.style.backgroundColor = bg;
                   }
-                  var appRoot = document.getElementById('root');
-                  if (appRoot) {
-                    appRoot.style.backgroundColor = bg;
-                  }
+                  paintShell(bg, mode);
                 };
                 apply();
                 if (media) {

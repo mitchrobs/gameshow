@@ -9,6 +9,27 @@ import {
   useResolvedDaybreakTheme,
 } from '../src/constants/theme';
 
+function paintWebShell(bg: string, mode: 'light' | 'dark') {
+  if (typeof document === 'undefined') return;
+
+  const appRoot = document.getElementById('root');
+  const paint = (node: HTMLElement | null) => {
+    if (!node) return;
+    node.style.backgroundColor = bg;
+    node.dataset.daybreakTheme = mode;
+  };
+
+  paint(appRoot);
+
+  let shellNode = appRoot;
+  for (let depth = 0; depth < 4 && shellNode; depth += 1) {
+    const child = shellNode.firstElementChild;
+    if (!(child instanceof HTMLElement)) break;
+    paint(child);
+    shellNode = child;
+  }
+}
+
 export default function RootLayout() {
   const theme = useResolvedDaybreakTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
@@ -46,7 +67,9 @@ export default function RootLayout() {
     }
     if (appRoot) {
       appRoot.style.backgroundColor = bg;
+      appRoot.dataset.daybreakTheme = theme.mode;
     }
+    paintWebShell(bg, theme.mode);
   }, [theme.colors.backgroundSoft, theme.mode]);
 
   return (
