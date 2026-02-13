@@ -3,7 +3,9 @@ import { Stack, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
+  type ThemeMode,
   type ThemeTokens,
+  resolveTheme,
   resolveScreenAccent,
   useDaybreakTheme,
 } from '../src/constants/theme';
@@ -30,10 +32,97 @@ const WEB_NO_SELECT =
       }
     : {};
 
+function coerceThemeMode(value: string | null | undefined): ThemeMode | null {
+  return value === 'dark' || value === 'light' ? value : null;
+}
+
+function getWebThemeMode(): ThemeMode | null {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return null;
+  }
+
+  const root = document.documentElement;
+  const datasetMode = root ? coerceThemeMode(root.dataset.daybreakTheme) : null;
+  if (datasetMode) return datasetMode;
+
+  if (typeof window.matchMedia === 'function') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  return null;
+}
+
+function useHomeTheme(baseTheme: ThemeTokens): ThemeTokens {
+  const [webThemeMode, setWebThemeMode] = useState<ThemeMode | null>(() => getWebThemeMode());
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
+    const apply = () => {
+      const nextMode = getWebThemeMode();
+      setWebThemeMode((prevMode) => {
+        return prevMode === nextMode ? prevMode : nextMode;
+      });
+    };
+
+    apply();
+
+    const media =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-color-scheme: dark)')
+        : null;
+    if (media && typeof media.addEventListener === 'function') {
+      media.addEventListener('change', apply);
+    } else if (media) {
+      // Legacy Safari.
+      // eslint-disable-next-line deprecation/deprecation
+      media.addListener(apply);
+    }
+
+    const root = document.documentElement;
+    const observer =
+      typeof MutationObserver !== 'undefined' && root
+        ? new MutationObserver(() => {
+            apply();
+          })
+        : null;
+    if (observer && root) {
+      observer.observe(root, {
+        attributes: true,
+        attributeFilter: ['data-daybreak-theme'],
+      });
+    }
+
+    window.addEventListener('focus', apply);
+    window.addEventListener('pageshow', apply);
+
+    return () => {
+      if (media && typeof media.removeEventListener === 'function') {
+        media.removeEventListener('change', apply);
+      } else if (media) {
+        // eslint-disable-next-line deprecation/deprecation
+        media.removeListener(apply);
+      }
+      window.removeEventListener('focus', apply);
+      window.removeEventListener('pageshow', apply);
+      observer?.disconnect();
+    };
+  }, []);
+
+  return useMemo(() => {
+    if (!webThemeMode || webThemeMode === baseTheme.mode) return baseTheme;
+    return resolveTheme(webThemeMode);
+  }, [baseTheme, webThemeMode]);
+}
+
 export default function HomeScreen() {
-  const theme = useDaybreakTheme();
+  const baseTheme = useDaybreakTheme();
+  const theme = useHomeTheme(baseTheme);
   const screenAccent = useMemo(() => resolveScreenAccent('home', theme), [theme]);
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
+  const [isHydrated, setIsHydrated] = useState(Platform.OS !== 'web');
   const router = useRouter();
   const puzzle = getDailyPuzzle();
   const whodunit = getDailyWhodunit();
@@ -112,6 +201,13 @@ export default function HomeScreen() {
   }, [playCounts]);
 
   useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
     if (Platform.OS !== 'web' || typeof window === 'undefined') {
       setStreak(0);
       return;
@@ -146,9 +242,11 @@ export default function HomeScreen() {
     }
 
     setStreak(count);
-  }, []);
+  }, [isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
+
     getGlobalPlayCounts([
       'mojimash',
       'wordie',
@@ -164,7 +262,19 @@ export default function HomeScreen() {
           setPlayCounts(counts);
         }
       });
-  }, []);
+  }, [isHydrated]);
+
+  if (!isHydrated) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>

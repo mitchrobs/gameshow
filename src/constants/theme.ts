@@ -9,7 +9,6 @@ import {
 } from 'react';
 import {
   Appearance,
-  Platform,
   type ColorSchemeName,
   type ViewStyle,
   useColorScheme,
@@ -206,24 +205,33 @@ function coerceThemeMode(value: string | null | undefined): ThemeMode | null {
   return null;
 }
 
+function isWebEnvironment(): boolean {
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
+}
+
 function getWebPreferredMode(): ThemeMode | null {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return null;
-  }
-  const mediaMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  if (mediaMode) return mediaMode;
-  if (typeof document === 'undefined') return null;
+  if (!isWebEnvironment()) return null;
+
   const root = document.documentElement;
+  const datasetMode = root ? coerceThemeMode(root.dataset.daybreakTheme) : null;
+  if (datasetMode) return datasetMode;
+
+  const globalMode = coerceThemeMode(
+    (window as typeof window & { __DAYBREAK_THEME__?: string }).__DAYBREAK_THEME__
+  );
+  if (globalMode) return globalMode;
+
+  if (typeof window.matchMedia === 'function') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
   if (!root) return null;
   const cssMode = window.getComputedStyle(root).getPropertyValue('--daybreak-system-theme').trim();
   return coerceThemeMode(cssMode);
 }
 
 function getInitialMode(): ThemeMode {
-  if (Platform.OS === 'web') {
-    return getWebPreferredMode() ?? toThemeMode(Appearance.getColorScheme());
-  }
-  return toThemeMode(Appearance.getColorScheme());
+  return getWebPreferredMode() ?? toThemeMode(Appearance.getColorScheme());
 }
 
 export function useResolvedDaybreakTheme(): ThemeTokens {
@@ -231,7 +239,7 @@ export function useResolvedDaybreakTheme(): ThemeTokens {
   const [mode, setMode] = useState<ThemeMode>(() => getInitialMode());
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
+    if (isWebEnvironment()) {
       const apply = () => {
         const nextMode = getWebPreferredMode() ?? toThemeMode(colorScheme);
         setMode((prevMode) => (prevMode === nextMode ? prevMode : nextMode));
@@ -266,6 +274,20 @@ export function useResolvedDaybreakTheme(): ThemeTokens {
         apply();
       });
 
+      const root = document.documentElement;
+      const observer =
+        typeof MutationObserver !== 'undefined' && root
+          ? new MutationObserver(() => {
+              apply();
+            })
+          : null;
+      if (observer && root) {
+        observer.observe(root, {
+          attributes: true,
+          attributeFilter: ['data-daybreak-theme'],
+        });
+      }
+
       // Some browsers settle preferred color scheme shortly after hydration.
       const settleTimeout =
         typeof window !== 'undefined' ? window.setTimeout(() => apply(), 80) : null;
@@ -288,6 +310,7 @@ export function useResolvedDaybreakTheme(): ThemeTokens {
             window.clearTimeout(settleTimeout);
           }
         }
+        observer?.disconnect();
       };
     }
 

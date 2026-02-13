@@ -1,4 +1,4 @@
-import { Platform, Text, TextInput, View, StyleSheet } from 'react-native';
+import { Text, TextInput, View, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,7 +14,7 @@ export default function RootLayout() {
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   useEffect(() => {
-    if (Platform.OS !== 'web') return;
+    if (typeof window === 'undefined') return;
 
     const fontStyle = { fontFamily: theme.typography.sans };
 
@@ -26,7 +26,7 @@ export default function RootLayout() {
   }, [theme.typography.sans]);
 
   useEffect(() => {
-    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return;
 
     const bg = theme.colors.backgroundSoft;
     const root = document.documentElement;
