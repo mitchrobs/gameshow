@@ -144,173 +144,129 @@ CSS = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   background: #f5f5f7;
   color: #1d1d1f;
-  padding: 32px 24px 64px;
+  padding: 32px 28px 64px;
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: -0.5px;
   margin-bottom: 4px;
 }
 
 .subtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: #6e6e73;
-  margin-bottom: 36px;
+  margin-bottom: 28px;
 }
 
 .month-block {
-  margin-bottom: 48px;
+  margin-bottom: 44px;
 }
 
 .month-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  letter-spacing: -0.3px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: #1d1d1f;
 }
 
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+table.cal {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 5px;
+  table-layout: fixed;
 }
 
-.day-header {
+table.cal th {
   font-size: 11px;
   font-weight: 600;
   color: #6e6e73;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   text-align: center;
-  padding: 6px 0;
+  padding: 4px 0 8px;
 }
 
-.day-cell {
+table.cal td {
+  width: 14.28%;
+  vertical-align: top;
   background: #fff;
   border-radius: 10px;
-  padding: 10px 10px 12px;
-  min-height: 100px;
   border: 1.5px solid transparent;
-  transition: border-color 0.15s;
-  position: relative;
-  overflow: hidden;
+  padding: 9px 9px 11px;
+  height: 110px;
 }
 
-.day-cell:hover {
-  border-color: #d1d1d6;
-}
-
-.day-cell.empty {
+table.cal td.empty {
   background: transparent;
-  border: none;
+  border-color: transparent;
 }
 
-.day-cell.today {
+table.cal td.today {
   border-color: #007aff;
   background: #f0f7ff;
 }
 
-.day-cell.pinned {
+table.cal td.pinned {
   background: #fffbf0;
-  border-color: #f0c040;
-}
-
-.day-cell.today.pinned {
-  background: #f0f7ff;
-  border-color: #007aff;
+  border-color: #e8b800;
 }
 
 .day-num {
   font-size: 13px;
   font-weight: 600;
   color: #1d1d1f;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  margin-bottom: 5px;
 }
 
-.day-cell.today .day-num {
-  color: #007aff;
-}
-
-.today-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: #007aff;
-  border-radius: 50%;
-}
-
-.pin-icon {
-  font-size: 11px;
-  margin-left: auto;
-}
+td.today .day-num { color: #007aff; }
 
 .holiday-label {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  color: #c07800;
-  margin-bottom: 5px;
-  white-space: nowrap;
+  color: #b07000;
+  margin-bottom: 4px;
   overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.words-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
+  white-space: nowrap;
 }
 
 .word-tag {
-  font-size: 11px;
+  display: inline-block;
+  font-size: 10px;
   font-weight: 500;
-  padding: 2px 6px;
-  border-radius: 5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin: 1px 1px 0 0;
   white-space: nowrap;
-  line-height: 1.4;
 }
 
-/* difficulty colours */
-.difficulty-easy  .word-tag { background: #e8f4ee; color: #1a7a3c; }
-.difficulty-medium .word-tag { background: #e8eeff; color: #1a3a8f; }
-.difficulty-hard  .word-tag { background: #f4e8ff; color: #6a1a8f; }
-
-.day-cell.pinned .word-tag { background: #fff0c0; color: #7a5000; }
+td.difficulty-easy  .word-tag { background: #e3f4e9; color: #1a6e35; }
+td.difficulty-medium .word-tag { background: #e3eaff; color: #1a35a0; }
+td.difficulty-hard  .word-tag { background: #f0e3ff; color: #6a1a9a; }
+td.pinned           .word-tag { background: #fff0b0; color: #7a4e00; }
 
 .legend {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
   font-size: 12px;
   color: #6e6e73;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
-
 .legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: inline-block;
+  margin-right: 18px;
 }
-
-.legend-swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
-"""
-
-JS = """
-// nothing needed — pure HTML
 """
 
 
@@ -318,11 +274,17 @@ def month_html(year: int, month: int, date_map: dict[str, dict], today: date) ->
     cal = calendar.monthcalendar(year, month)
     month_name = date(year, month, 1).strftime("%B %Y")
 
-    rows = []
+    header_row = "".join(
+        f"<th>{d}</th>"
+        for d in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    )
+
+    week_rows = []
     for week in cal:
+        cells = []
         for day_num in week:
             if day_num == 0:
-                rows.append('<div class="day-cell empty"></div>')
+                cells.append('<td class="empty"></td>')
                 continue
 
             d = date(year, month, day_num)
@@ -333,36 +295,32 @@ def month_html(year: int, month: int, date_map: dict[str, dict], today: date) ->
             is_pinned = info["pinned"] if info else False
             difficulty = info["difficulty"] if info else "easy"
 
-            classes = ["day-cell", f"difficulty-{difficulty}"]
+            classes = [f"difficulty-{difficulty}"]
             if is_today:
                 classes.append("today")
             if is_pinned:
                 classes.append("pinned")
 
-            inner = f'<div class="day-num">'
-            inner += f'<span>{day_num}</span>'
-            if is_today:
-                inner += ' <span class="today-dot"></span>'
-            if is_pinned:
-                inner += ' <span class="pin-icon">📌</span>'
-            inner += "</div>"
+            day_label = f'<div class="day-num">{day_num}{"&nbsp;&#x25CF;" if is_today else ""}{"&nbsp;&#128204;" if is_pinned else ""}</div>'
 
+            content = day_label
             if info:
                 if info.get("holiday"):
-                    inner += f'<div class="holiday-label">{info["holiday"]}</div>'
-                inner += '<div class="words-wrap">'
+                    content += f'<div class="holiday-label">{info["holiday"]}</div>'
                 for w in info["words"]:
-                    inner += f'<span class="word-tag">{w}</span>'
-                inner += "</div>"
+                    content += f'<span class="word-tag">{w}</span>'
 
-            rows.append(f'<div class="{" ".join(classes)}">{inner}</div>')
+            cells.append(f'<td class="{" ".join(classes)}">{content}</td>')
 
-    day_headers = "".join(
-        f'<div class="day-header">{d}</div>'
-        for d in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        week_rows.append(f"<tr>{''.join(cells)}</tr>")
+
+    table = (
+        f'<table class="cal">'
+        f"<tr>{header_row}</tr>"
+        f"{''.join(week_rows)}"
+        f"</table>"
     )
-    grid = f'<div class="calendar-grid">{day_headers}{"".join(rows)}</div>'
-    return f'<div class="month-block"><div class="month-title">{month_name}</div>{grid}</div>'
+    return f'<div class="month-block"><div class="month-title">{month_name}</div>{table}</div>'
 
 
 def build_html(date_map: dict[str, dict], start: date, months: int, today: date) -> str:
@@ -378,14 +336,14 @@ def build_html(date_map: dict[str, dict], start: date, months: int, today: date)
             m = 1
             y += 1
 
-    legend = """
-    <div class="legend">
-      <div class="legend-item"><div class="legend-swatch" style="background:#e8f4ee;border:1px solid #1a7a3c"></div> 2-word puzzle</div>
-      <div class="legend-item"><div class="legend-swatch" style="background:#e8eeff;border:1px solid #1a3a8f"></div> 3-word puzzle</div>
-      <div class="legend-item"><div class="legend-swatch" style="background:#f4e8ff;border:1px solid #6a1a8f"></div> 4-word puzzle</div>
-      <div class="legend-item"><div class="legend-swatch" style="background:#fff0c0;border:1px solid #c07800"></div> 📌 Date-pinned</div>
-    </div>
-    """
+    legend = (
+        '<div class="legend">'
+        '<span class="legend-item"><span class="swatch" style="background:#e3f4e9"></span>2-word</span>'
+        '<span class="legend-item"><span class="swatch" style="background:#e3eaff"></span>3-word</span>'
+        '<span class="legend-item"><span class="swatch" style="background:#f0e3ff"></span>4-word</span>'
+        '<span class="legend-item"><span class="swatch" style="background:#fff0b0"></span>&#128204; Date-pinned</span>'
+        '</div>'
+    )
 
     body = f"""
     <h1>Moji Mash Schedule</h1>
