@@ -19,19 +19,13 @@ import {
   useDaybreakTheme,
 } from '../src/constants/theme';
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
-import { getDailyPuzzle, MojiMashPuzzle } from '../src/data/mojiMashPuzzles';
+import { getDailyPuzzle, getLocalDateKey, MojiMashPuzzle } from '../src/data/mojiMashPuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const MAX_WRONG_GUESSES = 5;
 const STORAGE_PREFIX = 'mojimash';
 
 type GameState = 'playing' | 'won' | 'lost';
-
-function getLocalDateKey(date: Date = new Date()): string {
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-}
 
 function getStorage(): Storage | null {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {

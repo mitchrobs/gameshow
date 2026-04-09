@@ -7,6 +7,8 @@ export interface MojiMashPuzzle {
   words: string[];
   /** A hint shown after 3 wrong guesses */
   hint: string;
+  /** Optional YYYY-MM-DD date pin. Takes precedence over daily rotation. */
+  date?: string;
 }
 
 /**
@@ -150,11 +152,6 @@ const puzzles: MojiMashPuzzle[] = [
     hint: 'Starts with: s, w',
   },
   {
-    image: require('../../assets/genmoji/spaghetti-western.png'),
-    words: ['spaghetti', 'western'],
-    hint: 'Starts with: s, w',
-  },
-  {
     image: require('../../assets/genmoji/spicy-curry.png'),
     words: ['spicy', 'curry'],
     hint: 'Starts with: s, c',
@@ -188,7 +185,11 @@ function getShuffledIndices(length: number, seed: number): number[] {
   return indices;
 }
 
-const DAILY_ORDER = getShuffledIndices(puzzles.length, DAILY_SEED);
+export function getLocalDateKey(date: Date = new Date()): string {
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${m}-${d}`;
+}
 
 function getLocalDayIndex(date: Date): number {
   const localMidnight = new Date(
@@ -199,11 +200,28 @@ function getLocalDayIndex(date: Date): number {
   return Math.floor(localMidnight.getTime() / DAY_MS);
 }
 
+// Last-write wins: appending a new entry with the same date hotfixes the pin.
+const DATE_PINNED: Record<string, number> = (() => {
+  const map: Record<string, number> = {};
+  puzzles.forEach((p, i) => { if (p.date) map[p.date] = i; });
+  return map;
+})();
+
+// Rotation pool excludes date-pinned puzzles so they don't double-dip.
+const ROTATION_INDICES = puzzles
+  .map((p, i) => (p.date ? -1 : i))
+  .filter((i) => i >= 0);
+
+const DAILY_ORDER = getShuffledIndices(ROTATION_INDICES.length, DAILY_SEED)
+  .map((i) => ROTATION_INDICES[i]);
+
 /**
- * Get the puzzle for today based on a deterministic day index.
- * If you have 30+ puzzles, the next 30 days will be unique.
+ * Get the puzzle index for a given date.
+ * Date-pinned puzzles (date field set) take precedence over the rotation.
  */
 export function getDailyPuzzleIndex(date: Date = new Date()): number {
+  const pinned = DATE_PINNED[getLocalDateKey(date)];
+  if (pinned !== undefined) return pinned;
   const dayIndex = getLocalDayIndex(date);
   return DAILY_ORDER[dayIndex % DAILY_ORDER.length];
 }
