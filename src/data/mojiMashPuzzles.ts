@@ -45,6 +45,7 @@ const puzzles: MojiMashPuzzle[] = [
     image: require('../../assets/genmoji/christmas-ham.png'),
     words: ['christmas', 'ham'],
     hint: 'Starts with: c, h',
+    date: '2025-12-25',
   },
   {
     image: require('../../assets/genmoji/city-llama-family.png'),
