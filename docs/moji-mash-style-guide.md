@@ -212,6 +212,76 @@ an expressive emoji of a wide-eyed owl wearing a tiny nightcap perched on a cres
 
 ---
 
+## Evaluating Generated Images
+
+Generating a great concept is only half the job. A visually beautiful image can still be a terrible puzzle. Use this rubric when reviewing the 3-variant contact sheet.
+
+### The Image Quality Rubric
+
+Ask these six questions in order. Fail on Q1 or Q2 and discard immediately — aesthetics don't matter if the puzzle is broken.
+
+| # | Question | Discard if… |
+|---|---|---|
+| Q1 | Can you point to a distinct region for **every word**? | Any word has no visible element |
+| Q2 | If you saw each element in isolation, what word would you name? | Your named word ≠ the answer word |
+| Q3 | What's the first thing that comes to mind looking at the whole image — before you know the answer? | A red herring is stronger than the actual answer |
+| Q4 | Are all elements visually separated, or do they fuse? | Elements blend into an unreadable whole |
+| Q5 | Is the key element legible at display size (160×160)? | Detail disappears at emoji scale |
+| Q6 | After knowing the answer, does it feel obvious in retrospect? | Still feels arbitrary or coincidental |
+
+Pick the variant scoring best on Q1–Q4. Use Q5–Q6 to break ties. **Never pick on aesthetics alone.**
+
+### The Blind Test
+
+Before reviewing candidates with knowledge of the answer, do a 10-second blind pass:
+
+1. Open the contact sheet without reading the concept label
+2. Look at each image and say the first 2–3 words out loud
+3. Write them down — this is your **first-read transcript**
+
+If your spoken words overlap the answer, the image is doing its job. If they don't, that's the data — not a reason to discard, but a flag to apply Q1–Q3 more rigorously.
+
+In a solo workflow where you already know the answer, at minimum write down the first words that come to mind *before* you look at the concept. The mental discipline matters.
+
+### The Vision Check (automated)
+
+Run `--check` with the generator to get an automated pre-filter before human review:
+
+```bash
+python scripts/generate_moji.py --words "spring cleaning" --prompt "..." --count 3 --check
+```
+
+This calls Claude's vision API on each generated PNG and asks it to list the distinct visual elements it sees — without knowing the intended words. The contact sheet is updated with a decoded-words overlay per variant.
+
+**Interpret results:**
+- Decoded words that match the answer → element is present and readable ✓
+- Answer words absent from decoded list → that element is likely missing or too subtle ⚠
+- Decoded words that are plausible wrong guesses → wrong-word ambiguity risk ⚠
+
+The vision check surfaces obvious failures before human review. It does **not** replace the blind test — Claude may outperform average players on iconic references, and it sees the full-resolution PNG rather than the mobile display size.
+
+Requires `ANTHROPIC_API_KEY` in your environment and `pip install anthropic`.
+
+### The "Iconic Visual" Rule for Words
+
+Word quality has a second dimension beyond "is this concrete?" — **does this word have an unambiguous iconic visual at emoji scale?**
+
+Action words and relational concepts all need a declared visual shorthand in the prompt. Don't leave it for the model to infer:
+
+| Word | Visual shorthand | Risk if left implicit |
+|---|---|---|
+| `return` | looping arrow (foregrounded) or boomerang | Boomerang reads as `boomerang`, not `return` |
+| `share` | two hands exchanging an object | Renders as generic handshake |
+| `crash` | impact sparks + crumple | Renders as explosion (→ `bomb`, `fire`) |
+| `scheme` | dotted-line conspiracy board | Invisible without explicit description |
+| `magic` | wand + sparkle burst | Renders as generic glitter |
+| `night` | crescent moon + stars | Usually works without help |
+| `green` | color applied to a recognizable object | Needs an object to apply to |
+
+If a word doesn't have an iconic visual you can describe in ≤5 words, reconsider whether it belongs in the puzzle. The prompt must make every word pointable.
+
+---
+
 ## First-Time Setup (open-genmoji)
 
 Run once on your Apple Silicon Mac. open-genmoji lives **outside** the repo.
@@ -262,9 +332,9 @@ Flux.1 Dev is licensed under the [Flux.1 Dev Non-Commercial License](https://hug
 The agent will:
 1. Read this file and `mojiMashPuzzles.ts`
 2. Brainstorm 24 concepts, self-filter to 8
-3. Generate 3 image variants per concept (24 PNGs total)
-4. Open a review contact sheet at `tmp/moji-mash/<date>/index.html`
-5. Ask you to pick the best frame for each concept
+3. Generate 3 image variants per concept (24 PNGs total), running `--check` for automated vision evaluation
+4. Open a review contact sheet at `tmp/moji-mash/<date>/index.html` with decoded-word overlays
+5. Ask you to pick the best frame for each concept (use the blind test on variants flagged ⚠)
 6. Promote winners and print a paste-ready TypeScript block
 
 After pasting the entries into `mojiMashPuzzles.ts`, run:

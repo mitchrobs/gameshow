@@ -47,7 +47,8 @@ Self-reject any concept that:
 ### Step 4 — Write prompts
 For each surviving concept, write a genmoji generation prompt:
 - Start with `"an expressive emoji of..."`
-- Explicitly describe a visual element for **every word**
+- Explicitly describe a visual element for **every word** — never leave one implicit
+- For action words or relational concepts (`return`, `share`, `crash`, `scheme`), name their iconic visual shorthand explicitly (e.g. `return` → "looping arrow returning to…")
 - End with: `"cute cartoon sticker, thick outline, saturated colors, centered on white background"`
 - Keep the prompt ≤ 40 words
 
@@ -57,17 +58,23 @@ For each concept, run:
 python scripts/generate_moji.py \
   --words "<w1 w2 ...>" \
   --prompt "<your prompt>" \
-  --count 3
+  --count 3 \
+  --check
 ```
 
-This generates 3 PNG variants in `tmp/moji-mash/<today>/` and produces an `index.html` contact sheet.
+`--check` calls Claude's vision API on each variant and flags answer words that are absent or misread. Results appear in the contact sheet overlay.
 
-### Step 6 — Present to user
-For each concept, show:
+### Step 6 — Review vision check results and present to user
+For each concept, review the `--check` output before presenting to the user:
+- Any variant flagged ⚠ (missing answer words) should be noted
+- If **all 3 variants** are flagged for the same missing word, note this — the prompt may need reworking before the user decides
+
+Present to the user:
 1. **Concept**: the word tuple + category tag
 2. **Prompt**: the generation prompt used
-3. **Staged files**: the filenames of the 3 variants
+3. **Staged files**: the 3 filenames with vision check status (✓ / ⚠ + which words are missing)
 4. Ask the user: "Which variant do you prefer for `<words>`? (1/2/3, or skip)"
+5. If all variants fail Q1 (a word is invisible in all three), recommend regenerating with a revised prompt before picking
 
 ### Step 7 — Promote winners
 For each concept the user approves:

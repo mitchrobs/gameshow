@@ -15,6 +15,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import base64
+import json
 import os
 import platform
 import re
@@ -108,6 +110,134 @@ def check_open_genmoji() -> Path:
 
 
 # ---------------------------------------------------------------------------
+# Vision check
+# ---------------------------------------------------------------------------
+
+def vision_check(images: list[Path], words: list[str]) -> list[dict]:
+    """Ask Claude to describe each image; flag answer words that are absent or misread.
+
+    Requires ANTHROPIC_API_KEY in the environment and `pip install anthropic`.
+    Returns a list of result dicts (one per image). Prints a summary to stdout.
+    On any setup failure, prints a warning and returns an empty list.
+    """
+    try:
+        import anthropic
+    except ImportError:
+        print(
+            "Warning: 'anthropic' package not installed — skipping vision check.\n"
+            "  Install with: pip install anthropic",
+            file=sys.stderr,
+        )
+        return []
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        print(
+            "Warning: ANTHROPIC_API_KEY not set — skipping vision check.",
+            file=sys.stderr,
+        )
+        return []
+
+    client = anthropic.Anthropic(api_key=api_key)
+    answer_set = set(words)
+    results: list[dict] = []
+
+    print("\n  Running vision check…")
+    for img_path in images:
+        img_data = base64.standard_b64encode(img_path.read_bytes()).decode("utf-8")
+
+        message = client.messages.create(
+            model="claude-opus-4-6",
+            max_tokens=256,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": "image/png",
+                                "data": img_data,
+                            },
+                        },
+                        {
+                            "type": "text",
+                            "text": (
+                                "This is a cartoon emoji sticker image. "
+                                "Without being told the intended answer, list the 3–5 most "
+                                "specific words that best describe the distinct visual elements "
+                                "you see. Focus on concrete nouns and recognizable objects. "
+                                'Reply with a JSON array of lowercase strings only, '
+                                'e.g. ["dog", "fire", "helmet"]'
+                            ),
+                        },
+                    ],
+                }
+            ],
+        )
+
+        raw = message.content[0].text.strip()
+        try:
+            decoded: list[str] = json.loads(raw)
+        except Exception:
+            decoded = re.findall(r'"([a-z]+)"', raw)
+
+        matched = [w for w in decoded if w in answer_set]
+        missing = [w for w in words if w not in decoded]
+
+        results.append({
+            "file": img_path.name,
+            "decoded": decoded,
+            "matched": matched,
+            "missing": missing,
+            "score": len(matched),
+        })
+
+        status = "✓" if not missing else "⚠"
+        print(f"  {status} {img_path.name}")
+        print(f"      Decoded : {decoded}")
+        if missing:
+            print(f"      Missing : {missing} (not visible or misnamed)")
+
+    return results
+
+
+def _build_contact_sheet(outputs: list[Path], check_results: list[dict]) -> str:
+    """Return HTML string for the candidate review contact sheet."""
+    result_by_name = {r["file"]: r for r in check_results}
+    cards = []
+    for p in outputs:
+        r = result_by_name.get(p.name)
+        if r:
+            status_color = "#2a9d2a" if not r["missing"] else "#cc7700"
+            status_icon = "✓" if not r["missing"] else "⚠"
+            overlay = (
+                f'<div style="font-size:11px;margin-top:4px;color:{status_color}">'
+                f'{status_icon} {", ".join(r["decoded"])}</div>'
+            )
+            if r["missing"]:
+                overlay += (
+                    f'<div style="font-size:10px;color:#cc0000">'
+                    f'missing: {", ".join(r["missing"])}</div>'
+                )
+        else:
+            overlay = ""
+
+        cards.append(
+            f'<div style="text-align:center;margin:12px;font-family:sans-serif">'
+            f'<img src="{p.name}" width="160" height="160" '
+            f'style="border:1px solid #ccc;display:block">'
+            f'<small style="display:block;margin-top:4px">{p.name}</small>'
+            f"{overlay}"
+            f"</div>"
+        )
+
+    body = "\n".join(cards)
+    return f"<!doctype html><html><body style='display:flex;flex-wrap:wrap;padding:16px'>{body}</body></html>"
+
+
+# ---------------------------------------------------------------------------
 # Core operations
 # ---------------------------------------------------------------------------
 
@@ -117,6 +247,7 @@ def generate(
     count: int,
     seed: int | None,
     stage_dir: Path,
+    check: bool = False,
 ) -> list[Path]:
     check_platform()
     venv_python = check_open_genmoji()
@@ -159,17 +290,10 @@ def generate(
         outputs.append(out_file)
         print(f"  Saved: {out_file.relative_to(BASE_DIR)}")
 
-    # Generate a quick HTML contact sheet for visual review
+    check_results = vision_check(outputs, words) if check else []
+
     html_path = stage_dir / "index.html"
-    rows = "\n".join(
-        f'<div style="text-align:center;margin:8px">'
-        f'<img src="{p.name}" width="160" height="160" style="border:1px solid #ccc"><br>'
-        f'<small>{p.name}</small></div>'
-        for p in outputs
-    )
-    html_path.write_text(
-        f"<!doctype html><html><body style='display:flex;flex-wrap:wrap'>{rows}</body></html>"
-    )
+    html_path.write_text(_build_contact_sheet(outputs, check_results))
     print(f"\n  Review sheet: {html_path.relative_to(BASE_DIR)}")
     return outputs
 
@@ -269,6 +393,15 @@ def parse_args() -> argparse.Namespace:
         "--force", action="store_true",
         help="Overwrite existing asset on slug collision.",
     )
+    p.add_argument(
+        "--check", action="store_true",
+        help=(
+            "After generation, run a Claude vision check on each variant: "
+            "asks the model to describe what it sees and flags answer words "
+            "that are absent or misnamed. Requires ANTHROPIC_API_KEY and "
+            "'pip install anthropic'. Results appear in the contact sheet."
+        ),
+    )
     return p.parse_args()
 
 
@@ -287,7 +420,7 @@ def main() -> None:
         sys.exit("Error: --prompt is required when generating images.")
 
     stage_dir = args.stage or (STAGE_BASE / date.today().isoformat())
-    generate(words, args.prompt, args.count, args.seed, stage_dir)
+    generate(words, args.prompt, args.count, args.seed, stage_dir, check=args.check)
 
 
 if __name__ == "__main__":
