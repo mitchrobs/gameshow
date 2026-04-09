@@ -198,6 +198,11 @@ export default function MojiMashScreen() {
         options={{
           title: 'Moji Mash',
           headerBackTitle: 'Home',
+          headerRight: () => (
+            <Pressable onPress={() => router.push('/moji-mash-schedule')} style={{ marginRight: 8 }}>
+              <Text style={{ fontSize: 13, color: '#007aff' }}>Schedule</Text>
+            </Pressable>
+          ),
         }}
       />
       <SafeAreaView style={styles.container} edges={['bottom']}>
