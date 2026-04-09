@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Platform, Image } from 'react-native';
 import { Stack } from 'expo-router';
 import { useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -135,6 +135,7 @@ function DayCell({
           {holiday}
         </Text>
       ) : null}
+      <Image source={puzzle.image} style={styles.puzzleImage} resizeMode="contain" />
       <View style={styles.tagRow}>
         {renderWordTags(puzzle.words, colors.bg, colors.text)}
       </View>
@@ -288,10 +289,15 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 8,
     padding: 6,
-    minHeight: 88,
+    minHeight: 120,
     borderWidth: 1.5,
     borderColor: 'transparent',
     overflow: 'hidden',
+  },
+  puzzleImage: {
+    width: '100%',
+    height: 48,
+    marginBottom: 4,
   },
   cellEmpty: { backgroundColor: 'transparent', borderColor: 'transparent' },
   cellToday: { borderColor: '#007aff', backgroundColor: '#f0f7ff' },
