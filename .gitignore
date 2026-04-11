@@ -39,5 +39,9 @@ yarn-error.*
 /ios
 /android
 
+# Python
+__pycache__/
+*.pyc
+
 # Moji Mash draft staging (generated image candidates, not committed)
 tmp/moji-mash/
