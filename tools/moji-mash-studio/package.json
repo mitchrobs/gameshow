@@ -1,0 +1,33 @@
+{
+  "name": "moji-mash-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local web UI for the moji-mash-editor agent. Chat + image gallery for drafting Moji Mash daily puzzles on Apple Silicon.",
+  "scripts": {
+    "dev": "tsx watch --tsconfig tsconfig.server.json --clear-screen=false --ignore \"vite.config.ts.timestamp-*\" --ignore \"node_modules/**\" --ignore \"dist/**\" src/server/index.ts",
+    "dev:once": "tsx --tsconfig tsconfig.server.json src/server/index.ts",
+    "build": "vite build && tsc -p tsconfig.server.json",
+    "start": "node dist/server/index.js",
+    "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p tsconfig.client.json --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.1",
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.6.14",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11"
+  }
+}
