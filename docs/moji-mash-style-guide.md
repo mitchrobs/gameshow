@@ -214,51 +214,60 @@ an expressive emoji of a wide-eyed owl wearing a tiny nightcap perched on a cres
 
 ## Evaluating Generated Images
 
-Generating a great concept is only half the job. A visually beautiful image can still be a terrible puzzle. Use this rubric when reviewing the 3-variant contact sheet.
+A Moji Mash puzzle is a **three-way relationship** between concept, image, and player experience. All three must work:
 
-### The Image Quality Rubric
+- A clever concept with a mediocre image → forgettable
+- A beautiful image that's too literal → no aha moment
+- A perfect image of a weak concept → players solve it but feel nothing
 
-Ask these six questions in order. Fail on Q1 or Q2 and discard immediately — aesthetics don't matter if the puzzle is broken.
+Use the automated vision check plus the blind test to evaluate all three axes.
 
-| # | Question | Discard if… |
-|---|---|---|
-| Q1 | Can you point to a distinct region for **every word**? | Any word has no visible element |
-| Q2 | If you saw each element in isolation, what word would you name? | Your named word ≠ the answer word |
-| Q3 | What's the first thing that comes to mind looking at the whole image — before you know the answer? | A red herring is stronger than the actual answer |
-| Q4 | Are all elements visually separated, or do they fuse? | Elements blend into an unreadable whole |
-| Q5 | Is the key element legible at display size (160×160)? | Detail disappears at emoji scale |
-| Q6 | After knowing the answer, does it feel obvious in retrospect? | Still feels arbitrary or coincidental |
+### The Scored Rubric (automated via `--check`)
 
-Pick the variant scoring best on Q1–Q4. Use Q5–Q6 to break ties. **Never pick on aesthetics alone.**
+Running `generate_moji.py --check` performs a two-pass evaluation on each variant:
 
-### The Blind Test
+**Pass 1 — Blind decode**: Claude describes what it sees without knowing the answer. This simulates a player's first look. Answer words absent from the blind decode are flagged ⚠.
 
-Before reviewing candidates with knowledge of the answer, do a 10-second blind pass:
+**Pass 2 — Scored rubric**: given the answer words, Claude scores 5 dimensions (1–5):
 
-1. Open the contact sheet without reading the concept label
+| Dimension | What it measures | Target | Flag if… |
+|---|---|---|---|
+| `word_clarity` | All answer words visible and pointable? | 4–5 | ≤ 2: a word is missing |
+| `visual_appeal` | Charming, expressive, funny as a sticker? | 4–5 | ≤ 2: flat and generic |
+| `concept_synergy` | Unified creative scene vs. literal word collage? | 4–5 | ≤ 2: just objects next to each other |
+| `guessability` | How likely is a player to guess all words? | **3–4** | ≤ 1: unsolvable; ≥ 5: trivially easy |
+| `aha_factor` | How satisfying is the reveal moment? | 4–5 | ≤ 2: concept itself may be weak |
+
+**Composite score** (max 25): sum of all dimensions, with guessability penalised when far from the sweet spot of 3–4. The contact sheet sorts variants by composite and stars the recommended one.
+
+**Decision tree:**
+- `word_clarity` ≤ 2 on all variants → rewrite prompt to foreground the missing element, regenerate
+- `concept_synergy` ≤ 2 on all variants → redesign prompt around a single interacting scene
+- `aha_factor` ≤ 2 on all variants → consider dropping the concept entirely
+- Composite < 12/25 on all variants → concept + prompt combination isn't working; start over
+- One strong variant (composite ≥ 18/25) → promote it with confidence
+
+### The Guessability Dimension
+
+Guessability is the most nuanced dimension — both extremes are wrong:
+
+**Too easy (score 5)**: Answer is immediately obvious from a glance. The image is just a literal depiction with nothing to figure out. Players feel no satisfaction.
+
+**Too hard (score 1)**: Key elements are invisible, ambiguous, or too abstract. Players give up. No aha moment because there's no way to get there.
+
+**Sweet spot (score 3–4)**: Player sees something funny or weird. They can identify the elements if they look. The answer requires a moment of thought but feels completely fair in retrospect.
+
+The `--check` flag will warn when guessability is outside 2–4. A single image that scores guessability=2 can still be good — it means the puzzle is on the challenging end, which is fine. Guessability=1 or guessability=5 both warrant regeneration.
+
+### The Blind Test (manual)
+
+The automated check simulates a player — but Claude may outperform average players on iconic references. Do a manual blind pass before final selection:
+
+1. Open the contact sheet **without** reading the concept labels
 2. Look at each image and say the first 2–3 words out loud
 3. Write them down — this is your **first-read transcript**
 
-If your spoken words overlap the answer, the image is doing its job. If they don't, that's the data — not a reason to discard, but a flag to apply Q1–Q3 more rigorously.
-
-In a solo workflow where you already know the answer, at minimum write down the first words that come to mind *before* you look at the concept. The mental discipline matters.
-
-### The Vision Check (automated)
-
-Run `--check` with the generator to get an automated pre-filter before human review:
-
-```bash
-python scripts/generate_moji.py --words "spring cleaning" --prompt "..." --count 3 --check
-```
-
-This calls Claude's vision API on each generated PNG and asks it to list the distinct visual elements it sees — without knowing the intended words. The contact sheet is updated with a decoded-words overlay per variant.
-
-**Interpret results:**
-- Decoded words that match the answer → element is present and readable ✓
-- Answer words absent from decoded list → that element is likely missing or too subtle ⚠
-- Decoded words that are plausible wrong guesses → wrong-word ambiguity risk ⚠
-
-The vision check surfaces obvious failures before human review. It does **not** replace the blind test — Claude may outperform average players on iconic references, and it sees the full-resolution PNG rather than the mobile display size.
+If your spoken words overlap the answer, the image is doing its job. If they don't match, check which rubric dimension explains it: missing word (clarity), too much noise (synergy), or just hard (guessability).
 
 Requires `ANTHROPIC_API_KEY` in your environment and `pip install anthropic`.
 

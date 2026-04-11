@@ -114,7 +114,17 @@ def check_open_genmoji() -> Path:
 # ---------------------------------------------------------------------------
 
 def vision_check(images: list[Path], words: list[str]) -> list[dict]:
-    """Ask Claude to describe each image; flag answer words that are absent or misread.
+    """Two-pass visual quality evaluation for each generated image.
+
+    Pass 1 — blind decode: ask Claude what it sees without knowing the answer.
+    Pass 2 — scored rubric: given the answer words, score 5 quality dimensions.
+
+    Dimensions (all 1–5):
+      word_clarity   — are all answer words visually present and pointable?
+      visual_appeal  — charming, expressive, funny as an emoji sticker?
+      concept_synergy — unified creative scene vs. literal word collage?
+      guessability   — how likely is a player to guess all words? (sweet spot 3–4)
+      aha_factor     — how satisfying is the reveal moment?
 
     Requires ANTHROPIC_API_KEY in the environment and `pip install anthropic`.
     Returns a list of result dicts (one per image). Prints a summary to stdout.
@@ -140,101 +150,232 @@ def vision_check(images: list[Path], words: list[str]) -> list[dict]:
 
     client = anthropic.Anthropic(api_key=api_key)
     answer_set = set(words)
+    answer_str = ", ".join(f'"{w}"' for w in words)
     results: list[dict] = []
 
     print("\n  Running vision check…")
     for img_path in images:
         img_data = base64.standard_b64encode(img_path.read_bytes()).decode("utf-8")
+        image_block = {
+            "type": "image",
+            "source": {"type": "base64", "media_type": "image/png", "data": img_data},
+        }
 
-        message = client.messages.create(
+        # ── Pass 1: blind decode ──────────────────────────────────────────────
+        blind_msg = client.messages.create(
             model="claude-opus-4-6",
-            max_tokens=256,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": "image/png",
-                                "data": img_data,
-                            },
-                        },
-                        {
-                            "type": "text",
-                            "text": (
-                                "This is a cartoon emoji sticker image. "
-                                "Without being told the intended answer, list the 3–5 most "
-                                "specific words that best describe the distinct visual elements "
-                                "you see. Focus on concrete nouns and recognizable objects. "
-                                'Reply with a JSON array of lowercase strings only, '
-                                'e.g. ["dog", "fire", "helmet"]'
-                            ),
-                        },
-                    ],
-                }
-            ],
+            max_tokens=128,
+            messages=[{
+                "role": "user",
+                "content": [
+                    image_block,
+                    {
+                        "type": "text",
+                        "text": (
+                            "This is a cartoon emoji sticker. Without being told the answer, "
+                            "list the 3–5 most specific words describing distinct visual elements "
+                            "you see. Concrete nouns only. "
+                            'Reply with a JSON array of lowercase strings, e.g. ["dog","fire"]'
+                        ),
+                    },
+                ],
+            }],
         )
-
-        raw = message.content[0].text.strip()
+        raw_blind = blind_msg.content[0].text.strip()
         try:
-            decoded: list[str] = json.loads(raw)
+            decoded: list[str] = json.loads(raw_blind)
         except Exception:
-            decoded = re.findall(r'"([a-z]+)"', raw)
+            decoded = re.findall(r'"([a-z]+)"', raw_blind)
 
         matched = [w for w in decoded if w in answer_set]
         missing = [w for w in words if w not in decoded]
 
-        results.append({
+        # ── Pass 2: scored rubric ─────────────────────────────────────────────
+        rubric_msg = client.messages.create(
+            model="claude-opus-4-6",
+            max_tokens=256,
+            messages=[{
+                "role": "user",
+                "content": [
+                    image_block,
+                    {
+                        "type": "text",
+                        "text": (
+                            f"This emoji sticker is the answer to a word-guessing puzzle. "
+                            f"The answer words are: {answer_str}.\n\n"
+                            "Score this image on five dimensions from 1–5:\n"
+                            "  word_clarity:    Are ALL answer words visually present and pointable? "
+                            "(1=words missing, 5=every word clearly depicted)\n"
+                            "  visual_appeal:   How charming/expressive/funny is it as an emoji? "
+                            "(1=flat and generic, 5=delightful sticker)\n"
+                            "  concept_synergy: Does it feel like a unified creative scene, "
+                            "or a literal collage of separate objects? "
+                            "(1=unrelated objects pasted together, 5=words feel made for each other)\n"
+                            "  guessability:    How likely is an average player to name all words "
+                            "correctly? (1=impossible, 3=fair challenge, 5=trivially obvious — "
+                            "sweet spot is 3–4)\n"
+                            "  aha_factor:      How satisfying is the 'of course!' moment on reveal? "
+                            "(1=feels arbitrary, 5=deeply satisfying)\n\n"
+                            "Reply with JSON only, e.g.: "
+                            '{"word_clarity":4,"visual_appeal":3,"concept_synergy":4,'
+                            '"guessability":3,"aha_factor":4}'
+                        ),
+                    },
+                ],
+            }],
+        )
+        raw_rubric = rubric_msg.content[0].text.strip()
+        try:
+            rubric = json.loads(raw_rubric)
+        except Exception:
+            # Try extracting key:value pairs if JSON is malformed
+            rubric = {}
+            for key in ("word_clarity", "visual_appeal", "concept_synergy", "guessability", "aha_factor"):
+                m = re.search(rf'"{key}"\s*:\s*(\d)', raw_rubric)
+                if m:
+                    rubric[key] = int(m.group(1))
+
+        # Composite score: sum all dims, penalise guessability far from sweet spot (3.5)
+        g = rubric.get("guessability", 3)
+        composite = (
+            rubric.get("word_clarity", 0)
+            + rubric.get("visual_appeal", 0)
+            + rubric.get("concept_synergy", 0)
+            + rubric.get("aha_factor", 0)
+            + max(0, 5 - abs(g - 3.5) * 2)  # 5pts at g=3.5, 0pts at g=1 or g=5
+        )
+
+        result = {
             "file": img_path.name,
             "decoded": decoded,
             "matched": matched,
             "missing": missing,
-            "score": len(matched),
-        })
+            "rubric": rubric,
+            "composite": round(composite, 1),
+        }
+        results.append(result)
 
+        # Terminal summary
+        clarity = rubric.get("word_clarity", "?")
+        appeal = rubric.get("visual_appeal", "?")
+        synergy = rubric.get("concept_synergy", "?")
+        guess = rubric.get("guessability", "?")
+        aha = rubric.get("aha_factor", "?")
         status = "✓" if not missing else "⚠"
-        print(f"  {status} {img_path.name}")
-        print(f"      Decoded : {decoded}")
+        print(f"  {status} {img_path.name}  [composite: {composite:.1f}/25]")
+        print(f"      Blind decode : {decoded}")
         if missing:
-            print(f"      Missing : {missing} (not visible or misnamed)")
+            print(f"      Missing      : {missing}")
+        print(f"      clarity={clarity}  appeal={appeal}  synergy={synergy}  "
+              f"guess={guess}  aha={aha}")
+
+    # Recommend best variant
+    if results:
+        best = max(results, key=lambda r: r["composite"])
+        print(f"\n  ★ Recommended: {best['file']} (composite {best['composite']:.1f}/25)")
+        g = best["rubric"].get("guessability", 3)
+        if g <= 1:
+            print("    ⚠ Guessability very low — players may find this unsolvable. "
+                  "Consider making key elements more prominent.")
+        elif g >= 5:
+            print("    ⚠ Too easy — answer is immediately obvious. "
+                  "Consider a more subtle visual treatment.")
+        if best["rubric"].get("concept_synergy", 5) <= 2:
+            print("    ⚠ Low concept synergy — image reads as a collage. "
+                  "Try a prompt that integrates the words into a single scene.")
 
     return results
+
+
+def _score_bar(value: int | str, max_val: int = 5, sweet_low: int = 0, sweet_high: int = 0) -> str:
+    """Render a compact score bar. Highlights sweet-spot range in green, else uses value-based colour."""
+    try:
+        v = int(value)
+    except (TypeError, ValueError):
+        return str(value)
+    if sweet_low and sweet_high:
+        color = "#2a9d2a" if sweet_low <= v <= sweet_high else ("#cc7700" if v < sweet_low else "#cc7700")
+    else:
+        color = "#2a9d2a" if v >= 4 else ("#cc7700" if v == 3 else "#cc0000")
+    filled = "█" * v
+    empty = "░" * (max_val - v)
+    return f'<span style="color:{color};font-family:monospace">{filled}{empty}</span> <b>{v}</b>'
 
 
 def _build_contact_sheet(outputs: list[Path], check_results: list[dict]) -> str:
     """Return HTML string for the candidate review contact sheet."""
     result_by_name = {r["file"]: r for r in check_results}
+
+    # Sort by composite score descending if scores are available
+    sorted_outputs = sorted(
+        outputs,
+        key=lambda p: -(result_by_name[p.name]["composite"] if p.name in result_by_name else 0),
+    )
+
     cards = []
-    for p in outputs:
+    for rank, p in enumerate(sorted_outputs):
         r = result_by_name.get(p.name)
+        border = "3px solid #f0a800" if rank == 0 and r else "1px solid #ccc"
+        star = " ★" if rank == 0 and r else ""
+
         if r:
-            status_color = "#2a9d2a" if not r["missing"] else "#cc7700"
-            status_icon = "✓" if not r["missing"] else "⚠"
-            overlay = (
-                f'<div style="font-size:11px;margin-top:4px;color:{status_color}">'
-                f'{status_icon} {", ".join(r["decoded"])}</div>'
+            rb = r.get("rubric", {})
+            missing = r.get("missing", [])
+            decoded = r.get("decoded", [])
+            composite = r.get("composite", 0)
+
+            status_color = "#2a9d2a" if not missing else "#cc7700"
+            blind_line = (
+                f'<div style="font-size:11px;color:{status_color};margin-top:6px">'
+                f'👁 {", ".join(decoded)}</div>'
             )
-            if r["missing"]:
-                overlay += (
-                    f'<div style="font-size:10px;color:#cc0000">'
-                    f'missing: {", ".join(r["missing"])}</div>'
+            if missing:
+                blind_line += (
+                    f'<div style="font-size:10px;color:#cc0000">missing: {", ".join(missing)}</div>'
                 )
+
+            rows = [
+                ("clarity", rb.get("word_clarity", "?"), 0, 0),
+                ("appeal", rb.get("visual_appeal", "?"), 0, 0),
+                ("synergy", rb.get("concept_synergy", "?"), 0, 0),
+                ("guess", rb.get("guessability", "?"), 3, 4),
+                ("aha", rb.get("aha_factor", "?"), 0, 0),
+            ]
+            rubric_html = '<table style="font-size:11px;margin-top:6px;border-collapse:collapse">'
+            for label, val, sl, sh in rows:
+                rubric_html += (
+                    f'<tr><td style="padding:1px 6px 1px 0;color:#555">{label}</td>'
+                    f'<td>{_score_bar(val, sweet_low=sl, sweet_high=sh)}</td></tr>'
+                )
+            rubric_html += "</table>"
+            rubric_html += (
+                f'<div style="font-size:12px;font-weight:700;margin-top:4px;color:#333">'
+                f'composite: {composite:.1f}/25</div>'
+            )
+            overlay = blind_line + rubric_html
         else:
             overlay = ""
 
         cards.append(
-            f'<div style="text-align:center;margin:12px;font-family:sans-serif">'
+            f'<div style="text-align:left;margin:12px;font-family:sans-serif;'
+            f'background:#fafafa;padding:10px;border-radius:8px;width:200px">'
             f'<img src="{p.name}" width="160" height="160" '
-            f'style="border:1px solid #ccc;display:block">'
-            f'<small style="display:block;margin-top:4px">{p.name}</small>'
+            f'style="border:{border};border-radius:6px;display:block">'
+            f'<small style="display:block;margin-top:4px;color:#666">{p.name}{star}</small>'
             f"{overlay}"
             f"</div>"
         )
 
     body = "\n".join(cards)
-    return f"<!doctype html><html><body style='display:flex;flex-wrap:wrap;padding:16px'>{body}</body></html>"
+    return (
+        "<!doctype html><html><head>"
+        "<style>body{font-family:-apple-system,sans-serif;padding:16px;background:#f5f5f7}"
+        "h2{margin:0 0 12px;font-size:15px;color:#333}</style>"
+        "</head><body>"
+        "<h2>Moji Mash candidates — sorted by composite score (★ = recommended)</h2>"
+        f"<div style='display:flex;flex-wrap:wrap'>{body}</div>"
+        "</body></html>"
+    )
 
 
 # ---------------------------------------------------------------------------
