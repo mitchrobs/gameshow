@@ -22,11 +22,15 @@ Silicon — Studio is a control surface, not a replacement.
 ```bash
 cd tools/moji-mash-studio
 npm install
-ANTHROPIC_API_KEY=sk-... npm run dev
+cp .env.example .env
+# Edit .env — paste in your ANTHROPIC_API_KEY
+npm run dev
 # Open http://localhost:5737
 ```
 
-Or, from the repo root: `npm run studio`.
+Or, from the repo root: `npm run studio` (uses whatever key is in `tools/moji-mash-studio/.env`).
+
+You only need to set up `.env` once. After that, `npm run dev` is all you need.
 
 ## Environment
 
