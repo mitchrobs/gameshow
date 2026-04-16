@@ -12,7 +12,8 @@
     "build:mini-crossword-seeds": "python3 scripts/build_mini_crossword_variants.py",
     "draft:moji-mash": "python3 scripts/generate_moji.py",
     "moji-schedule": "python3 scripts/show_schedule.py",
-    "moji-calendar": "python3 scripts/show_calendar.py"
+    "moji-calendar": "python3 scripts/show_calendar.py",
+    "barter:decision-tree": "node --experimental-strip-types scripts/barter-decision-tree.ts"
   },
   "dependencies": {
     "@expo/metro-runtime": "^6.1.2",

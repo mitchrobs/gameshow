@@ -39,6 +39,12 @@ export interface BarterGoal {
 }
 
 export type BarterDifficulty = 'Easy' | 'Medium' | 'Hard';
+export type BarterStrategyProfile =
+  | 'engine-vs-sprint'
+  | 'hedge-vs-concentrate'
+  | 'tempo-vs-value'
+  | 'robust-vs-greedy'
+  | 'mixed';
 
 export interface BarterPuzzle {
   id: string;
@@ -54,6 +60,7 @@ export interface BarterPuzzle {
   par: number;
   maxTrades: number;
   earlyWindowTrades: number;
+  strategyProfile: BarterStrategyProfile;
 }
 
 const GOODS: Good[] = [
@@ -94,6 +101,8 @@ const MIN_SOLUTION_PATHS = 2;
 const PATH_COUNT_CAP = 3;
 const CHOICE_DEPTH = 4;
 const MIN_CHOICES_PER_STEP = 2;
+const OPENING_PLAN_DEPTH = 3;
+const OPENING_PLAN_CAP = 20;
 
 const MARKETS = [
   { name: 'Silk Road Bazaar', emoji: '🧵' },
@@ -316,23 +325,35 @@ function tradeKey(trade: Trade): string {
   return `${giveKey}->${trade.get.qty}${trade.get.good}`;
 }
 
-function makeReverseTrade(trade: Trade, rand: () => number): Trade {
-  const primaryGive = trade.give[0];
-  if (!primaryGive) {
-    return {
-      give: [{ good: trade.get.good, qty: trade.get.qty }],
-      get: { good: trade.get.good, qty: trade.get.qty },
-    };
-  }
-  const giveQty = trade.get.qty;
-  const giveGood = trade.get.good;
-  const minReturn = Math.max(1, Math.floor(primaryGive.qty * 0.4));
-  const maxReturn = Math.max(minReturn, Math.floor(primaryGive.qty * 0.7));
-  const getQty = randInt(rand, minReturn, maxReturn);
-  return {
-    give: [{ good: giveGood, qty: giveQty }],
-    get: { good: primaryGive.good, qty: getQty },
-  };
+function goodValueWeight(good: GoodId): number {
+  const tier = GOOD_MAP[good].tier;
+  if (tier === 'common') return 1;
+  if (tier === 'uncommon') return 3;
+  return 8;
+}
+
+function tradeGiveValue(trade: Trade): number {
+  return trade.give.reduce(
+    (sum, side) => sum + side.qty * goodValueWeight(side.good),
+    0
+  );
+}
+
+function tradeGetValue(trade: Trade): number {
+  return trade.get.qty * goodValueWeight(trade.get.good);
+}
+
+function isSelfDownTrade(trade: Trade): boolean {
+  if (trade.give.length !== 1) return false;
+  const side = trade.give[0];
+  return side.good === trade.get.good && side.qty > trade.get.qty;
+}
+
+function isPunishingDownTrade(trade: Trade): boolean {
+  if (isSelfDownTrade(trade)) return true;
+  const giveValue = tradeGiveValue(trade);
+  const getValue = tradeGetValue(trade);
+  return giveValue > 0 && getValue / giveValue < 0.35;
 }
 
 function generateDistractors(
@@ -348,28 +369,36 @@ function generateDistractors(
   const targetPool = goods.filter((good) => !blockedTargets?.has(good));
   const targetFallback = targetPool.length === 0;
 
-  const reversed = seededShuffle(optimal, rand);
-  for (const trade of reversed) {
-    if (trades.length >= count) break;
-    const reverse = makeReverseTrade(trade, rand);
-    const key = tradeKey(reverse);
-    if (!used.has(key)) {
-      used.add(key);
-      trades.push(reverse);
-    }
-  }
-
   while (trades.length < count) {
     const giveGood = seededPick(goods, rand);
     const getGood = seededPick(targetFallback ? goods : targetPool, rand);
     if (giveGood === getGood || getGood === goal) continue;
 
-    const getQty = randInt(rand, 1, 2);
-    const giveQty = Math.max(getQty + 1, getQty * randInt(rand, 2, 3));
+    const getQty = randInt(rand, 1, 3);
+    const baseGive = Math.max(getQty + 1, getQty * randInt(rand, 2, 3));
+    const useCompound = rand() > 0.45;
+    let give: TradeSide[];
+    if (useCompound) {
+      const secondPool = goods.filter((id) => id !== giveGood && id !== getGood);
+      if (secondPool.length > 0) {
+        const secondGood = seededPick(secondPool, rand);
+        const primaryQty = Math.max(1, Math.ceil(baseGive * 0.7));
+        const secondQty = Math.max(1, Math.ceil(baseGive * 0.25));
+        give = [
+          { good: giveGood, qty: primaryQty },
+          { good: secondGood, qty: secondQty },
+        ];
+      } else {
+        give = [{ good: giveGood, qty: baseGive }];
+      }
+    } else {
+      give = [{ good: giveGood, qty: baseGive }];
+    }
     const candidate: Trade = {
-      give: [{ good: giveGood, qty: giveQty }],
+      give,
       get: { good: getGood, qty: getQty },
     };
+    if (isPunishingDownTrade(candidate)) continue;
     const key = tradeKey(candidate);
     if (!used.has(key)) {
       used.add(key);
@@ -534,6 +563,49 @@ function createVariantTrades(
   return variants;
 }
 
+function createCompoundAlternatives(
+  solution: Trade[],
+  goods: GoodId[],
+  inventory: Record<GoodId, number>,
+  rand: () => number,
+  existingKeys: Set<string>
+): Trade[] {
+  const alternatives: Trade[] = [];
+  for (const trade of seededShuffle(solution, rand)) {
+    if (alternatives.length >= 4) break;
+    const primary = trade.give[0];
+    if (!primary) continue;
+    if (primary.qty <= 1) continue;
+    const supportPool = goods.filter(
+      (good) =>
+        good !== primary.good &&
+        good !== trade.get.good &&
+        inventory[good] > 0 &&
+        GOOD_MAP[good].tier !== 'rare'
+    );
+    if (supportPool.length === 0) continue;
+    const supportGood = seededPick(supportPool, rand);
+    const supportQty = Math.max(1, Math.ceil(primary.qty * 0.2));
+    if (inventory[supportGood] < supportQty) continue;
+    const reducedPrimary = Math.max(1, Math.ceil(primary.qty * 0.65));
+    if (reducedPrimary >= primary.qty) continue;
+    const candidate: Trade = {
+      ...trade,
+      give: [
+        { good: primary.good, qty: reducedPrimary },
+        { good: supportGood, qty: supportQty },
+      ],
+      variant: true,
+    };
+    if (isPunishingDownTrade(candidate)) continue;
+    const key = tradeKey(candidate);
+    if (existingKeys.has(key)) continue;
+    existingKeys.add(key);
+    alternatives.push(candidate);
+  }
+  return alternatives;
+}
+
 function canAfford(inv: Record<GoodId, number>, trade: Trade): boolean {
   return trade.give.every((side) => inv[side.good] >= side.qty);
 }
@@ -561,6 +633,199 @@ function countAffordableTrades(
     if (window === 'late' && tradeWindow !== 'late') return false;
     return canAfford(inv, trade);
   }).length;
+}
+
+function inventorySignature(inv: Record<GoodId, number>, goods: Good[]): string {
+  return goods.map((good) => `${good.id}:${inv[good.id]}`).join('|');
+}
+
+function countReachableTrades(
+  inv: Record<GoodId, number>,
+  trades: Trade[],
+  window: TradeWindow
+): number {
+  return trades.reduce((total, trade) => {
+    const tradeWindow = trade.window ?? 'early';
+    if (window === 'early' && tradeWindow === 'late') return total;
+    if (window === 'late' && tradeWindow !== 'late') return total;
+    return canAfford(inv, trade) ? total + 1 : total;
+  }, 0);
+}
+
+function inventoryConcentration(inv: Record<GoodId, number>, goods: Good[]): number {
+  const total = goods.reduce((sum, good) => sum + inv[good.id], 0);
+  if (total <= 0) return 0;
+  return goods.reduce((sum, good) => {
+    const share = inv[good.id] / total;
+    return sum + share * share;
+  }, 0);
+}
+
+function materialDifference(
+  a: Record<GoodId, number>,
+  b: Record<GoodId, number>,
+  goods: Good[]
+): number {
+  return goods.reduce((sum, good) => sum + Math.abs(a[good.id] - b[good.id]), 0);
+}
+
+function toGiveMap(trade: Trade): Record<GoodId, number> {
+  const map = createEmptyInventory();
+  trade.give.forEach((side) => {
+    map[side.good] += side.qty;
+  });
+  return map;
+}
+
+function isTradeDominated(candidate: Trade, challenger: Trade): boolean {
+  if (candidate.get.good !== challenger.get.good) return false;
+  if (candidate.get.qty !== challenger.get.qty) return false;
+  const candidateMap = toGiveMap(candidate);
+  const challengerMap = toGiveMap(challenger);
+  let strictlyBetter = false;
+  for (const good of GOODS) {
+    const challengerQty = challengerMap[good.id];
+    const candidateQty = candidateMap[good.id];
+    if (challengerQty > candidateQty) return false;
+    if (challengerQty < candidateQty) strictlyBetter = true;
+  }
+  return strictlyBetter;
+}
+
+function pruneDominatedTrades(solution: Trade[], trades: Trade[]): Trade[] {
+  const solutionKeys = new Set(solution.map((trade) => tradeKey(trade)));
+  return trades.filter((trade, index) => {
+    if (solutionKeys.has(tradeKey(trade))) return true;
+    return !trades.some((other, otherIndex) => {
+      if (index === otherIndex) return false;
+      const tradeWindow = trade.window ?? 'early';
+      const otherWindow = other.window ?? 'early';
+      if (tradeWindow !== otherWindow) return false;
+      return isTradeDominated(trade, other);
+    });
+  });
+}
+
+interface OpeningPlan {
+  sequence: Trade[];
+  inventory: Record<GoodId, number>;
+  goalProgress: number;
+  optionality: number;
+  concentration: number;
+}
+
+function enumerateOpeningPlans(
+  puzzle: BarterPuzzle,
+  depth: number,
+  maxPlans: number
+): OpeningPlan[] {
+  const plans: OpeningPlan[] = [];
+  const seen = new Set<string>();
+  const visit = (
+    inv: Record<GoodId, number>,
+    step: number,
+    sequence: Trade[]
+  ) => {
+    if (plans.length >= maxPlans) return;
+    if (step >= depth) {
+      const window: TradeWindow = step < puzzle.earlyWindowTrades ? 'early' : 'late';
+      const signature = `${window}|${inventorySignature(inv, puzzle.goods)}`;
+      if (seen.has(signature)) return;
+      seen.add(signature);
+      plans.push({
+        sequence,
+        inventory: inv,
+        goalProgress: inv[puzzle.goal.good],
+        optionality: countReachableTrades(inv, puzzle.trades, window),
+        concentration: inventoryConcentration(inv, puzzle.goods),
+      });
+      return;
+    }
+
+    const window: TradeWindow = step < puzzle.earlyWindowTrades ? 'early' : 'late';
+    const candidates = puzzle.trades.filter((trade) => {
+      const tradeWindow = trade.window ?? 'early';
+      if (window === 'early' && tradeWindow === 'late') return false;
+      if (window === 'late' && tradeWindow !== 'late') return false;
+      return canAfford(inv, trade);
+    });
+    if (candidates.length === 0) {
+      const signature = `${window}|${inventorySignature(inv, puzzle.goods)}`;
+      if (seen.has(signature)) return;
+      seen.add(signature);
+      plans.push({
+        sequence,
+        inventory: inv,
+        goalProgress: inv[puzzle.goal.good],
+        optionality: 0,
+        concentration: inventoryConcentration(inv, puzzle.goods),
+      });
+      return;
+    }
+
+    for (const trade of candidates) {
+      if (plans.length >= maxPlans) break;
+      const nextInventory = applyTrade(inv, trade);
+      visit(nextInventory, step + 1, [...sequence, trade]);
+    }
+  };
+
+  visit({ ...puzzle.inventory }, 0, []);
+  return plans;
+}
+
+function chooseDivergentOpeningPlans(
+  plans: OpeningPlan[],
+  puzzle: BarterPuzzle
+): [OpeningPlan, OpeningPlan] | null {
+  if (plans.length < 2) return null;
+  let bestPair: [OpeningPlan, OpeningPlan] | null = null;
+  let bestDistance = -1;
+  for (let i = 0; i < plans.length; i++) {
+    for (let j = i + 1; j < plans.length; j++) {
+      const a = plans[i];
+      const b = plans[j];
+      const distance = materialDifference(a.inventory, b.inventory, puzzle.goods);
+      if (distance > bestDistance) {
+        bestDistance = distance;
+        bestPair = [a, b];
+      }
+    }
+  }
+  return bestPair;
+}
+
+function classifyStrategyProfile(puzzle: BarterPuzzle): BarterStrategyProfile {
+  const plans = enumerateOpeningPlans(puzzle, OPENING_PLAN_DEPTH, OPENING_PLAN_CAP);
+  const pair = chooseDivergentOpeningPlans(plans, puzzle);
+  if (!pair) return 'mixed';
+  const [a, b] = pair;
+  const goalDiff = Math.abs(a.goalProgress - b.goalProgress);
+  const optionalityDiff = Math.abs(a.optionality - b.optionality);
+  const concentrationDiff = Math.abs(a.concentration - b.concentration);
+
+  if (
+    goalDiff >= 1 &&
+    optionalityDiff >= 2 &&
+    (a.goalProgress - b.goalProgress) * (a.optionality - b.optionality) < 0
+  ) {
+    return 'engine-vs-sprint';
+  }
+
+  if (concentrationDiff >= 0.16) {
+    return 'hedge-vs-concentrate';
+  }
+
+  const sequenceDelta = Math.abs(a.sequence.length - b.sequence.length);
+  if (goalDiff >= 1 && sequenceDelta >= 1) {
+    return 'tempo-vs-value';
+  }
+
+  if (optionalityDiff >= 3 && goalDiff <= 1) {
+    return 'robust-vs-greedy';
+  }
+
+  return 'mixed';
 }
 
 function hasChoicesOnSolution(puzzle: BarterPuzzle, depth: number): boolean {
@@ -627,6 +892,18 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
           pathGoods[idx] = pathGoods[swapIndex];
           pathGoods[swapIndex] = temp;
         }
+      }
+    }
+    for (let idx = 1; idx < pathGoods.length; idx++) {
+      if (pathGoods[idx] !== pathGoods[idx - 1]) continue;
+      const alternatives = pickedGoods.filter(
+        (id) =>
+          id !== pathGoods[idx - 1] &&
+          id !== goalGood &&
+          id !== reservedGood
+      );
+      if (alternatives.length > 0) {
+        pathGoods[idx] = seededPick(alternatives, rand);
       }
     }
     const built = buildTrades(pathGoods, goalQty, rand);
@@ -722,6 +999,13 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
         );
       }
     }
+    const compoundTrades = createCompoundAlternatives(
+      solution,
+      pickedGoods,
+      inventory,
+      rand,
+      existingKeys
+    );
     inventory[goalGood] = 0;
     (Object.keys(inventory) as GoodId[]).forEach((goodId) => {
       inventory[goodId] = Math.min(200, inventory[goodId]);
@@ -730,7 +1014,13 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
     const choiceTrades: Trade[] = [];
     const choiceDepth = Math.min(CHOICE_DEPTH, solution.length);
     const workingInventory = { ...inventory };
-    const combinedTrades = () => [...solution, ...distractors, ...variantTrades, ...choiceTrades];
+    const combinedTrades = () => [
+      ...solution,
+      ...distractors,
+      ...variantTrades,
+      ...compoundTrades,
+      ...choiceTrades,
+    ];
 
     const boostGood = (good: GoodId, qty: number) => {
       if (inventory[good] < qty) {
@@ -805,10 +1095,32 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       }
     }
 
-    const trades = seededShuffle(
-      [...solution, ...distractors, ...variantTrades, ...choiceTrades],
-      rand
-    );
+    const finalizedTradePool = [
+      ...solution,
+      ...distractors,
+      ...variantTrades,
+      ...compoundTrades,
+      ...choiceTrades,
+    ];
+    const prunedTrades = pruneDominatedTrades(solution, finalizedTradePool);
+    const trades = seededShuffle(prunedTrades, rand);
+
+    const strategyProfile = classifyStrategyProfile({
+      id: `barter-${baseSeed}`,
+      dateKey: getDateKey(date),
+      difficulty,
+      marketName: MARKETS[baseSeed % MARKETS.length].name,
+      marketEmoji: MARKETS[baseSeed % MARKETS.length].emoji,
+      goods,
+      inventory,
+      goal: { good: goalGood, qty: goalQty },
+      trades,
+      solution,
+      par,
+      maxTrades: 12,
+      earlyWindowTrades,
+      strategyProfile: 'mixed',
+    });
 
     return {
       id: `barter-${baseSeed}`,
@@ -824,6 +1136,7 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       par,
       maxTrades: 12,
       earlyWindowTrades,
+      strategyProfile,
     };
   };
 
@@ -1013,6 +1326,11 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
       const lateGoalTrades = candidate.trades.filter(
         (trade) => trade.window === 'late' && trade.get.good === candidate.goal.good
       ).length;
+      const compoundTradeCount = candidate.trades.filter((trade) => trade.give.length > 1).length;
+      const earlyCompoundCount = candidate.trades.filter(
+        (trade) => (trade.window ?? 'early') !== 'late' && trade.give.length > 1
+      ).length;
+      const selfDownTrades = candidate.trades.filter((trade) => isSelfDownTrade(trade)).length;
       const startAffordableTrades = candidate.trades.filter(
         (trade) =>
           (trade.window ?? 'early') !== 'late' &&
@@ -1022,7 +1340,20 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
         const shortestInRange =
           shortest >= MIN_PATH_LENGTH && shortest <= MAX_PATH_LENGTH ? 1000 : 0;
         const branchScore = Math.min(PATH_COUNT_CAP, earlyVariantCount + lateVariantCount);
-        const score = shortestInRange + shortest * 2 + branchScore * 10;
+        const strategyBonus =
+          candidate.strategyProfile === 'engine-vs-sprint'
+            ? 42
+            : candidate.strategyProfile === 'hedge-vs-concentrate'
+            ? 24
+            : candidate.strategyProfile === 'tempo-vs-value'
+            ? 20
+            : candidate.strategyProfile === 'robust-vs-greedy'
+            ? 16
+            : 8;
+        const compoundBonus = Math.min(4, compoundTradeCount) * 8 + Math.min(2, earlyCompoundCount) * 6;
+        const penalty = selfDownTrades * 30;
+        const score =
+          shortestInRange + shortest * 2 + branchScore * 10 + strategyBonus + compoundBonus - penalty;
         if (score > fallbackScore) {
           fallbackScore = score;
           fallback = candidate;
@@ -1039,7 +1370,11 @@ function generatePuzzle(seed: number, date: Date = new Date()): BarterPuzzle {
         earlyVariantCount > 0 &&
         lateVariantCount > 0 &&
         lateGoalTrades > 0 &&
-        startAffordableTrades >= 2;
+        startAffordableTrades >= 2 &&
+        compoundTradeCount >= 2 &&
+        earlyCompoundCount >= 1 &&
+        selfDownTrades === 0 &&
+        candidate.strategyProfile !== 'mixed';
       if (!meetsLength || !meetsBasics) continue;
       const earlyPaths = countPathsToStage(
         candidate,

@@ -86,10 +86,20 @@ function countChoices(
 const puzzle = getDailyBarter();
 const shortest = shortestPathLength(puzzle);
 const choices = countChoices(puzzle, 4);
+const compoundTrades = puzzle.trades.filter((trade) => trade.give.length > 1).length;
+const selfDownTrades = puzzle.trades.filter(
+  (trade) =>
+    trade.give.length === 1 &&
+    trade.give[0]?.good === trade.get.good &&
+    trade.give[0].qty > trade.get.qty
+).length;
 
 console.log('Barter daily check');
 console.log(`Market: ${puzzle.marketName} ${puzzle.marketEmoji}`);
 console.log(`Goal: ${puzzle.goal.qty} ${puzzle.goal.good}`);
+console.log(`Strategy profile: ${puzzle.strategyProfile}`);
+console.log(`Compound trades: ${compoundTrades}`);
+console.log(`Self-down trades: ${selfDownTrades}`);
 console.log(`Early window trades: ${puzzle.earlyWindowTrades}`);
 console.log(`Max trades: ${puzzle.maxTrades}`);
 console.log(`Shortest path length: ${shortest ?? 'n/a'}`);
