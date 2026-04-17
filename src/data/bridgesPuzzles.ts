@@ -29,6 +29,8 @@ interface BridgesSeedPuzzle {
   solution: BridgesBridge[];
 }
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 const BASE_PUZZLES: BridgesSeedPuzzle[] = [
   {
     id: 'bridges-easy-001',
@@ -143,13 +145,6 @@ const BASE_PUZZLES: BridgesSeedPuzzle[] = [
   },
 ];
 
-function getDailySeed(date: Date = new Date()): number {
-  const y = date.getFullYear();
-  const m = date.getMonth() + 1;
-  const d = date.getDate();
-  return y * 10000 + m * 100 + d;
-}
-
 function applyRequirements(puzzle: BridgesSeedPuzzle): BridgesPuzzle {
   const counts: Record<number, number> = {};
   puzzle.islands.forEach((island) => {
@@ -170,15 +165,27 @@ function applyRequirements(puzzle: BridgesSeedPuzzle): BridgesPuzzle {
 }
 
 export const bridgesPuzzles: BridgesPuzzle[] = BASE_PUZZLES.map(applyRequirements);
-const easyBridgesPuzzles = bridgesPuzzles.filter((puzzle) => puzzle.difficulty === 'Easy');
-const mediumBridgesPuzzles = bridgesPuzzles.filter((puzzle) => puzzle.difficulty === 'Medium');
+const bridgesPuzzlesByDifficulty: Record<BridgesDifficulty, BridgesPuzzle[]> = {
+  Easy: bridgesPuzzles.filter((puzzle) => puzzle.difficulty === 'Easy'),
+  Medium: bridgesPuzzles.filter((puzzle) => puzzle.difficulty === 'Medium'),
+  Hard: bridgesPuzzles.filter((puzzle) => puzzle.difficulty === 'Hard'),
+};
+
+// Easy + Medium averaged 1.5; Easy + Medium + Hard + Hard averages 2.25.
+const DAILY_DIFFICULTY_ROTATION: BridgesDifficulty[] = ['Easy', 'Medium', 'Hard', 'Hard'];
+
+function getDailyOrdinal(date: Date = new Date()): number {
+  return Math.floor(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / MS_PER_DAY
+  );
+}
 
 export function getDailyBridges(date: Date = new Date()): BridgesPuzzle {
-  const seed = getDailySeed(date);
-  const pool =
-    easyBridgesPuzzles.length + mediumBridgesPuzzles.length > 0
-      ? [...easyBridgesPuzzles, ...mediumBridgesPuzzles]
-      : bridgesPuzzles;
-  const index = seed % pool.length;
+  const dayIndex = getDailyOrdinal(date);
+  const rotationIndex = dayIndex % DAILY_DIFFICULTY_ROTATION.length;
+  const difficulty = DAILY_DIFFICULTY_ROTATION[rotationIndex] ?? 'Hard';
+  const preferredPool = bridgesPuzzlesByDifficulty[difficulty];
+  const pool = preferredPool.length > 0 ? preferredPool : bridgesPuzzles;
+  const index = Math.floor(dayIndex / DAILY_DIFFICULTY_ROTATION.length) % pool.length;
   return pool[index];
 }
