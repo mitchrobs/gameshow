@@ -18,9 +18,17 @@ import {
 } from '../src/constants/theme';
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import {
+  analyzeBarterPuzzle,
+  applyTrade,
   BarterPuzzle,
+  canAfford as canAffordTrade,
+  getBarterTutorialPuzzle,
   GoodId,
+  missingForTrade,
+  previewTrade,
+  RouteSummary,
   Trade,
+  tradeKey,
   getDailyBarter,
   getGoodById,
 } from '../src/data/barterPuzzles';
@@ -79,8 +87,48 @@ function formatTrade(trade: Trade): string {
       return `${side.qty} ${good.emoji}`;
     })
     .join(' + ');
-  const getGood = getGoodById(trade.get.good);
-  return `${giveParts} → ${trade.get.qty} ${getGood.emoji}`;
+  const receiveParts = trade.receive
+    .map((side) => {
+      const good = getGoodById(side.good);
+      return `${side.qty} ${good.emoji}`;
+    })
+    .join(' + ');
+  return `${giveParts} → ${receiveParts}`;
+}
+
+function formatTradeSides(sides: Array<{ good: GoodId; qty: number }>): string {
+  return sides
+    .map((side) => {
+      const good = getGoodById(side.good);
+      const prefix = side.qty > 0 ? '+' : '';
+      return `${prefix}${side.qty} ${good.emoji}`;
+    })
+    .join('  ');
+}
+
+function getRoleLabel(trade: Trade): string | null {
+  switch (trade.role) {
+    case 'engine_setup':
+      return 'Setup';
+    case 'compound_gate':
+      return 'Bundle';
+    case 'engine_payoff':
+      return 'Payoff';
+    case 'tempo_bailout':
+      return 'Bailout';
+    case 'tempo':
+      return 'Tempo';
+    default:
+      return null;
+  }
+}
+
+function getResultTier(gameState: GameState, tradesUsed: number, puzzle: BarterPuzzle): string {
+  if (gameState === 'lost') return 'Bust';
+  if (gameState !== 'won') return 'Planning';
+  if (tradesUsed <= puzzle.par) return 'Perfect';
+  if (tradesUsed <= puzzle.par + 1) return 'Par';
+  return 'Solved';
 }
 
 export default function BarterScreen() {
@@ -91,6 +139,11 @@ export default function BarterScreen() {
   const Spacing = theme.spacing;
   const router = useRouter();
   const puzzle = useMemo<BarterPuzzle>(() => getDailyBarter(), []);
+  const qualityReport = useMemo(() => analyzeBarterPuzzle(puzzle), [puzzle]);
+  const tutorialPuzzle = useMemo(() => getBarterTutorialPuzzle(), []);
+  const tradeLookup = useMemo(() => {
+    return new Map(puzzle.trades.map((trade) => [tradeKey(trade), trade]));
+  }, [puzzle.trades]);
   const { width } = useWindowDimensions();
   const isCompact = width < 400;
   const canGoBack = router.canGoBack();
@@ -105,6 +158,7 @@ export default function BarterScreen() {
     []
   );
   const dailyKey = useMemo(() => `${STORAGE_PREFIX}:daily:${dateKey}`, [dateKey]);
+  const tutorialKey = `${STORAGE_PREFIX}:tutorial:v1`;
 
   const [inventory, setInventory] = useState<Record<GoodId, number>>(
     () => capInventory(cloneInventory(puzzle.inventory))
@@ -118,13 +172,22 @@ export default function BarterScreen() {
   const [dailyCompleted, setDailyCompleted] = useState(false);
   const [lateWindowOpen, setLateWindowOpen] = useState(false);
   const [lateTransition, setLateTransition] = useState(false);
+  const [previewTradeIndex, setPreviewTradeIndex] = useState<number | null>(null);
+  const [tradeHistory, setTradeHistory] = useState<Trade[]>([]);
+  const [newlyAffordableKeys, setNewlyAffordableKeys] = useState<Set<string>>(
+    () => new Set()
+  );
+  const [showTutorial, setShowTutorial] = useState(() => {
+    const storage = getStorage();
+    return storage?.getItem(tutorialKey) !== '1';
+  });
   const lateTransitionAnim = useRef(new Animated.Value(0)).current;
 
   const marketName = puzzle.marketName?.trim() || 'Daily Market';
   const marketEmoji = puzzle.marketEmoji || '🏺';
   const goalGood = getGoodById(puzzle.goal.good);
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
-  const solvedAtPar = gameState === 'won' && tradesUsed <= puzzle.par;
+  const resultTier = getResultTier(gameState, tradesUsed, puzzle);
   const isMarinerMarket = marketName === "Mariner's Market";
   const earlyWindowTrades = puzzle.earlyWindowTrades ?? 4;
   const lateWindowTrigger = earlyWindowTrades;
@@ -171,6 +234,24 @@ export default function BarterScreen() {
   }, [puzzle.trades]);
 
   const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
+  const previewTradeCandidate =
+    previewTradeIndex === null ? null : puzzle.trades[previewTradeIndex] ?? null;
+  const activePreview = useMemo(() => {
+    if (!previewTradeCandidate) return null;
+    return previewTrade(puzzle, inventory, previewTradeCandidate, tradesUsed);
+  }, [inventory, previewTradeCandidate, puzzle, tradesUsed]);
+  const formatRouteSummary = useCallback(
+    (route: RouteSummary | null): string => {
+      if (!route) return 'No route available';
+      return route.tradeKeys
+        .map((key) => {
+          const trade = tradeLookup.get(key);
+          return trade ? formatTrade(trade) : key;
+        })
+        .join('  /  ');
+    },
+    [tradeLookup]
+  );
 
   const startSummary = useMemo(() => {
     const entries = puzzle.goods
@@ -186,18 +267,18 @@ export default function BarterScreen() {
     const title = `🏺 Barter — ${dateLabel}`;
     const resultLine =
       gameState === 'won'
-        ? solvedAtPar
+        ? resultTier === 'Perfect'
           ? '⭐ Perfect Route!'
-          : '✅ Market Closed'
+          : `✅ ${resultTier}`
         : gameState === 'lost'
         ? '❌ Out of Trades'
         : '✅ Market Closed';
-    const tradeDenom = solvedAtPar ? puzzle.par : puzzle.maxTrades;
+    const tradeDenom = gameState === 'won' ? puzzle.par : puzzle.maxTrades;
     const statLine = `🔄 ${tradesUsed}/${tradeDenom} trades · ⏱ ${formatTime(
       elapsedSeconds
     )}`;
     return [title, resultLine, statLine, 'daybreak.com'].join('\n');
-  }, [dateLabel, gameState, solvedAtPar, puzzle.par, puzzle.maxTrades, tradesUsed, elapsedSeconds]);
+  }, [dateLabel, elapsedSeconds, gameState, puzzle.maxTrades, puzzle.par, resultTier, tradesUsed]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -244,15 +325,15 @@ export default function BarterScreen() {
     lateTransitionAnim.setValue(0);
     Animated.timing(lateTransitionAnim, {
       toValue: 1,
-      duration: 1200,
+      duration: 300,
       useNativeDriver: true,
     }).start(() => {
       setLateWindowOpen(true);
       Animated.sequence([
-        Animated.delay(2500),
+        Animated.delay(500),
         Animated.timing(lateTransitionAnim, {
           toValue: 0,
-          duration: 1200,
+          duration: 300,
           useNativeDriver: true,
         }),
       ]).start(() => {
@@ -266,6 +347,11 @@ export default function BarterScreen() {
     setShowResult(true);
   }, [gameState]);
 
+  const handleDismissTutorial = useCallback(() => {
+    const storage = getStorage();
+    storage?.setItem(tutorialKey, '1');
+    setShowTutorial(false);
+  }, [tutorialKey]);
 
   const handleTrade = useCallback(
     (index: number) => {
@@ -273,22 +359,20 @@ export default function BarterScreen() {
       if (lateTransition) return;
       if (tradesUsed >= puzzle.maxTrades) return;
       const trade = puzzle.trades[index];
-      const canAfford = trade.give.every(
-        (side) => inventory[side.good] >= side.qty
-      );
-      if (!canAfford) return;
+      if (!trade) return;
+      if (!canAffordTrade(inventory, trade)) return;
 
-      const nextInventory = cloneInventory(inventory);
-      trade.give.forEach((side) => {
-        nextInventory[side.good] -= side.qty;
-      });
-      nextInventory[trade.get.good] += trade.get.qty;
+      const preview = previewTrade(puzzle, inventory, trade, tradesUsed);
+      const nextInventory = applyTrade(inventory, trade);
       const cappedInventory = capInventory(nextInventory);
 
       const nextTradesUsed = tradesUsed + 1;
       setInventory(cappedInventory);
       setTradesUsed(nextTradesUsed);
       setLastTradeIndex(index);
+      setPreviewTradeIndex(null);
+      setTradeHistory((prev) => [...prev, trade]);
+      setNewlyAffordableKeys(new Set(preview.newlyAffordableTradeKeys));
 
       if (cappedInventory[puzzle.goal.good] >= puzzle.goal.qty) {
         setGameState('won');
@@ -301,7 +385,7 @@ export default function BarterScreen() {
           : candidate.window === 'late'
       );
       const canStillTrade = candidateTrades.some((candidate) => {
-        return candidate.give.every((side) => cappedInventory[side.good] >= side.qty);
+        return canAffordTrade(cappedInventory, candidate);
       });
       if (!canStillTrade) {
         setGameState('lost');
@@ -332,6 +416,160 @@ export default function BarterScreen() {
       setShareStatus('Copy failed');
     }
   }, [shareText]);
+
+  const renderTradeCard = (trade: Trade, locked = false) => {
+    const tradeIndex = puzzle.trades.indexOf(trade);
+    const giveGoods = trade.give.map((side) => ({
+      side,
+      good: getGoodById(side.good),
+    }));
+    const receiveGoods = trade.receive.map((side) => ({
+      side,
+      good: getGoodById(side.good),
+    }));
+    const missing = missingForTrade(inventory, trade);
+    const canTrade =
+      !locked &&
+      gameState === 'playing' &&
+      !lateTransition &&
+      tradesUsed < puzzle.maxTrades &&
+      missing.length === 0;
+    const label = getRoleLabel(trade);
+    const key = tradeKey(trade);
+    const isNewlyAffordable = newlyAffordableKeys.has(key);
+    let buttonLabel = locked ? 'Late' : 'Trade';
+    if (gameState !== 'playing') {
+      buttonLabel = 'Closed';
+    } else if (!locked && missing.length > 0) {
+      buttonLabel = `Need ${missing
+        .map((side) => `${side.qty} ${getGoodById(side.good).emoji}`)
+        .join(' + ')}`;
+    }
+
+    return (
+      <Pressable
+        key={`trade-${locked ? 'locked' : 'active'}-${tradeIndex}`}
+        style={({ pressed }) => [
+          styles.tradeCard,
+          canTrade ? styles.tradeCardAvailable : styles.tradeCardUnavailable,
+          isNewlyAffordable && styles.tradeCardNewlyAffordable,
+          previewTradeIndex === tradeIndex && styles.tradeCardPreviewed,
+          lastTradeIndex === tradeIndex && styles.tradeCardFlash,
+          locked && styles.tradeCardLocked,
+          pressed && !locked ? styles.tradeCardPressed : null,
+          isCompact && styles.tradeCardCompact,
+          isMarinerMarket && styles.tradeCardMariner,
+        ]}
+        onPress={() => setPreviewTradeIndex(tradeIndex)}
+        onHoverIn={() => setPreviewTradeIndex(tradeIndex)}
+      >
+        <View style={styles.tradeMetaRow}>
+          {label && <Text style={styles.tradeRole}>{label}</Text>}
+          {locked && <Text style={styles.tradeLockedText}>Opens late</Text>}
+          {isNewlyAffordable && <Text style={styles.tradeNewText}>Newly open</Text>}
+        </View>
+        <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
+          <View
+            style={[styles.tradeInfo, isCompact && styles.tradeInfoCompact]}
+            pointerEvents="none"
+          >
+            <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
+              {giveGoods.map(({ side, good }, index) => (
+                <View
+                  key={`${side.good}-${index}`}
+                  style={[
+                    styles.tradeGiveItem,
+                    isCompact && styles.tradeGiveItemCompact,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.tradeQty,
+                      isCompact && styles.tradeQtyCompact,
+                      isMarinerMarket && styles.tradeQtyMariner,
+                    ]}
+                  >
+                    {side.qty}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.tradeEmoji,
+                      isCompact && styles.tradeEmojiCompact,
+                      isMarinerMarket && styles.tradeEmojiMariner,
+                    ]}
+                  >
+                    {good.emoji}
+                  </Text>
+                  {index < giveGoods.length - 1 && (
+                    <Text style={styles.tradePlus}>+</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+            <Text style={styles.tradeArrow}>→</Text>
+            <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
+              {receiveGoods.map(({ side, good }, index) => (
+                <View
+                  key={`${side.good}-${index}`}
+                  style={[
+                    styles.tradeGiveItem,
+                    isCompact && styles.tradeGiveItemCompact,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.tradeQty,
+                      isCompact && styles.tradeQtyCompact,
+                      isMarinerMarket && styles.tradeQtyMariner,
+                    ]}
+                  >
+                    {side.qty}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.tradeEmoji,
+                      isCompact && styles.tradeEmojiCompact,
+                      isMarinerMarket && styles.tradeEmojiMariner,
+                    ]}
+                  >
+                    {good.emoji}
+                  </Text>
+                  {index < receiveGoods.length - 1 && (
+                    <Text style={styles.tradePlus}>+</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          </View>
+          <Pressable
+            style={({ pressed }) => [
+              styles.tradeButton,
+              !canTrade && styles.tradeButtonDisabled,
+              pressed && canTrade ? styles.tradeButtonPressed : null,
+              isCompact && styles.tradeButtonCompact,
+              isMarinerMarket && styles.tradeButtonMariner,
+            ]}
+            onPress={() => handleTrade(tradeIndex)}
+            disabled={!canTrade}
+          >
+            <Text
+              style={[
+                styles.tradeButtonText,
+                !canTrade && styles.tradeButtonTextDisabled,
+              ]}
+            >
+              {buttonLabel}
+            </Text>
+          </Pressable>
+        </View>
+        {missing.length > 0 && !locked && (
+          <Text style={styles.tradeMissingText}>
+            Missing {missing.map((side) => `${side.qty} ${getGoodById(side.good).emoji}`).join(', ')}
+          </Text>
+        )}
+      </Pressable>
+    );
+  };
 
   return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -441,6 +679,30 @@ export default function BarterScreen() {
                 Use the first {earlyWindowTrades} trades to prepare, then close in during the late window.
               </Text>
             </View>
+            {showTutorial && (
+              <View style={styles.tutorialCard}>
+                <Text style={styles.tutorialTitle}>First pattern: setup, bundle, cash out</Text>
+                <Text style={styles.tutorialBody}>
+                  Early trades create ingredients. Late contracts reward balanced goods, especially bundles.
+                </Text>
+                <View style={styles.tutorialSteps}>
+                  {tutorialPuzzle.solution.map((trade, index) => (
+                    <Text key={`tutorial-${index}`} style={styles.tutorialStepText}>
+                      {index + 1}. {formatTrade(trade)}
+                    </Text>
+                  ))}
+                </View>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.tutorialButton,
+                    pressed && styles.tutorialButtonPressed,
+                  ]}
+                  onPress={handleDismissTutorial}
+                >
+                  <Text style={styles.tutorialButtonText}>Start daily market</Text>
+                </Pressable>
+              </View>
+            )}
             {lateTransition && (
               <Animated.View
                 style={[
@@ -468,6 +730,44 @@ export default function BarterScreen() {
                 </Text>
               </Animated.View>
             )}
+            {activePreview && previewTradeCandidate && (
+              <View style={styles.previewCard}>
+                <Text style={styles.previewTitle}>Trade preview</Text>
+                <Text style={styles.previewTradeText}>{formatTrade(previewTradeCandidate)}</Text>
+                {activePreview.canTrade ? (
+                  <>
+                    <Text style={styles.previewDelta}>
+                      Inventory: {formatTradeSides(activePreview.delta)}
+                    </Text>
+                    <Text style={styles.previewDelta}>
+                      Opens:{' '}
+                      {activePreview.newlyAffordableTradeKeys.length > 0
+                        ? activePreview.newlyAffordableTradeKeys
+                            .map((key) => {
+                              const trade = tradeLookup.get(key);
+                              return trade ? formatTrade(trade) : key;
+                            })
+                            .join('  /  ')
+                        : 'No new contracts yet'}
+                    </Text>
+                  </>
+                ) : (
+                  <Text style={styles.previewDelta}>
+                    Missing {activePreview.missing.map((side) => `${side.qty} ${getGoodById(side.good).emoji}`).join(', ')}
+                  </Text>
+                )}
+              </View>
+            )}
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>
+                {lateWindowOpen ? 'Late Contracts' : 'Early Market'}
+              </Text>
+              <Text style={styles.sectionSubtitle}>
+                {lateWindowOpen
+                  ? 'Spend the ingredients you prepared.'
+                  : 'Make the first three trades count.'}
+              </Text>
+            </View>
             <Animated.View
               style={[
                 styles.tradeList,
@@ -480,127 +780,21 @@ export default function BarterScreen() {
                 },
               ]}
             >
-              {visibleTrades.map((trade) => {
-                const tradeIndex = puzzle.trades.indexOf(trade);
-                const giveGoods = trade.give.map((side) => ({
-                  side,
-                  good: getGoodById(side.good),
-                }));
-                const getGood = getGoodById(trade.get.good);
-                const canTrade =
-                  gameState === 'playing' &&
-                  !lateTransition &&
-                  tradesUsed < puzzle.maxTrades &&
-                  trade.give.every((side) => inventory[side.good] >= side.qty);
-                let buttonLabel = 'Trade';
-                if (gameState !== 'playing') {
-                  buttonLabel = 'Closed';
-                } else {
-                  const missing = trade.give.find(
-                    (side) => inventory[side.good] < side.qty
-                  );
-                  if (missing) {
-                    const missingGood = getGoodById(missing.good);
-                    buttonLabel = `Need ${missing.qty} ${missingGood.emoji}`;
-                  }
-                }
-
-                return (
-                  <View
-                    key={`trade-${tradeIndex}`}
-                    style={[
-                      styles.tradeCard,
-                      canTrade ? styles.tradeCardAvailable : styles.tradeCardUnavailable,
-                      lastTradeIndex === tradeIndex && styles.tradeCardFlash,
-                      isCompact && styles.tradeCardCompact,
-                      isMarinerMarket && styles.tradeCardMariner,
-                    ]}
-                  >
-                    <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
-                      <View
-                        style={[styles.tradeInfo, isCompact && styles.tradeInfoCompact]}
-                        pointerEvents="none"
-                      >
-                        <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
-                          {giveGoods.map(({ side, good }, index) => (
-                            <View
-                              key={`${side.good}-${index}`}
-                              style={[
-                                styles.tradeGiveItem,
-                                isCompact && styles.tradeGiveItemCompact,
-                              ]}
-                            >
-                              <Text
-                                style={[
-                                  styles.tradeQty,
-                                  isCompact && styles.tradeQtyCompact,
-                                  isMarinerMarket && styles.tradeQtyMariner,
-                                ]}
-                              >
-                                {side.qty}
-                              </Text>
-                              <Text
-                                style={[
-                                  styles.tradeEmoji,
-                                  isCompact && styles.tradeEmojiCompact,
-                                  isMarinerMarket && styles.tradeEmojiMariner,
-                                ]}
-                              >
-                                {good.emoji}
-                              </Text>
-                              {index < giveGoods.length - 1 && (
-                                <Text style={styles.tradePlus}>+</Text>
-                              )}
-                            </View>
-                          ))}
-                        </View>
-                        <Text style={styles.tradeArrow}>→</Text>
-                        <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
-                          <Text
-                            style={[
-                              styles.tradeQty,
-                              isCompact && styles.tradeQtyCompact,
-                              isMarinerMarket && styles.tradeQtyMariner,
-                            ]}
-                          >
-                            {trade.get.qty}
-                          </Text>
-                          <Text
-                            style={[
-                              styles.tradeEmoji,
-                              isCompact && styles.tradeEmojiCompact,
-                              isMarinerMarket && styles.tradeEmojiMariner,
-                            ]}
-                          >
-                            {getGood.emoji}
-                          </Text>
-                        </View>
-                      </View>
-                      <Pressable
-                        style={({ pressed }) => [
-                          styles.tradeButton,
-                          !canTrade && styles.tradeButtonDisabled,
-                          pressed && canTrade ? styles.tradeButtonPressed : null,
-                          isCompact && styles.tradeButtonCompact,
-                          isMarinerMarket && styles.tradeButtonMariner,
-                        ]}
-                        onPress={() => handleTrade(tradeIndex)}
-                        disabled={!canTrade}
-                      >
-                        <Text
-                          style={[
-                            styles.tradeButtonText,
-                            !canTrade && styles.tradeButtonTextDisabled,
-                          ]}
-                        >
-                          {buttonLabel}
-                        </Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                );
-              })}
+              {visibleTrades.map((trade) => renderTradeCard(trade))}
             </Animated.View>
+            {!lateWindowOpen && (
+              <>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Late Contracts</Text>
+                  <Text style={styles.sectionSubtitle}>
+                    Plan around these now. They unlock after trade {earlyWindowTrades}.
+                  </Text>
+                </View>
+                <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
+                  {tradeWaves.wave2.map((trade) => renderTradeCard(trade, true))}
+                </View>
+              </>
+            )}
 
           </View>
         </ScrollView>
@@ -609,14 +803,10 @@ export default function BarterScreen() {
           <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
               <Text style={styles.resultEmoji}>
-                {gameState === 'won' ? (solvedAtPar ? '⭐' : '🎉') : '😔'}
+                {gameState === 'won' ? (resultTier === 'Perfect' ? '⭐' : '🎉') : '😔'}
               </Text>
               <Text style={styles.resultTitle}>
-                {gameState === 'won'
-                  ? solvedAtPar
-                    ? 'Perfect Trade Route!'
-                    : 'Market Closed!'
-                  : 'Out of Trades'}
+                {resultTier === 'Bust' ? 'Out of Trades' : `${resultTier} Route`}
               </Text>
               <Text style={styles.resultSummary}>
                 Start: {startSummary} → Goal: {puzzle.goal.qty} {goalGood.emoji}{' '}
@@ -626,7 +816,7 @@ export default function BarterScreen() {
               <View style={styles.resultStats}>
                 <View style={styles.resultStat}>
                   <Text style={styles.resultStatValue}>
-                    {tradesUsed}/{puzzle.maxTrades}
+                    {tradesUsed}/{puzzle.par}
                   </Text>
                   <Text style={styles.resultStatLabel}>Trades</Text>
                 </View>
@@ -634,6 +824,25 @@ export default function BarterScreen() {
                   <Text style={styles.resultStatValue}>{formatTime(elapsedSeconds)}</Text>
                   <Text style={styles.resultStatLabel}>Time</Text>
                 </View>
+              </View>
+
+              <View style={styles.autopsyCard}>
+                <Text style={styles.autopsyTitle}>Route notes</Text>
+                <Text style={styles.autopsyInsight}>{qualityReport.strategicInsight}</Text>
+                <Text style={styles.autopsyLabel}>Your route</Text>
+                <Text style={styles.autopsyRoute}>
+                  {tradeHistory.length > 0
+                    ? tradeHistory.map(formatTrade).join('  /  ')
+                    : 'No trades made'}
+                </Text>
+                <Text style={styles.autopsyLabel}>Par route</Text>
+                <Text style={styles.autopsyRoute}>
+                  {formatRouteSummary(qualityReport.bestRoute)}
+                </Text>
+                <Text style={styles.autopsyLabel}>Alternate route</Text>
+                <Text style={styles.autopsyRoute}>
+                  {formatRouteSummary(qualityReport.alternateRoute)}
+                </Text>
               </View>
 
               <View style={styles.shareCard}>
@@ -763,6 +972,50 @@ const createStyles = (
     color: inkMuted,
     lineHeight: 17,
   },
+  tutorialCard: {
+    backgroundColor: theme.mode === 'dark' ? Colors.surfaceElevated : '#eef8f3',
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.mode === 'dark' ? screenAccent.badgeBorder : '#9bcbb4',
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  tutorialTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: inkStrong,
+  },
+  tutorialBody: {
+    marginTop: 4,
+    fontSize: 12,
+    color: inkMuted,
+    lineHeight: 17,
+  },
+  tutorialSteps: {
+    marginTop: Spacing.sm,
+    gap: 4,
+  },
+  tutorialStepText: {
+    fontSize: 12,
+    color: inkStrong,
+    lineHeight: 18,
+  },
+  tutorialButton: {
+    marginTop: Spacing.sm,
+    alignSelf: 'flex-start',
+    backgroundColor: darkButtonBg,
+    borderRadius: BorderRadius.sm,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+  },
+  tutorialButtonPressed: {
+    backgroundColor: darkButtonPressed,
+  },
+  tutorialButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
   transitionBanner: {
     backgroundColor: '#fff4e5',
     borderRadius: BorderRadius.md,
@@ -780,6 +1033,31 @@ const createStyles = (
     marginTop: 2,
     fontSize: 11,
     color: '#8a4a0b',
+  },
+  previewCard: {
+    backgroundColor: paper,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: screenAccent.badgeBorder,
+    padding: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  previewTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: inkStrong,
+  },
+  previewTradeText: {
+    marginTop: 4,
+    fontSize: 12,
+    fontWeight: '700',
+    color: inkStrong,
+  },
+  previewDelta: {
+    marginTop: 4,
+    fontSize: 11,
+    color: inkMuted,
+    lineHeight: 16,
   },
   title: {
     fontSize: 24,
@@ -962,8 +1240,49 @@ const createStyles = (
     borderColor: borderSoft,
     opacity: 0.65,
   },
+  tradeCardNewlyAffordable: {
+    borderColor: screenAccent.main,
+    borderWidth: 2,
+  },
+  tradeCardPreviewed: {
+    borderColor: screenAccent.main,
+  },
+  tradeCardLocked: {
+    opacity: 0.72,
+  },
+  tradeCardPressed: {
+    backgroundColor: paperMuted,
+  },
   tradeCardFlash: {
     backgroundColor: paperMuted,
+  },
+  tradeMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  tradeRole: {
+    alignSelf: 'flex-start',
+    backgroundColor: screenAccent.badgeBg,
+    borderColor: screenAccent.badgeBorder,
+    borderWidth: 1,
+    borderRadius: BorderRadius.sm,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    color: screenAccent.badgeText,
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  tradeLockedText: {
+    color: inkSoft,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  tradeNewText: {
+    color: screenAccent.main,
+    fontSize: 10,
+    fontWeight: '800',
   },
   tradeRow: {
     flexDirection: 'row',
@@ -1030,6 +1349,12 @@ const createStyles = (
   tradeLabel: {
     fontSize: 12,
     color: inkSoft,
+  },
+  tradeMissingText: {
+    marginTop: 6,
+    fontSize: 10,
+    color: disabledText,
+    fontWeight: '700',
   },
   tradeArrow: {
     fontSize: 16,
@@ -1122,6 +1447,36 @@ const createStyles = (
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     marginTop: 2,
+  },
+  autopsyCard: {
+    marginTop: Spacing.lg,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+  },
+  autopsyTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '800',
+    color: Colors.text,
+  },
+  autopsyInsight: {
+    marginTop: 4,
+    fontSize: 12,
+    color: Colors.textSecondary,
+    lineHeight: 17,
+  },
+  autopsyLabel: {
+    marginTop: Spacing.sm,
+    fontSize: 10,
+    color: Colors.textMuted,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  autopsyRoute: {
+    marginTop: 3,
+    fontSize: 11,
+    color: Colors.textSecondary,
+    lineHeight: 16,
   },
   shareCard: {
     marginTop: Spacing.lg,
