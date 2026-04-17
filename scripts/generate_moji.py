@@ -41,8 +41,11 @@ MFLUX_WIDTH = 160
 MFLUX_HEIGHT = 160
 MFLUX_QUANTIZE = 8
 
-# Rotation floor: warn if non-pinned puzzles drop below this.
-ROTATION_FLOOR = 30
+# Recency window for pinned puzzles: warn if the same word lands within this
+# many days of another pinned puzzle. The pool is designed to scale to daily
+# puzzles plus paid packs (hundreds per year), so absolute reuse counts stop
+# being useful — date proximity is what actually matters to players.
+PIN_RECENCY_DAYS = 14
 
 
 # ---------------------------------------------------------------------------
@@ -58,21 +61,45 @@ def generate_hint(words: list[str]) -> str:
     return f"Starts with: {letters}"
 
 
-def load_existing_pool(ts_path: Path) -> tuple[set[tuple[str, ...]], dict[str, int]]:
-    """Return (set of word-tuples, word -> count mapping) from mojiMashPuzzles.ts."""
+def load_existing_pool(
+    ts_path: Path,
+) -> tuple[set[tuple[str, ...]], dict[str, int], list[dict]]:
+    """Parse mojiMashPuzzles.ts into structured pool data.
+
+    Returns:
+      tuples       — set of word-tuples (for exact-duplicate detection)
+      word_counts  — word → total occurrences across the entire pool
+      entries      — ordered list of {words, date?} dicts; preserves insertion
+                     order so callers can reason about recency for pinned items
+    """
     if not ts_path.exists():
-        return set(), {}
+        return set(), {}, []
     text = ts_path.read_text()
     tuples: set[tuple[str, ...]] = set()
     word_counts: dict[str, int] = {}
-    for match in re.finditer(r"words:\s*\[([^\]]+)\]", text):
-        raw = match.group(1)
+    entries: list[dict] = []
+
+    # Match each puzzle entry block so we can pair `words: [...]` with an
+    # optional `date: '...'` from the same record. Entries are separated by
+    # `},` at the top level — we use a non-greedy match on the surrounding
+    # braces.
+    for entry_match in re.finditer(r"\{([^{}]*?)\}", text, flags=re.DOTALL):
+        body = entry_match.group(1)
+        words_match = re.search(r"words:\s*\[([^\]]+)\]", body)
+        if not words_match:
+            continue
+        raw = words_match.group(1)
         words = [w.strip().strip("'\"") for w in raw.split(",") if w.strip()]
         t = tuple(words)
         tuples.add(t)
         for w in words:
             word_counts[w] = word_counts.get(w, 0) + 1
-    return tuples, word_counts
+        date_match = re.search(r"date:\s*['\"]([^'\"]+)['\"]", body)
+        entries.append({
+            "words": words,
+            "date": date_match.group(1) if date_match else None,
+        })
+    return tuples, word_counts, entries
 
 
 def count_pinned(ts_path: Path) -> int:
@@ -162,9 +189,13 @@ def vision_check(images: list[Path], words: list[str]) -> list[dict]:
         }
 
         # ── Pass 1: blind decode ──────────────────────────────────────────────
+        # Ask for both a one-sentence description AND a noun array. The
+        # sentence is the highest-value diagnostic for prompt revision (it
+        # tells the editor what a player actually sees), while the noun array
+        # drives the word-clarity match check downstream.
         blind_msg = client.messages.create(
             model="claude-opus-4-6",
-            max_tokens=128,
+            max_tokens=256,
             messages=[{
                 "role": "user",
                 "content": [
@@ -173,19 +204,30 @@ def vision_check(images: list[Path], words: list[str]) -> list[dict]:
                         "type": "text",
                         "text": (
                             "This is a cartoon emoji sticker. Without being told the answer, "
-                            "list the 3–5 most specific words describing distinct visual elements "
-                            "you see. Concrete nouns only. "
-                            'Reply with a JSON array of lowercase strings, e.g. ["dog","fire"]'
+                            "describe what you see as if you were a player guessing the puzzle.\n\n"
+                            "Reply with JSON only:\n"
+                            '{"description": "one neutral sentence describing the scene, '
+                            'mentioning the most prominent objects/actions/details", '
+                            '"nouns": ["3-5 lowercase concrete nouns for the most distinct elements"]}'
                         ),
                     },
                 ],
             }],
         )
         raw_blind = blind_msg.content[0].text.strip()
+        decoded: list[str] = []
+        description: str = ""
         try:
-            decoded: list[str] = json.loads(raw_blind)
+            parsed = json.loads(raw_blind)
+            decoded = [str(w).lower() for w in parsed.get("nouns", []) if str(w).strip()]
+            description = str(parsed.get("description", "")).strip()
         except Exception:
+            # Fallback: extract whatever quoted lowercase words we can.
             decoded = re.findall(r'"([a-z]+)"', raw_blind)
+            # Try to find a description-like sentence.
+            desc_match = re.search(r'"description"\s*:\s*"([^"]+)"', raw_blind)
+            if desc_match:
+                description = desc_match.group(1).strip()
 
         matched = [w for w in decoded if w in answer_set]
         missing = [w for w in words if w not in decoded]
@@ -248,6 +290,7 @@ def vision_check(images: list[Path], words: list[str]) -> list[dict]:
         result = {
             "file": img_path.name,
             "decoded": decoded,
+            "description": description,
             "matched": matched,
             "missing": missing,
             "rubric": rubric,
@@ -263,6 +306,8 @@ def vision_check(images: list[Path], words: list[str]) -> list[dict]:
         aha = rubric.get("aha_factor", "?")
         status = "✓" if not missing else "⚠"
         print(f"  {status} {img_path.name}  [composite: {composite:.1f}/25]")
+        if description:
+            print(f"      Sees         : {description}")
         print(f"      Blind decode : {decoded}")
         if missing:
             print(f"      Missing      : {missing}")
@@ -322,6 +367,7 @@ def _build_contact_sheet(outputs: list[Path], check_results: list[dict]) -> str:
             rb = r.get("rubric", {})
             missing = r.get("missing", [])
             decoded = r.get("decoded", [])
+            description = r.get("description", "")
             composite = r.get("composite", 0)
 
             status_color = "#2a9d2a" if not missing else "#cc7700"
@@ -329,6 +375,18 @@ def _build_contact_sheet(outputs: list[Path], check_results: list[dict]) -> str:
                 f'<div style="font-size:11px;color:{status_color};margin-top:6px">'
                 f'👁 {", ".join(decoded)}</div>'
             )
+            if description:
+                # Use a 💬 marker so the parser can extract this independently.
+                # HTML-escape angle brackets & ampersands defensively.
+                safe_desc = (
+                    description.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                )
+                blind_line += (
+                    f'<div style="font-size:11px;color:#444;margin-top:2px;'
+                    f'font-style:italic">💬 {safe_desc}</div>'
+                )
             if missing:
                 blind_line += (
                     f'<div style="font-size:10px;color:#cc0000">missing: {", ".join(missing)}</div>'
@@ -389,7 +447,16 @@ def generate(
     seed: int | None,
     stage_dir: Path,
     check: bool = False,
+    init_image: Path | None = None,
+    init_strength: float = 0.4,
 ) -> list[Path]:
+    """Generate `count` variants for `words` into `stage_dir`.
+
+    When `init_image` is provided, mflux runs in img2img mode using that PNG
+    as the starting latent and `init_strength` (0.0-1.0) controlling how much
+    the new prompt deviates from it. Suffix `_r<seed>` is appended to keep
+    refined outputs distinct from the originals.
+    """
     check_platform()
     venv_python = check_open_genmoji()
 
@@ -403,10 +470,15 @@ def generate(
     stage_dir.mkdir(parents=True, exist_ok=True)
     slug = slugify(words)
     outputs: list[Path] = []
+    is_refine = init_image is not None
+
+    if is_refine and not init_image.exists():
+        sys.exit(f"Error: init image {init_image} does not exist.")
 
     for i in range(count):
         effective_seed = (seed if seed is not None else 42) + i
-        out_file = stage_dir / f"{slug}-s{effective_seed}.png"
+        suffix = f"-r{effective_seed}" if is_refine else f"-s{effective_seed}"
+        out_file = stage_dir / f"{slug}{suffix}.png"
 
         cmd = [
             str(venv_python), "-m", "mflux.generate",
@@ -421,8 +493,14 @@ def generate(
             "--lora-paths", str(lora_path),
             "--output", str(out_file),
         ]
+        if is_refine:
+            cmd.extend([
+                "--init-image-path", str(init_image),
+                "--init-image-strength", str(init_strength),
+            ])
 
-        print(f"  Generating variant {i + 1}/{count} (seed {effective_seed})…")
+        mode_label = "Refining" if is_refine else "Generating"
+        print(f"  {mode_label} variant {i + 1}/{count} (seed {effective_seed})…")
         result = subprocess.run(cmd, cwd=OPEN_GENMOJI_PATH, capture_output=True, text=True)
         if result.returncode != 0:
             print(f"  mflux error:\n{result.stderr}", file=sys.stderr)
@@ -480,28 +558,79 @@ def validate_words(words: list[str]) -> None:
 
 
 def check_pool(words: list[str]) -> None:
-    tuples, word_counts = load_existing_pool(TS_PUZZLES)
+    """Sanity-check a candidate word list against the existing pool.
+
+    Hard rule (only true blocker): exact word tuple already exists. Anything
+    else is informational. We used to enforce a hard cap on word reuse and a
+    rotation-count floor, but those don't survive the move to daily puzzles +
+    paid packs — at scale, common nouns will inevitably recur. What matters
+    instead is *recency*: two pinned puzzles using the same word within
+    PIN_RECENCY_DAYS feels repetitive to a player, while the same word months
+    apart is invisible.
+    """
+    tuples, word_counts, entries = load_existing_pool(TS_PUZZLES)
     slug_tuple = tuple(words)
 
     if slug_tuple in tuples:
-        print(f"Warning: {words!r} already exists in the puzzle pool.", file=sys.stderr)
-
-    overused = [w for w in words if word_counts.get(w, 0) >= 2]
-    if overused:
         print(
-            f"Warning: word(s) {overused!r} already appear 2+ times in the pool.",
+            f"Warning: {words!r} already exists in the puzzle pool — "
+            "promotion would create a duplicate.",
             file=sys.stderr,
         )
 
+    # Informational: how often is each candidate word already used? No
+    # block — the agent decides if the pattern matters.
+    reuse_summary = [(w, word_counts.get(w, 0)) for w in words if word_counts.get(w, 0) > 0]
+    if reuse_summary:
+        parts = ", ".join(f"{w}×{n}" for w, n in reuse_summary)
+        print(f"Info: word reuse counts in pool — {parts}", file=sys.stderr)
+
+    # Recency check: scan pinned entries for any that share a word with the
+    # candidate AND have a date within PIN_RECENCY_DAYS of any other pinned
+    # date for the same word. This catches "snake" appearing on April 1 and
+    # April 10 both pinned, while ignoring months-apart reuse.
+    today = date.today()
+    pinned_dates_by_word: dict[str, list[tuple[date, list[str]]]] = {}
+    for e in entries:
+        if not e.get("date"):
+            continue
+        try:
+            d = date.fromisoformat(e["date"])
+        except ValueError:
+            continue
+        for w in e["words"]:
+            pinned_dates_by_word.setdefault(w, []).append((d, e["words"]))
+
+    recency_hits: list[str] = []
+    for w in words:
+        for d, other_words in pinned_dates_by_word.get(w, []):
+            if abs((d - today).days) <= PIN_RECENCY_DAYS:
+                recency_hits.append(
+                    f"'{w}' is in pinned puzzle {other_words!r} on {d.isoformat()} "
+                    f"({abs((d - today).days)}d from today)"
+                )
+    if recency_hits:
+        print(
+            "Warning: pinned-puzzle recency conflicts within "
+            f"{PIN_RECENCY_DAYS} days:",
+            file=sys.stderr,
+        )
+        for hit in recency_hits:
+            print(f"  - {hit}", file=sys.stderr)
+
+    # Pool stats — useful context for the agent, never a block.
     total = len(tuples)
-    pinned = count_pinned(TS_PUZZLES)
-    rotation_count = total - pinned
-    if rotation_count < ROTATION_FLOOR:
-        print(
-            f"Warning: only {rotation_count} non-pinned puzzles in rotation "
-            f"(floor is {ROTATION_FLOOR}). Consider adding more evergreen puzzles.",
-            file=sys.stderr,
-        )
+    pinned = sum(1 for e in entries if e.get("date"))
+    if word_counts:
+        top = sorted(word_counts.items(), key=lambda kv: -kv[1])[:5]
+        top_str = ", ".join(f"{w}×{n}" for w, n in top)
+    else:
+        top_str = "(empty)"
+    print(
+        f"Info: pool has {total} puzzles ({pinned} pinned). "
+        f"Top words: {top_str}.",
+        file=sys.stderr,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -543,6 +672,23 @@ def parse_args() -> argparse.Namespace:
             "'pip install anthropic'. Results appear in the contact sheet."
         ),
     )
+    p.add_argument(
+        "--refine", type=Path, default=None, metavar="FILE",
+        help=(
+            "Refine an existing staged PNG with img2img: pass the previous "
+            "variant as the init image and use --prompt to steer the new "
+            "render. Cannot be combined with --promote. Outputs use a "
+            "`-r<seed>` suffix to keep them distinct from the originals."
+        ),
+    )
+    p.add_argument(
+        "--init-strength", type=float, default=0.4,
+        help=(
+            "Strength of the init image when --refine is used (0.0-1.0). "
+            "Lower keeps the original layout; higher follows the new prompt "
+            "more freely. Default 0.4."
+        ),
+    )
     return p.parse_args()
 
 
@@ -554,6 +700,8 @@ def main() -> None:
     check_pool(words)
 
     if args.promote:
+        if args.refine:
+            sys.exit("Error: --refine and --promote cannot be combined.")
         promote(args.promote, words, args.force)
         return
 
@@ -561,7 +709,19 @@ def main() -> None:
         sys.exit("Error: --prompt is required when generating images.")
 
     stage_dir = args.stage or (STAGE_BASE / date.today().isoformat())
-    generate(words, args.prompt, args.count, args.seed, stage_dir, check=args.check)
+    init_image: Path | None = args.refine
+    if init_image is not None and not init_image.is_absolute():
+        init_image = (BASE_DIR / init_image).resolve()
+    generate(
+        words,
+        args.prompt,
+        args.count,
+        args.seed,
+        stage_dir,
+        check=args.check,
+        init_image=init_image,
+        init_strength=args.init_strength,
+    )
 
 
 if __name__ == "__main__":

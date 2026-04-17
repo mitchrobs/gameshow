@@ -55,6 +55,14 @@ export function parseContactSheet(stagedDirAbs: string, stagedDirRel: string): V
       ? decodedMatch[1].split(',').map((s) => s.trim()).filter(Boolean)
       : [];
 
+    // Optional rich description (Pass 1 sentence) — see _build_contact_sheet
+    // in scripts/generate_moji.py. Marker is 💬 and content runs until the
+    // next tag.
+    const descMatch = region.match(/💬\s*([^<]+)</);
+    const description = descMatch && descMatch[1]
+      ? decodeBasicHtmlEntities(descMatch[1].trim())
+      : undefined;
+
     const missingMatch = region.match(/missing:\s*([^<]+)</);
     const missing = missingMatch && missingMatch[1]
       ? missingMatch[1].split(',').map((s) => s.trim()).filter(Boolean)
@@ -68,7 +76,8 @@ export function parseContactSheet(stagedDirAbs: string, stagedDirRel: string): V
       aha_factor: extractRubricValue(region, 'aha'),
     };
 
-    const seedMatch = file.match(/-s(\d+)\.png$/);
+    // `-s<seed>` for fresh generations, `-r<seed>` for img2img refinements.
+    const seedMatch = file.match(/-[sr](\d+)\.png$/);
     const seed = seedMatch && seedMatch[1] ? parseInt(seedMatch[1], 10) : 0;
 
     variants.push({
@@ -78,6 +87,7 @@ export function parseContactSheet(stagedDirAbs: string, stagedDirRel: string): V
       composite,
       rubric,
       decoded,
+      description,
       missing,
       recommended,
     });
@@ -90,6 +100,13 @@ export function parseContactSheet(stagedDirAbs: string, stagedDirRel: string): V
     variants[0]!.recommended = true;
   }
   return variants;
+}
+
+function decodeBasicHtmlEntities(s: string): string {
+  return s
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
 }
 
 function extractRubricValue(region: string, label: string): number | undefined {

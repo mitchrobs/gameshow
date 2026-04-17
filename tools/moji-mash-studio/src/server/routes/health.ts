@@ -12,6 +12,14 @@ import {
 import { listPoolTool } from '../tools/listPool.js';
 import type { HealthStatus } from '../../shared/types.js';
 
+function localDateISO(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export const healthRoute = new Hono();
 
 const OPEN_GENMOJI_PATH =
@@ -38,7 +46,7 @@ healthRoute.get('/health', (c) => {
     anthropicKeyPresent: ANTHROPIC_API_KEY.length > 0,
     pythonVersion,
     poolCount: pool.total,
-    today: new Date().toISOString().slice(0, 10),
+    today: localDateISO(),
     repoRoot: REPO_ROOT,
     port: PORT,
   };

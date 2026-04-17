@@ -19,8 +19,8 @@ Before brainstorming, always read `docs/moji-mash-style-guide.md`. It contains t
 - **Point-to-it test**: a player must be able to "point to" each word somewhere in the image
 - **Lowercase single tokens**: no hyphens or spaces inside a word
 - **Puns and idioms are premium**: concepts that are literal AND figurative win (e.g. `pyramid scheme`, `party pooper`, `red bull`)
-- **No over-reuse**: do not propose a word that already appears in the pool more than twice
-- **No duplicates**: do not repeat an existing word tuple
+- **Word reuse — date-aware, not count-capped**: the pool is designed to scale to daily puzzles + paid packs (hundreds per year). Common words will recur — that's fine. What actually matters to players is *recency*: avoid a word appearing in two **pinned** (dated) puzzles within 14 days of each other. Use `search_pool(words, near_date, within_days=14, pinned_only=true)` to check before pinning.
+- **No duplicates**: do not repeat an existing word tuple (exact match). `list_pool()` or `search_pool()` will flag any collision.
 
 ## Batch workflow
 

@@ -21,6 +21,12 @@ export interface Variant {
   rubric: Rubric;
   /** Words Claude blind-decoded from the image (before knowing the answer). */
   decoded: string[];
+  /**
+   * Free-form sentence Claude wrote describing what it sees, before knowing
+   * the answer. The richest diagnostic for prompt revision — tells you what
+   * a player would actually perceive rather than just a noun list.
+   */
+  description?: string;
   /** Answer words that did NOT appear in the blind decode. */
   missing: string[];
   /** True for the variant with the highest composite score. */

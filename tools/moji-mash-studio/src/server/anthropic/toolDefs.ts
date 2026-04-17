@@ -30,6 +30,68 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
     },
   },
   {
+    name: 'search_pool',
+    description:
+      'Filter the puzzle pool by word membership and/or date recency. Faster and more targeted than list_pool when you have a specific question — e.g. "any pinned puzzle within 14 days of 2026-04-20 that uses \'spring\'?" or "every entry that contains \'snake\'". Returns matching entries with their words, optional date, and original insertion order.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        words: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Words to look for (OR semantics). Lowercase.',
+        },
+        near_date: {
+          type: 'string',
+          description: 'ISO YYYY-MM-DD anchor for a recency window.',
+        },
+        within_days: {
+          type: 'integer',
+          description: 'Window in days around near_date (default 14).',
+        },
+        pinned_only: {
+          type: 'boolean',
+          description: 'Only return puzzles with a date: field.',
+        },
+        limit: {
+          type: 'integer',
+          description: 'Max matches returned (default 50).',
+        },
+      },
+    },
+  },
+  {
+    name: 'list_staged',
+    description:
+      'List previously staged candidates under tmp/moji-mash/YYYY-MM-DD/, grouped by slug, most recent date first. Restores cross-session continuity: shows what was already generated (and any vision-check rubric scores) so you can pick up where a previous session left off without re-running expensive generations.',
+    input_schema: {
+      type: 'object',
+      properties: {},
+    },
+  },
+  {
+    name: 'check_concept',
+    description:
+      'Cheap LLM-only triage of a candidate concept BEFORE spending ~45s/variant on generate_moji. Asks Claude to rate the concept (1-5), flag hard-to-render words, and suggest a sharper prompt fragment. No image is generated. Use this to filter shaky ideas early — only call generate_moji on concepts that score 4+ here.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        words: {
+          type: 'array',
+          items: { type: 'string' },
+          minItems: 2,
+          maxItems: 4,
+          description: 'Lowercase answer words, 2-4 tokens.',
+        },
+        prompt: {
+          type: 'string',
+          description: 'Optional draft prompt — sharpens the per-word feedback.',
+        },
+      },
+      required: ['words'],
+    },
+  },
+  {
     name: 'generate_moji',
     description:
       'Generate N image variants for a Moji Mash candidate by running scripts/generate_moji.py with --check. Returns staged file paths, per-variant rubric scores (word_clarity, visual_appeal, concept_synergy, guessability, aha_factor), composite scores, and the recommended variant. Variants and scores also appear in the gallery panel automatically. This is SLOW: ~45 seconds per variant on M2. Only call after you have a concrete prompt that visually depicts every answer word.',
@@ -60,6 +122,50 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
         },
       },
       required: ['words', 'prompt'],
+    },
+  },
+  {
+    name: 'refine_moji',
+    description:
+      'Img2img refinement: take an existing staged variant as the init image and re-render with a revised prompt. mflux uses the source image as the starting latent so the new render preserves composition/colors while responding to what changed. Best for targeted fixes ("make the broom bigger", "drop the sunburst"). Slower than check_concept but ~2× faster than a fresh generate_moji because fewer seed sweeps are needed. Outputs land in today\'s staged dir with a -r<seed> suffix and appear in the gallery automatically.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        words: {
+          type: 'array',
+          items: { type: 'string' },
+          minItems: 2,
+          maxItems: 4,
+          description: 'Lowercase answer words, same as the original concept.',
+        },
+        staged_path: {
+          type: 'string',
+          description:
+            'Repo-relative path to the existing variant you want to iterate on, e.g. "tmp/moji-mash/2026-04-15/spring-cleaning-s42.png".',
+        },
+        prompt: {
+          type: 'string',
+          description:
+            'Revised prompt — describe what should change vs. the original. Same format as generate_moji.',
+        },
+        count: {
+          type: 'integer',
+          minimum: 1,
+          maximum: 4,
+          description: 'Refined variants to generate (default 2).',
+        },
+        seed: {
+          type: 'integer',
+          description:
+            'Optional base seed override. Defaults to source seed + 100 to keep outputs distinct.',
+        },
+        init_strength: {
+          type: 'number',
+          description:
+            '0.0–1.0. Lower = keeps original layout more faithfully; higher = follows new prompt more freely. Default 0.4.',
+        },
+      },
+      required: ['words', 'staged_path', 'prompt'],
     },
   },
   {

@@ -15,8 +15,8 @@ export const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY ?? '';
 export const ANTHROPIC_MODEL = 'claude-opus-4-6';
 
 // Safety caps
-export const MAX_AGENT_ITERATIONS = 12;
-export const MAX_GENERATIONS_PER_TURN = 3;
+export const MAX_AGENT_ITERATIONS = Number(process.env.MOJI_STUDIO_MAX_ITERS ?? 24);
+export const MAX_GENERATIONS_PER_TURN = Number(process.env.MOJI_STUDIO_MAX_GENS ?? 10);
 export const MAX_OUTPUT_TOKENS = 4096;
 
 // Repo paths

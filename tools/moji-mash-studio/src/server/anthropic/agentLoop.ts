@@ -1,18 +1,25 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   ANTHROPIC_API_KEY,
   ANTHROPIC_MODEL,
   MAX_AGENT_ITERATIONS,
   MAX_GENERATIONS_PER_TURN,
   MAX_OUTPUT_TOKENS,
+  REPO_ROOT,
 } from '../config.js';
 import { TOOL_DEFS } from './toolDefs.js';
 import { loadSystemPrompt } from './systemPrompt.js';
 import { session } from '../state.js';
 import { readFileTool } from '../tools/readFile.js';
 import { listPoolTool } from '../tools/listPool.js';
+import { searchPoolTool } from '../tools/searchPool.js';
+import { listStagedTool } from '../tools/listStaged.js';
+import { checkConceptTool } from '../tools/checkConcept.js';
 import { generateMojiTool } from '../tools/generateMoji.js';
+import { refineMojiTool } from '../tools/refineMoji.js';
 import { promoteMojiTool } from '../tools/promoteMoji.js';
 import type {
   ChatBlock,
@@ -30,6 +37,14 @@ import { SSE } from '../../shared/events.js';
 import type { SSESink } from '../util/sse.js';
 
 const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+
+function localDateISO(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
 export interface RunAgentOpts {
   userText: string;
@@ -76,7 +91,7 @@ export async function runAgent({ userText, sink }: RunAgentOpts): Promise<void> 
   const userAppended: MessageAppendedEvent = { message: userMsg };
   await sink.send(SSE.MessageAppended, userAppended);
 
-  const systemPrompt = loadSystemPrompt(new Date().toISOString().slice(0, 10));
+  const systemPrompt = loadSystemPrompt(localDateISO());
 
   try {
     for (let iter = 0; iter < MAX_AGENT_ITERATIONS; iter++) {
@@ -194,7 +209,7 @@ export async function runAgent({ userText, sink }: RunAgentOpts): Promise<void> 
             b.type === 'tool_call' && b.toolUseId === tu.id,
         )!;
         try {
-          const { resultJson, summary } = await runOneTool(
+          const { resultJson, summary, images } = await runOneTool(
             tu.name,
             (tu.input as Record<string, unknown>) ?? {},
             tu.id,
@@ -209,10 +224,17 @@ export async function runAgent({ userText, sink }: RunAgentOpts): Promise<void> 
             summary,
           };
           await sink.send(SSE.ToolResult, resEvt);
+          // When the tool produced images (generate_moji), inline them as
+          // image blocks so the model can actually see what it generated and
+          // critique it for the next iteration. Otherwise send a plain string.
+          const content: Anthropic.ToolResultBlockParam['content'] =
+            images && images.length > 0
+              ? [{ type: 'text', text: resultJson }, ...images]
+              : resultJson;
           resultBlocks.push({
             type: 'tool_result',
             tool_use_id: tu.id,
-            content: resultJson,
+            content,
           });
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
@@ -259,7 +281,7 @@ async function runOneTool(
   toolUseId: string,
   sink: SSESink,
   signal: AbortSignal,
-): Promise<{ resultJson: string; summary: string }> {
+): Promise<{ resultJson: string; summary: string; images?: Anthropic.ImageBlockParam[] }> {
   switch (name) {
     case 'read_file': {
       const result = readFileTool({ path: String(input.path ?? '') });
@@ -274,6 +296,36 @@ async function runOneTool(
       return {
         resultJson: JSON.stringify(result),
         summary: `Loaded pool (${result.total} puzzles, ${wordTotal} unique words, ${result.pinnedCount} pinned)`,
+      };
+    }
+    case 'search_pool': {
+      const result = searchPoolTool({
+        words: Array.isArray(input.words) ? (input.words as string[]) : undefined,
+        near_date: typeof input.near_date === 'string' ? input.near_date : undefined,
+        within_days: typeof input.within_days === 'number' ? input.within_days : undefined,
+        pinned_only: typeof input.pinned_only === 'boolean' ? input.pinned_only : undefined,
+        limit: typeof input.limit === 'number' ? input.limit : undefined,
+      });
+      return {
+        resultJson: JSON.stringify(result),
+        summary: `search_pool → ${result.matches.length} match(es) of ${result.totalScanned} scanned`,
+      };
+    }
+    case 'list_staged': {
+      const result = listStagedTool();
+      return {
+        resultJson: JSON.stringify(result),
+        summary: `list_staged → ${result.concepts.length} concept(s) across ${result.daysScanned} day(s)`,
+      };
+    }
+    case 'check_concept': {
+      const result = await checkConceptTool({
+        words: (input.words as string[]) ?? [],
+        prompt: typeof input.prompt === 'string' ? input.prompt : undefined,
+      });
+      return {
+        resultJson: JSON.stringify(result),
+        summary: `check_concept → rating ${result.rating}/5: ${result.verdict.slice(0, 80)}`,
       };
     }
     case 'generate_moji': {
@@ -302,7 +354,64 @@ async function runOneTool(
       const summary = best
         ? `Generated ${result.variants.length} variants for \`${result.slug}\` — best ${best.file} (composite ${best.composite.toFixed(1)}/25)`
         : `Generated ${result.variants.length} variants for \`${result.slug}\``;
-      return { resultJson: JSON.stringify(result), summary };
+      // Attach the actual PNG bytes as image blocks so the agent can see what
+      // it generated and critique it for the next prompt iteration.
+      const images: Anthropic.ImageBlockParam[] = [];
+      for (const v of result.variants) {
+        try {
+          const data = readFileSync(join(REPO_ROOT, v.stagedPath)).toString('base64');
+          images.push({
+            type: 'image',
+            source: { type: 'base64', media_type: 'image/png', data },
+          });
+        } catch {
+          // If a file is missing, skip it rather than failing the whole turn.
+        }
+      }
+      return { resultJson: JSON.stringify(result), summary, images };
+    }
+    case 'refine_moji': {
+      if (session.generationsThisTurn >= MAX_GENERATIONS_PER_TURN) {
+        throw new Error(
+          `MAX_GENERATIONS_PER_TURN (${MAX_GENERATIONS_PER_TURN}) reached. Stop and check in with the user before generating more candidates this turn.`,
+        );
+      }
+      session.generationsThisTurn += 1;
+      const result = await refineMojiTool(
+        {
+          words: (input.words as string[]) ?? [],
+          staged_path: String(input.staged_path ?? ''),
+          prompt: String(input.prompt ?? ''),
+          count: typeof input.count === 'number' ? input.count : undefined,
+          seed: typeof input.seed === 'number' ? input.seed : undefined,
+          init_strength: typeof input.init_strength === 'number' ? input.init_strength : undefined,
+        },
+        {
+          abortSignal: signal,
+          onProgress: async (line) => {
+            const evt: ToolProgressEvent = { toolUseId, line };
+            await sink.send(SSE.ToolProgress, evt);
+          },
+        },
+      );
+      const best = result.variants.find((v) => v.recommended);
+      const summary = best
+        ? `Refined ${result.variants.length} variant(s) of \`${result.slug}\` from \`${result.initImage}\` — best ${best.file} (composite ${best.composite.toFixed(1)}/25)`
+        : `Refined ${result.variants.length} variant(s) of \`${result.slug}\``;
+      // Pass refined images back to the agent the same way generate_moji does.
+      const images: Anthropic.ImageBlockParam[] = [];
+      for (const v of result.variants) {
+        try {
+          const data = readFileSync(join(REPO_ROOT, v.stagedPath)).toString('base64');
+          images.push({
+            type: 'image',
+            source: { type: 'base64', media_type: 'image/png', data },
+          });
+        } catch {
+          // skip missing
+        }
+      }
+      return { resultJson: JSON.stringify(result), summary, images };
     }
     case 'promote_moji': {
       const result = await promoteMojiTool({

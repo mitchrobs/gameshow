@@ -1,6 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { existsSync, mkdirSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { isAbsolute, join, relative } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import {
   REPO_ROOT,
@@ -13,24 +13,33 @@ import { session, sessionEmitter } from '../state.js';
 import { parseContactSheet } from './contactSheetParser.js';
 import type { Concept, Variant, ConceptUpdatedEvent } from '../../shared/types.js';
 
-export interface GenerateMojiInput {
+export interface RefineMojiInput {
   words: string[];
+  /** Repo-relative path to the previous variant we're iterating on. */
+  staged_path: string;
+  /** Revised prompt — what should change vs. the original. */
   prompt: string;
+  /** Number of refined variants. Default 2. */
   count?: number;
+  /** Optional seed override. Default: derived from the original filename. */
   seed?: number;
+  /** 0.0–1.0; lower keeps original layout, higher follows new prompt. Default 0.4. */
+  init_strength?: number;
 }
 
-export interface GenerateMojiResult {
+export interface RefineMojiResult {
   conceptId: string;
   slug: string;
   stagedDir: string;
+  initImage: string;
+  initStrength: number;
   variants: Variant[];
   recommended: string | null;
   warnings: string[];
 }
 
-/** A line of stdout/stderr from the Python subprocess that we want the agent to see. */
 const PROGRESS_PATTERNS = [
+  /Refining variant \d+\/\d+/i,
   /Generating variant \d+\/\d+/i,
   /Saved:/i,
   /Running vision check/i,
@@ -42,6 +51,7 @@ const PROGRESS_PATTERNS = [
 
 const SHORT_TAIL_PATTERNS = [
   /^\s*([★✓⚠])\s+(\S+)\s+\[composite:\s*([0-9.]+)/,
+  /Refining variant (\d+\/\d+)\s+\(seed (\d+)\)/,
   /Generating variant (\d+\/\d+)\s+\(seed (\d+)\)/,
   /Saved:\s*(.+)/,
   /Recommended:\s*(\S+)\s+\(composite\s+([0-9.]+)/,
@@ -52,8 +62,6 @@ function slugify(words: string[]): string {
 }
 
 function todayISO(): string {
-  // Use local date to match scripts/generate_moji.py (date.today()).
-  // UTC would mismatch after local midnight in western timezones.
   const d = new Date();
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -62,28 +70,35 @@ function todayISO(): string {
 }
 
 /**
- * Run scripts/generate_moji.py with --check, stream filtered progress to the
- * caller, parse the resulting contact sheet, and update the in-memory concept
- * store. Long-running: each variant is ~45s on M2.
+ * Run scripts/generate_moji.py with --refine on an existing staged PNG. mflux
+ * uses the source image as the init latent so the new render preserves
+ * composition/colors while responding to the revised prompt.
+ *
+ * Best for targeted fixes — "make the broom bigger", "add a coffee cup", "drop
+ * the sunburst" — rather than whole-concept rewrites. For a brand-new
+ * direction, just call generate_moji again.
  */
-export async function generateMojiTool(
-  input: GenerateMojiInput,
+export async function refineMojiTool(
+  input: RefineMojiInput,
   opts: {
     onProgress?: (line: string) => void;
     abortSignal?: AbortSignal;
   } = {},
-): Promise<GenerateMojiResult> {
+): Promise<RefineMojiResult> {
   const words = (input.words ?? []).map((w) => String(w).toLowerCase().trim());
   if (words.length < 2 || words.length > 4) {
-    throw new Error(`generate_moji: words must contain 2-4 tokens (got ${words.length})`);
+    throw new Error(`refine_moji: words must contain 2-4 tokens (got ${words.length})`);
   }
   for (const w of words) {
     if (!/^[a-z]+$/.test(w)) {
-      throw new Error(`generate_moji: word "${w}" must be lowercase letters only`);
+      throw new Error(`refine_moji: word "${w}" must be lowercase letters only`);
     }
   }
   if (typeof input.prompt !== 'string' || input.prompt.trim().length === 0) {
-    throw new Error('generate_moji: prompt is required');
+    throw new Error('refine_moji: prompt is required');
+  }
+  if (typeof input.staged_path !== 'string' || input.staged_path.length === 0) {
+    throw new Error('refine_moji: staged_path is required');
   }
   if (!ANTHROPIC_API_KEY) {
     throw new Error(
@@ -91,15 +106,34 @@ export async function generateMojiTool(
     );
   }
 
-  const count = input.count ?? 3;
+  const initAbs = isAbsolute(input.staged_path)
+    ? input.staged_path
+    : join(REPO_ROOT, input.staged_path);
+  if (!existsSync(initAbs)) {
+    throw new Error(`refine_moji: init image not found at ${input.staged_path}`);
+  }
+
+  const initStrength = clampFloat(input.init_strength ?? 0.4, 0, 1);
+  const count = Math.min(Math.max(input.count ?? 2, 1), 4);
   const slug = slugify(words);
+
+  // Refined variants land in today's staged dir, alongside any fresh
+  // generations from the same chat session.
   const dateKey = todayISO();
   const stagedDirAbs = join(STAGE_BASE, dateKey);
   const stagedDirRel = relative(REPO_ROOT, stagedDirAbs);
-
   if (!existsSync(stagedDirAbs)) {
     mkdirSync(stagedDirAbs, { recursive: true });
   }
+
+  // Default seed: parse the original filename's `-s<seed>` (or `-r<seed>`)
+  // and add 100 so refinements land in a fresh seed range. Falls back to
+  // 200 if we can't parse it.
+  const sourceSeedMatch = input.staged_path.match(/-[sr](\d+)(?:_\d+)?\.png$/);
+  const sourceSeed = sourceSeedMatch && sourceSeedMatch[1]
+    ? parseInt(sourceSeedMatch[1], 10)
+    : 100;
+  const seed = typeof input.seed === 'number' ? input.seed : sourceSeed + 100;
 
   const args: string[] = [
     GENERATE_SCRIPT,
@@ -109,19 +143,20 @@ export async function generateMojiTool(
     input.prompt,
     '--count',
     String(count),
+    '--seed',
+    String(seed),
+    '--refine',
+    initAbs,
+    '--init-strength',
+    String(initStrength),
     '--check',
   ];
-  if (typeof input.seed === 'number') {
-    args.push('--seed', String(input.seed));
-  }
 
   const child: ChildProcessWithoutNullStreams = spawn(PYTHON, args, {
     cwd: REPO_ROOT,
     env: { ...process.env, ANTHROPIC_API_KEY },
   });
 
-  // Wire abort to SIGTERM. The chat route stores the AbortController on the
-  // session and exposes it via /api/chat/abort.
   const onAbort = () => {
     try {
       child.kill('SIGTERM');
@@ -155,8 +190,6 @@ export async function generateMojiTool(
 
   child.stderr.on('data', (chunk: Buffer) => {
     stderrBuf += chunk.toString('utf8');
-    // Only forward stderr lines that match the progress patterns; mflux's
-    // tqdm bars would otherwise drown the channel.
     let nl = stderrBuf.indexOf('\n');
     while (nl !== -1) {
       handleLine(stderrBuf.slice(0, nl));
@@ -171,19 +204,21 @@ export async function generateMojiTool(
   opts.abortSignal?.removeEventListener('abort', onAbort);
 
   if (opts.abortSignal?.aborted) {
-    throw new Error('generate_moji: aborted by user');
+    throw new Error('refine_moji: aborted by user');
   }
   if (exitCode !== 0) {
     const tail = stderrBuf.split('\n').slice(-20).join('\n').trim();
     throw new Error(
-      `generate_moji: scripts/generate_moji.py exited ${exitCode}\n${tail || '(no stderr)'}`,
+      `refine_moji: scripts/generate_moji.py exited ${exitCode}\n${tail || '(no stderr)'}`,
     );
   }
 
-  const variants = parseContactSheet(stagedDirAbs, stagedDirRel);
+  const allVariants = parseContactSheet(stagedDirAbs, stagedDirRel);
+  // The contact sheet covers the most recent run only; restrict to slug.
+  const variants = allVariants.filter((v) => v.file.startsWith(`${slug}-r`));
   if (variants.length === 0) {
     throw new Error(
-      `generate_moji: no variants parsed from ${stagedDirRel}/index.html — see server log`,
+      `refine_moji: no refined variants parsed from ${stagedDirRel}/index.html — see server log`,
     );
   }
 
@@ -213,6 +248,8 @@ export async function generateMojiTool(
     conceptId: concept.id,
     slug,
     stagedDir: stagedDirRel,
+    initImage: relative(REPO_ROOT, initAbs),
+    initStrength,
     variants,
     recommended: recommended ? recommended.file : null,
     warnings,
@@ -225,4 +262,11 @@ function compactProgressLine(line: string): string | null {
     if (m) return line.trim();
   }
   return null;
+}
+
+function clampFloat(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value)) return min;
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
 }
