@@ -24,11 +24,11 @@ Before brainstorming, always read `docs/moji-mash-style-guide.md`. It contains t
 
 ## Batch workflow
 
-### Step 1 — Load context
-```
-Read src/data/mojiMashPuzzles.ts
-```
-Extract all existing word tuples and build a mental set of words-used counts.
+### Step 0 — Restore cross-session context (if continuing)
+Call `list_staged()` first whenever the user mentions a previous session or asks to continue. It shows all staged candidates across all days, with rubric scores if the contact sheet was generated with `--check`. You can pick up an iteration loop from a previous chat without re-running expensive generations.
+
+### Step 1 — Load pool context
+Call `list_pool()` to get the pool summary (totals, word counts, pinned dates). Use `search_pool(words=[...])` for targeted word-conflict checks rather than reading the full file.
 
 ### Step 2 — Establish date context
 Note today's date. Identify holidays, events, and seasonal themes in the target window. Relevant recurring dates: New Year's (Jan 1), Valentine's Day (Feb 14), St. Patrick's Day (Mar 17), Easter (varies), Tax Day (Apr 15), Earth Day (Apr 22), Mother's Day (2nd Sun May), Memorial Day (last Mon May), Father's Day (3rd Sun Jun), Independence Day (Jul 4), Labor Day (1st Mon Sep), Halloween (Oct 31), Thanksgiving (4th Thu Nov), Christmas (Dec 25), New Year's Eve (Dec 31).
@@ -42,12 +42,21 @@ Generate 3× the requested count of concepts. For each, note:
 
 Self-reject any concept that:
 - Contains an abstract or un-drawable word
-- Duplicates an existing tuple exactly
-- Reuses a word that already appears 2+ times in the pool
+- Duplicates an existing tuple exactly (check with `search_pool`)
+- Would place the same word in two pinned puzzles within 14 days (check with `search_pool(pinned_only=true, near_date=..., within_days=14)`)
 - Produces an image where one word would be invisible or indistinguishable
 
-### Step 4 — Write prompts
-For each surviving concept, write a genmoji generation prompt:
+### Step 4 — Triage concepts with check_concept (cheap, fast)
+Before spending ~45s/variant on generation, call `check_concept(words, prompt_draft)` for each concept. It asks Claude to rate renderability 1–5 and flag hard-to-depict words.
+
+- **Rating 4–5**: proceed to generation
+- **Rating 3**: revise the concept or prompt draft, then re-check
+- **Rating 1–2**: drop the concept or rethink the words
+
+This step costs ~$0.002 per call vs. ~$0.20+ for a full 3-variant generate_moji run.
+
+### Step 5 — Write prompts
+For each surviving concept (rated 4–5 in Step 4), write a genmoji generation prompt:
 - Start with `"an expressive emoji of..."`
 - Explicitly describe a visual element for **every word** — never leave one implicit
 - For action words or relational concepts (`return`, `share`, `crash`, `scheme`), name their iconic visual shorthand explicitly (e.g. `return` → "looping arrow returning to…")
@@ -55,14 +64,10 @@ For each surviving concept, write a genmoji generation prompt:
 - End with: `"cute cartoon sticker, thick outline, saturated colors, centered on white background"`
 - Keep the prompt ≤ 40 words
 
-### Step 5 — Generate candidates
-For each concept, run:
-```bash
-python scripts/generate_moji.py \
-  --words "<w1 w2 ...>" \
-  --prompt "<your prompt>" \
-  --count 3 \
-  --check
+### Step 6 — Generate candidates
+For each concept that passed Step 4, call:
+```
+generate_moji(words=[...], prompt="...", count=3)
 ```
 
 `--check` runs a **two-pass visual quality evaluation** on each variant:
@@ -81,7 +86,7 @@ python scripts/generate_moji.py \
 
 The contact sheet sorts variants by composite score and stars the recommended one.
 
-### Step 6 — Interpret scores and decide next action
+### Step 7 — Interpret scores and decide next action
 
 For each concept, read the check output and apply this decision tree:
 
@@ -103,26 +108,28 @@ The contact sheet and terminal output both star the highest composite-score vari
 - If only 1–2 variants are weak on a dimension → present the best variant with a note
 - Never present a variant with `word_clarity` ≤ 2 without flagging it prominently
 
-### Step 7 — Present to user
+**When to use refine_moji vs. a full regenerate:**
+- The composition/layout is basically right but one element needs tweaking → `refine_moji` with the best variant as init and a targeted prompt describing the change. Use `init_strength 0.3–0.5` for minor tweaks, `0.6–0.8` for bigger changes.
+- The concept direction was wrong entirely → call `generate_moji` fresh with a redesigned prompt.
+
+### Step 8 — Present to user
 
 For each concept, show:
 1. **Concept**: word tuple + category tag + date pin
 2. **Best variant**: filename + composite score + any warnings
 3. **Rubric summary**: the 5 scores for the recommended variant
-4. **Your recommendation**: promote / regenerate / drop — and why
-5. Ask: "Promote the recommended variant, pick a different one, regenerate with a new prompt, or skip?"
+4. **Your recommendation**: promote / refine / regenerate / drop — and why
+5. Ask: "Promote the recommended variant, pick a different one, refine with img2img, regenerate fresh, or skip?"
 
 If you're regenerating due to low scores, explain what you changed in the prompt and why.
 
-### Step 8 — Promote winners
-For each concept the user approves:
-```bash
-python scripts/generate_moji.py \
-  --words "<w1 w2 ...>" \
-  --promote tmp/moji-mash/<date>/<chosen-file>.png
+### Step 9 — Promote winners
+For each concept the user approves, call:
+```
+promote_moji(words=[...], staged_path="tmp/moji-mash/<date>/<chosen-file>.png")
 ```
 
-### Step 9 — Output paste block
+### Step 10 — Output paste block
 Print a single fenced TypeScript block with **all** approved entries in alphabetical order by slug. Include a `date:` field (uncommented) for holiday-pinned puzzles. Example:
 
 ```ts
