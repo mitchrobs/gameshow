@@ -11,9 +11,12 @@
     "build:mini-crossword-bank": "python3 scripts/build_mini_crossword_bank.py",
     "build:mini-crossword-seeds": "python3 scripts/build_mini_crossword_variants.py",
     "draft:moji-mash": "python3 scripts/generate_moji.py",
+    "inspect:barter": "node --experimental-strip-types scripts/inspect_barter.ts",
     "moji-schedule": "python3 scripts/show_schedule.py",
     "moji-calendar": "python3 scripts/show_calendar.py",
-    "studio": "cd tools/moji-mash-studio && npm run dev"
+    "studio": "cd tools/moji-mash-studio && npm run dev",
+    "test": "vitest run",
+    "test:barter": "vitest run src/data/barter/barter.test.ts"
   },
   "dependencies": {
     "@expo/metro-runtime": "^6.1.2",
@@ -33,7 +36,8 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vitest": "^4.1.4"
   },
   "private": true
 }
