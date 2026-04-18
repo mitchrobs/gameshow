@@ -466,15 +466,21 @@ export default function BridgesScreen() {
   const boardWidth =
     boardAspect > 1 ? Math.max(240, Math.min(maxBoardWidth, maxBoardHeight / boardAspect)) : maxBoardWidth;
   const boardHeight = boardWidth * boardAspect;
-  const boardPadding = Spacing.md;
+  const baseBoardPadding = Spacing.lg;
+  const previewInnerWidth = boardWidth - baseBoardPadding * 2;
+  const previewInnerHeight = boardHeight - baseBoardPadding * 2;
+  const previewCellSize = Math.min(
+    previewInnerWidth / Math.max(1, colCount - 1),
+    previewInnerHeight / Math.max(1, rowCount - 1)
+  );
+  const islandSize = Math.min(46, Math.max(30, previewCellSize * 0.82));
+  const islandRadius = islandSize / 2;
+  const lineThickness = Math.max(3, Math.min(5, previewCellSize * 0.12));
+  const boardPadding = Math.max(baseBoardPadding, islandRadius + lineThickness + 4);
   const innerWidth = boardWidth - boardPadding * 2;
   const innerHeight = boardHeight - boardPadding * 2;
   const cellWidth = innerWidth / Math.max(1, colCount - 1);
   const cellHeight = innerHeight / Math.max(1, rowCount - 1);
-  const cellSize = Math.min(cellWidth, cellHeight);
-  const islandSize = Math.min(52, Math.max(32, cellSize * 0.9));
-  const islandRadius = islandSize / 2;
-  const lineThickness = Math.max(3, Math.min(6, cellSize * 0.14));
   const doubleOffset = lineThickness + 4;
 
   const islandPositions = useMemo(() => {

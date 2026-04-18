@@ -50,6 +50,11 @@ interface BridgesArchetype {
 }
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const MAX_REQUIREMENT_BY_DIFFICULTY: Record<BridgesDifficulty, number> = {
+  Easy: 4,
+  Medium: 6,
+  Hard: 8,
+};
 
 const BASE_PUZZLES: BridgesSeedPuzzle[] = [
   {
@@ -137,7 +142,7 @@ const BASE_PUZZLES: BridgesSeedPuzzle[] = [
       { id: 12, row: 10, col: 1 },
       { id: 13, row: 10, col: 4 },
       { id: 14, row: 10, col: 7 },
-      { id: 15, col: 10 },
+      { id: 15, row: 10, col: 10 },
     ],
     solution: [
       { island1: 0, island2: 1, count: 2 },
@@ -180,12 +185,12 @@ const BRIDGES_ARCHETYPES: Record<BridgesDifficulty, BridgesArchetype[]> = {
       positions: [
         { row: 1, col: 1 },
         { row: 1, col: 4 },
-        { row: 2, col: 6 },
+        { row: 2, col: 5 },
         { row: 3, col: 1 },
         { row: 3, col: 4 },
         { row: 5, col: 1 },
-        { row: 5, col: 4 },
-        { row: 5, col: 6 },
+        { row: 5, col: 3 },
+        { row: 5, col: 5 },
       ],
     },
     {
@@ -215,23 +220,23 @@ const BRIDGES_ARCHETYPES: Record<BridgesDifficulty, BridgesArchetype[]> = {
       difficulty: 'Medium',
       rowCount: 11,
       colCount: 7,
-      extraEdges: [3, 5],
-      doubleRate: 0.46,
+      extraEdges: [1, 3],
+      doubleRate: 0.28,
       allowTranspose: true,
       positions: [
         { row: 1, col: 1 },
         { row: 1, col: 4 },
-        { row: 2, col: 6 },
+        { row: 2, col: 5 },
         { row: 3, col: 1 },
         { row: 3, col: 4 },
-        { row: 5, col: 2 },
-        { row: 5, col: 4 },
-        { row: 5, col: 6 },
+        { row: 5, col: 1 },
+        { row: 5, col: 3 },
+        { row: 5, col: 5 },
         { row: 7, col: 1 },
         { row: 7, col: 4 },
-        { row: 9, col: 2 },
-        { row: 9, col: 4 },
-        { row: 9, col: 6 },
+        { row: 9, col: 1 },
+        { row: 9, col: 3 },
+        { row: 9, col: 5 },
       ],
     },
     {
@@ -239,8 +244,8 @@ const BRIDGES_ARCHETYPES: Record<BridgesDifficulty, BridgesArchetype[]> = {
       difficulty: 'Medium',
       rowCount: 9,
       colCount: 11,
-      extraEdges: [4, 6],
-      doubleRate: 0.44,
+      extraEdges: [2, 4],
+      doubleRate: 0.3,
       allowTranspose: true,
       positions: [
         { row: 1, col: 1 },
@@ -593,6 +598,11 @@ function generatePuzzle(
   let bestScore = -Infinity;
   const primaryArchetype = archetypes[dayIndex % archetypes.length];
   const fallbackArchetypes = archetypes.filter((archetype) => archetype !== primaryArchetype);
+  const maxRequirement = MAX_REQUIREMENT_BY_DIFFICULTY[difficulty];
+  const hasCleanRequirements = (puzzle: BridgesPuzzle) =>
+    puzzle.islands.every(
+      (island) => island.requiredBridges > 0 && island.requiredBridges <= maxRequirement
+    );
 
   for (let attempt = 0; attempt < 36; attempt += 1) {
     const archetype = primaryArchetype ?? archetypes[attempt % archetypes.length];
@@ -611,9 +621,7 @@ function generatePuzzle(
       islands: transformed.islands,
       solution,
     });
-    if (puzzle.islands.some((island) => island.requiredBridges <= 0 || island.requiredBridges > 8)) {
-      continue;
-    }
+    if (!hasCleanRequirements(puzzle)) continue;
 
     const score = scorePuzzle(puzzle) + rand();
     if (score > bestScore) {
@@ -628,7 +636,7 @@ function generatePuzzle(
     const transformed = transformPositions(archetype, rand);
     const solution = buildSolution(transformed.islands, archetype, rand);
     if (!solution) continue;
-    return applyRequirements({
+    const puzzle = applyRequirements({
       id: `bridges-${difficulty.toLowerCase()}-${transformed.shape}-${dayIndex}`,
       difficulty,
       gridSize: Math.max(transformed.rowCount, transformed.colCount),
@@ -638,6 +646,7 @@ function generatePuzzle(
       islands: transformed.islands,
       solution,
     });
+    if (hasCleanRequirements(puzzle)) return puzzle;
   }
 
   return null;
