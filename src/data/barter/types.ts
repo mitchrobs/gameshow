@@ -19,6 +19,12 @@ export interface Good {
   tier: GoodTier;
 }
 
+export interface GoodSkin {
+  id: GoodId;
+  name: string;
+  emoji: string;
+}
+
 export interface TradeSide {
   good: GoodId;
   qty: number;
@@ -37,6 +43,30 @@ export type TradeRole =
 
 export type StrategyLineId = 'tempo' | 'engine' | 'shared';
 
+export type BarterTopology =
+  | 'balanced_pair'
+  | 'catalyst_debt'
+  | 'scarce_bridge'
+  | 'tempo_discount'
+  | 'night_pivot'
+  | 'delayed_multiplier'
+  | 'split_pipeline'
+  | 'compression_route'
+  | 'overproduction_trap';
+
+export type BarterArchetype = BarterTopology;
+
+export type RoutePersonality =
+  | 'engine'
+  | 'tempo'
+  | 'balanced'
+  | 'recovery'
+  | 'overpay'
+  | 'compression'
+  | 'split';
+
+export type HiddenVendorPurpose = 'recovery' | 'alternate' | 'compression' | 'safety_valve';
+
 export interface Trade {
   give: TradeSide[];
   receive: TradeSide[];
@@ -45,6 +75,7 @@ export interface Trade {
   role?: TradeRole;
   line?: StrategyLineId;
   variant?: boolean;
+  hiddenUntilNight?: boolean;
 }
 
 export interface BarterGoal {
@@ -63,14 +94,24 @@ export interface RouteSummary {
   roles: TradeRole[];
   line: StrategyLineId;
   usesCompound: boolean;
+  personality?: RoutePersonality;
+}
+
+export interface OpeningRegret {
+  tradeKey: string;
+  bestLength: number | null;
+  regret: number | null;
+  nearOptimal: boolean;
 }
 
 export interface BarterQualityReport {
   accepted: boolean;
   violations: string[];
+  archetype: BarterArchetype | null;
   shortestPathLength: number | null;
   nearOptimalRouteCount: number;
   nearOptimalFirstMoveCount: number;
+  optimalFirstMoveCount: number;
   compoundOnNearOptimalRoute: boolean;
   tempoRouteCount: number;
   engineRouteCount: number;
@@ -78,6 +119,17 @@ export interface BarterQualityReport {
   meaningfulOptionsByDepth: number[];
   maxEarlyRegret: number;
   deadEarlyMoveCount: number;
+  openingRegrets: OpeningRegret[];
+  routeDivergenceDepth: number | null;
+  bottleneckGood: GoodId | null;
+  hiddenVendorKey: string | null;
+  topology: BarterTopology | null;
+  thesis: string | null;
+  hiddenVendorPurpose: HiddenVendorPurpose | null;
+  routeDistance: number;
+  compressionValue: number;
+  payoffVisibility: boolean;
+  routePersonalities: RoutePersonality[];
   bestRoute: RouteSummary | null;
   alternateRoute: RouteSummary | null;
   strategicInsight: string;
@@ -97,6 +149,10 @@ export interface BarterPuzzle {
   par: number;
   maxTrades: number;
   earlyWindowTrades: number;
+  archetype?: BarterArchetype;
+  topology?: BarterTopology;
+  thesis?: string;
+  hiddenVendorPurpose?: HiddenVendorPurpose;
 }
 
 export class BarterGenerationError extends Error {

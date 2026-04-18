@@ -68,7 +68,9 @@ function applyTrade(inv: Inventory, trade: Trade): Inventory {
   trade.give.forEach((side) => {
     next[side.good] -= side.qty;
   });
-  next[trade.get.good] += trade.get.qty;
+  trade.receive.forEach((side) => {
+    next[side.good] += side.qty;
+  });
   (Object.keys(next) as GoodId[]).forEach((id) => {
     next[id] = Math.min(200, next[id]);
   });
@@ -79,25 +81,33 @@ function nodeKey(step: number, inv: Inventory, goods: GoodId[]): string {
   return `${step}|${goods.map((id) => inv[id]).join(',')}`;
 }
 
-function formatTrade(trade: Trade): string {
+function formatTrade(puzzle: ReturnType<typeof getDailyBarter>, trade: Trade): string {
+  const resolveGood = (id: GoodId) => puzzle.goods.find((good) => good.id === id) ?? getGoodById(id);
   const give = trade.give
-    .map((side) => `${side.qty}${getGoodById(side.good).emoji}`)
+    .map((side) => `${side.qty}${resolveGood(side.good).emoji}`)
     .join('+');
-  const get = `${trade.get.qty}${getGoodById(trade.get.good).emoji}`;
-  return `${give}→${get}`;
+  const receive = trade.receive
+    .map((side) => `${side.qty}${resolveGood(side.good).emoji}`)
+    .join('+');
+  return `${give}→${receive}`;
 }
 
-function summarizeInventory(inv: Inventory, goods: GoodId[]): string {
+function summarizeInventory(
+  puzzle: ReturnType<typeof getDailyBarter>,
+  inv: Inventory,
+  goods: GoodId[]
+): string {
+  const resolveGood = (id: GoodId) => puzzle.goods.find((good) => good.id === id) ?? getGoodById(id);
   return goods
     .filter((id) => inv[id] > 0)
     .sort((a, b) => inv[b] - inv[a])
     .slice(0, 3)
-    .map((id) => `${inv[id]}${getGoodById(id).emoji}`)
+    .map((id) => `${inv[id]}${resolveGood(id).emoji}`)
     .join(' ');
 }
 
 function buildDecisionGraph(dateKey: string, maxDepth: number, maxNodes: number) {
-  const puzzle = getDailyBarter(new Date(`${dateKey}T00:00:00Z`));
+  const puzzle = getDailyBarter(new Date(`${dateKey}T12:00:00`));
   const goods = puzzle.goods.map((g) => g.id);
   const nodes = new Map<string, GraphNode>();
   const edges: GraphEdge[] = [];
@@ -204,15 +214,16 @@ function mermaidForGraph(
     .filter((node): node is GraphNode => Boolean(node))
     .sort((a, b) => a.step - b.step || a.id.localeCompare(b.id))
     .forEach((node) => {
-      const inv = summarizeInventory(node.inv, goods);
-      const goalText = `${node.goalQty}/${puzzle.goal.qty}${getGoodById(puzzle.goal.good).emoji}`;
+      const inv = summarizeInventory(puzzle, node.inv, goods);
+      const goalGood = puzzle.goods.find((good) => good.id === puzzle.goal.good) ?? getGoodById(puzzle.goal.good);
+      const goalText = `${node.goalQty}/${puzzle.goal.qty}${goalGood.emoji}`;
       const label = `t${node.step} | goal ${goalText}${inv ? ` | ${inv}` : ''}`;
       const shape = node.win ? `(["${label} ✅"])` : `["${label}"]`;
       lines.push(`  ${node.id}${shape}`);
     });
 
   keptEdges.forEach((edge) => {
-    lines.push(`  ${edge.from} -->|${formatTrade(edge.trade)}| ${edge.to}`);
+    lines.push(`  ${edge.from} -->|${formatTrade(puzzle, edge.trade)}| ${edge.to}`);
   });
   return lines.join('\n');
 }
@@ -239,8 +250,9 @@ function markdownForPuzzle(dateKey: string, maxDepth: number, maxNodes: number):
   return [
     `## ${dateKey} — ${puzzle.marketName} ${puzzle.marketEmoji}`,
     '',
-    `- Strategy profile: \`${puzzle.strategyProfile}\``,
-    `- Goal: ${puzzle.goal.qty} ${getGoodById(puzzle.goal.good).emoji} ${getGoodById(puzzle.goal.good).name}`,
+    `- Topology: \`${puzzle.topology ?? puzzle.archetype ?? 'unknown'}\``,
+    `- Thesis: ${puzzle.thesis ?? 'n/a'}`,
+    `- Goal: ${puzzle.goal.qty} ${(puzzle.goods.find((good) => good.id === puzzle.goal.good) ?? getGoodById(puzzle.goal.good)).emoji} ${(puzzle.goods.find((good) => good.id === puzzle.goal.good) ?? getGoodById(puzzle.goal.good)).name}`,
     `- Start inventory: ${startInventory}`,
     `- Early window trades: ${puzzle.earlyWindowTrades} · Max trades: ${puzzle.maxTrades} · Par: ${puzzle.par}`,
     `- Graph coverage: ${totalNodes} states, ${totalEdges} transitions (depth ≤ ${maxDepth})${maxNodesReached ? `, capped at ${maxNodes} states` : ''}`,

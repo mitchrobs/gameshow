@@ -19,6 +19,7 @@ import {
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import {
   analyzeBarterPuzzle,
+  BarterQualityReport,
   applyTrade,
   BarterPuzzle,
   canAfford as canAffordTrade,
@@ -31,6 +32,7 @@ import {
   tradeKey,
   getDailyBarter,
   getGoodById,
+  getMarketIdentity as getSharedMarketIdentity,
 } from '../src/data/barterPuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
@@ -80,47 +82,367 @@ function capInventory(inv: Record<GoodId, number>): Record<GoodId, number> {
   return next;
 }
 
-function formatTrade(trade: Trade): string {
+function formatTrade(
+  trade: Trade,
+  getDisplayGood: (id: GoodId) => ReturnType<typeof getGoodById> = getGoodById
+): string {
   const giveParts = trade.give
     .map((side) => {
-      const good = getGoodById(side.good);
+      const good = getDisplayGood(side.good);
       return `${side.qty} ${good.emoji}`;
     })
     .join(' + ');
   const receiveParts = trade.receive
     .map((side) => {
-      const good = getGoodById(side.good);
+      const good = getDisplayGood(side.good);
       return `${side.qty} ${good.emoji}`;
     })
     .join(' + ');
   return `${giveParts} → ${receiveParts}`;
 }
 
-function formatTradeSides(sides: Array<{ good: GoodId; qty: number }>): string {
+function formatSideList(
+  sides: Array<{ good: GoodId; qty: number }>,
+  getDisplayGood: (id: GoodId) => ReturnType<typeof getGoodById>
+): string {
   return sides
     .map((side) => {
-      const good = getGoodById(side.good);
-      const prefix = side.qty > 0 ? '+' : '';
-      return `${prefix}${side.qty} ${good.emoji}`;
+      const good = getDisplayGood(side.good);
+      return `${side.qty} ${good.emoji} ${good.name}`;
     })
-    .join('  ');
+    .join(', ');
 }
 
-function getRoleLabel(trade: Trade): string | null {
-  switch (trade.role) {
-    case 'engine_setup':
-      return 'Setup';
-    case 'compound_gate':
-      return 'Bundle';
-    case 'engine_payoff':
-      return 'Payoff';
-    case 'tempo_bailout':
-      return 'Bailout';
-    case 'tempo':
-      return 'Tempo';
+function getMarketRead(
+  puzzle: BarterPuzzle,
+  qualityReport: BarterQualityReport,
+  getDisplayGood: (id: GoodId) => ReturnType<typeof getGoodById>
+): string {
+  const bottleneck = qualityReport.bottleneckGood
+    ? getDisplayGood(qualityReport.bottleneckGood).name
+    : 'one prepared good';
+  const goal = getDisplayGood(puzzle.goal.good).name;
+
+  switch (qualityReport.topology ?? puzzle.topology) {
+    case 'balanced_pair':
+      return `Keep two prepared goods close together; the clean route turns a balanced pair into ${goal}.`;
+    case 'catalyst_debt':
+      return `${bottleneck} is doing double duty. Spending it early is fine only if your route rebuilds it.`;
+    case 'scarce_bridge':
+      return `${bottleneck} has competing uses. Pick which night payoff it should serve before the day closes.`;
+    case 'tempo_discount':
+      return `The fast line overpays. The slower line is harder to read, but it can buy the night discount.`;
+    case 'night_pivot':
+      return `Most of the night market is visible now. The covered stall is a pivot, not the whole answer.`;
+    case 'delayed_multiplier':
+      return `A quiet day setup can multiply late. Save the piece that looks idle before night opens.`;
+    case 'split_pipeline':
+      return `Two pipelines feed the goal. Balanced leftovers matter more than building one big pile.`;
+    case 'compression_route':
+      return `The bundle route saves a trade only if the day market prepares both halves first.`;
+    case 'overproduction_trap':
+      return `Extra goods can strand you. Make enough for ${goal}, not the biggest possible pile.`;
     default:
-      return null;
+      return puzzle.thesis ?? 'Read the visible night contracts before spending the day market.';
   }
+}
+
+function getShareRouteGlyphs(trades: Trade[]): string {
+  if (trades.length === 0) return 'No trades made';
+  return trades.map((trade) => (trade.window === 'late' ? '🌙' : '☀️')).join('');
+}
+
+interface MarketIdentity {
+  flavor: string;
+  dayScene: string;
+  nightScene: string;
+  sceneMarks: string[];
+  hiddenStall: string;
+  vendors: {
+    day: string[];
+    night: string[];
+  };
+}
+
+const MARKET_FLAVOR: Record<string, string> = {
+  'Silk Road Bazaar': 'Bright bolts hang over narrow lanes while brokers trade in whispers and hand signs.',
+  'Spice Wharf': 'Dockhands unload red sacks before sunrise; every stall smells expensive by noon.',
+  'Golden Caravan': 'Caravan bells mark the rhythm here, and every trader watches what leaves the shade.',
+  'Jade Exchange': 'Polished counters, quiet offers, and one wrong imbalance can echo through the room.',
+  'Porcelain Court': 'Tea steam curls over porcelain shelves while patient vendors wait for perfect pairs.',
+  'Saffron Arcade': 'Lanterns catch on saffron dust, and fast deals can cost more than they seem.',
+  'Lantern Market': 'Paper lanterns mark the night stalls early, giving careful planners a route to read.',
+  'Amber Row': 'Amber beads click across tables as merchants test whether you saved the right pieces.',
+  'Salt & Timber Yard': 'Salt blocks and timber stacks move slowly here, but the right bundle travels far.',
+  'Copperstone Square': 'Copper scales ring all morning; the square rewards balance more than speed.',
+  'Moonlit Souk': 'Moonlit awnings hide one late stall, so the visible contracts matter even more.',
+  'Rivergate Trades': 'River barges arrive in pairs, and the best traders keep their cargo matched.',
+  'Crimson Ledger': 'Every offer is marked in red ink; overpay once and the ledger remembers.',
+  'Starlit Agora': 'Under open sky, vendors price the future before the night market fully wakes.',
+  'Indigo Harbor': 'Indigo tarps snap in the harbor wind while rare goods wait behind clean timing.',
+  'Windmill Exchange': 'Canvas sails turn over the stalls, and every gust seems to change what a fair trade means.',
+  'Oasis Ledger': 'Water sellers and caravan clerks count every promise before the night lamps are lit.',
+  'Tea Road Arcade': 'Tea tins pass from stall to stall; the clever route keeps enough warmth for later.',
+  "Mariner's Market": 'Rope, salt, and tide charts crowd the tables; nothing stays useful forever.',
+  'Atlas Bazaar': 'Mapmakers argue over routes while vendors reward the trader who planned two turns ahead.',
+  'Sunrise Caravan': 'Sunrise opens the caravan gates, but the best bargains are aimed at night.',
+};
+
+const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
+  'Silk Road Bazaar': {
+    dayScene: 'Silk awnings split the lane into color and shadow.',
+    nightScene: 'Lamp cords drop between fabric stalls as brokers reopen their ledgers.',
+    sceneMarks: ['🧵', '🏮', '🤝'],
+    hiddenStall: 'A curtained silk broker is tying up one last night offer.',
+    vendors: {
+      day: ['Bolt Cutter', 'Thread Broker', 'Dye Clerk', 'Caravan Weaver'],
+      night: ['Lantern Draper', 'Quiet Broker', 'Silk Appraiser', 'Back-Lane Weaver'],
+    },
+  },
+  'Spice Wharf': {
+    dayScene: 'Sacks thump onto wet boards while gulls circle the scales.',
+    nightScene: 'Braziers glow near the quay and the sharpest spices move under cover.',
+    sceneMarks: ['🌶️', '⚓️', '🔥'],
+    hiddenStall: 'A quay cook is grinding a night-only offer behind the shutters.',
+    vendors: {
+      day: ['Dock Scale', 'Pepper Runner', 'Sack Captain', 'Harbor Clerk'],
+      night: ['Brazier Cook', 'Tide Broker', 'Red-Sack Agent', 'Midnight Porter'],
+    },
+  },
+  'Golden Caravan': {
+    dayScene: 'Camel bells mark each offer before the shade disappears.',
+    nightScene: 'The caravan circle tightens and lantern-lit bundles change hands.',
+    sceneMarks: ['🐪', '🪙', '⛺'],
+    hiddenStall: 'A caravan guard is unpacking a locked chest for nightfall.',
+    vendors: {
+      day: ['Bell Keeper', 'Shade Trader', 'Gold Clerk', 'Water Scout'],
+      night: ['Camp Appraiser', 'Dune Broker', 'Chest Keeper', 'Lamp Merchant'],
+    },
+  },
+  'Jade Exchange': {
+    dayScene: 'Quiet counters shine while clerks compare every weight twice.',
+    nightScene: 'The polished room hushes as paired goods reach the jade tables.',
+    sceneMarks: ['🏺', '⚖️', '🫖'],
+    hiddenStall: 'A back-room appraiser is preparing one sealed night quote.',
+    vendors: {
+      day: ['Jade Clerk', 'Scale Master', 'Porcelain Reader', 'Quiet Counter'],
+      night: ['Seal Appraiser', 'Gallery Broker', 'Ledger Keeper', 'Lamp Counter'],
+    },
+  },
+  'Porcelain Court': {
+    dayScene: 'Tea steam softens the shelves, but the offers stay precise.',
+    nightScene: 'Porcelain bells ring as the court rewards careful pairs.',
+    sceneMarks: ['🫖', '🍵', '🏺'],
+    hiddenStall: 'A court steward is polishing a night contract behind the screen.',
+    vendors: {
+      day: ['Tea Steward', 'Shelf Keeper', 'Cup Turner', 'Porcelain Clerk'],
+      night: ['Screen Steward', 'Bell Broker', 'Moon Cupper', 'Court Appraiser'],
+    },
+  },
+  'Saffron Arcade': {
+    dayScene: 'Saffron dust catches in the arcade light around every bargain.',
+    nightScene: 'Red-gold lamps turn the arcade into a narrow row of payoffs.',
+    sceneMarks: ['🟧', '🌶️', '🏮'],
+    hiddenStall: 'A spice painter is opening a side shutter for nightfall.',
+    vendors: {
+      day: ['Dust Clerk', 'Arcade Runner', 'Saffron Scale', 'Tin Keeper'],
+      night: ['Lamp Painter', 'Side-Stall Broker', 'Red-Gold Clerk', 'Night Sifter'],
+    },
+  },
+  'Lantern Market': {
+    dayScene: 'Lantern frames hang unlit above a market that already points to night.',
+    nightScene: 'Every paper lantern becomes a signpost for the final trades.',
+    sceneMarks: ['🏮', '✨', '🧵'],
+    hiddenStall: 'A paper-lantern vendor is lighting one covered stall.',
+    vendors: {
+      day: ['Frame Maker', 'Paper Clerk', 'Wick Runner', 'Dawn Lighter'],
+      night: ['Lantern Keeper', 'Shadow Broker', 'Paper Appraiser', 'Glow Stall'],
+    },
+  },
+  'Amber Row': {
+    dayScene: 'Amber beads click across counters while merchants test your patience.',
+    nightScene: 'Candlelight turns every bead warm and every mistake visible.',
+    sceneMarks: ['🟠', '🕯️', '🪙'],
+    hiddenStall: 'A bead cutter is sorting a private strand for the night row.',
+    vendors: {
+      day: ['Bead Cutter', 'Row Clerk', 'Amber Counter', 'Wax Broker'],
+      night: ['Candle Appraiser', 'Private Strand', 'Night Counter', 'Warm Ledger'],
+    },
+  },
+  'Salt & Timber Yard': {
+    dayScene: 'Salt blocks and timber stacks make every route feel heavy.',
+    nightScene: 'Torchlight marks the prepared bundles that can finally move.',
+    sceneMarks: ['🧂', '🪵', '🔥'],
+    hiddenStall: 'A yard foreman is unlocking one night stack.',
+    vendors: {
+      day: ['Salt Measurer', 'Timber Foreman', 'Stack Clerk', 'Yard Carter'],
+      night: ['Torch Foreman', 'Locked Stack', 'Grain Broker', 'Night Carter'],
+    },
+  },
+  'Copperstone Square': {
+    dayScene: 'Copper scales ring across the square as traders weigh every shortcut.',
+    nightScene: 'Stone arches echo with late offers for anyone who kept balance.',
+    sceneMarks: ['🪙', '⚖️', '🏛️'],
+    hiddenStall: 'A copper minter is setting one scale behind the arch.',
+    vendors: {
+      day: ['Scale Ringer', 'Copper Clerk', 'Stone Broker', 'Mint Runner'],
+      night: ['Arch Appraiser', 'Coin Keeper', 'Late Minter', 'Square Notary'],
+    },
+  },
+  'Moonlit Souk': {
+    dayScene: 'Canvas awnings hide cool shade and hotter arguments.',
+    nightScene: 'Moonlight turns the souk quiet, and one covered stall joins the route.',
+    sceneMarks: ['🌙', '🏮', '🐪'],
+    hiddenStall: 'A moonlit stall is still hidden behind a blue awning.',
+    vendors: {
+      day: ['Shade Broker', 'Awnings Clerk', 'Date Runner', 'Souk Caller'],
+      night: ['Moon Clerk', 'Blue Awning', 'Lamp Broker', 'Silent Carter'],
+    },
+  },
+  'Rivergate Trades': {
+    dayScene: 'Barges arrive in pairs and the gate clerks move goods by rhythm.',
+    nightScene: 'The river gate narrows, rewarding cargo that still matches.',
+    sceneMarks: ['🌊', '🚪', '⚓️'],
+    hiddenStall: 'A lock keeper is raising one hidden night gate.',
+    vendors: {
+      day: ['Gate Clerk', 'Barge Pairer', 'River Porter', 'Lock Scale'],
+      night: ['Night Lock', 'Tide Appraiser', 'Gate Broker', 'Moon Porter'],
+    },
+  },
+  'Crimson Ledger': {
+    dayScene: 'Red ink dries fast, and every overpay stays on the page.',
+    nightScene: 'The ledger closes around the goods you chose to preserve.',
+    sceneMarks: ['🟥', '🖋️', '📕'],
+    hiddenStall: 'A red-ink auditor is balancing one hidden night line.',
+    vendors: {
+      day: ['Ink Auditor', 'Margin Clerk', 'Red Notary', 'Page Runner'],
+      night: ['Closing Clerk', 'Night Auditor', 'Hidden Line', 'Ledger Broker'],
+    },
+  },
+  'Starlit Agora': {
+    dayScene: 'Open stalls price the future before the stars are visible.',
+    nightScene: 'Starlight picks out the contracts that were readable all along.',
+    sceneMarks: ['✨', '🏛️', '🌙'],
+    hiddenStall: 'An agora speaker is waiting to announce one night offer.',
+    vendors: {
+      day: ['Open Caller', 'Agora Clerk', 'Sky Broker', 'Pillar Runner'],
+      night: ['Star Speaker', 'Moon Appraiser', 'Pillar Broker', 'Late Caller'],
+    },
+  },
+  'Indigo Harbor': {
+    dayScene: 'Indigo tarps snap above crates while the harbor wind keeps score.',
+    nightScene: 'Blue lamps swing over the docks as prepared cargo pays off.',
+    sceneMarks: ['⚓️', '🟦', '🌊'],
+    hiddenStall: 'A dock lamp is swinging over one hidden night crate.',
+    vendors: {
+      day: ['Tarp Broker', 'Harbor Clerk', 'Crate Turner', 'Rope Runner'],
+      night: ['Blue Lamp', 'Night Dockhand', 'Tide Appraiser', 'Hidden Crate'],
+    },
+  },
+  'Windmill Exchange': {
+    dayScene: 'Canvas sails turn above the stalls, pushing every deal into motion.',
+    nightScene: 'The sails slow at dusk, and balanced goods finally catch the wind.',
+    sceneMarks: ['🌬️', '🪽', '🧵'],
+    hiddenStall: 'A miller is raising one canvas shutter for the night market.',
+    vendors: {
+      day: ['Sail Tally', 'Grain Clerk', 'Canvas Broker', 'Gust Runner'],
+      night: ['Shutter Miller', 'Dusk Broker', 'Wind Appraiser', 'Night Sail'],
+    },
+  },
+  'Oasis Ledger': {
+    dayScene: 'Water sellers and caravan clerks count promises before the heat peaks.',
+    nightScene: 'Cool lamps make the oasis ledger strict but generous to planners.',
+    sceneMarks: ['🌴', '💧', '📒'],
+    hiddenStall: 'A water clerk is uncorking one night reserve.',
+    vendors: {
+      day: ['Water Clerk', 'Palm Broker', 'Reserve Tally', 'Caravan Scribe'],
+      night: ['Night Reserve', 'Lamp Scribe', 'Oasis Appraiser', 'Cool Ledger'],
+    },
+  },
+  'Tea Road Arcade': {
+    dayScene: 'Tea tins pass from stall to stall while the arcade keeps its rhythm.',
+    nightScene: 'The final cups pour only for traders who saved the right warmth.',
+    sceneMarks: ['🍵', '🫖', '🏮'],
+    hiddenStall: 'A tea master is steeping one hidden night blend.',
+    vendors: {
+      day: ['Tea Runner', 'Tin Keeper', 'Arcade Brewer', 'Steam Clerk'],
+      night: ['Night Brewer', 'Hidden Blend', 'Cup Appraiser', 'Lamp Steeper'],
+    },
+  },
+  "Mariner's Market": {
+    dayScene: 'Ropes, tide charts, and salt air crowd the tables.',
+    nightScene: 'The tide turns, and the prepared cargo decides the route home.',
+    sceneMarks: ['⚓️', '🪢', '🌊'],
+    hiddenStall: 'A mariner is tying off one hidden night mooring.',
+    vendors: {
+      day: ['Tide Clerk', 'Rope Broker', 'Chart Runner', 'Salt Pilot'],
+      night: ['Night Mooring', 'Lamp Pilot', 'Dock Appraiser', 'Moon Chart'],
+    },
+  },
+  'Atlas Bazaar': {
+    dayScene: 'Mapmakers argue over routes while vendors watch your first commitment.',
+    nightScene: 'The maps fold smaller at night, leaving only the planned paths.',
+    sceneMarks: ['🗺️', '📍', '🧭'],
+    hiddenStall: 'A cartographer is inking one hidden night route.',
+    vendors: {
+      day: ['Map Clerk', 'Compass Broker', 'Route Caller', 'Pin Runner'],
+      night: ['Night Cartographer', 'Hidden Route', 'Atlas Appraiser', 'Lamp Surveyor'],
+    },
+  },
+  'Sunrise Caravan': {
+    dayScene: 'Sunrise opens the caravan gates with every bargain pointed at dusk.',
+    nightScene: 'The camp settles into lamplight and the prepared packs matter most.',
+    sceneMarks: ['🌅', '🐪', '⛺'],
+    hiddenStall: 'A pack master is tying one hidden bundle for nightfall.',
+    vendors: {
+      day: ['Gate Caller', 'Pack Clerk', 'Sun Broker', 'Dawn Carter'],
+      night: ['Pack Master', 'Camp Appraiser', 'Lamp Carter', 'Hidden Bundle'],
+    },
+  },
+};
+
+function getMarketIdentity(marketName: string, marketEmoji: string): MarketIdentity {
+  const shared = getSharedMarketIdentity(marketName, marketEmoji);
+  const details = MARKET_DETAILS[marketName] ?? {
+    dayScene: `${marketEmoji} Stalls open with enough information to plan the night.`,
+    nightScene: 'The night market rewards the goods you chose to protect.',
+    sceneMarks: [marketEmoji, '🤝', '🌙'],
+    hiddenStall: 'One night stall is still setting up.',
+    vendors: {
+      day: ['Day Broker', 'Market Clerk', 'Route Trader', 'Stall Keeper'],
+      night: ['Night Broker', 'Late Appraiser', 'Moon Clerk', 'Hidden Stall'],
+    },
+  };
+  return {
+    ...details,
+    flavor: shared.flavor,
+    hiddenStall: shared.hiddenStall,
+  };
+}
+
+function formatVendorGoods(
+  sides: Trade['give'],
+  getDisplayGood: (id: GoodId) => ReturnType<typeof getGoodById>
+): string {
+  const label = sides
+    .slice(0, 2)
+    .map((side) => getDisplayGood(side.good).name)
+    .join(' & ');
+  return label || 'Market';
+}
+
+function getTradeVendorName(
+  trade: Trade,
+  getDisplayGood: (id: GoodId) => ReturnType<typeof getGoodById>
+): string {
+  const giveLabel = formatVendorGoods(trade.give, getDisplayGood);
+  const receiveLabel = formatVendorGoods(trade.receive, getDisplayGood);
+
+  if (trade.role === 'compound_gate') return `${receiveLabel} Appraiser`;
+  if (trade.hiddenUntilNight || trade.role === 'tempo_bailout') return `${giveLabel} Reserve`;
+  if (trade.give.length > 1) return `${giveLabel} Broker`;
+  if (trade.role === 'engine_payoff') return `${giveLabel} Refiner`;
+  return `${giveLabel} Trader`;
 }
 
 function getResultTier(gameState: GameState, tradesUsed: number, puzzle: BarterPuzzle): string {
@@ -141,6 +463,13 @@ export default function BarterScreen() {
   const puzzle = useMemo<BarterPuzzle>(() => getDailyBarter(), []);
   const qualityReport = useMemo(() => analyzeBarterPuzzle(puzzle), [puzzle]);
   const tutorialPuzzle = useMemo(() => getBarterTutorialPuzzle(), []);
+  const displayGoods = useMemo(() => {
+    return new Map(puzzle.goods.map((good) => [good.id, good]));
+  }, [puzzle.goods]);
+  const getDisplayGood = useCallback(
+    (id: GoodId) => displayGoods.get(id) ?? getGoodById(id),
+    [displayGoods]
+  );
   const tradeLookup = useMemo(() => {
     return new Map(puzzle.trades.map((trade) => [tradeKey(trade), trade]));
   }, [puzzle.trades]);
@@ -172,7 +501,6 @@ export default function BarterScreen() {
   const [dailyCompleted, setDailyCompleted] = useState(false);
   const [lateWindowOpen, setLateWindowOpen] = useState(false);
   const [lateTransition, setLateTransition] = useState(false);
-  const [previewTradeIndex, setPreviewTradeIndex] = useState<number | null>(null);
   const [tradeHistory, setTradeHistory] = useState<Trade[]>([]);
   const [newlyAffordableKeys, setNewlyAffordableKeys] = useState<Set<string>>(
     () => new Set()
@@ -185,16 +513,16 @@ export default function BarterScreen() {
 
   const marketName = puzzle.marketName?.trim() || 'Daily Market';
   const marketEmoji = puzzle.marketEmoji || '🏺';
-  const goalGood = getGoodById(puzzle.goal.good);
+  const goalGood = getDisplayGood(puzzle.goal.good);
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
   const resultTier = getResultTier(gameState, tradesUsed, puzzle);
   const isMarinerMarket = marketName === "Mariner's Market";
   const earlyWindowTrades = puzzle.earlyWindowTrades ?? 4;
   const lateWindowTrigger = earlyWindowTrades;
   const earlyWindowRemaining = Math.max(0, earlyWindowTrades - tradesUsed);
-  const tradingWindowTitle = lateWindowOpen ? 'Late Window' : 'Early Window';
+  const tradingWindowTitle = lateWindowOpen ? 'Night Market' : 'Day Market';
   const tradingWindowCounter = lateWindowOpen
-    ? 'Vendors refreshed'
+    ? 'Night vendors open'
     : `${earlyWindowRemaining} trades left`;
   const marketAlertTone = useMemo(() => {
     const dark = theme.mode === 'dark';
@@ -229,28 +557,32 @@ export default function BarterScreen() {
   const tradeWaves = useMemo(() => {
     const wave1 = puzzle.trades.filter((trade) => trade.window !== 'late');
     const wave2 = puzzle.trades.filter((trade) => trade.window === 'late');
+    const hiddenTrade =
+      wave2.find((trade) => trade.hiddenUntilNight) ??
+      null;
+    const previewLateTrades = hiddenTrade
+      ? wave2.filter((trade) => trade !== hiddenTrade)
+      : wave2;
 
-    return { wave1, wave2 };
+    return { wave1, wave2, previewLateTrades, hiddenTrade };
   }, [puzzle.trades]);
+  const marketIdentity = useMemo(
+    () => getMarketIdentity(marketName, marketEmoji),
+    [marketEmoji, marketName]
+  );
 
   const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
-  const previewTradeCandidate =
-    previewTradeIndex === null ? null : puzzle.trades[previewTradeIndex] ?? null;
-  const activePreview = useMemo(() => {
-    if (!previewTradeCandidate) return null;
-    return previewTrade(puzzle, inventory, previewTradeCandidate, tradesUsed);
-  }, [inventory, previewTradeCandidate, puzzle, tradesUsed]);
   const formatRouteSummary = useCallback(
     (route: RouteSummary | null): string => {
       if (!route) return 'No route available';
       return route.tradeKeys
         .map((key) => {
           const trade = tradeLookup.get(key);
-          return trade ? formatTrade(trade) : key;
+          return trade ? formatTrade(trade, getDisplayGood) : key;
         })
         .join('  /  ');
     },
-    [tradeLookup]
+    [getDisplayGood, tradeLookup]
   );
 
   const startSummary = useMemo(() => {
@@ -262,23 +594,80 @@ export default function BarterScreen() {
       );
     return entries.join(', ');
   }, [puzzle.goods, puzzle.inventory]);
+  const openingStock = useMemo(() => {
+    const entries = puzzle.goods
+      .filter((good) => puzzle.inventory[good.id] > 0)
+      .map((good) => ({ good: good.id, qty: puzzle.inventory[good.id] }));
+    return formatSideList(entries, getDisplayGood);
+  }, [getDisplayGood, puzzle.goods, puzzle.inventory]);
+  const marketRead = useMemo(
+    () => getMarketRead(puzzle, qualityReport, getDisplayGood),
+    [getDisplayGood, puzzle, qualityReport]
+  );
+  const nightRead = useMemo(() => {
+    const visibleNightCount = tradeWaves.previewLateTrades.length;
+    const hiddenCount = tradeWaves.hiddenTrade ? 1 : 0;
+    return `${visibleNightCount} night contracts are readable now${
+      hiddenCount ? '; one stall joins when night opens.' : '.'
+    }`;
+  }, [tradeWaves.hiddenTrade, tradeWaves.previewLateTrades.length]);
+  const routeRead = useMemo(() => {
+    const firstTrade = tradeHistory[0];
+    if (!firstTrade) return 'Reading the stalls';
+    const usedHiddenVendor =
+      qualityReport.hiddenVendorKey !== null &&
+      tradeHistory.some((trade) => tradeKey(trade) === qualityReport.hiddenVendorKey);
+    if (usedHiddenVendor) return 'Night pivot recovery';
+    const regret = qualityReport.openingRegrets.find(
+      (entry) => entry.tradeKey === tradeKey(firstTrade)
+    );
+    if (!regret || regret.regret === null) return 'Uncharted route';
+    if (regret.regret === 0) return 'Par opening';
+    if (regret.regret === 1) return '+1 recovery';
+    return `+${regret.regret} recovery`;
+  }, [qualityReport.hiddenVendorKey, qualityReport.openingRegrets, tradeHistory]);
 
   const shareText = useMemo(() => {
-    const title = `🏺 Barter — ${dateLabel}`;
+    const scoreCode =
+      gameState === 'won' ? `${tradesUsed}/${puzzle.par}` : `X/${puzzle.maxTrades}`;
     const resultLine =
       gameState === 'won'
-        ? resultTier === 'Perfect'
-          ? '⭐ Perfect Route!'
-          : `✅ ${resultTier}`
+        ? `${resultTier} route`
         : gameState === 'lost'
-        ? '❌ Out of Trades'
-        : '✅ Market Closed';
-    const tradeDenom = gameState === 'won' ? puzzle.par : puzzle.maxTrades;
-    const statLine = `🔄 ${tradesUsed}/${tradeDenom} trades · ⏱ ${formatTime(
-      elapsedSeconds
-    )}`;
-    return [title, resultLine, statLine, 'daybreak.com'].join('\n');
-  }, [dateLabel, elapsedSeconds, gameState, puzzle.maxTrades, puzzle.par, resultTier, tradesUsed]);
+        ? 'Bust'
+        : 'Planning';
+    const routeGlyphs = getShareRouteGlyphs(tradeHistory);
+    return [
+      `Barter ${dateKey} ${scoreCode}`,
+      `${resultLine} · ${marketName} ${marketEmoji}`,
+      routeGlyphs,
+      `Read: ${routeRead} · ${formatTime(elapsedSeconds)}`,
+      'https://mitchrobs.github.io/gameshow/barter',
+    ].join('\n');
+  }, [
+    dateKey,
+    elapsedSeconds,
+    gameState,
+    marketEmoji,
+    marketName,
+    puzzle.maxTrades,
+    puzzle.par,
+    routeRead,
+    resultTier,
+    tradeHistory,
+    tradesUsed,
+  ]);
+
+  const openingRegretNote = useMemo(() => {
+    const firstTrade = tradeHistory[0];
+    if (!firstTrade) return 'No opening trade recorded.';
+    const firstKey = tradeKey(firstTrade);
+    const regret = qualityReport.openingRegrets.find((entry) => entry.tradeKey === firstKey);
+    if (!regret || regret.regret === null) return 'Your first trade did not reach a solving line.';
+    if (regret.regret === 0) return 'Your first trade stayed on a par route.';
+    if (regret.regret === 1) return 'Your first trade found a +1 recovery route.';
+    return `Your first trade found a +${regret.regret} recovery route.`;
+  }, [qualityReport.openingRegrets, tradeHistory]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -353,6 +742,10 @@ export default function BarterScreen() {
     setShowTutorial(false);
   }, [tutorialKey]);
 
+  const handleOpenTutorial = useCallback(() => {
+    setShowTutorial(true);
+  }, []);
+
   const handleTrade = useCallback(
     (index: number) => {
       if (gameState !== 'playing') return;
@@ -370,7 +763,6 @@ export default function BarterScreen() {
       setInventory(cappedInventory);
       setTradesUsed(nextTradesUsed);
       setLastTradeIndex(index);
-      setPreviewTradeIndex(null);
       setTradeHistory((prev) => [...prev, trade]);
       setNewlyAffordableKeys(new Set(preview.newlyAffordableTradeKeys));
 
@@ -421,11 +813,11 @@ export default function BarterScreen() {
     const tradeIndex = puzzle.trades.indexOf(trade);
     const giveGoods = trade.give.map((side) => ({
       side,
-      good: getGoodById(side.good),
+      good: getDisplayGood(side.good),
     }));
     const receiveGoods = trade.receive.map((side) => ({
       side,
-      good: getGoodById(side.good),
+      good: getDisplayGood(side.good),
     }));
     const missing = missingForTrade(inventory, trade);
     const canTrade =
@@ -434,44 +826,55 @@ export default function BarterScreen() {
       !lateTransition &&
       tradesUsed < puzzle.maxTrades &&
       missing.length === 0;
-    const label = getRoleLabel(trade);
     const key = tradeKey(trade);
     const isNewlyAffordable = newlyAffordableKeys.has(key);
-    let buttonLabel = locked ? 'Late' : 'Trade';
+    const vendorName = getTradeVendorName(trade, getDisplayGood);
+    const showMetaRow = locked || isNewlyAffordable;
+    let buttonLabel = locked ? 'Night' : 'Trade';
     if (gameState !== 'playing') {
       buttonLabel = 'Closed';
     } else if (!locked && missing.length > 0) {
       buttonLabel = `Need ${missing
-        .map((side) => `${side.qty} ${getGoodById(side.good).emoji}`)
+        .map((side) => `${side.qty} ${getDisplayGood(side.good).emoji}`)
         .join(' + ')}`;
     }
 
     return (
-      <Pressable
+      <View
         key={`trade-${locked ? 'locked' : 'active'}-${tradeIndex}`}
-        style={({ pressed }) => [
+        style={[
           styles.tradeCard,
           canTrade ? styles.tradeCardAvailable : styles.tradeCardUnavailable,
           isNewlyAffordable && styles.tradeCardNewlyAffordable,
-          previewTradeIndex === tradeIndex && styles.tradeCardPreviewed,
           lastTradeIndex === tradeIndex && styles.tradeCardFlash,
           locked && styles.tradeCardLocked,
-          pressed && !locked ? styles.tradeCardPressed : null,
           isCompact && styles.tradeCardCompact,
           isMarinerMarket && styles.tradeCardMariner,
         ]}
-        onPress={() => setPreviewTradeIndex(tradeIndex)}
-        onHoverIn={() => setPreviewTradeIndex(tradeIndex)}
       >
-        <View style={styles.tradeMetaRow}>
-          {label && <Text style={styles.tradeRole}>{label}</Text>}
-          {locked && <Text style={styles.tradeLockedText}>Opens late</Text>}
-          {isNewlyAffordable && <Text style={styles.tradeNewText}>Newly open</Text>}
+        <View style={styles.tradeTopRow}>
+          <Text style={styles.tradeVendorName}>{vendorName}</Text>
+          {showMetaRow && (
+            <View style={styles.tradeMetaRow}>
+              {locked && <Text style={styles.tradeLockedText}>Opens at night</Text>}
+              {isNewlyAffordable && <Text style={styles.tradeNewText}>Newly open</Text>}
+            </View>
+          )}
         </View>
+        {missing.length > 0 && !locked && (
+          <View style={styles.tradeMetaRow}>
+            <Text style={styles.tradeMissingText}>
+              Missing {missing.map((side) => `${side.qty} ${getDisplayGood(side.good).emoji}`).join(', ')}
+            </Text>
+          </View>
+        )}
         <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
           <View
-            style={[styles.tradeInfo, isCompact && styles.tradeInfoCompact]}
-            pointerEvents="none"
+            style={[
+              styles.tradeInfo,
+              styles.tradeInfoPassive,
+              isCompact && styles.tradeInfoCompact,
+            ]}
           >
             <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
               {giveGoods.map(({ side, good }, index) => (
@@ -562,12 +965,7 @@ export default function BarterScreen() {
             </Text>
           </Pressable>
         </View>
-        {missing.length > 0 && !locked && (
-          <Text style={styles.tradeMissingText}>
-            Missing {missing.map((side) => `${side.qty} ${getGoodById(side.good).emoji}`).join(', ')}
-          </Text>
-        )}
-      </Pressable>
+      </View>
     );
   };
 
@@ -676,33 +1074,18 @@ export default function BarterScreen() {
               </Text>
               <Text style={styles.introBody}>
                 Objective: turn your starting goods into {goalShort} within {puzzle.maxTrades} trades.
-                Use the first {earlyWindowTrades} trades to prepare, then close in during the late window.
               </Text>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.helpButton,
+                  styles.introHelpButton,
+                  pressed && styles.helpButtonPressed,
+                ]}
+                onPress={handleOpenTutorial}
+              >
+                <Text style={styles.helpButtonText}>How to play</Text>
+              </Pressable>
             </View>
-            {showTutorial && (
-              <View style={styles.tutorialCard}>
-                <Text style={styles.tutorialTitle}>First pattern: setup, bundle, cash out</Text>
-                <Text style={styles.tutorialBody}>
-                  Early trades create ingredients. Late contracts reward balanced goods, especially bundles.
-                </Text>
-                <View style={styles.tutorialSteps}>
-                  {tutorialPuzzle.solution.map((trade, index) => (
-                    <Text key={`tutorial-${index}`} style={styles.tutorialStepText}>
-                      {index + 1}. {formatTrade(trade)}
-                    </Text>
-                  ))}
-                </View>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.tutorialButton,
-                    pressed && styles.tutorialButtonPressed,
-                  ]}
-                  onPress={handleDismissTutorial}
-                >
-                  <Text style={styles.tutorialButtonText}>Start daily market</Text>
-                </Pressable>
-              </View>
-            )}
             {lateTransition && (
               <Animated.View
                 style={[
@@ -726,46 +1109,18 @@ export default function BarterScreen() {
                   Vendors are shuffling
                 </Text>
                 <Text style={[styles.transitionBody, { color: marketAlertTone.text }]}>
-                  The late window opens shortly.
+                  The night market opens shortly.
                 </Text>
               </Animated.View>
             )}
-            {activePreview && previewTradeCandidate && (
-              <View style={styles.previewCard}>
-                <Text style={styles.previewTitle}>Trade preview</Text>
-                <Text style={styles.previewTradeText}>{formatTrade(previewTradeCandidate)}</Text>
-                {activePreview.canTrade ? (
-                  <>
-                    <Text style={styles.previewDelta}>
-                      Inventory: {formatTradeSides(activePreview.delta)}
-                    </Text>
-                    <Text style={styles.previewDelta}>
-                      Opens:{' '}
-                      {activePreview.newlyAffordableTradeKeys.length > 0
-                        ? activePreview.newlyAffordableTradeKeys
-                            .map((key) => {
-                              const trade = tradeLookup.get(key);
-                              return trade ? formatTrade(trade) : key;
-                            })
-                            .join('  /  ')
-                        : 'No new contracts yet'}
-                    </Text>
-                  </>
-                ) : (
-                  <Text style={styles.previewDelta}>
-                    Missing {activePreview.missing.map((side) => `${side.qty} ${getGoodById(side.good).emoji}`).join(', ')}
-                  </Text>
-                )}
-              </View>
-            )}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
-                {lateWindowOpen ? 'Late Contracts' : 'Early Market'}
+                {lateWindowOpen ? 'Night Market' : 'Day Market'}
               </Text>
               <Text style={styles.sectionSubtitle}>
                 {lateWindowOpen
                   ? 'Spend the ingredients you prepared.'
-                  : 'Make the first three trades count.'}
+                  : `Make the first ${earlyWindowTrades} trades count.`}
               </Text>
             </View>
             <Animated.View
@@ -785,19 +1140,77 @@ export default function BarterScreen() {
             {!lateWindowOpen && (
               <>
                 <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>Late Contracts</Text>
+                  <Text style={styles.sectionTitle}>Night Market</Text>
                   <Text style={styles.sectionSubtitle}>
-                    Plan around these now. They unlock after trade {earlyWindowTrades}.
+                    Plan around these now. They open after trade {earlyWindowTrades}.
                   </Text>
                 </View>
                 <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
-                  {tradeWaves.wave2.map((trade) => renderTradeCard(trade, true))}
+                  {tradeWaves.previewLateTrades.map((trade) => renderTradeCard(trade, true))}
+                  {tradeWaves.hiddenTrade && (
+                    <View style={styles.bonusVendorCard}>
+                      <Text style={styles.bonusVendorTitle}>A night vendor is setting up</Text>
+                      <Text style={styles.bonusVendorBody}>
+                        {marketIdentity.hiddenStall}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               </>
             )}
 
           </View>
         </ScrollView>
+
+        {showTutorial && (
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalCard, styles.tutorialModalCard]}>
+              <Text style={styles.tutorialModalKicker}>How to play</Text>
+              <Text style={styles.tutorialModalTitle}>
+                {marketName} {marketEmoji}
+              </Text>
+              <Text style={styles.tutorialModalBody}>
+                {marketIdentity.flavor}
+              </Text>
+              <View style={styles.marketReadBox}>
+                <Text style={styles.marketReadBoxTitle}>Today's read</Text>
+                <Text style={styles.marketReadBoxText}>{marketRead}</Text>
+                <Text style={styles.marketReadBoxText}>Start: {openingStock}</Text>
+                <Text style={styles.marketReadBoxText}>
+                  Goal: {goalShort} in par {puzzle.par}. {nightRead}
+                </Text>
+                <Text style={styles.marketReadBoxText}>
+                  Use the first {earlyWindowTrades} trades in the day market, then close in at the night market.
+                </Text>
+              </View>
+              <Text style={styles.tutorialModalSectionTitle}>First pattern</Text>
+              <Text style={styles.tutorialModalBody}>
+                Day trades create ingredients. Night Market trades reward balanced goods, especially pairs.
+              </Text>
+              <View style={styles.tutorialModalSteps}>
+                {tutorialPuzzle.solution.map((trade, index) => (
+                  <Text key={`tutorial-${index}`} style={styles.tutorialStepText}>
+                    {index + 1}. {formatTrade(trade)}
+                  </Text>
+                ))}
+              </View>
+              <Text style={styles.tutorialModalHint}>
+                Read the visible Night Market before spending your Day Market trades.
+              </Text>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.tutorialButton,
+                  pressed && styles.tutorialButtonPressed,
+                ]}
+                onPress={handleDismissTutorial}
+              >
+                <Text style={styles.tutorialButtonText}>
+                  {tradesUsed === 0 && gameState === 'playing' ? 'Start day market' : 'Back to market'}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
 
         {showResult && (
           <View style={styles.modalOverlay}>
@@ -811,6 +1224,9 @@ export default function BarterScreen() {
               <Text style={styles.resultSummary}>
                 Start: {startSummary} → Goal: {puzzle.goal.qty} {goalGood.emoji}{' '}
                 {goalGood.name}
+              </Text>
+              <Text style={styles.resultRead}>
+                {marketName} · {routeRead}
               </Text>
 
               <View style={styles.resultStats}>
@@ -829,10 +1245,11 @@ export default function BarterScreen() {
               <View style={styles.autopsyCard}>
                 <Text style={styles.autopsyTitle}>Route notes</Text>
                 <Text style={styles.autopsyInsight}>{qualityReport.strategicInsight}</Text>
+                <Text style={styles.autopsyInsight}>{openingRegretNote}</Text>
                 <Text style={styles.autopsyLabel}>Your route</Text>
                 <Text style={styles.autopsyRoute}>
                   {tradeHistory.length > 0
-                    ? tradeHistory.map(formatTrade).join('  /  ')
+                    ? tradeHistory.map((trade) => formatTrade(trade, getDisplayGood)).join('  /  ')
                     : 'No trades made'}
                 </Text>
                 <Text style={styles.autopsyLabel}>Par route</Text>
@@ -953,6 +1370,27 @@ const createStyles = (
     fontSize: 13,
     fontWeight: '600',
   },
+  helpButton: {
+    marginTop: Spacing.xs,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    borderColor: borderSoft,
+    backgroundColor: paper,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+  },
+  introHelpButton: {
+    marginTop: Spacing.sm,
+    alignSelf: 'flex-start',
+  },
+  helpButtonPressed: {
+    backgroundColor: paperMuted,
+  },
+  helpButtonText: {
+    color: inkStrong,
+    fontSize: 12,
+    fontWeight: '700',
+  },
   introCard: {
     backgroundColor: paper,
     borderRadius: BorderRadius.lg,
@@ -966,8 +1404,27 @@ const createStyles = (
     fontWeight: '700',
     color: inkStrong,
   },
+  introFlavor: {
+    marginTop: 6,
+    fontSize: 12,
+    color: inkMuted,
+    lineHeight: 17,
+  },
+  marketRead: {
+    marginTop: 8,
+    fontSize: 12,
+    color: inkStrong,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  marketManifest: {
+    marginTop: 5,
+    fontSize: 11,
+    color: inkMuted,
+    lineHeight: 16,
+  },
   introBody: {
-    marginTop: 4,
+    marginTop: 8,
     fontSize: 12,
     color: inkMuted,
     lineHeight: 17,
@@ -999,6 +1456,65 @@ const createStyles = (
     fontSize: 12,
     color: inkStrong,
     lineHeight: 18,
+  },
+  tutorialModalCard: {
+    maxWidth: 440,
+  },
+  tutorialModalKicker: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: screenAccent.main,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  tutorialModalTitle: {
+    marginTop: 4,
+    fontSize: FontSize.xl,
+    fontWeight: '800',
+    color: Colors.text,
+  },
+  tutorialModalBody: {
+    marginTop: Spacing.sm,
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 19,
+  },
+  tutorialModalSectionTitle: {
+    marginTop: Spacing.md,
+    fontSize: 12,
+    fontWeight: '800',
+    color: Colors.text,
+    textTransform: 'uppercase',
+  },
+  marketReadBox: {
+    marginTop: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    gap: 5,
+  },
+  marketReadBoxTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: Colors.text,
+  },
+  marketReadBoxText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    lineHeight: 17,
+  },
+  tutorialModalSteps: {
+    marginTop: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    gap: 4,
+  },
+  tutorialModalHint: {
+    marginTop: Spacing.sm,
+    fontSize: 12,
+    color: Colors.textMuted,
+    lineHeight: 17,
   },
   tutorialButton: {
     marginTop: Spacing.sm,
@@ -1034,27 +1550,21 @@ const createStyles = (
     fontSize: 11,
     color: '#8a4a0b',
   },
-  previewCard: {
-    backgroundColor: paper,
+  bonusVendorCard: {
+    backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#f7f2ea',
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: screenAccent.badgeBorder,
+    borderStyle: 'dashed',
+    borderColor: borderSoft,
     padding: Spacing.sm,
-    marginBottom: Spacing.md,
   },
-  previewTitle: {
+  bonusVendorTitle: {
     fontSize: 12,
     fontWeight: '800',
     color: inkStrong,
   },
-  previewTradeText: {
-    marginTop: 4,
-    fontSize: 12,
-    fontWeight: '700',
-    color: inkStrong,
-  },
-  previewDelta: {
-    marginTop: 4,
+  bonusVendorBody: {
+    marginTop: 3,
     fontSize: 11,
     color: inkMuted,
     lineHeight: 16,
@@ -1212,6 +1722,9 @@ const createStyles = (
     gap: Spacing.sm,
     marginBottom: Spacing.xxl,
   },
+  tradeListBeforeBonus: {
+    marginBottom: Spacing.md,
+  },
   tradeListCompact: {
     gap: Spacing.xs,
     marginBottom: Spacing.md,
@@ -1244,35 +1757,30 @@ const createStyles = (
     borderColor: screenAccent.main,
     borderWidth: 2,
   },
-  tradeCardPreviewed: {
-    borderColor: screenAccent.main,
-  },
   tradeCardLocked: {
     opacity: 0.72,
   },
-  tradeCardPressed: {
-    backgroundColor: paperMuted,
-  },
   tradeCardFlash: {
     backgroundColor: paperMuted,
+  },
+  tradeTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  tradeVendorName: {
+    flexShrink: 1,
+    color: inkMuted,
+    fontSize: 10,
+    fontWeight: '800',
   },
   tradeMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 6,
-  },
-  tradeRole: {
-    alignSelf: 'flex-start',
-    backgroundColor: screenAccent.badgeBg,
-    borderColor: screenAccent.badgeBorder,
-    borderWidth: 1,
-    borderRadius: BorderRadius.sm,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    color: screenAccent.badgeText,
-    fontSize: 10,
-    fontWeight: '800',
+    flexShrink: 0,
   },
   tradeLockedText: {
     color: inkSoft,
@@ -1298,6 +1806,9 @@ const createStyles = (
     alignItems: 'center',
     flex: 1,
     gap: Spacing.sm,
+  },
+  tradeInfoPassive: {
+    pointerEvents: 'none',
   },
   tradeInfoCompact: {
     gap: Spacing.xs,
@@ -1428,6 +1939,13 @@ const createStyles = (
     color: Colors.textSecondary,
     textAlign: 'center',
     marginTop: Spacing.sm,
+  },
+  resultRead: {
+    marginTop: 4,
+    fontSize: 12,
+    color: Colors.textMuted,
+    textAlign: 'center',
+    fontWeight: '700',
   },
   resultStats: {
     flexDirection: 'row',
