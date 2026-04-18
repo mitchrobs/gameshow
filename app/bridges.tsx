@@ -23,6 +23,14 @@ import {
   BridgesPuzzle,
 } from '../src/data/bridgesPuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
+import {
+  getDailyBridgesTheme,
+  isBridgesThemeMode,
+  type BridgesThemeMode,
+  type ThemedBoardIsland,
+  ThemedBridgeCelebration,
+  ThemedBridgesBoard,
+} from '../src/ui/bridgesThemes';
 
 type GameState = 'playing' | 'won';
 
@@ -41,15 +49,7 @@ interface HistoryEntry {
 }
 
 const STORAGE_PREFIX = 'bridges';
-
-const DAILY_LOCATIONS = [
-  { emoji: '🏝️', label: 'Pacific Islands' },
-  { emoji: '❄️', label: 'Arctic Drift' },
-  { emoji: '🏜️', label: 'Desert Trails' },
-  { emoji: '🌋', label: 'Volcanic Rim' },
-  { emoji: '🌿', label: 'Rainforest Path' },
-  { emoji: '🌌', label: 'Midnight Sky' },
-];
+const THEME_MODE_STORAGE_KEY = `${STORAGE_PREFIX}:theme-mode`;
 
 function getLocalDateKey(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -176,6 +176,7 @@ export default function BridgesScreen() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [themeMode, setThemeMode] = useState<BridgesThemeMode>('themed');
   const hasCountedRef = useRef(false);
 
   const islandMap = useMemo(() => {
@@ -307,6 +308,21 @@ export default function BridgesScreen() {
     const timeout = setTimeout(() => setStatusMessage(null), 2400);
     return () => clearTimeout(timeout);
   }, [statusMessage]);
+
+  useEffect(() => {
+    const storedMode = getStorage()?.getItem(THEME_MODE_STORAGE_KEY);
+    if (isBridgesThemeMode(storedMode)) {
+      setThemeMode(storedMode);
+    }
+  }, []);
+
+  const handleThemeModeToggle = useCallback(() => {
+    setThemeMode((current) => {
+      const next = current === 'themed' ? 'plain' : 'themed';
+      getStorage()?.setItem(THEME_MODE_STORAGE_KEY, next);
+      return next;
+    });
+  }, []);
 
   const handleIslandPress = useCallback(
     (id: number) => {
@@ -494,6 +510,27 @@ export default function BridgesScreen() {
     return map;
   }, [puzzle.islands, boardPadding, cellWidth, cellHeight]);
 
+  const themedIslands = useMemo<ThemedBoardIsland[]>(() => {
+    const rendered: ThemedBoardIsland[] = [];
+    puzzle.islands.forEach((island) => {
+      const pos = islandPositions.get(island.id);
+      if (!pos) return;
+      const count = islandCounts[island.id] ?? 0;
+      rendered.push({
+        id: island.id,
+        x: pos.x,
+        y: pos.y,
+        requiredBridges: island.requiredBridges,
+        count,
+        selected: anchorIsland === island.id,
+        focused: focusedIsland === island.id && anchorIsland !== island.id,
+        satisfied: count === island.requiredBridges,
+        over: count > island.requiredBridges,
+      });
+    });
+    return rendered;
+  }, [puzzle.islands, islandPositions, islandCounts, anchorIsland, focusedIsland]);
+
   const dateLabel = useMemo(
     () =>
       new Date().toLocaleDateString('en-US', {
@@ -510,8 +547,10 @@ export default function BridgesScreen() {
   }, []);
   const dailyLocation = useMemo(() => {
     const seed = getDailySeed();
-    return DAILY_LOCATIONS[seed % DAILY_LOCATIONS.length];
+    return getDailyBridgesTheme(seed);
   }, []);
+  const visualTheme = dailyLocation.theme;
+  const useThemedBoard = themeMode === 'themed';
 
   const shareText = useMemo(() => {
     const resultLine = `Solved in ${formatTime(elapsedSeconds)} · Hints ${hintsUsed}`;
@@ -598,9 +637,65 @@ export default function BridgesScreen() {
             <View style={styles.statPill}>
               <Text style={styles.statText}>Hints {hintsUsed}</Text>
             </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.themeToggle,
+                pressed && styles.themeTogglePressed,
+              ]}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: useThemedBoard }}
+              accessibilityLabel={`Bridges theme is ${useThemedBoard ? 'on' : 'plain'}.`}
+              onPress={handleThemeModeToggle}
+            >
+              <Text style={styles.themeToggleText}>
+                {useThemedBoard ? 'Theme On' : 'Plain'}
+              </Text>
+            </Pressable>
           </View>
 
           <View style={styles.boardWrap}>
+            {useThemedBoard ? (
+              <View style={[styles.themedBoard, { width: boardWidth, height: boardHeight }]}>
+                <ThemedBridgesBoard
+                  theme={visualTheme}
+                  width={boardWidth}
+                  height={boardHeight}
+                  cellSize={Math.min(cellWidth, cellHeight)}
+                  islandRadius={islandRadius}
+                  islands={themedIslands}
+                  bridges={bridgeList}
+                  previewBridges={previewBridgeList}
+                />
+                {puzzle.islands.map((island) => {
+                  const pos = islandPositions.get(island.id);
+                  if (!pos) return null;
+                  const count = islandCounts[island.id] ?? 0;
+                  const isAnchor = anchorIsland === island.id;
+
+                  return (
+                    <Pressable
+                      key={island.id}
+                      style={({ pressed }) => [
+                        styles.themedIslandHitTarget,
+                        {
+                          width: islandSize,
+                          height: islandSize,
+                          left: pos.x - islandRadius,
+                          top: pos.y - islandRadius,
+                        },
+                        pressed && styles.themedIslandHitTargetPressed,
+                      ]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Island ${island.requiredBridges} at row ${island.row + 1} column ${
+                        island.col + 1
+                      }, needs ${island.requiredBridges} bridges, currently has ${count}.`}
+                      accessibilityState={{ selected: isAnchor }}
+                      onPress={() => handleIslandPress(island.id)}
+                    />
+                  );
+                })}
+              </View>
+            ) : (
             <View style={[styles.board, { width: boardWidth, height: boardHeight }]}>
               {previewBridgeList.map((bridge) => {
                 const start = islandPositions.get(bridge.island1);
@@ -743,14 +838,17 @@ export default function BridgesScreen() {
                   );
                 })}
               </View>
-            </View>
+            )}
+          </View>
 
             {statusMessage && <Text style={styles.statusText}>{statusMessage}</Text>}
 
               {gameState === 'won' && (
                 <View style={styles.resultCard}>
-                  <Text style={styles.confetti}>🎉 ✨ 🎊</Text>
-                  <Text style={styles.resultTitle}>Nice solve!</Text>
+                  <View style={styles.celebrationArt}>
+                    <ThemedBridgeCelebration theme={visualTheme} />
+                  </View>
+                  <Text style={styles.resultTitle}>{visualTheme.celebrationTitle}</Text>
                   <Text style={styles.resultSubtitle}>
                     {formatTime(elapsedSeconds)} · {hintsUsed} hints
                   </Text>
@@ -933,6 +1031,22 @@ const createStyles = (
     fontWeight: '600',
     color: Colors.textSecondary,
   },
+  themeToggle: {
+    backgroundColor: bridgesPalette.accent,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderWidth: 1,
+    borderColor: bridgesPalette.accent,
+  },
+  themeTogglePressed: {
+    opacity: 0.88,
+  },
+  themeToggleText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: screenAccent.contrast,
+  },
   boardWrap: {
     marginTop: Spacing.lg,
     alignItems: 'center',
@@ -945,6 +1059,14 @@ const createStyles = (
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  themedBoard: {
+    position: 'relative',
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: bridgesPalette.boardBorder,
+    backgroundColor: bridgesPalette.board,
+    overflow: 'hidden',
   },
   bridgeLine: {
     position: 'absolute',
@@ -963,6 +1085,14 @@ const createStyles = (
     borderColor: bridgesPalette.island,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  themedIslandHitTarget: {
+    position: 'absolute',
+    borderRadius: 999,
+    backgroundColor: 'transparent',
+  },
+  themedIslandHitTargetPressed: {
+    transform: [{ scale: 0.97 }],
   },
   islandPressed: {
     transform: [{ scale: 0.97 }],
@@ -1004,6 +1134,12 @@ const createStyles = (
   },
   confetti: {
     fontSize: 22,
+  },
+  celebrationArt: {
+    width: 220,
+    height: 92,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   resultTitle: {
     marginTop: Spacing.sm,

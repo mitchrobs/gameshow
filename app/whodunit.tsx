@@ -8,6 +8,8 @@ import {
   Platform,
   Animated,
   Easing,
+  type TextStyle,
+  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
@@ -27,7 +29,7 @@ import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const TIME_PENALTY = 10;
 const STORAGE_PREFIX = 'whodunit';
-const WEB_NO_SELECT =
+const WEB_NO_SELECT = (
   Platform.OS === 'web'
     ? {
         userSelect: 'none',
@@ -36,7 +38,9 @@ const WEB_NO_SELECT =
         WebkitTapHighlightColor: 'transparent',
         touchAction: 'manipulation',
       }
-    : {};
+    : {}
+) as ViewStyle;
+const WEB_NO_SELECT_TEXT = WEB_NO_SELECT as TextStyle;
 
 type GameState = 'playing' | 'won' | 'lost';
 
@@ -997,7 +1001,7 @@ const createStyles = (
     ...WEB_NO_SELECT,
   },
   noSelectText: {
-    ...WEB_NO_SELECT,
+    ...WEB_NO_SELECT_TEXT,
   },
   suspectsHeaderRow: {
     flexDirection: 'row',

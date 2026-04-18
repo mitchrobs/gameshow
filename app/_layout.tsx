@@ -1,4 +1,4 @@
-import { Text, TextInput, View, StyleSheet } from 'react-native';
+import { Text, TextInput, View, StyleSheet, type TextStyle } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -16,13 +16,17 @@ export default function RootLayout() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const fontStyle = { fontFamily: theme.typography.sans };
+    const fontStyle: TextStyle = { fontFamily: theme.typography.sans };
+    const DefaultText = Text as typeof Text & { defaultProps?: { style?: TextStyle } };
+    const DefaultTextInput = TextInput as typeof TextInput & {
+      defaultProps?: { style?: TextStyle };
+    };
 
-    Text.defaultProps = Text.defaultProps ?? {};
-    Text.defaultProps.style = fontStyle;
+    DefaultText.defaultProps = DefaultText.defaultProps ?? {};
+    DefaultText.defaultProps.style = fontStyle;
 
-    TextInput.defaultProps = TextInput.defaultProps ?? {};
-    TextInput.defaultProps.style = fontStyle;
+    DefaultTextInput.defaultProps = DefaultTextInput.defaultProps ?? {};
+    DefaultTextInput.defaultProps.style = fontStyle;
   }, [theme.typography.sans]);
 
   useEffect(() => {
