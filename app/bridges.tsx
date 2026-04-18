@@ -113,11 +113,14 @@ function buildNeighborLookup(islands: BridgesIsland[]): Record<number, NeighborL
       }
     });
 
+    const neighbors: Array<BridgesIsland | null> = [left, right, up, down];
+    const [resolvedLeft, resolvedRight, resolvedUp, resolvedDown] = neighbors;
+
     lookup[island.id] = {
-      left: left?.id,
-      right: right?.id,
-      up: up?.id,
-      down: down?.id,
+      left: resolvedLeft?.id,
+      right: resolvedRight?.id,
+      up: resolvedUp?.id,
+      down: resolvedDown?.id,
     };
   });
   return lookup;
@@ -201,6 +204,31 @@ export default function BridgesScreen() {
   }, [neighborLookup]);
 
   const bridgeList = useMemo(() => getBridgeList(bridges), [bridges]);
+
+  const previewBridgeList = useMemo(() => {
+    if (anchorIsland === null) return [];
+    const neighbors = neighborLookup[anchorIsland];
+    if (!neighbors) return [];
+    const previews: BridgesBridge[] = [];
+    Object.values(neighbors).forEach((target) => {
+      if (typeof target !== 'number') return;
+      const key = makeBridgeKey(anchorIsland, target);
+      const current = bridges[key] ?? 0;
+      if (current >= 2) return;
+
+      const candidate: BridgesBridge = {
+        island1: anchorIsland,
+        island2: target,
+        count: 1,
+      };
+      const crossing = bridgeList.some((bridge) => {
+        const existingKey = makeBridgeKey(bridge.island1, bridge.island2);
+        return existingKey === key ? false : wouldCross(candidate, bridge, islandMap);
+      });
+      if (!crossing) previews.push(candidate);
+    });
+    return previews;
+  }, [anchorIsland, neighborLookup, bridges, bridgeList, islandMap]);
 
   const islandCounts = useMemo(() => {
     const counts: Record<number, number> = {};
@@ -299,7 +327,7 @@ export default function BridgesScreen() {
         return;
       }
 
-      const current = bridges[key] ?? 0;
+      const current = (bridges[key] ?? 0) as 0 | 1 | 2;
       const next = current === 0 ? 1 : current === 1 ? 2 : 0;
 
       if (next > 0) {
@@ -430,10 +458,20 @@ export default function BridgesScreen() {
   }, [bridges, puzzle.solution, gameState, anchorIsland]);
 
   const { width } = useWindowDimensions();
-  const boardSize = Math.max(240, Math.min(360, width - Spacing.lg * 2));
+  const rowCount = puzzle.rowCount ?? puzzle.gridSize;
+  const colCount = puzzle.colCount ?? puzzle.gridSize;
+  const maxBoardWidth = Math.max(240, Math.min(360, width - Spacing.lg * 2));
+  const maxBoardHeight = 430;
+  const boardAspect = rowCount / Math.max(1, colCount);
+  const boardWidth =
+    boardAspect > 1 ? Math.max(240, Math.min(maxBoardWidth, maxBoardHeight / boardAspect)) : maxBoardWidth;
+  const boardHeight = boardWidth * boardAspect;
   const boardPadding = Spacing.md;
-  const innerSize = boardSize - boardPadding * 2;
-  const cellSize = innerSize / Math.max(1, puzzle.gridSize - 1);
+  const innerWidth = boardWidth - boardPadding * 2;
+  const innerHeight = boardHeight - boardPadding * 2;
+  const cellWidth = innerWidth / Math.max(1, colCount - 1);
+  const cellHeight = innerHeight / Math.max(1, rowCount - 1);
+  const cellSize = Math.min(cellWidth, cellHeight);
   const islandSize = Math.min(52, Math.max(32, cellSize * 0.9));
   const islandRadius = islandSize / 2;
   const lineThickness = Math.max(3, Math.min(6, cellSize * 0.14));
@@ -443,12 +481,12 @@ export default function BridgesScreen() {
     const map = new Map<number, { x: number; y: number }>();
     puzzle.islands.forEach((island) => {
       map.set(island.id, {
-        x: boardPadding + island.col * cellSize,
-        y: boardPadding + island.row * cellSize,
+        x: boardPadding + island.col * cellWidth,
+        y: boardPadding + island.row * cellHeight,
       });
     });
     return map;
-  }, [puzzle.islands, boardPadding, cellSize]);
+  }, [puzzle.islands, boardPadding, cellWidth, cellHeight]);
 
   const dateLabel = useMemo(
     () =>
@@ -543,7 +581,7 @@ export default function BridgesScreen() {
             <Text style={styles.sectionTitle}>How to play</Text>
             <Text style={styles.sectionBody}>
               Tap an island, then a neighbor in the same row or column to cycle 1, 2, or 0
-              bridges. Tap again to remove bridges.
+              bridges. Faint lines show available neighbors for your selected island.
             </Text>
           </View>
 
@@ -557,7 +595,56 @@ export default function BridgesScreen() {
           </View>
 
           <View style={styles.boardWrap}>
-            <View style={[styles.board, { width: boardSize, height: boardSize }]}>
+            <View style={[styles.board, { width: boardWidth, height: boardHeight }]}>
+              {previewBridgeList.map((bridge) => {
+                const start = islandPositions.get(bridge.island1);
+                const end = islandPositions.get(bridge.island2);
+                if (!start || !end) return null;
+                const horizontal = start.y === end.y;
+
+                if (horizontal) {
+                  const left = Math.min(start.x, end.x) + islandRadius;
+                  const width = Math.abs(start.x - end.x) - islandRadius * 2;
+                  const top = start.y - lineThickness / 2;
+                  return (
+                    <View
+                      key={`preview-${bridge.island1}-${bridge.island2}`}
+                      pointerEvents="none"
+                      style={[
+                        styles.previewBridgeLine,
+                        {
+                          left,
+                          top,
+                          width,
+                          height: lineThickness,
+                          borderRadius: lineThickness / 2,
+                        },
+                      ]}
+                    />
+                  );
+                }
+
+                const top = Math.min(start.y, end.y) + islandRadius;
+                const height = Math.abs(start.y - end.y) - islandRadius * 2;
+                const left = start.x - lineThickness / 2;
+                return (
+                  <View
+                    key={`preview-${bridge.island1}-${bridge.island2}`}
+                    pointerEvents="none"
+                    style={[
+                      styles.previewBridgeLine,
+                      {
+                        left,
+                        top,
+                        width: lineThickness,
+                        height,
+                        borderRadius: lineThickness / 2,
+                      },
+                    ]}
+                  />
+                );
+              })}
+
               {bridgeList.flatMap((bridge) => {
                 const start = islandPositions.get(bridge.island1);
                 const end = islandPositions.get(bridge.island2);
@@ -856,6 +943,11 @@ const createStyles = (
   bridgeLine: {
     position: 'absolute',
     backgroundColor: bridgesPalette.bridge,
+  },
+  previewBridgeLine: {
+    position: 'absolute',
+    backgroundColor: bridgesPalette.accent,
+    opacity: 0.22,
   },
   island: {
     position: 'absolute',
