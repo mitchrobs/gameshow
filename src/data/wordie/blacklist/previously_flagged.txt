@@ -1,0 +1,19 @@
+# Words flagged from the legacy list or likely to feel off-tone as daily answers.
+GANJA
+WENCH
+LUSTY
+DROOL
+PORKY
+DUNCE
+WHINY
+PANSY
+GHOUL
+GIMME
+JERKS
+LOSER
+MAMBA
+NUKES
+BLIND
+DRUNK
+MORTAL
+VODKA

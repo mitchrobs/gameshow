@@ -1,0 +1,18 @@
+# Strongly charged political/religious terms.
+AMISH
+ANGLO
+BIBLE
+BOERS
+HATE
+JESUS
+JIHAD
+KHMER
+KORAN
+NAZI
+NAZISM
+QURAN
+SIKHS
+SODOM
+SURAH
+TORAH
+TRUMP

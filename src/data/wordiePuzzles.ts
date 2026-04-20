@@ -1,350 +1,58 @@
-const WORDS = [
-  'CRANE',
-  'SLATE',
-  'PRIDE',
-  'BRICK',
-  'HONEY',
-  'GHOST',
-  'CLIMB',
-  'PRISM',
-  'VIVID',
-  'MANGO',
-  'RIVER',
-  'CROWN',
-  'SPICE',
-  'NORTH',
-  'LIGHT',
-  'BLEND',
-  'FROST',
-  'QUART',
-  'GLASS',
-  'PULSE',
-  'BLOOM',
-  'CLOUD',
-  'FLAME',
-  'STONE',
-  'PLANE',
-  'TREND',
-  'SHARP',
-  'OASIS',
-  'RAISE',
-  'LEMON',
-  'SHELF',
-  'GRIND',
-  'FABLE',
-  'CANDY',
-  'DREAM',
-  'STAIR',
-  'WALTZ',
-  'ZEBRA',
-  'UNITY',
-  'ROAST',
-  'CARAT',
-  'EXALT',
-  'DEWAR',
-  'JOSHI',
-  'DROOL',
-  'FARSI',
-  'HUTCH',
-  'INCAS',
-  'JUROR',
-  'BELLO',
-  'KNAVE',
-  'LUSTY',
-  'SPEER',
-  'FRYER',
-  'ANTSY',
-  'FACET',
-  'LAZAR',
-  'LIDAR',
-  'QUANT',
-  'SEVER',
-  'MINCE',
-  'GAFFE',
-  'HOUGH',
-  'ROAMS',
-  'MADRE',
-  'NOOSE',
-  'CADRE',
-  'FIVES',
-  'TWILL',
-  'ELMER',
-  'SIKHS',
-  'BORER',
-  'MILOS',
-  'SHRUB',
-  'DUELS',
-  'KNACK',
-  'LEFTY',
-  'ASTER',
-  'CEDED',
-  'BAZAR',
-  'GUMMY',
-  'LONGS',
-  'LACED',
-  'DUCHY',
-  'COKER',
-  'DERRY',
-  'CHUMP',
-  'MABEL',
-  'FLUME',
-  'TULIP',
-  'BONER',
-  'LOTTO',
-  'IRVIN',
-  'BOERS',
-  'TAKIN',
-  'GATED',
-  'TILDA',
-  'STOIC',
-  'PORKY',
-  'EVOKE',
-  'INCUR',
-  'RHINE',
-  'SAYER',
-  'DINOS',
-  'KORAN',
-  'KAYAK',
-  'FILLY',
-  'TROIS',
-  'CAGED',
-  'MIDGE',
-  'ROSIN',
-  'SPIRO',
-  'FJORD',
-  'GOODY',
-  'VIXEN',
-  'NAZIR',
-  'DIMLY',
-  'MAGUS',
-  'SHUNT',
-  'DROLL',
-  'WICKS',
-  'SHAMS',
-  'ZAIRE',
-  'BREWS',
-  'STOMP',
-  'ARRAS',
-  'CRISS',
-  'AGAVE',
-  'LADLE',
-  'INDUS',
-  'OUTDO',
-  'DALES',
-  'LIKEN',
-  'STIRS',
-  'CINCH',
-  'GIDDY',
-  'COTTA',
-  'CHUMS',
-  'TOPAZ',
-  'PARSE',
-  'BEAUT',
-  'ATOLL',
-  'LAUDE',
-  'LIBRE',
-  'GRAZE',
-  'ECOLE',
-  'LURCH',
-  'BLURB',
-  'AVERT',
-  'NAPPY',
-  'CALMS',
-  'CULPA',
-  'TATER',
-  'RADII',
-  'SERFS',
-  'BANFF',
-  'JANUS',
-  'MAGES',
-  'MARIS',
-  'POKEY',
-  'MOCHA',
-  'ERIKA',
-  'SONAR',
-  'NUKES',
-  'LOOPY',
-  'RILED',
-  'CARLE',
-  'MAZES',
-  'CRASS',
-  'HILDA',
-  'ADAGE',
-  'BERET',
-  'LUPIN',
-  'MINOT',
-  'MOCKS',
-  'SLAPS',
-  'NORSE',
-  'SLUMS',
-  'LASSO',
-  'WENCH',
-  'PERKY',
-  'QUINT',
-  'STEED',
-  'DUNCE',
-  'GAMUT',
-  'MAMBA',
-  'POSER',
-  'WHINY',
-  'MEIJI',
-  'PRONG',
-  'GRAFF',
-  'OSKAR',
-  'GHOUL',
-  'SODOM',
-  'FATED',
-  'EASEL',
-  'FOOTY',
-  'FUGUE',
-  'SWAIN',
-  'AURAL',
-  'LYNNE',
-  'GRUFF',
-  'CREWE',
-  'KNOLL',
-  'GLEAM',
-  'HAILS',
-  'BYLAW',
-  'OCHRE',
-  'BUDGE',
-  'CRIBS',
-  'DINED',
-  'MOLDS',
-  'LECHE',
-  'GREYS',
-  'LIVID',
-  'PANSY',
-  'STEAD',
-  'KHMER',
-  'RAVEL',
-  'MADLY',
-  'TEARY',
-  'AMISH',
-  'TWINK',
-  'GRADS',
-  'LOBES',
-  'ADDIS',
-  'REVEL',
-  'GANJA',
-  'BERNE',
-  'UNDID',
-  'BARBS',
-  'MUFTI',
-  'SOLON',
-  'PARDO',
-  'USURY',
-  'BEECH',
-  'FEINT',
-  'ALLOT',
-  'TIBIA',
-  'FIXER',
-  'WANED',
-  'ELEGY',
-  'NIALL',
-  'FRETS',
-  'FITCH',
-  'KILNS',
-  'ARTSY',
-  'DUPER',
-  'EFFIE',
-  'TROVE',
-  'SWATH',
-  'UNDUE',
-  'FLUFF',
-  'REEDY',
-  'SLAVS',
-  'WAVER',
-  'MACAO',
-  'IRKED',
-  'WARMS',
-  'HALES',
-  'ERWIN',
-  'SEMIS',
-  'SURAH',
-  'WRITS',
-  'COWER',
-  'GABBY',
-  'TRAMS',
-  'DEWAN',
-  'SHONE',
-  'CLAYS',
-  'SMELT',
-  'WHISK',
-  'RAMPS',
-  'BOLUS',
-  'TATAR',
-  'AESOP',
-  'ATMOS',
-  'DICEY',
-  'ALAMO',
-  'AMASS',
-  'FLIPS',
-  'AFOOT',
-  'HOODS',
-  'DUSKY',
-  'AFFIX',
-  'ODOUR',
-  'INLAY',
-  'DRIPS',
-  'CRAGS',
-  'LOWES',
-  'GEIST',
-  'PIQUE',
-  'ASKEW',
-  'CHINO',
-  'SLADE',
-  'FALCO',
-  'LIMES',
-  'GROWL',
-  'EMBER',
-  'VOLTA',
-  'BOSSY',
-  'GUAVA',
-  'SPASM',
-  'LIENS',
-  'MORES',
-  'UPPED',
-  'PUMAS',
-  'NINES',
-  'VADIM',
-  'TUNIC',
-  'SASSY',
-  'HAVES',
-  'CUSHY',
-  'SAMIR',
-  'FADER',
-  'ISLET',
-  'KINKS',
-  'ENOCH',
-  'UNCUT',
-  'MODUS',
-  'DRAGS',
-  'LURKS',
-  'MELEE',
-  'FOAMS',
-  'LIPID',
-  'WORDY',
-  'SABRE',
-  'SKUNK',
-  'LOONS',
-  'ERICK',
-  'COOLS',
-  'SOAPS',
-  'CLEVE',
-  'GNOME',
-  'DUNKS',
-  'JERKS',
-  'WISHY',
-  'SMIRK',
-  'USURP',
-  'SNIDE',
-];
+import scheduleData from './wordieSchedule.json';
+import allowedGuessesData from './wordieAllowedGuesses.json';
+import priorWordsData from './wordie/priorWords.json';
 
+export type WordieLength = 4 | 5 | 6;
+export type WordieDifficultyTier = 'easy' | 'medium' | 'hard';
 
+export interface WordiePuzzle {
+  date: string;
+  day_of_week: string;
+  word: string;
+  length: WordieLength;
+  guesses_allowed: number;
+  difficulty_score: number;
+  difficulty_tier: WordieDifficultyTier;
+  flags: string[];
+  editorial_override: boolean;
+}
+
+export interface WordieSchedule {
+  version: string;
+  generated_at: string;
+  seed: number;
+  year_start: string;
+  year_end: string;
+  puzzles: WordiePuzzle[];
+  safe_swap_pool: Record<string, Array<Omit<WordiePuzzle, 'date' | 'day_of_week' | 'length' | 'guesses_allowed' | 'editorial_override'>>>;
+}
+
+interface WordieAllowedGuesses {
+  version: string;
+  generated_at: string;
+  source: string;
+  words: Record<string, string[]>;
+}
 
 const DAY_MS = 1000 * 60 * 60 * 24;
-const DAILY_SEED = 274931;
+const LEGACY_DAILY_SEED = 274931;
+const LEGACY_WORDS = priorWordsData.words as string[];
+const SCHEDULE = scheduleData as WordieSchedule;
+const ALLOWED_GUESSES = allowedGuessesData as WordieAllowedGuesses;
+const scheduleByDate = new Map(SCHEDULE.puzzles.map((puzzle) => [puzzle.date, puzzle]));
+
+const allowedByLength = new Map<WordieLength, Set<string>>(
+  ([4, 5, 6] as WordieLength[]).map((length) => {
+    const words = [
+      ...(ALLOWED_GUESSES.words[String(length)] ?? []),
+      ...SCHEDULE.puzzles
+        .filter((puzzle) => puzzle.length === length)
+        .map((puzzle) => puzzle.word),
+      ...LEGACY_WORDS.filter((word) => word.length === length),
+    ];
+    return [length, new Set(words.map((word) => word.toUpperCase()))];
+  })
+);
 
 function mulberry32(seed: number) {
   let t = seed + 0x6d2b79f5;
@@ -365,35 +73,66 @@ function getShuffledIndices(length: number, seed: number): number[] {
   return indices;
 }
 
-const DAILY_ORDER = getShuffledIndices(WORDS.length, DAILY_SEED);
+const LEGACY_DAILY_ORDER = getShuffledIndices(LEGACY_WORDS.length, LEGACY_DAILY_SEED);
 
 function getLocalDayIndex(date: Date): number {
-  // Convert the local calendar date into a stable ordinal day number.
   return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS);
 }
 
-function getLocalDateKey(date: Date): string {
+export function getLocalDateKey(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-const DAILY_INDEX_OVERRIDES: Record<string, number> = {
-  // One-off replacement for Thursday, February 12, 2026.
-  '2026-02-12': WORDS.indexOf('ROAST'),
+function getDayOfWeekLabel(date: Date): string {
+  return date.toLocaleDateString('en-US', { weekday: 'long' });
+}
+
+const LEGACY_INDEX_OVERRIDES: Record<string, number> = {
+  '2026-02-12': LEGACY_WORDS.indexOf('ROAST'),
 };
 
-export function getDailyWordieIndex(date: Date = new Date()): number {
-  const overrideIndex = DAILY_INDEX_OVERRIDES[getLocalDateKey(date)];
-  if (Number.isInteger(overrideIndex) && overrideIndex >= 0 && overrideIndex < WORDS.length) {
+function getLegacyWordieIndex(date: Date): number {
+  const overrideIndex = LEGACY_INDEX_OVERRIDES[getLocalDateKey(date)];
+  if (Number.isInteger(overrideIndex) && overrideIndex >= 0 && overrideIndex < LEGACY_WORDS.length) {
     return overrideIndex;
   }
-  const dayIndex = getLocalDayIndex(date);
-  return DAILY_ORDER[dayIndex % DAILY_ORDER.length];
+  return LEGACY_DAILY_ORDER[getLocalDayIndex(date) % LEGACY_DAILY_ORDER.length];
 }
 
-export function getDailyWordie(date: Date = new Date()): string {
-  return WORDS[getDailyWordieIndex(date)];
+function getLegacyPuzzle(date: Date): WordiePuzzle {
+  const dateKey = getLocalDateKey(date);
+  return {
+    date: dateKey,
+    day_of_week: getDayOfWeekLabel(date),
+    word: LEGACY_WORDS[getLegacyWordieIndex(date)],
+    length: 5,
+    guesses_allowed: 6,
+    difficulty_score: 45,
+    difficulty_tier: 'medium',
+    flags: ['legacy'],
+    editorial_override: false,
+  };
 }
 
-export default WORDS;
+export function getDailyWordieIndex(date: Date = new Date()): number {
+  const dateKey = getLocalDateKey(date);
+  const scheduleIndex = SCHEDULE.puzzles.findIndex((puzzle) => puzzle.date === dateKey);
+  return scheduleIndex >= 0 ? scheduleIndex : getLegacyWordieIndex(date);
+}
+
+export function getDailyWordie(date: Date = new Date()): WordiePuzzle {
+  const dateKey = getLocalDateKey(date);
+  return scheduleByDate.get(dateKey) ?? getLegacyPuzzle(date);
+}
+
+export function isAllowedWordieGuess(guess: string, length: WordieLength): boolean {
+  const normalized = guess.trim().toUpperCase();
+  if (!/^[A-Z]+$/.test(normalized) || normalized.length !== length) {
+    return false;
+  }
+  return allowedByLength.get(length)?.has(normalized) ?? false;
+}
+
+export default SCHEDULE.puzzles;

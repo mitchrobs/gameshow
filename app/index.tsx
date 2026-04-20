@@ -383,7 +383,7 @@ export default function HomeScreen() {
               <Text style={styles.gameTitle}>Wordie</Text>
             </View>
             <Text style={styles.blurb}>
-              Solve the five-letter word in six guesses.
+              Solve the {wordie.length}-letter word in {wordie.guesses_allowed} guesses.
             </Text>
             {(playCounts['wordie'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
@@ -394,10 +394,16 @@ export default function HomeScreen() {
               <View style={styles.wordiePreview}>
                 {Array.from({ length: 2 }).map((_, row) => (
                   <View key={row} style={styles.wordieRow}>
-                    {Array.from({ length: 5 }).map((_, col) => (
-                      <View key={col} style={styles.wordieTile}>
+                    {Array.from({ length: wordie.length }).map((_, col) => (
+                      <View
+                        key={col}
+                        style={[
+                          styles.wordieTile,
+                          wordie.length === 6 && styles.wordieTileCompact,
+                        ]}
+                      >
                         {row === 0 && col === 0 ? (
-                          <Text style={styles.wordieTileText}>{wordie[0]}</Text>
+                          <Text style={styles.wordieTileText}>{wordie.word[0]}</Text>
                         ) : null}
                       </View>
                     ))}
@@ -988,6 +994,10 @@ const createStyles = (
     backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  wordieTileCompact: {
+    width: 38,
+    height: 38,
   },
   wordieTileText: {
     fontSize: FontSize.lg,

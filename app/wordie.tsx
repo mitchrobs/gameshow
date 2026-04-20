@@ -17,11 +17,13 @@ import {
   useDaybreakTheme,
 } from '../src/constants/theme';
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
-import { getDailyWordie } from '../src/data/wordiePuzzles';
+import {
+  getDailyWordie,
+  isAllowedWordieGuess,
+  type WordieLength,
+} from '../src/data/wordiePuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
-const WORD_LENGTH = 5;
-const MAX_GUESSES = 6;
 const STORAGE_PREFIX = 'wordie';
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const KEYBOARD_ROWS = [
@@ -52,20 +54,21 @@ type GameState = 'playing' | 'won' | 'lost';
 type TileStatus = 'correct' | 'present' | 'absent' | 'empty';
 
 function evaluateGuess(guess: string, answer: string): TileStatus[] {
-  const result: TileStatus[] = Array(WORD_LENGTH).fill('absent');
+  const wordLength = answer.length;
+  const result: TileStatus[] = Array(wordLength).fill('absent');
   const answerChars = answer.split('');
-  const used = Array(WORD_LENGTH).fill(false);
+  const used = Array(wordLength).fill(false);
 
-  for (let i = 0; i < WORD_LENGTH; i += 1) {
+  for (let i = 0; i < wordLength; i += 1) {
     if (guess[i] === answer[i]) {
       result[i] = 'correct';
       used[i] = true;
     }
   }
 
-  for (let i = 0; i < WORD_LENGTH; i += 1) {
+  for (let i = 0; i < wordLength; i += 1) {
     if (result[i] !== 'absent') continue;
-    for (let j = 0; j < WORD_LENGTH; j += 1) {
+    for (let j = 0; j < wordLength; j += 1) {
       if (used[j]) continue;
       if (guess[i] === answer[j]) {
         result[i] = 'present';
@@ -85,11 +88,15 @@ export default function WordieScreen() {
   const router = useRouter();
   const [dateKey, setDateKey] = useState(() => getLocalDateKey());
   const activeDate = useMemo(() => getDateFromLocalDateKey(dateKey), [dateKey]);
-  const answer = useMemo(() => getDailyWordie(activeDate), [activeDate]);
+  const puzzle = useMemo(() => getDailyWordie(activeDate), [activeDate]);
+  const answer = puzzle.word;
+  const wordLength = puzzle.length;
+  const maxGuesses = puzzle.guesses_allowed;
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<GameState>('playing');
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [removedLetters, setRemovedLetters] = useState<Set<string>>(() => new Set());
   const [removingLetters, setRemovingLetters] = useState<Set<string>>(() => new Set());
   const [showRemovedLetters, setShowRemovedLetters] = useState(false);
@@ -217,32 +224,40 @@ export default function WordieScreen() {
         triggerRowShake();
         return;
       }
-      setCurrentGuess((guess) => (guess.length >= WORD_LENGTH ? guess : `${guess}${letter}`));
+      setValidationMessage(null);
+      setCurrentGuess((guess) => (guess.length >= wordLength ? guess : `${guess}${letter}`));
     },
-    [gameState, removedLetters, removingLetters, showRemovedLetters, triggerRowShake]
+    [gameState, removedLetters, removingLetters, showRemovedLetters, triggerRowShake, wordLength]
   );
 
   const handleBackspace = useCallback(() => {
     if (gameState !== 'playing') return;
+    setValidationMessage(null);
     setCurrentGuess((guess) => guess.slice(0, -1));
   }, [gameState]);
 
   const handleSubmit = useCallback(() => {
     if (gameState !== 'playing') return;
     const guess = currentGuess.trim().toUpperCase();
-    if (guess.length !== WORD_LENGTH) {
+    if (guess.length !== wordLength) {
+      triggerRowShake();
+      return;
+    }
+    if (!isAllowedWordieGuess(guess, wordLength as WordieLength)) {
+      setValidationMessage('Not in word list');
       triggerRowShake();
       return;
     }
     const nextGuesses = [...guesses, guess];
     const nextGameState: GameState =
-      guess === answer ? 'won' : nextGuesses.length >= MAX_GUESSES ? 'lost' : 'playing';
+      guess === answer ? 'won' : nextGuesses.length >= maxGuesses ? 'lost' : 'playing';
     const lettersToRemove = Array.from(new Set(guess.split(''))).filter(
       (letter) => !answer.includes(letter) && !removedLetters.has(letter)
     );
 
     setGuesses(nextGuesses);
     setCurrentGuess('');
+    setValidationMessage(null);
     setGameState(nextGameState);
 
     if (nextGameState === 'playing') {
@@ -253,13 +268,15 @@ export default function WordieScreen() {
     currentGuess,
     gameState,
     guesses,
+    maxGuesses,
     removeLettersFromKeyboard,
     removedLetters,
     triggerRowShake,
+    wordLength,
   ]);
 
   const shareText = useMemo(() => {
-    const result = gameState === 'won' ? `${guesses.length}/${MAX_GUESSES}` : 'X/6';
+    const result = gameState === 'won' ? `${guesses.length}/${maxGuesses}` : `X/${maxGuesses}`;
     const rows = guesses
       .map((guess) =>
         evaluateGuess(guess, answer)
@@ -275,7 +292,7 @@ export default function WordieScreen() {
       rows,
       'https://mitchrobs.github.io/gameshow/',
     ].join('\n');
-  }, [guesses, answer, dateLabel, gameState]);
+  }, [guesses, answer, dateLabel, gameState, maxGuesses]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -286,6 +303,7 @@ export default function WordieScreen() {
     setCurrentGuess('');
     setGameState('playing');
     setShareStatus(null);
+    setValidationMessage(null);
     setRemovedLetters(new Set());
     setRemovingLetters(new Set());
     setShowRemovedLetters(false);
@@ -450,17 +468,19 @@ export default function WordieScreen() {
             <View style={styles.pageAccent} />
             <View style={styles.header}>
               <Text style={styles.title}>Wordie</Text>
-              <Text style={styles.subtitle}>Guess the 5-letter word in 6 tries.</Text>
+              <Text style={styles.subtitle}>
+                Guess the {wordLength}-letter word in {maxGuesses} tries.
+              </Text>
             </View>
 
             <View style={styles.grid}>
-              {Array.from({ length: MAX_GUESSES }).map((_, row) => {
+              {Array.from({ length: maxGuesses }).map((_, row) => {
                 const guess = guesses[row] ?? '';
                 const isCurrent = row === guesses.length && gameState === 'playing';
-                const letters = (isCurrent ? currentGuess : guess).padEnd(WORD_LENGTH, ' ');
+                const letters = (isCurrent ? currentGuess : guess).padEnd(wordLength, ' ');
                 const statuses = guess
                   ? evaluateGuess(guess, answer)
-                  : Array(WORD_LENGTH).fill('empty');
+                  : Array(wordLength).fill('empty');
 
                 return (
                   <Animated.View
@@ -477,6 +497,7 @@ export default function WordieScreen() {
                           key={i}
                           style={[
                             styles.tile,
+                            wordLength === 6 && styles.tileCompact,
                             status === 'correct' && styles.tileCorrect,
                             status === 'present' && styles.tilePresent,
                             status === 'absent' && styles.tileAbsent,
@@ -490,6 +511,13 @@ export default function WordieScreen() {
                   </Animated.View>
                 );
               })}
+            </View>
+            <View style={styles.validationSlot}>
+              {validationMessage && (
+                <Text accessibilityLiveRegion="polite" style={styles.validationMessage}>
+                  {validationMessage}
+                </Text>
+              )}
             </View>
 
             {gameState === 'playing' && (
@@ -627,6 +655,10 @@ const createStyles = (
     alignItems: 'center',
     justifyContent: 'center',
   },
+  tileCompact: {
+    width: 42,
+    height: 42,
+  },
   tileEmpty: {
     backgroundColor: Colors.surface,
   },
@@ -646,6 +678,18 @@ const createStyles = (
     fontSize: FontSize.lg,
     fontWeight: '800',
     color: Colors.text,
+  },
+  validationSlot: {
+    minHeight: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  validationMessage: {
+    color: Colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
   },
   keyboard: {
     marginBottom: Spacing.lg,

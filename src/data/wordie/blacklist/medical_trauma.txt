@@ -1,0 +1,27 @@
+# Medical, traumatic, or eating-disorder-adjacent terms excluded from answers and guesses.
+AIDS
+BINGE
+CANCER
+COMA
+COVID
+CRAZY
+FEAR
+FEVER
+FETUS
+GORGE
+MISCARRY
+OVERDOSE
+PAIN
+PURGE
+PSYCH
+PSYCHO
+RECTUM
+SEIZURE
+SICK
+SPINAL
+STARVE
+STROKE
+TOXIC
+TUMOR
+VIRUS
+WOUND

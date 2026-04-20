@@ -1,0 +1,4960 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-04-19T00:00:00Z",
+  "seed": 42,
+  "year_start": "2026-06-01",
+  "year_end": "2027-05-31",
+  "puzzles": [
+    {
+      "date": "2026-06-01",
+      "day_of_week": "Monday",
+      "word": "GOOD",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-02",
+      "day_of_week": "Tuesday",
+      "word": "LUNCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-03",
+      "day_of_week": "Wednesday",
+      "word": "PRIZE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-04",
+      "day_of_week": "Thursday",
+      "word": "SIXTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 56,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-05",
+      "day_of_week": "Friday",
+      "word": "CHAMP",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-06",
+      "day_of_week": "Saturday",
+      "word": "SWORN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-07",
+      "day_of_week": "Sunday",
+      "word": "KINDLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-08",
+      "day_of_week": "Monday",
+      "word": "NEED",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 27,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-09",
+      "day_of_week": "Tuesday",
+      "word": "DRAFT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-10",
+      "day_of_week": "Wednesday",
+      "word": "THUMB",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-11",
+      "day_of_week": "Thursday",
+      "word": "SPICY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-12",
+      "day_of_week": "Friday",
+      "word": "BLUNT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-13",
+      "day_of_week": "Saturday",
+      "word": "YACHT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-14",
+      "day_of_week": "Sunday",
+      "word": "WARMTH",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 48,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-15",
+      "day_of_week": "Monday",
+      "word": "BEST",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-16",
+      "day_of_week": "Tuesday",
+      "word": "SMALL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-17",
+      "day_of_week": "Wednesday",
+      "word": "CLERK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-18",
+      "day_of_week": "Thursday",
+      "word": "SNACK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-19",
+      "day_of_week": "Friday",
+      "word": "GRASP",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-20",
+      "day_of_week": "Saturday",
+      "word": "DITCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-21",
+      "day_of_week": "Sunday",
+      "word": "FATHER",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 19,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:Father's Day"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-22",
+      "day_of_week": "Monday",
+      "word": "LONG",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-23",
+      "day_of_week": "Tuesday",
+      "word": "START",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-24",
+      "day_of_week": "Wednesday",
+      "word": "CLOTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-25",
+      "day_of_week": "Thursday",
+      "word": "IMPLY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-26",
+      "day_of_week": "Friday",
+      "word": "FLUSH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-27",
+      "day_of_week": "Saturday",
+      "word": "PORCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-28",
+      "day_of_week": "Sunday",
+      "word": "COSTLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-29",
+      "day_of_week": "Monday",
+      "word": "MUST",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 26,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-06-30",
+      "day_of_week": "Tuesday",
+      "word": "PHOTO",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-01",
+      "day_of_week": "Wednesday",
+      "word": "EXTRA",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-02",
+      "day_of_week": "Thursday",
+      "word": "QUIET",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 49,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-03",
+      "day_of_week": "Friday",
+      "word": "SWEPT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-04",
+      "day_of_week": "Saturday",
+      "word": "OCEAN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:Independence Day"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-05",
+      "day_of_week": "Sunday",
+      "word": "FILTHY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 48,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-06",
+      "day_of_week": "Monday",
+      "word": "HELP",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-07",
+      "day_of_week": "Tuesday",
+      "word": "LEAVE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-08",
+      "day_of_week": "Wednesday",
+      "word": "CYBER",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-09",
+      "day_of_week": "Thursday",
+      "word": "HARDY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-10",
+      "day_of_week": "Friday",
+      "word": "SWAMP",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-11",
+      "day_of_week": "Saturday",
+      "word": "DRIFT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-12",
+      "day_of_week": "Sunday",
+      "word": "MIGHTY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-13",
+      "day_of_week": "Monday",
+      "word": "KNOW",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 21,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-14",
+      "day_of_week": "Tuesday",
+      "word": "SPEED",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-15",
+      "day_of_week": "Wednesday",
+      "word": "TRUNK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-16",
+      "day_of_week": "Thursday",
+      "word": "CHARM",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-17",
+      "day_of_week": "Friday",
+      "word": "SHINY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-18",
+      "day_of_week": "Saturday",
+      "word": "RISKY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-19",
+      "day_of_week": "Sunday",
+      "word": "STICKY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 48,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-20",
+      "day_of_week": "Monday",
+      "word": "FIND",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-21",
+      "day_of_week": "Tuesday",
+      "word": "SCENE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-22",
+      "day_of_week": "Wednesday",
+      "word": "BATCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-23",
+      "day_of_week": "Thursday",
+      "word": "VINYL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-24",
+      "day_of_week": "Friday",
+      "word": "STRAW",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-25",
+      "day_of_week": "Saturday",
+      "word": "BURNT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-26",
+      "day_of_week": "Sunday",
+      "word": "HYBRID",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-27",
+      "day_of_week": "Monday",
+      "word": "BACK",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 21,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-28",
+      "day_of_week": "Tuesday",
+      "word": "ISSUE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-29",
+      "day_of_week": "Wednesday",
+      "word": "SKIRT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-30",
+      "day_of_week": "Thursday",
+      "word": "FLOWN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-07-31",
+      "day_of_week": "Friday",
+      "word": "SHAFT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-01",
+      "day_of_week": "Saturday",
+      "word": "EQUAL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 49,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-02",
+      "day_of_week": "Sunday",
+      "word": "ADJUST",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 52,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-03",
+      "day_of_week": "Monday",
+      "word": "WORK",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 22,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-04",
+      "day_of_week": "Tuesday",
+      "word": "COACH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-05",
+      "day_of_week": "Wednesday",
+      "word": "FORTY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-06",
+      "day_of_week": "Thursday",
+      "word": "WIDTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-07",
+      "day_of_week": "Friday",
+      "word": "GRAPH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-08",
+      "day_of_week": "Saturday",
+      "word": "SPARK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-09",
+      "day_of_week": "Sunday",
+      "word": "FIRMLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-10",
+      "day_of_week": "Monday",
+      "word": "LAST",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-11",
+      "day_of_week": "Tuesday",
+      "word": "SENSE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 32,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-12",
+      "day_of_week": "Wednesday",
+      "word": "HANDY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-13",
+      "day_of_week": "Thursday",
+      "word": "MIDST",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-14",
+      "day_of_week": "Friday",
+      "word": "STAMP",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-15",
+      "day_of_week": "Saturday",
+      "word": "WRIST",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-16",
+      "day_of_week": "Sunday",
+      "word": "COMPLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-17",
+      "day_of_week": "Monday",
+      "word": "SHOW",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 26,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-18",
+      "day_of_week": "Tuesday",
+      "word": "ALLOW",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-19",
+      "day_of_week": "Wednesday",
+      "word": "DRANK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-20",
+      "day_of_week": "Thursday",
+      "word": "SADLY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-21",
+      "day_of_week": "Friday",
+      "word": "FLESH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-22",
+      "day_of_week": "Saturday",
+      "word": "SCENT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-23",
+      "day_of_week": "Sunday",
+      "word": "GENTLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-24",
+      "day_of_week": "Monday",
+      "word": "CITY",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 27,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-25",
+      "day_of_week": "Tuesday",
+      "word": "SLEEP",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-26",
+      "day_of_week": "Wednesday",
+      "word": "BURST",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-27",
+      "day_of_week": "Thursday",
+      "word": "SCRAP",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-28",
+      "day_of_week": "Friday",
+      "word": "AUDIO",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 40,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-29",
+      "day_of_week": "Saturday",
+      "word": "CRUSH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-30",
+      "day_of_week": "Sunday",
+      "word": "SPRINT",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-08-31",
+      "day_of_week": "Monday",
+      "word": "LEFT",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 27,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-01",
+      "day_of_week": "Tuesday",
+      "word": "GUESS",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 32,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-02",
+      "day_of_week": "Wednesday",
+      "word": "QUITE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-03",
+      "day_of_week": "Thursday",
+      "word": "REMIX",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 52,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-04",
+      "day_of_week": "Friday",
+      "word": "CRAFT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 40,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-05",
+      "day_of_week": "Saturday",
+      "word": "SWIFT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-06",
+      "day_of_week": "Sunday",
+      "word": "KNIGHT",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-07",
+      "day_of_week": "Monday",
+      "word": "LEAF",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:Labor Day"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-08",
+      "day_of_week": "Tuesday",
+      "word": "PAPER",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-09",
+      "day_of_week": "Wednesday",
+      "word": "CLOWN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-10",
+      "day_of_week": "Thursday",
+      "word": "GLORY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-11",
+      "day_of_week": "Friday",
+      "word": "NASTY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-12",
+      "day_of_week": "Saturday",
+      "word": "ROCKY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-13",
+      "day_of_week": "Sunday",
+      "word": "TROPHY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-14",
+      "day_of_week": "Monday",
+      "word": "PLAY",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 27,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-15",
+      "day_of_week": "Tuesday",
+      "word": "TITLE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-16",
+      "day_of_week": "Wednesday",
+      "word": "SHARK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-17",
+      "day_of_week": "Thursday",
+      "word": "RANCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-18",
+      "day_of_week": "Friday",
+      "word": "ALIKE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-19",
+      "day_of_week": "Saturday",
+      "word": "WITCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-20",
+      "day_of_week": "Sunday",
+      "word": "THROWN",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 40,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-21",
+      "day_of_week": "Monday",
+      "word": "MINE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-22",
+      "day_of_week": "Tuesday",
+      "word": "VISIT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-23",
+      "day_of_week": "Wednesday",
+      "word": "BLANK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-24",
+      "day_of_week": "Thursday",
+      "word": "VAGUE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-25",
+      "day_of_week": "Friday",
+      "word": "MERCY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-26",
+      "day_of_week": "Saturday",
+      "word": "SLEPT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-27",
+      "day_of_week": "Sunday",
+      "word": "HUNGRY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-28",
+      "day_of_week": "Monday",
+      "word": "RACE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-29",
+      "day_of_week": "Tuesday",
+      "word": "GREEN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-09-30",
+      "day_of_week": "Wednesday",
+      "word": "BRUSH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-01",
+      "day_of_week": "Thursday",
+      "word": "INDEX",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-02",
+      "day_of_week": "Friday",
+      "word": "SIXTY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 62,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-03",
+      "day_of_week": "Saturday",
+      "word": "OUNCE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-04",
+      "day_of_week": "Sunday",
+      "word": "WORTHY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-05",
+      "day_of_week": "Monday",
+      "word": "OKAY",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-06",
+      "day_of_week": "Tuesday",
+      "word": "TOTAL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-07",
+      "day_of_week": "Wednesday",
+      "word": "STRIP",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-08",
+      "day_of_week": "Thursday",
+      "word": "ACUTE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-09",
+      "day_of_week": "Friday",
+      "word": "UNITE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-10",
+      "day_of_week": "Saturday",
+      "word": "SPRAY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-11",
+      "day_of_week": "Sunday",
+      "word": "WHILST",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 40,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-12",
+      "day_of_week": "Monday",
+      "word": "HUGE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-13",
+      "day_of_week": "Tuesday",
+      "word": "ANGRY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-14",
+      "day_of_week": "Wednesday",
+      "word": "CROSS",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-15",
+      "day_of_week": "Thursday",
+      "word": "FLASH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-16",
+      "day_of_week": "Friday",
+      "word": "BLOWN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-17",
+      "day_of_week": "Saturday",
+      "word": "STARK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-18",
+      "day_of_week": "Sunday",
+      "word": "GROWTH",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-19",
+      "day_of_week": "Monday",
+      "word": "WENT",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 28,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-20",
+      "day_of_week": "Tuesday",
+      "word": "FLOOR",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-21",
+      "day_of_week": "Wednesday",
+      "word": "BADLY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-22",
+      "day_of_week": "Thursday",
+      "word": "PITCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-23",
+      "day_of_week": "Friday",
+      "word": "FANCY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-24",
+      "day_of_week": "Saturday",
+      "word": "PAUSE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-25",
+      "day_of_week": "Sunday",
+      "word": "SLIGHT",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-26",
+      "day_of_week": "Monday",
+      "word": "ROLE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-27",
+      "day_of_week": "Tuesday",
+      "word": "OFFER",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-28",
+      "day_of_week": "Wednesday",
+      "word": "BENCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-29",
+      "day_of_week": "Thursday",
+      "word": "NEWLY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-30",
+      "day_of_week": "Friday",
+      "word": "AUDIT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-10-31",
+      "day_of_week": "Saturday",
+      "word": "MAGIC",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:Halloween"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-01",
+      "day_of_week": "Sunday",
+      "word": "WIZARD",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 54,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-02",
+      "day_of_week": "Monday",
+      "word": "LOOK",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 29,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-03",
+      "day_of_week": "Tuesday",
+      "word": "ENJOY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-04",
+      "day_of_week": "Wednesday",
+      "word": "ARISE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-05",
+      "day_of_week": "Thursday",
+      "word": "FORTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-06",
+      "day_of_week": "Friday",
+      "word": "USAGE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-07",
+      "day_of_week": "Saturday",
+      "word": "MANOR",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-08",
+      "day_of_week": "Sunday",
+      "word": "SCRIPT",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 40,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-09",
+      "day_of_week": "Monday",
+      "word": "BASE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-10",
+      "day_of_week": "Tuesday",
+      "word": "EVENT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 32,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-11",
+      "day_of_week": "Wednesday",
+      "word": "INTRO",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-12",
+      "day_of_week": "Thursday",
+      "word": "TOKEN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-13",
+      "day_of_week": "Friday",
+      "word": "SUITE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-14",
+      "day_of_week": "Saturday",
+      "word": "HAIRY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-15",
+      "day_of_week": "Sunday",
+      "word": "PARTLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-16",
+      "day_of_week": "Monday",
+      "word": "HARD",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 28,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-17",
+      "day_of_week": "Tuesday",
+      "word": "STICK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-18",
+      "day_of_week": "Wednesday",
+      "word": "WORRY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-19",
+      "day_of_week": "Thursday",
+      "word": "SCARY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-20",
+      "day_of_week": "Friday",
+      "word": "TRASH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-21",
+      "day_of_week": "Saturday",
+      "word": "SHAVE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-22",
+      "day_of_week": "Sunday",
+      "word": "BRANCH",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-23",
+      "day_of_week": "Monday",
+      "word": "STOP",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 28,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-24",
+      "day_of_week": "Tuesday",
+      "word": "CIVIL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-25",
+      "day_of_week": "Wednesday",
+      "word": "PATCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-26",
+      "day_of_week": "Thursday",
+      "word": "BREAD",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 28,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:Thanksgiving"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-27",
+      "day_of_week": "Friday",
+      "word": "OUTER",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-28",
+      "day_of_week": "Saturday",
+      "word": "DECAY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-29",
+      "day_of_week": "Sunday",
+      "word": "SKETCH",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-11-30",
+      "day_of_week": "Monday",
+      "word": "TOLD",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 28,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-01",
+      "day_of_week": "Tuesday",
+      "word": "LEGAL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-02",
+      "day_of_week": "Wednesday",
+      "word": "EXACT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-03",
+      "day_of_week": "Thursday",
+      "word": "RELAX",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 48,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-04",
+      "day_of_week": "Friday",
+      "word": "SPOIL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-05",
+      "day_of_week": "Saturday",
+      "word": "ELBOW",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-06",
+      "day_of_week": "Sunday",
+      "word": "BRIGHT",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-07",
+      "day_of_week": "Monday",
+      "word": "IDEA",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 27,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-08",
+      "day_of_week": "Tuesday",
+      "word": "CROWD",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-09",
+      "day_of_week": "Wednesday",
+      "word": "FUNNY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-10",
+      "day_of_week": "Thursday",
+      "word": "THREW",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-11",
+      "day_of_week": "Friday",
+      "word": "REPLY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-12",
+      "day_of_week": "Saturday",
+      "word": "CHEST",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-13",
+      "day_of_week": "Sunday",
+      "word": "SIMPLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-14",
+      "day_of_week": "Monday",
+      "word": "GOAL",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-15",
+      "day_of_week": "Tuesday",
+      "word": "BUNCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-16",
+      "day_of_week": "Wednesday",
+      "word": "AWARE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 44,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-17",
+      "day_of_week": "Thursday",
+      "word": "SURGE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-18",
+      "day_of_week": "Friday",
+      "word": "LUCKY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-19",
+      "day_of_week": "Saturday",
+      "word": "STACK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-20",
+      "day_of_week": "Sunday",
+      "word": "TRICKY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-21",
+      "day_of_week": "Monday",
+      "word": "LOSE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-22",
+      "day_of_week": "Tuesday",
+      "word": "PRIOR",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-23",
+      "day_of_week": "Wednesday",
+      "word": "EMPTY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-24",
+      "day_of_week": "Thursday",
+      "word": "SHIRT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-25",
+      "day_of_week": "Friday",
+      "word": "BIRTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme_not_forced:Christmas"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-26",
+      "day_of_week": "Saturday",
+      "word": "DRAWN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-27",
+      "day_of_week": "Sunday",
+      "word": "LENGTH",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-28",
+      "day_of_week": "Monday",
+      "word": "HAIR",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-29",
+      "day_of_week": "Tuesday",
+      "word": "SEVEN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-30",
+      "day_of_week": "Wednesday",
+      "word": "MOUSE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2026-12-31",
+      "day_of_week": "Thursday",
+      "word": "FRESH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 32,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:New Year's Eve"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-01",
+      "day_of_week": "Friday",
+      "word": "PARTY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 22,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:New Year's Day"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-02",
+      "day_of_week": "Saturday",
+      "word": "QUOTE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 51,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-03",
+      "day_of_week": "Sunday",
+      "word": "OXYGEN",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 50,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-04",
+      "day_of_week": "Monday",
+      "word": "GAVE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-05",
+      "day_of_week": "Tuesday",
+      "word": "BRAND",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 32,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-06",
+      "day_of_week": "Wednesday",
+      "word": "TRUTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 43,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-07",
+      "day_of_week": "Thursday",
+      "word": "SPLIT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-08",
+      "day_of_week": "Friday",
+      "word": "PIANO",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-09",
+      "day_of_week": "Saturday",
+      "word": "SAUCE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-10",
+      "day_of_week": "Sunday",
+      "word": "PLENTY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-11",
+      "day_of_week": "Monday",
+      "word": "UPON",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-12",
+      "day_of_week": "Tuesday",
+      "word": "ENTER",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-13",
+      "day_of_week": "Wednesday",
+      "word": "SIGHT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-14",
+      "day_of_week": "Thursday",
+      "word": "WORST",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-15",
+      "day_of_week": "Friday",
+      "word": "STORM",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-16",
+      "day_of_week": "Saturday",
+      "word": "THROW",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 32,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-17",
+      "day_of_week": "Sunday",
+      "word": "FLIGHT",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-18",
+      "day_of_week": "Monday",
+      "word": "BLUE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-19",
+      "day_of_week": "Tuesday",
+      "word": "SWEET",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-20",
+      "day_of_week": "Wednesday",
+      "word": "TRICK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-21",
+      "day_of_week": "Thursday",
+      "word": "SHOCK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-22",
+      "day_of_week": "Friday",
+      "word": "ALIEN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-23",
+      "day_of_week": "Saturday",
+      "word": "DEPTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-24",
+      "day_of_week": "Sunday",
+      "word": "STRUCK",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-25",
+      "day_of_week": "Monday",
+      "word": "NOTE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-26",
+      "day_of_week": "Tuesday",
+      "word": "AWARD",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-27",
+      "day_of_week": "Wednesday",
+      "word": "SHIFT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-28",
+      "day_of_week": "Thursday",
+      "word": "ANIME",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-29",
+      "day_of_week": "Friday",
+      "word": "SPEND",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 30,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-30",
+      "day_of_week": "Saturday",
+      "word": "OPERA",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-01-31",
+      "day_of_week": "Sunday",
+      "word": "SYMBOL",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-01",
+      "day_of_week": "Monday",
+      "word": "FINE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-02",
+      "day_of_week": "Tuesday",
+      "word": "SERVE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-03",
+      "day_of_week": "Wednesday",
+      "word": "JOINT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-04",
+      "day_of_week": "Thursday",
+      "word": "QUEST",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 48,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-05",
+      "day_of_week": "Friday",
+      "word": "CHART",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-06",
+      "day_of_week": "Saturday",
+      "word": "DIRTY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-07",
+      "day_of_week": "Sunday",
+      "word": "HARDLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-08",
+      "day_of_week": "Monday",
+      "word": "SITE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-09",
+      "day_of_week": "Tuesday",
+      "word": "GRAND",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-10",
+      "day_of_week": "Wednesday",
+      "word": "PRESS",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-11",
+      "day_of_week": "Thursday",
+      "word": "RATIO",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-12",
+      "day_of_week": "Friday",
+      "word": "ENTRY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-13",
+      "day_of_week": "Saturday",
+      "word": "GROWN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-14",
+      "day_of_week": "Sunday",
+      "word": "WINTER",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:Valentine's Day"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-15",
+      "day_of_week": "Monday",
+      "word": "DATE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-16",
+      "day_of_week": "Tuesday",
+      "word": "LEVEL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 29,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-17",
+      "day_of_week": "Wednesday",
+      "word": "TRULY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-18",
+      "day_of_week": "Thursday",
+      "word": "SPORT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-19",
+      "day_of_week": "Friday",
+      "word": "NOISE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-20",
+      "day_of_week": "Saturday",
+      "word": "DRINK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-21",
+      "day_of_week": "Sunday",
+      "word": "SWITCH",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-22",
+      "day_of_week": "Monday",
+      "word": "GONE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-23",
+      "day_of_week": "Tuesday",
+      "word": "IDEAL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-24",
+      "day_of_week": "Wednesday",
+      "word": "CATCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-25",
+      "day_of_week": "Thursday",
+      "word": "STOCK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-26",
+      "day_of_week": "Friday",
+      "word": "ARGUE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-27",
+      "day_of_week": "Saturday",
+      "word": "THICK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-02-28",
+      "day_of_week": "Sunday",
+      "word": "MOSTLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 34,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-01",
+      "day_of_week": "Monday",
+      "word": "CODE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-02",
+      "day_of_week": "Tuesday",
+      "word": "ORDER",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 27,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-03",
+      "day_of_week": "Wednesday",
+      "word": "SQUAD",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-04",
+      "day_of_week": "Thursday",
+      "word": "JUICE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 53,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-05",
+      "day_of_week": "Friday",
+      "word": "PURSE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-06",
+      "day_of_week": "Saturday",
+      "word": "STYLE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 28,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-07",
+      "day_of_week": "Sunday",
+      "word": "PENCIL",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-08",
+      "day_of_week": "Monday",
+      "word": "DEAL",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 22,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-09",
+      "day_of_week": "Tuesday",
+      "word": "LOCAL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 28,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-10",
+      "day_of_week": "Wednesday",
+      "word": "PLANT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-11",
+      "day_of_week": "Thursday",
+      "word": "ASIDE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-12",
+      "day_of_week": "Friday",
+      "word": "POKER",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-13",
+      "day_of_week": "Saturday",
+      "word": "DOUGH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-14",
+      "day_of_week": "Sunday",
+      "word": "KINDLE",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-15",
+      "day_of_week": "Monday",
+      "word": "EAST",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-16",
+      "day_of_week": "Tuesday",
+      "word": "FRONT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-17",
+      "day_of_week": "Wednesday",
+      "word": "DRESS",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-18",
+      "day_of_week": "Thursday",
+      "word": "SHOWN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-19",
+      "day_of_week": "Friday",
+      "word": "BARON",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-20",
+      "day_of_week": "Saturday",
+      "word": "ANKLE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-21",
+      "day_of_week": "Sunday",
+      "word": "METRIC",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-22",
+      "day_of_week": "Monday",
+      "word": "HEAR",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-23",
+      "day_of_week": "Tuesday",
+      "word": "BASIS",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-24",
+      "day_of_week": "Wednesday",
+      "word": "SMART",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 32,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-25",
+      "day_of_week": "Thursday",
+      "word": "ROUTE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-26",
+      "day_of_week": "Friday",
+      "word": "EMAIL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-27",
+      "day_of_week": "Saturday",
+      "word": "RELAY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-28",
+      "day_of_week": "Sunday",
+      "word": "OVERLY",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-29",
+      "day_of_week": "Monday",
+      "word": "RATE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 24,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-30",
+      "day_of_week": "Tuesday",
+      "word": "TRUCK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-03-31",
+      "day_of_week": "Wednesday",
+      "word": "STAFF",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-01",
+      "day_of_week": "Thursday",
+      "word": "DOZEN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-02",
+      "day_of_week": "Friday",
+      "word": "EXIST",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-03",
+      "day_of_week": "Saturday",
+      "word": "MATCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 28,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-04",
+      "day_of_week": "Sunday",
+      "word": "POSTAL",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-05",
+      "day_of_week": "Monday",
+      "word": "WIFE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-06",
+      "day_of_week": "Tuesday",
+      "word": "THREE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-07",
+      "day_of_week": "Wednesday",
+      "word": "CHOIR",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-08",
+      "day_of_week": "Thursday",
+      "word": "WORTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 27,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-09",
+      "day_of_week": "Friday",
+      "word": "RISEN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-10",
+      "day_of_week": "Saturday",
+      "word": "LEGIT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-11",
+      "day_of_week": "Sunday",
+      "word": "MYSELF",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 28,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-12",
+      "day_of_week": "Monday",
+      "word": "SAFE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-13",
+      "day_of_week": "Tuesday",
+      "word": "GUIDE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 30,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-14",
+      "day_of_week": "Wednesday",
+      "word": "FULLY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 45,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-15",
+      "day_of_week": "Thursday",
+      "word": "SPENT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 29,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-16",
+      "day_of_week": "Friday",
+      "word": "PRINT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-17",
+      "day_of_week": "Saturday",
+      "word": "SCOUT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-18",
+      "day_of_week": "Sunday",
+      "word": "PARDON",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-19",
+      "day_of_week": "Monday",
+      "word": "MAIN",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-20",
+      "day_of_week": "Tuesday",
+      "word": "BLOCK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 31,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-21",
+      "day_of_week": "Wednesday",
+      "word": "SORRY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 41,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-22",
+      "day_of_week": "Thursday",
+      "word": "CLEAN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 21,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:Earth Day"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-23",
+      "day_of_week": "Friday",
+      "word": "STUDY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 26,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-24",
+      "day_of_week": "Saturday",
+      "word": "BROWN",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 29,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-25",
+      "day_of_week": "Sunday",
+      "word": "STRONG",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 29,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-26",
+      "day_of_week": "Monday",
+      "word": "VIEW",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-27",
+      "day_of_week": "Tuesday",
+      "word": "METRO",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-28",
+      "day_of_week": "Wednesday",
+      "word": "FIFTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 47,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-29",
+      "day_of_week": "Thursday",
+      "word": "AMBER",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-04-30",
+      "day_of_week": "Friday",
+      "word": "BUYER",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-01",
+      "day_of_week": "Saturday",
+      "word": "QUICK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-02",
+      "day_of_week": "Sunday",
+      "word": "JUNGLE",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 51,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-03",
+      "day_of_week": "Monday",
+      "word": "ROAD",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 23,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-04",
+      "day_of_week": "Tuesday",
+      "word": "TRACK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 29,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-05",
+      "day_of_week": "Wednesday",
+      "word": "CHECK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 39,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-06",
+      "day_of_week": "Thursday",
+      "word": "SLOPE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-07",
+      "day_of_week": "Friday",
+      "word": "IRONY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-08",
+      "day_of_week": "Saturday",
+      "word": "ALIVE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 30,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-09",
+      "day_of_week": "Sunday",
+      "word": "MOTHER",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 19,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme:Mother's Day"
+      ],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-10",
+      "day_of_week": "Monday",
+      "word": "WAIT",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 21,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-11",
+      "day_of_week": "Tuesday",
+      "word": "CHILD",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-12",
+      "day_of_week": "Wednesday",
+      "word": "APPLY",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 46,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-13",
+      "day_of_week": "Thursday",
+      "word": "THIEF",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-14",
+      "day_of_week": "Friday",
+      "word": "MONTH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 26,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-15",
+      "day_of_week": "Saturday",
+      "word": "FLOAT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-16",
+      "day_of_week": "Sunday",
+      "word": "ABSURD",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-17",
+      "day_of_week": "Monday",
+      "word": "LATE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 21,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-18",
+      "day_of_week": "Tuesday",
+      "word": "RIVAL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 33,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-19",
+      "day_of_week": "Wednesday",
+      "word": "CLASS",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 38,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-20",
+      "day_of_week": "Thursday",
+      "word": "MAPLE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-21",
+      "day_of_week": "Friday",
+      "word": "STEAK",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-22",
+      "day_of_week": "Saturday",
+      "word": "CORAL",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-23",
+      "day_of_week": "Sunday",
+      "word": "VERBAL",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-24",
+      "day_of_week": "Monday",
+      "word": "FIRE",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 22,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-25",
+      "day_of_week": "Tuesday",
+      "word": "WATCH",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-26",
+      "day_of_week": "Wednesday",
+      "word": "TRUST",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 42,
+      "difficulty_tier": "medium",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-27",
+      "day_of_week": "Thursday",
+      "word": "SHORT",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 25,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-28",
+      "day_of_week": "Friday",
+      "word": "PROBE",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 35,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-29",
+      "day_of_week": "Saturday",
+      "word": "WAGON",
+      "length": 5,
+      "guesses_allowed": 6,
+      "difficulty_score": 37,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-30",
+      "day_of_week": "Sunday",
+      "word": "MODEST",
+      "length": 6,
+      "guesses_allowed": 7,
+      "difficulty_score": 36,
+      "difficulty_tier": "easy",
+      "flags": [],
+      "editorial_override": false
+    },
+    {
+      "date": "2027-05-31",
+      "day_of_week": "Monday",
+      "word": "FACT",
+      "length": 4,
+      "guesses_allowed": 5,
+      "difficulty_score": 30,
+      "difficulty_tier": "easy",
+      "flags": [
+        "theme_not_forced:Memorial Day"
+      ],
+      "editorial_override": false
+    }
+  ],
+  "safe_swap_pool": {
+    "4": [
+      {
+        "word": "TIME",
+        "difficulty_score": 9,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SAID",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "YEAR",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "LIFE",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "TAKE",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "MADE",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "LOVE",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "HOME",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "COME",
+        "difficulty_score": 16,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "GAME",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SURE",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "GIVE",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "TEAM",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "NAME",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SIDE",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ONCE",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FOUR",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "LINE",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "LIVE",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": [
+          "homograph"
+        ]
+      },
+      {
+        "word": "MEAN",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "CARE",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "READ",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "HEAD",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "OPEN",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FACE",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FIVE",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "HOPE",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "MOVE",
+        "difficulty_score": 21,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "YEAH",
+        "difficulty_score": 21,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "TRUE",
+        "difficulty_score": 21,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "NEAR",
+        "difficulty_score": 22,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "EASY",
+        "difficulty_score": 22,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "HOUR",
+        "difficulty_score": 23,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "PAID",
+        "difficulty_score": 24,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SAVE",
+        "difficulty_score": 24,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "UNIT",
+        "difficulty_score": 26,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "TOUR",
+        "difficulty_score": 26,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "BEAT",
+        "difficulty_score": 26,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FAIR",
+        "difficulty_score": 26,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "WIDE",
+        "difficulty_score": 26,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SALE",
+        "difficulty_score": 26,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "RULE",
+        "difficulty_score": 27,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "WEAR",
+        "difficulty_score": 27,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "HEAT",
+        "difficulty_score": 28,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "LAKE",
+        "difficulty_score": 28,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ROSE",
+        "difficulty_score": 28,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SEAT",
+        "difficulty_score": 28,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "RIDE",
+        "difficulty_score": 28,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SOUL",
+        "difficulty_score": 28,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "GAIN",
+        "difficulty_score": 28,
+        "difficulty_tier": "easy",
+        "flags": []
+      }
+    ],
+    "5": [
+      {
+        "word": "GREAT",
+        "difficulty_score": 8,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "PLACE",
+        "difficulty_score": 10,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SINCE",
+        "difficulty_score": 10,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "MONEY",
+        "difficulty_score": 11,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FOUND",
+        "difficulty_score": 11,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "GROUP",
+        "difficulty_score": 12,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "WOMEN",
+        "difficulty_score": 12,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "TODAY",
+        "difficulty_score": 12,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "UNTIL",
+        "difficulty_score": 12,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "WHITE",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "POINT",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FIRST",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "WATER",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "MUSIC",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "LATER",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "POWER",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "YOUNG",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "EARLY",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "MAYBE",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "LEAST",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "WHOLE",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ALONG",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "CLOSE",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "LARGE",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "RIGHT",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "HUMAN",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "WOMAN",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "COURT",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "OFTEN",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "GIVEN",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "WORLD",
+        "difficulty_score": 16,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "HEART",
+        "difficulty_score": 16,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "HOUSE",
+        "difficulty_score": 16,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "PHONE",
+        "difficulty_score": 16,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "TAKEN",
+        "difficulty_score": 16,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FINAL",
+        "difficulty_score": 16,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "READY",
+        "difficulty_score": 16,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "HEARD",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "BOARD",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "CLEAR",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FIELD",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FORCE",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SHARE",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SOUND",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "LEARN",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "TRIED",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "BREAK",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ROUND",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "TRADE",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "WHOSE",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      }
+    ],
+    "6": [
+      {
+        "word": "AROUND",
+        "difficulty_score": 6,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ENOUGH",
+        "difficulty_score": 9,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SOCIAL",
+        "difficulty_score": 11,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "COURSE",
+        "difficulty_score": 11,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "POLICE",
+        "difficulty_score": 12,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "REASON",
+        "difficulty_score": 12,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ACTION",
+        "difficulty_score": 13,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "PERIOD",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "COUPLE",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "NUMBER",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "PEOPLE",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SECOND",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FAMILY",
+        "difficulty_score": 14,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "CHANGE",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "AMOUNT",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "PUBLIC",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SOURCE",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "PERSON",
+        "difficulty_score": 15,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FIGURE",
+        "difficulty_score": 16,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "INCOME",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "REGION",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ALMOST",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SINGLE",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "AUTHOR",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "NATURE",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "MINUTE",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": [
+          "homograph"
+        ]
+      },
+      {
+        "word": "DOUBLE",
+        "difficulty_score": 17,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "EASILY",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ACTIVE",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "NOTICE",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "FRIEND",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ADVICE",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "BEFORE",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "SENIOR",
+        "difficulty_score": 18,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "MARKET",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "REMAIN",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "BEHIND",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "MOBILE",
+        "difficulty_score": 19,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ANSWER",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "PLAYER",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "BEAUTY",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "RESULT",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "DESIGN",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "COUNTY",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "POLICY",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "VOLUME",
+        "difficulty_score": 20,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "GROUND",
+        "difficulty_score": 21,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "NATIVE",
+        "difficulty_score": 21,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "ITSELF",
+        "difficulty_score": 21,
+        "difficulty_tier": "easy",
+        "flags": []
+      },
+      {
+        "word": "STUDIO",
+        "difficulty_score": 21,
+        "difficulty_tier": "easy",
+        "flags": []
+      }
+    ]
+  }
+}

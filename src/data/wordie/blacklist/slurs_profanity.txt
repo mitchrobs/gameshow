@@ -1,0 +1,35 @@
+# Offensive, sexual, and scatological terms excluded from Wordie answers and guesses.
+# Keep this list auditable and conservative.
+ASS
+ARSE
+BASTARD
+BITCH
+BLOWJOB
+BONER
+BOOBS
+BUGGER
+BUTT
+CLIT
+COCK
+CRAP
+CUNT
+DAMN
+DICK
+FART
+FUCK
+HOMO
+JERKOFF
+PISS
+PORN
+PRICK
+PUSSY
+SCREW
+SHAG
+SHIT
+SLUT
+SPERM
+TITS
+TWAT
+URINE
+WANK
+WHORE
