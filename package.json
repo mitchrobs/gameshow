@@ -11,6 +11,8 @@
     "build:wordie-schedule": "python3 scripts/build_wordie_schedule.py",
     "build:mini-crossword-bank": "python3 scripts/build_mini_crossword_bank.py",
     "build:mini-crossword-seeds": "python3 scripts/build_mini_crossword_variants.py",
+    "build:museum-candidates": "python3 scripts/build_museum_candidates.py",
+    "build:museum-schedule": "python3 scripts/build_museum_schedule.py",
     "draft:moji-mash": "python3 scripts/generate_moji.py",
     "inspect:barter": "node --experimental-strip-types scripts/inspect_barter.ts",
     "moji-schedule": "python3 scripts/show_schedule.py",

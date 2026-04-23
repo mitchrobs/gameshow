@@ -45,3 +45,6 @@ __pycache__/
 
 # Moji Mash draft staging (generated image candidates, not committed)
 tmp/moji-mash/
+
+# Museum API candidate output; reviewed content is committed under src/data/museum/
+tmp/museum/
