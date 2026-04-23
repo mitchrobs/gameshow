@@ -24,11 +24,14 @@ import {
   BarterPuzzle,
   canAfford as canAffordTrade,
   getBarterTutorialPuzzle,
+  getTradeFeedback,
   GoodId,
   missingForTrade,
+  NightVendorRole,
   previewTrade,
   RouteSummary,
   Trade,
+  TradeFeedback,
   tradeKey,
   getDailyBarter,
   getGoodById,
@@ -37,6 +40,7 @@ import {
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 type GameState = 'playing' | 'won' | 'lost';
+type ActiveTradeFeedback = TradeFeedback & { id: string };
 
 const STORAGE_PREFIX = 'barter';
 const MAX_COUNT = 200;
@@ -55,6 +59,20 @@ function getLocalDateKey(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function getPreviewDate(): Date {
+  const today = new Date();
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return today;
+
+  const host = window.location.hostname;
+  if (host !== 'localhost' && host !== '127.0.0.1') return today;
+
+  const dateParam = new URLSearchParams(window.location.search).get('date');
+  if (!dateParam || !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) return today;
+
+  const previewDate = new Date(`${dateParam}T12:00:00`);
+  return Number.isNaN(previewDate.getTime()) ? today : previewDate;
 }
 
 function getStorage(): Storage | null {
@@ -113,6 +131,28 @@ function formatSideList(
     .join(', ');
 }
 
+function inventoryToSideList(
+  inventory: Record<GoodId, number> | null,
+  puzzle: BarterPuzzle
+): Array<{ good: GoodId; qty: number }> {
+  if (!inventory) return [];
+  return puzzle.goods
+    .map((good) => ({ good: good.id, qty: inventory[good.id] ?? 0 }))
+    .filter((side) => side.qty > 0);
+}
+
+function applyTradesThroughDepth(
+  startingInventory: Record<GoodId, number>,
+  trades: Trade[],
+  depth: number
+): Record<GoodId, number> {
+  let next = cloneInventory(startingInventory);
+  trades.slice(0, depth).forEach((trade) => {
+    next = applyTrade(next, trade);
+  });
+  return next;
+}
+
 function getMarketRead(
   puzzle: BarterPuzzle,
   qualityReport: BarterQualityReport,
@@ -122,6 +162,38 @@ function getMarketRead(
     ? getDisplayGood(qualityReport.bottleneckGood).name
     : 'one prepared good';
   const goal = getDisplayGood(puzzle.goal.good).name;
+
+  switch (puzzle.feltThesis) {
+    case 'protect_key_good':
+      return `${bottleneck} has two jobs tonight. Save it until the better use is clear.`;
+    case 'spend_the_heap':
+      return 'You start rich but awkward. Turn the heap into flexible pieces.';
+    case 'carry_the_pair':
+      return 'Carry a matched pair into night. The bundle is the shortcut.';
+    case 'use_the_ugly_trade':
+      return 'The odd trade may be useful because it opens more stalls.';
+    case 'stop_early':
+      return `More ${bottleneck} is not always better. Stop once the bundle has enough.`;
+    case 'night_told_you':
+      return 'The visible Night Market already tells you what to prepare.';
+    case 'hidden_is_mercy':
+      return 'The hidden stall is backup. The clean route is already visible.';
+  }
+
+  switch (puzzle.economicThesis) {
+    case 'save_one_good':
+      return `${bottleneck} has two jobs today. The clean route saves it for the better Night Market use.`;
+    case 'stay_flexible':
+      return `Keep one flexible piece alive for night. The cheap-looking route can become expensive fast.`;
+    case 'enough_not_more':
+      return `Make enough for ${goal}, then stop. Extra production usually turns into cleanup.`;
+    case 'prepare_the_bundle':
+      return `Prepare both halves before night. The bundle is the trade that makes par feel clever.`;
+    case 'round_trip':
+      return `A short round trip can turn spare goods into the missing night piece.`;
+    case 'rebuild_the_catalyst':
+      return `Spend the catalyst only when your route rebuilds it before the payoff.`;
+  }
 
   switch (qualityReport.topology ?? puzzle.topology) {
     case 'balanced_pair':
@@ -147,9 +219,36 @@ function getMarketRead(
   }
 }
 
-function getShareRouteGlyphs(trades: Trade[]): string {
-  if (trades.length === 0) return 'No trades made';
-  return trades.map((trade) => (trade.window === 'late' ? '🌙' : '☀️')).join('');
+function getShareRouteEmojis(
+  trades: Trade[],
+  puzzle: BarterPuzzle,
+  qualityReport: BarterQualityReport
+): string {
+  if (trades.length === 0) return '🛒';
+
+  const firstTrade = trades[0];
+  const firstKey = tradeKey(firstTrade);
+  const regret = qualityReport.openingRegrets.find((entry) => entry.tradeKey === firstKey);
+  const emojis: string[] = [];
+
+  if (!regret || regret.regret === null) emojis.push('🧪');
+  else if (regret.regret === 0) emojis.push('🎯');
+  else if (regret.regret === 1) emojis.push('🧭');
+  else emojis.push('🔁');
+
+  const usedHiddenVendor =
+    qualityReport.hiddenVendorKey !== null &&
+    trades.some((trade) => tradeKey(trade) === qualityReport.hiddenVendorKey);
+  if (usedHiddenVendor) emojis.push('🌙');
+
+  const usedSignatureBundle = trades.some(
+    (trade) =>
+      trade.give.length > 1 &&
+      trade.receive.some((side) => side.good === puzzle.goal.good && side.qty >= 2)
+  );
+  if (usedSignatureBundle) emojis.push('🎁');
+
+  return emojis.join('');
 }
 
 interface MarketIdentity {
@@ -437,6 +536,13 @@ function getTradeVendorName(
 ): string {
   const giveLabel = formatVendorGoods(trade.give, getDisplayGood);
   const receiveLabel = formatVendorGoods(trade.receive, getDisplayGood);
+  const vendorRole: NightVendorRole | undefined = trade.vendorRole;
+
+  if (vendorRole === 'bundle_payoff') return `${receiveLabel} Appraiser`;
+  if (vendorRole === 'reserve_payoff') return `${giveLabel} Buyer`;
+  if (vendorRole === 'bridge_vendor') return `${giveLabel} Broker`;
+  if (vendorRole === 'recycler') return `${giveLabel} Recycler`;
+  if (vendorRole === 'loop_finisher') return `${giveLabel} Finisher`;
 
   if (trade.role === 'compound_gate') return `${receiveLabel} Appraiser`;
   if (trade.hiddenUntilNight || trade.role === 'tempo_bailout') return `${giveLabel} Reserve`;
@@ -460,7 +566,8 @@ export default function BarterScreen() {
   const Colors = theme.colors;
   const Spacing = theme.spacing;
   const router = useRouter();
-  const puzzle = useMemo<BarterPuzzle>(() => getDailyBarter(), []);
+  const previewDate = useMemo(() => getPreviewDate(), []);
+  const puzzle = useMemo<BarterPuzzle>(() => getDailyBarter(previewDate), [previewDate]);
   const qualityReport = useMemo(() => analyzeBarterPuzzle(puzzle), [puzzle]);
   const tutorialPuzzle = useMemo(() => getBarterTutorialPuzzle(), []);
   const displayGoods = useMemo(() => {
@@ -476,15 +583,15 @@ export default function BarterScreen() {
   const { width } = useWindowDimensions();
   const isCompact = width < 400;
   const canGoBack = router.canGoBack();
-  const dateKey = useMemo(() => getLocalDateKey(), []);
+  const dateKey = useMemo(() => getLocalDateKey(previewDate), [previewDate]);
   const dateLabel = useMemo(
     () =>
-      new Date().toLocaleDateString('en-US', {
+      previewDate.toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'long',
         day: 'numeric',
       }),
-    []
+    [previewDate]
   );
   const dailyKey = useMemo(() => `${STORAGE_PREFIX}:daily:${dateKey}`, [dateKey]);
   const tutorialKey = `${STORAGE_PREFIX}:tutorial:v1`;
@@ -496,6 +603,7 @@ export default function BarterScreen() {
   const [gameState, setGameState] = useState<GameState>('playing');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [lastTradeIndex, setLastTradeIndex] = useState<number | null>(null);
+  const [tradeEffect, setTradeEffect] = useState<ActiveTradeFeedback | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [dailyCompleted, setDailyCompleted] = useState(false);
@@ -510,6 +618,7 @@ export default function BarterScreen() {
     return storage?.getItem(tutorialKey) !== '1';
   });
   const lateTransitionAnim = useRef(new Animated.Value(0)).current;
+  const tradeEffectAnim = useRef(new Animated.Value(0)).current;
 
   const marketName = puzzle.marketName?.trim() || 'Daily Market';
   const marketEmoji = puzzle.marketEmoji || '🏺';
@@ -636,12 +745,11 @@ export default function BarterScreen() {
         : gameState === 'lost'
         ? 'Bust'
         : 'Planning';
-    const routeGlyphs = getShareRouteGlyphs(tradeHistory);
+    const routeEmojis = getShareRouteEmojis(tradeHistory, puzzle, qualityReport);
     return [
       `Barter ${dateKey} ${scoreCode}`,
       `${resultLine} · ${marketName} ${marketEmoji}`,
-      routeGlyphs,
-      `Read: ${routeRead} · ${formatTime(elapsedSeconds)}`,
+      `Route: ${routeEmojis} · ${formatTime(elapsedSeconds)}`,
       'https://mitchrobs.github.io/gameshow/barter',
     ].join('\n');
   }, [
@@ -650,9 +758,10 @@ export default function BarterScreen() {
     gameState,
     marketEmoji,
     marketName,
+    puzzle,
     puzzle.maxTrades,
     puzzle.par,
-    routeRead,
+    qualityReport,
     resultTier,
     tradeHistory,
     tradesUsed,
@@ -668,6 +777,30 @@ export default function BarterScreen() {
     if (regret.regret === 1) return 'Your first trade found a +1 recovery route.';
     return `Your first trade found a +${regret.regret} recovery route.`;
   }, [qualityReport.openingRegrets, tradeHistory]);
+
+  const dayCloseComparison = useMemo(() => {
+    const playerClose =
+      tradeHistory.length > 0
+        ? applyTradesThroughDepth(puzzle.inventory, tradeHistory, earlyWindowTrades)
+        : null;
+    const parClose = qualityReport.bestDayCloseInventory;
+    return {
+      player:
+        playerClose === null
+          ? 'No day close recorded'
+          : formatSideList(inventoryToSideList(playerClose, puzzle), getDisplayGood),
+      par:
+        parClose === null
+          ? 'No par close available'
+          : formatSideList(inventoryToSideList(parClose, puzzle), getDisplayGood),
+    };
+  }, [
+    earlyWindowTrades,
+    getDisplayGood,
+    puzzle,
+    qualityReport.bestDayCloseInventory,
+    tradeHistory,
+  ]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -758,13 +891,33 @@ export default function BarterScreen() {
       const preview = previewTrade(puzzle, inventory, trade, tradesUsed);
       const nextInventory = applyTrade(inventory, trade);
       const cappedInventory = capInventory(nextInventory);
+      const feedback = getTradeFeedback(trade, inventory, cappedInventory, puzzle.goal.good);
+      const effectId = `${tradesUsed}-${tradeKey(trade)}-${Date.now()}`;
 
       const nextTradesUsed = tradesUsed + 1;
       setInventory(cappedInventory);
       setTradesUsed(nextTradesUsed);
       setLastTradeIndex(index);
+      setTradeEffect({ ...feedback, id: effectId });
       setTradeHistory((prev) => [...prev, trade]);
       setNewlyAffordableKeys(new Set(preview.newlyAffordableTradeKeys));
+      tradeEffectAnim.stopAnimation();
+      tradeEffectAnim.setValue(0);
+      Animated.sequence([
+        Animated.timing(tradeEffectAnim, {
+          toValue: 1,
+          duration: feedback.isSignatureBundle ? 260 : 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(tradeEffectAnim, {
+          toValue: 0,
+          duration: feedback.isSignatureBundle ? 520 : 380,
+          useNativeDriver: true,
+        }),
+      ]).start(({ finished }) => {
+        if (!finished) return;
+        setTradeEffect((current) => (current?.id === effectId ? null : current));
+      });
 
       if (cappedInventory[puzzle.goal.good] >= puzzle.goal.qty) {
         setGameState('won');
@@ -787,7 +940,7 @@ export default function BarterScreen() {
         setGameState('lost');
       }
     },
-    [gameState, lateTransition, tradesUsed, puzzle, inventory]
+    [gameState, lateTransition, tradesUsed, puzzle, inventory, tradeEffectAnim]
   );
 
   const handleCopyResults = useCallback(async () => {
@@ -838,9 +991,28 @@ export default function BarterScreen() {
         .map((side) => `${side.qty} ${getDisplayGood(side.good).emoji}`)
         .join(' + ')}`;
     }
+    const isLatestTrade = tradeEffect !== null && lastTradeIndex === tradeIndex && !locked;
+    const tradeCardMotion = isLatestTrade
+      ? {
+          transform: [
+            {
+              translateY: tradeEffectAnim.interpolate({
+                inputRange: [0, 0.35, 1],
+                outputRange: [0, -4, 0],
+              }),
+            },
+            {
+              scale: tradeEffectAnim.interpolate({
+                inputRange: [0, 0.35, 1],
+                outputRange: [1, tradeEffect.isSignatureBundle ? 1.025 : 1.015, 1],
+              }),
+            },
+          ],
+        }
+      : null;
 
     return (
-      <View
+      <Animated.View
         key={`trade-${locked ? 'locked' : 'active'}-${tradeIndex}`}
         style={[
           styles.tradeCard,
@@ -850,6 +1022,7 @@ export default function BarterScreen() {
           locked && styles.tradeCardLocked,
           isCompact && styles.tradeCardCompact,
           isMarinerMarket && styles.tradeCardMariner,
+          tradeCardMotion,
         ]}
       >
         <View style={styles.tradeTopRow}>
@@ -965,7 +1138,7 @@ export default function BarterScreen() {
             </Text>
           </Pressable>
         </View>
-      </View>
+      </Animated.View>
     );
   };
 
@@ -1045,13 +1218,28 @@ export default function BarterScreen() {
               <View style={[styles.inventoryRow, isCompact && styles.inventoryRowCompact]}>
                 {puzzle.goods.map((good) => {
                   const count = inventory[good.id];
+                  const changed = tradeEffect?.changedGoods.includes(good.id) ?? false;
+                  const inventoryPulseStyle = changed
+                    ? {
+                        transform: [
+                          {
+                            scale: tradeEffectAnim.interpolate({
+                              inputRange: [0, 0.35, 1],
+                              outputRange: [1, 1.08, 1],
+                            }),
+                          },
+                        ],
+                      }
+                    : null;
                   return (
-                    <View
+                    <Animated.View
                       key={good.id}
                       style={[
                         styles.inventoryCard,
                         isCompact && styles.inventoryCardCompact,
                         count === 0 && styles.inventoryCardEmpty,
+                        changed && styles.inventoryCardChanged,
+                        inventoryPulseStyle,
                       ]}
                     >
                       <Text style={[styles.inventoryEmoji, isCompact && styles.inventoryEmojiCompact]}>
@@ -1060,7 +1248,7 @@ export default function BarterScreen() {
                       <Text style={[styles.inventoryCount, isCompact && styles.inventoryCountCompact]}>
                         {count}
                       </Text>
-                    </View>
+                    </Animated.View>
                   );
                 })}
               </View>
@@ -1075,6 +1263,7 @@ export default function BarterScreen() {
               <Text style={styles.introBody}>
                 Objective: turn your starting goods into {goalShort} within {puzzle.maxTrades} trades.
               </Text>
+              <Text style={styles.marketRead}>Today's read: {marketRead}</Text>
               <Pressable
                 style={({ pressed }) => [
                   styles.helpButton,
@@ -1086,6 +1275,62 @@ export default function BarterScreen() {
                 <Text style={styles.helpButtonText}>How to play</Text>
               </Pressable>
             </View>
+            {tradeEffect && (
+              <Animated.View
+                style={[
+                  styles.tradeEffectToast,
+                  tradeEffect.isSignatureBundle && styles.tradeEffectToastSignature,
+                  {
+                    opacity: tradeEffectAnim.interpolate({
+                      inputRange: [0, 0.2, 0.75, 1],
+                      outputRange: [0, 1, 1, 0],
+                    }),
+                    transform: [
+                      {
+                        translateY: tradeEffectAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [8, -10],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <View style={styles.tradeEffectTrail}>
+                  {tradeEffect.glyphTrail.map((goodId, index) => (
+                    <Animated.Text
+                      key={`${tradeEffect.id}-${goodId}-${index}`}
+                      style={[
+                        styles.tradeEffectGlyph,
+                        {
+                          transform: [
+                            {
+                              translateX: tradeEffectAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [-4 + index * 2, 8 + index * 5],
+                              }),
+                            },
+                            {
+                              translateY: tradeEffectAnim.interpolate({
+                                inputRange: [0, 0.5, 1],
+                                outputRange: [4, -7 - index, 0],
+                              }),
+                            },
+                          ],
+                        },
+                      ]}
+                    >
+                      {getDisplayGood(goodId).emoji}
+                    </Animated.Text>
+                  ))}
+                </View>
+                <Text style={styles.tradeEffectText}>
+                  {tradeEffect.isSignatureBundle
+                    ? `Bundle pays +${tradeEffect.goalDelta} ${goalGood.emoji}`
+                    : 'Trade complete'}
+                </Text>
+              </Animated.View>
+            )}
             {lateTransition && (
               <Animated.View
                 style={[
@@ -1246,6 +1491,9 @@ export default function BarterScreen() {
                 <Text style={styles.autopsyTitle}>Route notes</Text>
                 <Text style={styles.autopsyInsight}>{qualityReport.strategicInsight}</Text>
                 <Text style={styles.autopsyInsight}>{openingRegretNote}</Text>
+                <Text style={styles.autopsyLabel}>Day Market close</Text>
+                <Text style={styles.autopsyRoute}>You: {dayCloseComparison.player}</Text>
+                <Text style={styles.autopsyRoute}>Par: {dayCloseComparison.par}</Text>
                 <Text style={styles.autopsyLabel}>Your route</Text>
                 <Text style={styles.autopsyRoute}>
                   {tradeHistory.length > 0
@@ -1550,6 +1798,41 @@ const createStyles = (
     fontSize: 11,
     color: '#8a4a0b',
   },
+  tradeEffectToast: {
+    pointerEvents: 'none',
+    alignSelf: 'center',
+    minWidth: 160,
+    backgroundColor: theme.mode === 'dark' ? Colors.surfaceElevated : '#fffdf8',
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: borderSoft,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    marginTop: -Spacing.xs,
+    marginBottom: Spacing.sm,
+    alignItems: 'center',
+    ...theme.shadows.card,
+  },
+  tradeEffectToastSignature: {
+    borderColor: screenAccent.main,
+    backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#fff7df',
+  },
+  tradeEffectTrail: {
+    minHeight: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  tradeEffectGlyph: {
+    fontSize: 18,
+  },
+  tradeEffectText: {
+    marginTop: 1,
+    color: inkMuted,
+    fontSize: 10,
+    fontWeight: '800',
+  },
   bonusVendorCard: {
     backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#f7f2ea',
     borderRadius: BorderRadius.md,
@@ -1702,6 +1985,10 @@ const createStyles = (
   },
   inventoryCardEmpty: {
     opacity: 0.35,
+  },
+  inventoryCardChanged: {
+    borderColor: screenAccent.main,
+    backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#fff7df',
   },
   inventoryEmoji: {
     fontSize: 18,

@@ -56,6 +56,8 @@ export type BarterTopology =
 
 export type BarterArchetype = BarterTopology;
 
+export type BarterTexture = 'brisk' | 'classic' | 'heavy' | 'pivot' | 'trap' | 'compression';
+
 export type RoutePersonality =
   | 'engine'
   | 'tempo'
@@ -67,6 +69,44 @@ export type RoutePersonality =
 
 export type HiddenVendorPurpose = 'recovery' | 'alternate' | 'compression' | 'safety_valve';
 
+export type HiddenVendorUsage = 'par_route' | 'alternate_route' | 'recovery_only';
+
+export type NightVendorRole =
+  | 'bundle_payoff'
+  | 'reserve_payoff'
+  | 'bridge_vendor'
+  | 'recycler'
+  | 'loop_finisher';
+
+export type StartEconomy =
+  | 'bulk_heap'
+  | 'balanced_pair'
+  | 'split_capital'
+  | 'prepared_piece'
+  | 'scarce_coupon'
+  | 'messy_pantry'
+  | 'classic_catalyst'
+  | 'balanced_pantry'
+  | 'coupon_start'
+  | 'illiquid_bulk';
+
+export type EconomicThesis =
+  | 'save_one_good'
+  | 'stay_flexible'
+  | 'enough_not_more'
+  | 'prepare_the_bundle'
+  | 'round_trip'
+  | 'rebuild_the_catalyst';
+
+export type FeltMarketThesis =
+  | 'protect_key_good'
+  | 'spend_the_heap'
+  | 'carry_the_pair'
+  | 'use_the_ugly_trade'
+  | 'stop_early'
+  | 'night_told_you'
+  | 'hidden_is_mercy';
+
 export interface Trade {
   give: TradeSide[];
   receive: TradeSide[];
@@ -76,6 +116,7 @@ export interface Trade {
   line?: StrategyLineId;
   variant?: boolean;
   hiddenUntilNight?: boolean;
+  vendorRole?: NightVendorRole;
 }
 
 export interface BarterGoal {
@@ -120,18 +161,39 @@ export interface BarterQualityReport {
   maxEarlyRegret: number;
   deadEarlyMoveCount: number;
   openingRegrets: OpeningRegret[];
+  openingRegretSignature: string;
+  regretRoleSignature: string;
+  roleSkeletonSignature: string;
   routeDivergenceDepth: number | null;
   bottleneckGood: GoodId | null;
   hiddenVendorKey: string | null;
+  hiddenVendorUsage: HiddenVendorUsage | null;
   topology: BarterTopology | null;
+  texture: BarterTexture | null;
   thesis: string | null;
   hiddenVendorPurpose: HiddenVendorPurpose | null;
+  feltThesis: FeltMarketThesis | null;
+  firstQuestion: string;
+  startSilhouette: string;
+  visiblePremiseTradeKey: string | null;
+  nightScriptSignature: string;
+  motifEvidence: string[];
+  startEconomy: StartEconomy | null;
+  economicThesis: EconomicThesis | null;
+  startInventorySignature: string;
+  nightRoleSignature: string;
+  bestRouteNightRoleDiversity: number;
+  repeatedGoalCashoutCount: number;
   routeDistance: number;
   compressionValue: number;
+  signatureTurnValue: number;
+  bestRouteMaxRepeat: number;
   payoffVisibility: boolean;
   routePersonalities: RoutePersonality[];
   bestRoute: RouteSummary | null;
   alternateRoute: RouteSummary | null;
+  bestDayCloseInventory: Inventory | null;
+  alternateDayCloseInventory: Inventory | null;
   strategicInsight: string;
 }
 
@@ -151,7 +213,11 @@ export interface BarterPuzzle {
   earlyWindowTrades: number;
   archetype?: BarterArchetype;
   topology?: BarterTopology;
+  texture?: BarterTexture;
   thesis?: string;
+  feltThesis?: FeltMarketThesis;
+  startEconomy?: StartEconomy;
+  economicThesis?: EconomicThesis;
   hiddenVendorPurpose?: HiddenVendorPurpose;
 }
 
