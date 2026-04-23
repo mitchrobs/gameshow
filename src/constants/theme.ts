@@ -93,7 +93,8 @@ export type ScreenAccentId =
   | 'trivia'
   | 'bridges'
   | 'whodunit'
-  | 'barter';
+  | 'barter'
+  | 'museum';
 
 export interface ScreenAccentTokens {
   main: string;
@@ -362,6 +363,7 @@ const SCREEN_ACCENT_HEX: Record<ScreenAccentId, string> = {
   bridges: '#e8a838',
   whodunit: '#7f1d1d',
   barter: '#0d7c5f',
+  museum: '#8b5e34',
 };
 
 export function resolveScreenAccent(

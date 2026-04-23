@@ -19,6 +19,7 @@ import { getDailySudoku } from '../src/data/sudokuPuzzles';
 import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
 import { getDailyBridges } from '../src/data/bridgesPuzzles';
 import { getDailyMiniCrossword } from '../src/data/miniCrosswordPuzzles';
+import { getDailyMuseumArtwork } from '../src/data/museumArtworks';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 
 const WEB_NO_SELECT =
@@ -132,6 +133,7 @@ export default function HomeScreen() {
   const barterPuzzle = getDailyBarter();
   const bridgesPuzzle = getDailyBridges();
   const miniCrossword = getDailyMiniCrossword();
+  const museumArtwork = getDailyMuseumArtwork();
   const miniCrosswordPreview = useMemo(() => {
     const map = new Map<string, { isBlock: boolean; number?: number }>();
     miniCrossword.cells.forEach((cell) => {
@@ -172,6 +174,7 @@ export default function HomeScreen() {
       },
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
       { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges' },
+      { label: 'Museum', route: '/museum', emoji: '🖼️', countKey: 'museum', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
       { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
       { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', isNew: true },
@@ -228,6 +231,7 @@ export default function HomeScreen() {
         storage.getItem(`crossword:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
         storage.getItem(`bridges:daily:${key}`) === '1' ||
+        storage.getItem(`museum:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
         storage.getItem(`trivia:daily:${key}`) === '1' ||
         storage.getItem(`barter:daily:${key}`) === '1'
@@ -253,6 +257,7 @@ export default function HomeScreen() {
       'crossword',
       'sudoku',
       'bridges',
+      'museum',
       'whodunit',
       'trivia',
       'barter',
@@ -344,6 +349,51 @@ export default function HomeScreen() {
                 </Pressable>
               ))}
             </ScrollView>
+          </View>
+
+          {/* Museum card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.museumKicker}>Learn</Text>
+                <Text style={styles.gameTitle}>Museum</Text>
+              </View>
+              <View style={styles.newBadge}>
+                <Text style={styles.newBadgeText}>Beta</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              Discover one artwork, read its story, then answer three quick noticing questions.
+            </Text>
+            {(playCounts['museum'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['museum']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.museumPreview}>
+                <Image
+                  source={{ uri: museumArtwork.images.thumbnailUrl }}
+                  style={styles.museumPreviewImage}
+                />
+                <View style={styles.museumPreviewText}>
+                  <Text style={styles.museumPreviewTitle}>{museumArtwork.title}</Text>
+                  <Text style={styles.museumPreviewMeta}>
+                    {museumArtwork.artist} - {museumArtwork.objectDate}
+                  </Text>
+                  <Text style={styles.museumPreviewTag}>{museumArtwork.periodTag}</Text>
+                </View>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/museum')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
           </View>
 
           {/* Moji Mash card */}
@@ -708,6 +758,7 @@ const createStyles = (
   const bridgesAccent = resolveScreenAccent('bridges', theme);
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
+  const museumAccent = resolveScreenAccent('museum', theme);
   const quickLinkPressed = theme.mode === 'dark' ? screenAccent.soft : screenAccent.badgeBg;
   const hotBadge = theme.mode === 'dark'
     ? {
@@ -917,6 +968,14 @@ const createStyles = (
   },
   crosswordKicker: {
     color: crosswordAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
+  museumKicker: {
+    color: museumAccent.main,
     fontSize: FontSize.sm,
     fontWeight: '700',
     letterSpacing: 1.2,
@@ -1145,6 +1204,46 @@ const createStyles = (
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
     fontWeight: '600',
+  },
+  museumPreview: {
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  museumPreviewImage: {
+    width: '100%',
+    height: 190,
+    backgroundColor: Colors.surface,
+  },
+  museumPreviewText: {
+    padding: Spacing.md,
+  },
+  museumPreviewTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '800',
+    color: Colors.text,
+  },
+  museumPreviewMeta: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: 3,
+  },
+  museumPreviewTag: {
+    alignSelf: 'flex-start',
+    marginTop: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    overflow: 'hidden',
+    backgroundColor: museumAccent.badgeBg,
+    color: museumAccent.badgeText,
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   barterPreview: {
     alignItems: 'center',

@@ -1,0 +1,128 @@
+{
+  "version": "museum-schedule-v1",
+  "generatedAt": "2026-04-23T02:37:01+00:00",
+  "start": "2026-04-23",
+  "days": 30,
+  "entries": [
+    {
+      "date": "2026-04-23",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-04-24",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-04-25",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-04-26",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-04-27",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-04-28",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-04-29",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-04-30",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-05-01",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-05-02",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-05-03",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-05-04",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-05-05",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-05-06",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-05-07",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-05-08",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-05-09",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-05-10",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-05-11",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-05-12",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-05-13",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-05-14",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-05-15",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-05-16",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-05-17",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-05-18",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-05-19",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-05-20",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-05-21",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-05-22",
+      "artworkId": "met-312336"
+    }
+  ]
+}

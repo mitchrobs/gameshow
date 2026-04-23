@@ -1,0 +1,560 @@
+{
+  "version": "museum-curated-v1",
+  "reviewedAt": "2026-04-23",
+  "institutionPolicySources": [
+    "https://metmuseum.github.io/",
+    "https://www.metmuseum.org/policies/image-resources"
+  ],
+  "artworks": [
+    {
+      "id": "met-436535",
+      "title": "Wheat Field with Cypresses",
+      "artist": "Vincent van Gogh",
+      "objectDate": "1889",
+      "medium": "Oil on canvas",
+      "periodKey": "post-impressionism",
+      "periodTag": "Post-Impressionism - France - 1889",
+      "mediumCategory": "Painting",
+      "geoRegion": "Europe",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/ep/original/DP-42549-001.jpg"
+      },
+      "context": {
+        "technique": "Van Gogh laid down oil paint in dense, directional strokes so the wheat, mountains, clouds, and cypress all seem to move in different rhythms.",
+        "surprisingFact": "Van Gogh painted this landscape while he was a patient at Saint-Remy; he returned to the same cypress-and-wheat motif several times that year.",
+        "connection": "The restless surface is a useful bridge from Impressionism toward the more emotional color and brushwork later called Post-Impressionism."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "Which dark vertical form rises through the right side of the landscape?",
+          "options": ["A cypress tree", "A church tower", "A ship mast", "A marble column"],
+          "answerIndex": 0,
+          "reinforcement": "The cypress is the tall, flame-like form that cuts into the sky."
+        },
+        {
+          "kind": "context",
+          "prompt": "Where was Van Gogh staying when he painted this motif?",
+          "options": ["Saint-Remy", "Delft", "Venice", "Kyoto"],
+          "answerIndex": 0,
+          "reinforcement": "He painted it during his stay at Saint-Remy in 1889."
+        },
+        {
+          "kind": "connection",
+          "prompt": "This work helps connect Impressionism to which later movement label?",
+          "options": ["Post-Impressionism", "Minimalism", "Rococo", "Pop Art"],
+          "answerIndex": 0,
+          "reinforcement": "Van Gogh's charged color and brushwork are central to Post-Impressionism."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 436535,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/436535",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/436535"],
+        "safetyFlags": []
+      }
+    },
+    {
+      "id": "met-39799",
+      "title": "Under the Wave off Kanagawa",
+      "artist": "Katsushika Hokusai",
+      "objectDate": "ca. 1830-32",
+      "medium": "Woodblock print; ink and color on paper",
+      "periodKey": "edo-ukiyo-e",
+      "periodTag": "Edo Japan - Ukiyo-e - ca. 1830-32",
+      "mediumCategory": "Print",
+      "geoRegion": "Asia",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/as/web-large/DP141042.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/as/web-large/DP141042.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/as/original/DP141042.jpg"
+      },
+      "context": {
+        "technique": "This is a color woodblock print: separate carved blocks carried the black outlines and each color, letting publishers make many crisp impressions.",
+        "surprisingFact": "The famous wave is not the subject of the series; the print belongs to Thirty-six Views of Mount Fuji, and Fuji appears as the tiny triangle in the distance.",
+        "connection": "Hokusai's print later helped shape European Japonisme, influencing artists who were fascinated by flat color, cropping, and bold silhouettes."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "What small landmark appears beneath the wave in the distance?",
+          "options": ["Mount Fuji", "The Eiffel Tower", "A pyramid", "A lighthouse"],
+          "answerIndex": 0,
+          "reinforcement": "Mount Fuji sits low on the horizon, almost swallowed by the wave."
+        },
+        {
+          "kind": "context",
+          "prompt": "What series does this print belong to?",
+          "options": ["Thirty-six Views of Mount Fuji", "The Unicorn Tapestries", "The Four Seasons", "The Night Cafe"],
+          "answerIndex": 0,
+          "reinforcement": "The wave is part of Hokusai's Thirty-six Views of Mount Fuji."
+        },
+        {
+          "kind": "connection",
+          "prompt": "Which later European taste did prints like this help inspire?",
+          "options": ["Japonisme", "Futurism", "Bauhaus", "Dada"],
+          "answerIndex": 0,
+          "reinforcement": "Japanese prints became a major source for Japonisme in Europe."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 39799,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/39799",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/39799"],
+        "safetyFlags": []
+      }
+    },
+    {
+      "id": "met-11417",
+      "title": "Washington Crossing the Delaware",
+      "artist": "Emanuel Leutze",
+      "objectDate": "1851",
+      "medium": "Oil on canvas",
+      "periodKey": "american-romantic-history",
+      "periodTag": "American Romanticism - History Painting - 1851",
+      "mediumCategory": "Painting",
+      "geoRegion": "North America",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/ad/web-large/DP215410.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/ad/web-large/DP215410.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/ad/original/DP215410.jpg"
+      },
+      "context": {
+        "technique": "Leutze used theatrical scale, strong diagonals, and spotlight-like clouds to turn a dangerous night crossing into a patriotic stage scene.",
+        "surprisingFact": "Although it shows the American Revolution, Leutze painted the scene in Dusseldorf, hoping Washington's resolve would speak to European reformers too.",
+        "connection": "Like many nineteenth-century history paintings, it uses a real event as a moral drama rather than a documentary snapshot."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "Where is Washington standing in the composition?",
+          "options": ["In a crowded boat", "On a palace balcony", "Inside a church", "Beside a fireplace"],
+          "answerIndex": 0,
+          "reinforcement": "Washington stands upright in the boat, forming the picture's central drama."
+        },
+        {
+          "kind": "context",
+          "prompt": "Where did Leutze paint this American Revolutionary scene?",
+          "options": ["Dusseldorf", "Boston", "Philadelphia", "Paris"],
+          "answerIndex": 0,
+          "reinforcement": "Leutze painted it in Dusseldorf, far from the Delaware River."
+        },
+        {
+          "kind": "connection",
+          "prompt": "What kind of painting turns a real event into a large moral drama?",
+          "options": ["History painting", "Still life", "Abstract painting", "Portrait miniature"],
+          "answerIndex": 0,
+          "reinforcement": "This is a classic nineteenth-century history painting."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 11417,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/11417",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/11417"],
+        "safetyFlags": []
+      }
+    },
+    {
+      "id": "met-467642",
+      "title": "The Unicorn Rests in a Garden",
+      "artist": "French designers / South Netherlandish weavers",
+      "objectDate": "1495-1505",
+      "medium": "Wool warp with wool, silk, silver, and gilt wefts",
+      "periodKey": "late-medieval-tapestry",
+      "periodTag": "Late Medieval - Tapestry - 1495-1505",
+      "mediumCategory": "Textile",
+      "geoRegion": "Europe",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/cl/web-large/DP118991.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/cl/web-large/DP118991.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/cl/original/DP118991.jpg"
+      },
+      "context": {
+        "technique": "The image was woven, not painted, using wool, silk, silver, and gilt threads to build color and shimmer directly into the cloth.",
+        "surprisingFact": "This is one of the Unicorn Tapestries, a set of seven monumental hangings that once turned walls into an immersive story world.",
+        "connection": "Tapestries like this were luxury architecture: they warmed rooms, signaled status, and surrounded viewers with narrative."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "Which creature is shown resting inside the garden fence?",
+          "options": ["A unicorn", "A lion", "A stag", "A dragon"],
+          "answerIndex": 0,
+          "reinforcement": "The unicorn rests at the center of the enclosed garden."
+        },
+        {
+          "kind": "context",
+          "prompt": "How many monumental hangings make up the Unicorn Tapestries set?",
+          "options": ["Seven", "Two", "Twelve", "Thirty-six"],
+          "answerIndex": 0,
+          "reinforcement": "The Unicorn Tapestries are a set of seven hangings."
+        },
+        {
+          "kind": "connection",
+          "prompt": "What practical role did tapestries often have in elite interiors?",
+          "options": ["They warmed and decorated rooms", "They powered clocks", "They held paintbrushes", "They measured sea routes"],
+          "answerIndex": 0,
+          "reinforcement": "Large tapestries were both luxurious decoration and insulation."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 467642,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/467642",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/467642"],
+        "safetyFlags": []
+      }
+    },
+    {
+      "id": "met-254896",
+      "title": "Terracotta amphora (jar)",
+      "artist": "Berlin Painter",
+      "objectDate": "ca. 490 BCE",
+      "medium": "Terracotta",
+      "periodKey": "greek-red-figure",
+      "periodTag": "Ancient Greece - Red-Figure Vase - ca. 490 BCE",
+      "mediumCategory": "Ceramic",
+      "geoRegion": "Mediterranean",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/gr/web-large/DP-16774-001.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/gr/web-large/DP-16774-001.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/gr/original/DP-16774-001.jpg"
+      },
+      "context": {
+        "technique": "Red-figure vase painters left figures in the clay's warm color and painted the background dark, making interior lines easier to draw.",
+        "surprisingFact": "The Berlin Painter is not a known personal name; scholars gave the artist that nickname after a celebrated vase now in Berlin.",
+        "connection": "Greek vases are both containers and image carriers, preserving myths, rituals, and daily gestures on objects made to be handled."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "What type of object is this artwork?",
+          "options": ["An amphora jar", "A folding screen", "A tapestry", "A stained-glass window"],
+          "answerIndex": 0,
+          "reinforcement": "The object is an amphora, a handled ceramic jar."
+        },
+        {
+          "kind": "context",
+          "prompt": "Why is the artist called the Berlin Painter?",
+          "options": ["The name comes from a vase now in Berlin", "He signed every pot with Berlin", "He painted modern Berlin streets", "He worked for a Berlin museum"],
+          "answerIndex": 0,
+          "reinforcement": "The nickname is a scholarly label based on a key vase in Berlin."
+        },
+        {
+          "kind": "connection",
+          "prompt": "What technique is highlighted in today's period tag?",
+          "options": ["Red-figure vase painting", "Pointillism", "Cloisonne enamel", "Woodblock printing"],
+          "answerIndex": 0,
+          "reinforcement": "The amphora is tied to ancient Greek red-figure vase painting."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 254896,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/254896",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/254896"],
+        "safetyFlags": []
+      }
+    },
+    {
+      "id": "met-38634",
+      "title": "Crowned Bodhisattva",
+      "artist": "North India (Uttar Pradesh, Mathura)",
+      "objectDate": "3rd-early 4th century",
+      "medium": "Sandstone",
+      "periodKey": "kushan-buddhist-sculpture",
+      "periodTag": "Kushan Dynasty - Buddhist Sculpture - 3rd-early 4th c.",
+      "mediumCategory": "Sculpture",
+      "geoRegion": "Asia",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/as/web-large/DP701395.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/as/web-large/DP701395.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/as/original/DP701395.jpg"
+      },
+      "context": {
+        "technique": "The sculptor carved sandstone into a frontal sacred figure, using the crown, jewelry, and smooth body to signal spiritual status.",
+        "surprisingFact": "A bodhisattva is not simply a Buddha statue; in Buddhist tradition, a bodhisattva is a being on the path to awakening who remains active for others.",
+        "connection": "Mathura was one of the great early centers for Buddhist sculpture, where sacred figures gained powerful human form."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "What does the figure wear on the head?",
+          "options": ["A crown", "A helmet", "A woven hat", "A laurel wreath"],
+          "answerIndex": 0,
+          "reinforcement": "The crown helps identify the figure as a bodhisattva."
+        },
+        {
+          "kind": "context",
+          "prompt": "What material was this figure carved from?",
+          "options": ["Sandstone", "Faience", "Bronze", "Silk"],
+          "answerIndex": 0,
+          "reinforcement": "The Met record identifies the medium as sandstone."
+        },
+        {
+          "kind": "connection",
+          "prompt": "This sculpture is connected to which religious tradition?",
+          "options": ["Buddhism", "Ancient Roman state religion", "Shinto theater", "Dutch Calvinism"],
+          "answerIndex": 0,
+          "reinforcement": "A bodhisattva is a Buddhist sacred figure."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 38634,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/38634",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/38634"],
+        "safetyFlags": ["religious imagery"]
+      }
+    },
+    {
+      "id": "met-544227",
+      "title": "Hippopotamus (William)",
+      "artist": "Egyptian",
+      "objectDate": "ca. 1961-1878 B.C.",
+      "medium": "Faience",
+      "periodKey": "middle-kingdom-egypt",
+      "periodTag": "Middle Kingdom Egypt - Dynasty 12 - ca. 1961-1878 B.C.",
+      "mediumCategory": "Sculpture",
+      "geoRegion": "Africa",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/eg/web-large/DP248993.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/eg/web-large/DP248993.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/eg/original/DP248993.jpg"
+      },
+      "context": {
+        "technique": "Faience is a glazed, quartz-based material; its bright blue-green surface made small objects shimmer like water or precious stone.",
+        "surprisingFact": "The Met's blue hippopotamus is nicknamed William, a museum favorite whose lotus decoration links the animal to the Nile marshes.",
+        "connection": "Egyptian objects often combine charm and danger: real hippos were powerful river animals, even when miniaturized into beautiful tomb goods."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "What animal is represented by today's object?",
+          "options": ["A hippopotamus", "A horse", "A crocodile", "A gazelle"],
+          "answerIndex": 0,
+          "reinforcement": "William is a small faience hippopotamus."
+        },
+        {
+          "kind": "context",
+          "prompt": "What nickname does the Met use for this hippopotamus?",
+          "options": ["William", "Fuji", "Dendur", "Remy"],
+          "answerIndex": 0,
+          "reinforcement": "This favorite object is widely known as William."
+        },
+        {
+          "kind": "connection",
+          "prompt": "The lotus decoration connects the object to what landscape?",
+          "options": ["The Nile marshes", "The Alps", "The Delaware River", "A Dutch canal"],
+          "answerIndex": 0,
+          "reinforcement": "Lotus imagery points back to the Nile and its marsh life."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 544227,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/544227",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/544227"],
+        "safetyFlags": ["funerary context"]
+      }
+    },
+    {
+      "id": "met-312336",
+      "title": "Gwandusu",
+      "artist": "Bamana numu (blacksmith)",
+      "objectDate": "15th-17th century",
+      "medium": "Wood and applied organic materials",
+      "periodKey": "bamana-sculpture",
+      "periodTag": "Bamana Peoples - West African Sculpture - 15th-17th c.",
+      "mediumCategory": "Sculpture",
+      "geoRegion": "Africa",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/ao/web-large/DP-26226-001.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/ao/web-large/DP-26226-001.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/ao/original/DP-26226-001.jpg"
+      },
+      "context": {
+        "technique": "The figure was carved from wood and finished with applied organic materials, giving the surface visual weight as well as form.",
+        "surprisingFact": "The credited makers are Bamana numu, or blacksmith specialists, reminding us that metalworkers in many societies also held deep sculptural authority.",
+        "connection": "The mother-and-child form links artistic skill to ideas of lineage, power, and social continuity."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "What relationship is emphasized in the figure's form?",
+          "options": ["Mother and child", "Teacher and student", "Hunter and dog", "King and horse"],
+          "answerIndex": 0,
+          "reinforcement": "The sculpture centers a powerful mother-and-child form."
+        },
+        {
+          "kind": "context",
+          "prompt": "Which specialist group is credited in the object record?",
+          "options": ["Bamana numu blacksmiths", "Dutch lens grinders", "Florentine bankers", "Parisian clockmakers"],
+          "answerIndex": 0,
+          "reinforcement": "The Met record credits Bamana numu, or blacksmith specialists."
+        },
+        {
+          "kind": "connection",
+          "prompt": "This work comes from which broad region?",
+          "options": ["West Africa", "Northern Europe", "Central America", "Oceania"],
+          "answerIndex": 0,
+          "reinforcement": "Bamana art is associated with West Africa."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 312336,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/312336",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/312336"],
+        "safetyFlags": []
+      }
+    },
+    {
+      "id": "met-472562",
+      "title": "The Fieschi Morgan Staurotheke",
+      "artist": "Byzantine",
+      "objectDate": "early 9th century",
+      "medium": "Gilded silver, gold, cloisonne enamel, and niello",
+      "periodKey": "byzantine-devotional-metalwork",
+      "periodTag": "Byzantine - Devotional Metalwork - Early 9th c.",
+      "mediumCategory": "Metalwork",
+      "geoRegion": "Mediterranean",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/md/web-large/DT119.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/md/web-large/DT119.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/md/original/DT119.jpg"
+      },
+      "context": {
+        "technique": "The surface combines precious metal with cloisonne enamel, where colored glass paste is fired inside tiny metal compartments.",
+        "surprisingFact": "A staurotheke is a reliquary for a piece of the True Cross, so this glittering object was made to hold what believers considered a sacred fragment.",
+        "connection": "Byzantine devotional objects often make theology tactile: gold, enamel, and relics turn belief into something carried, opened, and seen."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "Which shape dominates the center of the object?",
+          "options": ["A cross", "A wave", "A boat", "A cypress tree"],
+          "answerIndex": 0,
+          "reinforcement": "The central cross signals the object's devotional purpose."
+        },
+        {
+          "kind": "context",
+          "prompt": "What was a staurotheke designed to hold?",
+          "options": ["A relic of the True Cross", "A painter's palette", "A ship compass", "A tea bowl"],
+          "answerIndex": 0,
+          "reinforcement": "A staurotheke is a reliquary for a fragment of the True Cross."
+        },
+        {
+          "kind": "connection",
+          "prompt": "Which technique uses colored material fired inside tiny metal compartments?",
+          "options": ["Cloisonne enamel", "Woodblock printing", "Red-figure painting", "Oil glazing"],
+          "answerIndex": 0,
+          "reinforcement": "Cloisonne enamel creates color within small metal cells."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 472562,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/472562",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/472562"],
+        "safetyFlags": ["religious imagery", "reliquary"]
+      }
+    },
+    {
+      "id": "met-437654",
+      "title": "Circus Sideshow (Parade de cirque)",
+      "artist": "Georges Seurat",
+      "objectDate": "1887-88",
+      "medium": "Oil on canvas",
+      "periodKey": "neo-impressionism",
+      "periodTag": "Neo-Impressionism - France - 1887-88",
+      "mediumCategory": "Painting",
+      "geoRegion": "Europe",
+      "images": {
+        "thumbnailUrl": "https://images.metmuseum.org/CRDImages/ep/web-large/DP375450_cropped.jpg",
+        "displayUrl": "https://images.metmuseum.org/CRDImages/ep/web-large/DP375450_cropped.jpg",
+        "fullUrl": "https://images.metmuseum.org/CRDImages/ep/original/DP375450_cropped.jpg"
+      },
+      "context": {
+        "technique": "Seurat built the image from small touches of separated color, a controlled optical method often called pointillism or divisionism.",
+        "surprisingFact": "This is a night scene of popular entertainment, but Seurat makes the fairground feel almost mathematical with repeated verticals, horizontals, and dots.",
+        "connection": "Neo-Impressionism took Impressionist color and made it more systematic, turning modern leisure into a laboratory for seeing."
+      },
+      "questions": [
+        {
+          "kind": "observation",
+          "prompt": "What kind of entertainment scene is shown?",
+          "options": ["A circus sideshow", "A royal coronation", "A mountain harvest", "A river crossing"],
+          "answerIndex": 0,
+          "reinforcement": "The scene shows performers and spectators at a circus sideshow."
+        },
+        {
+          "kind": "context",
+          "prompt": "What small-touch color method is associated with Seurat here?",
+          "options": ["Pointillism", "Marquetry", "Embroidery", "Fresco"],
+          "answerIndex": 0,
+          "reinforcement": "Seurat's optical method is commonly called pointillism or divisionism."
+        },
+        {
+          "kind": "connection",
+          "prompt": "Which movement made Impressionist color more systematic?",
+          "options": ["Neo-Impressionism", "Baroque", "Minimalism", "Ancient Greek red-figure"],
+          "answerIndex": 0,
+          "reinforcement": "Neo-Impressionism pursued a more systematic color method."
+        }
+      ],
+      "source": {
+        "institution": "met",
+        "objectId": 437654,
+        "objectUrl": "https://www.metmuseum.org/art/collection/search/437654",
+        "license": "CC0"
+      },
+      "review": {
+        "status": "reviewed",
+        "factCheckSources": ["https://www.metmuseum.org/art/collection/search/437654"],
+        "safetyFlags": []
+      }
+    }
+  ]
+}
