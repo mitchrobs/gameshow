@@ -17,6 +17,7 @@ from typing import Iterable
 BASE_DIR = Path(__file__).resolve().parents[1]
 WORDIE_DIR = BASE_DIR / "src" / "data" / "wordie"
 CANDIDATES_PATH = WORDIE_DIR / "candidates.json"
+ALLOWED_EXTRA_PATH = WORDIE_DIR / "allowedGuessAdditions.json"
 CONFIG_PATH = WORDIE_DIR / "generatorConfig.json"
 KEY_DATES_PATH = WORDIE_DIR / "keyDates.json"
 OVERRIDES_PATH = WORDIE_DIR / "editorialOverrides.json"
@@ -268,7 +269,12 @@ def is_structurally_excluded_answer(word: str, all_words: set[str]) -> bool:
     return False
 
 
-def build_candidates(raw_candidates: dict, blacklists: dict[str, set[str]], prior_words: set[str]) -> tuple[dict[int, list[Candidate]], dict[int, list[str]]]:
+def build_candidates(
+    raw_candidates: dict,
+    allowed_extras: dict,
+    blacklists: dict[str, set[str]],
+    prior_words: set[str],
+) -> tuple[dict[int, list[Candidate]], dict[int, list[str]]]:
     all_input_words = {
         item["word"].upper()
         for entries in raw_candidates["words"].values()
@@ -311,6 +317,11 @@ def build_candidates(raw_candidates: dict, blacklists: dict[str, set[str]], prio
             answer_pool,
             key=lambda candidate: (candidate.difficulty_score, -candidate.frequency, candidate.word),
         )
+        for word in allowed_extras["words"].get(str(length), []):
+            word = str(word).upper()
+            if len(word) == length and re.fullmatch(r"[A-Z]+", word) and word not in sensitivity_blacklist:
+                allowed.append(word)
+
         allowed_words[length] = sorted(dict.fromkeys(allowed))
 
     return answer_pools, allowed_words
@@ -552,13 +563,14 @@ def main() -> None:
 
     config = read_json(CONFIG_PATH)
     raw_candidates = read_json(CANDIDATES_PATH)
+    allowed_extras = read_json(ALLOWED_EXTRA_PATH)
     key_dates = {item["date"]: item for item in read_json(KEY_DATES_PATH)["dates"]}
     prior_words = set(read_json(PRIOR_WORDS_PATH)["words"])
     blacklists = load_blacklists()
     override_items = read_json(OVERRIDES_PATH).get("overrides", [])
     overrides = {item["date"]: str(item["word"]).upper() for item in override_items}
 
-    answer_pools, allowed_words = build_candidates(raw_candidates, blacklists, prior_words)
+    answer_pools, allowed_words = build_candidates(raw_candidates, allowed_extras, blacklists, prior_words)
     for length in SUPPORTED_LENGTHS:
         if len(answer_pools[length]) < 365:
             raise SystemExit(f"Filtered answer pool for length {length} is too small: {len(answer_pools[length])}.")
@@ -577,7 +589,7 @@ def main() -> None:
     allowed_payload = {
         "version": config["version"],
         "generated_at": config["generated_at"],
-        "source": "Generated from checked-in Wordie candidate pools after sensitivity filtering.",
+        "source": "Generated from checked-in Wordie candidate pools plus allowed-guess additions after sensitivity filtering.",
         "words": {str(length): allowed_words[length] for length in SUPPORTED_LENGTHS},
     }
 
