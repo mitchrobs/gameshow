@@ -247,6 +247,10 @@ export default function SudokuScreen() {
   const noteColumns = puzzle.boxCols;
   const noteRows = puzzle.boxRows;
   const noteCellWidth = Math.max(8, Math.floor((cellSize - 8) / noteColumns));
+  const modeTitle = notesMode ? 'Notes mode' : 'Entry mode';
+  const modeDescription = notesMode
+    ? 'Tap digits to add or remove pencil marks.'
+    : 'Tap digits to place a value.';
   const selectedStatus = selected
     ? `Selected: Row ${selected.row + 1}, Col ${selected.col + 1}`
     : 'Select a square to start.';
@@ -479,11 +483,32 @@ export default function SudokuScreen() {
             </View>
 
             {gameState === 'playing' && (
-              <View style={[styles.pad, { width: boardSize }]}>
+              <View
+                style={[
+                  styles.pad,
+                  { width: boardSize },
+                  notesMode && styles.padNotesMode,
+                ]}
+              >
                 <View style={styles.modeRow}>
-                  <Text style={styles.modeCopy}>
-                    {notesMode ? 'Notes mode: tap digits to add/remove pencil marks.' : 'Entry mode: tap digits to place a value.'}
-                  </Text>
+                  <View style={styles.modeCopyBlock}>
+                    <View
+                      style={[
+                        styles.modeBadge,
+                        notesMode && styles.modeBadgeActive,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.modeBadgeText,
+                          notesMode && styles.modeBadgeTextActive,
+                        ]}
+                      >
+                        {modeTitle}
+                      </Text>
+                    </View>
+                    <Text style={styles.modeCopy}>{modeDescription}</Text>
+                  </View>
                   <Pressable
                     style={({ pressed }) => [
                       styles.modeToggle,
@@ -498,7 +523,7 @@ export default function SudokuScreen() {
                         notesMode && styles.modeToggleTextActive,
                       ]}
                     >
-                      Notes
+                      {notesMode ? 'Notes On' : 'Notes'}
                     </Text>
                   </Pressable>
                 </View>
@@ -515,12 +540,23 @@ export default function SudokuScreen() {
                       key={digit}
                       style={({ pressed }) => [
                         styles.padButton,
+                        notesMode && styles.padButtonNotesMode,
                         { width: keypadButtonWidth, minHeight: keypadButtonHeight },
-                        pressed && styles.padButtonPressed,
+                        pressed &&
+                          (notesMode
+                            ? styles.padButtonNotesModePressed
+                            : styles.padButtonPressed),
                       ]}
                       onPress={() => handleNumberPress(digit)}
                     >
-                      <Text style={styles.padText}>{digit}</Text>
+                      <Text
+                        style={[
+                          styles.padText,
+                          notesMode && styles.padTextNotesMode,
+                        ]}
+                      >
+                        {digit}
+                      </Text>
                     </Pressable>
                   ))}
                 </View>
@@ -763,6 +799,10 @@ const createStyles = (
       shadowOffset: { width: 0, height: 8 },
       elevation: 1,
     },
+    padNotesMode: {
+      borderColor: screenAccent.main,
+      shadowOpacity: 0.08,
+    },
     modeRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -771,12 +811,38 @@ const createStyles = (
       flexWrap: 'wrap',
       marginBottom: Spacing.md,
     },
-    modeCopy: {
+    modeCopyBlock: {
       flex: 1,
+      minWidth: 180,
+      gap: Spacing.xs,
+    },
+    modeBadge: {
+      alignSelf: 'flex-start',
+      borderRadius: BorderRadius.full,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 4,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceLight,
+    },
+    modeBadgeActive: {
+      backgroundColor: screenAccent.soft,
+      borderColor: screenAccent.main,
+    },
+    modeBadgeText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: Colors.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: 0.6,
+    },
+    modeBadgeTextActive: {
+      color: screenAccent.main,
+    },
+    modeCopy: {
       fontSize: FontSize.sm,
       color: Colors.textSecondary,
       lineHeight: 18,
-      minWidth: 180,
     },
     modeToggle: {
       borderRadius: BorderRadius.full,
@@ -817,13 +883,24 @@ const createStyles = (
       shadowRadius: 1,
       shadowOffset: { width: 0, height: 1 },
     },
+    padButtonNotesMode: {
+      backgroundColor: screenAccent.soft,
+      borderColor: screenAccent.main,
+      shadowOpacity: 0,
+    },
     padButtonPressed: {
       backgroundColor: Colors.surfaceLight,
+    },
+    padButtonNotesModePressed: {
+      backgroundColor: screenAccent.badgeBg,
     },
     padText: {
       fontSize: FontSize.md,
       fontWeight: '700',
       color: Colors.text,
+    },
+    padTextNotesMode: {
+      color: screenAccent.main,
     },
     padActions: {
       flexDirection: 'row',
