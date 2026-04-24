@@ -203,9 +203,24 @@ export default function SudokuScreen() {
   const baseGap = puzzle.size === 9 ? 4 : 6;
   const blockGap = puzzle.size === 9 ? 10 : 12;
   const maxBoard = puzzle.size === 9 ? 420 : 360;
-  const boardSize = Math.min(maxBoard, width - Spacing.lg * 2);
+  const browserViewportWidth =
+    Platform.OS === 'web'
+      ? Math.max(
+          typeof window !== 'undefined' ? window.innerWidth : 0,
+          typeof document !== 'undefined' ? document.documentElement?.clientWidth ?? 0 : 0
+        )
+      : 0;
+  const viewportWidth =
+    width > 0
+      ? width
+      : browserViewportWidth > 0
+        ? browserViewportWidth
+        : maxBoard + Spacing.lg * 2;
+  const boardSize = Math.min(maxBoard, Math.max(0, viewportWidth - Spacing.lg * 2));
   const boardPadding = puzzle.size === 9 ? Spacing.sm : Spacing.md;
+  const padPadding = Spacing.md;
   const keypadGap = puzzle.size === 9 ? Spacing.xs : Spacing.sm;
+  const keypadWraps = puzzle.size === 9;
   const keypadColumns =
     puzzle.size === 9 && boardSize < 390 ? 5 : puzzle.digits.length;
   const totalGap =
@@ -215,7 +230,12 @@ export default function SudokuScreen() {
   const cellSize = Math.floor((gridSize - totalGap) / puzzle.size);
   const keypadButtonWidth = Math.max(
     42,
-    Math.floor((boardSize - keypadGap * (keypadColumns - 1)) / keypadColumns)
+    Math.floor(
+      (boardSize -
+        padPadding * 2 -
+        (keypadWraps ? keypadGap * (keypadColumns - 1) : 0)) /
+        keypadColumns
+    )
   );
   const keypadButtonHeight = puzzle.size === 9 ? 42 : 48;
 
@@ -354,6 +374,7 @@ export default function SudokuScreen() {
                   key={`row-${rowIndex}`}
                   style={{
                     flexDirection: 'row',
+                    justifyContent: 'center',
                     marginBottom:
                       rowIndex % puzzle.boxRows === puzzle.boxRows - 1 &&
                       rowIndex !== puzzle.size - 1
@@ -481,7 +502,14 @@ export default function SudokuScreen() {
                     </Text>
                   </Pressable>
                 </View>
-                <View style={[styles.padRow, { gap: keypadGap }]}>
+                <View
+                  style={[
+                    styles.padRow,
+                    keypadWraps
+                      ? { gap: keypadGap, flexWrap: 'wrap', justifyContent: 'center' }
+                      : { flexWrap: 'nowrap', justifyContent: 'space-between' },
+                  ]}
+                >
                   {puzzle.digits.map((digit) => (
                     <Pressable
                       key={digit}
@@ -673,6 +701,7 @@ const createStyles = (
       borderColor: Colors.border,
       alignItems: 'center',
       justifyContent: 'center',
+      flexShrink: 0,
       overflow: 'hidden',
     },
     givenCell: {
@@ -773,9 +802,8 @@ const createStyles = (
       color: Colors.white,
     },
     padRow: {
+      width: '100%',
       flexDirection: 'row',
-      flexWrap: 'wrap',
-      justifyContent: 'center',
     },
     padButton: {
       backgroundColor: Colors.surface,
