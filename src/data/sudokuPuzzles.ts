@@ -1,24 +1,65 @@
-export type SudokuDifficulty = 'Medium' | 'Hard';
+import packData from './sudoku/pack.json';
+import {
+  MINI_SUDOKU_PACK_LENGTH,
+  MINI_SUDOKU_PACK_START_DATE,
+  MINI_SUDOKU_PATTERN_FAMILIES,
+  MINI_SUDOKU_SIZE_BY_DIFFICULTY,
+  MINI_SUDOKU_SYMMETRIES,
+  type MiniSudokuPatternFamily,
+  type MiniSudokuSymmetryId,
+  type SudokuDifficulty,
+} from './sudokuMetadata';
+import { dateKeyToUtcOrdinal, getUtcDateKey, getUtcDateNumber } from '../utils/dailyUtc';
+
+export type { MiniSudokuPatternFamily, MiniSudokuSymmetryId, SudokuDifficulty };
 
 export interface SudokuPuzzle {
   id: string;
   difficulty: SudokuDifficulty;
+  size: number;
+  boxRows: number;
+  boxCols: number;
+  digits: number[];
   grid: number[][];
   solution: number[][];
 }
 
-const SIZE = 6;
-const BOX_ROWS = 2;
-const BOX_COLS = 3;
+export interface MiniSudokuPackEntry {
+  date: string;
+  difficulty: SudokuDifficulty;
+  patternFamily: MiniSudokuPatternFamily;
+  symmetryId: MiniSudokuSymmetryId;
+  maskSlug: string;
+  givens: number;
+  difficultyScore: number;
+  signature: string;
+  source: 'pack' | 'fallback';
+  puzzle: SudokuPuzzle;
+}
 
-const BASE_GRID: number[][] = [
-  [1, 2, 3, 4, 5, 6],
-  [4, 5, 6, 1, 2, 3],
-  [2, 3, 4, 5, 6, 1],
-  [5, 6, 1, 2, 3, 4],
-  [3, 4, 5, 6, 1, 2],
-  [6, 1, 2, 3, 4, 5],
-];
+interface MiniSudokuPackPayload {
+  version: string;
+  generatedAt: string;
+  startDate: string;
+  endDate: string;
+  length: number;
+  entries: MiniSudokuPackEntry[];
+}
+
+interface FallbackTarget {
+  min: number;
+  max: number;
+}
+
+const PACK = packData as MiniSudokuPackPayload;
+const packByDate = new Map(PACK.entries.map((entry) => [entry.date, entry]));
+const fallbackCache = new Map<string, MiniSudokuPackEntry>();
+
+const FALLBACK_GIVENS: Record<SudokuDifficulty, FallbackTarget> = {
+  Easy: { min: 18, max: 19 },
+  Medium: { min: 14, max: 15 },
+  Hard: { min: 36, max: 40 },
+};
 
 function mulberry32(seed: number) {
   let t = seed + 0x6d2b79f5;
@@ -31,22 +72,22 @@ function mulberry32(seed: number) {
 
 function shuffle<T>(arr: T[], rand: () => number): T[] {
   const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(rand() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(rand() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
   }
   return copy;
 }
 
 function buildOrder(unitSize: number, unitCount: number, rand: () => number): number[] {
   const groups = shuffle(
-    Array.from({ length: unitCount }, (_, i) => i),
+    Array.from({ length: unitCount }, (_, index) => index),
     rand
   );
   const order: number[] = [];
   groups.forEach((group) => {
     const inner = shuffle(
-      Array.from({ length: unitSize }, (_, i) => i),
+      Array.from({ length: unitSize }, (_, index) => index),
       rand
     );
     inner.forEach((offset) => order.push(group * unitSize + offset));
@@ -54,72 +95,272 @@ function buildOrder(unitSize: number, unitCount: number, rand: () => number): nu
   return order;
 }
 
-function generateSolution(rand: () => number): number[][] {
-  const rowOrder = buildOrder(BOX_ROWS, SIZE / BOX_ROWS, rand);
-  const colOrder = buildOrder(BOX_COLS, SIZE / BOX_COLS, rand);
-  const numberMap = shuffle([1, 2, 3, 4, 5, 6], rand);
-
-  return rowOrder.map((rowIndex) =>
-    colOrder.map((colIndex) => {
-      const value = BASE_GRID[rowIndex][colIndex];
-      return numberMap[value - 1];
+function buildCanonicalGrid(size: number, boxRows: number, boxCols: number): number[][] {
+  return Array.from({ length: size }, (_, row) =>
+    Array.from({ length: size }, (_, col) => {
+      return ((row % boxRows) * boxCols + Math.floor(row / boxRows) + col) % size + 1;
     })
   );
 }
 
-function carvePuzzle(
-  solution: number[][],
-  rand: () => number,
-  difficulty: SudokuDifficulty
-): number[][] {
-  const puzzle = solution.map((row) => [...row]);
-  const rowCount = Array(SIZE).fill(SIZE);
-  const colCount = Array(SIZE).fill(SIZE);
-  const boxCount = Array((SIZE / BOX_ROWS) * (SIZE / BOX_COLS)).fill(SIZE);
-
-  const baseTarget = difficulty === 'Hard' ? 14 : 18;
-  const target = baseTarget + (rand() > 0.6 ? 1 : 0);
-  const positions = shuffle(
-    Array.from({ length: SIZE * SIZE }, (_, i) => i),
+function generateSolution(size: number, boxRows: number, boxCols: number, rand: () => number) {
+  const rowOrder = buildOrder(boxRows, size / boxRows, rand);
+  const colOrder = buildOrder(boxCols, size / boxCols, rand);
+  const digitOrder = shuffle(
+    Array.from({ length: size }, (_, index) => index + 1),
     rand
   );
-  let givens = SIZE * SIZE;
+  const canonical = buildCanonicalGrid(size, boxRows, boxCols);
 
-  for (const pos of positions) {
-    if (givens <= target) break;
-    const row = Math.floor(pos / SIZE);
-    const col = pos % SIZE;
-    const box = Math.floor(row / BOX_ROWS) * (SIZE / BOX_COLS) + Math.floor(col / BOX_COLS);
-    if (puzzle[row][col] === 0) continue;
-    if (rowCount[row] <= 1 || colCount[col] <= 1 || boxCount[box] <= 1) continue;
-    puzzle[row][col] = 0;
-    rowCount[row] -= 1;
-    colCount[col] -= 1;
-    boxCount[box] -= 1;
-    givens -= 1;
+  return rowOrder.map((rowIndex) =>
+    colOrder.map((colIndex) => {
+      const value = canonical[rowIndex][colIndex];
+      return digitOrder[value - 1] ?? value;
+    })
+  );
+}
+
+function cloneGrid(grid: number[][]): number[][] {
+  return grid.map((row) => [...row]);
+}
+
+function getBoxIndex(row: number, col: number, size: number, boxRows: number, boxCols: number) {
+  return Math.floor(row / boxRows) * (size / boxCols) + Math.floor(col / boxCols);
+}
+
+function countBits(mask: number): number {
+  let value = mask;
+  let count = 0;
+  while (value) {
+    value &= value - 1;
+    count += 1;
+  }
+  return count;
+}
+
+function countSolutions(
+  puzzle: number[][],
+  size: number,
+  boxRows: number,
+  boxCols: number,
+  limit = 2
+): number {
+  const rowUsed = Array(size).fill(0);
+  const colUsed = Array(size).fill(0);
+  const boxUsed = Array(size).fill(0);
+  const empties: Array<{ row: number; col: number }> = [];
+  const fullMask = (1 << size) - 1;
+
+  for (let row = 0; row < size; row += 1) {
+    for (let col = 0; col < size; col += 1) {
+      const value = puzzle[row]?.[col] ?? 0;
+      if (!value) {
+        empties.push({ row, col });
+        continue;
+      }
+      const bit = 1 << (value - 1);
+      const box = getBoxIndex(row, col, size, boxRows, boxCols);
+      if ((rowUsed[row] & bit) !== 0 || (colUsed[col] & bit) !== 0 || (boxUsed[box] & bit) !== 0) {
+        return 0;
+      }
+      rowUsed[row] |= bit;
+      colUsed[col] |= bit;
+      boxUsed[box] |= bit;
+    }
   }
 
-  return puzzle;
+  let solutions = 0;
+
+  const search = () => {
+    if (solutions >= limit) return;
+
+    let bestCellIndex = -1;
+    let bestMask = 0;
+    let bestCount = Number.POSITIVE_INFINITY;
+
+    for (let index = 0; index < empties.length; index += 1) {
+      const { row, col } = empties[index]!;
+      if (puzzle[row][col] !== 0) continue;
+      const box = getBoxIndex(row, col, size, boxRows, boxCols);
+      const mask = fullMask & ~(rowUsed[row] | colUsed[col] | boxUsed[box]);
+      if (mask === 0) return;
+      const candidateCount = countBits(mask);
+      if (candidateCount < bestCount) {
+        bestCellIndex = index;
+        bestMask = mask;
+        bestCount = candidateCount;
+        if (candidateCount === 1) break;
+      }
+    }
+
+    if (bestCellIndex === -1) {
+      solutions += 1;
+      return;
+    }
+
+    const { row, col } = empties[bestCellIndex]!;
+    const box = getBoxIndex(row, col, size, boxRows, boxCols);
+    let mask = bestMask;
+    while (mask !== 0 && solutions < limit) {
+      const bit = mask & -mask;
+      const digit = Math.log2(bit) + 1;
+      puzzle[row][col] = digit;
+      rowUsed[row] |= bit;
+      colUsed[col] |= bit;
+      boxUsed[box] |= bit;
+      search();
+      puzzle[row][col] = 0;
+      rowUsed[row] &= ~bit;
+      colUsed[col] &= ~bit;
+      boxUsed[box] &= ~bit;
+      mask &= mask - 1;
+    }
+  };
+
+  search();
+  return solutions;
 }
 
-function getDailySeed(date: Date = new Date()): number {
-  const y = date.getFullYear();
-  const m = date.getMonth() + 1;
-  const d = date.getDate();
-  return y * 10000 + m * 100 + d;
+function carveUniquePuzzle(
+  solution: number[][],
+  size: number,
+  boxRows: number,
+  boxCols: number,
+  target: FallbackTarget,
+  rand: () => number
+): number[][] {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const puzzle = cloneGrid(solution);
+    const positions = shuffle(
+      Array.from({ length: size * size }, (_, index) => index),
+      rand
+    );
+    let givens = size * size;
+
+    for (const position of positions) {
+      if (givens <= target.min) break;
+      const row = Math.floor(position / size);
+      const col = position % size;
+      const saved = puzzle[row][col];
+      if (saved === 0) continue;
+      puzzle[row][col] = 0;
+      const solutionCount = countSolutions(cloneGrid(puzzle), size, boxRows, boxCols, 2);
+      if (solutionCount !== 1) {
+        puzzle[row][col] = saved;
+        continue;
+      }
+      givens -= 1;
+    }
+
+    if (givens >= target.min && givens <= target.max) {
+      return puzzle;
+    }
+  }
+
+  return solution.map((row, rowIndex) =>
+    row.map((value, colIndex) => {
+      if (rowIndex === colIndex || (rowIndex + colIndex) % 2 === 0) return value;
+      return 0;
+    })
+  );
 }
 
-export function getDailySudoku(date: Date = new Date()): SudokuPuzzle {
-  const seed = getDailySeed(date);
-  const rand = mulberry32(seed + 93457);
-  const difficulty: SudokuDifficulty = rand() > 0.55 ? 'Hard' : 'Medium';
-  const solution = generateSolution(rand);
-  const grid = carvePuzzle(solution, rand, difficulty);
+function buildDifficultyScore(
+  difficulty: SudokuDifficulty,
+  size: number,
+  givens: number
+): number {
+  if (difficulty === 'Easy') {
+    return Math.max(24, 50 - givens);
+  }
+  if (difficulty === 'Medium') {
+    return Math.max(42, 62 - givens);
+  }
+  return Math.max(70, 92 - givens + size);
+}
+
+function chooseFallbackDifficulty(date: Date, rand: () => number): SudokuDifficulty {
+  const ordinal = Math.abs(getUtcDateNumber(date)) % 365;
+  const quotaIndex = ordinal / 365;
+  const roll = (quotaIndex + rand()) / 2;
+  if (roll < 96 / 365) return 'Easy';
+  if (roll < (96 + 191) / 365) return 'Medium';
+  return 'Hard';
+}
+
+function buildFallbackEntry(date: Date): MiniSudokuPackEntry {
+  const dateKey = getUtcDateKey(date);
+  const seed = getUtcDateNumber(date) + 93457;
+  const rand = mulberry32(seed);
+  const difficulty = chooseFallbackDifficulty(date, rand);
+  const geometry = MINI_SUDOKU_SIZE_BY_DIFFICULTY[difficulty];
+  const solution = generateSolution(geometry.size, geometry.boxRows, geometry.boxCols, rand);
+  const puzzleGrid = carveUniquePuzzle(
+    solution,
+    geometry.size,
+    geometry.boxRows,
+    geometry.boxCols,
+    FALLBACK_GIVENS[difficulty],
+    rand
+  );
+  const givens = puzzleGrid.flat().filter((value) => value !== 0).length;
+  const patternFamily =
+    MINI_SUDOKU_PATTERN_FAMILIES[Math.floor(rand() * MINI_SUDOKU_PATTERN_FAMILIES.length)] ??
+    'scatter';
+  const symmetryId =
+    MINI_SUDOKU_SYMMETRIES[Math.floor(rand() * MINI_SUDOKU_SYMMETRIES.length)] ?? 'none';
+  const digits = Array.from({ length: geometry.size }, (_, index) => index + 1);
+  const signature = `${geometry.size}:${puzzleGrid.flat().join('')}:${solution[0]?.join('') ?? ''}`;
+  const difficultyScore = buildDifficultyScore(difficulty, geometry.size, givens);
 
   return {
-    id: `sudoku-${seed}`,
+    date: dateKey,
     difficulty,
-    grid,
-    solution,
+    patternFamily,
+    symmetryId,
+    maskSlug: `fallback-${patternFamily}-${symmetryId}`,
+    givens,
+    difficultyScore,
+    signature,
+    source: 'fallback',
+    puzzle: {
+      id: `sudoku-fallback-${dateKey}`,
+      difficulty,
+      size: geometry.size,
+      boxRows: geometry.boxRows,
+      boxCols: geometry.boxCols,
+      digits,
+      grid: puzzleGrid,
+      solution,
+    },
+  };
+}
+
+export function isMiniSudokuPackDateCovered(date: Date = new Date()): boolean {
+  return packByDate.has(getUtcDateKey(date));
+}
+
+export function getDailySudoku(date: Date = new Date()): MiniSudokuPackEntry {
+  const key = getUtcDateKey(date);
+  const fromPack = packByDate.get(key);
+  if (fromPack) return fromPack;
+
+  const cached = fallbackCache.get(key);
+  if (cached) return cached;
+
+  const fallback = buildFallbackEntry(date);
+  fallbackCache.set(key, fallback);
+  return fallback;
+}
+
+export function getDailySudokuPuzzle(date: Date = new Date()): SudokuPuzzle {
+  return getDailySudoku(date).puzzle;
+}
+
+export function getMiniSudokuPackMetadata() {
+  return {
+    startDate: PACK.startDate || MINI_SUDOKU_PACK_START_DATE,
+    length: PACK.length || MINI_SUDOKU_PACK_LENGTH,
+    startOrdinal: dateKeyToUtcOrdinal(PACK.startDate || MINI_SUDOKU_PACK_START_DATE),
   };
 }

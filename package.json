@@ -15,6 +15,8 @@
     "build:museum-frames": "python3 scripts/build_museum_frames.py",
     "build:museum-schedule": "python3 scripts/build_museum_schedule.py",
     "build:museum-rest-of-year": "python3 scripts/build_museum_schedule.py --start 2026-04-23 --rest-of-year",
+    "build:sudoku-pack": "python3 scripts/build_sudoku_pack.py",
+    "audit:sudoku-pack": "python3 scripts/build_sudoku_pack.py --audit-only",
     "draft:moji-mash": "python3 scripts/generate_moji.py",
     "inspect:barter": "node --experimental-strip-types scripts/inspect_barter.ts",
     "moji-schedule": "python3 scripts/show_schedule.py",

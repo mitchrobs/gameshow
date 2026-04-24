@@ -21,6 +21,7 @@ import { getDailyBridges } from '../src/data/bridgesPuzzles';
 import { getDailyMiniCrossword } from '../src/data/miniCrosswordPuzzles';
 import { getDailyMuseumArtwork } from '../src/data/museumArtworks';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
+import { formatUtcDateLabel, getUtcDateKey } from '../src/utils/dailyUtc';
 
 const WEB_NO_SELECT =
   Platform.OS === 'web'
@@ -129,7 +130,8 @@ export default function HomeScreen() {
   const whodunit = getDailyWhodunit();
   const wordie = getDailyWordie();
   const triviaCategories = getDailyTriviaCategories();
-  const sudoku = getDailySudoku();
+  const sudokuEntry = getDailySudoku();
+  const sudoku = sudokuEntry.puzzle;
   const barterPuzzle = getDailyBarter();
   const bridgesPuzzle = getDailyBridges();
   const miniCrossword = getDailyMiniCrossword();
@@ -147,6 +149,13 @@ export default function HomeScreen() {
     const values = bridgesPuzzle.islands.slice(0, 3).map((island) => island.requiredBridges);
     return values.length === 3 ? values : [2, 3, 1];
   }, [bridgesPuzzle]);
+  const sudokuPreviewCellSize = sudoku.size === 9 ? 16 : 26;
+  const sudokuPreviewBaseGap = sudoku.size === 9 ? 3 : 4;
+  const sudokuPreviewBlockGap = sudoku.size === 9 ? 7 : 4;
+  const sudokuDateLabel = useMemo(
+    () => `${formatUtcDateLabel(sudokuEntry.date)} UTC`,
+    [sudokuEntry.date]
+  );
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const dateLabel = new Date().toLocaleDateString('en-US', {
@@ -176,8 +185,7 @@ export default function HomeScreen() {
       { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges' },
       { label: 'Museum', route: '/museum', emoji: '🖼️', countKey: 'museum', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
-      { label: 'Daily Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
-      { label: 'Ballpark', route: '/ballpark', emoji: '🎯', countKey: 'ballpark', isNew: true },
+      { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
       { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', isNew: true },
     ];
 
@@ -226,17 +234,19 @@ export default function HomeScreen() {
 
     const hasAnyDaily = (date: Date) => {
       const key = keyForDate(date);
+      const utcKey = getUtcDateKey(date);
       return (
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
         storage.getItem(`crossword:daily:${key}`) === '1' ||
-        storage.getItem(`sudoku:daily:${key}`) === '1' ||
-        storage.getItem(`bridges:daily:${key}`) === '1' ||
         storage.getItem(`museum:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
         storage.getItem(`trivia:daily:${key}`) === '1' ||
-        storage.getItem(`ballpark:daily:${key}`) === '1' ||
-        storage.getItem(`barter:daily:${key}`) === '1'
+        storage.getItem(`barter:daily:${key}`) === '1' ||
+        storage.getItem(`sudoku:daily:${key}`) === '1' ||
+        storage.getItem(`sudoku:daily:${utcKey}`) === '1' ||
+        storage.getItem(`bridges:daily:${key}`) === '1' ||
+        storage.getItem(`bridges:daily:${utcKey}`) === '1'
       );
     };
 
@@ -262,7 +272,6 @@ export default function HomeScreen() {
       'museum',
       'whodunit',
       'trivia',
-      'ballpark',
       'barter',
     ])
       .then((counts) => {
@@ -536,7 +545,7 @@ export default function HomeScreen() {
               <Text style={styles.gameTitle}>Mini Sudoku</Text>
             </View>
             <Text style={styles.blurb}>
-              A 6x6 daily Sudoku with a medium-hard bite.
+              A daily Sudoku that ramps from breezy 6x6 boards to full 9x9 hard days.
             </Text>
             {(playCounts['sudoku'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
@@ -545,17 +554,47 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.sudokuPreview}>
+                <Text style={styles.sudokuPreviewDate}>{sudokuDateLabel}</Text>
+                <Text style={styles.sudokuPreviewMeta}>
+                  {sudokuEntry.difficulty} · {sudoku.size}x{sudoku.size}
+                </Text>
                 {sudoku.grid.map((row, rowIndex) => (
-                  <View key={`sudoku-row-${rowIndex}`} style={styles.sudokuRow}>
+                  <View
+                    key={`sudoku-row-${rowIndex}`}
+                    style={[
+                      styles.sudokuRow,
+                      {
+                        marginBottom:
+                          rowIndex % sudoku.boxRows === sudoku.boxRows - 1 &&
+                          rowIndex !== sudoku.size - 1
+                            ? sudokuPreviewBlockGap
+                            : sudokuPreviewBaseGap,
+                      },
+                    ]}
+                  >
                     {row.map((value, colIndex) => (
                       <View
                         key={`sudoku-${rowIndex}-${colIndex}`}
                         style={[
                           styles.sudokuCell,
+                          {
+                            width: sudokuPreviewCellSize,
+                            height: sudokuPreviewCellSize,
+                            marginRight:
+                              colIndex % sudoku.boxCols === sudoku.boxCols - 1 &&
+                              colIndex !== sudoku.size - 1
+                                ? sudokuPreviewBlockGap
+                                : sudokuPreviewBaseGap,
+                          },
                           value !== 0 && styles.sudokuCellFilled,
                         ]}
                       >
-                        <Text style={styles.sudokuCellText}>
+                        <Text
+                          style={[
+                            styles.sudokuCellText,
+                            sudoku.size === 9 && styles.sudokuCellTextCompact,
+                          ]}
+                        >
                           {value !== 0 ? value : ''}
                         </Text>
                       </View>
@@ -612,54 +651,6 @@ export default function HomeScreen() {
                   pressed && styles.playButtonPressed,
                 ]}
                 onPress={() => router.push('/bridges')}
-              >
-                <Text style={styles.playButtonText}>Play</Text>
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Ballpark card */}
-          <View style={styles.gameSection}>
-            <View style={styles.gameLabel}>
-              <Text style={styles.ballparkKicker}>Estimation Trivia</Text>
-              <Text style={styles.gameTitle}>Ballpark</Text>
-            </View>
-            <Text style={styles.blurb}>
-              Three themed number questions, four guesses each, and just enough higher-lower
-              feedback to dial it in.
-            </Text>
-            {(playCounts['ballpark'] ?? 0) > 0 && (
-              <View style={styles.streakPill}>
-                <Text style={styles.streakText}>{playCounts['ballpark']} plays today</Text>
-              </View>
-            )}
-            <View style={styles.dailyCard}>
-              <View style={styles.ballparkPreview}>
-                <Text style={styles.ballparkPreviewLabel}>Today&apos;s format</Text>
-                <View style={styles.ballparkPreviewStats}>
-                  <View style={styles.ballparkPreviewStat}>
-                    <Text style={styles.ballparkPreviewValue}>3</Text>
-                    <Text style={styles.ballparkPreviewStatText}>Questions</Text>
-                  </View>
-                  <View style={styles.ballparkPreviewStat}>
-                    <Text style={styles.ballparkPreviewValue}>1</Text>
-                    <Text style={styles.ballparkPreviewStatText}>Theme</Text>
-                  </View>
-                  <View style={styles.ballparkPreviewStat}>
-                    <Text style={styles.ballparkPreviewValue}>4</Text>
-                    <Text style={styles.ballparkPreviewStatText}>Guesses</Text>
-                  </View>
-                </View>
-                <Text style={styles.ballparkPreviewCaption}>
-                  Direct number entry, quick magnitude chips, and a tighter daily ritual.
-                </Text>
-              </View>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.playButton,
-                  pressed && styles.playButtonPressed,
-                ]}
-                onPress={() => router.push('/ballpark')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
@@ -816,7 +807,6 @@ const createStyles = (
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
   const museumAccent = resolveScreenAccent('museum', theme);
-  const triviaAccent = resolveScreenAccent('trivia', theme);
   const quickLinkPressed = theme.mode === 'dark' ? screenAccent.soft : screenAccent.badgeBg;
   const hotBadge = theme.mode === 'dark'
     ? {
@@ -1040,14 +1030,6 @@ const createStyles = (
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
   },
-  ballparkKicker: {
-    color: triviaAccent.main,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    marginBottom: Spacing.xs,
-  },
   newBadge: {
     marginTop: Spacing.xs,
     backgroundColor: barterAccent.badgeBg,
@@ -1171,6 +1153,17 @@ const createStyles = (
     paddingHorizontal: Spacing.sm,
     gap: 4,
   },
+  sudokuPreviewDate: {
+    fontSize: 11,
+    color: Colors.textMuted,
+    letterSpacing: 0.2,
+  },
+  sudokuPreviewMeta: {
+    marginBottom: Spacing.xs,
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '600',
+  },
   bridgesPreview: {
     alignItems: 'center',
     marginVertical: Spacing.md,
@@ -1220,11 +1213,8 @@ const createStyles = (
   },
   sudokuRow: {
     flexDirection: 'row',
-    gap: 4,
   },
   sudokuCell: {
-    width: 26,
-    height: 26,
     borderRadius: 6,
     backgroundColor: Colors.surface,
     borderWidth: 1,
@@ -1239,6 +1229,9 @@ const createStyles = (
     fontSize: 12,
     fontWeight: '700',
     color: Colors.textSecondary,
+  },
+  sudokuCellTextCompact: {
+    fontSize: 10,
   },
   triviaPreview: {
     alignItems: 'center',
@@ -1274,56 +1267,6 @@ const createStyles = (
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
     fontWeight: '600',
-  },
-  ballparkPreview: {
-    alignItems: 'center',
-    marginVertical: Spacing.md,
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.lg,
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.md,
-    gap: Spacing.sm,
-  },
-  ballparkPreviewLabel: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    fontWeight: '600',
-  },
-  ballparkPreviewStats: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  ballparkPreviewStat: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    minWidth: 74,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  ballparkPreviewValue: {
-    fontSize: FontSize.lg,
-    fontWeight: '800',
-    color: Colors.text,
-  },
-  ballparkPreviewStatText: {
-    marginTop: 2,
-    fontSize: 11,
-    color: Colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    fontWeight: '700',
-  },
-  ballparkPreviewCaption: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    fontWeight: '600',
-    textAlign: 'center',
-    maxWidth: 280,
   },
   museumPreview: {
     marginVertical: Spacing.md,
