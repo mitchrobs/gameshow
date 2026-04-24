@@ -403,7 +403,6 @@ export default function SudokuScreen() {
                             puzzle.boxRows,
                             puzzle.boxCols
                           ));
-                    const cellConflict = conflicts[rowIndex][colIndex];
                     const rowGlow = rowComplete[rowIndex];
                     const borderRight =
                       colIndex % puzzle.boxCols === puzzle.boxCols - 1 &&
@@ -432,7 +431,6 @@ export default function SudokuScreen() {
                           },
                           isGiven(rowIndex, colIndex) && styles.givenCell,
                           selectedCell && styles.selectedCell,
-                          cellConflict && styles.conflictCell,
                         ]}
                       >
                         {value !== 0 ? (
@@ -440,7 +438,6 @@ export default function SudokuScreen() {
                             style={[
                               styles.cellText,
                               isGiven(rowIndex, colIndex) && styles.givenText,
-                              cellConflict && styles.conflictText,
                             ]}
                           >
                             {value}
@@ -711,10 +708,6 @@ const createStyles = (
       borderColor: screenAccent.main,
       borderWidth: 2,
     },
-    conflictCell: {
-      borderColor: Colors.error,
-      borderWidth: 2,
-    },
     rowCompleteCell: {
       backgroundColor: ROW_GLOW_BG,
       borderColor: ROW_GLOW_BORDER,
@@ -726,9 +719,6 @@ const createStyles = (
     },
     givenText: {
       color: Colors.textSecondary,
-    },
-    conflictText: {
-      color: Colors.error,
     },
     notesGrid: {
       alignItems: 'center',
