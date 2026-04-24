@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Animated,
-  GestureResponderEvent,
   Image,
   Linking,
   PanResponder,
-  PanResponderGestureState,
   Platform,
   Pressable,
   ScrollView,
@@ -13,28 +10,54 @@ import {
   Text,
   useWindowDimensions,
   View,
+  type GestureResponderEvent,
+  type PanResponderGestureState,
+  type StyleProp,
+  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import {
-  type ThemeTokens,
-  resolveScreenAccent,
-  useDaybreakTheme,
-} from '../src/constants/theme';
-import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
-import { BUILD_ID } from '../src/constants/build';
-import {
   getDailyMuseumArtwork,
   getMuseumLocalDateKey,
   getNextMuseumArtwork,
+  MUSEUM_ARTWORKS,
   type MuseumArtwork,
+  type MuseumQuestion,
 } from '../src/data/museumArtworks';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
+import { useArtworkAspectRatio } from '../src/ui/museumFrames';
 
 const STORAGE_PREFIX = 'museum';
 const REVEAL_CONTEXT_SECONDS = 30;
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
+const FONT_SANS = 'DM Sans, Sora, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+const FONT_SERIF = 'Instrument Serif, Georgia, "Times New Roman", serif';
+
+const COLORS = {
+  bg: '#0c0a09',
+  panel: '#171311',
+  panelAlt: '#1d1714',
+  panelSoft: 'rgba(255,255,255,0.04)',
+  panelGlass: 'rgba(12, 10, 9, 0.56)',
+  border: 'rgba(255,255,255,0.08)',
+  borderStrong: 'rgba(255,255,255,0.14)',
+  text: '#faf7f2',
+  textDim: '#d8ccc2',
+  textMuted: '#a89a8f',
+  pink: '#a7664f',
+  pinkSoft: 'rgba(167,102,79,0.16)',
+  amber: '#f5b455',
+  amberSoft: 'rgba(245,180,85,0.14)',
+  blue: '#76a7f7',
+  blueSoft: 'rgba(118,167,247,0.14)',
+  green: '#38d39f',
+  greenSoft: 'rgba(56,211,159,0.14)',
+  red: '#f16e86',
+  redSoft: 'rgba(241,110,134,0.14)',
+  white: '#ffffff',
+};
 
 type MuseumPhase = 'reveal' | 'context' | 'quiz' | 'result';
 
@@ -67,6 +90,42 @@ interface MuseumPassport {
 interface MuseumStreak {
   count: number;
   lastPlayed: string;
+}
+
+interface PassportPreviewItem {
+  key: string;
+  label: string;
+  seen: number;
+  accuracy: number | null;
+  active: boolean;
+}
+
+interface PassportMetric {
+  key: string;
+  label: string;
+  value: string;
+  note: string;
+  accent: string;
+}
+
+interface PassportSummary {
+  intro: string;
+  currentLabel: string;
+  currentSeen: number;
+  currentAccuracy: number | null;
+  topMediumLabel: string;
+  topMediumSeen: number;
+  metrics: PassportMetric[];
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getTouchDistance(touches: readonly { pageX: number; pageY: number }[]): number {
+  if (touches.length < 2) return 1;
+  const [first, second] = touches;
+  return Math.hypot(first.pageX - second.pageX, first.pageY - second.pageY);
 }
 
 function getStorage(): Storage | null {
@@ -153,7 +212,7 @@ function recordPassportEntry(
       periodKey: artwork.periodKey,
       periodTag: artwork.periodTag,
       mediumCategory: artwork.mediumCategory,
-      museum: 'Metropolitan Museum of Art',
+      museum: getMuseumLabel(artwork),
       geoRegion: artwork.geoRegion,
     };
 
@@ -164,7 +223,7 @@ function recordPassportEntry(
     const statBuckets: Array<[Record<string, PassportStats>, string]> = [
       [passport.periodStats, artwork.periodKey],
       [passport.mediumStats, artwork.mediumCategory],
-      [passport.museumStats, 'Metropolitan Museum of Art'],
+      [passport.museumStats, getMuseumLabel(artwork)],
       [passport.geoRegionStats, artwork.geoRegion],
     ];
 
@@ -193,14 +252,9 @@ function recordPassportEntry(
   return { passport, streak: nextStreak };
 }
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
-function getTouchDistance(touches: readonly { pageX: number; pageY: number }[]): number {
-  if (touches.length < 2) return 1;
-  const [first, second] = touches;
-  return Math.hypot(first.pageX - second.pageX, first.pageY - second.pageY);
+function getMuseumLabel(artwork: MuseumArtwork): string {
+  if (artwork.source.institution === 'met') return 'The Met';
+  return 'Museum';
 }
 
 function getShortFact(fact: string): string {
@@ -208,22 +262,375 @@ function getShortFact(fact: string): string {
   return firstSentence.length > 96 ? `${firstSentence.slice(0, 93)}...` : firstSentence;
 }
 
-interface ArtworkViewerProps {
-  artwork: MuseumArtwork;
-  height: number;
-  styles: ReturnType<typeof createStyles>;
+function getResultHeadline(score: number): string {
+  if (score === 3) return 'A close study';
+  if (score === 2) return 'A strong reading';
+  if (score === 1) return 'A detail remained';
+  return 'An unhurried first look';
 }
 
-function ArtworkViewer({ artwork, height, styles }: ArtworkViewerProps) {
+function getResultAccent(score: number): string {
+  if (score === 3) return COLORS.green;
+  if (score === 2) return COLORS.amber;
+  return COLORS.pink;
+}
+
+function getResultNote(score: number): string {
+  if (score === 3) return 'A close reading of the work, held with confidence.';
+  if (score === 2) return 'A thoughtful visit. One more detail and it would have been exact.';
+  if (score === 1) return 'Something from the work stayed with you, which is how collections grow in memory.';
+  return 'Time spent looking still counts. The questions simply sharpen the next visit.';
+}
+
+function getPeriodLabelMap(): Map<string, string> {
+  return new Map(
+    MUSEUM_ARTWORKS.map((artwork) => [artwork.periodKey, artwork.periodTag.split(' · ')[0] ?? artwork.periodTag])
+  );
+}
+
+const PERIOD_LABELS = getPeriodLabelMap();
+
+function getPassportPreview(
+  passport: MuseumPassport,
+  artwork: MuseumArtwork
+): PassportPreviewItem[] {
+  const activeLabel =
+    PERIOD_LABELS.get(artwork.periodKey) ?? artwork.periodTag.split(' · ')[0] ?? artwork.periodTag;
+
+  const items = Object.entries(passport.periodStats).map(([key, stats]) => ({
+    key,
+    label: PERIOD_LABELS.get(key) ?? key.replace(/-/g, ' '),
+    seen: stats.seen,
+    accuracy: stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : null,
+    active: key === artwork.periodKey,
+  }));
+
+  if (!items.find((item) => item.key === artwork.periodKey)) {
+    items.push({
+      key: artwork.periodKey,
+      label: activeLabel,
+      seen: 0,
+      accuracy: null,
+      active: true,
+    });
+  }
+
+  items.sort((left, right) => {
+    if (left.active && !right.active) return -1;
+    if (!left.active && right.active) return 1;
+    return right.seen - left.seen;
+  });
+
+  return items.slice(0, 3);
+}
+
+function getRevealHintText(contextUnlocked: boolean, elapsedSeconds: number): string {
+  if (contextUnlocked) return 'View notes';
+  const remaining = Math.max(0, REVEAL_CONTEXT_SECONDS - elapsedSeconds);
+  return remaining > 0 ? 'View notes' : 'View notes';
+}
+
+function getQuestionKindLabel(question: MuseumQuestion): string {
+  if (question.kind === 'observation') return 'From the work';
+  if (question.kind === 'context') return 'From the notes';
+  return 'Across the period';
+}
+
+function splitPeriodTag(periodTag: string): [string, string, string] {
+  const [movement = periodTag, place = '', date = ''] = periodTag.split(' - ');
+  return [movement, place, date];
+}
+
+function getPlacardFacts(artwork: MuseumArtwork): Array<{ label: string; value: string }> {
+  const [movement, place, date] = splitPeriodTag(artwork.periodTag);
+  return [
+    { label: 'Movement', value: movement },
+    { label: 'Origin', value: place || artwork.geoRegion },
+    { label: 'Date', value: date || artwork.objectDate },
+    { label: 'Medium', value: artwork.mediumCategory },
+    { label: 'Collection', value: getMuseumLabel(artwork) },
+    { label: 'Access', value: 'Open access (CC0)' },
+  ];
+}
+
+function getHeroPlacardLine(artwork: MuseumArtwork): string {
+  return `${artwork.medium} · ${artwork.geoRegion}`;
+}
+
+function getContextLead(artwork: MuseumArtwork): string {
+  const [movement] = splitPeriodTag(artwork.periodTag);
+  return `${artwork.title} belongs to ${movement}. These notes gather how the work was made, one detail worth holding onto, and the broader thread it joins.`;
+}
+
+function getAccuracy(stats: PassportStats | undefined): number | null {
+  if (!stats || stats.total <= 0) return null;
+  return Math.round((stats.correct / stats.total) * 100);
+}
+
+function getTopStatEntry(
+  bucket: Record<string, PassportStats>
+): [string, PassportStats] | null {
+  const entries = Object.entries(bucket);
+  if (entries.length === 0) return null;
+
+  entries.sort((left, right) => {
+    if (right[1].seen !== left[1].seen) {
+      return right[1].seen - left[1].seen;
+    }
+
+    const rightAccuracy = right[1].total > 0 ? right[1].correct / right[1].total : 0;
+    const leftAccuracy = left[1].total > 0 ? left[1].correct / left[1].total : 0;
+    return rightAccuracy - leftAccuracy;
+  });
+
+  return entries[0] ?? null;
+}
+
+function getPassportSummary(
+  passport: MuseumPassport,
+  artwork: MuseumArtwork
+): PassportSummary {
+  const worksLogged = passport.artworkIds.length;
+  const periodCount = Object.keys(passport.periodStats).length;
+  const regionCount = Object.keys(passport.geoRegionStats).length;
+  const mediumCount = Object.keys(passport.mediumStats).length;
+
+  const aggregate = Object.values(passport.periodStats).reduce(
+    (totals, stats) => ({
+      correct: totals.correct + stats.correct,
+      total: totals.total + stats.total,
+    }),
+    { correct: 0, total: 0 }
+  );
+
+  const overallAccuracy =
+    aggregate.total > 0 ? Math.round((aggregate.correct / aggregate.total) * 100) : 0;
+  const currentStats = passport.periodStats[artwork.periodKey];
+  const currentLabel =
+    PERIOD_LABELS.get(artwork.periodKey) ?? artwork.periodTag.split(' · ')[0] ?? artwork.periodTag;
+  const topMediumEntry = getTopStatEntry(passport.mediumStats);
+  const topMediumLabel = topMediumEntry?.[0] ?? artwork.mediumCategory;
+  const topMediumSeen = topMediumEntry?.[1].seen ?? 0;
+
+  const intro =
+    worksLogged <= 1
+      ? 'Your passport has begun. Each return adds another work, period, and place to the record.'
+      : `A running record of ${worksLogged} works across ${periodCount} periods, ${regionCount} regions, and ${mediumCount} media.`;
+
+  return {
+    intro,
+    currentLabel,
+    currentSeen: currentStats?.seen ?? 0,
+    currentAccuracy: getAccuracy(currentStats),
+    topMediumLabel,
+    topMediumSeen,
+    metrics: [
+      {
+        key: 'works',
+        label: 'Works',
+        value: `${worksLogged}`,
+        note: 'Logged so far',
+        accent: COLORS.amber,
+      },
+      {
+        key: 'periods',
+        label: 'Periods',
+        value: `${periodCount}`,
+        note: 'Movements visited',
+        accent: COLORS.pink,
+      },
+      {
+        key: 'regions',
+        label: 'Regions',
+        value: `${regionCount}`,
+        note: 'Places represented',
+        accent: COLORS.blue,
+      },
+      {
+        key: 'accuracy',
+        label: 'Accuracy',
+        value: `${overallAccuracy}%`,
+        note: 'Across all questions',
+        accent: COLORS.green,
+      },
+    ],
+  };
+}
+
+function StatTile({ value, label, accent }: { value: string; label: string; accent: string }) {
+  return (
+    <View style={styles.statTile}>
+      <Text style={[styles.statValue, { color: accent }]}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function ContextSection({
+  label,
+  accent,
+  icon,
+  children,
+  emphasized,
+}: {
+  label: string;
+  accent: string;
+  icon: string;
+  children: string;
+  emphasized?: boolean;
+}) {
+  return (
+    <View
+      style={[
+        styles.contextSection,
+        emphasized && styles.contextSectionEmphasized,
+        emphasized && { borderColor: 'rgba(245,180,85,0.2)' },
+      ]}
+    >
+      <View style={styles.contextSectionHeader}>
+        <View style={[styles.contextIcon, { backgroundColor: accent }]}>
+          <Text style={styles.contextIconText}>{icon}</Text>
+        </View>
+        <Text style={[styles.contextSectionLabel, emphasized && styles.contextSectionLabelStrong]}>
+          {label}
+        </Text>
+      </View>
+      <Text style={[styles.contextSectionText, emphasized && styles.contextSectionTextStrong]}>
+        {children}
+      </Text>
+    </View>
+  );
+}
+
+interface ArtworkLayerProps {
+  uri: string;
+  opacity: number;
+  transformStyle: object;
+  onLoad?: () => void;
+  onError?: () => void;
+}
+
+function ArtworkLayer({
+  uri,
+  opacity,
+  transformStyle,
+  onLoad,
+  onError,
+}: ArtworkLayerProps) {
+  return (
+    <View style={[styles.viewerImageShell, transformStyle, { opacity }]}>
+      {Platform.OS === 'web' ? (
+        <>
+          <View
+            style={[
+              styles.webArtworkFill,
+              {
+                backgroundImage: `url("${uri}")`,
+                backgroundPosition: 'center center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: 'contain',
+              } as object,
+            ]}
+          />
+          <Image
+            source={{ uri }}
+            style={styles.hiddenProbeImage}
+            resizeMode="contain"
+            onLoad={onLoad}
+            onError={onError}
+          />
+        </>
+      ) : (
+        <Image
+          source={{ uri }}
+          style={styles.viewerImage}
+          resizeMode="contain"
+          onLoad={onLoad}
+          onError={onError}
+        />
+      )}
+    </View>
+  );
+}
+
+function MuseumArtworkCard({
+  artwork,
+  uri,
+  style,
+  variant = 'card',
+}: {
+  artwork: MuseumArtwork;
+  uri?: string;
+  style?: StyleProp<ViewStyle>;
+  variant?: 'thumb' | 'card' | 'hero' | 'share';
+}) {
+  const variantStyle =
+    variant === 'thumb'
+      ? styles.artworkCardThumb
+      : variant === 'hero'
+        ? styles.artworkCardHero
+        : variant === 'share'
+          ? styles.artworkCardShare
+          : styles.artworkCard;
+
+  return (
+    <View style={[styles.artworkCardBase, variantStyle, style]}>
+      <View style={styles.artworkCardInner}>
+        <Image
+          source={{ uri: uri ?? artwork.images.displayUrl }}
+          style={styles.staticArtworkImage}
+          resizeMode="contain"
+        />
+      </View>
+    </View>
+  );
+}
+
+function MuseumArtworkStage({
+  artwork,
+  height,
+  onInteraction,
+}: {
+  artwork: MuseumArtwork;
+  height: number;
+  onInteraction: () => void;
+}) {
+  const { width } = useWindowDimensions();
+  const aspectRatio = useArtworkAspectRatio(artwork.images.displayUrl, 1.25);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [showControls, setShowControls] = useState(false);
+  const [displayLoaded, setDisplayLoaded] = useState(false);
+  const [highResLoaded, setHighResLoaded] = useState(false);
+  const [displayFailed, setDisplayFailed] = useState(false);
   const zoomRef = useRef(zoom);
   const panRef = useRef(pan);
+  const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gestureRef = useRef({
     startDistance: 1,
     startZoom: 1,
     startPan: { x: 0, y: 0 },
   });
+
+  const clearControlsTimer = useCallback(() => {
+    if (controlsTimerRef.current) {
+      clearTimeout(controlsTimerRef.current);
+      controlsTimerRef.current = null;
+    }
+  }, []);
+
+  const revealControls = useCallback(() => {
+    clearControlsTimer();
+    setShowControls(true);
+    controlsTimerRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, 2200);
+  }, [clearControlsTimer]);
+
+  const markInteraction = useCallback(() => {
+    onInteraction();
+    revealControls();
+  }, [onInteraction, revealControls]);
 
   const updateZoom = useCallback((value: number) => {
     const nextZoom = clamp(value, MIN_ZOOM, MAX_ZOOM);
@@ -241,6 +648,7 @@ function ArtworkViewer({ artwork, height, styles }: ArtworkViewerProps) {
       setPan({ x: 0, y: 0 });
       return;
     }
+
     const limit = 120 * zoomRef.current;
     const nextPan = {
       x: clamp(value.x, -limit, limit),
@@ -253,12 +661,35 @@ function ArtworkViewer({ artwork, height, styles }: ArtworkViewerProps) {
   const resetView = useCallback(() => {
     updateZoom(MIN_ZOOM);
     updatePan({ x: 0, y: 0 });
-  }, [updatePan, updateZoom]);
+    revealControls();
+  }, [revealControls, updatePan, updateZoom]);
+
+  useEffect(() => {
+    setZoom(1);
+    zoomRef.current = 1;
+    setPan({ x: 0, y: 0 });
+    panRef.current = { x: 0, y: 0 };
+    setShowControls(false);
+    setDisplayLoaded(false);
+    setHighResLoaded(false);
+    setDisplayFailed(false);
+  }, [artwork.id]);
+
+  useEffect(() => {
+    Image.prefetch(artwork.images.displayUrl);
+  }, [artwork.images.displayUrl]);
+
+  useEffect(() => {
+    if (zoom <= 1.05) return;
+    Image.prefetch(artwork.images.fullUrl);
+  }, [artwork.images.fullUrl, zoom]);
+
+  useEffect(() => () => clearControlsTimer(), [clearControlsTimer]);
 
   const panResponder = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
+        onStartShouldSetPanResponder: (event) => event.nativeEvent.touches.length > 1,
         onMoveShouldSetPanResponder: (_event, gestureState) =>
           Math.abs(gestureState.dx) > 2 || Math.abs(gestureState.dy) > 2,
         onPanResponderGrant: (event: GestureResponderEvent) => {
@@ -274,6 +705,7 @@ function ArtworkViewer({ artwork, height, styles }: ArtworkViewerProps) {
           gestureState: PanResponderGestureState
         ) => {
           const touches = event.nativeEvent.touches;
+          markInteraction();
           if (touches.length >= 2) {
             const nextZoom =
               gestureRef.current.startZoom *
@@ -282,56 +714,137 @@ function ArtworkViewer({ artwork, height, styles }: ArtworkViewerProps) {
             return;
           }
 
+          if (zoomRef.current <= MIN_ZOOM) return;
+
           updatePan({
             x: gestureRef.current.startPan.x + gestureState.dx,
             y: gestureRef.current.startPan.y + gestureState.dy,
           });
         },
       }),
-    [updatePan, updateZoom]
+    [markInteraction, updatePan, updateZoom]
   );
 
-  useEffect(() => {
-    Image.prefetch(zoom > 1.05 ? artwork.images.fullUrl : artwork.images.displayUrl);
-  }, [artwork.images.displayUrl, artwork.images.fullUrl, zoom]);
+  const preferredMaxWidth = aspectRatio > 1.3 ? Math.min(width - 32, 760) : Math.min(width - 32, 560);
+  const maxHeight = height * 0.52;
+  const cardPadding = aspectRatio > 1.3 ? 14 : 18;
+  let artWidth = preferredMaxWidth - cardPadding * 2;
+  let artHeight = artWidth / aspectRatio;
+  if (artHeight + cardPadding * 2 > maxHeight) {
+    artHeight = maxHeight - cardPadding * 2;
+    artWidth = artHeight * aspectRatio;
+  }
+
+  const cardWidth = artWidth + cardPadding * 2;
+  const cardHeight = artHeight + cardPadding * 2;
+  const transformStyle = {
+    transform: [{ translateX: pan.x }, { translateY: pan.y }, { scale: zoom }],
+  } as const;
+  const showFullRes = zoom > 1.05;
+  const loadingVisible = !displayLoaded && !displayFailed;
+  const hardFailure = displayFailed;
+  const artworkVisible = displayLoaded || highResLoaded || hardFailure;
 
   return (
     <View style={[styles.viewer, { height }]}>
-      <View style={styles.viewerImageClip} {...panResponder.panHandlers}>
-        <Image
-          source={{ uri: zoom > 1.05 ? artwork.images.fullUrl : artwork.images.displayUrl }}
-          style={[
-            styles.artworkImage,
-            {
-              transform: [
-                { translateX: pan.x },
-                { translateY: pan.y },
-                { scale: zoom },
-              ],
-            },
-          ]}
-          resizeMode="contain"
-        />
+      <View style={styles.viewerWallGlow} />
+
+      <View
+        style={[
+          styles.stageArtworkCard,
+          {
+            width: cardWidth,
+            height: cardHeight,
+            padding: cardPadding,
+          },
+        ]}
+      >
+        <View style={styles.stageArtworkInset} {...panResponder.panHandlers}>
+          {!displayFailed ? (
+            <ArtworkLayer
+              uri={artwork.images.displayUrl}
+              transformStyle={transformStyle}
+              opacity={displayLoaded && !(showFullRes && highResLoaded) ? 1 : 0.01}
+              onLoad={() => setDisplayLoaded(true)}
+              onError={() => setDisplayFailed(true)}
+            />
+          ) : null}
+          {showFullRes ? (
+            <ArtworkLayer
+              uri={artwork.images.fullUrl}
+              transformStyle={transformStyle}
+              opacity={highResLoaded ? 1 : 0.01}
+              onLoad={() => setHighResLoaded(true)}
+            />
+          ) : null}
+        </View>
       </View>
-      <View style={styles.zoomControls}>
-        <Pressable style={styles.zoomButton} onPress={() => updateZoom(zoom + 0.35)}>
-          <Text style={styles.zoomButtonText}>+</Text>
-        </Pressable>
-        <Pressable style={styles.zoomButton} onPress={() => updateZoom(zoom - 0.35)}>
-          <Text style={styles.zoomButtonText}>-</Text>
-        </Pressable>
-        <Pressable style={styles.zoomResetButton} onPress={resetView}>
-          <Text style={styles.zoomResetText}>Reset</Text>
-        </Pressable>
-      </View>
+
+      {loadingVisible ? (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingCard}>
+            <Text style={styles.loadingTitle}>{artwork.title}</Text>
+            <Text style={styles.loadingMeta}>
+              {artwork.artist} · {artwork.objectDate}
+            </Text>
+          </View>
+        </View>
+      ) : null}
+
+      {hardFailure ? (
+        <View style={styles.fallbackArtwork}>
+          <Text style={styles.fallbackTitle}>{artwork.title}</Text>
+          <Text style={styles.loadingMeta}>{artwork.artist}</Text>
+        </View>
+      ) : null}
+
+      {artworkVisible ? (
+        <View style={styles.zoomLauncherWrap}>
+          <Pressable
+            style={({ pressed }) => [styles.zoomLauncher, pressed && styles.zoomLauncherPressed]}
+            onPress={() => {
+              markInteraction();
+              setShowControls((current) => !current);
+            }}
+          >
+            <Text style={styles.zoomLauncherText}>Zoom</Text>
+          </Pressable>
+        </View>
+      ) : null}
+
+      {artworkVisible && showControls ? (
+        <View style={styles.zoomControls}>
+          <Pressable
+            style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomButtonPressed]}
+            onPress={() => {
+              markInteraction();
+              updateZoom(zoom + 0.35);
+            }}
+          >
+            <Text style={styles.zoomButtonText}>+</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomButtonPressed]}
+            onPress={() => {
+              markInteraction();
+              updateZoom(zoom - 0.35);
+            }}
+          >
+            <Text style={styles.zoomButtonText}>-</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.zoomResetButton, pressed && styles.zoomButtonPressed]}
+            onPress={resetView}
+          >
+            <Text style={styles.zoomResetText}>Reset</Text>
+          </Pressable>
+        </View>
+      ) : null}
     </View>
   );
 }
 
 export default function MuseumScreen() {
-  const theme = useDaybreakTheme();
-  const screenAccent = useMemo(() => resolveScreenAccent('museum', theme), [theme]);
-  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
   const router = useRouter();
   const { height } = useWindowDimensions();
   const activeDate = useMemo(() => new Date(), []);
@@ -347,6 +860,12 @@ export default function MuseumScreen() {
   );
   const artwork = useMemo(() => getDailyMuseumArtwork(activeDate), [activeDate]);
   const nextArtwork = useMemo(() => getNextMuseumArtwork(activeDate), [activeDate]);
+  const placardFacts = useMemo(() => getPlacardFacts(artwork), [artwork]);
+  const [movement, place, periodDate] = useMemo(
+    () => splitPeriodTag(artwork.periodTag),
+    [artwork.periodTag]
+  );
+
   const [phase, setPhase] = useState<MuseumPhase>('reveal');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [contextUnlocked, setContextUnlocked] = useState(false);
@@ -355,13 +874,17 @@ export default function MuseumScreen() {
     Array.from({ length: artwork.questions.length }, () => null)
   );
   const [museumStreak, setMuseumStreak] = useState(0);
-  const [periodSeen, setPeriodSeen] = useState(0);
+  const [passport, setPassport] = useState<MuseumPassport>(createEmptyPassport());
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+
   const hasRecordedRef = useRef(false);
   const hasCountedRef = useRef(false);
-  const pulseAnim = useRef(new Animated.Value(0)).current;
 
-  const score = useMemo<number>(
+  const viewerHeight = Math.max(520, height);
+  const currentQuestion = artwork.questions[currentQuestionIndex];
+  const selectedOption = selectedAnswers[currentQuestionIndex];
+
+  const score = useMemo(
     () =>
       selectedAnswers.reduce<number>((total, answer, index) => {
         return total + (answer === artwork.questions[index].answerIndex ? 1 : 0);
@@ -369,21 +892,29 @@ export default function MuseumScreen() {
     [artwork.questions, selectedAnswers]
   );
 
-  const currentQuestion = artwork.questions[currentQuestionIndex];
-  const selectedOption = selectedAnswers[currentQuestionIndex];
-  const resultLabel = score === 3 ? 'Perfect' : score === 2 ? 'Sharp looking' : score === 1 ? 'One detail caught' : 'Still seen';
-  const viewerHeight = Math.max(420, Math.min(720, height - 32));
-
+  const periodSeen = passport.periodStats[artwork.periodKey]?.seen ?? 0;
+  const passportPreview = useMemo(() => getPassportPreview(passport, artwork), [artwork, passport]);
+  const passportSummary = useMemo(() => getPassportSummary(passport, artwork), [artwork, passport]);
   const shareText = useMemo(
     () =>
       [
-        `Museum ${dateLabel}`,
-        `Today: ${artwork.title} (${artwork.objectDate})`,
-        `Score: ${score}/3 - Streak: ${museumStreak}`,
+        `Museum · ${dateLabel}`,
+        `${artwork.title} — ${artwork.artist} (${artwork.objectDate})`,
+        `Today's visit: ${score}/3 · Day ${museumStreak}`,
+        `${getMuseumLabel(artwork)} · ${movement}`,
         `"${getShortFact(artwork.context.surprisingFact)}"`,
         'Daybreak',
       ].join('\n'),
-    [artwork.context.surprisingFact, artwork.objectDate, artwork.title, dateLabel, museumStreak, score]
+    [
+      artwork,
+      artwork.context.surprisingFact,
+      artwork.objectDate,
+      artwork.title,
+      dateLabel,
+      movement,
+      museumStreak,
+      score,
+    ]
   );
 
   useEffect(() => {
@@ -392,28 +923,41 @@ export default function MuseumScreen() {
   }, [artwork.images.displayUrl, nextArtwork.images.displayUrl]);
 
   useEffect(() => {
-    const storage = getStorage();
-    if (!storage) return;
-    const passport = readPassport(storage);
-    const streak = readStreak(storage);
-    setMuseumStreak(streak.count);
-    setPeriodSeen(passport.periodStats[artwork.periodKey]?.seen ?? 0);
-  }, [artwork.periodKey]);
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+
+    const root = document.documentElement;
+    const body = document.body;
+    const appRoot = document.getElementById('root');
+
+    const previousRoot = root.style.backgroundColor;
+    const previousBody = body.style.backgroundColor;
+    const previousApp = appRoot?.style.backgroundColor ?? '';
+
+    root.style.backgroundColor = COLORS.bg;
+    body.style.backgroundColor = COLORS.bg;
+    if (appRoot) {
+      appRoot.style.backgroundColor = COLORS.bg;
+    }
+
+    return () => {
+      root.style.backgroundColor = previousRoot;
+      body.style.backgroundColor = previousBody;
+      if (appRoot) {
+        appRoot.style.backgroundColor = previousApp;
+      }
+    };
+  }, []);
 
   useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1, duration: 1200, useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 0, duration: 1200, useNativeDriver: true }),
-      ])
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [pulseAnim]);
+    const storage = getStorage();
+    if (!storage) return;
+    setPassport(readPassport(storage));
+    setMuseumStreak(readStreak(storage).count);
+  }, [artwork.id]);
 
   useEffect(() => {
     if (phase !== 'reveal' || contextUnlocked) return undefined;
-    const id = setInterval(() => {
+    const timer = setInterval(() => {
       setElapsedSeconds((seconds) => {
         const next = seconds + 1;
         if (next >= REVEAL_CONTEXT_SECONDS) {
@@ -423,7 +967,7 @@ export default function MuseumScreen() {
         return next;
       });
     }, 1000);
-    return () => clearInterval(id);
+    return () => clearInterval(timer);
   }, [contextUnlocked, phase]);
 
   useEffect(() => {
@@ -437,12 +981,11 @@ export default function MuseumScreen() {
       hasRecordedRef.current = true;
       const storage = getStorage();
       if (storage) {
-        const { passport, streak } = recordPassportEntry(storage, artwork, dateKey, score);
-        setMuseumStreak(streak.count);
-        setPeriodSeen(passport.periodStats[artwork.periodKey]?.seen ?? 1);
+        const recorded = recordPassportEntry(storage, artwork, dateKey, score);
+        setPassport(recorded.passport);
+        setMuseumStreak(recorded.streak.count);
       } else {
         setMuseumStreak(1);
-        setPeriodSeen(1);
       }
     }
 
@@ -472,107 +1015,179 @@ export default function MuseumScreen() {
     setCurrentQuestionIndex((index) => index + 1);
   }, [artwork.questions.length, currentQuestionIndex]);
 
-  const handleCopyResults = useCallback(async () => {
+  const handleShare = useCallback(async () => {
     if (Platform.OS !== 'web') return;
-    const clipboard = (globalThis as typeof globalThis & {
-      navigator?: { clipboard?: { writeText?: (text: string) => Promise<void> } };
-    }).navigator?.clipboard;
-    if (!clipboard?.writeText) {
-      setShareStatus('Copy not supported');
+    const nav = (globalThis as typeof globalThis & {
+      navigator?: {
+        clipboard?: { writeText?: (text: string) => Promise<void> };
+        share?: (payload: { title?: string; text?: string; url?: string }) => Promise<void>;
+      };
+    }).navigator;
+
+    if (nav?.share) {
+      try {
+        await nav.share({
+          title: `Museum - ${artwork.title}`,
+          text: shareText,
+        });
+        setShareStatus('Shared');
+        return;
+      } catch {
+        // Fall through to clipboard.
+      }
+    }
+
+    if (!nav?.clipboard?.writeText) {
+      setShareStatus('Share not supported');
       return;
     }
+
     try {
-      await clipboard.writeText(shareText);
+      await nav.clipboard.writeText(shareText);
       setShareStatus('Copied to clipboard');
     } catch {
       setShareStatus('Copy failed');
     }
-  }, [shareText]);
+  }, [artwork.title, shareText]);
 
   const openArtwork = useCallback(() => {
     Linking.openURL(artwork.source.objectUrl);
   }, [artwork.source.objectUrl]);
 
-  const showTitle = contextUnlocked || phase !== 'reveal' || elapsedSeconds >= 10;
-  const showDetails = contextUnlocked || phase !== 'reveal' || elapsedSeconds >= 20;
+  const showTitle = true;
+  const showDetails = contextUnlocked || phase !== 'reveal' || elapsedSeconds >= 8;
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.container} edges={['top']}>
         {(phase === 'reveal' || phase === 'context') && (
-          <View style={styles.stage}>
-            <ArtworkViewer artwork={artwork} height={viewerHeight} styles={styles} />
-            <View style={styles.stageTopbar}>
-              <Pressable style={styles.backButton} onPress={() => router.back()}>
-                <Text style={styles.backButtonText}>Back</Text>
+          <View style={[styles.stage, { minHeight: height }]}>
+            <MuseumArtworkStage
+              artwork={artwork}
+              height={viewerHeight}
+              onInteraction={() => {}}
+            />
+
+            <View style={styles.stageTopRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.badgeButton,
+                  pressed && styles.badgeButtonPressed,
+                ]}
+                onPress={() => router.back()}
+              >
+                <Text style={styles.badgeChevron}>{'<'}</Text>
+                <Text style={styles.badgeLabel}>Museum</Text>
               </Pressable>
-              <View style={styles.stageBadge}>
-                <Text style={styles.stageBadgeText}>Museum</Text>
+              <View style={styles.streakPill}>
+                <Text style={styles.streakPillLabel}>Day</Text>
+                <Text style={styles.streakPillValue}>{Math.max(museumStreak, 1)}</Text>
               </View>
             </View>
 
-            {phase === 'reveal' && (
-              <Animated.View
-                style={[
-                  styles.interestPulse,
-                  {
-                    opacity: pulseAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.28, 0.72],
-                    }),
-                    transform: [
-                      {
-                        scale: pulseAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0.86, 1.18],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              />
-            )}
-
-            <View style={styles.metadataOverlay}>
+            <View style={styles.heroFooter}>
               {showTitle && (
                 <>
-                  <Text style={styles.artTitle}>{artwork.title}</Text>
-                  <Text style={styles.artistName}>{artwork.artist}</Text>
+                  <Text style={styles.periodTag}>On view today</Text>
+                  <Text style={styles.heroTitle}>{artwork.title}</Text>
+                  <Text style={styles.heroArtist}>
+                    {artwork.artist} · {artwork.objectDate}
+                  </Text>
                 </>
               )}
+
               {showDetails && (
-                <Text style={styles.artMeta}>
-                  {artwork.objectDate} - {artwork.medium}
-                </Text>
+                <>
+                  <Text style={styles.heroMeta}>{getHeroPlacardLine(artwork)}</Text>
+                  <Text style={styles.heroMetaMuted}>
+                    {movement}
+                    {place ? ` · ${place}` : ''}
+                    {periodDate ? ` · ${periodDate}` : ''}
+                    {' · '}
+                    {getMuseumLabel(artwork)}
+                  </Text>
+                </>
+              )}
+
+              {phase === 'reveal' && (
+                <>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.heroCta,
+                      pressed && styles.heroCtaPressed,
+                    ]}
+                    onPress={() => {
+                      setContextUnlocked(true);
+                      setPhase('context');
+                    }}
+                  >
+                    <Text style={styles.heroCtaText}>
+                      {getRevealHintText(contextUnlocked, elapsedSeconds)}
+                    </Text>
+                  </Pressable>
+                  {!contextUnlocked && (
+                    <Text style={styles.heroHint}>
+                      Stay with the image for a moment, then open the notes when you are ready.
+                    </Text>
+                  )}
+                </>
               )}
             </View>
 
-            {phase === 'reveal' && (
-              <Pressable
-                style={({ pressed }) => [
-                  styles.contextButton,
-                  pressed && styles.contextButtonPressed,
-                ]}
-                onPress={() => {
-                  setContextUnlocked(true);
-                  setPhase('context');
-                }}
-              >
-                <Text style={styles.contextButtonText}>
-                  {contextUnlocked ? 'Return to the story' : 'Read the story'}
-                </Text>
-              </Pressable>
-            )}
-
             {phase === 'context' && (
               <View style={styles.contextSheet}>
-                <View style={styles.periodPill}>
-                  <Text style={styles.periodPillText}>{artwork.periodTag}</Text>
+                <View style={styles.contextSheetHandle} />
+                <View style={styles.contextHeader}>
+                  <MuseumArtworkCard
+                    artwork={artwork}
+                    style={styles.contextThumbWrap}
+                    uri={artwork.images.thumbnailUrl}
+                    variant="thumb"
+                  />
+                  <View style={styles.contextHeaderText}>
+                    <Text style={styles.contextHeaderTitle}>{artwork.title}</Text>
+                    <Text style={styles.contextHeaderMeta}>
+                      {artwork.artist} · {artwork.objectDate}
+                    </Text>
+                    <Text style={styles.contextHeaderMetaMuted}>
+                      {artwork.medium} · {getMuseumLabel(artwork)}
+                    </Text>
+                  </View>
                 </View>
-                <Text style={styles.contextLine}>{artwork.context.technique}</Text>
-                <Text style={styles.contextFact}>{artwork.context.surprisingFact}</Text>
-                <Text style={styles.contextLine}>{artwork.context.connection}</Text>
+
+                <ScrollView
+                  style={styles.contextScroll}
+                  contentContainerStyle={styles.contextScrollContent}
+                  showsVerticalScrollIndicator={false}
+                >
+                  <View style={styles.periodBanner}>
+                    <Text style={styles.periodBannerLabel}>Notes</Text>
+                    <Text style={styles.periodBannerValue}>{artwork.periodTag}</Text>
+                  </View>
+
+                  <Text style={styles.contextLead}>{getContextLead(artwork)}</Text>
+
+                  <View style={styles.placardGrid}>
+                    {placardFacts.map((fact) => (
+                      <View key={fact.label} style={styles.placardGridItem}>
+                        <Text style={styles.placardGridLabel}>{fact.label}</Text>
+                        <Text style={styles.placardGridValue}>{fact.value}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  <ContextSection label="Technique" accent={COLORS.pinkSoft} icon="T">
+                    {artwork.context.technique}
+                  </ContextSection>
+                  <ContextSection label="Collection note" accent={COLORS.amberSoft} icon="N" emphasized>
+                    {artwork.context.surprisingFact}
+                  </ContextSection>
+                  <ContextSection label="Connection" accent={COLORS.blueSoft} icon="C">
+                    {artwork.context.connection}
+                  </ContextSection>
+                </ScrollView>
+
                 <View style={styles.contextActions}>
                   <Pressable
                     style={({ pressed }) => [
@@ -581,7 +1196,7 @@ export default function MuseumScreen() {
                     ]}
                     onPress={() => setPhase('reveal')}
                   >
-                    <Text style={styles.secondaryButtonText}>Look again</Text>
+                    <Text style={styles.secondaryButtonText}>Return to work</Text>
                   </Pressable>
                   <Pressable
                     style={({ pressed }) => [
@@ -590,7 +1205,7 @@ export default function MuseumScreen() {
                     ]}
                     onPress={() => setPhase('quiz')}
                   >
-                    <Text style={styles.primaryButtonText}>Start quiz</Text>
+                    <Text style={styles.primaryButtonText}>Continue to quiz</Text>
                   </Pressable>
                 </View>
               </View>
@@ -601,74 +1216,126 @@ export default function MuseumScreen() {
         {phase === 'quiz' && currentQuestion && (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.page}>
-              <View style={styles.pageAccent} />
               <View style={styles.quizHeader}>
                 <View>
-                  <Text style={styles.title}>Museum</Text>
-                  <Text style={styles.subtitle}>{dateLabel}</Text>
+                  <Text style={styles.quizEyebrow}>Museum quiz</Text>
+                  <Text style={styles.quizDate}>
+                    {artwork.artist} · {artwork.title}
+                  </Text>
                 </View>
-                <Text style={styles.quizCounter}>
-                  {currentQuestionIndex + 1}/{artwork.questions.length}
+                <View style={styles.quizCountWrap}>
+                  <Text style={styles.quizCountText}>
+                    {currentQuestionIndex + 1}/{artwork.questions.length}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.progressRow}>
+                {artwork.questions.map((question, index) => {
+                  const answered = selectedAnswers[index] !== null;
+                  const active = index === currentQuestionIndex;
+                  return (
+                    <View
+                      key={`${question.prompt}-${index}`}
+                      style={[
+                        styles.progressTrack,
+                        answered && styles.progressTrackFilled,
+                        active && styles.progressTrackActive,
+                      ]}
+                    />
+                  );
+                })}
+              </View>
+
+              <MuseumArtworkCard
+                artwork={artwork}
+                style={styles.quizArtworkWrap}
+                uri={artwork.images.thumbnailUrl}
+                variant="card"
+              />
+              <View style={styles.quizPlacard}>
+                <Text style={styles.quizArtworkTitle}>{artwork.title}</Text>
+                <Text style={styles.quizArtworkMeta}>
+                  {artwork.artist} · {artwork.objectDate} · {movement}
                 </Text>
               </View>
 
-              <View style={styles.quizArtworkCard}>
-                <Image source={{ uri: artwork.images.thumbnailUrl }} style={styles.quizThumbnail} />
-                <View style={styles.quizArtworkText}>
-                  <Text style={styles.quizArtworkTitle}>{artwork.title}</Text>
-                  <Text style={styles.quizArtworkMeta}>{artwork.artist}</Text>
-                </View>
-              </View>
+              <Text style={styles.questionKind}>{getQuestionKindLabel(currentQuestion)}</Text>
+              <Text style={styles.questionText}>{currentQuestion.prompt}</Text>
 
-              <View style={styles.quizCard}>
-                <Text style={styles.questionKind}>{currentQuestion.kind}</Text>
-                <Text style={styles.questionText}>{currentQuestion.prompt}</Text>
-                <View style={styles.optionsList}>
-                  {currentQuestion.options.map((option, index) => {
-                    const showResult = selectedOption !== null;
-                    const isCorrect = index === currentQuestion.answerIndex;
-                    const isSelected = selectedOption === index;
-                    return (
-                      <Pressable
-                        key={option}
-                        style={({ pressed }) => [
-                          styles.option,
-                          pressed && styles.optionPressed,
-                          showResult && isCorrect && styles.optionCorrect,
-                          showResult && isSelected && !isCorrect && styles.optionWrong,
+              <View style={styles.optionsList}>
+                {currentQuestion.options.map((option, index) => {
+                  const showResult = selectedOption !== null;
+                  const isCorrect = index === currentQuestion.answerIndex;
+                  const isSelected = selectedOption === index;
+                  const letter = String.fromCharCode(65 + index);
+
+                  return (
+                    <Pressable
+                      key={`${option}-${index}`}
+                      style={({ pressed }) => [
+                        styles.option,
+                        pressed && !showResult && styles.optionPressed,
+                        showResult && isCorrect && styles.optionCorrect,
+                        showResult && isSelected && !isCorrect && styles.optionWrong,
+                      ]}
+                      disabled={showResult}
+                      onPress={() => answerQuestion(index)}
+                    >
+                      <View
+                        style={[
+                          styles.optionChip,
+                          showResult && isCorrect && styles.optionChipCorrect,
+                          showResult && isSelected && !isCorrect && styles.optionChipWrong,
                         ]}
-                        disabled={showResult}
-                        onPress={() => answerQuestion(index)}
                       >
-                        <Text style={styles.optionText}>{option}</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-
-                {selectedOption !== null && (
-                  <View style={styles.reinforcementBox}>
-                    <Text style={styles.reinforcementTitle}>
-                      {selectedOption === currentQuestion.answerIndex ? 'Correct' : 'Good eye for trying'}
-                    </Text>
-                    <Text style={styles.reinforcementText}>{currentQuestion.reinforcement}</Text>
-                  </View>
-                )}
+                        <Text
+                          style={[
+                            styles.optionChipText,
+                            showResult && isCorrect && styles.optionChipTextAccent,
+                            showResult && isSelected && !isCorrect && styles.optionChipTextAccent,
+                          ]}
+                        >
+                          {showResult && (isCorrect || isSelected)
+                            ? isCorrect
+                              ? 'OK'
+                              : 'NO'
+                            : letter}
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles.optionText,
+                          showResult && isCorrect && styles.optionTextCorrect,
+                          showResult && isSelected && !isCorrect && styles.optionTextWrong,
+                        ]}
+                      >
+                        {option}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
               </View>
 
-              <Pressable
-                style={({ pressed }) => [
-                  styles.primaryButton,
-                  selectedOption === null && styles.disabledButton,
-                  pressed && selectedOption !== null && styles.primaryButtonPressed,
-                ]}
-                disabled={selectedOption === null}
-                onPress={goToNextQuestion}
-              >
-                <Text style={styles.primaryButtonText}>
-                  {currentQuestionIndex >= artwork.questions.length - 1 ? 'See result' : 'Next'}
-                </Text>
-              </Pressable>
+              {selectedOption !== null && (
+                <View style={styles.answerReveal}>
+                  <Text style={styles.answerRevealTitle}>From today's notes</Text>
+                  <Text style={styles.answerRevealText}>{currentQuestion.reinforcement}</Text>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.primaryButton,
+                      pressed && styles.primaryButtonPressed,
+                    ]}
+                    onPress={goToNextQuestion}
+                  >
+                    <Text style={styles.primaryButtonText}>
+                      {currentQuestionIndex >= artwork.questions.length - 1
+                        ? 'View summary'
+                        : 'Continue'}
+                    </Text>
+                  </Pressable>
+                </View>
+              )}
             </View>
           </ScrollView>
         )}
@@ -676,54 +1343,156 @@ export default function MuseumScreen() {
         {phase === 'result' && (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.page}>
-              <View style={styles.pageAccent} />
-              <View style={styles.resultCard}>
-                <Image source={{ uri: artwork.images.thumbnailUrl }} style={styles.resultImage} />
-                <Text style={styles.resultTitle}>
-                  {score}/3 - {resultLabel}
-                </Text>
-                <Text style={styles.resultSubtitle}>{artwork.title}</Text>
-                <View style={styles.resultStats}>
-                  <View style={styles.statBlock}>
-                    <Text style={styles.statValue}>Day {museumStreak}</Text>
-                    <Text style={styles.statLabel}>Museum streak</Text>
-                  </View>
-                  <View style={styles.statBlock}>
-                    <Text style={styles.statValue}>{periodSeen}</Text>
-                    <Text style={styles.statLabel}>{artwork.periodKey.replace(/-/g, ' ')}</Text>
+              <Text style={styles.quizEyebrow}>Visit summary</Text>
+              <Text style={styles.resultDate}>{dateLabel}</Text>
+
+              <View style={styles.resultSummaryCard}>
+                <MuseumArtworkCard
+                  artwork={artwork}
+                  style={styles.resultHero}
+                  uri={artwork.images.displayUrl}
+                  variant="share"
+                />
+                <View style={styles.resultSummaryBody}>
+                  <Text style={styles.resultHeroTitle}>{artwork.title}</Text>
+                  <Text style={styles.resultHeroMeta}>
+                    {artwork.artist} · {artwork.objectDate} · {getMuseumLabel(artwork)}
+                  </Text>
+
+                  <View style={styles.resultScoreRow}>
+                    <Text style={[styles.resultScore, { color: getResultAccent(score) }]}>{score}/3</Text>
+                    <View style={styles.resultScoreCopy}>
+                      <Text style={styles.resultHeadline}>{getResultHeadline(score)}</Text>
+                      <Text style={styles.resultNote}>{getResultNote(score)}</Text>
+                    </View>
                   </View>
                 </View>
+              </View>
 
-                <View style={styles.shareCard}>
-                  <Text style={styles.shareTitle}>Share your result</Text>
-                  <View style={styles.shareBox}>
-                    <Text selectable style={styles.shareText}>
-                      {shareText}
+              <View style={styles.resultStatsGrid}>
+                <StatTile value={`${museumStreak}`} label="Day streak" accent={COLORS.amber} />
+                <StatTile
+                  value={`${periodSeen}`}
+                  label={PERIOD_LABELS.get(artwork.periodKey) ?? artwork.periodKey.replace(/-/g, ' ')}
+                  accent={COLORS.pink}
+                />
+              </View>
+
+              <View style={styles.resultProgressCard}>
+                <Text style={styles.resultProgressLine}>
+                  You have now seen {periodSeen} work{periodSeen === 1 ? '' : 's'} from{' '}
+                  {passportSummary.currentLabel}
+                  {passportSummary.currentAccuracy !== null
+                    ? `, with a ${passportSummary.currentAccuracy}% answer average in this period.`
+                    : '.'}
+                </Text>
+              </View>
+
+              <View style={styles.passportSection}>
+                <View style={styles.passportHeaderCompact}>
+                  <View>
+                    <Text style={styles.passportEyebrow}>Art Passport</Text>
+                    <Text style={styles.passportCount}>{passport.artworkIds.length} works logged</Text>
+                  </View>
+                  <View style={styles.passportBadge}>
+                    <Text style={styles.passportBadgeText}>
+                      {passportSummary.currentAccuracy !== null
+                        ? `${passportSummary.currentAccuracy}% in period`
+                        : 'New period'}
                     </Text>
                   </View>
-                  {Platform.OS === 'web' && (
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.primaryButton,
-                        pressed && styles.primaryButtonPressed,
-                      ]}
-                      onPress={handleCopyResults}
-                    >
-                      <Text style={styles.primaryButtonText}>Copy results</Text>
-                    </Pressable>
-                  )}
-                  {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
+                </View>
+                <Text style={styles.passportIntroCompact}>
+                  {passportSummary.currentSeen > 0
+                    ? `${passportSummary.currentLabel}: ${passportSummary.currentSeen} work${passportSummary.currentSeen === 1 ? '' : 's'} logged`
+                    : `Today begins ${passportSummary.currentLabel} in your passport`}
+                  {passportSummary.currentAccuracy !== null
+                    ? ` · ${passportSummary.currentAccuracy}% answer average`
+                    : ''}
+                </Text>
+
+                <View style={styles.passportQuickRow}>
+                  <View style={styles.passportQuickPill}>
+                    <Text style={styles.passportQuickLabel}>Medium</Text>
+                    <Text style={styles.passportQuickValue}>{passportSummary.topMediumLabel}</Text>
+                  </View>
+                  <View style={styles.passportQuickPill}>
+                    <Text style={styles.passportQuickLabel}>Overall</Text>
+                    <Text style={styles.passportQuickValue}>
+                      {passportSummary.metrics.find((item) => item.key === 'accuracy')?.value ?? '0%'}
+                    </Text>
+                  </View>
                 </View>
 
-                <View style={styles.resultActions}>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.secondaryButton,
-                      pressed && styles.secondaryButtonPressed,
+                <View style={styles.passportStrip}>
+                  {passportPreview.map((item) => (
+                    <View
+                      key={item.key}
+                      style={[styles.passportTile, item.active && styles.passportTileActive]}
+                    >
+                      <Text style={[styles.passportTileValue, item.active && styles.passportTileValueActive]}>
+                        {item.seen}
+                      </Text>
+                      <Text style={[styles.passportTileLabel, item.active && styles.passportTileLabelActive]}>
+                        {item.label}
+                      </Text>
+                      <Text style={[styles.passportTileNote, item.active && styles.passportTileNoteActive]}>
+                        {item.accuracy !== null ? `${item.accuracy}% answer avg` : 'First visit'}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.shareSection}>
+                <Text style={styles.shareSectionTitle}>Share preview</Text>
+                <View style={styles.sharePreviewCompact}>
+                  <MuseumArtworkCard
+                    artwork={artwork}
+                    style={styles.sharePreviewImage}
+                    uri={artwork.images.thumbnailUrl}
+                    variant="thumb"
+                  />
+                  <View style={styles.sharePreviewTextWrap}>
+                    <View style={styles.sharePreviewHeader}>
+                      <Text style={styles.sharePreviewEyebrow}>Museum</Text>
+                      <View style={styles.sharePreviewBadge}>
+                        <Text style={styles.sharePreviewBadgeText}>
+                          Day {museumStreak} · {score}/3
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={styles.sharePreviewTitle}>{artwork.title}</Text>
+                    <Text style={styles.sharePreviewMeta}>
+                      {artwork.artist} · {artwork.objectDate} · {getMuseumLabel(artwork)}
+                    </Text>
+                    <Text style={styles.sharePreviewQuote}>
+                      "{getShortFact(artwork.context.surprisingFact)}"
+                    </Text>
+                  </View>
+                </View>
+
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.primaryButton,
+                    pressed && styles.primaryButtonPressed,
+                  ]}
+                  onPress={handleShare}
+                >
+                  <Text style={styles.primaryButtonText}>Copy share text</Text>
+                </Pressable>
+                {shareStatus ? <Text style={styles.shareStatus}>{shareStatus}</Text> : null}
+              </View>
+
+              <View style={styles.resultActionRow}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.secondaryButton,
+                    pressed && styles.secondaryButtonPressed,
                     ]}
                     onPress={openArtwork}
                   >
-                    <Text style={styles.secondaryButtonText}>Learn more</Text>
+                    <Text style={styles.secondaryButtonText}>Open museum page</Text>
                   </Pressable>
                   <Pressable
                     style={({ pressed }) => [
@@ -732,12 +1501,10 @@ export default function MuseumScreen() {
                     ]}
                     onPress={() => router.back()}
                   >
-                    <Text style={styles.secondaryButtonText}>Back to games</Text>
+                    <Text style={styles.secondaryButtonText}>Return home</Text>
                   </Pressable>
                 </View>
-                <Text style={styles.buildText}>Build: {BUILD_ID}</Text>
               </View>
-            </View>
           </ScrollView>
         )}
       </SafeAreaView>
@@ -745,488 +1512,1168 @@ export default function MuseumScreen() {
   );
 }
 
-const createStyles = (
-  theme: ThemeTokens,
-  screenAccent: ReturnType<typeof resolveScreenAccent>
-) => {
-  const Colors = theme.colors;
-  const Spacing = theme.spacing;
-  const FontSize = theme.fontSize;
-  const BorderRadius = theme.borderRadius;
-  const ui = createDaybreakPrimitives(theme, screenAccent);
-
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#050505',
-    },
-    stage: {
-      flex: 1,
-      backgroundColor: '#050505',
-      overflow: 'hidden',
-    },
-    viewer: {
-      width: '100%',
-      backgroundColor: '#050505',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    viewerImageClip: {
-      width: '100%',
-      height: '100%',
-      overflow: 'hidden',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    artworkImage: {
-      width: '100%',
-      height: '100%',
-    },
-    zoomControls: {
-      position: 'absolute',
-      right: Spacing.md,
-      top: 86,
-      gap: Spacing.sm,
-      alignItems: 'flex-end',
-    },
-    zoomButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: 'rgba(8, 8, 8, 0.62)',
-      borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.28)',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    zoomButtonText: {
-      color: '#ffffff',
-      fontSize: FontSize.lg,
-      fontWeight: '800',
-      lineHeight: 22,
-    },
-    zoomResetButton: {
-      minHeight: 38,
-      borderRadius: 19,
-      backgroundColor: 'rgba(8, 8, 8, 0.62)',
-      borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.28)',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: Spacing.md,
-    },
-    zoomResetText: {
-      color: '#ffffff',
-      fontSize: 12,
-      fontWeight: '700',
-    },
-    stageTopbar: {
-      position: 'absolute',
-      top: Spacing.md,
-      left: Spacing.md,
-      right: Spacing.md,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    backButton: {
-      minHeight: 40,
-      borderRadius: BorderRadius.full,
-      paddingHorizontal: Spacing.md,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(8, 8, 8, 0.54)',
-      borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.22)',
-    },
-    backButtonText: {
-      color: '#ffffff',
-      fontSize: FontSize.sm,
-      fontWeight: '700',
-    },
-    stageBadge: {
-      minHeight: 40,
-      borderRadius: BorderRadius.full,
-      paddingHorizontal: Spacing.md,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(8, 8, 8, 0.54)',
-      borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.22)',
-    },
-    stageBadgeText: {
-      color: '#ffffff',
-      fontSize: FontSize.sm,
-      fontWeight: '800',
-      letterSpacing: 1.4,
-      textTransform: 'uppercase',
-    },
-    interestPulse: {
-      position: 'absolute',
-      left: '59%',
-      top: '33%',
-      width: 52,
-      height: 52,
-      borderRadius: 26,
-      borderWidth: 2,
-      borderColor: '#ffffff',
-      backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    },
-    metadataOverlay: {
-      position: 'absolute',
-      left: Spacing.md,
-      right: Spacing.md,
-      bottom: 92,
-      padding: Spacing.lg,
-      borderRadius: BorderRadius.lg,
-      backgroundColor: 'rgba(5, 5, 5, 0.58)',
-      borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.2)',
-    },
-    artTitle: {
-      color: '#ffffff',
-      fontSize: FontSize.xl,
-      fontWeight: '800',
-    },
-    artistName: {
-      marginTop: Spacing.xs,
-      color: 'rgba(255, 255, 255, 0.88)',
-      fontSize: FontSize.md,
-      fontWeight: '600',
-    },
-    artMeta: {
-      marginTop: Spacing.sm,
-      color: 'rgba(255, 255, 255, 0.72)',
-      fontSize: FontSize.sm,
-      lineHeight: 20,
-    },
-    contextButton: {
-      position: 'absolute',
-      left: Spacing.md,
-      right: Spacing.md,
-      bottom: Spacing.lg,
-      minHeight: 52,
-      borderRadius: BorderRadius.sm,
-      backgroundColor: '#ffffff',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: Spacing.lg,
-    },
-    contextButtonPressed: {
-      backgroundColor: 'rgba(255, 255, 255, 0.82)',
-      transform: [{ scale: 0.99 }],
-    },
-    contextButtonText: {
-      color: '#050505',
-      fontSize: FontSize.md,
-      fontWeight: '800',
-    },
-    contextSheet: {
-      position: 'absolute',
-      left: Spacing.md,
-      right: Spacing.md,
-      bottom: Spacing.md,
-      borderRadius: BorderRadius.lg,
-      padding: Spacing.lg,
-      backgroundColor: theme.colors.surface,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      ...theme.shadows.elevated,
-    },
-    periodPill: {
-      alignSelf: 'flex-start',
-      borderRadius: BorderRadius.full,
-      paddingHorizontal: Spacing.md,
-      paddingVertical: Spacing.xs,
-      backgroundColor: screenAccent.badgeBg,
-      borderWidth: 1,
-      borderColor: screenAccent.badgeBorder,
-      marginBottom: Spacing.md,
-    },
-    periodPillText: {
-      color: screenAccent.badgeText,
-      fontSize: 12,
-      fontWeight: '800',
-      textTransform: 'uppercase',
-      letterSpacing: 0.6,
-    },
-    contextLine: {
-      color: Colors.textSecondary,
-      fontSize: FontSize.sm,
-      lineHeight: 21,
-      marginBottom: Spacing.sm,
-    },
-    contextFact: {
-      color: Colors.text,
-      fontSize: FontSize.md,
-      fontWeight: '700',
-      lineHeight: 23,
-      marginBottom: Spacing.sm,
-    },
-    contextActions: {
-      flexDirection: 'row',
-      gap: Spacing.sm,
-      marginTop: Spacing.sm,
-    },
-    scrollContent: {
-      flexGrow: 1,
-      padding: Spacing.lg,
-      paddingBottom: Spacing.xxl,
-      backgroundColor: Colors.backgroundSoft,
-    },
-    page: {
-      ...ui.page,
-    },
-    pageAccent: {
-      ...ui.accentBar,
-      marginBottom: Spacing.md,
-    },
-    quizHeader: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      gap: Spacing.md,
-      marginBottom: Spacing.md,
-    },
-    title: {
-      ...ui.title,
-    },
-    subtitle: {
-      ...ui.subtitle,
-    },
-    quizCounter: {
-      ...ui.pill,
-      color: Colors.textSecondary,
-      fontSize: FontSize.sm,
-      fontWeight: '800',
-      overflow: 'hidden',
-    },
-    quizArtworkCard: {
-      ...ui.subtleCard,
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: Spacing.sm,
-      gap: Spacing.md,
-      marginBottom: Spacing.md,
-    },
-    quizThumbnail: {
-      width: 72,
-      height: 72,
-      borderRadius: BorderRadius.sm,
-      backgroundColor: Colors.surface,
-    },
-    quizArtworkText: {
-      flex: 1,
-    },
-    quizArtworkTitle: {
-      color: Colors.text,
-      fontSize: FontSize.md,
-      fontWeight: '800',
-    },
-    quizArtworkMeta: {
-      color: Colors.textMuted,
-      fontSize: FontSize.sm,
-      marginTop: 2,
-    },
-    quizCard: {
-      ...ui.card,
-      padding: Spacing.lg,
-      marginBottom: Spacing.md,
-    },
-    questionKind: {
-      color: screenAccent.main,
-      fontSize: 12,
-      fontWeight: '800',
-      textTransform: 'uppercase',
-      letterSpacing: 1,
-      marginBottom: Spacing.sm,
-    },
-    questionText: {
-      color: Colors.text,
-      fontSize: FontSize.lg,
-      fontWeight: '800',
-      lineHeight: 26,
-      marginBottom: Spacing.md,
-    },
-    optionsList: {
-      gap: Spacing.sm,
-    },
-    option: {
-      backgroundColor: Colors.surfaceLight,
-      borderRadius: BorderRadius.sm,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      padding: Spacing.md,
-    },
-    optionPressed: {
-      backgroundColor: Colors.border,
-    },
-    optionCorrect: {
-      backgroundColor: theme.mode === 'dark' ? 'rgba(79, 180, 119, 0.22)' : 'rgba(24, 169, 87, 0.15)',
-      borderColor: Colors.success,
-    },
-    optionWrong: {
-      backgroundColor: theme.mode === 'dark' ? 'rgba(255, 107, 107, 0.22)' : 'rgba(224, 68, 68, 0.15)',
-      borderColor: Colors.error,
-    },
-    optionText: {
-      color: Colors.text,
-      fontSize: FontSize.md,
-      fontWeight: '700',
-      lineHeight: 22,
-    },
-    reinforcementBox: {
-      marginTop: Spacing.md,
-      padding: Spacing.md,
-      borderRadius: BorderRadius.sm,
-      backgroundColor: screenAccent.badgeBg,
-      borderWidth: 1,
-      borderColor: screenAccent.badgeBorder,
-    },
-    reinforcementTitle: {
-      color: Colors.text,
-      fontSize: FontSize.sm,
-      fontWeight: '800',
-      marginBottom: 2,
-    },
-    reinforcementText: {
-      color: Colors.textSecondary,
-      fontSize: FontSize.sm,
-      lineHeight: 20,
-    },
-    primaryButton: {
-      ...ui.cta,
-      borderRadius: BorderRadius.sm,
-      flex: 1,
-    },
-    primaryButtonPressed: {
-      ...ui.ctaPressed,
-    },
-    primaryButtonText: {
-      ...ui.ctaText,
-      fontSize: FontSize.md,
-      letterSpacing: 0.6,
-      textTransform: 'none',
-    },
-    disabledButton: {
-      opacity: 0.48,
-    },
-    secondaryButton: {
-      flex: 1,
-      minHeight: 52,
-      borderRadius: BorderRadius.sm,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: Colors.surfaceLight,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: Spacing.md,
-    },
-    secondaryButtonPressed: {
-      backgroundColor: Colors.border,
-      transform: [{ scale: 0.99 }],
-    },
-    secondaryButtonText: {
-      color: Colors.textSecondary,
-      fontSize: FontSize.md,
-      fontWeight: '800',
-    },
-    resultCard: {
-      ...ui.card,
-      padding: Spacing.lg,
-      alignItems: 'center',
-    },
-    resultImage: {
-      width: '100%',
-      height: 230,
-      borderRadius: BorderRadius.sm,
-      backgroundColor: Colors.surfaceLight,
-    },
-    resultTitle: {
-      color: Colors.text,
-      fontSize: FontSize.xl,
-      fontWeight: '900',
-      marginTop: Spacing.lg,
-      textAlign: 'center',
-    },
-    resultSubtitle: {
-      color: Colors.textMuted,
-      fontSize: FontSize.sm,
-      marginTop: Spacing.xs,
-      textAlign: 'center',
-    },
-    resultStats: {
-      flexDirection: 'row',
-      width: '100%',
-      gap: Spacing.sm,
-      marginTop: Spacing.lg,
-    },
-    statBlock: {
-      flex: 1,
-      borderRadius: BorderRadius.sm,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: Colors.surfaceLight,
-      padding: Spacing.md,
-      minHeight: 82,
-      justifyContent: 'center',
-    },
-    statValue: {
-      color: Colors.text,
-      fontSize: FontSize.md,
-      fontWeight: '900',
-      textAlign: 'center',
-    },
-    statLabel: {
-      color: Colors.textMuted,
-      fontSize: 12,
-      fontWeight: '700',
-      marginTop: 4,
-      textAlign: 'center',
-      textTransform: 'capitalize',
-    },
-    shareCard: {
-      width: '100%',
-      backgroundColor: Colors.surface,
-      borderRadius: BorderRadius.sm,
-      padding: Spacing.md,
-      marginTop: Spacing.lg,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      gap: Spacing.sm,
-    },
-    shareTitle: {
-      fontSize: FontSize.sm,
-      fontWeight: '800',
-      color: Colors.textSecondary,
-      textTransform: 'uppercase',
-      letterSpacing: 0.8,
-    },
-    shareBox: {
-      backgroundColor: Colors.surfaceLight,
-      borderRadius: BorderRadius.sm,
-      padding: Spacing.md,
-    },
-    shareText: {
-      color: Colors.text,
-      fontSize: FontSize.sm,
-      lineHeight: 20,
-    },
-    shareStatus: {
-      color: Colors.textMuted,
-      fontSize: FontSize.sm,
-      textAlign: 'center',
-    },
-    resultActions: {
-      flexDirection: 'row',
-      width: '100%',
-      gap: Spacing.sm,
-      marginTop: Spacing.md,
-    },
-    buildText: {
-      color: Colors.textMuted,
-      fontSize: FontSize.sm,
-      marginTop: Spacing.md,
-    },
-  });
-};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    minHeight: '100%',
+    backgroundColor: COLORS.bg,
+  },
+  stage: {
+    flex: 1,
+    minHeight: '100%',
+    backgroundColor: COLORS.bg,
+    overflow: 'hidden',
+  },
+  viewer: {
+    width: '100%',
+    backgroundColor: COLORS.bg,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    position: 'relative',
+    paddingTop: 80,
+  },
+  viewerWallGlow: {
+    position: 'absolute',
+    top: '16%',
+    width: '74%',
+    height: '50%',
+    borderRadius: 36,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    shadowColor: COLORS.white,
+    shadowOpacity: 0.08,
+    shadowRadius: 44,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  stageArtworkCard: {
+    borderRadius: 28,
+    backgroundColor: 'rgba(17,14,13,0.94)',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    shadowColor: '#000000',
+    shadowOpacity: 0.28,
+    shadowRadius: 34,
+    shadowOffset: { width: 0, height: 18 },
+    elevation: 8,
+  },
+  stageArtworkInset: {
+    flex: 1,
+    overflow: 'hidden',
+    borderRadius: 18,
+    backgroundColor: '#080707',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  viewerImageShell: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  webArtworkFill: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  hiddenProbeImage: {
+    position: 'absolute',
+    width: 1,
+    height: 1,
+    opacity: 0,
+  },
+  viewerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  artworkCardBase: {
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    backgroundColor: 'rgba(19,17,16,0.96)',
+    shadowColor: '#000000',
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+  },
+  artworkCard: {
+    borderRadius: 22,
+    padding: 14,
+  },
+  artworkCardHero: {
+    borderRadius: 24,
+    padding: 16,
+  },
+  artworkCardThumb: {
+    borderRadius: 16,
+    padding: 8,
+  },
+  artworkCardShare: {
+    borderRadius: 18,
+    padding: 10,
+  },
+  artworkCardInner: {
+    flex: 1,
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: '#0a0908',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  staticArtworkImage: {
+    width: '100%',
+    height: '100%',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+  },
+  loadingCard: {
+    width: '100%',
+    maxWidth: 340,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    backgroundColor: 'rgba(23, 19, 17, 0.9)',
+    paddingHorizontal: 22,
+    paddingVertical: 24,
+    alignItems: 'center',
+  },
+  loadingPeriod: {
+    color: COLORS.amber,
+    fontSize: 11,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  loadingTitle: {
+    color: COLORS.text,
+    fontSize: 30,
+    lineHeight: 34,
+    fontFamily: FONT_SERIF,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  loadingMeta: {
+    color: COLORS.textDim,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: FONT_SANS,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  loadingBadge: {
+    minHeight: 38,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(12, 10, 9, 0.75)',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingBadgeLabel: {
+    color: COLORS.textDim,
+    fontSize: 12,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+  },
+  fallbackArtwork: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    backgroundColor: '#171311',
+  },
+  fallbackLabel: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    fontFamily: FONT_SANS,
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+    marginBottom: 10,
+  },
+  fallbackTitle: {
+    color: COLORS.text,
+    fontSize: 34,
+    lineHeight: 38,
+    fontFamily: FONT_SERIF,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  fallbackMeta: {
+    color: COLORS.textDim,
+    fontSize: 15,
+    fontFamily: FONT_SANS,
+    textAlign: 'center',
+  },
+  zoomLauncherWrap: {
+    position: 'absolute',
+    right: 16,
+    bottom: 18,
+  },
+  zoomLauncher: {
+    minHeight: 34,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    backgroundColor: 'rgba(23, 19, 17, 0.82)',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  zoomLauncherPressed: {
+    backgroundColor: 'rgba(31, 25, 23, 0.94)',
+  },
+  zoomLauncherText: {
+    color: COLORS.textDim,
+    fontSize: 11,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  zoomControls: {
+    position: 'absolute',
+    right: 16,
+    bottom: 60,
+    gap: 8,
+    alignItems: 'flex-end',
+  },
+  zoomButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(23, 19, 17, 0.92)',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  zoomButtonPressed: {
+    backgroundColor: 'rgba(31, 25, 23, 0.98)',
+  },
+  zoomButtonText: {
+    color: COLORS.text,
+    fontSize: 20,
+    lineHeight: 22,
+    fontWeight: '700',
+  },
+  zoomResetButton: {
+    minHeight: 34,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    backgroundColor: 'rgba(23, 19, 17, 0.92)',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  zoomResetText: {
+    color: COLORS.textDim,
+    fontSize: 12,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+  },
+  heroTopScrim: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 130,
+    backgroundColor: 'rgba(0,0,0,0.26)',
+  },
+  heroBottomScrim: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '55%',
+    justifyContent: 'flex-end',
+  },
+  heroBottomTint: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.48)',
+    ...(Platform.OS === 'web'
+      ? ({
+          backgroundImage:
+            'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.88))',
+        } as object)
+      : null),
+  },
+  stageTopRow: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  badgeButton: {
+    minHeight: 38,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    backgroundColor: 'rgba(23, 19, 17, 0.84)',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  badgeButtonPressed: {
+    backgroundColor: 'rgba(31, 25, 23, 0.98)',
+  },
+  badgeChevron: {
+    color: COLORS.textMuted,
+    fontSize: 16,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  badgeLabel: {
+    color: COLORS.pink,
+    fontSize: 13,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
+  streakPill: {
+    minHeight: 38,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    backgroundColor: 'rgba(23, 19, 17, 0.84)',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  streakPillLabel: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+  },
+  streakPillValue: {
+    color: COLORS.amber,
+    fontSize: 14,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  heroFooter: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    bottom: 28,
+  },
+  periodTag: {
+    color: COLORS.amber,
+    fontSize: 11,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: 6,
+  },
+  heroTitle: {
+    color: COLORS.text,
+    fontSize: 34,
+    lineHeight: 38,
+    fontFamily: FONT_SERIF,
+    marginBottom: 4,
+  },
+  heroArtist: {
+    color: COLORS.textDim,
+    fontSize: 15,
+    fontFamily: FONT_SANS,
+    fontWeight: '500',
+  },
+  heroMeta: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: FONT_SANS,
+    marginTop: 4,
+  },
+  heroMetaMuted: {
+    color: '#c9b8a9',
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: FONT_SANS,
+    marginTop: 3,
+  },
+  heroCta: {
+    minHeight: 50,
+    borderRadius: 14,
+    marginTop: 18,
+    backgroundColor: 'rgba(23, 19, 17, 0.84)',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+  },
+  heroCtaPressed: {
+    backgroundColor: 'rgba(31, 25, 23, 0.98)',
+  },
+  heroCtaText: {
+    color: COLORS.text,
+    fontSize: 15,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+  },
+  heroHint: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: FONT_SANS,
+    marginTop: 10,
+    maxWidth: 320,
+  },
+  contextSheet: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    maxHeight: '74%',
+    minHeight: '62%',
+    backgroundColor: '#12100f',
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    paddingTop: 12,
+  },
+  contextSheetHandle: {
+    width: 56,
+    height: 4,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+  contextHeader: {
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 18,
+  },
+  contextThumbWrap: {
+    width: 78,
+    height: 96,
+  },
+  contextHeaderText: {
+    flex: 1,
+  },
+  contextHeaderTitle: {
+    color: COLORS.text,
+    fontSize: 20,
+    lineHeight: 24,
+    fontFamily: FONT_SERIF,
+    marginBottom: 2,
+  },
+  contextHeaderMeta: {
+    color: COLORS.textDim,
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: FONT_SANS,
+  },
+  contextHeaderMetaMuted: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: FONT_SANS,
+    marginTop: 2,
+  },
+  contextScroll: {
+    flex: 1,
+  },
+  contextScrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 18,
+    gap: 12,
+  },
+  periodBanner: {
+    backgroundColor: COLORS.panelSoft,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+  },
+  periodBannerLabel: {
+    color: COLORS.textMuted,
+    fontSize: 11,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+    marginBottom: 6,
+  },
+  periodBannerValue: {
+    color: COLORS.text,
+    fontSize: 16,
+    lineHeight: 22,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+  },
+  contextLead: {
+    color: COLORS.textDim,
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: FONT_SANS,
+  },
+  placardGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  placardGridItem: {
+    width: '47%',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 12,
+  },
+  placardGridLabel: {
+    color: COLORS.textMuted,
+    fontSize: 10,
+    lineHeight: 14,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 5,
+  },
+  placardGridValue: {
+    color: COLORS.text,
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+  },
+  contextSection: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+  },
+  contextSectionEmphasized: {
+    backgroundColor: 'rgba(245,180,85,0.06)',
+  },
+  contextSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  contextIcon: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contextIconText: {
+    color: COLORS.text,
+    fontSize: 12,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  contextSectionLabel: {
+    color: COLORS.pink,
+    fontSize: 11,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
+  contextSectionLabelStrong: {
+    color: COLORS.amber,
+  },
+  contextSectionText: {
+    color: COLORS.textDim,
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: FONT_SANS,
+  },
+  contextSectionTextStrong: {
+    color: '#f7d8a3',
+  },
+  contextActions: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingHorizontal: 20,
+    paddingBottom: 18,
+    paddingTop: 12,
+  },
+  primaryButton: {
+    flex: 1,
+    minHeight: 50,
+    borderRadius: 14,
+    backgroundColor: '#8c6a45',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+  },
+  primaryButtonPressed: {
+    backgroundColor: '#75583a',
+  },
+  primaryButtonText: {
+    color: COLORS.white,
+    fontSize: 15,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  secondaryButton: {
+    flex: 1,
+    minHeight: 50,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+  },
+  secondaryButtonPressed: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  secondaryButtonText: {
+    color: COLORS.textDim,
+    fontSize: 15,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 18,
+    paddingTop: 20,
+    paddingBottom: 40,
+    backgroundColor: COLORS.bg,
+  },
+  page: {
+    width: '100%',
+    maxWidth: 540,
+    alignSelf: 'center',
+  },
+  quizHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 18,
+  },
+  quizEyebrow: {
+    color: COLORS.pink,
+    fontSize: 11,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: 4,
+  },
+  quizDate: {
+    color: COLORS.textDim,
+    fontSize: 15,
+    lineHeight: 20,
+    fontFamily: FONT_SANS,
+  },
+  quizCountWrap: {
+    minWidth: 58,
+    minHeight: 36,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    backgroundColor: COLORS.panelSoft,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quizCountText: {
+    color: COLORS.textDim,
+    fontSize: 13,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  progressRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 18,
+  },
+  progressTrack: {
+    flex: 1,
+    height: 4,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  progressTrackFilled: {
+    backgroundColor: 'rgba(167,102,79,0.4)',
+  },
+  progressTrackActive: {
+    backgroundColor: COLORS.pink,
+  },
+  quizArtworkWrap: {
+    width: '100%',
+    height: 300,
+    marginBottom: 20,
+  },
+  quizPlacard: {
+    marginTop: -4,
+    marginBottom: 18,
+  },
+  quizArtworkTitle: {
+    color: COLORS.text,
+    fontSize: 18,
+    lineHeight: 22,
+    fontFamily: FONT_SERIF,
+    marginBottom: 2,
+  },
+  quizArtworkMeta: {
+    color: COLORS.textDim,
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: FONT_SANS,
+  },
+  questionKind: {
+    color: COLORS.textMuted,
+    fontSize: 11,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: 8,
+  },
+  questionText: {
+    color: COLORS.text,
+    fontSize: 30,
+    lineHeight: 36,
+    fontFamily: FONT_SERIF,
+    marginBottom: 22,
+  },
+  optionsList: {
+    gap: 10,
+  },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: COLORS.panelSoft,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+  },
+  optionPressed: {
+    backgroundColor: 'rgba(167,102,79,0.12)',
+    borderColor: 'rgba(167,102,79,0.28)',
+  },
+  optionCorrect: {
+    backgroundColor: COLORS.greenSoft,
+    borderColor: 'rgba(56,211,159,0.34)',
+  },
+  optionWrong: {
+    backgroundColor: COLORS.redSoft,
+    borderColor: 'rgba(241,110,134,0.34)',
+  },
+  optionChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  optionChipCorrect: {
+    backgroundColor: 'rgba(56,211,159,0.18)',
+  },
+  optionChipWrong: {
+    backgroundColor: 'rgba(241,110,134,0.18)',
+  },
+  optionChipText: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  optionChipTextAccent: {
+    color: COLORS.text,
+  },
+  optionText: {
+    flex: 1,
+    color: COLORS.text,
+    fontSize: 15,
+    lineHeight: 21,
+    fontFamily: FONT_SANS,
+    fontWeight: '500',
+  },
+  optionTextCorrect: {
+    color: '#d7fff0',
+  },
+  optionTextWrong: {
+    color: '#ffe1e8',
+  },
+  answerReveal: {
+    marginTop: 14,
+    backgroundColor: COLORS.panelSoft,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+    gap: 14,
+  },
+  answerRevealTitle: {
+    color: COLORS.text,
+    fontSize: 15,
+    lineHeight: 20,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  answerRevealText: {
+    color: COLORS.textDim,
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: FONT_SANS,
+  },
+  resultDate: {
+    color: COLORS.textDim,
+    fontSize: 14,
+    lineHeight: 18,
+    fontFamily: FONT_SANS,
+    marginBottom: 12,
+  },
+  resultSummaryCard: {
+    flexDirection: 'row',
+    gap: 14,
+    alignItems: 'stretch',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    padding: 14,
+    marginBottom: 14,
+  },
+  resultHero: {
+    width: 154,
+    height: 154,
+    flexShrink: 0,
+  },
+  resultSummaryBody: {
+    flex: 1,
+  },
+  resultHeroTitle: {
+    color: COLORS.text,
+    fontSize: 20,
+    lineHeight: 24,
+    fontFamily: FONT_SERIF,
+    marginBottom: 4,
+  },
+  resultHeroMeta: {
+    color: COLORS.textDim,
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: FONT_SANS,
+  },
+  resultScoreRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginTop: 14,
+  },
+  resultScoreCopy: {
+    flex: 1,
+  },
+  resultScore: {
+    fontSize: 48,
+    lineHeight: 50,
+    fontFamily: FONT_SERIF,
+  },
+  resultHeadline: {
+    color: COLORS.text,
+    fontSize: 17,
+    lineHeight: 22,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+  },
+  resultNote: {
+    color: COLORS.textMuted,
+    fontSize: 13,
+    lineHeight: 19,
+    fontFamily: FONT_SANS,
+    marginTop: 4,
+  },
+  resultStatsGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+  },
+  statTile: {
+    flex: 1,
+    backgroundColor: COLORS.panelSoft,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statValue: {
+    fontSize: 28,
+    lineHeight: 30,
+    fontFamily: FONT_SERIF,
+    marginBottom: 4,
+  },
+  statLabel: {
+    color: COLORS.textMuted,
+    fontSize: 11,
+    lineHeight: 15,
+    fontFamily: FONT_SANS,
+    textAlign: 'center',
+  },
+  resultProgressCard: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 14,
+  },
+  resultProgressLine: {
+    color: COLORS.textDim,
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: FONT_SANS,
+  },
+  passportSection: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    padding: 14,
+    marginBottom: 14,
+  },
+  passportHeaderCompact: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginBottom: 10,
+  },
+  passportEyebrow: {
+    color: COLORS.textMuted,
+    fontSize: 11,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
+  passportCount: {
+    color: COLORS.pink,
+    fontSize: 12,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  passportBadge: {
+    minHeight: 28,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    backgroundColor: COLORS.pinkSoft,
+    borderWidth: 1,
+    borderColor: 'rgba(167,102,79,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  passportBadgeText: {
+    color: COLORS.text,
+    fontSize: 10,
+    lineHeight: 14,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  passportIntroCompact: {
+    color: COLORS.textDim,
+    fontSize: 13,
+    lineHeight: 19,
+    fontFamily: FONT_SANS,
+    marginBottom: 10,
+  },
+  passportQuickRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 10,
+  },
+  passportQuickPill: {
+    flex: 1,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  passportQuickLabel: {
+    color: COLORS.textMuted,
+    fontSize: 10,
+    lineHeight: 15,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  passportQuickValue: {
+    color: COLORS.text,
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: FONT_SANS,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  passportStrip: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  passportTile: {
+    width: '31.5%',
+    minHeight: 82,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.04)',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    justifyContent: 'flex-start',
+  },
+  passportTileActive: {
+    backgroundColor: COLORS.pinkSoft,
+    borderColor: 'rgba(167,102,79,0.24)',
+  },
+  passportTileValue: {
+    color: COLORS.textMuted,
+    fontSize: 20,
+    lineHeight: 22,
+    fontFamily: FONT_SERIF,
+    marginBottom: 4,
+  },
+  passportTileValueActive: {
+    color: COLORS.pink,
+  },
+  passportTileLabel: {
+    color: COLORS.text,
+    fontSize: 11,
+    lineHeight: 15,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  passportTileLabelActive: {
+    color: COLORS.text,
+  },
+  passportTileNote: {
+    color: COLORS.textMuted,
+    fontSize: 10,
+    lineHeight: 14,
+    fontFamily: FONT_SANS,
+  },
+  passportTileNoteActive: {
+    color: '#edd6cc',
+  },
+  shareSection: {
+    backgroundColor: COLORS.panelSoft,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 14,
+    marginBottom: 14,
+    gap: 12,
+  },
+  shareSectionTitle: {
+    color: COLORS.text,
+    fontSize: 16,
+    lineHeight: 20,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  sharePreviewCompact: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 14,
+  },
+  sharePreviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sharePreviewBadge: {
+    minHeight: 30,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    backgroundColor: COLORS.pinkSoft,
+    borderWidth: 1,
+    borderColor: 'rgba(167,102,79,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sharePreviewBadgeText: {
+    color: COLORS.text,
+    fontSize: 11,
+    lineHeight: 14,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  sharePreviewImage: {
+    width: 92,
+    height: 92,
+    flexShrink: 0,
+  },
+  sharePreviewTextWrap: {
+    flex: 1,
+    gap: 6,
+  },
+  sharePreviewEyebrow: {
+    color: COLORS.textMuted,
+    fontSize: 10,
+    lineHeight: 14,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  sharePreviewTitle: {
+    color: COLORS.text,
+    fontSize: 24,
+    lineHeight: 28,
+    fontFamily: FONT_SERIF,
+  },
+  sharePreviewMeta: {
+    color: COLORS.textDim,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: FONT_SANS,
+  },
+  sharePreviewQuote: {
+    color: '#f5d8b3',
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: FONT_SANS,
+  },
+  shareStatus: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: FONT_SANS,
+    textAlign: 'center',
+  },
+  resultActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+  },
+});

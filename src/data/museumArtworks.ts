@@ -38,6 +38,10 @@ export interface MuseumArtwork {
     objectUrl: string;
     license: 'CC0';
   };
+  presentation?: {
+    preferredFrameId?: string;
+    allowSpecialShapes?: boolean;
+  };
   review: {
     status: 'reviewed';
     factCheckSources: string[];
@@ -68,7 +72,52 @@ interface MuseumSchedulePayload {
 const DAY_MS = 1000 * 60 * 60 * 24;
 const CURATED = curatedData as MuseumCuratedPayload;
 const SCHEDULE = scheduleData as MuseumSchedulePayload;
-const ARTWORKS = CURATED.artworks;
+
+function hashString(value: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function reorderQuestionOptions(question: MuseumQuestion, seed: string): MuseumQuestion {
+  const decorated = question.options.map((option, index) => ({
+    option,
+    originalIndex: index,
+    weight: hashString(`${seed}:${index}:${option}`),
+  }));
+
+  decorated.sort((left, right) => {
+    if (left.weight !== right.weight) return left.weight - right.weight;
+    return left.originalIndex - right.originalIndex;
+  });
+
+  let answerIndex = decorated.findIndex((entry) => entry.originalIndex === question.answerIndex);
+
+  if (answerIndex === 0 && decorated.length > 1) {
+    decorated.push(decorated.shift()!);
+    answerIndex = decorated.findIndex((entry) => entry.originalIndex === question.answerIndex);
+  }
+
+  return {
+    ...question,
+    options: decorated.map((entry) => entry.option),
+    answerIndex,
+  };
+}
+
+function prepareArtwork(artwork: MuseumArtwork): MuseumArtwork {
+  return {
+    ...artwork,
+    questions: artwork.questions.map((question, index) =>
+      reorderQuestionOptions(question, `${artwork.id}:${index}:${question.prompt}`)
+    ),
+  };
+}
+
+const ARTWORKS = CURATED.artworks.map(prepareArtwork);
 const ARTWORK_BY_ID = new Map(ARTWORKS.map((artwork) => [artwork.id, artwork]));
 const SCHEDULE_BY_DATE = new Map(SCHEDULE.entries.map((entry) => [entry.date, entry.artworkId]));
 
