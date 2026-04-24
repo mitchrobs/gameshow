@@ -39,8 +39,7 @@ const WEB_NO_SELECT = (
         touchAction: 'manipulation',
       }
     : {}
-) as ViewStyle;
-const WEB_NO_SELECT_TEXT = WEB_NO_SELECT as TextStyle;
+) as ViewStyle & TextStyle;
 
 type GameState = 'playing' | 'won' | 'lost';
 
@@ -1001,7 +1000,7 @@ const createStyles = (
     ...WEB_NO_SELECT,
   },
   noSelectText: {
-    ...WEB_NO_SELECT_TEXT,
+    ...WEB_NO_SELECT,
   },
   suspectsHeaderRow: {
     flexDirection: 'row',
