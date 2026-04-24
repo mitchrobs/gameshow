@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,7 +29,6 @@ import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const STORAGE_VERSION = 5;
-const TRANSITION_MS = 1150;
 const KEYPAD_LAYOUT = [
   ['1', '2', '3'],
   ['4', '5', '6'],
@@ -257,10 +257,11 @@ function AppButton({
         styles.buttonBase,
         variant === 'primary' ? styles.buttonPrimary : styles.buttonSecondary,
         fullWidth && styles.buttonFullWidth,
+        disabled &&
+          (variant === 'primary' ? styles.buttonPrimaryDisabled : styles.buttonSecondaryDisabled),
         pressed && !disabled && (variant === 'primary'
           ? styles.buttonPrimaryPressed
           : styles.buttonSecondaryPressed),
-        disabled && styles.buttonDisabled,
       ]}
     >
       <Text
@@ -401,13 +402,10 @@ function StartScreen({
         </View>
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={styles.sectionEyebrow}>How it works</Text>
-        <Text style={styles.infoCopy}>
-          Enter a number, nudge it with the quick chips, then use higher-lower feedback to get
-          within {Math.round(WIN_THRESHOLD * 100)}% of the answer.
-        </Text>
-      </View>
+      <Text style={styles.compactRule}>
+        Use the keypad, tap the quick chips, and get within {Math.round(WIN_THRESHOLD * 100)}%
+        {' '}in four guesses.
+      </Text>
 
       <AppButton label="Play Ballpark" onPress={onStart} styles={styles} fullWidth />
 
@@ -555,24 +553,33 @@ function QuestionScreen({
   return (
     <View>
       <View style={styles.metaRow}>
-        <View>
+        <View style={styles.metaCopy}>
           <Text style={styles.sectionEyebrow}>
             Question {questionIndex + 1} / {dailySet.questions.length}
           </Text>
           <Text style={styles.metaSubcopy}>{formatLongDate(dailySet.date)}</Text>
+          <View style={styles.progressRow}>
+            {dailySet.questions.map((entry, index) => (
+              <View
+                key={entry.id}
+                style={[
+                  styles.progressSegment,
+                  index === questionIndex && styles.progressSegmentActive,
+                  index < questionIndex && styles.progressSegmentComplete,
+                ]}
+              />
+            ))}
+          </View>
         </View>
         <View style={styles.guessCounter}>
-          <Text style={styles.guessCounterLabel}>Guesses left</Text>
           <Text style={styles.guessCounterValue}>{guessesLeft}</Text>
+          <Text style={styles.guessCounterLabel}>left</Text>
         </View>
       </View>
 
       <View style={styles.chipRow}>
         <View style={styles.themeChip}>
           <Text style={styles.themeChipText}>{dailySet.theme}</Text>
-        </View>
-        <View style={styles.stageChip}>
-          <Text style={styles.stageChipText}>{DIFFICULTY_META[question.difficulty].label}</Text>
         </View>
       </View>
 
@@ -584,14 +591,14 @@ function QuestionScreen({
       <View style={styles.guessDisplayCard}>
         <Text style={styles.sectionEyebrow}>Current guess</Text>
         <Text style={guessInput ? styles.guessDisplayValue : styles.guessDisplayPlaceholder}>
-          {guessInput ? formatFullNumber(Number(guessInput)) : 'Tap the keypad'}
+          {guessInput ? formatFullNumber(Number(guessInput)) : 'Enter a guess'}
         </Text>
         <Text style={styles.guessDisplayHint}>
           {currentGuess !== null
             ? `${formatCompactNumber(currentGuess)} ready to submit`
             : lastGuess !== null
               ? `Last guess: ${formatFullNumber(lastGuess)}`
-              : 'Digits only. Use the quick chips when you want to jump scales.'}
+              : 'Use the keypad or quick chips to jump scales.'}
         </Text>
       </View>
 
@@ -641,7 +648,7 @@ function QuestionScreen({
           />
         </View>
       ) : (
-        <View>
+        <View style={styles.controlsWrap}>
           <View style={styles.adjustmentsRow}>
             {ADJUSTMENTS.map((button) => (
               <Pressable
@@ -723,18 +730,6 @@ function QuestionScreen({
   );
 }
 
-function TransitionScreen({ nextQuestion, progressLabel, styles }) {
-  return (
-    <View style={styles.transitionCard}>
-      <Text style={styles.sectionEyebrow}>Up next</Text>
-      <Text style={styles.transitionTitle}>{DIFFICULTY_META[nextQuestion.difficulty].label}</Text>
-      <Text style={styles.transitionPrompt}>{nextQuestion.prompt}</Text>
-      <Text style={styles.transitionBody}>{DIFFICULTY_META[nextQuestion.difficulty].blurb}</Text>
-      <Text style={styles.transitionMeta}>{progressLabel}</Text>
-    </View>
-  );
-}
-
 function SummaryScreen({
   cycleDay,
   dailySet,
@@ -754,7 +749,7 @@ function SummaryScreen({
   const totalGuesses = results.reduce((sum, result) => sum + result.guesses, 0);
   const misses = results.filter((result) => !result.won);
   const closestMiss = misses.length > 0 ? Math.min(...misses.map((result) => result.bestPctOff)) : null;
-  const completionCode = useMemo(
+  const shareCode = useMemo(
     () =>
       createCompletionCode({
         closestMiss,
@@ -769,7 +764,7 @@ function SummaryScreen({
 
   useEffect(() => {
     setCopyStatus(null);
-  }, [completionCode]);
+  }, [shareCode]);
 
   const handleCopyCompletionCode = useCallback(async () => {
     if (Platform.OS !== 'web') return;
@@ -781,12 +776,12 @@ function SummaryScreen({
     }
 
     try {
-      await clipboard.writeText(completionCode);
-      setCopyStatus('Completion code copied');
+      await clipboard.writeText(shareCode);
+      setCopyStatus('Copied');
     } catch {
       setCopyStatus('Copy failed');
     }
-  }, [completionCode]);
+  }, [shareCode]);
 
   return (
     <View>
@@ -830,24 +825,23 @@ function SummaryScreen({
             <Text style={styles.summaryStatLabel}>Total guesses</Text>
           </View>
         </View>
-      </View>
-
-      <View style={styles.completionCard}>
-        <Text style={styles.sectionEyebrow}>Daybreak completion code</Text>
-        <Text selectable style={styles.completionCode}>
-          {completionCode}
-        </Text>
-        <Text style={styles.completionCopy}>
-          Encodes the day, your score, total guesses, and the content version for this set.
-        </Text>
-        <AppButton
-          label="Copy Code"
-          onPress={handleCopyCompletionCode}
-          styles={styles}
-          variant="secondary"
-          fullWidth
-        />
-        {copyStatus ? <Text style={styles.completionStatus}>{copyStatus}</Text> : null}
+        <View style={styles.shareCodeCard}>
+          <View style={styles.shareCodeCopy}>
+            <Text style={styles.sectionEyebrow}>Share result code</Text>
+            <Text selectable style={styles.shareCodeValue}>
+              {shareCode}
+            </Text>
+          </View>
+          <Pressable
+            onPress={handleCopyCompletionCode}
+            style={({ pressed }) => [
+              styles.shareCodeButton,
+              pressed && styles.shareCodeButtonPressed,
+            ]}
+          >
+            <Text style={styles.shareCodeButtonText}>{copyStatus ?? 'Copy'}</Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.summaryListCard}>
@@ -904,21 +898,23 @@ function SummaryScreen({
   );
 }
 
-function createStyles(theme, screenAccent) {
+function createStyles(theme, screenAccent, viewportWidth) {
   const Colors = theme.colors;
   const Spacing = theme.spacing;
   const FontSize = theme.fontSize;
   const BorderRadius = theme.borderRadius;
   const ui = createDaybreakPrimitives(theme, screenAccent);
+  const controlRailMaxWidth =
+    viewportWidth >= 1100 ? 360 : viewportWidth >= 768 ? 400 : undefined;
   const keySurface = theme.mode === 'dark'
-    ? 'rgba(31, 42, 58, 0.72)'
-    : 'rgba(232, 239, 248, 0.88)';
+    ? 'rgba(26, 34, 46, 0.48)'
+    : 'rgba(235, 240, 246, 0.74)';
   const keySurfaceMuted = theme.mode === 'dark'
-    ? 'rgba(23, 31, 43, 0.82)'
-    : 'rgba(223, 231, 242, 0.82)';
+    ? 'rgba(20, 27, 38, 0.56)'
+    : 'rgba(226, 233, 242, 0.68)';
   const keyBorder = theme.mode === 'dark'
-    ? 'rgba(110, 136, 167, 0.28)'
-    : 'rgba(100, 122, 148, 0.18)';
+    ? 'rgba(110, 136, 167, 0.18)'
+    : 'rgba(100, 122, 148, 0.12)';
 
   return StyleSheet.create({
     container: {
@@ -926,24 +922,19 @@ function createStyles(theme, screenAccent) {
       backgroundColor: Colors.backgroundSoft,
     },
     scrollContent: {
-      padding: Spacing.lg,
-      paddingBottom: Spacing.xxl,
+      padding: Spacing.md,
+      paddingBottom: Spacing.xl,
     },
     page: {
       ...ui.page,
     },
     pageAccent: {
       ...ui.accentBar,
-      marginBottom: Spacing.md,
+      marginBottom: Spacing.sm,
     },
     header: {
-      marginBottom: Spacing.md,
+      marginBottom: Spacing.sm,
       gap: Spacing.xs,
-    },
-    title: {
-      fontSize: FontSize.xxl,
-      fontWeight: '800',
-      color: Colors.text,
     },
     subtitle: {
       fontSize: FontSize.sm,
@@ -951,9 +942,9 @@ function createStyles(theme, screenAccent) {
     },
     heroCard: {
       ...ui.card,
-      padding: Spacing.lg,
-      gap: Spacing.md,
-      marginBottom: Spacing.md,
+      padding: Spacing.md,
+      gap: Spacing.sm,
+      marginBottom: Spacing.sm,
     },
     heroMetaCard: {
       ...ui.subtleCard,
@@ -994,23 +985,24 @@ function createStyles(theme, screenAccent) {
       color: screenAccent.badgeText,
     },
     themeTitle: {
-      fontSize: 30,
+      fontSize: 24,
       fontWeight: '800',
       color: Colors.text,
-      lineHeight: 34,
+      lineHeight: 28,
     },
     themeBody: {
       fontSize: FontSize.sm,
       color: Colors.textSecondary,
-      lineHeight: 20,
+      lineHeight: 18,
     },
     stageList: {
-      gap: Spacing.sm,
+      gap: Spacing.xs,
     },
     stageCard: {
       ...ui.subtleCard,
-      padding: Spacing.md,
-      gap: 4,
+      paddingVertical: Spacing.sm,
+      paddingHorizontal: Spacing.sm,
+      gap: 2,
     },
     stageLabel: {
       fontSize: 12,
@@ -1020,15 +1012,9 @@ function createStyles(theme, screenAccent) {
       letterSpacing: 0.9,
     },
     stageBody: {
-      fontSize: FontSize.sm,
+      fontSize: 13,
       color: Colors.textMuted,
-      lineHeight: 19,
-    },
-    infoCard: {
-      ...ui.card,
-      padding: Spacing.lg,
-      marginBottom: Spacing.md,
-      gap: 8,
+      lineHeight: 17,
     },
     sectionEyebrow: {
       fontSize: 11,
@@ -1037,17 +1023,18 @@ function createStyles(theme, screenAccent) {
       fontWeight: '700',
       color: Colors.textMuted,
     },
-    infoCopy: {
-      fontSize: FontSize.md,
-      lineHeight: 24,
-      color: Colors.textSecondary,
+    compactRule: {
+      fontSize: FontSize.sm,
+      lineHeight: 18,
+      color: Colors.textMuted,
+      marginBottom: Spacing.sm,
     },
     buttonBase: {
       borderRadius: BorderRadius.full,
-      minHeight: 52,
+      minHeight: 42,
       alignItems: 'center',
       justifyContent: 'center',
-      paddingHorizontal: Spacing.xl,
+      paddingHorizontal: Spacing.lg,
       borderWidth: 1,
     },
     buttonFullWidth: {
@@ -1072,6 +1059,14 @@ function createStyles(theme, screenAccent) {
     buttonDisabled: {
       opacity: 0.42,
     },
+    buttonPrimaryDisabled: {
+      backgroundColor: 'transparent',
+      borderColor: Colors.border,
+      opacity: 1,
+    },
+    buttonSecondaryDisabled: {
+      opacity: 0.52,
+    },
     buttonText: {
       fontSize: FontSize.sm,
       fontWeight: '700',
@@ -1094,104 +1089,118 @@ function createStyles(theme, screenAccent) {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      marginBottom: Spacing.md,
+      marginBottom: 8,
       gap: Spacing.sm,
+    },
+    metaCopy: {
+      flex: 1,
+      minWidth: 0,
     },
     metaSubcopy: {
       fontSize: 12,
       color: Colors.textMuted,
-      marginTop: 4,
+      marginTop: 2,
     },
     guessCounter: {
-      ...ui.subtleCard,
-      minWidth: 94,
-      paddingVertical: Spacing.sm,
-      paddingHorizontal: Spacing.md,
-      alignItems: 'center',
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: 4,
+      paddingTop: 1,
     },
     guessCounterLabel: {
-      fontSize: 11,
+      fontSize: 10,
       color: Colors.textMuted,
       textTransform: 'uppercase',
-      letterSpacing: 0.8,
+      letterSpacing: 0.5,
       fontWeight: '700',
     },
     guessCounterValue: {
-      fontSize: 28,
+      fontSize: 14,
       fontWeight: '800',
-      color: Colors.text,
-      marginTop: 4,
+      color: Colors.textSecondary,
+      fontVariant: ['tabular-nums'],
+    },
+    progressRow: {
+      flexDirection: 'row',
+      gap: 6,
+      marginTop: 8,
+      maxWidth: 140,
+    },
+    progressSegment: {
+      flex: 1,
+      height: 4,
+      borderRadius: BorderRadius.full,
+      backgroundColor:
+        theme.mode === 'dark' ? 'rgba(121, 137, 160, 0.2)' : 'rgba(82, 98, 122, 0.14)',
+    },
+    progressSegmentActive: {
+      backgroundColor: screenAccent.primary,
+    },
+    progressSegmentComplete: {
+      backgroundColor:
+        theme.mode === 'dark' ? 'rgba(42, 191, 166, 0.42)' : 'rgba(18, 163, 138, 0.28)',
     },
     chipRow: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: Spacing.sm,
-      marginBottom: Spacing.md,
+      gap: 6,
+      marginBottom: Spacing.sm,
     },
     themeChip: {
       borderRadius: BorderRadius.full,
-      backgroundColor: screenAccent.badgeBg,
+      backgroundColor: 'transparent',
       borderWidth: 1,
       borderColor: screenAccent.badgeBorder,
-      paddingHorizontal: Spacing.md,
-      paddingVertical: 7,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      alignSelf: 'flex-start',
+      maxWidth: '100%',
     },
     themeChipText: {
       color: screenAccent.badgeText,
-      fontSize: 12,
-      fontWeight: '700',
-      letterSpacing: 0.8,
-      textTransform: 'uppercase',
-    },
-    stageChip: {
-      ...ui.pill,
-    },
-    stageChipText: {
-      color: Colors.text,
-      fontSize: 12,
-      fontWeight: '700',
-      letterSpacing: 0.8,
-      textTransform: 'uppercase',
+      fontSize: 11,
+      fontWeight: '600',
+      letterSpacing: 0,
     },
     questionCard: {
       ...ui.card,
-      padding: Spacing.lg,
-      gap: Spacing.sm,
-      marginBottom: Spacing.md,
+      padding: Spacing.md,
+      gap: Spacing.xs,
+      marginBottom: Spacing.sm,
     },
     questionPrompt: {
-      fontSize: 28,
-      lineHeight: 34,
+      fontSize: 24,
+      lineHeight: 30,
       color: Colors.text,
       fontWeight: '800',
     },
     questionBlurb: {
-      fontSize: FontSize.sm,
-      lineHeight: 20,
+      fontSize: 15,
+      lineHeight: 19,
       color: Colors.textMuted,
     },
     guessDisplayCard: {
       ...ui.card,
-      padding: Spacing.lg,
-      gap: Spacing.sm,
-      marginBottom: Spacing.md,
+      padding: Spacing.md,
+      gap: Spacing.xs,
+      marginBottom: Spacing.sm,
     },
     guessDisplayValue: {
-      fontSize: 38,
-      lineHeight: 42,
+      fontSize: 30,
+      lineHeight: 34,
       color: Colors.text,
       fontWeight: '800',
       fontVariant: ['tabular-nums'],
     },
     guessDisplayPlaceholder: {
-      fontSize: 32,
-      lineHeight: 38,
+      fontSize: 22,
+      lineHeight: 28,
       color: Colors.textMuted,
       fontWeight: '700',
     },
     guessDisplayHint: {
-      fontSize: 13,
-      lineHeight: 18,
+      fontSize: 12,
+      lineHeight: 16,
       color: Colors.textMuted,
     },
     feedbackCard: {
@@ -1199,8 +1208,8 @@ function createStyles(theme, screenAccent) {
       borderWidth: 1,
       borderColor: screenAccent.badgeBorder,
       backgroundColor: screenAccent.badgeBg,
-      padding: Spacing.md,
-      marginBottom: Spacing.md,
+      padding: Spacing.sm,
+      marginBottom: Spacing.sm,
       gap: 4,
     },
     feedbackTitle: {
@@ -1215,16 +1224,16 @@ function createStyles(theme, screenAccent) {
     },
     historyCard: {
       ...ui.card,
-      padding: Spacing.lg,
-      marginBottom: Spacing.md,
-      gap: Spacing.sm,
+      padding: Spacing.md,
+      marginBottom: Spacing.sm,
+      gap: Spacing.xs,
     },
     historyRow: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: Spacing.sm,
-      paddingVertical: 10,
-      paddingHorizontal: 12,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
       borderRadius: BorderRadius.md,
       borderWidth: 1,
     },
@@ -1307,9 +1316,9 @@ function createStyles(theme, screenAccent) {
     },
     answerCard: {
       ...ui.card,
-      padding: Spacing.lg,
-      marginBottom: Spacing.md,
-      gap: Spacing.sm,
+      padding: Spacing.md,
+      marginBottom: Spacing.sm,
+      gap: Spacing.xs,
     },
     answerTitle: {
       fontSize: 22,
@@ -1330,17 +1339,22 @@ function createStyles(theme, screenAccent) {
       color: Colors.textMuted,
       lineHeight: 20,
     },
+    controlsWrap: {
+      width: '100%',
+      maxWidth: controlRailMaxWidth,
+      alignSelf: 'flex-start',
+    },
     adjustmentsRow: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: Spacing.sm,
-      marginBottom: Spacing.sm,
+      gap: Spacing.xs,
+      marginBottom: Spacing.xs,
     },
     adjustmentButton: {
       flexGrow: 1,
-      minWidth: 72,
+      minWidth: 0,
       borderRadius: BorderRadius.full,
-      paddingVertical: 11,
+      paddingVertical: 6,
       paddingHorizontal: Spacing.sm,
       backgroundColor: Colors.surface,
       borderWidth: 1,
@@ -1365,17 +1379,17 @@ function createStyles(theme, screenAccent) {
       color: Colors.textMuted,
     },
     keypadCard: {
-      gap: Spacing.xs,
-      marginBottom: Spacing.md,
+      gap: 5,
+      marginBottom: Spacing.sm,
     },
     keypadRow: {
       flexDirection: 'row',
-      gap: Spacing.xs,
+      gap: 5,
     },
     keyButton: {
       flex: 1,
-      minHeight: 56,
-      borderRadius: 20,
+      minHeight: 36,
+      borderRadius: 12,
       backgroundColor: keySurface,
       borderWidth: 1,
       borderColor: keyBorder,
@@ -1398,42 +1412,15 @@ function createStyles(theme, screenAccent) {
       opacity: 0.4,
     },
     keyButtonText: {
-      fontSize: 22,
+      fontSize: 14,
       fontWeight: '700',
       color: Colors.text,
     },
     keyButtonTextMuted: {
-      fontSize: 17,
+      fontSize: 11,
     },
     keyButtonTextDisabled: {
       color: Colors.textMuted,
-    },
-    transitionCard: {
-      ...ui.card,
-      padding: Spacing.xl,
-      gap: Spacing.sm,
-      alignItems: 'flex-start',
-    },
-    transitionTitle: {
-      fontSize: 32,
-      fontWeight: '800',
-      color: Colors.text,
-    },
-    transitionPrompt: {
-      fontSize: FontSize.lg,
-      lineHeight: 28,
-      color: Colors.text,
-      fontWeight: '700',
-    },
-    transitionBody: {
-      fontSize: FontSize.sm,
-      lineHeight: 20,
-      color: Colors.textMuted,
-    },
-    transitionMeta: {
-      fontSize: 13,
-      color: Colors.textSecondary,
-      marginTop: Spacing.xs,
     },
     archiveRow: {
       flexDirection: 'row',
@@ -1501,15 +1488,15 @@ function createStyles(theme, screenAccent) {
     },
     summaryStatsRow: {
       flexDirection: 'row',
-      gap: Spacing.sm,
+      gap: Spacing.xs,
     },
     summaryStatCard: {
       flex: 1,
       ...ui.subtleCard,
-      paddingVertical: Spacing.md,
-      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.sm,
+      paddingHorizontal: Spacing.xs,
       alignItems: 'center',
-      gap: 4,
+      gap: 2,
     },
     summaryStatValue: {
       fontSize: FontSize.lg,
@@ -1526,37 +1513,58 @@ function createStyles(theme, screenAccent) {
     },
     summaryListCard: {
       ...ui.card,
-      padding: Spacing.lg,
+      padding: Spacing.md,
       marginBottom: Spacing.md,
-      gap: Spacing.sm,
+      gap: Spacing.xs,
     },
-    completionCard: {
-      ...ui.card,
-      padding: Spacing.lg,
-      marginBottom: Spacing.md,
+    shareCodeCard: {
+      marginTop: Spacing.sm,
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
       gap: Spacing.sm,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceLight,
+      paddingVertical: Spacing.sm,
+      paddingHorizontal: Spacing.sm,
     },
-    completionCode: {
-      fontSize: FontSize.lg,
+    shareCodeCopy: {
+      flex: 1,
+      gap: 2,
+    },
+    shareCodeValue: {
+      fontSize: 15,
       color: Colors.text,
       fontWeight: '800',
-      letterSpacing: 1.1,
+      letterSpacing: 0.7,
       fontVariant: ['tabular-nums'],
     },
-    completionCopy: {
-      fontSize: FontSize.sm,
-      lineHeight: 20,
-      color: Colors.textMuted,
+    shareCodeButton: {
+      minWidth: 82,
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surface,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: 9,
+      alignItems: 'center',
     },
-    completionStatus: {
+    shareCodeButtonPressed: {
+      backgroundColor: Colors.surfaceElevated,
+    },
+    shareCodeButtonText: {
       fontSize: 12,
-      color: Colors.textMuted,
-      textAlign: 'center',
+      fontWeight: '700',
+      color: Colors.text,
+      textTransform: 'uppercase',
+      letterSpacing: 0.9,
     },
     summaryRow: {
       flexDirection: 'row',
       gap: Spacing.sm,
-      paddingVertical: Spacing.sm,
+      paddingVertical: 10,
       alignItems: 'flex-start',
     },
     summaryRowBorder: {
@@ -1598,15 +1606,15 @@ function createStyles(theme, screenAccent) {
       color: Colors.textMuted,
     },
     summaryPrompt: {
-      fontSize: FontSize.sm,
+      fontSize: 13,
       color: Colors.text,
-      lineHeight: 20,
+      lineHeight: 17,
       fontWeight: '600',
     },
     summaryMeta: {
       fontSize: 12,
       color: Colors.textMuted,
-      lineHeight: 16,
+      lineHeight: 15,
     },
     summaryGuesses: {
       fontSize: 12,
@@ -1642,8 +1650,12 @@ function createStyles(theme, screenAccent) {
 
 export default function BallparkRoute() {
   const theme = useDaybreakTheme();
+  const { width: viewportWidth } = useWindowDimensions();
   const screenAccent = useMemo(() => resolveScreenAccent('trivia', theme), [theme]);
-  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
+  const styles = useMemo(
+    () => createStyles(theme, screenAccent, viewportWidth),
+    [theme, screenAccent, viewportWidth]
+  );
   const todayKey = getTodayKey();
   const [phase, setPhase] = useState('start');
   const [dateKey, setDateKey] = useState(todayKey);
@@ -1654,7 +1666,6 @@ export default function BallparkRoute() {
   const [currentQuestionState, setCurrentQuestionState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [archiveMode, setArchiveMode] = useState(false);
-  const [transitionMeta, setTransitionMeta] = useState(null);
   const countedSummaryDateRef = useRef(null);
 
   useEffect(() => {
@@ -1696,7 +1707,6 @@ export default function BallparkRoute() {
         setCurrentQuestionState(null);
       }
 
-      setTransitionMeta(null);
       setLoading(false);
     });
 
@@ -1708,9 +1718,8 @@ export default function BallparkRoute() {
   useEffect(() => {
     if (loading || !dailySet || !loadedDateKey) return;
 
-    const persistedPhase = phase === 'transition' ? 'question' : phase;
     const hasSavedProgress =
-      persistedPhase !== 'start' ||
+      phase !== 'start' ||
       results.length > 0 ||
       (currentQuestionState &&
         (currentQuestionState.history?.length > 0 ||
@@ -1728,23 +1737,12 @@ export default function BallparkRoute() {
       version: STORAGE_VERSION,
       dateKey: loadedDateKey,
       contentFingerprint: dailySet.contentFingerprint,
-      phase: persistedPhase,
+      phase,
       qIndex,
       results,
       currentQuestionState,
     });
   }, [currentQuestionState, dailySet, loadedDateKey, loading, phase, qIndex, results]);
-
-  useEffect(() => {
-    if (phase !== 'transition' || !transitionMeta) return undefined;
-
-    const timeoutId = setTimeout(() => {
-      setPhase('question');
-      setTransitionMeta(null);
-    }, TRANSITION_MS);
-
-    return () => clearTimeout(timeoutId);
-  }, [phase, transitionMeta]);
 
   useEffect(() => {
     if (phase !== 'summary' || !dailySet) return;
@@ -1791,7 +1789,6 @@ export default function BallparkRoute() {
     setQIndex(0);
     setResults([]);
     setCurrentQuestionState(null);
-    setTransitionMeta(null);
   };
 
   const handleQuestionComplete = (result) => {
@@ -1803,17 +1800,10 @@ export default function BallparkRoute() {
 
     if (qIndex >= dailySet.questions.length - 1) {
       setPhase('summary');
-      setTransitionMeta(null);
       return;
     }
 
-    const nextIndex = qIndex + 1;
-    setQIndex(nextIndex);
-    setTransitionMeta({
-      nextQuestion: dailySet.questions[nextIndex],
-      progressLabel: `${nextResults.filter((entry) => entry.won).length} of ${nextResults.length} locked in`,
-    });
-    setPhase('transition');
+    setQIndex((current) => current + 1);
   };
 
   const handleReplayDay = () => {
@@ -1821,7 +1811,6 @@ export default function BallparkRoute() {
     setQIndex(0);
     setResults([]);
     setCurrentQuestionState(null);
-    setTransitionMeta(null);
   };
 
   const cycleDay = getCycleDay(dateKey);
@@ -1836,7 +1825,6 @@ export default function BallparkRoute() {
           <View style={styles.page}>
             <View style={styles.pageAccent} />
             <View style={styles.header}>
-              <Text style={styles.title}>Ballpark</Text>
               <Text style={styles.subtitle}>
                 Estimation trivia inside the Gameshow shell.
               </Text>
@@ -1876,14 +1864,6 @@ export default function BallparkRoute() {
                 onStateChange={setCurrentQuestionState}
                 questionIndex={qIndex}
                 savedQuestionState={currentQuestionState}
-                styles={styles}
-              />
-            ) : null}
-
-            {!loading && dailySet && phase === 'transition' && transitionMeta ? (
-              <TransitionScreen
-                nextQuestion={transitionMeta.nextQuestion}
-                progressLabel={transitionMeta.progressLabel}
                 styles={styles}
               />
             ) : null}
