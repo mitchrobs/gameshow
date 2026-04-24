@@ -1213,6 +1213,7 @@ const createStyles = (
   },
   sudokuRow: {
     flexDirection: 'row',
+    justifyContent: 'center',
   },
   sudokuCell: {
     borderRadius: 6,
@@ -1221,9 +1222,11 @@ const createStyles = (
     borderColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
+    overflow: 'hidden',
   },
   sudokuCellFilled: {
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.surfaceLight,
   },
   sudokuCellText: {
     fontSize: 12,
