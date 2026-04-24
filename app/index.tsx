@@ -14,7 +14,7 @@ import { BUILD_ID } from '../src/constants/build';
 import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 import { getDailyWordie } from '../src/data/wordiePuzzles';
-import { getDailyTriviaCategories } from '../src/data/triviaPuzzles';
+import { getDailyTriviaCategories } from '../src/data/triviaCatalog';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
 import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
 import { getDailyBridges } from '../src/data/bridgesPuzzles';
@@ -664,7 +664,7 @@ export default function HomeScreen() {
               <Text style={styles.gameTitle}>Daily Trivia</Text>
             </View>
             <Text style={styles.blurb}>
-              Eight rapid questions - pick one of today's categories and race the clock.
+              Eight rapid questions - pick one of today's three categories and race the clock.
             </Text>
             {(playCounts['trivia'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
