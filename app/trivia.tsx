@@ -22,7 +22,7 @@ import {
   getTriviaCategory,
   TriviaQuestion,
   TriviaDifficulty,
-} from '../src/data/triviaPuzzles';
+} from '../src/data/triviaCatalog';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const QUESTION_COUNT = 8;
@@ -68,6 +68,8 @@ export default function TriviaScreen() {
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
   const Colors = theme.colors;
   const router = useRouter();
+  const dateKey = useMemo(() => getLocalDateKey(), []);
+  const storageKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
   const dateLabel = useMemo(
     () =>
       new Date().toLocaleDateString('en-US', {
@@ -214,6 +216,12 @@ export default function TriviaScreen() {
     }
   }, [mode]);
 
+  useEffect(() => {
+    if (mode !== 'finished') return;
+    const storage = getStorage();
+    storage?.setItem(storageKey, '1');
+  }, [mode, storageKey]);
+
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;
     const clipboard = (globalThis as typeof globalThis & {
@@ -247,7 +255,7 @@ export default function TriviaScreen() {
               <View style={styles.choiceCard}>
                 <Text style={styles.choiceTitle}>Pick a category</Text>
                 <Text style={styles.choiceSubtitle}>
-                  Choose one of today's two categories to start.
+                  Choose one of today's three categories to start.
                 </Text>
                 {dailyCategories.map((cat) => (
                   <Pressable
