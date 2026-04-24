@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Platform,
   Pressable,
@@ -194,6 +194,18 @@ function getFeedbackMessage(evaluation) {
 
 function getBestGuess(history) {
   return [...history].sort((left, right) => left.evaluation.pctOff - right.evaluation.pctOff)[0];
+}
+
+function createCompletionCode({ closestMiss, contentFingerprint, cycleDay, totalGuesses, wins }) {
+  const dayCode = String(cycleDay).padStart(2, '0');
+  const guessCode = String(totalGuesses).padStart(2, '0');
+  const missCode =
+    closestMiss === null
+      ? 'CLN'
+      : `${String(Math.round(closestMiss * 100)).padStart(2, '0')}P`;
+  const fingerprintCode = contentFingerprint.replace(/^daybreak-/, '').slice(-4).toUpperCase();
+
+  return `DB-BP-${dayCode}-${wins}W-${guessCode}G-${missCode}-${fingerprintCode}`;
 }
 
 function KeyButton({
@@ -742,6 +754,39 @@ function SummaryScreen({
   const totalGuesses = results.reduce((sum, result) => sum + result.guesses, 0);
   const misses = results.filter((result) => !result.won);
   const closestMiss = misses.length > 0 ? Math.min(...misses.map((result) => result.bestPctOff)) : null;
+  const completionCode = useMemo(
+    () =>
+      createCompletionCode({
+        closestMiss,
+        contentFingerprint: dailySet.contentFingerprint,
+        cycleDay,
+        totalGuesses,
+        wins,
+      }),
+    [closestMiss, cycleDay, dailySet.contentFingerprint, totalGuesses, wins]
+  );
+  const [copyStatus, setCopyStatus] = useState(null);
+
+  useEffect(() => {
+    setCopyStatus(null);
+  }, [completionCode]);
+
+  const handleCopyCompletionCode = useCallback(async () => {
+    if (Platform.OS !== 'web') return;
+
+    const clipboard = globalThis.navigator?.clipboard;
+    if (!clipboard?.writeText) {
+      setCopyStatus('Copy not supported');
+      return;
+    }
+
+    try {
+      await clipboard.writeText(completionCode);
+      setCopyStatus('Completion code copied');
+    } catch {
+      setCopyStatus('Copy failed');
+    }
+  }, [completionCode]);
 
   return (
     <View>
@@ -785,6 +830,24 @@ function SummaryScreen({
             <Text style={styles.summaryStatLabel}>Total guesses</Text>
           </View>
         </View>
+      </View>
+
+      <View style={styles.completionCard}>
+        <Text style={styles.sectionEyebrow}>Daybreak completion code</Text>
+        <Text selectable style={styles.completionCode}>
+          {completionCode}
+        </Text>
+        <Text style={styles.completionCopy}>
+          Encodes the day, your score, total guesses, and the content version for this set.
+        </Text>
+        <AppButton
+          label="Copy Code"
+          onPress={handleCopyCompletionCode}
+          styles={styles}
+          variant="secondary"
+          fullWidth
+        />
+        {copyStatus ? <Text style={styles.completionStatus}>{copyStatus}</Text> : null}
       </View>
 
       <View style={styles.summaryListCard}>
@@ -847,7 +910,15 @@ function createStyles(theme, screenAccent) {
   const FontSize = theme.fontSize;
   const BorderRadius = theme.borderRadius;
   const ui = createDaybreakPrimitives(theme, screenAccent);
-  const keypadBg = theme.mode === 'dark' ? Colors.surfaceElevated : '#e7edf6';
+  const keySurface = theme.mode === 'dark'
+    ? 'rgba(31, 42, 58, 0.72)'
+    : 'rgba(232, 239, 248, 0.88)';
+  const keySurfaceMuted = theme.mode === 'dark'
+    ? 'rgba(23, 31, 43, 0.82)'
+    : 'rgba(223, 231, 242, 0.82)';
+  const keyBorder = theme.mode === 'dark'
+    ? 'rgba(110, 136, 167, 0.28)'
+    : 'rgba(100, 122, 148, 0.18)';
 
   return StyleSheet.create({
     container: {
@@ -1263,7 +1334,7 @@ function createStyles(theme, screenAccent) {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: Spacing.sm,
-      marginBottom: Spacing.md,
+      marginBottom: Spacing.sm,
     },
     adjustmentButton: {
       flexGrow: 1,
@@ -1294,44 +1365,40 @@ function createStyles(theme, screenAccent) {
       color: Colors.textMuted,
     },
     keypadCard: {
-      borderRadius: BorderRadius.xl,
-      backgroundColor: keypadBg,
-      padding: Spacing.sm,
-      gap: Spacing.sm,
+      gap: Spacing.xs,
       marginBottom: Spacing.md,
-      borderWidth: 1,
-      borderColor: Colors.border,
     },
     keypadRow: {
       flexDirection: 'row',
-      gap: Spacing.sm,
+      gap: Spacing.xs,
     },
     keyButton: {
       flex: 1,
-      minHeight: 64,
-      borderRadius: BorderRadius.md,
-      backgroundColor: Colors.surface,
+      minHeight: 56,
+      borderRadius: 20,
+      backgroundColor: keySurface,
       borderWidth: 1,
-      borderColor: Colors.border,
+      borderColor: keyBorder,
       alignItems: 'center',
       justifyContent: 'center',
-      ...theme.shadows.card,
     },
     keyButtonWide: {
       flex: 2,
     },
     keyButtonMuted: {
-      backgroundColor: Colors.surfaceLight,
+      backgroundColor: keySurfaceMuted,
     },
     keyButtonPressed: {
-      backgroundColor: Colors.surfaceElevated,
+      backgroundColor: theme.mode === 'dark'
+        ? 'rgba(41, 57, 78, 0.86)'
+        : 'rgba(214, 225, 238, 0.96)',
       transform: [{ scale: 0.98 }],
     },
     keyButtonDisabled: {
       opacity: 0.4,
     },
     keyButtonText: {
-      fontSize: 28,
+      fontSize: 22,
       fontWeight: '700',
       color: Colors.text,
     },
@@ -1462,6 +1529,29 @@ function createStyles(theme, screenAccent) {
       padding: Spacing.lg,
       marginBottom: Spacing.md,
       gap: Spacing.sm,
+    },
+    completionCard: {
+      ...ui.card,
+      padding: Spacing.lg,
+      marginBottom: Spacing.md,
+      gap: Spacing.sm,
+    },
+    completionCode: {
+      fontSize: FontSize.lg,
+      color: Colors.text,
+      fontWeight: '800',
+      letterSpacing: 1.1,
+      fontVariant: ['tabular-nums'],
+    },
+    completionCopy: {
+      fontSize: FontSize.sm,
+      lineHeight: 20,
+      color: Colors.textMuted,
+    },
+    completionStatus: {
+      fontSize: 12,
+      color: Colors.textMuted,
+      textAlign: 'center',
     },
     summaryRow: {
       flexDirection: 'row',
