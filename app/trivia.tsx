@@ -245,23 +245,33 @@ export default function TriviaScreen() {
 
             {mode === 'choose' && (
               <View style={styles.choiceCard}>
-                <Text style={styles.choiceTitle}>Pick a category</Text>
+                <View style={styles.choiceHeaderRow}>
+                  <Text style={styles.choiceTitle}>Pick today&apos;s category</Text>
+                  <View style={styles.choiceBadge}>
+                    <Text style={styles.choiceBadgeText}>{dailyCategories.length} choices</Text>
+                  </View>
+                </View>
                 <Text style={styles.choiceSubtitle}>
-                  Choose one of today's two categories to start.
+                  {QUESTION_COUNT} questions. {TIME_PER_QUESTION} seconds each.
                 </Text>
-                {dailyCategories.map((cat) => (
-                  <Pressable
-                    key={cat.id}
-                    style={({ pressed }) => [
-                      styles.categoryCard,
-                      pressed && styles.categoryCardPressed,
-                    ]}
-                    onPress={() => startTrivia(cat.id)}
-                  >
-                    <Text style={styles.categoryName}>{cat.name}</Text>
-                    <Text style={styles.categoryDesc}>{cat.description}</Text>
-                  </Pressable>
-                ))}
+                <View style={styles.categoryList}>
+                  {dailyCategories.map((cat) => (
+                    <Pressable
+                      key={cat.id}
+                      style={({ pressed }) => [
+                        styles.categoryCard,
+                        pressed && styles.categoryCardPressed,
+                      ]}
+                      onPress={() => startTrivia(cat.id)}
+                    >
+                      <View style={styles.categoryCopy}>
+                        <Text style={styles.categoryName}>{cat.name}</Text>
+                        <Text style={styles.categoryDesc}>{cat.description}</Text>
+                      </View>
+                      <Text style={styles.categoryAction}>Start</Text>
+                    </Pressable>
+                  ))}
+                </View>
               </View>
             )}
 
@@ -386,33 +396,58 @@ const createStyles = (
     marginTop: Spacing.xs,
   },
   choiceCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    gap: Spacing.sm,
+  },
+  choiceHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
+    flexWrap: 'wrap',
   },
   choiceTitle: {
     fontSize: FontSize.lg,
     fontWeight: '700',
     color: Colors.text,
   },
+  choiceBadge: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  choiceBadgeText: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
   choiceSubtitle: {
     fontSize: FontSize.sm,
     color: Colors.textMuted,
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.md,
+  },
+  categoryList: {
+    gap: Spacing.sm,
   },
   categoryCard: {
-    backgroundColor: Colors.surfaceLight,
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    marginBottom: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
   },
   categoryCardPressed: {
-    backgroundColor: Colors.border,
+    backgroundColor: Colors.surfaceLight,
+  },
+  categoryCopy: {
+    flex: 1,
   },
   categoryName: {
     fontSize: FontSize.md,
@@ -423,6 +458,11 @@ const createStyles = (
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     marginTop: 2,
+  },
+  categoryAction: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.primary,
   },
   quizCard: {
     backgroundColor: Colors.surface,
