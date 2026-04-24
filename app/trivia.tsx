@@ -26,7 +26,7 @@ import {
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 const QUESTION_COUNT = 8;
-const TIME_PER_QUESTION = 12;
+const TIME_PER_QUESTION = 20;
 const STORAGE_PREFIX = 'trivia';
 
 function getLocalDateKey(date: Date = new Date()): string {
@@ -272,6 +272,19 @@ export default function TriviaScreen() {
                     </Pressable>
                   ))}
                 </View>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.ballparkLinkCard,
+                    pressed && styles.ballparkLinkCardPressed,
+                  ]}
+                  onPress={() => router.push('/ballpark')}
+                >
+                  <Text style={styles.ballparkLinkEyebrow}>Prefer estimation trivia?</Text>
+                  <Text style={styles.ballparkLinkTitle}>Open Ballpark</Text>
+                  <Text style={styles.ballparkLinkSubtitle}>
+                    Three themed number questions with four guesses each.
+                  </Text>
+                </Pressable>
               </View>
             )}
 
@@ -431,6 +444,36 @@ const createStyles = (
   },
   categoryList: {
     gap: Spacing.sm,
+  },
+  ballparkLinkCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginTop: Spacing.xs,
+  },
+  ballparkLinkCardPressed: {
+    backgroundColor: Colors.surfaceLight,
+  },
+  ballparkLinkEyebrow: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  ballparkLinkTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.text,
+    marginTop: 6,
+  },
+  ballparkLinkSubtitle: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    marginTop: 4,
+    lineHeight: 18,
   },
   categoryCard: {
     backgroundColor: Colors.surface,
