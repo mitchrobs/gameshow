@@ -11,7 +11,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import {
-  DIFFICULTY_META,
   MAX_GUESSES,
   WIN_THRESHOLD,
   formatDisplayDate,
@@ -196,16 +195,11 @@ function getBestGuess(history) {
   return [...history].sort((left, right) => left.evaluation.pctOff - right.evaluation.pctOff)[0];
 }
 
-function createCompletionCode({ closestMiss, contentFingerprint, cycleDay, totalGuesses, wins }) {
-  const dayCode = String(cycleDay).padStart(2, '0');
-  const guessCode = String(totalGuesses).padStart(2, '0');
-  const missCode =
-    closestMiss === null
-      ? 'CLN'
-      : `${String(Math.round(closestMiss * 100)).padStart(2, '0')}P`;
-  const fingerprintCode = contentFingerprint.replace(/^daybreak-/, '').slice(-4).toUpperCase();
-
-  return `DB-BP-${dayCode}-${wins}W-${guessCode}G-${missCode}-${fingerprintCode}`;
+function getShareGlyph(result) {
+  if (!result) return '⬜️';
+  if (result.won) return '🟩';
+  if (result.bestPctOff <= 0.5) return '🟨';
+  return '⬛️';
 }
 
 function KeyButton({
@@ -390,15 +384,6 @@ function StartScreen({
           <Text style={styles.themeBody}>
             Three questions, one shared thread, and four guesses each.
           </Text>
-        </View>
-
-        <View style={styles.stageList}>
-          {dailySet.questions.map((question) => (
-            <View key={question.id} style={styles.stageCard}>
-              <Text style={styles.stageLabel}>{DIFFICULTY_META[question.difficulty].label}</Text>
-              <Text style={styles.stageBody}>{DIFFICULTY_META[question.difficulty].blurb}</Text>
-            </View>
-          ))}
         </View>
       </View>
 
@@ -585,7 +570,9 @@ function QuestionScreen({
 
       <View style={styles.questionCard}>
         <Text style={styles.questionPrompt}>{question.prompt}</Text>
-        <Text style={styles.questionBlurb}>{DIFFICULTY_META[question.difficulty].blurb}</Text>
+        {question.asOfDate ? (
+          <Text style={styles.questionBlurb}>Measured as of {formatLongDate(question.asOfDate)}.</Text>
+        ) : null}
       </View>
 
       <View style={styles.guessDisplayCard}>
@@ -749,24 +736,22 @@ function SummaryScreen({
   const totalGuesses = results.reduce((sum, result) => sum + result.guesses, 0);
   const misses = results.filter((result) => !result.won);
   const closestMiss = misses.length > 0 ? Math.min(...misses.map((result) => result.bestPctOff)) : null;
-  const shareCode = useMemo(
-    () =>
-      createCompletionCode({
-        closestMiss,
-        contentFingerprint: dailySet.contentFingerprint,
-        cycleDay,
-        totalGuesses,
-        wins,
-      }),
-    [closestMiss, cycleDay, dailySet.contentFingerprint, totalGuesses, wins]
-  );
+  const shareText = useMemo(() => {
+    const resultRow = results.map((result) => getShareGlyph(result)).join('');
+
+    return [
+      `Ballpark ${formatLongDate(dateKey)}`,
+      dailySet.theme,
+      `${totalGuesses} | ${resultRow}`,
+    ].join('\n');
+  }, [dailySet.theme, dateKey, results, totalGuesses]);
   const [copyStatus, setCopyStatus] = useState(null);
 
   useEffect(() => {
     setCopyStatus(null);
-  }, [shareCode]);
+  }, [shareText]);
 
-  const handleCopyCompletionCode = useCallback(async () => {
+  const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;
 
     const clipboard = globalThis.navigator?.clipboard;
@@ -776,12 +761,12 @@ function SummaryScreen({
     }
 
     try {
-      await clipboard.writeText(shareCode);
-      setCopyStatus('Copied');
+      await clipboard.writeText(shareText);
+      setCopyStatus('Copied to clipboard');
     } catch {
       setCopyStatus('Copy failed');
     }
-  }, [shareCode]);
+  }, [shareText]);
 
   return (
     <View>
@@ -826,21 +811,24 @@ function SummaryScreen({
           </View>
         </View>
         <View style={styles.shareCodeCard}>
-          <View style={styles.shareCodeCopy}>
-            <Text style={styles.sectionEyebrow}>Share result code</Text>
+          <Text style={styles.shareCodeTitle}>Share your result</Text>
+          <View style={styles.shareCodeBox}>
             <Text selectable style={styles.shareCodeValue}>
-              {shareCode}
+              {shareText}
             </Text>
           </View>
-          <Pressable
-            onPress={handleCopyCompletionCode}
-            style={({ pressed }) => [
-              styles.shareCodeButton,
-              pressed && styles.shareCodeButtonPressed,
-            ]}
-          >
-            <Text style={styles.shareCodeButtonText}>{copyStatus ?? 'Copy'}</Text>
-          </Pressable>
+          {Platform.OS === 'web' && (
+            <Pressable
+              onPress={handleCopyResults}
+              style={({ pressed }) => [
+                styles.shareCodeButton,
+                pressed && styles.shareCodeButtonPressed,
+              ]}
+            >
+              <Text style={styles.shareCodeButtonText}>Copy results</Text>
+            </Pressable>
+          )}
+          {copyStatus ? <Text style={styles.shareCodeStatus}>{copyStatus}</Text> : null}
         </View>
       </View>
 
@@ -859,7 +847,6 @@ function SummaryScreen({
                 </Text>
               </View>
               <View style={styles.summaryCopy}>
-                <Text style={styles.summaryDifficulty}>{DIFFICULTY_META[question.difficulty].label}</Text>
                 <Text style={styles.summaryPrompt}>{question.prompt}</Text>
                 <Text style={styles.summaryMeta}>
                   Best guess {result ? formatCompactNumber(result.bestGuess) : '—'} • Answer{' '}
@@ -994,27 +981,6 @@ function createStyles(theme, screenAccent, viewportWidth) {
       fontSize: FontSize.sm,
       color: Colors.textSecondary,
       lineHeight: 18,
-    },
-    stageList: {
-      gap: Spacing.xs,
-    },
-    stageCard: {
-      ...ui.subtleCard,
-      paddingVertical: Spacing.sm,
-      paddingHorizontal: Spacing.sm,
-      gap: 2,
-    },
-    stageLabel: {
-      fontSize: 12,
-      fontWeight: '700',
-      color: Colors.text,
-      textTransform: 'uppercase',
-      letterSpacing: 0.9,
-    },
-    stageBody: {
-      fontSize: 13,
-      color: Colors.textMuted,
-      lineHeight: 17,
     },
     sectionEyebrow: {
       fontSize: 11,
@@ -1519,47 +1485,46 @@ function createStyles(theme, screenAccent, viewportWidth) {
     },
     shareCodeCard: {
       marginTop: Spacing.sm,
-      flexDirection: 'row',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      gap: Spacing.sm,
       borderRadius: BorderRadius.md,
       borderWidth: 1,
       borderColor: Colors.border,
-      backgroundColor: Colors.surfaceLight,
-      paddingVertical: Spacing.sm,
-      paddingHorizontal: Spacing.sm,
+      backgroundColor: Colors.surface,
+      padding: Spacing.md,
+      gap: Spacing.sm,
     },
-    shareCodeCopy: {
-      flex: 1,
-      gap: 2,
+    shareCodeTitle: {
+      fontSize: FontSize.sm,
+      fontWeight: '700',
+      color: Colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+    },
+    shareCodeBox: {
+      backgroundColor: Colors.surfaceLight,
+      borderRadius: BorderRadius.md,
+      padding: Spacing.md,
     },
     shareCodeValue: {
-      fontSize: 15,
+      fontSize: FontSize.sm,
       color: Colors.text,
-      fontWeight: '800',
-      letterSpacing: 0.7,
-      fontVariant: ['tabular-nums'],
+      lineHeight: 18,
     },
     shareCodeButton: {
-      minWidth: 82,
-      borderRadius: BorderRadius.full,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: Colors.surface,
-      paddingHorizontal: Spacing.md,
-      paddingVertical: 9,
+      ...ui.cta,
+      borderRadius: BorderRadius.md,
+      paddingVertical: Spacing.sm,
       alignItems: 'center',
     },
     shareCodeButtonPressed: {
-      backgroundColor: Colors.surfaceElevated,
+      ...ui.ctaPressed,
     },
     shareCodeButtonText: {
-      fontSize: 12,
-      fontWeight: '700',
-      color: Colors.text,
-      textTransform: 'uppercase',
-      letterSpacing: 0.9,
+      ...ui.ctaText,
+    },
+    shareCodeStatus: {
+      fontSize: FontSize.sm,
+      color: Colors.textMuted,
+      textAlign: 'center',
     },
     summaryRow: {
       flexDirection: 'row',
@@ -1597,13 +1562,6 @@ function createStyles(theme, screenAccent, viewportWidth) {
     summaryCopy: {
       flex: 1,
       gap: 3,
-    },
-    summaryDifficulty: {
-      fontSize: 11,
-      textTransform: 'uppercase',
-      letterSpacing: 0.8,
-      fontWeight: '700',
-      color: Colors.textMuted,
     },
     summaryPrompt: {
       fontSize: 13,
