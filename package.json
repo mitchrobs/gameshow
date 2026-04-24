@@ -16,8 +16,12 @@
     "build:museum-schedule": "python3 scripts/build_museum_schedule.py",
     "build:museum-rest-of-year": "python3 scripts/build_museum_schedule.py --start 2026-04-23 --rest-of-year",
     "draft:moji-mash": "python3 scripts/generate_moji.py",
+    "inspect:barter": "node --experimental-strip-types scripts/inspect_barter.ts",
     "moji-schedule": "python3 scripts/show_schedule.py",
     "moji-calendar": "python3 scripts/show_calendar.py",
+    "barter:decision-tree": "node --experimental-strip-types scripts/barter-decision-tree.ts",
+    "test": "vitest run",
+    "test:barter": "vitest run src/data/barter/barter.test.ts",
     "studio": "cd tools/moji-mash-studio && npm run dev"
   },
   "dependencies": {
@@ -34,11 +38,13 @@
     "react-native-gesture-handler": "^2.30.0",
     "react-native-safe-area-context": "^5.6.2",
     "react-native-screens": "^4.23.0",
+    "react-native-svg": "15.12.1",
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vitest": "^4.1.4"
   },
   "private": true
 }
