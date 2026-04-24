@@ -19,6 +19,7 @@ export interface MuseumArtwork {
   medium: string;
   periodKey: string;
   periodTag: string;
+  passportLabel: string;
   mediumCategory: string;
   geoRegion: string;
   images: {
@@ -65,6 +66,7 @@ interface MuseumSchedulePayload {
   version: string;
   generatedAt: string;
   start: string;
+  through: string;
   days: number;
   entries: MuseumScheduleEntry[];
 }

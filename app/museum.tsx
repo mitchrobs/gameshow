@@ -26,7 +26,6 @@ import {
   type MuseumQuestion,
 } from '../src/data/museumArtworks';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
-import { useArtworkAspectRatio } from '../src/ui/museumFrames';
 
 const STORAGE_PREFIX = 'museum';
 const REVEAL_CONTEXT_SECONDS = 30;
@@ -116,6 +115,33 @@ interface PassportSummary {
   topMediumLabel: string;
   topMediumSeen: number;
   metrics: PassportMetric[];
+}
+
+function useArtworkAspectRatio(uri: string, fallback = 1.25): number {
+  const [aspectRatio, setAspectRatio] = useState(fallback);
+
+  useEffect(() => {
+    let cancelled = false;
+    Image.getSize(
+      uri,
+      (width, height) => {
+        if (!cancelled && width > 0 && height > 0) {
+          setAspectRatio(width / height);
+        }
+      },
+      () => {
+        if (!cancelled) {
+          setAspectRatio(fallback);
+        }
+      }
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fallback, uri]);
+
+  return aspectRatio;
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -284,7 +310,10 @@ function getResultNote(score: number): string {
 
 function getPeriodLabelMap(): Map<string, string> {
   return new Map(
-    MUSEUM_ARTWORKS.map((artwork) => [artwork.periodKey, artwork.periodTag.split(' · ')[0] ?? artwork.periodTag])
+    MUSEUM_ARTWORKS.map((artwork) => [
+      artwork.periodKey,
+      artwork.passportLabel || splitPeriodTag(artwork.periodTag)[0] || artwork.periodTag,
+    ])
   );
 }
 
@@ -414,8 +443,8 @@ function getPassportSummary(
 
   const intro =
     worksLogged <= 1
-      ? 'Your passport has begun. Each return adds another work, period, and place to the record.'
-      : `A running record of ${worksLogged} works across ${periodCount} periods, ${regionCount} regions, and ${mediumCount} media.`;
+      ? 'Your passport has begun. Each return adds another work, movement, and place to remember.'
+      : `A growing collection of ${worksLogged} works across ${periodCount} movements, ${regionCount} regions, and ${mediumCount} materials.`;
 
   return {
     intro,
@@ -429,12 +458,12 @@ function getPassportSummary(
         key: 'works',
         label: 'Works',
         value: `${worksLogged}`,
-        note: 'Logged so far',
+        note: 'Seen so far',
         accent: COLORS.amber,
       },
       {
         key: 'periods',
-        label: 'Periods',
+        label: 'Styles',
         value: `${periodCount}`,
         note: 'Movements visited',
         accent: COLORS.pink,
@@ -448,9 +477,9 @@ function getPassportSummary(
       },
       {
         key: 'accuracy',
-        label: 'Accuracy',
+        label: 'Recall',
         value: `${overallAccuracy}%`,
-        note: 'Across all questions',
+        note: 'Across your visits',
         accent: COLORS.green,
       },
     ],
@@ -804,10 +833,15 @@ function MuseumArtworkStage({
             style={({ pressed }) => [styles.zoomLauncher, pressed && styles.zoomLauncherPressed]}
             onPress={() => {
               markInteraction();
+              if (zoomRef.current <= 1.05) {
+                updateZoom(1.45);
+              }
               setShowControls((current) => !current);
             }}
           >
-            <Text style={styles.zoomLauncherText}>Zoom</Text>
+            <Text style={styles.zoomLauncherText}>
+              {zoomRef.current <= 1.05 ? 'Zoom artwork' : 'Zoom'}
+            </Text>
           </Pressable>
         </View>
       ) : null}
@@ -1128,7 +1162,7 @@ export default function MuseumScreen() {
                   </Pressable>
                   {!contextUnlocked && (
                     <Text style={styles.heroHint}>
-                      Stay with the image for a moment, then open the notes when you are ready.
+                      Stay with the image for a moment. You can zoom into the work before opening the notes.
                     </Text>
                   )}
                 </>
@@ -1205,7 +1239,7 @@ export default function MuseumScreen() {
                     ]}
                     onPress={() => setPhase('quiz')}
                   >
-                    <Text style={styles.primaryButtonText}>Continue to quiz</Text>
+                    <Text style={styles.primaryButtonText}>Museum Quiz</Text>
                   </Pressable>
                 </View>
               </View>
@@ -1373,17 +1407,17 @@ export default function MuseumScreen() {
                 <StatTile value={`${museumStreak}`} label="Day streak" accent={COLORS.amber} />
                 <StatTile
                   value={`${periodSeen}`}
-                  label={PERIOD_LABELS.get(artwork.periodKey) ?? artwork.periodKey.replace(/-/g, ' ')}
+                  label="In this movement"
                   accent={COLORS.pink}
                 />
               </View>
 
               <View style={styles.resultProgressCard}>
                 <Text style={styles.resultProgressLine}>
-                  You have now seen {periodSeen} work{periodSeen === 1 ? '' : 's'} from{' '}
+                  You have now seen {periodSeen} work{periodSeen === 1 ? '' : 's'} in{' '}
                   {passportSummary.currentLabel}
                   {passportSummary.currentAccuracy !== null
-                    ? `, with a ${passportSummary.currentAccuracy}% answer average in this period.`
+                    ? ` and remembered ${passportSummary.currentAccuracy}% of the details here.`
                     : '.'}
                 </Text>
               </View>
@@ -1391,33 +1425,33 @@ export default function MuseumScreen() {
               <View style={styles.passportSection}>
                 <View style={styles.passportHeaderCompact}>
                   <View>
-                    <Text style={styles.passportEyebrow}>Art Passport</Text>
-                    <Text style={styles.passportCount}>{passport.artworkIds.length} works logged</Text>
+                    <Text style={styles.passportEyebrow}>Museum Passport</Text>
+                    <Text style={styles.passportCount}>{passport.artworkIds.length} works seen</Text>
                   </View>
                   <View style={styles.passportBadge}>
                     <Text style={styles.passportBadgeText}>
                       {passportSummary.currentAccuracy !== null
-                        ? `${passportSummary.currentAccuracy}% in period`
-                        : 'New period'}
+                        ? `${passportSummary.currentAccuracy}% remembered here`
+                        : 'First work here'}
                     </Text>
                   </View>
                 </View>
                 <Text style={styles.passportIntroCompact}>
                   {passportSummary.currentSeen > 0
-                    ? `${passportSummary.currentLabel}: ${passportSummary.currentSeen} work${passportSummary.currentSeen === 1 ? '' : 's'} logged`
-                    : `Today begins ${passportSummary.currentLabel} in your passport`}
+                    ? `${passportSummary.currentLabel}: ${passportSummary.currentSeen} work${passportSummary.currentSeen === 1 ? '' : 's'} seen`
+                    : `Today begins your ${passportSummary.currentLabel} collection`}
                   {passportSummary.currentAccuracy !== null
-                    ? ` · ${passportSummary.currentAccuracy}% answer average`
+                    ? ` · ${passportSummary.currentAccuracy}% remembered`
                     : ''}
                 </Text>
 
                 <View style={styles.passportQuickRow}>
                   <View style={styles.passportQuickPill}>
-                    <Text style={styles.passportQuickLabel}>Medium</Text>
+                    <Text style={styles.passportQuickLabel}>Most seen medium</Text>
                     <Text style={styles.passportQuickValue}>{passportSummary.topMediumLabel}</Text>
                   </View>
                   <View style={styles.passportQuickPill}>
-                    <Text style={styles.passportQuickLabel}>Overall</Text>
+                    <Text style={styles.passportQuickLabel}>Overall recall</Text>
                     <Text style={styles.passportQuickValue}>
                       {passportSummary.metrics.find((item) => item.key === 'accuracy')?.value ?? '0%'}
                     </Text>
@@ -1437,7 +1471,7 @@ export default function MuseumScreen() {
                         {item.label}
                       </Text>
                       <Text style={[styles.passportTileNote, item.active && styles.passportTileNoteActive]}>
-                        {item.accuracy !== null ? `${item.accuracy}% answer avg` : 'First visit'}
+                        {item.accuracy !== null ? `${item.accuracy}% remembered` : 'First work'}
                       </Text>
                     </View>
                   ))}

@@ -24,6 +24,26 @@ def parse_date(value: str) -> date:
     return date.fromisoformat(value)
 
 
+def resolve_days(start: date, days: int | None, through: str | None, rest_of_year: bool) -> tuple[int, date]:
+    if days is not None:
+        if days <= 0:
+            raise ValueError("--days must be greater than 0")
+        end = start + timedelta(days=days - 1)
+        return days, end
+
+    if through is not None:
+        end = parse_date(through)
+        if end < start:
+            raise ValueError("--through must be on or after --start")
+        return (end - start).days + 1, end
+
+    if rest_of_year:
+        end = date(start.year, 12, 31)
+        return (end - start).days + 1, end
+
+    raise ValueError("Choose one of --days, --through, or --rest-of-year")
+
+
 def normalize(value: str) -> str:
     return " ".join(value.strip().lower().split())
 
@@ -39,6 +59,7 @@ def validate_artwork(artwork: dict[str, Any]) -> list[str]:
         "medium",
         "periodKey",
         "periodTag",
+        "passportLabel",
         "mediumCategory",
         "geoRegion",
     ]
@@ -153,7 +174,14 @@ def build_schedule(artworks: list[dict[str, Any]], start: date, days: int) -> li
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--start", required=True, help="First scheduled date, YYYY-MM-DD")
-    parser.add_argument("--days", type=int, required=True, help="Number of days to schedule")
+    day_group = parser.add_mutually_exclusive_group(required=True)
+    day_group.add_argument("--days", type=int, help="Number of days to schedule")
+    day_group.add_argument("--through", help="Last scheduled date, YYYY-MM-DD")
+    day_group.add_argument(
+        "--rest-of-year",
+        action="store_true",
+        help="Schedule from --start through December 31 of the same year",
+    )
     parser.add_argument("--output", type=Path, default=SCHEDULE_PATH, help="Output schedule JSON")
     args = parser.parse_args()
 
@@ -168,18 +196,23 @@ def main() -> int:
         return 1
 
     start = parse_date(args.start)
-    entries = build_schedule(artworks, start, args.days)
+    days, through = resolve_days(start, args.days, args.through, args.rest_of_year)
+    entries = build_schedule(artworks, start, days)
     payload = {
         "version": "museum-schedule-v1",
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "start": start.isoformat(),
-        "days": args.days,
+        "through": through.isoformat(),
+        "days": days,
         "entries": entries,
     }
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
-    print(f"Wrote {len(entries)} scheduled Museum days to {args.output}")
+    print(
+        f"Wrote {len(entries)} scheduled Museum days to {args.output} "
+        f"({start.isoformat()} -> {through.isoformat()})"
+    )
     return 0
 
 
