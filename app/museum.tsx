@@ -26,6 +26,7 @@ import {
   type MuseumQuestion,
 } from '../src/data/museumArtworks';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
+import { useDaybreakTheme } from '../src/constants/theme';
 
 const STORAGE_PREFIX = 'museum';
 const REVEAL_CONTEXT_SECONDS = 30;
@@ -34,7 +35,7 @@ const MAX_ZOOM = 4;
 const FONT_SANS = 'DM Sans, Sora, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 const FONT_SERIF = 'Instrument Serif, Georgia, "Times New Roman", serif';
 
-const COLORS = {
+const DARK_COLORS = {
   bg: '#0c0a09',
   panel: '#171311',
   panelAlt: '#1d1714',
@@ -56,8 +57,111 @@ const COLORS = {
   red: '#f16e86',
   redSoft: 'rgba(241,110,134,0.14)',
   white: '#ffffff',
-};
+  wallGlow: 'rgba(255,255,255,0.03)',
+  stageCard: 'rgba(17,14,13,0.94)',
+  shadow: '#000000',
+  insetBg: '#080707',
+  insetBorder: 'rgba(255,255,255,0.05)',
+  artworkCardBg: 'rgba(19,17,16,0.96)',
+  artworkInnerBg: '#0a0908',
+  loadingCardBg: 'rgba(23, 19, 17, 0.9)',
+  loadingBadgeBg: 'rgba(12, 10, 9, 0.75)',
+  fallbackBg: '#171311',
+  controlBg: 'rgba(23, 19, 17, 0.82)',
+  controlPressed: 'rgba(31, 25, 23, 0.94)',
+  zoomControlBg: 'rgba(23, 19, 17, 0.92)',
+  zoomControlPressed: 'rgba(31, 25, 23, 0.98)',
+  topScrim: 'rgba(0,0,0,0.26)',
+  bottomScrim: 'rgba(0,0,0,0.48)',
+  gradientStart: 'rgba(0,0,0,0)',
+  gradientEnd: 'rgba(0,0,0,0.88)',
+  badgeBg: 'rgba(23, 19, 17, 0.84)',
+  badgePressed: 'rgba(31, 25, 23, 0.98)',
+  heroMetaSoft: '#c9b8a9',
+  progressTrack: 'rgba(255,255,255,0.16)',
+  tileSoft: 'rgba(255,255,255,0.03)',
+  tileRaised: 'rgba(255,255,255,0.08)',
+  highlightSurface: 'rgba(245,180,85,0.06)',
+  answerIdle: 'rgba(255,255,255,0.04)',
+  answerHover: 'rgba(255,255,255,0.08)',
+  answerSelected: 'rgba(167,102,79,0.4)',
+  answerSelectedSoft: 'rgba(167,102,79,0.12)',
+  answerSelectedBorder: 'rgba(167,102,79,0.28)',
+  answerCorrectBorder: 'rgba(56,211,159,0.34)',
+  answerWrongBorder: 'rgba(241,110,134,0.34)',
+  answerRevealIdle: 'rgba(255,255,255,0.06)',
+  answerRevealCorrect: 'rgba(56,211,159,0.18)',
+  answerRevealWrong: 'rgba(241,110,134,0.18)',
+  stripBg: 'rgba(255,255,255,0.02)',
+  stripBorder: 'rgba(255,255,255,0.04)',
+  accentBorderSoft: 'rgba(167,102,79,0.2)',
+  accentBorder: 'rgba(167,102,79,0.24)',
+} as const;
 
+const LIGHT_COLORS = {
+  bg: '#f6f1e8',
+  panel: '#fffaf3',
+  panelAlt: '#f1e8db',
+  panelSoft: 'rgba(67, 48, 35, 0.05)',
+  panelGlass: 'rgba(246, 241, 232, 0.78)',
+  border: 'rgba(90, 67, 49, 0.12)',
+  borderStrong: 'rgba(90, 67, 49, 0.18)',
+  text: '#241914',
+  textDim: '#59473c',
+  textMuted: '#88705f',
+  pink: '#9f6a45',
+  pinkSoft: 'rgba(159,106,69,0.14)',
+  amber: '#b77a2f',
+  amberSoft: 'rgba(183,122,47,0.14)',
+  blue: '#5d85c6',
+  blueSoft: 'rgba(93,133,198,0.14)',
+  green: '#2c8c68',
+  greenSoft: 'rgba(44,140,104,0.14)',
+  red: '#c16371',
+  redSoft: 'rgba(193,99,113,0.14)',
+  white: '#ffffff',
+  wallGlow: 'rgba(255,255,255,0.55)',
+  stageCard: 'rgba(255,250,243,0.96)',
+  shadow: 'rgba(105, 83, 60, 0.24)',
+  insetBg: '#f2e9dd',
+  insetBorder: 'rgba(90,67,49,0.09)',
+  artworkCardBg: 'rgba(255,250,243,0.98)',
+  artworkInnerBg: '#f6ede0',
+  loadingCardBg: 'rgba(255, 250, 243, 0.96)',
+  loadingBadgeBg: 'rgba(246, 241, 232, 0.92)',
+  fallbackBg: '#efe6da',
+  controlBg: 'rgba(255, 250, 243, 0.92)',
+  controlPressed: 'rgba(241, 231, 216, 0.98)',
+  zoomControlBg: 'rgba(255, 250, 243, 0.96)',
+  zoomControlPressed: 'rgba(241, 231, 216, 0.98)',
+  topScrim: 'rgba(246,241,232,0.58)',
+  bottomScrim: 'rgba(246,241,232,0.72)',
+  gradientStart: 'rgba(246,241,232,0)',
+  gradientEnd: 'rgba(246,241,232,0.96)',
+  badgeBg: 'rgba(255, 250, 243, 0.88)',
+  badgePressed: 'rgba(241, 231, 216, 0.98)',
+  heroMetaSoft: '#806755',
+  progressTrack: 'rgba(90,67,49,0.14)',
+  tileSoft: 'rgba(67, 48, 35, 0.05)',
+  tileRaised: 'rgba(67, 48, 35, 0.08)',
+  highlightSurface: 'rgba(183,122,47,0.08)',
+  answerIdle: 'rgba(67, 48, 35, 0.05)',
+  answerHover: 'rgba(67, 48, 35, 0.1)',
+  answerSelected: 'rgba(159,106,69,0.18)',
+  answerSelectedSoft: 'rgba(159,106,69,0.12)',
+  answerSelectedBorder: 'rgba(159,106,69,0.28)',
+  answerCorrectBorder: 'rgba(44,140,104,0.3)',
+  answerWrongBorder: 'rgba(193,99,113,0.3)',
+  answerRevealIdle: 'rgba(67, 48, 35, 0.08)',
+  answerRevealCorrect: 'rgba(44,140,104,0.16)',
+  answerRevealWrong: 'rgba(193,99,113,0.16)',
+  stripBg: 'rgba(67, 48, 35, 0.04)',
+  stripBorder: 'rgba(67, 48, 35, 0.08)',
+  accentBorderSoft: 'rgba(159,106,69,0.18)',
+  accentBorder: 'rgba(159,106,69,0.22)',
+} as const;
+
+type MuseumPalette = Record<keyof typeof DARK_COLORS, string>;
 type MuseumPhase = 'reveal' | 'context' | 'quiz' | 'result';
 
 interface PassportStats {
@@ -116,6 +220,8 @@ interface PassportSummary {
   topMediumSeen: number;
   metrics: PassportMetric[];
 }
+
+type MuseumStyles = ReturnType<typeof createStyles>;
 
 function useArtworkAspectRatio(uri: string, fallback = 1.25): number {
   const [aspectRatio, setAspectRatio] = useState(fallback);
@@ -295,10 +401,10 @@ function getResultHeadline(score: number): string {
   return 'An unhurried first look';
 }
 
-function getResultAccent(score: number): string {
-  if (score === 3) return COLORS.green;
-  if (score === 2) return COLORS.amber;
-  return COLORS.pink;
+function getResultAccent(score: number, palette: MuseumPalette): string {
+  if (score === 3) return palette.green;
+  if (score === 2) return palette.amber;
+  return palette.pink;
 }
 
 function getResultNote(score: number): string {
@@ -417,7 +523,8 @@ function getTopStatEntry(
 
 function getPassportSummary(
   passport: MuseumPassport,
-  artwork: MuseumArtwork
+  artwork: MuseumArtwork,
+  palette: MuseumPalette
 ): PassportSummary {
   const worksLogged = passport.artworkIds.length;
   const periodCount = Object.keys(passport.periodStats).length;
@@ -459,34 +566,44 @@ function getPassportSummary(
         label: 'Works',
         value: `${worksLogged}`,
         note: 'Seen so far',
-        accent: COLORS.amber,
+        accent: palette.amber,
       },
       {
         key: 'periods',
         label: 'Styles',
         value: `${periodCount}`,
         note: 'Movements visited',
-        accent: COLORS.pink,
+        accent: palette.pink,
       },
       {
         key: 'regions',
         label: 'Regions',
         value: `${regionCount}`,
         note: 'Places represented',
-        accent: COLORS.blue,
+        accent: palette.blue,
       },
       {
         key: 'accuracy',
         label: 'Recall',
         value: `${overallAccuracy}%`,
         note: 'Across your visits',
-        accent: COLORS.green,
+        accent: palette.green,
       },
     ],
   };
 }
 
-function StatTile({ value, label, accent }: { value: string; label: string; accent: string }) {
+function StatTile({
+  value,
+  label,
+  accent,
+  styles,
+}: {
+  value: string;
+  label: string;
+  accent: string;
+  styles: MuseumStyles;
+}) {
   return (
     <View style={styles.statTile}>
       <Text style={[styles.statValue, { color: accent }]}>{value}</Text>
@@ -501,19 +618,21 @@ function ContextSection({
   icon,
   children,
   emphasized,
+  styles,
 }: {
   label: string;
   accent: string;
   icon: string;
   children: string;
   emphasized?: boolean;
+  styles: MuseumStyles;
 }) {
   return (
     <View
       style={[
         styles.contextSection,
         emphasized && styles.contextSectionEmphasized,
-        emphasized && { borderColor: 'rgba(245,180,85,0.2)' },
+        emphasized && { borderColor: accent },
       ]}
     >
       <View style={styles.contextSectionHeader}>
@@ -535,6 +654,7 @@ interface ArtworkLayerProps {
   uri: string;
   opacity: number;
   transformStyle: object;
+  styles: MuseumStyles;
   onLoad?: () => void;
   onError?: () => void;
 }
@@ -543,6 +663,7 @@ function ArtworkLayer({
   uri,
   opacity,
   transformStyle,
+  styles,
   onLoad,
   onError,
 }: ArtworkLayerProps) {
@@ -587,11 +708,13 @@ function MuseumArtworkCard({
   uri,
   style,
   variant = 'card',
+  styles,
 }: {
   artwork: MuseumArtwork;
   uri?: string;
   style?: StyleProp<ViewStyle>;
   variant?: 'thumb' | 'card' | 'hero' | 'share';
+  styles: MuseumStyles;
 }) {
   const variantStyle =
     variant === 'thumb'
@@ -619,10 +742,12 @@ function MuseumArtworkStage({
   artwork,
   height,
   onInteraction,
+  styles,
 }: {
   artwork: MuseumArtwork;
   height: number;
   onInteraction: () => void;
+  styles: MuseumStyles;
 }) {
   const { width } = useWindowDimensions();
   const aspectRatio = useArtworkAspectRatio(artwork.images.displayUrl, 1.25);
@@ -651,9 +776,11 @@ function MuseumArtworkStage({
   const revealControls = useCallback(() => {
     clearControlsTimer();
     setShowControls(true);
-    controlsTimerRef.current = setTimeout(() => {
-      setShowControls(false);
-    }, 2200);
+    if (zoomRef.current <= 1.05) {
+      controlsTimerRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 2200);
+    }
   }, [clearControlsTimer]);
 
   const markInteraction = useCallback(() => {
@@ -663,13 +790,19 @@ function MuseumArtworkStage({
 
   const updateZoom = useCallback((value: number) => {
     const nextZoom = clamp(value, MIN_ZOOM, MAX_ZOOM);
+    clearControlsTimer();
     zoomRef.current = nextZoom;
     setZoom(nextZoom);
     if (nextZoom === MIN_ZOOM) {
       panRef.current = { x: 0, y: 0 };
       setPan({ x: 0, y: 0 });
+      controlsTimerRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 1400);
+      return;
     }
-  }, []);
+    setShowControls(true);
+  }, [clearControlsTimer]);
 
   const updatePan = useCallback((value: { x: number; y: number }) => {
     if (zoomRef.current <= MIN_ZOOM) {
@@ -718,9 +851,12 @@ function MuseumArtworkStage({
   const panResponder = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: (event) => event.nativeEvent.touches.length > 1,
+        onStartShouldSetPanResponder: (event) =>
+          event.nativeEvent.touches.length > 1 || zoomRef.current > MIN_ZOOM,
         onMoveShouldSetPanResponder: (_event, gestureState) =>
-          Math.abs(gestureState.dx) > 2 || Math.abs(gestureState.dy) > 2,
+          zoomRef.current > MIN_ZOOM ||
+          Math.abs(gestureState.dx) > 2 ||
+          Math.abs(gestureState.dy) > 2,
         onPanResponderGrant: (event: GestureResponderEvent) => {
           const touches = event.nativeEvent.touches;
           gestureRef.current = {
@@ -766,6 +902,8 @@ function MuseumArtworkStage({
 
   const cardWidth = artWidth + cardPadding * 2;
   const cardHeight = artHeight + cardPadding * 2;
+  const controlInset = Math.max(10, cardPadding - 2);
+  const controlStackBottom = controlInset + 42;
   const transformStyle = {
     transform: [{ translateX: pan.x }, { translateY: pan.y }, { scale: zoom }],
   } as const;
@@ -773,6 +911,7 @@ function MuseumArtworkStage({
   const loadingVisible = !displayLoaded && !displayFailed;
   const hardFailure = displayFailed;
   const artworkVisible = displayLoaded || highResLoaded || hardFailure;
+  const controlsVisible = artworkVisible && (showControls || zoom > 1.05);
 
   return (
     <View style={[styles.viewer, { height }]}>
@@ -792,6 +931,7 @@ function MuseumArtworkStage({
           {!displayFailed ? (
             <ArtworkLayer
               uri={artwork.images.displayUrl}
+              styles={styles}
               transformStyle={transformStyle}
               opacity={displayLoaded && !(showFullRes && highResLoaded) ? 1 : 0.01}
               onLoad={() => setDisplayLoaded(true)}
@@ -801,12 +941,68 @@ function MuseumArtworkStage({
           {showFullRes ? (
             <ArtworkLayer
               uri={artwork.images.fullUrl}
+              styles={styles}
               transformStyle={transformStyle}
               opacity={highResLoaded ? 1 : 0.01}
               onLoad={() => setHighResLoaded(true)}
             />
           ) : null}
         </View>
+        {artworkVisible ? (
+          <View style={[styles.zoomLauncherWrap, { right: controlInset, bottom: controlInset }]}>
+            <Pressable
+              style={({ pressed }) => [styles.zoomLauncher, pressed && styles.zoomLauncherPressed]}
+              onPress={() => {
+                markInteraction();
+                if (zoomRef.current <= 1.05) {
+                  updateZoom(1.45);
+                }
+                setShowControls(true);
+              }}
+            >
+              <Text style={styles.zoomLauncherText}>
+                {zoomRef.current <= 1.05 ? 'Zoom artwork' : 'Zoom'}
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
+
+        {controlsVisible ? (
+          <View
+            style={[
+              styles.zoomControls,
+              {
+                right: controlInset,
+                bottom: controlStackBottom,
+              },
+            ]}
+          >
+            <Pressable
+              style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomButtonPressed]}
+              onPress={() => {
+                markInteraction();
+                updateZoom(zoom + 0.35);
+              }}
+            >
+              <Text style={styles.zoomButtonText}>+</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomButtonPressed]}
+              onPress={() => {
+                markInteraction();
+                updateZoom(zoom - 0.35);
+              }}
+            >
+              <Text style={styles.zoomButtonText}>-</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.zoomResetButton, pressed && styles.zoomButtonPressed]}
+              onPress={resetView}
+            >
+              <Text style={styles.zoomResetText}>Reset</Text>
+            </Pressable>
+          </View>
+        ) : null}
       </View>
 
       {loadingVisible ? (
@@ -826,61 +1022,17 @@ function MuseumArtworkStage({
           <Text style={styles.loadingMeta}>{artwork.artist}</Text>
         </View>
       ) : null}
-
-      {artworkVisible ? (
-        <View style={styles.zoomLauncherWrap}>
-          <Pressable
-            style={({ pressed }) => [styles.zoomLauncher, pressed && styles.zoomLauncherPressed]}
-            onPress={() => {
-              markInteraction();
-              if (zoomRef.current <= 1.05) {
-                updateZoom(1.45);
-              }
-              setShowControls((current) => !current);
-            }}
-          >
-            <Text style={styles.zoomLauncherText}>
-              {zoomRef.current <= 1.05 ? 'Zoom artwork' : 'Zoom'}
-            </Text>
-          </Pressable>
-        </View>
-      ) : null}
-
-      {artworkVisible && showControls ? (
-        <View style={styles.zoomControls}>
-          <Pressable
-            style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomButtonPressed]}
-            onPress={() => {
-              markInteraction();
-              updateZoom(zoom + 0.35);
-            }}
-          >
-            <Text style={styles.zoomButtonText}>+</Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomButtonPressed]}
-            onPress={() => {
-              markInteraction();
-              updateZoom(zoom - 0.35);
-            }}
-          >
-            <Text style={styles.zoomButtonText}>-</Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.zoomResetButton, pressed && styles.zoomButtonPressed]}
-            onPress={resetView}
-          >
-            <Text style={styles.zoomResetText}>Reset</Text>
-          </Pressable>
-        </View>
-      ) : null}
     </View>
   );
 }
 
 export default function MuseumScreen() {
   const router = useRouter();
+  const theme = useDaybreakTheme();
   const { height } = useWindowDimensions();
+  const themeMode = theme.mode;
+  const palette = themeMode === 'light' ? LIGHT_COLORS : DARK_COLORS;
+  const styles = useMemo(() => createStyles(palette), [palette]);
   const activeDate = useMemo(() => new Date(), []);
   const dateKey = useMemo(() => getMuseumLocalDateKey(activeDate), [activeDate]);
   const dateLabel = useMemo(
@@ -928,7 +1080,10 @@ export default function MuseumScreen() {
 
   const periodSeen = passport.periodStats[artwork.periodKey]?.seen ?? 0;
   const passportPreview = useMemo(() => getPassportPreview(passport, artwork), [artwork, passport]);
-  const passportSummary = useMemo(() => getPassportSummary(passport, artwork), [artwork, passport]);
+  const passportSummary = useMemo(
+    () => getPassportSummary(passport, artwork, palette),
+    [artwork, palette, passport]
+  );
   const shareText = useMemo(
     () =>
       [
@@ -967,10 +1122,10 @@ export default function MuseumScreen() {
     const previousBody = body.style.backgroundColor;
     const previousApp = appRoot?.style.backgroundColor ?? '';
 
-    root.style.backgroundColor = COLORS.bg;
-    body.style.backgroundColor = COLORS.bg;
+    root.style.backgroundColor = palette.bg;
+    body.style.backgroundColor = palette.bg;
     if (appRoot) {
-      appRoot.style.backgroundColor = COLORS.bg;
+      appRoot.style.backgroundColor = palette.bg;
     }
 
     return () => {
@@ -980,7 +1135,7 @@ export default function MuseumScreen() {
         appRoot.style.backgroundColor = previousApp;
       }
     };
-  }, []);
+  }, [palette.bg]);
 
   useEffect(() => {
     const storage = getStorage();
@@ -1101,6 +1256,7 @@ export default function MuseumScreen() {
               artwork={artwork}
               height={viewerHeight}
               onInteraction={() => {}}
+              styles={styles}
             />
 
             <View style={styles.stageTopRow}>
@@ -1114,9 +1270,11 @@ export default function MuseumScreen() {
                 <Text style={styles.badgeChevron}>{'<'}</Text>
                 <Text style={styles.badgeLabel}>Museum</Text>
               </Pressable>
-              <View style={styles.streakPill}>
-                <Text style={styles.streakPillLabel}>Day</Text>
-                <Text style={styles.streakPillValue}>{Math.max(museumStreak, 1)}</Text>
+              <View style={styles.stageTopActions}>
+                <View style={styles.streakPill}>
+                  <Text style={styles.streakPillLabel}>Day</Text>
+                  <Text style={styles.streakPillValue}>{Math.max(museumStreak, 1)}</Text>
+                </View>
               </View>
             </View>
 
@@ -1178,6 +1336,7 @@ export default function MuseumScreen() {
                     style={styles.contextThumbWrap}
                     uri={artwork.images.thumbnailUrl}
                     variant="thumb"
+                    styles={styles}
                   />
                   <View style={styles.contextHeaderText}>
                     <Text style={styles.contextHeaderTitle}>{artwork.title}</Text>
@@ -1211,13 +1370,19 @@ export default function MuseumScreen() {
                     ))}
                   </View>
 
-                  <ContextSection label="Technique" accent={COLORS.pinkSoft} icon="T">
+                  <ContextSection label="Technique" accent={palette.pinkSoft} icon="T" styles={styles}>
                     {artwork.context.technique}
                   </ContextSection>
-                  <ContextSection label="Collection note" accent={COLORS.amberSoft} icon="N" emphasized>
+                  <ContextSection
+                    label="Collection note"
+                    accent={palette.amberSoft}
+                    icon="N"
+                    emphasized
+                    styles={styles}
+                  >
                     {artwork.context.surprisingFact}
                   </ContextSection>
-                  <ContextSection label="Connection" accent={COLORS.blueSoft} icon="C">
+                  <ContextSection label="Connection" accent={palette.blueSoft} icon="C" styles={styles}>
                     {artwork.context.connection}
                   </ContextSection>
                 </ScrollView>
@@ -1286,6 +1451,7 @@ export default function MuseumScreen() {
                 style={styles.quizArtworkWrap}
                 uri={artwork.images.thumbnailUrl}
                 variant="card"
+                styles={styles}
               />
               <View style={styles.quizPlacard}>
                 <Text style={styles.quizArtworkTitle}>{artwork.title}</Text>
@@ -1386,6 +1552,7 @@ export default function MuseumScreen() {
                   style={styles.resultHero}
                   uri={artwork.images.displayUrl}
                   variant="share"
+                  styles={styles}
                 />
                 <View style={styles.resultSummaryBody}>
                   <Text style={styles.resultHeroTitle}>{artwork.title}</Text>
@@ -1394,7 +1561,9 @@ export default function MuseumScreen() {
                   </Text>
 
                   <View style={styles.resultScoreRow}>
-                    <Text style={[styles.resultScore, { color: getResultAccent(score) }]}>{score}/3</Text>
+                    <Text style={[styles.resultScore, { color: getResultAccent(score, palette) }]}>
+                      {score}/3
+                    </Text>
                     <View style={styles.resultScoreCopy}>
                       <Text style={styles.resultHeadline}>{getResultHeadline(score)}</Text>
                       <Text style={styles.resultNote}>{getResultNote(score)}</Text>
@@ -1404,11 +1573,12 @@ export default function MuseumScreen() {
               </View>
 
               <View style={styles.resultStatsGrid}>
-                <StatTile value={`${museumStreak}`} label="Day streak" accent={COLORS.amber} />
+                <StatTile value={`${museumStreak}`} label="Day streak" accent={palette.amber} styles={styles} />
                 <StatTile
                   value={`${periodSeen}`}
                   label="In this movement"
-                  accent={COLORS.pink}
+                  accent={palette.pink}
+                  styles={styles}
                 />
               </View>
 
@@ -1486,6 +1656,7 @@ export default function MuseumScreen() {
                     style={styles.sharePreviewImage}
                     uri={artwork.images.thumbnailUrl}
                     variant="thumb"
+                    styles={styles}
                   />
                   <View style={styles.sharePreviewTextWrap}>
                     <View style={styles.sharePreviewHeader}>
@@ -1546,7 +1717,8 @@ export default function MuseumScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (COLORS: MuseumPalette) =>
+  StyleSheet.create({
   container: {
     flex: 1,
     minHeight: '100%',
@@ -1572,7 +1744,7 @@ const styles = StyleSheet.create({
     width: '74%',
     height: '50%',
     borderRadius: 36,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: COLORS.wallGlow,
     shadowColor: COLORS.white,
     shadowOpacity: 0.08,
     shadowRadius: 44,
@@ -1580,10 +1752,10 @@ const styles = StyleSheet.create({
   },
   stageArtworkCard: {
     borderRadius: 28,
-    backgroundColor: 'rgba(17,14,13,0.94)',
+    backgroundColor: COLORS.stageCard,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
-    shadowColor: '#000000',
+    shadowColor: COLORS.shadow,
     shadowOpacity: 0.28,
     shadowRadius: 34,
     shadowOffset: { width: 0, height: 18 },
@@ -1593,9 +1765,9 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
     borderRadius: 18,
-    backgroundColor: '#080707',
+    backgroundColor: COLORS.insetBg,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: COLORS.insetBorder,
   },
   viewerImageShell: {
     ...StyleSheet.absoluteFillObject,
@@ -1617,8 +1789,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
-    backgroundColor: 'rgba(19,17,16,0.96)',
-    shadowColor: '#000000',
+    backgroundColor: COLORS.artworkCardBg,
+    shadowColor: COLORS.shadow,
     shadowOpacity: 0.18,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 12 },
@@ -1643,9 +1815,9 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 14,
     overflow: 'hidden',
-    backgroundColor: '#0a0908',
+    backgroundColor: COLORS.artworkInnerBg,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: COLORS.insetBorder,
   },
   staticArtworkImage: {
     width: '100%',
@@ -1663,7 +1835,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
-    backgroundColor: 'rgba(23, 19, 17, 0.9)',
+    backgroundColor: COLORS.loadingCardBg,
     paddingHorizontal: 22,
     paddingVertical: 24,
     alignItems: 'center',
@@ -1698,7 +1870,7 @@ const styles = StyleSheet.create({
     minHeight: 38,
     borderRadius: 999,
     paddingHorizontal: 16,
-    backgroundColor: 'rgba(12, 10, 9, 0.75)',
+    backgroundColor: COLORS.loadingBadgeBg,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
     alignItems: 'center',
@@ -1715,7 +1887,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 32,
-    backgroundColor: '#171311',
+    backgroundColor: COLORS.fallbackBg,
   },
   fallbackLabel: {
     color: COLORS.textMuted,
@@ -1741,21 +1913,20 @@ const styles = StyleSheet.create({
   },
   zoomLauncherWrap: {
     position: 'absolute',
-    right: 16,
-    bottom: 18,
+    zIndex: 3,
   },
   zoomLauncher: {
     minHeight: 34,
     paddingHorizontal: 14,
     borderRadius: 999,
-    backgroundColor: 'rgba(23, 19, 17, 0.82)',
+    backgroundColor: COLORS.controlBg,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
   zoomLauncherPressed: {
-    backgroundColor: 'rgba(31, 25, 23, 0.94)',
+    backgroundColor: COLORS.controlPressed,
   },
   zoomLauncherText: {
     color: COLORS.textDim,
@@ -1766,23 +1937,22 @@ const styles = StyleSheet.create({
   },
   zoomControls: {
     position: 'absolute',
-    right: 16,
-    bottom: 60,
     gap: 8,
     alignItems: 'flex-end',
+    zIndex: 3,
   },
   zoomButton: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(23, 19, 17, 0.92)',
+    backgroundColor: COLORS.zoomControlBg,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
   zoomButtonPressed: {
-    backgroundColor: 'rgba(31, 25, 23, 0.98)',
+    backgroundColor: COLORS.zoomControlPressed,
   },
   zoomButtonText: {
     color: COLORS.text,
@@ -1794,7 +1964,7 @@ const styles = StyleSheet.create({
     minHeight: 34,
     paddingHorizontal: 14,
     borderRadius: 999,
-    backgroundColor: 'rgba(23, 19, 17, 0.92)',
+    backgroundColor: COLORS.zoomControlBg,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
     alignItems: 'center',
@@ -1812,7 +1982,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 130,
-    backgroundColor: 'rgba(0,0,0,0.26)',
+    backgroundColor: COLORS.topScrim,
   },
   heroBottomScrim: {
     position: 'absolute',
@@ -1824,11 +1994,11 @@ const styles = StyleSheet.create({
   },
   heroBottomTint: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.48)',
+    backgroundColor: COLORS.bottomScrim,
     ...(Platform.OS === 'web'
       ? ({
           backgroundImage:
-            'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.88))',
+            `linear-gradient(to bottom, ${COLORS.gradientStart}, ${COLORS.gradientEnd})`,
         } as object)
       : null),
   },
@@ -1845,7 +2015,7 @@ const styles = StyleSheet.create({
     minHeight: 38,
     borderRadius: 999,
     paddingHorizontal: 14,
-    backgroundColor: 'rgba(23, 19, 17, 0.84)',
+    backgroundColor: COLORS.badgeBg,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
     alignItems: 'center',
@@ -1853,7 +2023,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   badgeButtonPressed: {
-    backgroundColor: 'rgba(31, 25, 23, 0.98)',
+    backgroundColor: COLORS.badgePressed,
   },
   badgeChevron: {
     color: COLORS.textMuted,
@@ -1869,11 +2039,16 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
+  stageTopActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   streakPill: {
     minHeight: 38,
     borderRadius: 999,
     paddingHorizontal: 14,
-    backgroundColor: 'rgba(23, 19, 17, 0.84)',
+    backgroundColor: COLORS.badgeBg,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
     flexDirection: 'row',
@@ -1928,7 +2103,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   heroMetaMuted: {
-    color: '#c9b8a9',
+    color: COLORS.heroMetaSoft,
     fontSize: 12,
     lineHeight: 18,
     fontFamily: FONT_SANS,
@@ -1938,7 +2113,7 @@ const styles = StyleSheet.create({
     minHeight: 50,
     borderRadius: 14,
     marginTop: 18,
-    backgroundColor: 'rgba(23, 19, 17, 0.84)',
+    backgroundColor: COLORS.badgeBg,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
     alignItems: 'center',
@@ -1946,7 +2121,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   heroCtaPressed: {
-    backgroundColor: 'rgba(31, 25, 23, 0.98)',
+    backgroundColor: COLORS.badgePressed,
   },
   heroCtaText: {
     color: COLORS.text,
@@ -1969,7 +2144,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     maxHeight: '74%',
     minHeight: '62%',
-    backgroundColor: '#12100f',
+    backgroundColor: COLORS.panel,
     borderTopLeftRadius: 22,
     borderTopRightRadius: 22,
     borderWidth: 1,
@@ -1980,7 +2155,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 4,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.16)',
+    backgroundColor: COLORS.progressTrack,
     alignSelf: 'center',
     marginBottom: 14,
   },
@@ -2062,7 +2237,7 @@ const styles = StyleSheet.create({
   },
   placardGridItem: {
     width: '47%',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: COLORS.tileSoft,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -2086,14 +2261,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   contextSection: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: COLORS.tileSoft,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
     padding: 16,
   },
   contextSectionEmphasized: {
-    backgroundColor: 'rgba(245,180,85,0.06)',
+    backgroundColor: COLORS.highlightSurface,
   },
   contextSectionHeader: {
     flexDirection: 'row',
@@ -2132,7 +2307,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT_SANS,
   },
   contextSectionTextStrong: {
-    color: '#f7d8a3',
+    color: COLORS.text,
   },
   contextActions: {
     flexDirection: 'row',
@@ -2163,7 +2338,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 50,
     borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: COLORS.answerIdle,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
     alignItems: 'center',
@@ -2171,7 +2346,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   secondaryButtonPressed: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: COLORS.answerHover,
   },
   secondaryButtonText: {
     color: COLORS.textDim,
@@ -2238,10 +2413,10 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 4,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: COLORS.tileRaised,
   },
   progressTrackFilled: {
-    backgroundColor: 'rgba(167,102,79,0.4)',
+    backgroundColor: COLORS.answerSelected,
   },
   progressTrackActive: {
     backgroundColor: COLORS.pink,
@@ -2299,30 +2474,30 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   optionPressed: {
-    backgroundColor: 'rgba(167,102,79,0.12)',
-    borderColor: 'rgba(167,102,79,0.28)',
+    backgroundColor: COLORS.answerSelectedSoft,
+    borderColor: COLORS.answerSelectedBorder,
   },
   optionCorrect: {
     backgroundColor: COLORS.greenSoft,
-    borderColor: 'rgba(56,211,159,0.34)',
+    borderColor: COLORS.answerCorrectBorder,
   },
   optionWrong: {
     backgroundColor: COLORS.redSoft,
-    borderColor: 'rgba(241,110,134,0.34)',
+    borderColor: COLORS.answerWrongBorder,
   },
   optionChip: {
     width: 30,
     height: 30,
     borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: COLORS.answerRevealIdle,
     alignItems: 'center',
     justifyContent: 'center',
   },
   optionChipCorrect: {
-    backgroundColor: 'rgba(56,211,159,0.18)',
+    backgroundColor: COLORS.answerRevealCorrect,
   },
   optionChipWrong: {
-    backgroundColor: 'rgba(241,110,134,0.18)',
+    backgroundColor: COLORS.answerRevealWrong,
   },
   optionChipText: {
     color: COLORS.textMuted,
@@ -2342,10 +2517,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   optionTextCorrect: {
-    color: '#d7fff0',
+    color: COLORS.text,
   },
   optionTextWrong: {
-    color: '#ffe1e8',
+    color: COLORS.text,
   },
   answerReveal: {
     marginTop: 14,
@@ -2380,7 +2555,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 14,
     alignItems: 'stretch',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: COLORS.tileSoft,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
@@ -2466,7 +2641,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   resultProgressCard: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: COLORS.tileSoft,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -2481,7 +2656,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT_SANS,
   },
   passportSection: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: COLORS.tileSoft,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
@@ -2516,7 +2691,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: COLORS.pinkSoft,
     borderWidth: 1,
-    borderColor: 'rgba(167,102,79,0.2)',
+    borderColor: COLORS.accentBorderSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2542,7 +2717,7 @@ const styles = StyleSheet.create({
   passportQuickPill: {
     flex: 1,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.02)',
+    backgroundColor: COLORS.stripBg,
     borderWidth: 1,
     borderColor: COLORS.border,
     paddingHorizontal: 10,
@@ -2573,16 +2748,16 @@ const styles = StyleSheet.create({
     width: '31.5%',
     minHeight: 82,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.02)',
+    backgroundColor: COLORS.stripBg,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.04)',
+    borderColor: COLORS.stripBorder,
     paddingHorizontal: 10,
     paddingVertical: 10,
     justifyContent: 'flex-start',
   },
   passportTileActive: {
     backgroundColor: COLORS.pinkSoft,
-    borderColor: 'rgba(167,102,79,0.24)',
+    borderColor: COLORS.accentBorder,
   },
   passportTileValue: {
     color: COLORS.textMuted,
@@ -2612,7 +2787,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT_SANS,
   },
   passportTileNoteActive: {
-    color: '#edd6cc',
+    color: COLORS.text,
   },
   shareSection: {
     backgroundColor: COLORS.panelSoft,
@@ -2634,7 +2809,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     alignItems: 'flex-start',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: COLORS.tileSoft,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -2651,7 +2826,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: COLORS.pinkSoft,
     borderWidth: 1,
-    borderColor: 'rgba(167,102,79,0.2)',
+    borderColor: COLORS.accentBorderSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2693,7 +2868,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT_SANS,
   },
   sharePreviewQuote: {
-    color: '#f5d8b3',
+    color: COLORS.textDim,
     fontSize: 13,
     lineHeight: 20,
     fontFamily: FONT_SANS,
@@ -2710,4 +2885,4 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 10,
   },
-});
+  });
