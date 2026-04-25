@@ -167,27 +167,27 @@ function getFeedbackMessage(evaluation, winThreshold = WIN_THRESHOLD) {
   if (evaluation.tier === 'bullseye') {
     return {
       title: 'Bullseye',
-      body: `That guess is within ${Math.round(winThreshold * 100)}% of the answer.`,
+      body: `You landed inside the ${Math.round(winThreshold * 100)}% strike zone.`,
     };
   }
 
   if (evaluation.tier === 'close') {
     return {
       title: evaluation.direction === 'up' ? 'Go higher' : 'Come down',
-      body: 'You are close. Nudge the number and take another swing.',
+      body: 'You are near it. Make a smaller move and try to catch the edge.',
     };
   }
 
   if (evaluation.tier === 'warm') {
     return {
-      title: evaluation.direction === 'up' ? 'Right ballpark, higher' : 'Right ballpark, lower',
-      body: 'You are in the neighborhood. Now tighten it up.',
+      title: evaluation.direction === 'up' ? 'Same scale, higher' : 'Same scale, lower',
+      body: 'You found the right ballpark. Tighten the number from here.',
     };
   }
 
   return {
     title: evaluation.direction === 'up' ? 'Much higher' : 'Much lower',
-    body: 'Take a bigger swing in that direction.',
+    body: 'Reset the scale first, then work back in.',
   };
 }
 
@@ -312,17 +312,17 @@ function GuessHistoryRow({ entry, index, styles, winThreshold = WIN_THRESHOLD })
       pill: styles.historyPillBullseye,
     },
     close: {
-      label: 'Close',
+      label: 'Within 50%',
       row: styles.historyRowClose,
       pill: styles.historyPillClose,
     },
     warm: {
-      label: 'Right area',
+      label: 'Right scale',
       row: styles.historyRowWarm,
       pill: styles.historyPillWarm,
     },
     cold: {
-      label: 'Way off',
+      label: 'Reset scale',
       row: styles.historyRowCold,
       pill: styles.historyPillCold,
     },
@@ -596,10 +596,17 @@ function QuestionScreen({
         </Text>
         <Text style={styles.guessDisplayHint}>
           {currentGuess !== null
-            ? `${formatCompactNumber(currentGuess)} is ready`
+            ? `${formatCompactNumber(currentGuess)} ready to submit`
             : lastGuess !== null
               ? `Last guess: ${formatFullNumber(lastGuess)}`
-              : 'Use the keypad, then adjust with quick chips.'}
+              : 'Use the keypad or quick chips to jump scales.'}
+        </Text>
+      </View>
+
+      <View style={styles.questionHintCard}>
+        <Text style={styles.questionHintLabel}>Hint</Text>
+        <Text style={styles.questionHintText}>
+          Start with the scale, then use the chips to tighten the number.
         </Text>
       </View>
 
@@ -1399,6 +1406,25 @@ function createStyles(theme, screenAccent, viewportWidth) {
       fontSize: 12,
       lineHeight: 16,
       color: Colors.textMuted,
+    },
+    questionHintCard: {
+      ...ui.subtleCard,
+      paddingVertical: Spacing.sm,
+      paddingHorizontal: Spacing.md,
+      marginBottom: Spacing.sm,
+      gap: 4,
+    },
+    questionHintLabel: {
+      fontSize: 11,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      color: screenAccent.badgeText,
+    },
+    questionHintText: {
+      fontSize: 12,
+      lineHeight: 17,
+      color: Colors.textSecondary,
     },
     feedbackCard: {
       borderRadius: BorderRadius.md,
