@@ -167,27 +167,27 @@ function getFeedbackMessage(evaluation, winThreshold = WIN_THRESHOLD) {
   if (evaluation.tier === 'bullseye') {
     return {
       title: 'Bullseye',
-      body: `You landed inside the ${Math.round(winThreshold * 100)}% strike zone.`,
+      body: `That guess is within ${Math.round(winThreshold * 100)}% of the answer.`,
     };
   }
 
   if (evaluation.tier === 'close') {
     return {
       title: evaluation.direction === 'up' ? 'Go higher' : 'Come down',
-      body: 'You are near it. Make a smaller move and try to catch the edge.',
+      body: 'You are close. Nudge the number and take another swing.',
     };
   }
 
   if (evaluation.tier === 'warm') {
     return {
-      title: evaluation.direction === 'up' ? 'Same scale, higher' : 'Same scale, lower',
-      body: 'You found the right ballpark. Tighten the number from here.',
+      title: evaluation.direction === 'up' ? 'Right ballpark, higher' : 'Right ballpark, lower',
+      body: 'You are in the neighborhood. Now tighten it up.',
     };
   }
 
   return {
     title: evaluation.direction === 'up' ? 'Much higher' : 'Much lower',
-    body: 'Reset the scale first, then work back in.',
+    body: 'Take a bigger swing in that direction.',
   };
 }
 
@@ -312,17 +312,17 @@ function GuessHistoryRow({ entry, index, styles, winThreshold = WIN_THRESHOLD })
       pill: styles.historyPillBullseye,
     },
     close: {
-      label: 'Within 50%',
+      label: 'Close',
       row: styles.historyRowClose,
       pill: styles.historyPillClose,
     },
     warm: {
-      label: 'Right scale',
+      label: 'Right area',
       row: styles.historyRowWarm,
       pill: styles.historyPillWarm,
     },
     cold: {
-      label: 'Reset scale',
+      label: 'Way off',
       row: styles.historyRowCold,
       pill: styles.historyPillCold,
     },
@@ -360,9 +360,9 @@ function buildProgressSegments(totalSegments, activeIndex, completedCount) {
 function StartScreen({ dailySet, hardMode, onStart, onToggleHardMode, styles }) {
   const activeThreshold = hardMode ? HARD_WIN_THRESHOLD : WIN_THRESHOLD;
   const instructions = [
-    'Enter any whole number. No multiple choice.',
-    'After each miss, use higher/lower feedback and quick chips to scale fast.',
-    `Win by landing within ${Math.round(activeThreshold * 100)}% in four guesses.`,
+    'Type your best whole-number guess.',
+    'Missed? Use higher/lower clues to adjust.',
+    `Get within ${Math.round(activeThreshold * 100)}% in four guesses to win.`,
   ];
 
   return (
@@ -378,11 +378,11 @@ function StartScreen({ dailySet, hardMode, onStart, onToggleHardMode, styles }) 
           <Text style={styles.themeEyebrow}>Theme</Text>
           <Text style={styles.themeTitle}>{dailySet.theme}</Text>
           <Text style={styles.themeBody}>
-            One shared lane of numbers today, with just enough higher-lower feedback to keep you honest.
+            Three numbers, one theme. Guess big, then use each clue to close in.
           </Text>
           {dailySet.extraInning ? (
             <View style={styles.startBonusPill}>
-              <Text style={styles.startBonusPillText}>Friday Extra Inning waits after the main game.</Text>
+              <Text style={styles.startBonusPillText}>Friday bonus: one tougher question after the main three.</Text>
             </View>
           ) : null}
         </View>
@@ -409,7 +409,7 @@ function StartScreen({ dailySet, hardMode, onStart, onToggleHardMode, styles }) 
         >
           <View style={styles.hardModeCopy}>
             <Text style={styles.hardModeTitle}>Hard Mode</Text>
-            <Text style={styles.hardModeBody}>Tighten the strike zone from 10% to 5%.</Text>
+            <Text style={styles.hardModeBody}>Play tighter: within 5% instead of 10%.</Text>
           </View>
           <View style={[styles.hardModeSwitch, hardMode && styles.hardModeSwitchActive]}>
             <View style={[styles.hardModeKnob, hardMode && styles.hardModeKnobActive]} />
@@ -596,10 +596,10 @@ function QuestionScreen({
         </Text>
         <Text style={styles.guessDisplayHint}>
           {currentGuess !== null
-            ? `${formatCompactNumber(currentGuess)} ready to submit`
+            ? `${formatCompactNumber(currentGuess)} is ready`
             : lastGuess !== null
               ? `Last guess: ${formatFullNumber(lastGuess)}`
-              : 'Use the keypad or quick chips to jump scales.'}
+              : 'Use the keypad, then adjust with quick chips.'}
         </Text>
       </View>
 
@@ -889,7 +889,7 @@ function SummaryScreen({
           </View>
           <View style={styles.summaryStatCard}>
             <Text style={styles.summaryStatValue}>
-              {closestMiss === null ? 'Clean' : `${Math.round(closestMiss * 100)}%`}
+              {closestMiss === null ? 'No misses' : `${Math.round(closestMiss * 100)}%`}
             </Text>
             <Text style={styles.summaryStatLabel}>Closest miss</Text>
           </View>
