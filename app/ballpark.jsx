@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
+  Easing,
   Platform,
   Pressable,
   ScrollView,
@@ -13,11 +15,8 @@ import { Stack } from 'expo-router';
 import {
   MAX_GUESSES,
   WIN_THRESHOLD,
-  formatDisplayDate,
-  getCycleDay,
   getDailySet,
   getTodayKey,
-  shiftDateKey,
 } from '../src/ballpark/daybreak-v1-data.mjs';
 import { BUILD_ID } from '../src/constants/build';
 import {
@@ -27,7 +26,8 @@ import {
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
-const STORAGE_VERSION = 5;
+const STORAGE_VERSION = 7;
+const HARD_WIN_THRESHOLD = 0.05;
 const KEYPAD_LAYOUT = [
   ['1', '2', '3'],
   ['4', '5', '6'],
@@ -132,12 +132,12 @@ function orderOfMagnitude(value) {
   return Math.floor(Math.log10(value));
 }
 
-function evaluateGuess(guess, answer) {
+function evaluateGuess(guess, answer, winThreshold = WIN_THRESHOLD) {
   const pctOff = Math.abs(guess - answer) / answer;
   const sameOOM = orderOfMagnitude(guess) === orderOfMagnitude(answer);
 
   let tier = 'cold';
-  if (pctOff <= WIN_THRESHOLD) tier = 'bullseye';
+  if (pctOff <= winThreshold) tier = 'bullseye';
   else if (pctOff <= 0.5) tier = 'close';
   else if (sameOOM) tier = 'warm';
 
@@ -161,27 +161,27 @@ function deriveRoundPhase(savedQuestionState) {
     : savedQuestionState.roundPhase ?? 'ready_to_continue';
 }
 
-function getFeedbackMessage(evaluation) {
+function getFeedbackMessage(evaluation, winThreshold = WIN_THRESHOLD) {
   if (!evaluation) return null;
 
   if (evaluation.tier === 'bullseye') {
     return {
       title: 'Bullseye',
-      body: `You landed within ${Math.round(evaluation.pctOff * 100)}% of the answer.`,
+      body: `You landed inside the ${Math.round(winThreshold * 100)}% strike zone.`,
     };
   }
 
   if (evaluation.tier === 'close') {
     return {
       title: evaluation.direction === 'up' ? 'Go higher' : 'Come down',
-      body: 'You are close now. One more calibrated move could do it.',
+      body: 'You are near it. Make a smaller move and try to catch the edge.',
     };
   }
 
   if (evaluation.tier === 'warm') {
     return {
       title: evaluation.direction === 'up' ? 'Same scale, higher' : 'Same scale, lower',
-      body: 'You found the right ballpark. Tighten the number next.',
+      body: 'You found the right ballpark. Tighten the number from here.',
     };
   }
 
@@ -189,6 +189,39 @@ function getFeedbackMessage(evaluation) {
     title: evaluation.direction === 'up' ? 'Much higher' : 'Much lower',
     body: 'Reset the scale first, then work back in.',
   };
+}
+
+function getWinRevealTitle(previousResults = [], isExtraInning = false) {
+  if (isExtraInning) return 'Walk-off grand slam';
+
+  let streak = 1;
+  for (let index = previousResults.length - 1; index >= 0; index -= 1) {
+    if (!previousResults[index]?.won) break;
+    streak += 1;
+  }
+
+  if (streak >= 3) return 'Homerun';
+  if (streak === 2) return 'Double';
+  return 'Base hit';
+}
+
+function getPlayerFacingFunFact(funFact) {
+  const exactRewrites = new Map([
+    [
+      'That clean 24 x 60 calculation is why this makes a strong warm-up.',
+      'A day has 24 hours, and each hour has 60 minutes, so the answer is 24 x 60.',
+    ],
+  ]);
+
+  if (exactRewrites.has(funFact)) return exactRewrites.get(funFact);
+
+  return funFact
+    .replace(/\b[Tt]he closer\b/g, 'This answer')
+    .replace(/\b[Tt]he stretch\b/g, 'This question')
+    .replace(/\b[Tt]he opener\b/g, 'The first question')
+    .replace(/\bmiddle round\b/g, 'middle question')
+    .replace(/\bstrong warm-up\b/g, 'clean first swing')
+    .replace(/\bwarm-up\b/g, 'first swing');
 }
 
 function getBestGuess(history) {
@@ -271,37 +304,10 @@ function AppButton({
   );
 }
 
-function ArchiveNavigator({
-  cycleDay,
-  dateKey,
-  onNextDay,
-  onPrevDay,
-  styles,
-  subtitle = 'Archive',
-}) {
-  return (
-    <View style={styles.archiveRow}>
-      <Pressable onPress={onPrevDay} style={({ pressed }) => [styles.archiveArrow, pressed && styles.archiveArrowPressed]}>
-        <Text style={styles.archiveArrowText}>←</Text>
-      </Pressable>
-      <View style={styles.archiveCenter}>
-        <Text style={styles.archiveEyebrow}>{subtitle}</Text>
-        <Text style={styles.archiveDate}>{formatLongDate(dateKey)}</Text>
-        <Text style={styles.archiveMeta}>
-          Day {String(cycleDay).padStart(2, '0')} • {formatDisplayDate(dateKey)}
-        </Text>
-      </View>
-      <Pressable onPress={onNextDay} style={({ pressed }) => [styles.archiveArrow, pressed && styles.archiveArrowPressed]}>
-        <Text style={styles.archiveArrowText}>→</Text>
-      </Pressable>
-    </View>
-  );
-}
-
-function GuessHistoryRow({ entry, index, styles }) {
+function GuessHistoryRow({ entry, index, styles, winThreshold = WIN_THRESHOLD }) {
   const statusMap = {
     bullseye: {
-      label: 'Within 10%',
+      label: `Within ${Math.round(winThreshold * 100)}%`,
       row: styles.historyRowBullseye,
       pill: styles.historyPillBullseye,
     },
@@ -343,91 +349,94 @@ function GuessHistoryRow({ entry, index, styles }) {
   );
 }
 
-function StartScreen({
-  cycleDay,
-  dailySet,
-  dateKey,
-  isTodayView,
-  onBrowseArchive,
-  onGoToToday,
-  onHideArchive,
-  onNextDay,
-  onPrevDay,
-  onStart,
-  showArchiveNavigator,
-  styles,
-}) {
+function buildProgressSegments(totalSegments, activeIndex, completedCount) {
+  return Array.from({ length: totalSegments }, (_, index) => {
+    if (index < completedCount) return 'complete';
+    if (index === activeIndex) return 'active';
+    return 'future';
+  });
+}
+
+function StartScreen({ dailySet, hardMode, onStart, onToggleHardMode, styles }) {
+  const activeThreshold = hardMode ? HARD_WIN_THRESHOLD : WIN_THRESHOLD;
+  const instructions = [
+    'Enter any whole number. No multiple choice.',
+    'After each miss, use higher/lower feedback and quick chips to scale fast.',
+    `Win by landing within ${Math.round(activeThreshold * 100)}% in four guesses.`,
+  ];
+
   return (
     <View>
       <View style={styles.heroCard}>
-        {showArchiveNavigator ? (
-          <ArchiveNavigator
-            cycleDay={cycleDay}
-            dateKey={dateKey}
-            onNextDay={onNextDay}
-            onPrevDay={onPrevDay}
-            styles={styles}
-          />
-        ) : (
-          <View style={styles.heroMetaCard}>
-            <Text style={styles.heroEyebrow}>Today&apos;s challenge</Text>
-            <Text style={styles.heroDate}>{formatLongDate(dateKey)}</Text>
-            <Text style={styles.heroMeta}>
-              Day {String(cycleDay).padStart(2, '0')} of 30
-            </Text>
-          </View>
-        )}
+        <View style={styles.heroMetaCard}>
+          <Text style={styles.heroEyebrow}>Today&apos;s Ballpark</Text>
+          <Text style={styles.heroDate}>{formatLongDate(dailySet.date)}</Text>
+          <Text style={styles.heroMeta}>Three questions. Four guesses each.</Text>
+        </View>
 
         <View style={styles.themeCard}>
-          <Text style={styles.themeEyebrow}>Today&apos;s theme</Text>
+          <Text style={styles.themeEyebrow}>Theme</Text>
           <Text style={styles.themeTitle}>{dailySet.theme}</Text>
           <Text style={styles.themeBody}>
-            Three questions, one shared thread, and four guesses each.
+            One shared lane of numbers today, with just enough higher-lower feedback to keep you honest.
           </Text>
+          {dailySet.extraInning ? (
+            <View style={styles.startBonusPill}>
+              <Text style={styles.startBonusPillText}>Friday Extra Inning waits after the main game.</Text>
+            </View>
+          ) : null}
         </View>
+
+        <View style={styles.instructionsCard}>
+          <Text style={styles.sectionEyebrow}>How to play</Text>
+          {instructions.map((instruction) => (
+            <View key={instruction} style={styles.instructionRow}>
+              <Text style={styles.instructionBullet}>•</Text>
+              <Text style={styles.instructionText}>{instruction}</Text>
+            </View>
+          ))}
+        </View>
+
+        <Pressable
+          accessibilityRole="switch"
+          accessibilityState={{ checked: hardMode }}
+          onPress={onToggleHardMode}
+          style={({ pressed }) => [
+            styles.hardModeCard,
+            hardMode && styles.hardModeCardActive,
+            pressed && styles.hardModeCardPressed,
+          ]}
+        >
+          <View style={styles.hardModeCopy}>
+            <Text style={styles.hardModeTitle}>Hard Mode</Text>
+            <Text style={styles.hardModeBody}>Tighten the strike zone from 10% to 5%.</Text>
+          </View>
+          <View style={[styles.hardModeSwitch, hardMode && styles.hardModeSwitchActive]}>
+            <View style={[styles.hardModeKnob, hardMode && styles.hardModeKnobActive]} />
+          </View>
+        </Pressable>
       </View>
 
-      <Text style={styles.compactRule}>
-        Use the keypad, tap the quick chips, and get within {Math.round(WIN_THRESHOLD * 100)}%
-        {' '}in four guesses.
-      </Text>
-
       <AppButton label="Play Ballpark" onPress={onStart} styles={styles} fullWidth />
-
-      {showArchiveNavigator ? (
-        <View style={styles.footerButtonRow}>
-          <AppButton
-            label={isTodayView ? 'Hide Archive' : 'Back to Today'}
-            onPress={isTodayView ? onHideArchive : onGoToToday}
-            styles={styles}
-            variant="secondary"
-            fullWidth
-          />
-        </View>
-      ) : (
-        <View style={styles.footerButtonRow}>
-          <AppButton
-            label="Browse Archive"
-            onPress={onBrowseArchive}
-            styles={styles}
-            variant="secondary"
-            fullWidth
-          />
-        </View>
-      )}
     </View>
   );
 }
 
 function QuestionScreen({
-  dailySet,
+  continueLabel,
+  dateKey,
+  hardMode,
+  isExtraInning = false,
   onComplete,
   onStateChange,
-  questionIndex,
+  previousResults = [],
+  progressSegments,
+  question,
+  questionLabel,
   savedQuestionState,
   styles,
+  themeLabel,
 }) {
-  const question = dailySet.questions[questionIndex];
   const restoredState =
     savedQuestionState && savedQuestionState.questionId === question.id ? savedQuestionState : null;
   const [guessInput, setGuessInput] = useState(restoredState?.guessInput ?? '');
@@ -442,7 +451,12 @@ function QuestionScreen({
   const guessesLeft = MAX_GUESSES - history.length;
   const isDone = isWon || history.length >= MAX_GUESSES;
   const adjustmentBase = currentGuess ?? lastGuess;
-  const feedbackMessage = getFeedbackMessage(latestFeedback);
+  const winThreshold = hardMode ? HARD_WIN_THRESHOLD : WIN_THRESHOLD;
+  const feedbackMessage = getFeedbackMessage(latestFeedback, winThreshold);
+  const revealTitle = isWon ? getWinRevealTitle(previousResults, isExtraInning) : 'Round complete';
+  const displayProgressSegments = isDone
+    ? progressSegments.map((segment) => (segment === 'active' ? 'complete' : segment))
+    : progressSegments;
 
   useEffect(() => {
     if (roundPhase !== 'resolved') return undefined;
@@ -502,7 +516,7 @@ function QuestionScreen({
   const handleSubmit = () => {
     if (isDone || currentGuess === null) return;
 
-    const evaluation = evaluateGuess(currentGuess, question.answer);
+    const evaluation = evaluateGuess(currentGuess, question.answer, winThreshold);
     const nextHistory = [...history, { guess: currentGuess, evaluation }];
     setHistory(nextHistory);
     setLatestFeedback(evaluation);
@@ -526,7 +540,8 @@ function QuestionScreen({
       answer: question.answer,
       bestGuess: bestGuess.guess,
       bestPctOff: bestGuess.evaluation.pctOff,
-      difficulty: question.difficulty,
+      difficultyScore: question.difficultyScore,
+      scaleBand: question.scaleBand,
       guesses: history.length,
       history,
       prompt: question.prompt,
@@ -539,32 +554,31 @@ function QuestionScreen({
     <View>
       <View style={styles.metaRow}>
         <View style={styles.metaCopy}>
-          <Text style={styles.sectionEyebrow}>
-            Question {questionIndex + 1} / {dailySet.questions.length}
-          </Text>
-          <Text style={styles.metaSubcopy}>{formatLongDate(dailySet.date)}</Text>
+          <Text style={styles.sectionEyebrow}>{questionLabel}</Text>
+          <Text style={styles.metaSubcopy}>{formatLongDate(dateKey)}</Text>
           <View style={styles.progressRow}>
-            {dailySet.questions.map((entry, index) => (
+            {displayProgressSegments.map((segment, index) => (
               <View
-                key={entry.id}
+                key={`segment-${index}`}
                 style={[
                   styles.progressSegment,
-                  index === questionIndex && styles.progressSegmentActive,
-                  index < questionIndex && styles.progressSegmentComplete,
+                  segment === 'active' && styles.progressSegmentActive,
+                  segment === 'complete' && styles.progressSegmentComplete,
                 ]}
               />
             ))}
           </View>
         </View>
+
         <View style={styles.guessCounter}>
+          <Text style={styles.guessCounterLabel}>Guesses left</Text>
           <Text style={styles.guessCounterValue}>{guessesLeft}</Text>
-          <Text style={styles.guessCounterLabel}>left</Text>
         </View>
       </View>
 
       <View style={styles.chipRow}>
         <View style={styles.themeChip}>
-          <Text style={styles.themeChipText}>{dailySet.theme}</Text>
+          <Text style={styles.themeChipText}>{themeLabel}</Text>
         </View>
       </View>
 
@@ -589,14 +603,14 @@ function QuestionScreen({
         </Text>
       </View>
 
-      {feedbackMessage && (
+      {feedbackMessage ? (
         <View style={styles.feedbackCard}>
           <Text style={styles.feedbackTitle}>{feedbackMessage.title}</Text>
           <Text style={styles.feedbackBody}>{feedbackMessage.body}</Text>
         </View>
-      )}
+      ) : null}
 
-      {history.length > 0 && (
+      {history.length > 0 ? (
         <View style={styles.historyCard}>
           <Text style={styles.sectionEyebrow}>Recent guesses</Text>
           {history
@@ -610,25 +624,24 @@ function QuestionScreen({
                   entry={entry}
                   index={originalIndex}
                   styles={styles}
+                  winThreshold={winThreshold}
                 />
               );
             })}
         </View>
-      )}
+      ) : null}
 
       {isDone && roundPhase === 'ready_to_continue' ? (
         <View>
           <View style={styles.answerCard}>
-            <Text style={styles.answerTitle}>{isWon ? 'Locked in' : 'Round complete'}</Text>
+            <Text style={styles.answerTitle}>{revealTitle}</Text>
             <Text style={styles.answerCopy}>
-              Answer: <Text style={styles.answerStrong}>{formatFullNumber(question.answer)}</Text>
+              The number was <Text style={styles.answerStrong}>{formatFullNumber(question.answer)}</Text>.
             </Text>
-            <Text style={styles.answerFact}>{question.funFact}</Text>
+            <Text style={styles.answerFact}>{getPlayerFacingFunFact(question.funFact)}</Text>
           </View>
           <AppButton
-            label={
-              questionIndex >= dailySet.questions.length - 1 ? 'See Results' : 'Next Question'
-            }
+            label={continueLabel}
             onPress={handleContinue}
             styles={styles}
             fullWidth
@@ -717,34 +730,99 @@ function QuestionScreen({
   );
 }
 
+function ExtraInningCallToAction({ onPress, styles }) {
+  const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    animation.start();
+    return () => {
+      animation.stop();
+    };
+  }, [pulse]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.extraInningShell,
+        {
+          opacity: pulse.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.92, 1],
+          }),
+          transform: [
+            {
+              scale: pulse.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 1.012],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.extraInningCard,
+          pressed && styles.extraInningCardPressed,
+        ]}
+      >
+        <Text style={styles.extraInningEyebrow}>Friday bonus</Text>
+        <Text style={styles.extraInningTitle}>Extra Inning</Text>
+        <Text style={styles.extraInningBody}>
+          One tougher question if you want to take another swing.
+        </Text>
+        <Text style={styles.extraInningCta}>Play the bonus question</Text>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
 function SummaryScreen({
-  cycleDay,
   dailySet,
   dateKey,
-  isTodayView,
-  onBrowseArchive,
-  onGoToToday,
-  onHideArchive,
-  onNextDay,
-  onPrevDay,
+  extraInningResult,
+  onPlayExtraInning,
   onReplayDay,
   results,
-  showArchiveNavigator,
   styles,
 }) {
   const wins = results.filter((result) => result.won).length;
-  const totalGuesses = results.reduce((sum, result) => sum + result.guesses, 0);
-  const misses = results.filter((result) => !result.won);
+  const bonusWins = extraInningResult?.won ? 1 : 0;
+  const resultList = extraInningResult ? [...results, extraInningResult] : results;
+  const scoreTotal = dailySet.questions.length + (extraInningResult ? 1 : 0);
+  const totalGuesses = resultList.reduce((sum, result) => sum + result.guesses, 0);
+  const misses = resultList.filter((result) => !result.won);
   const closestMiss = misses.length > 0 ? Math.min(...misses.map((result) => result.bestPctOff)) : null;
   const shareText = useMemo(() => {
-    const resultRow = results.map((result) => getShareGlyph(result)).join('');
+    const resultRow = resultList.map((result) => getShareGlyph(result)).join('');
+    const resultLine = extraInningResult
+      ? `${totalGuesses} | ${resultRow} EI`
+      : `${totalGuesses} | ${resultRow}`;
 
     return [
       `Ballpark ${formatLongDate(dateKey)}`,
       dailySet.theme,
-      `${totalGuesses} | ${resultRow}`,
+      resultLine,
     ].join('\n');
-  }, [dailySet.theme, dateKey, results, totalGuesses]);
+  }, [dailySet.theme, dateKey, extraInningResult, resultList, totalGuesses]);
   const [copyStatus, setCopyStatus] = useState(null);
 
   useEffect(() => {
@@ -771,32 +849,42 @@ function SummaryScreen({
   return (
     <View>
       <View style={styles.heroCard}>
-        {showArchiveNavigator ? (
-          <ArchiveNavigator
-            cycleDay={cycleDay}
-            dateKey={dateKey}
-            onNextDay={onNextDay}
-            onPrevDay={onPrevDay}
-            styles={styles}
-            subtitle="Review"
-          />
-        ) : (
-          <View style={styles.summaryIntro}>
-            <Text style={styles.sectionEyebrow}>Today&apos;s result</Text>
-            <Text style={styles.metaSubcopy}>{formatLongDate(dateKey)}</Text>
-          </View>
-        )}
+        <View style={styles.summaryIntro}>
+          <Text style={styles.sectionEyebrow}>Today&apos;s result</Text>
+          <Text style={styles.metaSubcopy}>{formatLongDate(dateKey)}</Text>
+        </View>
 
         <View style={styles.summaryHero}>
           <Text style={styles.summaryScore}>
-            {wins} / {dailySet.questions.length}
+            {wins + bonusWins} / {scoreTotal}
           </Text>
           <Text style={styles.summaryTheme}>{dailySet.theme}</Text>
+          {dailySet.extraInning ? (
+            <View
+              style={[
+                styles.summaryBonusPill,
+                extraInningResult && styles.summaryBonusPillPlayed,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.summaryBonusPillText,
+                  extraInningResult && styles.summaryBonusPillTextPlayed,
+                ]}
+              >
+                {extraInningResult ? 'Extra Inning played' : 'Extra Inning available'}
+              </Text>
+            </View>
+          ) : null}
         </View>
+
+        {dailySet.extraInning && !extraInningResult ? (
+          <ExtraInningCallToAction onPress={onPlayExtraInning} styles={styles} />
+        ) : null}
 
         <View style={styles.summaryStatsRow}>
           <View style={styles.summaryStatCard}>
-            <Text style={styles.summaryStatValue}>{wins}</Text>
+            <Text style={styles.summaryStatValue}>{wins + bonusWins}</Text>
             <Text style={styles.summaryStatLabel}>Wins</Text>
           </View>
           <View style={styles.summaryStatCard}>
@@ -810,6 +898,7 @@ function SummaryScreen({
             <Text style={styles.summaryStatLabel}>Total guesses</Text>
           </View>
         </View>
+
         <View style={styles.shareCodeCard}>
           <Text style={styles.shareCodeTitle}>Share your result</Text>
           <View style={styles.shareCodeBox}>
@@ -817,7 +906,7 @@ function SummaryScreen({
               {shareText}
             </Text>
           </View>
-          {Platform.OS === 'web' && (
+          {Platform.OS === 'web' ? (
             <Pressable
               onPress={handleCopyResults}
               style={({ pressed }) => [
@@ -827,7 +916,7 @@ function SummaryScreen({
             >
               <Text style={styles.shareCodeButtonText}>Copy results</Text>
             </Pressable>
-          )}
+          ) : null}
           {copyStatus ? <Text style={styles.shareCodeStatus}>{copyStatus}</Text> : null}
         </View>
       </View>
@@ -859,28 +948,27 @@ function SummaryScreen({
             </View>
           );
         })}
+
+        {dailySet.extraInning && extraInningResult ? (
+          <View style={[styles.summaryRow, styles.summaryRowBorder]}>
+            <View style={[styles.summaryBadge, styles.summaryBadgeExtra, extraInningResult.won && styles.summaryBadgeWon]}>
+              <Text style={[styles.summaryBadgeText, extraInningResult.won && styles.summaryBadgeTextWon]}>
+                EI
+              </Text>
+            </View>
+            <View style={styles.summaryCopy}>
+              <Text style={styles.summaryPrompt}>{dailySet.extraInning.prompt}</Text>
+              <Text style={styles.summaryMeta}>
+                Best guess {formatCompactNumber(extraInningResult.bestGuess)} • Answer{' '}
+                {formatCompactNumber(dailySet.extraInning.answer)}
+              </Text>
+            </View>
+            <Text style={styles.summaryGuesses}>{`${extraInningResult.guesses}/${MAX_GUESSES}`}</Text>
+          </View>
+        ) : null}
       </View>
 
       <AppButton label="Play Again" onPress={onReplayDay} styles={styles} fullWidth />
-      <View style={styles.footerButtonRow}>
-        {showArchiveNavigator ? (
-          <AppButton
-            label={isTodayView ? 'Hide Archive' : 'Back to Today'}
-            onPress={isTodayView ? onHideArchive : onGoToToday}
-            styles={styles}
-            variant="secondary"
-            fullWidth
-          />
-        ) : (
-          <AppButton
-            label="Browse Archive"
-            onPress={onBrowseArchive}
-            styles={styles}
-            variant="secondary"
-            fullWidth
-          />
-        )}
-      </View>
     </View>
   );
 }
@@ -982,6 +1070,101 @@ function createStyles(theme, screenAccent, viewportWidth) {
       color: Colors.textSecondary,
       lineHeight: 18,
     },
+    startBonusPill: {
+      alignSelf: 'flex-start',
+      marginTop: 4,
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: Colors.surfaceGlass,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 5,
+    },
+    startBonusPillText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: Colors.textSecondary,
+      letterSpacing: 0.4,
+    },
+    instructionsCard: {
+      ...ui.subtleCard,
+      padding: Spacing.md,
+      gap: Spacing.xs,
+    },
+    instructionRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 8,
+    },
+    instructionBullet: {
+      fontSize: FontSize.sm,
+      color: Colors.textMuted,
+      lineHeight: 20,
+      marginTop: 1,
+    },
+    instructionText: {
+      flex: 1,
+      fontSize: FontSize.sm,
+      lineHeight: 20,
+      color: Colors.textSecondary,
+    },
+    hardModeCard: {
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceGlass,
+      padding: Spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.md,
+    },
+    hardModeCardActive: {
+      borderColor: theme.mode === 'dark' ? '#52d8c4' : '#0d7c68',
+      backgroundColor: theme.mode === 'dark' ? 'rgba(18, 61, 58, 0.72)' : '#eefdf9',
+    },
+    hardModeCardPressed: {
+      transform: [{ scale: 0.99 }],
+    },
+    hardModeCopy: {
+      flex: 1,
+      gap: 2,
+    },
+    hardModeTitle: {
+      fontSize: FontSize.sm,
+      color: Colors.text,
+      fontWeight: '800',
+    },
+    hardModeBody: {
+      fontSize: 12,
+      color: Colors.textSecondary,
+      lineHeight: 16,
+    },
+    hardModeSwitch: {
+      width: 44,
+      height: 26,
+      borderRadius: BorderRadius.full,
+      padding: 3,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#d9e1eb',
+      justifyContent: 'center',
+    },
+    hardModeSwitchActive: {
+      borderColor: theme.mode === 'dark' ? '#52d8c4' : '#0d7c68',
+      backgroundColor: screenAccent.main,
+    },
+    hardModeKnob: {
+      width: 18,
+      height: 18,
+      borderRadius: 9,
+      backgroundColor: Colors.white,
+      transform: [{ translateX: 0 }],
+    },
+    hardModeKnobActive: {
+      transform: [{ translateX: 18 }],
+      backgroundColor: Colors.white,
+    },
     sectionEyebrow: {
       fontSize: 11,
       textTransform: 'uppercase',
@@ -1051,11 +1234,52 @@ function createStyles(theme, screenAccent, viewportWidth) {
     footerButtonRow: {
       marginTop: Spacing.sm,
     },
+    extraInningShell: {
+      marginBottom: Spacing.md,
+    },
+    extraInningCard: {
+      ...ui.card,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+      gap: Spacing.xs,
+      padding: Spacing.md,
+    },
+    extraInningCardPressed: {
+      backgroundColor: theme.mode === 'dark'
+        ? 'rgba(0, 164, 138, 0.24)'
+        : 'rgba(0, 164, 138, 0.14)',
+      transform: [{ scale: 0.99 }],
+    },
+    extraInningEyebrow: {
+      fontSize: 11,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      fontWeight: '800',
+      color: screenAccent.badgeText,
+    },
+    extraInningTitle: {
+      fontSize: FontSize.lg,
+      fontWeight: '800',
+      color: Colors.text,
+    },
+    extraInningBody: {
+      fontSize: FontSize.sm,
+      lineHeight: 20,
+      color: Colors.textSecondary,
+    },
+    extraInningCta: {
+      marginTop: 2,
+      fontSize: 12,
+      fontWeight: '800',
+      letterSpacing: 0.8,
+      textTransform: 'uppercase',
+      color: Colors.text,
+    },
     metaRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      marginBottom: 8,
+      marginBottom: 10,
       gap: Spacing.sm,
     },
     metaCopy: {
@@ -1068,39 +1292,45 @@ function createStyles(theme, screenAccent, viewportWidth) {
       marginTop: 2,
     },
     guessCounter: {
-      flexDirection: 'row',
-      alignItems: 'baseline',
-      gap: 4,
-      paddingTop: 1,
+      minWidth: 88,
+      alignItems: 'flex-end',
+      justifyContent: 'center',
+      gap: 2,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surface,
     },
     guessCounterLabel: {
       fontSize: 10,
       color: Colors.textMuted,
       textTransform: 'uppercase',
-      letterSpacing: 0.5,
+      letterSpacing: 0.9,
       fontWeight: '700',
     },
     guessCounterValue: {
-      fontSize: 14,
+      fontSize: 18,
       fontWeight: '800',
-      color: Colors.textSecondary,
+      color: Colors.text,
       fontVariant: ['tabular-nums'],
     },
     progressRow: {
       flexDirection: 'row',
       gap: 6,
       marginTop: 8,
-      maxWidth: 140,
+      maxWidth: 180,
     },
     progressSegment: {
       flex: 1,
-      height: 4,
+      height: 6,
       borderRadius: BorderRadius.full,
       backgroundColor:
         theme.mode === 'dark' ? 'rgba(121, 137, 160, 0.2)' : 'rgba(82, 98, 122, 0.14)',
     },
     progressSegmentActive: {
-      backgroundColor: screenAccent.primary,
+      backgroundColor: screenAccent.main,
     },
     progressSegmentComplete: {
       backgroundColor:
@@ -1114,19 +1344,20 @@ function createStyles(theme, screenAccent, viewportWidth) {
     },
     themeChip: {
       borderRadius: BorderRadius.full,
-      backgroundColor: 'transparent',
+      backgroundColor: screenAccent.main,
       borderWidth: 1,
-      borderColor: screenAccent.badgeBorder,
-      paddingHorizontal: 8,
-      paddingVertical: 3,
+      borderColor: screenAccent.main,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
       alignSelf: 'flex-start',
       maxWidth: '100%',
     },
     themeChipText: {
-      color: screenAccent.badgeText,
+      color: theme.mode === 'dark' ? '#031512' : '#062823',
       fontSize: 11,
-      fontWeight: '600',
-      letterSpacing: 0,
+      fontWeight: '800',
+      letterSpacing: 0.7,
+      textTransform: 'uppercase',
     },
     questionCard: {
       ...ui.card,
@@ -1172,21 +1403,21 @@ function createStyles(theme, screenAccent, viewportWidth) {
     feedbackCard: {
       borderRadius: BorderRadius.md,
       borderWidth: 1,
-      borderColor: screenAccent.badgeBorder,
-      backgroundColor: screenAccent.badgeBg,
+      borderColor: theme.mode === 'dark' ? '#52d8c4' : '#0d7c68',
+      backgroundColor: theme.mode === 'dark' ? '#172533' : '#ffffff',
       padding: Spacing.sm,
       marginBottom: Spacing.sm,
       gap: 4,
     },
     feedbackTitle: {
       fontSize: FontSize.md,
-      fontWeight: '700',
-      color: Colors.text,
+      fontWeight: '800',
+      color: theme.mode === 'dark' ? '#f7fffd' : '#063f37',
     },
     feedbackBody: {
       fontSize: FontSize.sm,
       lineHeight: 20,
-      color: Colors.textSecondary,
+      color: theme.mode === 'dark' ? '#d7e5ef' : '#263445',
     },
     historyCard: {
       ...ui.card,
@@ -1302,7 +1533,7 @@ function createStyles(theme, screenAccent, viewportWidth) {
     },
     answerFact: {
       fontSize: FontSize.sm,
-      color: Colors.textMuted,
+      color: Colors.textSecondary,
       lineHeight: 20,
     },
     controlsWrap: {
@@ -1452,6 +1683,29 @@ function createStyles(theme, screenAccent, viewportWidth) {
       fontWeight: '600',
       textAlign: 'center',
     },
+    summaryBonusPill: {
+      marginTop: 4,
+      borderRadius: BorderRadius.full,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 5,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+    },
+    summaryBonusPillPlayed: {
+      backgroundColor: theme.mode === 'dark' ? 'rgba(79, 180, 119, 0.18)' : 'rgba(24, 169, 87, 0.12)',
+      borderColor: Colors.success,
+    },
+    summaryBonusPillText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: screenAccent.badgeText,
+      textTransform: 'uppercase',
+      letterSpacing: 0.6,
+    },
+    summaryBonusPillTextPlayed: {
+      color: theme.mode === 'dark' ? Colors.success : '#0f6a37',
+    },
     summaryStatsRow: {
       flexDirection: 'row',
       gap: Spacing.xs,
@@ -1551,6 +1805,10 @@ function createStyles(theme, screenAccent, viewportWidth) {
       backgroundColor: Colors.success,
       borderColor: Colors.success,
     },
+    summaryBadgeExtra: {
+      backgroundColor: screenAccent.badgeBg,
+      borderColor: screenAccent.badgeBorder,
+    },
     summaryBadgeText: {
       fontSize: 12,
       fontWeight: '800',
@@ -1614,39 +1872,37 @@ export default function BallparkRoute() {
     () => createStyles(theme, screenAccent, viewportWidth),
     [theme, screenAccent, viewportWidth]
   );
-  const todayKey = getTodayKey();
+  const todayKey = useMemo(() => getTodayKey(), []);
   const [phase, setPhase] = useState('start');
-  const [dateKey, setDateKey] = useState(todayKey);
-  const [loadedDateKey, setLoadedDateKey] = useState(null);
   const [dailySet, setDailySet] = useState(null);
   const [qIndex, setQIndex] = useState(0);
   const [results, setResults] = useState([]);
+  const [extraInningResult, setExtraInningResult] = useState(null);
   const [currentQuestionState, setCurrentQuestionState] = useState(null);
+  const [hardMode, setHardMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [archiveMode, setArchiveMode] = useState(false);
   const countedSummaryDateRef = useRef(null);
 
   useEffect(() => {
     let isActive = true;
     setLoading(true);
 
-    getDailySet(dateKey).then((resolvedSet) => {
+    getDailySet(todayKey).then((resolvedSet) => {
       if (!isActive) return;
 
-      const savedProgress = loadSavedProgress(dateKey);
+      const savedProgress = loadSavedProgress(todayKey);
       const canRestoreSavedProgress =
         savedProgress?.version === STORAGE_VERSION &&
-        savedProgress?.dateKey === dateKey &&
+        savedProgress?.dateKey === todayKey &&
         savedProgress?.contentFingerprint === resolvedSet.contentFingerprint &&
         (savedProgress.phase === 'question' ||
-          savedProgress.phase === 'transition' ||
-          savedProgress.phase === 'summary');
+          savedProgress.phase === 'summary' ||
+          savedProgress.phase === 'extra-inning');
 
       setDailySet(resolvedSet);
-      setLoadedDateKey(dateKey);
 
       if (savedProgress && !canRestoreSavedProgress) {
-        clearSavedProgress(dateKey);
+        clearSavedProgress(todayKey);
       }
 
       if (canRestoreSavedProgress) {
@@ -1654,15 +1910,19 @@ export default function BallparkRoute() {
           Math.max(savedProgress.qIndex ?? 0, 0),
           resolvedSet.questions.length - 1
         );
-        setPhase(savedProgress.phase === 'transition' ? 'question' : savedProgress.phase);
+        setPhase(savedProgress.phase);
         setQIndex(restoredIndex);
         setResults(Array.isArray(savedProgress.results) ? savedProgress.results : []);
+        setExtraInningResult(savedProgress.extraInningResult ?? null);
         setCurrentQuestionState(savedProgress.currentQuestionState ?? null);
+        setHardMode(Boolean(savedProgress.hardMode));
       } else {
         setPhase('start');
         setQIndex(0);
         setResults([]);
+        setExtraInningResult(null);
         setCurrentQuestionState(null);
+        setHardMode(false);
       }
 
       setLoading(false);
@@ -1671,14 +1931,15 @@ export default function BallparkRoute() {
     return () => {
       isActive = false;
     };
-  }, [dateKey]);
+  }, [todayKey]);
 
   useEffect(() => {
-    if (loading || !dailySet || !loadedDateKey) return;
+    if (loading || !dailySet) return;
 
     const hasSavedProgress =
       phase !== 'start' ||
       results.length > 0 ||
+      extraInningResult ||
       (currentQuestionState &&
         (currentQuestionState.history?.length > 0 ||
           currentQuestionState.guessInput ||
@@ -1687,20 +1948,22 @@ export default function BallparkRoute() {
           currentQuestionState.roundPhase === 'ready_to_continue'));
 
     if (!hasSavedProgress) {
-      clearSavedProgress(loadedDateKey);
+      clearSavedProgress(todayKey);
       return;
     }
 
-    saveProgress(loadedDateKey, {
+    saveProgress(todayKey, {
       version: STORAGE_VERSION,
-      dateKey: loadedDateKey,
+      dateKey: todayKey,
       contentFingerprint: dailySet.contentFingerprint,
       phase,
       qIndex,
+      hardMode,
       results,
+      extraInningResult,
       currentQuestionState,
     });
-  }, [currentQuestionState, dailySet, loadedDateKey, loading, phase, qIndex, results]);
+  }, [currentQuestionState, dailySet, extraInningResult, hardMode, loading, phase, qIndex, results, todayKey]);
 
   useEffect(() => {
     if (phase !== 'summary' || !dailySet) return;
@@ -1719,34 +1982,17 @@ export default function BallparkRoute() {
     }
   }, [dailySet, phase, todayKey]);
 
-  const handleShiftDay = (offset) => {
-    if (loading) return;
-    setArchiveMode(true);
-    setDateKey((currentDateKey) => shiftDateKey(currentDateKey, offset));
-  };
-
-  const handleBrowseArchive = () => {
-    setArchiveMode(true);
-  };
-
-  const handleHideArchive = () => {
-    if (dateKey !== todayKey) {
-      setDateKey(todayKey);
-    }
-    setArchiveMode(false);
-  };
-
-  const handleGoToToday = () => {
-    setDateKey(todayKey);
-    setArchiveMode(false);
-  };
-
   const handleStart = () => {
     if (!dailySet) return;
     setPhase('question');
     setQIndex(0);
     setResults([]);
+    setExtraInningResult(null);
     setCurrentQuestionState(null);
+  };
+
+  const handleToggleHardMode = () => {
+    setHardMode((current) => !current);
   };
 
   const handleQuestionComplete = (result) => {
@@ -1764,16 +2010,36 @@ export default function BallparkRoute() {
     setQIndex((current) => current + 1);
   };
 
+  const handleStartExtraInning = () => {
+    if (!dailySet?.extraInning) return;
+    setPhase('extra-inning');
+    setCurrentQuestionState(null);
+  };
+
+  const handleExtraInningComplete = (result) => {
+    setExtraInningResult(result);
+    setCurrentQuestionState(null);
+    setPhase('summary');
+  };
+
   const handleReplayDay = () => {
     setPhase('question');
     setQIndex(0);
     setResults([]);
+    setExtraInningResult(null);
     setCurrentQuestionState(null);
   };
 
-  const cycleDay = getCycleDay(dateKey);
-  const isTodayView = dateKey === todayKey;
-  const showArchiveNavigator = archiveMode || !isTodayView;
+  const coreProgressSegments = buildProgressSegments(
+    dailySet?.questions.length ?? 3,
+    qIndex,
+    qIndex
+  );
+  const extraInningSegments = buildProgressSegments(
+    (dailySet?.questions.length ?? 3) + 1,
+    dailySet?.questions.length ?? 3,
+    dailySet?.questions.length ?? 3
+  );
 
   return (
     <>
@@ -1784,7 +2050,7 @@ export default function BallparkRoute() {
             <View style={styles.pageAccent} />
             <View style={styles.header}>
               <Text style={styles.subtitle}>
-                Estimation trivia inside the Gameshow shell.
+                Good guesses beat good memory.
               </Text>
             </View>
 
@@ -1799,17 +2065,10 @@ export default function BallparkRoute() {
 
             {!loading && dailySet && phase === 'start' ? (
               <StartScreen
-                cycleDay={cycleDay}
                 dailySet={dailySet}
-                dateKey={dateKey}
-                isTodayView={isTodayView}
-                onBrowseArchive={handleBrowseArchive}
-                onGoToToday={handleGoToToday}
-                onHideArchive={handleHideArchive}
-                onNextDay={() => handleShiftDay(1)}
-                onPrevDay={() => handleShiftDay(-1)}
+                hardMode={hardMode}
+                onToggleHardMode={handleToggleHardMode}
                 onStart={handleStart}
-                showArchiveNavigator={showArchiveNavigator}
                 styles={styles}
               />
             ) : null}
@@ -1817,30 +2076,51 @@ export default function BallparkRoute() {
             {!loading && dailySet && phase === 'question' ? (
               <QuestionScreen
                 key={dailySet.questions[qIndex].id}
-                dailySet={dailySet}
+                continueLabel={
+                  qIndex >= dailySet.questions.length - 1 ? 'See Results' : 'Next Question'
+                }
+                dateKey={todayKey}
+                hardMode={hardMode}
                 onComplete={handleQuestionComplete}
                 onStateChange={setCurrentQuestionState}
-                questionIndex={qIndex}
+                previousResults={results}
+                progressSegments={coreProgressSegments}
+                question={dailySet.questions[qIndex]}
+                questionLabel={`Question ${qIndex + 1} / ${dailySet.questions.length}`}
                 savedQuestionState={currentQuestionState}
                 styles={styles}
+                themeLabel={dailySet.theme}
               />
             ) : null}
 
             {!loading && dailySet && phase === 'summary' ? (
               <SummaryScreen
-                cycleDay={cycleDay}
                 dailySet={dailySet}
-                dateKey={dateKey}
-                isTodayView={isTodayView}
-                onBrowseArchive={handleBrowseArchive}
-                onGoToToday={handleGoToToday}
-                onHideArchive={handleHideArchive}
-                onNextDay={() => handleShiftDay(1)}
-                onPrevDay={() => handleShiftDay(-1)}
+                dateKey={todayKey}
+                extraInningResult={extraInningResult}
+                onPlayExtraInning={handleStartExtraInning}
                 onReplayDay={handleReplayDay}
                 results={results}
-                showArchiveNavigator={showArchiveNavigator}
                 styles={styles}
+              />
+            ) : null}
+
+            {!loading && dailySet && phase === 'extra-inning' && dailySet.extraInning ? (
+              <QuestionScreen
+                key={dailySet.extraInning.id}
+                continueLabel="Back to Results"
+                dateKey={todayKey}
+                hardMode={hardMode}
+                isExtraInning
+                onComplete={handleExtraInningComplete}
+                onStateChange={setCurrentQuestionState}
+                previousResults={results}
+                progressSegments={extraInningSegments}
+                question={dailySet.extraInning}
+                questionLabel="Extra Inning"
+                savedQuestionState={currentQuestionState}
+                styles={styles}
+                themeLabel={dailySet.theme}
               />
             ) : null}
 

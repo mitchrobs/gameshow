@@ -1,25 +1,18 @@
 export const CYCLE_START_KEY = "2026-04-23";
-export const DAYBREAK_CYCLE_LENGTH = 30;
+export const CALENDAR_END_KEY = "2026-12-31";
 export const MAX_GUESSES = 4;
 export const WIN_THRESHOLD = 0.1;
-export const DIFFICULTY_ORDER = ["warmup", "stretch", "closer"];
-
-export const DIFFICULTY_META = {
-  warmup: {
-    label: "Warm-up",
-    blurb: "Start with a foothold you can reason from.",
-  },
-  stretch: {
-    label: "Stretch",
-    blurb: "Push beyond the obvious and calibrate fast.",
-  },
-  closer: {
-    label: "Final",
-    blurb: "Finish on the question people will talk about later.",
-  },
+const CORE_QUESTION_COUNT = 3;
+const CORE_DIFFICULTY_SCORES = [2, 3, 4];
+const EXTRA_INNING_DIFFICULTY_SCORE = 5;
+const SCALE_BAND_RANK = {
+  pocket: 0,
+  room: 1,
+  city: 2,
+  world: 3,
 };
-
 const DAY_MS = 24 * 60 * 60 * 1000;
+export const DAYBREAK_CYCLE_LENGTH = countInclusiveDays(CYCLE_START_KEY, CALENDAR_END_KEY);
 const VOLATILE_PATTERN =
   /\b(today|current|currently|as of|this year|this month|this week|per day|daily|updated|latest|active users|population)\b/i;
 
@@ -27,8 +20,13 @@ function question(prompt, answer, funFact, rationale, extra = {}) {
   return { prompt, answer, funFact, rationale, ...extra };
 }
 
-function theme(themeName, questions) {
-  return { theme: themeName, questions };
+function theme(themeName, questions, extraInning = null) {
+  return {
+    id: slugify(themeName),
+    theme: themeName,
+    questions,
+    ...(extraInning ? { extraInning } : {}),
+  };
 }
 
 const DAILY_THEME_LIBRARY = [
@@ -66,10 +64,10 @@ const DAILY_THEME_LIBRARY = [
       "It keeps the theme musical while nudging into less common knowledge."
     ),
     question(
-      "About how many strings are stretched inside a piano?",
-      230,
-      "Most piano notes use two or three strings, which is why the total outruns the key count.",
-      "The final question turns a familiar instrument into a surprising engineering object."
+      "About how many pounds can a concert grand piano weigh?",
+      1_200,
+      "A concert grand feels graceful onstage, but it is really a thousand-plus-pound machine on casters.",
+      "The closer widens the music set from instrument details to the physical heft of performance gear."
     ),
   ]),
   theme("Calendar Math", [
@@ -106,10 +104,10 @@ const DAILY_THEME_LIBRARY = [
       "The middle question widens the player from hive scale to ecosystem scale."
     ),
     question(
-      "About how many miles do bees collectively fly to make one pound of honey?",
-      55_000,
-      "That is more than twice around Earth for a single pound of honey.",
-      "The closer delivers the biggest surprise and the best post-round conversation hook."
+      "About how many bees can a thousand-hive pollination outfit hold at peak season?",
+      50_000_000,
+      "Commercial pollination turns bee scale from one humming box into tens of millions of insects moving through one job.",
+      "The closer pushes the bee day from hive intuition to full agricultural-scale logistics."
     ),
   ]),
   theme("The Physics of Sports Balls", [
@@ -126,10 +124,10 @@ const DAILY_THEME_LIBRARY = [
       "Players usually know baseball has a seam, but not the count."
     ),
     question(
-      "How many panels are on the classic black-and-white soccer ball design?",
-      32,
-      "The famous pattern combines 12 pentagons with 20 hexagons.",
-      "The closer rewards people who notice design, not just sport."
+      "About how many tennis balls can the U.S. Open use across one tournament?",
+      100_000,
+      "A major tournament cycles through a startling number of fresh balls just to keep the bounce and wear consistent.",
+      "The closer finally widens the sports-ball set from object scale to event scale."
     ),
   ]),
   theme("Card Table Numbers", [
@@ -226,10 +224,10 @@ const DAILY_THEME_LIBRARY = [
       "The stretch turns globe intuition into real planetary scale."
     ),
     question(
-      "About how many miles long is the Amazon River?",
-      4_000,
-      "Its exact ranking versus the Nile is debated, but its sheer length is not.",
-      "The closer lands on a river number that feels huge but still guessable."
+      "About how many square miles does the contiguous United States cover?",
+      3_100_000,
+      "A map of the lower forty-eight feels manageable only because paper shrinks millions of square miles into one rectangle.",
+      "The closer makes the geography day end on a true map-scale reveal instead of a smaller landmark distance."
     ),
   ]),
   theme("Shelf Life", [
@@ -415,10 +413,10 @@ const DAILY_THEME_LIBRARY = [
   ]),
   theme("Mountain Records", [
     question(
-      "About how many feet above sea level is Mount Everest?",
-      29_000,
-      "The exact modern survey is a little over 29,000 feet, but the rounded version is what most climbers carry in their heads.",
-      "The opener starts with a mountain number that feels famous but still fuzzy."
+      "How many mountains on Earth rise above 8,000 meters?",
+      14,
+      "That very short list is why climbers talk about the eight-thousanders almost like a separate class of mountain.",
+      "The opener gives the day a small, memorable anchor before the numbers climb."
     ),
     question(
       "About how many vertical feet separate Everest Base Camp from the summit?",
@@ -427,11 +425,10 @@ const DAILY_THEME_LIBRARY = [
       "The stretch keeps Everest in frame while changing the kind of scale players judge."
     ),
     question(
-      "As of 2026, roughly how many miles long is the Appalachian Trail?",
-      2_198,
-      "The exact route changes a little over time as sections are rerouted or rebuilt.",
-      "The closer introduces a living measurement and explicitly time-stamps it.",
-      { asOfDate: "2026-01-01" }
+      "About how many vertical feet rise from the Pacific seafloor to the summit of Mauna Kea?",
+      33_500,
+      "Measured from its underwater base, Mauna Kea rises higher than Everest does above sea level.",
+      "The closer gives the mountain day its biggest true-scale reveal without leaning on a volatile trail stat."
     ),
   ]),
   theme("The Coffee Bar", [
@@ -468,10 +465,10 @@ const DAILY_THEME_LIBRARY = [
       "The stretch turns a familiar amount of money into a scale question."
     ),
     question(
-      "How many $20 bills would it take to make $100,000?",
-      5_000,
-      "A six-figure stack still becomes a surprisingly concrete object once you convert it into bill count.",
-      "The closer keeps the day in cash-scale territory without repeating the stretch answer."
+      "How many $1 bills would it take to make $1,000,000?",
+      1_000_000,
+      "A million dollars sounds abstract until you picture it as a literal million single bills stacked and boxed.",
+      "The closer gives the money day a cleaner, bigger final scale jump."
     ),
   ]),
   theme("Cube Logic", [
@@ -596,22 +593,22 @@ const DAILY_THEME_LIBRARY = [
   ]),
   theme("Under the Night Sky", [
     question(
-      "About how many miles does light travel in one year?",
-      5_900_000_000_000,
-      "A light-year is a distance, not a time, which is why the number feels so alien at first glance.",
-      "The opener immediately shifts the sky theme into awe-scale estimation."
-    ),
-    question(
       "About how many light-years away is Polaris?",
       433,
       "The North Star feels fixed only because it is unimaginably distant by earthly standards.",
-      "The stretch gives the theme a real space distance that still feels guessable."
+      "The opener starts with one star you can actually point to."
     ),
     question(
       "About how many stars can the human eye see under ideal dark-sky conditions?",
       5_000,
       "Light pollution hides most of that sky for modern city dwellers.",
-      "The closer gives the set a sense of wonder and loss at the same time."
+      "The stretch widens the day from one famous star to the whole visible sky."
+    ),
+    question(
+      "About how many miles does light travel in one year?",
+      5_900_000_000_000,
+      "A light-year is a distance, not a time, which is why the number feels so alien at first glance.",
+      "The closer gives the set its true cosmic leap."
     ),
   ]),
   theme("Tabletop Pieces", [
@@ -636,6 +633,363 @@ const DAILY_THEME_LIBRARY = [
   ]),
 ];
 
+const HOLIDAY_THEME_LIBRARY = [
+  theme("Flower Shop", [
+    question(
+      "How many stems are in a florist's two-dozen rose bundle?",
+      24,
+      "Florists still talk in dozens because bouquets are sold by visual fullness as much as by stem count.",
+      "The opener gives Mother's Day weekend a familiar, giftable object."
+    ),
+    question(
+      "About how many petals can you count across a dozen average roses?",
+      420,
+      "Rose varieties swing a little, but a dozen blooms still add up to a surprising pile of petals.",
+      "The middle question keeps the flower theme but zooms into the structure of the bouquet."
+    ),
+    question(
+      "About how many square feet can a working commercial greenhouse cover?",
+      50_000,
+      "Commercial houses that size feel less like backyard gardens and more like glass factories for living things.",
+      "The closer widens the holiday from bouquet scale to the spaces that grow those flowers."
+    ),
+  ]),
+  theme("Backyard Grill", [
+    question(
+      "How many ounces are in a standard 20-pound propane tank?",
+      320,
+      "Propane tanks are sold by pounds, but grill planning usually feels easier once you picture the ounces.",
+      "The opener gives Memorial Day weekend a sturdy cookout anchor."
+    ),
+    question(
+      "About how many charcoal briquettes are in a typical 16-pound bag?",
+      160,
+      "Those bags feel heavy because each briquette is dense, not because there are thousands of them inside.",
+      "The stretch keeps the grill theme tactile and countable."
+    ),
+    question(
+      "About how many BTUs are stored in a full 20-pound propane tank?",
+      430_000,
+      "That hidden energy budget is why a backyard grill can feel small while still doing restaurant-scale heat work.",
+      "The closer turns a familiar tank into a real energy-scale estimate."
+    ),
+  ]),
+  theme("Block Party", [
+    question(
+      "How many dominoes are in a double-six set?",
+      28,
+      "The set feels larger than it is because every tile can sit in more than one pattern at the table.",
+      "The opener gives the Juneteenth block-party date a familiar tabletop anchor."
+    ),
+    question(
+      "How many pips appear across that whole double-six set?",
+      168,
+      "Once you count every dot on every face, a tiny domino case starts to feel unexpectedly dense.",
+      "The stretch keeps the same object in view but changes what the player is counting."
+    ),
+    question(
+      "About how many steps would you walk along a two-mile parade route?",
+      4_200,
+      "A parade route sounds casual until you translate it into thousands of steps on warm pavement.",
+      "The closer opens the party theme from the table to the whole street."
+    ),
+  ]),
+  theme("Garage Weekend", [
+    question(
+      "How many ounces are in a standard claw hammer?",
+      16,
+      "The classic household hammer is sold by head weight, not by how hefty it feels in your hand.",
+      "The opener gives Father's Day a crisp, tool-bench foothold."
+    ),
+    question(
+      "How many inches are in a 25-foot tape measure?",
+      300,
+      "Tape measures feel modest on a hook, but the full run is long enough to redraw a whole room.",
+      "The stretch keeps the Father's Day garage theme tactile while expanding the working scale."
+    ),
+    question(
+      "About how many pounds can a common home garage floor jack lift?",
+      6_000,
+      "A floor jack that size feels like one tool on the shelf, but it is built to lift something roughly the weight of two cars.",
+      "The closer gives the garage day a stronger Father's Day machine-scale finish."
+    ),
+  ]),
+  theme("Fireworks Night", [
+    question(
+      "About how many seconds does a hand sparkler usually burn?",
+      60,
+      "A sparkler feels long in the hand mostly because your brain notices every second of bright metal fizzing.",
+      "The opener gives Independence Day a tactile number players can estimate from lived experience."
+    ),
+    question(
+      "About how many feet can a consumer firework shell climb before it bursts?",
+      200,
+      "A backyard shell only feels tiny until you picture two hundred feet of dark air underneath it.",
+      "The stretch turns the holiday from something in your hand into something high over the block."
+    ),
+    question(
+      "About how many shells can a large public fireworks show launch in one night?",
+      5_000,
+      "Big city displays feel seamless from the lawn because thousands of separate launches have been choreographed into one long burst of light.",
+      "The closer gives July 4 an event-scale finale instead of ending in small flag trivia."
+    ),
+  ]),
+  theme("Toolbox Day", [
+    question(
+      "How many inches are in an eight-foot ladder?",
+      96,
+      "Workday gear gets easier to picture once you convert it into the units people actually see on the tool.",
+      "The opener gives Labor Day a solid workshop number."
+    ),
+    question(
+      "How many inches are in a standard 10-foot stud?",
+      120,
+      "That clean round cut is one reason framing lumber feels surprisingly legible on a job site.",
+      "The stretch stays in the same building world with a number close enough to invite overconfidence."
+    ),
+    question(
+      "How many pounds can a one-ton shop hoist lift?",
+      2_000,
+      "The phrase one ton sounds industrial until you translate it into a number you can compare to cars and engines.",
+      "The closer gives the holiday a true labor-and-machinery finish."
+    ),
+  ]),
+  theme("Candy Bowl", [
+    question(
+      "How many pieces are in a standard fun-size variety bag of candy?",
+      30,
+      "Those mixed bags feel bottomless only because the pieces are small and the wrappers are loud.",
+      "The opener gives Halloween a familiar doorstep count."
+    ),
+    question(
+      "About how many candy kernels are in a pound of candy corn?",
+      460,
+      "Candy corn looks like a light snack until you count how densely those little triangles stack together.",
+      "The stretch turns the candy bowl into a real estimate instead of a seasonal prop."
+    ),
+    question(
+      "About how many pumpkins can grow on one acre of pumpkin patch?",
+      3_000,
+      "The patches people stroll through in October are usually carrying thousands of pumpkins at once.",
+      "The closer widens Halloween from the bowl on the porch to the whole field."
+    ),
+  ]),
+  theme("Thanksgiving Table", [
+    question(
+      "How many square inches are on a nine-inch pie?",
+      64,
+      "A pie tin sounds small until you translate the circle into the surface that actually has to bake evenly.",
+      "The opener gives Thanksgiving an everyday table object with a number hiding inside it."
+    ),
+    question(
+      "How many tablespoons are in a cup?",
+      16,
+      "Kitchen confidence often comes down to a few tiny conversion numbers you can reach for without thinking.",
+      "The stretch keeps the holiday in prep mode with a number cooks half-remember."
+    ),
+    question(
+      "About how many kernels are on an average ear of corn?",
+      800,
+      "An ear looks tidy in your hand, but the rows hide hundreds of kernels packed together.",
+      "The closer turns the table from portion scale to harvest scale."
+    ),
+  ]),
+  theme("Stocking Stuffers", [
+    question(
+      "How many crayons are in a classic small Crayola tuck box?",
+      24,
+      "That little box became iconic because twenty-four colors feels generous before it turns overwhelming.",
+      "The opener gives Christmas Eve a small gift-sized count."
+    ),
+    question(
+      "How many pieces are in a standard jacks set, counting the ball?",
+      11,
+      "The whole game fits in one palm, which is why it still feels like the definition of a stocking stuffer.",
+      "The stretch keeps the same gift scale but asks for a number most players have never counted."
+    ),
+    question(
+      "How many square inches of wrapping paper are on a 30-inch by 20-foot roll?",
+      7_200,
+      "One slim holiday roll hides a surprising amount of paper once you flatten the cylinder into sheet area.",
+      "The closer turns Christmas Eve from tiny gifts to the full table of paper and tape."
+    ),
+  ]),
+  theme("Under the Tree", [
+    question(
+      "How many ornaments come in a standard six-box starter pack?",
+      36,
+      "Starter sets feel full on the shelf because the boxes are grouped by color, not because each box is huge.",
+      "The opener starts Christmas morning with a simple decoration count."
+    ),
+    question(
+      "How many inches are in a six-foot tree diameter?",
+      72,
+      "Once a tree is lying on its side, the room math gets much more literal.",
+      "The stretch keeps the tree in frame while shifting to spatial reasoning."
+    ),
+    question(
+      "About how many lights are on a 7.5-foot pre-lit tree?",
+      700,
+      "Pre-lit trees feel magical largely because the bulb count is much higher than most people would string by hand.",
+      "The closer turns one Christmas tree into a real little grid of numbers."
+    ),
+  ]),
+  theme("Countdown Night", [
+    question(
+      "How many seconds are in the final minute before midnight?",
+      60,
+      "The last minute feels fast because everyone agrees to count every single second out loud together.",
+      "The opener gives New Year's Eve a number nobody needs explained, only felt."
+    ),
+    question(
+      "How many seconds are in the final hour before midnight?",
+      3_600,
+      "An hour feels roomy until you start mentally spending it in sixty-second chunks.",
+      "The stretch turns the same countdown energy into a bigger time block."
+    ),
+    question(
+      "How many seconds are in the final 24 hours of the year?",
+      86_400,
+      "A whole last day is still just one finite pile of seconds leaking away toward midnight.",
+      "The closer gives the year-end date its cleanest big-number reveal."
+    ),
+  ]),
+];
+
+const FRIDAY_EXTRA_INNING_BY_THEME_ID = {
+  "in-the-orchestra-pit": question(
+    "About how many pipes can a large concert organ have?",
+    5_000,
+    "Large organs become harder to picture once you stop thinking about keys and start thinking about thousands of tuned pipes.",
+    "The bonus question makes the orchestra theme feel architectural instead of orchestral.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "city" }
+  ),
+  "calendar-math": question(
+    "How many seconds are in a leap year?",
+    31_622_400,
+    "That extra day looks tiny on a wall calendar and enormous once it gets converted into seconds.",
+    "The bonus question rewards players who stayed loose with calendar conversions all day.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "world" }
+  ),
+  "touring-the-solar-system": question(
+    "About how many miles from the Sun is Neptune on average?",
+    2_800_000_000,
+    "Neptune sits so far out that even the numbers for the inner planets stop feeling useful as intuition.",
+    "The bonus question is the day's hardest solar-system scale jump.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "world" }
+  ),
+  "card-table-numbers": question(
+    "How many different bridge hands can be dealt from one standard deck?",
+    635_013_559_600,
+    "Card games feel intimate at the table even when the combinatorics under them become astronomical.",
+    "The bonus question turns card-table intuition into a truly huge counting space.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "world" }
+  ),
+  "map-scale": question(
+    "About how many square miles does the Sahara cover?",
+    3_600_000,
+    "Map scale stops feeling decorative once a desert starts swallowing millions of square miles.",
+    "The bonus question gives the geography day its largest surface-area leap.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "world" }
+  ),
+  "word-count": question(
+    "About how many words are in the King James Bible?",
+    783_000,
+    "That familiar one-volume book feels portable only because readers do not picture nearly eight hundred thousand words inside it.",
+    "The bonus question pushes the reading day into canonical-library territory.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "city" }
+  ),
+  "ocean-creatures": question(
+    "About how many pounds can a blue whale weigh?",
+    300_000,
+    "Blue whales push animal scale so far that their weight reads more like machinery than wildlife.",
+    "The bonus question gives the ocean day its biggest living-number payoff.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "world" }
+  ),
+  spaceflight: question(
+    "About how many miles above Earth is geostationary orbit?",
+    22_236,
+    "That orbit feels close on a diagram and very far once you imagine the radio path to get there.",
+    "The bonus question keeps the spaceflight day precise while making it materially tougher.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "city" }
+  ),
+  "under-the-night-sky": question(
+    "About how many stars are in the Milky Way?",
+    100_000_000_000,
+    "The galaxy looks like one soft band overhead because the true star count is far beyond ordinary counting intuition.",
+    "The bonus question gives the night-sky day its deepest awe-scale estimate.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "world" }
+  ),
+  "movie-math": question(
+    "How many individual frames are in a 90-minute movie shot at 24 frames per second?",
+    129_600,
+    "A feature-length movie feels seamless only because the frame count is high enough for your eye to stop noticing the pieces.",
+    "The bonus question keeps the movie day mathematical and a little tougher than the main closer.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "city" }
+  ),
+  "bridges-and-cables": question(
+    "About how many miles of wire are bundled inside the Golden Gate Bridge's main cables?",
+    80_000,
+    "If the bridge's cable wire were stretched out, the length would feel less like one bridge and more like a planet-scale spool.",
+    "The bonus question turns hidden bridge engineering into the hardest estimate of the day.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "city" }
+  ),
+  "cash-counts": question(
+    "How many pennies would it take to make one million dollars?",
+    100_000_000,
+    "Big money sounds abstract until you convert it into one-cent pieces and realize you are counting into the hundreds of millions.",
+    "The bonus question is the purest high-scale version of the cash day.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "world" }
+  ),
+  "block-party": question(
+    "How many pips appear across a full double-twelve domino set?",
+    1_092,
+    "The tile count rises fast when the set expands, but the dot count grows even faster once every face has to be totaled.",
+    "The Juneteenth Friday bonus keeps the same domino logic while making the arithmetic heavier.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "city" }
+  ),
+  "under-the-tree": question(
+    "About how many lights glow on the Rockefeller Center Christmas tree?",
+    50_000,
+    "That famous tree reads as one warm shape on TV because the bulb count is so high your eye stops separating individual lights.",
+    "The Christmas Day bonus gives the holiday its biggest, brightest estimate.",
+    { difficultyScore: EXTRA_INNING_DIFFICULTY_SCORE, scaleBand: "city" }
+  ),
+};
+
+const AUTHOR_THEME_LIBRARY = [...DAILY_THEME_LIBRARY, ...HOLIDAY_THEME_LIBRARY];
+const THEME_ENTRY_BY_ID = new Map(AUTHOR_THEME_LIBRARY.map((entry) => [entry.id, entry]));
+const HOLIDAY_THEME_BY_DATE = {
+  "2026-05-10": "flower-shop",
+  "2026-05-25": "backyard-grill",
+  "2026-06-19": "block-party",
+  "2026-06-21": "garage-weekend",
+  "2026-07-04": "fireworks-night",
+  "2026-09-07": "toolbox-day",
+  "2026-10-31": "candy-bowl",
+  "2026-11-26": "thanksgiving-table",
+  "2026-12-24": "stocking-stuffers",
+  "2026-12-25": "under-the-tree",
+  "2026-12-31": "countdown-night",
+};
+const WEEKDAY_ROTATION_THEME_IDS = DAILY_THEME_LIBRARY.map((entry) => entry.id);
+const FRIDAY_ROTATION_THEME_IDS = [
+  "in-the-orchestra-pit",
+  "calendar-math",
+  "touring-the-solar-system",
+  "card-table-numbers",
+  "map-scale",
+  "word-count",
+  "ocean-creatures",
+  "spaceflight",
+  "under-the-night-sky",
+  "movie-math",
+  "bridges-and-cables",
+  "cash-counts",
+];
+const CALENDAR_DATE_KEYS = buildCalendarDateKeys(CYCLE_START_KEY, CALENDAR_END_KEY);
+const CALENDAR_THEME_BY_DATE = buildCalendarThemeMap();
+
 const FALLBACK_ENTRY = theme("Starter Numbers", [
   question(
     "How many bones are in the adult human body?",
@@ -657,8 +1011,72 @@ const FALLBACK_ENTRY = theme("Starter Numbers", [
   ),
 ]);
 
-function positiveModulo(value, base) {
-  return ((value % base) + base) % base;
+function countInclusiveDays(startKey, endKey) {
+  const startDate = parseDateKey(startKey);
+  const endDate = parseDateKey(endKey);
+  return Math.round((endDate - startDate) / DAY_MS) + 1;
+}
+
+function buildCalendarDateKeys(startKey, endKey) {
+  const totalDays = countInclusiveDays(startKey, endKey);
+  return Array.from({ length: totalDays }, (_, index) => shiftDateKey(startKey, index));
+}
+
+function isFridayDateKey(dateKey) {
+  return parseDateKey(dateKey).getDay() === 5;
+}
+
+function isDateKeyInCalendar(dateKey) {
+  return dateKey >= CYCLE_START_KEY && dateKey <= CALENDAR_END_KEY;
+}
+
+function buildCalendarThemeMap() {
+  const mapping = {};
+  let weekdayIndex = 0;
+  let fridayIndex = 0;
+  let previousThemeId = null;
+
+  const takeNextThemeId = (rotation, cursor) => {
+    let nextCursor = cursor;
+    let nextThemeId = rotation[nextCursor % rotation.length];
+
+    while (
+      rotation.length > 1 &&
+      nextThemeId === previousThemeId
+    ) {
+      nextCursor += 1;
+      nextThemeId = rotation[nextCursor % rotation.length];
+    }
+
+    return {
+      themeId: nextThemeId,
+      nextCursor: nextCursor + 1,
+    };
+  };
+
+  CALENDAR_DATE_KEYS.forEach((dateKey) => {
+    const holidayThemeId = HOLIDAY_THEME_BY_DATE[dateKey];
+    if (holidayThemeId) {
+      mapping[dateKey] = holidayThemeId;
+      previousThemeId = holidayThemeId;
+      return;
+    }
+
+    if (isFridayDateKey(dateKey)) {
+      const nextFriday = takeNextThemeId(FRIDAY_ROTATION_THEME_IDS, fridayIndex);
+      mapping[dateKey] = nextFriday.themeId;
+      fridayIndex = nextFriday.nextCursor;
+      previousThemeId = nextFriday.themeId;
+      return;
+    }
+
+    const nextWeekday = takeNextThemeId(WEEKDAY_ROTATION_THEME_IDS, weekdayIndex);
+    mapping[dateKey] = nextWeekday.themeId;
+    weekdayIndex = nextWeekday.nextCursor;
+    previousThemeId = nextWeekday.themeId;
+  });
+
+  return mapping;
 }
 
 function parseDateKey(dateKey) {
@@ -689,6 +1107,17 @@ function orderOfMagnitude(value) {
   return Math.floor(Math.log10(value));
 }
 
+function inferScaleBand(answer) {
+  if (answer < 100) return "pocket";
+  if (answer < 1_000) return "room";
+  if (answer < 100_000) return "city";
+  return "world";
+}
+
+function getScaleBandRank(scaleBand) {
+  return SCALE_BAND_RANK[scaleBand] ?? -1;
+}
+
 function fnv1aHash(value) {
   let hash = 0x811c9dc5;
 
@@ -705,7 +1134,25 @@ function isVolatileQuestion(questionLike) {
   return VOLATILE_PATTERN.test(combined);
 }
 
-function createContentFingerprint(themeName, questions) {
+function materializeQuestion(questionEntry, id, defaultDifficultyScore) {
+  return {
+    id,
+    prompt: questionEntry.prompt,
+    answer: questionEntry.answer,
+    funFact: questionEntry.funFact,
+    rationale: questionEntry.rationale,
+    difficultyScore: questionEntry.difficultyScore ?? defaultDifficultyScore,
+    scaleBand: questionEntry.scaleBand ?? inferScaleBand(questionEntry.answer),
+    ...(questionEntry.asOfDate ? { asOfDate: questionEntry.asOfDate } : {}),
+  };
+}
+
+function getExtraInningForDate(entry, dateKey) {
+  if (!isFridayDateKey(dateKey)) return null;
+  return entry.extraInning ?? FRIDAY_EXTRA_INNING_BY_THEME_ID[entry.id] ?? null;
+}
+
+function createContentFingerprint(themeName, questions, extraInning = null) {
   const fingerprintPayload = JSON.stringify({
     theme: themeName,
     questions: questions.map((questionEntry) => ({
@@ -713,85 +1160,109 @@ function createContentFingerprint(themeName, questions) {
       answer: questionEntry.answer,
       funFact: questionEntry.funFact,
       rationale: questionEntry.rationale,
-      difficulty: questionEntry.difficulty,
+      difficultyScore: questionEntry.difficultyScore,
+      scaleBand: questionEntry.scaleBand,
       asOfDate: questionEntry.asOfDate ?? null,
     })),
+    extraInning: extraInning
+      ? {
+          prompt: extraInning.prompt,
+          answer: extraInning.answer,
+          funFact: extraInning.funFact,
+          rationale: extraInning.rationale,
+          difficultyScore: extraInning.difficultyScore,
+          scaleBand: extraInning.scaleBand,
+          asOfDate: extraInning.asOfDate ?? null,
+        }
+      : null,
   });
 
   return `daybreak-${fnv1aHash(fingerprintPayload)}`;
 }
 
 function createDailySet(entry, dateKey, metadata = {}) {
+  const questions = entry.questions.map((questionEntry, index) =>
+    materializeQuestion(
+      questionEntry,
+      `${slugify(entry.theme)}-${index + 1}`,
+      CORE_DIFFICULTY_SCORES[index] ?? CORE_DIFFICULTY_SCORES[CORE_DIFFICULTY_SCORES.length - 1]
+    )
+  );
+  const extraInning = getExtraInningForDate(entry, dateKey);
+
   return {
     date: dateKey,
     theme: entry.theme,
     source: metadata.source ?? "authored",
     ...(metadata.fallbackReason ? { fallbackReason: metadata.fallbackReason } : {}),
-    questions: entry.questions.map((questionEntry, index) => ({
-      id: `${slugify(entry.theme)}-${index + 1}`,
-      prompt: questionEntry.prompt,
-      answer: questionEntry.answer,
-      funFact: questionEntry.funFact,
-      rationale: questionEntry.rationale,
-      difficulty: DIFFICULTY_ORDER[index],
-      ...(questionEntry.asOfDate ? { asOfDate: questionEntry.asOfDate } : {}),
-    })),
+    questions,
+    ...(extraInning
+      ? {
+          extraInning: materializeQuestion(
+            extraInning,
+            `${slugify(entry.theme)}-extra`,
+            EXTRA_INNING_DIFFICULTY_SCORE
+          ),
+        }
+      : {}),
   };
 }
 
-function getCycleIndex(dateKey) {
-  const startDate = parseDateKey(CYCLE_START_KEY);
-  const targetDate = parseDateKey(dateKey);
-  const dayDiff = Math.round((targetDate - startDate) / DAY_MS);
-  return positiveModulo(dayDiff, DAILY_THEME_LIBRARY.length);
-}
-
-function validateQuestion(questionEntry, index, seenPrompts) {
+function validateQuestion(questionEntry, index, seenPrompts, label = `Question ${index + 1}`) {
   if (!questionEntry || typeof questionEntry !== "object") {
-    throw new Error(`Question ${index + 1} is missing.`);
+    throw new Error(`${label} is missing.`);
   }
 
   if (typeof questionEntry.prompt !== "string" || questionEntry.prompt.trim().length < 8) {
-    throw new Error(`Question ${index + 1} needs a prompt.`);
+    throw new Error(`${label} needs a prompt.`);
   }
 
   if (!Number.isFinite(questionEntry.answer) || questionEntry.answer <= 0) {
-    throw new Error(`Question ${index + 1} needs a positive numeric answer.`);
+    throw new Error(`${label} needs a positive numeric answer.`);
   }
 
   if (typeof questionEntry.funFact !== "string" || questionEntry.funFact.trim().length < 8) {
-    throw new Error(`Question ${index + 1} needs a fun fact.`);
+    throw new Error(`${label} needs a fun fact.`);
   }
 
   if (typeof questionEntry.rationale !== "string" || questionEntry.rationale.trim().length < 8) {
-    throw new Error(`Question ${index + 1} needs a rationale.`);
+    throw new Error(`${label} needs a rationale.`);
   }
 
-  if (questionEntry.difficulty !== DIFFICULTY_ORDER[index]) {
-    throw new Error(`Question ${index + 1} must be tagged as ${DIFFICULTY_ORDER[index]}.`);
+  if (
+    !Number.isFinite(questionEntry.difficultyScore) ||
+    questionEntry.difficultyScore < 1 ||
+    questionEntry.difficultyScore > 5
+  ) {
+    throw new Error(`${label} needs a difficultyScore from 1 to 5.`);
+  }
+
+  if (!SCALE_BAND_RANK.hasOwnProperty(questionEntry.scaleBand)) {
+    throw new Error(`${label} needs a valid scaleBand.`);
   }
 
   const normalizedPrompt = normalizePrompt(questionEntry.prompt);
   if (seenPrompts.has(normalizedPrompt)) {
-    throw new Error(`Question ${index + 1} duplicates another prompt in the same daily set.`);
+    throw new Error(`${label} duplicates another prompt in the same daily set.`);
   }
   seenPrompts.add(normalizedPrompt);
 
   if (isVolatileQuestion(questionEntry) && !questionEntry.asOfDate) {
-    throw new Error(`Question ${index + 1} references a volatile fact and must include asOfDate.`);
+    throw new Error(`${label} references a volatile fact and must include asOfDate.`);
   }
 
   if (questionEntry.asOfDate && Number.isNaN(parseDateKey(questionEntry.asOfDate).getTime())) {
-    throw new Error(`Question ${index + 1} has an invalid asOfDate.`);
+    throw new Error(`${label} has an invalid asOfDate.`);
   }
 
   return {
-    id: questionEntry.id,
+    id: typeof questionEntry.id === "string" && questionEntry.id ? questionEntry.id : undefined,
     prompt: questionEntry.prompt.trim(),
     answer: Math.round(questionEntry.answer),
     funFact: questionEntry.funFact.trim(),
     rationale: questionEntry.rationale.trim(),
-    difficulty: questionEntry.difficulty,
+    difficultyScore: Math.round(questionEntry.difficultyScore),
+    scaleBand: questionEntry.scaleBand,
     ...(questionEntry.asOfDate ? { asOfDate: questionEntry.asOfDate } : {}),
   };
 }
@@ -799,7 +1270,11 @@ function validateQuestion(questionEntry, index, seenPrompts) {
 function createResolvedDailySetMetadata(validatedDailySet, metadata = {}) {
   return {
     ...validatedDailySet,
-    contentFingerprint: createContentFingerprint(validatedDailySet.theme, validatedDailySet.questions),
+    contentFingerprint: createContentFingerprint(
+      validatedDailySet.theme,
+      validatedDailySet.questions,
+      validatedDailySet.extraInning ?? null
+    ),
     source: metadata.source ?? "authored",
     ...(metadata.fallbackReason ? { fallbackReason: metadata.fallbackReason } : {}),
   };
@@ -811,29 +1286,58 @@ function buildAuthorDailySetFromEntry(entry, dateKey) {
 
 function auditDailySetHeuristics(dailySet) {
   const answers = dailySet.questions.map((questionEntry) => questionEntry.answer);
+  const scaleBands = dailySet.questions.map((questionEntry) => questionEntry.scaleBand);
   const warnings = [];
   const tinyAnswerCount = answers.filter((answer) => answer <= 15).length;
   const magnitudeSpread = Math.max(...answers) / Math.min(...answers);
-  const uniqueMagnitudes = new Set(answers.map((answer) => orderOfMagnitude(answer))).size;
-  const [warmup, stretch, closer] = answers;
+  const firstScaleRank = getScaleBandRank(scaleBands[0]);
 
   if (tinyAnswerCount > 1) {
     warnings.push("Contains more than one tiny-count answer, which can make the set feel recall-first.");
   }
 
-  if (uniqueMagnitudes === 1 && magnitudeSpread < 20) {
-    warnings.push("Stays in nearly the same numeric band across all three questions, so the arc feels flat.");
+  if (new Set(scaleBands).size === 1 || magnitudeSpread < 4) {
+    warnings.push("Stays too compressed in one scale band, so the set can feel flat.");
   }
 
-  if (Math.abs(warmup - stretch) <= Math.max(10, warmup * 0.15)) {
-    warnings.push("Warm-up and stretch land too close together, which blunts the middle-round calibration shift.");
+  if (
+    !dailySet.questions
+      .slice(1)
+      .some((questionEntry) => getScaleBandRank(questionEntry.scaleBand) > firstScaleRank)
+  ) {
+    warnings.push("Never widens beyond the opener's scale, which blunts the day-to-day Ballpark arc.");
   }
 
-  if (closer < stretch * 0.25 && closer < 100 && stretch >= 1_000) {
-    warnings.push("Closer shrinks to a tiny count after a much larger stretch answer, so the finish can feel smaller than the middle.");
+  if (dailySet.questions[2].difficultyScore < dailySet.questions[1].difficultyScore) {
+    warnings.push("The closer grades easier than the middle question, which softens the finish.");
   }
 
   return warnings;
+}
+
+function validateCoreArc(questions) {
+  const scaleBands = new Set(questions.map((questionEntry) => questionEntry.scaleBand));
+  if (scaleBands.size < 2) {
+    throw new Error("Core questions must span at least 2 scale bands.");
+  }
+
+  const firstScaleRank = getScaleBandRank(questions[0].scaleBand);
+  if (
+    !questions
+      .slice(1)
+      .some((questionEntry) => getScaleBandRank(questionEntry.scaleBand) > firstScaleRank)
+  ) {
+    throw new Error("At least one later question must widen the scale from Question 1.");
+  }
+
+  const [firstQuestion, secondQuestion, thirdQuestion] = questions;
+  if (
+    secondQuestion.difficultyScore < firstQuestion.difficultyScore ||
+    thirdQuestion.difficultyScore < secondQuestion.difficultyScore ||
+    thirdQuestion.difficultyScore <= firstQuestion.difficultyScore
+  ) {
+    throw new Error("Core questions must generally step upward in difficultyScore.");
+  }
 }
 
 export function validateDailySet(
@@ -849,20 +1353,56 @@ export function validateDailySet(
     throw new Error("Daily set theme is missing.");
   }
 
-  if (!Array.isArray(rawDailySet.questions) || rawDailySet.questions.length !== 3) {
-    throw new Error("Daily set must contain exactly 3 questions.");
+  if (!Array.isArray(rawDailySet.questions) || rawDailySet.questions.length !== CORE_QUESTION_COUNT) {
+    throw new Error(`Daily set must contain exactly ${CORE_QUESTION_COUNT} questions.`);
   }
 
   const seenPrompts = new Set();
   const validatedQuestions = rawDailySet.questions.map((questionEntry, index) =>
     validateQuestion(questionEntry, index, seenPrompts)
   );
+  const validatedExtraInning = rawDailySet.extraInning
+    ? validateQuestion(
+        rawDailySet.extraInning,
+        CORE_QUESTION_COUNT,
+        seenPrompts,
+        "Extra Inning"
+      )
+    : null;
+
+  const isFallbackSource = metadata.source === "fallback";
+  if (!isFallbackSource) {
+    validateCoreArc(validatedQuestions);
+
+    if (isFridayDateKey(dateKey) && !validatedExtraInning) {
+      throw new Error("Friday daily sets must include an Extra Inning question.");
+    }
+
+    if (!isFridayDateKey(dateKey) && validatedExtraInning) {
+      throw new Error("Extra Inning questions are only allowed on Fridays.");
+    }
+
+    if (validatedExtraInning) {
+      const hardestCoreDifficulty = Math.max(
+        ...validatedQuestions.map((questionEntry) => questionEntry.difficultyScore)
+      );
+
+      if (validatedExtraInning.difficultyScore < 4) {
+        throw new Error("Extra Inning must have a difficultyScore of 4 or 5.");
+      }
+
+      if (validatedExtraInning.difficultyScore < hardestCoreDifficulty) {
+        throw new Error("Extra Inning must be the hardest question of the day.");
+      }
+    }
+  }
 
   return createResolvedDailySetMetadata(
     {
       date: dateKey,
       theme: rawDailySet.theme.trim(),
       questions: validatedQuestions,
+      ...(validatedExtraInning ? { extraInning: validatedExtraInning } : {}),
     },
     metadata
   );
@@ -874,54 +1414,47 @@ function validateAuthoredEntry(entry, dateKey) {
   });
 }
 
+function getAuthoredDateKeys(startDateKey, daysToCheck) {
+  const startIndex = CALENDAR_DATE_KEYS.indexOf(startDateKey);
+  if (startIndex === -1) {
+    return [];
+  }
+
+  return CALENDAR_DATE_KEYS.slice(startIndex, startIndex + daysToCheck);
+}
+
 export function validateAuthoredLibrary(
   startDateKey = CYCLE_START_KEY,
   daysToCheck = DAYBREAK_CYCLE_LENGTH
 ) {
   const failures = [];
   const warnings = [];
-  const themeSet = new Set();
-  const promptToDateMap = new Map();
+  const uniqueThemes = new Set();
   const authoredSets = [];
+  const authoredDateKeys = getAuthoredDateKeys(startDateKey, daysToCheck);
 
-  if (DAILY_THEME_LIBRARY.length !== DAYBREAK_CYCLE_LENGTH) {
-    failures.push(
-      `Expected ${DAYBREAK_CYCLE_LENGTH} authored daily sets, found ${DAILY_THEME_LIBRARY.length}.`
-    );
+  if (authoredDateKeys.length === 0) {
+    failures.push(`No authored Ballpark dates found for ${startDateKey}.`);
   }
 
-  DAILY_THEME_LIBRARY.forEach((entry) => {
-    if (themeSet.has(entry.theme)) {
-      failures.push(`Duplicate theme detected: ${entry.theme}.`);
+  authoredDateKeys.forEach((dateKey) => {
+    const scheduledThemeId = CALENDAR_THEME_BY_DATE[dateKey];
+    const scheduledEntry = scheduledThemeId ? THEME_ENTRY_BY_ID.get(scheduledThemeId) : null;
+
+    if (!scheduledThemeId || !scheduledEntry) {
+      failures.push(`${dateKey}: missing authored theme assignment.`);
       return;
     }
 
-    themeSet.add(entry.theme);
-  });
-
-  const boundedDays = Math.min(daysToCheck, DAILY_THEME_LIBRARY.length);
-
-  for (let index = 0; index < boundedDays; index += 1) {
-    const dateKey = shiftDateKey(startDateKey, index);
-    const entry = DAILY_THEME_LIBRARY[index];
+    if (HOLIDAY_THEME_BY_DATE[dateKey] && HOLIDAY_THEME_BY_DATE[dateKey] !== scheduledThemeId) {
+      failures.push(`${dateKey}: holiday theme assignment does not match the authored schedule.`);
+      return;
+    }
 
     try {
-      const authoredSet = validateAuthoredEntry(entry, dateKey);
+      const authoredSet = validateAuthoredEntry(scheduledEntry, dateKey);
       authoredSets.push(authoredSet);
-
-      authoredSet.questions.forEach((questionEntry) => {
-        const normalizedPrompt = normalizePrompt(questionEntry.prompt);
-        const seenDateKey = promptToDateMap.get(normalizedPrompt);
-
-        if (seenDateKey) {
-          failures.push(
-            `${dateKey}: prompt duplicates an authored question already used on ${seenDateKey}.`
-          );
-          return;
-        }
-
-        promptToDateMap.set(normalizedPrompt, dateKey);
-      });
+      uniqueThemes.add(authoredSet.theme);
 
       auditDailySetHeuristics(authoredSet).forEach((warning) => {
         warnings.push(`${dateKey} (${authoredSet.theme}): ${warning}`);
@@ -929,17 +1462,19 @@ export function validateAuthoredLibrary(
     } catch (error) {
       failures.push(`${dateKey}: ${error.message}`);
     }
-  }
+  });
 
   return {
     passed: failures.length === 0 && warnings.length === 0,
+    daysChecked: authoredDateKeys.length,
     authoredSets,
     authoredSetMap: new Map(authoredSets.map((dailySet) => [dailySet.date, dailySet])),
     failures,
     warnings,
-    uniqueThemes: themeSet.size,
+    uniqueThemes: uniqueThemes.size,
     questionsChecked: authoredSets.reduce(
-      (sum, dailySet) => sum + dailySet.questions.length,
+      (sum, dailySet) =>
+        sum + dailySet.questions.length + (dailySet.extraInning ? 1 : 0),
       0
     ),
   };
@@ -952,36 +1487,39 @@ export async function runAuthoredContentValidationSuite(
   const authoredSummary = validateAuthoredLibrary(startDateKey, daysToCheck);
   const failures = [...authoredSummary.failures];
   const warnings = [...authoredSummary.warnings];
-  const boundedDays = Math.min(daysToCheck, DAILY_THEME_LIBRARY.length);
 
-  for (let index = 0; index < boundedDays; index += 1) {
-    const dateKey = shiftDateKey(startDateKey, index);
-    const authoredSet = authoredSummary.authoredSetMap.get(dateKey);
+  authoredSummary.authoredSets.forEach((dailySet) => {
+    const expectedHolidayThemeId = HOLIDAY_THEME_BY_DATE[dailySet.date];
+    if (expectedHolidayThemeId) {
+      const expectedHolidayTheme = THEME_ENTRY_BY_ID.get(expectedHolidayThemeId)?.theme;
+      if (dailySet.theme !== expectedHolidayTheme) {
+        failures.push(`${dailySet.date}: holiday theme did not resolve to the intended authored set.`);
+      }
+    }
+  });
 
+  for (const authoredSet of authoredSummary.authoredSets) {
     try {
-      const resolvedSet = await getDailySet(dateKey);
+      const resolvedSet = await getDailySet(authoredSet.date);
 
       if (resolvedSet.source !== "authored") {
         failures.push(
-          `${dateKey}: runtime resolution used fallback content (${resolvedSet.fallbackReason ?? "unknown reason"}).`
+          `${authoredSet.date}: runtime resolution used fallback content (${resolvedSet.fallbackReason ?? "unknown reason"}).`
         );
       }
 
-      if (
-        authoredSet &&
-        resolvedSet.contentFingerprint !== authoredSet.contentFingerprint
-      ) {
-        failures.push(`${dateKey}: runtime fingerprint does not match the authored library.`);
+      if (resolvedSet.contentFingerprint !== authoredSet.contentFingerprint) {
+        failures.push(`${authoredSet.date}: runtime fingerprint does not match the authored library.`);
       }
     } catch (error) {
-      failures.push(`${dateKey}: runtime resolution failed with ${error.message}`);
+      failures.push(`${authoredSet.date}: runtime resolution failed with ${error.message}`);
     }
   }
 
   return {
     passed: failures.length === 0 && warnings.length === 0,
-    daysChecked: boundedDays,
-    authoredSets: DAILY_THEME_LIBRARY.length,
+    daysChecked: authoredSummary.daysChecked,
+    authoredSets: authoredSummary.authoredSets.length,
     uniqueThemes: authoredSummary.uniqueThemes,
     questionsChecked: authoredSummary.questionsChecked,
     failures,
@@ -990,18 +1528,29 @@ export async function runAuthoredContentValidationSuite(
 }
 
 export function validateWeatherSignsAuthoredDay() {
-  const weatherSignsIndex = DAILY_THEME_LIBRARY.findIndex((entry) => entry.theme === "Weather Signs");
+  const weatherSignsDateKey = CALENDAR_DATE_KEYS.find(
+    (dateKey) => CALENDAR_THEME_BY_DATE[dateKey] === "weather-signs"
+  );
 
-  if (weatherSignsIndex === -1) {
-    throw new Error("Weather Signs is missing from the authored library.");
+  if (!weatherSignsDateKey) {
+    throw new Error("Weather Signs is missing from the authored calendar.");
   }
 
-  const dateKey = shiftDateKey(CYCLE_START_KEY, weatherSignsIndex);
-  return validateAuthoredEntry(DAILY_THEME_LIBRARY[weatherSignsIndex], dateKey);
+  return validateAuthoredEntry(THEME_ENTRY_BY_ID.get("weather-signs"), weatherSignsDateKey);
 }
 
 async function requestDailySetFromProvider(dateKey) {
-  const entry = DAILY_THEME_LIBRARY[getCycleIndex(dateKey)];
+  if (!isDateKeyInCalendar(dateKey)) {
+    throw new Error(`No authored Ballpark set scheduled for ${dateKey}.`);
+  }
+
+  const themeId = CALENDAR_THEME_BY_DATE[dateKey];
+  const entry = themeId ? THEME_ENTRY_BY_ID.get(themeId) : null;
+
+  if (!entry) {
+    throw new Error(`No Ballpark theme found for ${dateKey}.`);
+  }
+
   return clone(buildAuthorDailySetFromEntry(entry, dateKey));
 }
 
@@ -1031,11 +1580,13 @@ export function formatDisplayDate(dateKey) {
 }
 
 export function getCycleDay(dateKey) {
-  return getCycleIndex(dateKey) + 1;
+  if (!isDateKeyInCalendar(dateKey)) return 1;
+  return Math.round((parseDateKey(dateKey) - parseDateKey(CYCLE_START_KEY)) / DAY_MS) + 1;
 }
 
 export function getThemePreview(dateKey) {
-  return DAILY_THEME_LIBRARY[getCycleIndex(dateKey)].theme;
+  const themeId = CALENDAR_THEME_BY_DATE[dateKey];
+  return themeId ? THEME_ENTRY_BY_ID.get(themeId)?.theme ?? FALLBACK_ENTRY.theme : FALLBACK_ENTRY.theme;
 }
 
 export async function getDailySet(dateKey = getTodayKey(), options = {}) {

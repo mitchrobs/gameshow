@@ -185,6 +185,7 @@ export default function HomeScreen() {
       { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges' },
       { label: 'Museum', route: '/museum', emoji: '🖼️', countKey: 'museum', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
+      { label: 'Ballpark', route: '/ballpark', emoji: '🎯', countKey: 'ballpark', isNew: true },
       { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
       { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', isNew: true },
     ];
@@ -241,6 +242,7 @@ export default function HomeScreen() {
         storage.getItem(`crossword:daily:${key}`) === '1' ||
         storage.getItem(`museum:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
+        storage.getItem(`ballpark:daily:${key}`) === '1' ||
         storage.getItem(`trivia:daily:${key}`) === '1' ||
         storage.getItem(`barter:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
@@ -271,6 +273,7 @@ export default function HomeScreen() {
       'bridges',
       'museum',
       'whodunit',
+      'ballpark',
       'trivia',
       'barter',
     ])
@@ -327,7 +330,7 @@ export default function HomeScreen() {
           <View style={styles.quickLinksSection}>
             <View style={styles.quickLinksHeader}>
               <Text style={styles.quickLinksTitle}>Quick links</Text>
-              <Text style={styles.quickLinksSubtitle}>Jump back into a game.</Text>
+              <Text style={styles.quickLinksSubtitle}>Jump into a game.</Text>
             </View>
             <ScrollView
               horizontal
@@ -657,6 +660,53 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Ballpark card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabel}>
+              <Text style={styles.ballparkKicker}>Estimation Trivia</Text>
+              <Text style={styles.gameTitle}>Ballpark</Text>
+            </View>
+            <Text style={styles.blurb}>
+              Three themed number questions every day, with a tougher Extra Inning on Fridays.
+            </Text>
+            {(playCounts['ballpark'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['ballpark']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.ballparkPreview}>
+                <Text style={styles.ballparkPreviewLabel}>Today&apos;s format</Text>
+                <View style={styles.ballparkPreviewStats}>
+                  <View style={styles.ballparkPreviewStat}>
+                    <Text style={styles.ballparkPreviewValue}>3</Text>
+                    <Text style={styles.ballparkPreviewStatText}>Questions</Text>
+                  </View>
+                  <View style={styles.ballparkPreviewStat}>
+                    <Text style={styles.ballparkPreviewValue}>4</Text>
+                    <Text style={styles.ballparkPreviewStatText}>Guesses</Text>
+                  </View>
+                  <View style={styles.ballparkPreviewStat}>
+                    <Text style={styles.ballparkPreviewValue}>Fri</Text>
+                    <Text style={styles.ballparkPreviewStatText}>Bonus</Text>
+                  </View>
+                </View>
+                <Text style={styles.ballparkPreviewCaption}>
+                  Good guesses beat good memory.
+                </Text>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/ballpark')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
           {/* Trivia card */}
           <View style={styles.gameSection}>
             <View style={styles.gameLabel}>
@@ -807,6 +857,7 @@ const createStyles = (
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
   const museumAccent = resolveScreenAccent('museum', theme);
+  const ballparkAccent = resolveScreenAccent('trivia', theme);
   const quickLinkPressed = theme.mode === 'dark' ? screenAccent.soft : screenAccent.badgeBg;
   const hotBadge = theme.mode === 'dark'
     ? {
@@ -1024,6 +1075,14 @@ const createStyles = (
   },
   museumKicker: {
     color: museumAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
+  ballparkKicker: {
+    color: ballparkAccent.main,
     fontSize: FontSize.sm,
     fontWeight: '700',
     letterSpacing: 1.2,
@@ -1270,6 +1329,56 @@ const createStyles = (
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
     fontWeight: '600',
+  },
+  ballparkPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+  },
+  ballparkPreviewLabel: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontWeight: '600',
+  },
+  ballparkPreviewStats: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  ballparkPreviewStat: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    minWidth: 74,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  ballparkPreviewValue: {
+    fontSize: FontSize.lg,
+    fontWeight: '800',
+    color: Colors.text,
+  },
+  ballparkPreviewStatText: {
+    marginTop: 2,
+    fontSize: 11,
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    fontWeight: '700',
+  },
+  ballparkPreviewCaption: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+    textAlign: 'center',
+    maxWidth: 280,
   },
   museumPreview: {
     marginVertical: Spacing.md,
