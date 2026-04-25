@@ -411,6 +411,7 @@ export default function SudokuScreen() {
                         : baseGap;
                     const cellKey = makeCellKey(rowIndex, colIndex);
                     const cellNotes = notes[cellKey] ?? [];
+                    const cellConflict = conflicts[rowIndex][colIndex];
 
                     return (
                       <Pressable
@@ -430,6 +431,7 @@ export default function SudokuScreen() {
                             backgroundColor: relatedCell ? screenAccent.soft : Colors.surface,
                           },
                           isGiven(rowIndex, colIndex) && styles.givenCell,
+                          cellConflict && styles.conflictCell,
                           selectedCell && styles.selectedCell,
                         ]}
                       >
@@ -438,6 +440,7 @@ export default function SudokuScreen() {
                             style={[
                               styles.cellText,
                               isGiven(rowIndex, colIndex) && styles.givenText,
+                              cellConflict && styles.conflictText,
                             ]}
                           >
                             {value}
@@ -712,6 +715,10 @@ const createStyles = (
       backgroundColor: ROW_GLOW_BG,
       borderColor: ROW_GLOW_BORDER,
     },
+    conflictCell: {
+      backgroundColor: Colors.errorLight,
+      borderColor: Colors.errorLight,
+    },
     cellText: {
       fontSize: FontSize.lg,
       fontWeight: '700',
@@ -719,6 +726,9 @@ const createStyles = (
     },
     givenText: {
       color: Colors.textSecondary,
+    },
+    conflictText: {
+      color: Colors.error,
     },
     notesGrid: {
       alignItems: 'center',
