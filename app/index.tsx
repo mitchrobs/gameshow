@@ -47,6 +47,11 @@ function getWebThemeMode(): ThemeMode | null {
   const datasetMode = root ? coerceThemeMode(root.dataset.daybreakTheme) : null;
   if (datasetMode) return datasetMode;
 
+  const globalMode = coerceThemeMode(
+    (window as typeof window & { __DAYBREAK_THEME__?: string }).__DAYBREAK_THEME__
+  );
+  if (globalMode) return globalMode;
+
   if (typeof window.matchMedia === 'function') {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
@@ -55,7 +60,7 @@ function getWebThemeMode(): ThemeMode | null {
 }
 
 function useHomeTheme(baseTheme: ThemeTokens): ThemeTokens {
-  const [webThemeMode, setWebThemeMode] = useState<ThemeMode | null>(() => getWebThemeMode());
+  const [webThemeMode, setWebThemeMode] = useState<ThemeMode | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') {

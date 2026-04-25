@@ -232,6 +232,10 @@ function getWebPreferredMode(): ThemeMode | null {
 }
 
 function getInitialMode(): ThemeMode {
+  if (isWebEnvironment()) {
+    return 'light';
+  }
+
   return getWebPreferredMode() ?? toThemeMode(Appearance.getColorScheme());
 }
 

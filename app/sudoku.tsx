@@ -24,8 +24,8 @@ type GameState = 'playing' | 'won';
 type SelectedCell = { row: number; col: number } | null;
 type NotesState = Record<string, number[]>;
 
-interface PersistedSudokuState {
-  version: 1;
+interface PersistedSudokuStateV1 {
+  version?: 1;
   grid: number[][];
   notes: NotesState;
   gameState: GameState;
@@ -34,9 +34,26 @@ interface PersistedSudokuState {
   hintedCellKeys: string[];
 }
 
+interface PersistedSudokuStateV2 {
+  version: 2;
+  grid: number[][];
+  notes: NotesState;
+  gameState: GameState;
+  elapsedSeconds: number;
+  hintsUsed: number;
+  revealedHintCellKeys: string[];
+  hintMarkedCellKeys: string[];
+}
+
+type PersistedSudokuState = PersistedSudokuStateV1 | PersistedSudokuStateV2;
+type HintAction =
+  | { kind: 'mark-wrong'; row: number; col: number }
+  | { kind: 'reveal-value'; row: number; col: number }
+  | null;
+
 const STORAGE_PREFIX = 'sudoku';
 const MAX_HINTS = 3;
-const PROGRESS_STORAGE_VERSION = 1;
+const PROGRESS_STORAGE_VERSION = 2;
 const ROW_GLOW_BG = 'rgba(79, 180, 119, 0.14)';
 const ROW_GLOW_BORDER = 'rgba(79, 180, 119, 0.4)';
 
@@ -160,10 +177,10 @@ function removeNotesAt(notes: NotesState, row: number, col: number): NotesState 
   return next;
 }
 
-function removeHintedCellKey(hintedCellKeys: string[], row: number, col: number): string[] {
+function removeCellKey(cellKeys: string[], row: number, col: number): string[] {
   const key = makeCellKey(row, col);
-  if (!hintedCellKeys.includes(key)) return hintedCellKeys;
-  return hintedCellKeys.filter((entry) => entry !== key);
+  if (!cellKeys.includes(key)) return cellKeys;
+  return cellKeys.filter((entry) => entry !== key);
 }
 
 function sanitizeGrid(rawGrid: unknown, puzzle: SudokuPuzzle): number[][] {
@@ -224,17 +241,17 @@ function sanitizeNotesState(rawNotes: unknown, grid: number[][], puzzle: SudokuP
   return next;
 }
 
-function sanitizeHintedCellKeys(
-  rawHintedCellKeys: unknown,
+function sanitizeRevealedHintCellKeys(
+  rawRevealedHintCellKeys: unknown,
   grid: number[][],
   puzzle: SudokuPuzzle
 ): string[] {
-  if (!Array.isArray(rawHintedCellKeys)) return [];
+  if (!Array.isArray(rawRevealedHintCellKeys)) return [];
 
   const seen = new Set<string>();
   const next: string[] = [];
 
-  rawHintedCellKeys.forEach((value) => {
+  rawRevealedHintCellKeys.forEach((value) => {
     if (typeof value !== 'string' || seen.has(value)) return;
     const match = value.match(/^(\d+):(\d+)$/);
     if (!match) return;
@@ -260,22 +277,97 @@ function sanitizeHintedCellKeys(
   return next;
 }
 
-function getHintTarget(grid: number[][], puzzle: SudokuPuzzle): SelectedCell {
+function sanitizeHintMarkedCellKeys(
+  rawHintMarkedCellKeys: unknown,
+  grid: number[][],
+  puzzle: SudokuPuzzle
+): string[] {
+  if (!Array.isArray(rawHintMarkedCellKeys)) return [];
+
+  const seen = new Set<string>();
+  const next: string[] = [];
+
+  rawHintMarkedCellKeys.forEach((value) => {
+    if (typeof value !== 'string' || seen.has(value)) return;
+    const match = value.match(/^(\d+):(\d+)$/);
+    if (!match) return;
+
+    const row = Number(match[1]);
+    const col = Number(match[2]);
+    if (
+      row < 0 ||
+      row >= puzzle.size ||
+      col < 0 ||
+      col >= puzzle.size ||
+      puzzle.grid[row]?.[col] !== 0 ||
+      grid[row]?.[col] === 0 ||
+      grid[row]?.[col] === puzzle.solution[row]?.[col]
+    ) {
+      return;
+    }
+
+    seen.add(value);
+    next.push(value);
+  });
+
+  return next;
+}
+
+function getHintActionForCell(
+  row: number,
+  col: number,
+  grid: number[][],
+  puzzle: SudokuPuzzle,
+  hintMarkedCellKeySet: Set<string>
+): HintAction {
+  if (puzzle.grid[row]?.[col] !== 0) return null;
+
+  const value = grid[row]?.[col] ?? 0;
+  const solutionValue = puzzle.solution[row]?.[col] ?? 0;
+  const cellKey = makeCellKey(row, col);
+
+  if (value !== 0 && value !== solutionValue && !hintMarkedCellKeySet.has(cellKey)) {
+    return { kind: 'mark-wrong', row, col };
+  }
+
+  if (value === 0) {
+    return { kind: 'reveal-value', row, col };
+  }
+
+  return null;
+}
+
+function getHintAction(
+  grid: number[][],
+  puzzle: SudokuPuzzle,
+  selected: SelectedCell,
+  hintMarkedCellKeySet: Set<string>
+): HintAction {
+  if (selected) {
+    const selectedAction = getHintActionForCell(
+      selected.row,
+      selected.col,
+      grid,
+      puzzle,
+      hintMarkedCellKeySet
+    );
+    if (selectedAction) return selectedAction;
+  }
+
   for (let row = 0; row < puzzle.size; row += 1) {
     for (let col = 0; col < puzzle.size; col += 1) {
-      if (puzzle.grid[row]?.[col] !== 0) continue;
-      const value = grid[row]?.[col] ?? 0;
-      if (value !== 0 && value !== puzzle.solution[row]?.[col]) {
-        return { row, col };
+      const action = getHintActionForCell(row, col, grid, puzzle, hintMarkedCellKeySet);
+      if (action?.kind === 'mark-wrong') {
+        return action;
       }
     }
   }
 
   for (let row = 0; row < puzzle.size; row += 1) {
     for (let col = 0; col < puzzle.size; col += 1) {
-      if (puzzle.grid[row]?.[col] !== 0) continue;
-      if ((grid[row]?.[col] ?? 0) === 0) {
-        return { row, col };
+      const action = getHintActionForCell(row, col, grid, puzzle, hintMarkedCellKeySet);
+      if (action?.kind === 'reveal-value') {
+        return action;
       }
     }
   }
@@ -290,6 +382,7 @@ export default function SudokuScreen() {
   const Colors = theme.colors;
   const Spacing = theme.spacing;
   const router = useRouter();
+  const canGoBack = router.canGoBack();
   const dailyEntry = useMemo(() => getDailySudoku(), []);
   const puzzle: SudokuPuzzle = dailyEntry.puzzle;
   const dateKey = dailyEntry.date;
@@ -303,11 +396,15 @@ export default function SudokuScreen() {
   const [gameState, setGameState] = useState<GameState>('playing');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
-  const [hintedCellKeys, setHintedCellKeys] = useState<string[]>([]);
+  const [revealedHintCellKeys, setRevealedHintCellKeys] = useState<string[]>([]);
+  const [hintMarkedCellKeys, setHintMarkedCellKeys] = useState<string[]>([]);
   const [hasRestoredProgress, setHasRestoredProgress] = useState(false);
   const [focusedControl, setFocusedControl] = useState<string | null>(null);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
-  const hintedCellKeySet = useMemo(() => new Set(hintedCellKeys), [hintedCellKeys]);
+  const hintMarkedCellKeySet = useMemo(
+    () => new Set(hintMarkedCellKeys),
+    [hintMarkedCellKeys]
+  );
 
   const conflicts = useMemo(
     () => getConflicts(grid, puzzle.size, puzzle.boxRows, puzzle.boxCols),
@@ -374,7 +471,8 @@ export default function SudokuScreen() {
       setGameState('playing');
       setElapsedSeconds(0);
       setHintsUsed(0);
-      setHintedCellKeys([]);
+      setRevealedHintCellKeys([]);
+      setHintMarkedCellKeys([]);
       setHasRestoredProgress(true);
     };
 
@@ -388,8 +486,15 @@ export default function SudokuScreen() {
       const parsed = JSON.parse(raw) as Partial<PersistedSudokuState> | null;
       const nextGrid = sanitizeGrid(parsed?.grid, puzzle);
       const nextNotes = sanitizeNotesState(parsed?.notes, nextGrid, puzzle);
-      const nextHintedCellKeys = sanitizeHintedCellKeys(
-        parsed?.hintedCellKeys,
+      const nextRevealedHintCellKeys = sanitizeRevealedHintCellKeys(
+        parsed?.version === 2
+          ? parsed?.revealedHintCellKeys
+          : parsed?.hintedCellKeys,
+        nextGrid,
+        puzzle
+      );
+      const nextHintMarkedCellKeys = sanitizeHintMarkedCellKeys(
+        parsed?.version === 2 ? parsed?.hintMarkedCellKeys : [],
         nextGrid,
         puzzle
       );
@@ -425,7 +530,8 @@ export default function SudokuScreen() {
       setGameState(nextGameState);
       setElapsedSeconds(nextElapsedSeconds);
       setHintsUsed(nextHintsUsed);
-      setHintedCellKeys(nextHintedCellKeys);
+      setRevealedHintCellKeys(nextRevealedHintCellKeys);
+      setHintMarkedCellKeys(nextHintMarkedCellKeys);
       hasCountedRef.current = nextGameState === 'won';
     } catch {
       resetToDailyStart();
@@ -438,14 +544,15 @@ export default function SudokuScreen() {
   useEffect(() => {
     if (!hasRestoredProgress) return;
 
-    const payload: PersistedSudokuState = {
+    const payload: PersistedSudokuStateV2 = {
       version: PROGRESS_STORAGE_VERSION,
       grid,
       notes,
       gameState,
       elapsedSeconds,
       hintsUsed,
-      hintedCellKeys,
+      revealedHintCellKeys,
+      hintMarkedCellKeys,
     };
 
     writeStorageItem(progressStorageKey, JSON.stringify(payload));
@@ -454,10 +561,11 @@ export default function SudokuScreen() {
     gameState,
     grid,
     hasRestoredProgress,
-    hintedCellKeys,
+    hintMarkedCellKeys,
     hintsUsed,
     notes,
     progressStorageKey,
+    revealedHintCellKeys,
   ]);
 
   const { width } = useWindowDimensions();
@@ -508,12 +616,18 @@ export default function SudokuScreen() {
   const noteColumns = puzzle.boxCols;
   const noteRows = puzzle.boxRows;
   const noteCellWidth = Math.max(8, Math.floor((cellSize - 8) / noteColumns));
-  const hintTarget = useMemo(() => getHintTarget(grid, puzzle), [grid, puzzle]);
+  const hintAction = useMemo(
+    () => getHintAction(grid, puzzle, selected, hintMarkedCellKeySet),
+    [grid, hintMarkedCellKeySet, puzzle, selected]
+  );
   const remainingHints = Math.max(0, MAX_HINTS - hintsUsed);
-  const hintDisabled = remainingHints === 0 || !hintTarget;
+  const hintDisabled = remainingHints === 0 || !hintAction;
   const selectedStatus = selected
     ? `Selected: Row ${selected.row + 1}, Col ${selected.col + 1}`
     : 'Select a square to start.';
+  const handleBackToGames = useCallback(() => {
+    router.replace('/');
+  }, [router]);
 
   const handleNumberPress = useCallback(
     (value: number) => {
@@ -545,8 +659,11 @@ export default function SudokuScreen() {
         return next;
       });
       setNotes((previous) => removeNotesAt(previous, selected.row, selected.col));
-      setHintedCellKeys((previous) =>
-        removeHintedCellKey(previous, selected.row, selected.col)
+      setRevealedHintCellKeys((previous) =>
+        removeCellKey(previous, selected.row, selected.col)
+      );
+      setHintMarkedCellKeys((previous) =>
+        removeCellKey(previous, selected.row, selected.col)
       );
     },
     [gameState, grid, isGiven, notesMode, selected]
@@ -562,8 +679,11 @@ export default function SudokuScreen() {
         next[selected.row][selected.col] = 0;
         return next;
       });
-      setHintedCellKeys((previous) =>
-        removeHintedCellKey(previous, selected.row, selected.col)
+      setRevealedHintCellKeys((previous) =>
+        removeCellKey(previous, selected.row, selected.col)
+      );
+      setHintMarkedCellKeys((previous) =>
+        removeCellKey(previous, selected.row, selected.col)
       );
       return;
     }
@@ -572,27 +692,38 @@ export default function SudokuScreen() {
   }, [gameState, grid, isGiven, selected]);
 
   const handleHint = useCallback(() => {
-    if (gameState !== 'playing' || hintDisabled || !hintTarget) return;
+    if (gameState !== 'playing' || hintDisabled || !hintAction) return;
 
-    const targetKey = makeCellKey(hintTarget.row, hintTarget.col);
+    const targetKey = makeCellKey(hintAction.row, hintAction.col);
 
-    setGrid((previous) => {
-      const next = copyGrid(previous);
-      next[hintTarget.row][hintTarget.col] = puzzle.solution[hintTarget.row]![hintTarget.col]!;
-      return next;
-    });
-    setNotes((previous) => removeNotesAt(previous, hintTarget.row, hintTarget.col));
-    setHintedCellKeys((previous) =>
-      previous.includes(targetKey) ? previous : [...previous, targetKey]
-    );
+    if (hintAction.kind === 'mark-wrong') {
+      setHintMarkedCellKeys((previous) =>
+        previous.includes(targetKey) ? previous : [...previous, targetKey]
+      );
+    } else {
+      setGrid((previous) => {
+        const next = copyGrid(previous);
+        next[hintAction.row][hintAction.col] = puzzle.solution[hintAction.row]![hintAction.col]!;
+        return next;
+      });
+      setNotes((previous) => removeNotesAt(previous, hintAction.row, hintAction.col));
+      setRevealedHintCellKeys((previous) =>
+        previous.includes(targetKey) ? previous : [...previous, targetKey]
+      );
+      setHintMarkedCellKeys((previous) =>
+        removeCellKey(previous, hintAction.row, hintAction.col)
+      );
+    }
+
     setHintsUsed((previous) => Math.min(MAX_HINTS, previous + 1));
-    setSelected({ row: hintTarget.row, col: hintTarget.col });
-  }, [gameState, hintDisabled, hintTarget, puzzle.solution]);
+    setSelected({ row: hintAction.row, col: hintAction.col });
+  }, [gameState, hintAction, hintDisabled, puzzle.solution]);
 
   const handleReset = useCallback(() => {
     setGrid(copyGrid(puzzle.grid));
     setNotes(createEmptyNotesState());
-    setHintedCellKeys([]);
+    setRevealedHintCellKeys([]);
+    setHintMarkedCellKeys([]);
     setSelected(null);
     setNotesMode(false);
     setFocusedControl(null);
@@ -631,7 +762,27 @@ export default function SudokuScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Mini Sudoku', headerBackTitle: 'Home' }} />
+      <Stack.Screen
+        options={{
+          title: 'Mini Sudoku',
+          headerBackTitle: 'Home',
+          ...(canGoBack
+            ? {}
+            : {
+                headerLeft: () => (
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.headerFallbackButton,
+                      pressed && styles.headerFallbackButtonPressed,
+                    ]}
+                    onPress={handleBackToGames}
+                  >
+                    <Text style={styles.headerFallbackButtonText}>← Home</Text>
+                  </Pressable>
+                ),
+              }),
+        }}
+      />
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.page}>
@@ -702,10 +853,7 @@ export default function SudokuScreen() {
                     const cellKey = makeCellKey(rowIndex, colIndex);
                     const cellNotes = notes[cellKey] ?? [];
                     const givenCell = isGiven(rowIndex, colIndex);
-                    const cellConflict =
-                      conflicts[rowIndex][colIndex] &&
-                      !givenCell &&
-                      !hintedCellKeySet.has(cellKey);
+                    const hintMarkedCell = hintMarkedCellKeySet.has(cellKey);
 
                     return (
                       <Pressable
@@ -725,7 +873,7 @@ export default function SudokuScreen() {
                             backgroundColor: relatedCell ? screenAccent.soft : Colors.surface,
                           },
                           givenCell && styles.givenCell,
-                          cellConflict && styles.conflictCell,
+                          hintMarkedCell && styles.hintMarkedCell,
                           selectedCell && styles.selectedCell,
                         ]}
                       >
@@ -734,7 +882,7 @@ export default function SudokuScreen() {
                             style={[
                               styles.cellText,
                               givenCell && styles.givenText,
-                              cellConflict && styles.conflictText,
+                              hintMarkedCell && styles.hintMarkedText,
                             ]}
                           >
                             {value}
@@ -927,7 +1075,7 @@ export default function SudokuScreen() {
                     styles.homeButton,
                     pressed && styles.homeButtonPressed,
                   ]}
-                  onPress={() => router.back()}
+                  onPress={handleBackToGames}
                 >
                   <Text style={styles.homeButtonText}>Back to games</Text>
                 </Pressable>
@@ -1054,7 +1202,7 @@ const createStyles = (
       backgroundColor: ROW_GLOW_BG,
       borderColor: ROW_GLOW_BORDER,
     },
-    conflictCell: {
+    hintMarkedCell: {
       backgroundColor: Colors.errorLight,
       borderColor: Colors.errorLight,
     },
@@ -1066,7 +1214,7 @@ const createStyles = (
     givenText: {
       color: Colors.textSecondary,
     },
-    conflictText: {
+    hintMarkedText: {
       color: Colors.error,
     },
     notesGrid: {
@@ -1322,6 +1470,19 @@ const createStyles = (
       fontSize: FontSize.sm,
       color: Colors.textMuted,
       textAlign: 'center',
+    },
+    headerFallbackButton: {
+      borderRadius: BorderRadius.sm,
+      paddingVertical: 4,
+      paddingHorizontal: 6,
+    },
+    headerFallbackButtonPressed: {
+      backgroundColor: Colors.surfaceLight,
+    },
+    headerFallbackButtonText: {
+      color: Colors.text,
+      fontSize: 13,
+      fontWeight: '600',
     },
     homeButton: {
       borderRadius: BorderRadius.md,

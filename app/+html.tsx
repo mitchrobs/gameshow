@@ -33,13 +33,6 @@ export default function Root({ children }: PropsWithChildren) {
               body {
                 overscroll-behavior-y: none;
               }
-              @media (prefers-color-scheme: dark) {
-                :root {
-                  --daybreak-system-theme: dark;
-                  --daybreak-bg: #0b0f15;
-                  --daybreak-bg-soft: #0f141d;
-                }
-              }
             `,
           }}
         />
@@ -48,37 +41,12 @@ export default function Root({ children }: PropsWithChildren) {
             __html: `
               (function () {
                 if (typeof window === 'undefined') return;
-                var root = document.documentElement;
                 var media = typeof window.matchMedia === 'function'
                   ? window.matchMedia('(prefers-color-scheme: dark)')
                   : null;
-                var paint = function (node, bg, mode) {
-                  if (!node) return;
-                  node.style.backgroundColor = bg;
-                  node.dataset.daybreakTheme = mode;
-                };
-                var paintShell = function (bg, mode) {
-                  var appRoot = document.getElementById('root');
-                  paint(appRoot, bg, mode);
-                  var shellNode = appRoot;
-                  for (var i = 0; i < 4 && shellNode; i += 1) {
-                    shellNode = shellNode.firstElementChild;
-                    paint(shellNode, bg, mode);
-                  }
-                };
                 var apply = function () {
                   var mode = media && media.matches ? 'dark' : 'light';
-                  var bg = mode === 'dark' ? '#0f141d' : '#f3f6fb';
                   window.__DAYBREAK_THEME__ = mode;
-                  if (root) {
-                    root.dataset.daybreakTheme = mode;
-                    root.style.colorScheme = mode;
-                    root.style.backgroundColor = bg;
-                  }
-                  if (document.body) {
-                    document.body.style.backgroundColor = bg;
-                  }
-                  paintShell(bg, mode);
                 };
                 apply();
                 if (media) {
