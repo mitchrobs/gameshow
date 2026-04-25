@@ -4,6 +4,7 @@ import {
   CYCLE_START_KEY,
   DAYBREAK_CYCLE_LENGTH,
   getDailySet,
+  getThemePlayabilityForDate,
   runAuthoredContentValidationSuite,
   shiftDateKey,
   validateAuthoredLibrary,
@@ -77,6 +78,40 @@ describe('Ballpark 2026 calendar', () => {
         expect(dailySet.theme).toBe(expectedTheme);
       })
     );
+  });
+
+  it('launches April 25 on a tactile, pictureable Ballpark set', async () => {
+    const dailySet = await getDailySet('2026-04-25');
+
+    expect(dailySet.source).toBe('authored');
+    expect(dailySet.theme).toBe('The Physics of Sports Balls');
+    expect(dailySet.theme).not.toBe('Calendar Math');
+    expect(getThemePlayabilityForDate('2026-04-25')).toBe('tactile');
+  });
+
+  it('spaces puzzle themes so they stay occasional and never Friday-led', () => {
+    const scheduledPlayability: string[] = [];
+
+    for (let offset = 0; offset < DAYBREAK_CYCLE_LENGTH; offset += 1) {
+      const dateKey = shiftDateKey(CYCLE_START_KEY, offset);
+      const playability = getThemePlayabilityForDate(dateKey);
+      scheduledPlayability.push(playability);
+
+      if (offset < 7) {
+        expect(playability).not.toBe('puzzle');
+      }
+
+      if (isFriday(dateKey)) {
+        expect(playability).not.toBe('puzzle');
+      }
+
+      if (playability === 'puzzle') {
+        expect(scheduledPlayability[offset - 1]).not.toBe('puzzle');
+      }
+
+      const rollingWindow = scheduledPlayability.slice(Math.max(0, offset - 6), offset + 1);
+      expect(rollingWindow.filter((value) => value === 'puzzle').length).toBeLessThanOrEqual(1);
+    }
   });
 
   it('adds an Extra Inning on Fridays and keeps non-Fridays to the main three', async () => {

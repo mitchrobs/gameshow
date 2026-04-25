@@ -72,22 +72,22 @@ const DAILY_THEME_LIBRARY = [
   ]),
   theme("Calendar Math", [
     question(
-      "How many minutes are in a day?",
-      1_440,
-      "That clean 24 x 60 calculation is why this makes a strong warm-up.",
-      "The first question rewards quick mental math and gets fingers moving."
+      "How many tear-off pages are in a non-leap-year page-a-day calendar?",
+      365,
+      "A page-a-day calendar turns the whole year into a stack you can hold.",
+      "The opener keeps the calendar theme tactile instead of making the day feel like a worksheet."
     ),
     question(
-      "How many seconds are in a week?",
-      604_800,
-      "A single missed second every day adds up to 52 seconds by year-end.",
-      "The middle round expands the same timekeeping logic by a full order of magnitude."
+      "How many square inches of paper are in twelve 12-inch-square wall-calendar pages?",
+      1_728,
+      "A year's worth of calendar art is more paper than most players expect once every month gets its own square.",
+      "The middle question keeps the math visible as a stack of pages and wall space."
     ),
     question(
-      "How many seconds are in a 365-day year?",
-      31_536_000,
-      "That huge total is what makes even tiny timing drifts matter in clocks, software, and astronomy.",
-      "The closer keeps the same mental-math theme but lands on a much bigger final reveal."
+      "How many tear-off pages are in ten non-leap-year page-a-day calendars?",
+      3_650,
+      "Ten years of tear-off calendar pages becomes a chunky little archive of ordinary mornings.",
+      "The closer grows the same physical object into a bigger, more memorable stack."
     ),
   ]),
   theme("The Secret Life of Bees", [
@@ -192,36 +192,36 @@ const DAILY_THEME_LIBRARY = [
   ]),
   theme("Grid Logic", [
     question(
-      "How many squares are on a chessboard?",
+      "How many small squares are painted on a standard chessboard?",
       64,
-      "That count includes only the visible 8 by 8 board, not the hidden geometry players sometimes notice.",
-      "It is a recognizable starting point for a logic-flavored day."
+      "The board looks simple because the alternating colors do most of the counting for you.",
+      "The opener starts with a physical board before the day gets more puzzle-like."
     ),
     question(
-      "How many total squares of all sizes are hidden inside a chessboard?",
-      204,
-      "Once you count every 2x2, 3x3, and larger square, the board turns into a counting puzzle instead of a simple grid.",
-      "The stretch deepens the logic theme without collapsing back into memorized chess trivia."
+      "How many 2-by-2 square patches can slide across an 8-by-8 chessboard?",
+      49,
+      "A little four-square window can start in seven spots across and seven spots down.",
+      "The middle question keeps the puzzle grounded in something players can drag across the board."
     ),
     question(
-      "How many total rectangles of all sizes are hidden inside an 8 by 8 grid?",
+      "How many rectangles can you trace on an 8-by-8 window grid?",
       1_296,
-      "Rectangles outrun squares quickly because every pair of horizontal and vertical lines can frame a new shape.",
-      "The closer gives the day a stronger combinatorics payoff."
+      "Every pair of vertical grid lines and every pair of horizontal grid lines can frame another pane.",
+      "The closer gives the logic day a bigger reveal while staying visible as a window or board."
     ),
   ]),
   theme("Map Scale", [
     question(
-      "How many time zones wrap around the planet?",
-      24,
-      "Time zones are a human grid laid over a spinning sphere, not a natural property of Earth.",
-      "The opener starts with a round geography number most players can reason toward."
+      "About how many miles long is the Las Vegas Strip?",
+      4,
+      "The Strip feels endless on foot, but the famous resort corridor is only a few miles long.",
+      "The opener uses a walkable place before the day zooms out."
     ),
     question(
-      "About how many miles around is Earth at the equator?",
-      24_901,
-      "People often remember the twenty-five-thousand-mile version because it is close enough to the truth to stick.",
-      "The stretch turns globe intuition into real planetary scale."
+      "About how many miles long was historic Route 66?",
+      2_448,
+      "Route 66 turned a line on a map into a road-trip myth from Chicago to Santa Monica.",
+      "The middle question widens from a walkable strip to a cross-country route."
     ),
     question(
       "About how many square miles does the contiguous United States cover?",
@@ -312,22 +312,22 @@ const DAILY_THEME_LIBRARY = [
   ]),
   theme("Digital Basics", [
     question(
-      "How many bits are in one byte?",
-      8,
-      "That tiny unit still anchors how we casually talk about computer memory and storage.",
-      "The opener gives technical players a comfortable foothold."
-    ),
-    question(
       "How many keys are on a full-size keyboard with a number pad?",
       104,
       "Laptop keyboards hide the count, but the desk standard still follows the full-size layout.",
-      "The stretch keeps the theme tactile and familiar."
+      "The opener starts with a real desk object instead of a pure spec."
+    ),
+    question(
+      "How many tiny square pixels make up a 64-by-64 app icon?",
+      4_096,
+      "A little icon on your phone is still a grid of thousands of colored squares.",
+      "The middle question makes a digital number visible as a small mosaic."
     ),
     question(
       "How many pixels are in a 1920 by 1080 image?",
       2_073_600,
       "That is why '1080p' sounds compact even though it still means more than two million dots.",
-      "The closer makes a digital spec feel newly large."
+      "The closer grows the same pixel-grid intuition to a full-screen scale."
     ),
   ]),
   theme("Word Count", [
@@ -338,17 +338,16 @@ const DAILY_THEME_LIBRARY = [
       "The opener gives players a book-sized number they can reason from."
     ),
     question(
-      "About how many words are in a typical adult novel?",
-      90_000,
-      "Many commercial novels land between 70,000 and 100,000 words depending on genre.",
-      "The stretch scales the same reading intuition up by two big orders of magnitude."
+      "About how many words fit in a ten-page printed chapter?",
+      3_000,
+      "A chapter can feel quick to read while still holding thousands of individual words.",
+      "The middle question lets players scale up from one visible page to a small stack."
     ),
     question(
-      "As of 2026, about how many entries are in the Oxford English Dictionary?",
-      500_000,
-      "The dictionary keeps growing as English keeps borrowing, inventing, and repurposing words.",
-      "The closer turns everyday reading into the scale of a living language archive.",
-      { asOfDate: "2026-01-01" }
+      "About how many words are in a full-length adult novel?",
+      90_000,
+      "Many commercial novels land between 70,000 and 100,000 words depending on genre.",
+      "The closer turns page intuition into the hidden mass of a whole book."
     ),
   ]),
   theme("Moon Facts", [
@@ -479,16 +478,16 @@ const DAILY_THEME_LIBRARY = [
       "The opener keeps the cube theme but starts with a more estimation-friendly number."
     ),
     question(
-      "How many unit cubes are inside a 5 by 5 by 5 cube?",
+      "How many little cubelets make up a 5-by-5-by-5 speed cube?",
       125,
-      "Once you think in volume instead of visible faces, cube math jumps quickly.",
-      "The stretch broadens the theme from toy design to 3D counting."
+      "Bigger speed cubes still feel hand-sized, but the internal count climbs fast.",
+      "The middle question keeps the volume estimate attached to a toy players can picture."
     ),
     question(
-      "How many one-inch cubes fit inside a cubic yard?",
-      46_656,
-      "A cubic yard sounds manageable until you break it down into inch-by-inch units.",
-      "The closer turns cube logic into a satisfying volume reveal."
+      "How many one-inch cubes fit inside a one-foot display cube?",
+      1_728,
+      "A foot-wide acrylic cube would swallow far more little blocks than it looks like from the outside.",
+      "The closer makes the volume jump surprising without leaving the tabletop."
     ),
   ]),
   theme("Pet House", [
@@ -513,22 +512,22 @@ const DAILY_THEME_LIBRARY = [
   ]),
   theme("Movie Math", [
     question(
-      "How many frames per second define the classic cinema standard?",
+      "How many frames flash by in one second of classic film?",
       24,
       "That frame rate still shapes what audiences describe as the 'movie look.'",
-      "The opener is a film-school staple many players have heard before."
+      "The opener makes the film number visual instead of abstract."
     ),
     question(
-      "How many individual frames are in a 10-minute film shot at 24 frames per second?",
+      "About how many feet of 35mm film run through a projector in one minute?",
+      90,
+      "A projector eats a visible ribbon of film much faster than the screen makes it seem.",
+      "The middle question moves from frames to a physical strip."
+    ),
+    question(
+      "How many individual frames are in a 10-minute film scene at 24 frames per second?",
       14_400,
-      "A short film still contains a surprising parade of still images once you do the math.",
-      "The stretch turns a familiar frame rate into something more physical."
-    ),
-    question(
-      "How many individual frames are in a two-hour movie shot at 24 frames per second?",
-      172_800,
-      "A film that feels seamless to the eye is really a fast parade of still images.",
-      "The closer turns a famous frame rate into a true estimation payoff."
+      "A short scene still contains a startling parade of still images once you slow it down.",
+      "The closer returns to frames at a bigger, more memorable scale."
     ),
   ]),
   theme("Bridges and Cables", [
@@ -836,22 +835,23 @@ const HOLIDAY_THEME_LIBRARY = [
   ]),
   theme("Countdown Night", [
     question(
-      "How many seconds are in the final minute before midnight?",
-      60,
-      "The last minute feels fast because everyone agrees to count every single second out loud together.",
-      "The opener gives New Year's Eve a number nobody needs explained, only felt."
+      "How many grapes are eaten in Spain's midnight countdown tradition?",
+      12,
+      "Each grape matches one bell strike at midnight, turning the countdown into a tiny edible sprint.",
+      "The opener makes New Year's Eve concrete and playful."
     ),
     question(
-      "How many seconds are in the final hour before midnight?",
-      3_600,
-      "An hour feels roomy until you start mentally spending it in sixty-second chunks.",
-      "The stretch turns the same countdown energy into a bigger time block."
+      "About how many pounds of confetti are dropped in Times Square on New Year's Eve?",
+      3_000,
+      "The famous midnight cloud is measured in literal tons of paper drifting over the crowd.",
+      "The middle question grows from a table tradition to a city-scale spectacle."
     ),
     question(
-      "How many seconds are in the final 24 hours of the year?",
-      86_400,
-      "A whole last day is still just one finite pile of seconds leaking away toward midnight.",
-      "The closer gives the year-end date its cleanest big-number reveal."
+      "About how many LED lights glow on the Times Square New Year's Eve ball?",
+      32_256,
+      "The ball looks like one bright jewel because tens of thousands of tiny lights blend together.",
+      "The closer ends the year with a bigger, pictureable reveal.",
+      { asOfDate: "2026-01-01" }
     ),
   ]),
 ];
@@ -959,6 +959,50 @@ const FRIDAY_EXTRA_INNING_BY_THEME_ID = {
 
 const AUTHOR_THEME_LIBRARY = [...DAILY_THEME_LIBRARY, ...HOLIDAY_THEME_LIBRARY];
 const THEME_ENTRY_BY_ID = new Map(AUTHOR_THEME_LIBRARY.map((entry) => [entry.id, entry]));
+const VALID_PLAYABILITY_CLASSES = new Set(["tactile", "spectacle", "puzzle"]);
+const THEME_PLAYABILITY_BY_ID = {
+  "inside-the-human-body": "tactile",
+  "in-the-orchestra-pit": "tactile",
+  "calendar-math": "puzzle",
+  "the-secret-life-of-bees": "tactile",
+  "the-physics-of-sports-balls": "tactile",
+  "card-table-numbers": "tactile",
+  "touring-the-solar-system": "spectacle",
+  "iconic-landmarks": "spectacle",
+  "grid-logic": "puzzle",
+  "map-scale": "puzzle",
+  "shelf-life": "tactile",
+  "bike-shop": "tactile",
+  "pantry-math": "tactile",
+  "weather-signs": "spectacle",
+  "digital-basics": "puzzle",
+  "word-count": "puzzle",
+  "moon-facts": "spectacle",
+  "dinosaur-bones": "spectacle",
+  "ocean-creatures": "tactile",
+  "mountain-records": "spectacle",
+  "the-coffee-bar": "tactile",
+  "cash-counts": "tactile",
+  "cube-logic": "puzzle",
+  "pet-house": "tactile",
+  "movie-math": "puzzle",
+  "bridges-and-cables": "spectacle",
+  "rail-lines": "spectacle",
+  spaceflight: "spectacle",
+  "under-the-night-sky": "spectacle",
+  "tabletop-pieces": "tactile",
+  "flower-shop": "tactile",
+  "backyard-grill": "tactile",
+  "block-party": "tactile",
+  "garage-weekend": "tactile",
+  "fireworks-night": "spectacle",
+  "toolbox-day": "tactile",
+  "candy-bowl": "tactile",
+  "thanksgiving-table": "tactile",
+  "stocking-stuffers": "tactile",
+  "under-the-tree": "tactile",
+  "countdown-night": "spectacle",
+};
 const HOLIDAY_THEME_BY_DATE = {
   "2026-05-10": "flower-shop",
   "2026-05-25": "backyard-grill",
@@ -972,18 +1016,46 @@ const HOLIDAY_THEME_BY_DATE = {
   "2026-12-25": "under-the-tree",
   "2026-12-31": "countdown-night",
 };
-const WEEKDAY_ROTATION_THEME_IDS = DAILY_THEME_LIBRARY.map((entry) => entry.id);
-const FRIDAY_ROTATION_THEME_IDS = [
-  "in-the-orchestra-pit",
-  "calendar-math",
+const FEATURED_THEME_BY_DATE = {
+  "2026-04-25": "the-physics-of-sports-balls",
+};
+const WEEKDAY_ROTATION_THEME_IDS = [
+  "inside-the-human-body",
+  "the-secret-life-of-bees",
+  "iconic-landmarks",
+  "bike-shop",
+  "shelf-life",
+  "ocean-creatures",
+  "dinosaur-bones",
+  "the-coffee-bar",
+  "pet-house",
+  "rail-lines",
+  "tabletop-pieces",
+  "cash-counts",
+  "pantry-math",
+  "weather-signs",
+  "mountain-records",
   "touring-the-solar-system",
+  "bridges-and-cables",
+  "moon-facts",
+  "the-physics-of-sports-balls",
+  "under-the-night-sky",
+  "calendar-math",
   "card-table-numbers",
+  "spaceflight",
+  "grid-logic",
   "map-scale",
   "word-count",
+  "cube-logic",
+  "movie-math",
+  "digital-basics",
+];
+const FRIDAY_ROTATION_THEME_IDS = [
+  "in-the-orchestra-pit",
+  "touring-the-solar-system",
   "ocean-creatures",
   "spaceflight",
   "under-the-night-sky",
-  "movie-math",
   "bridges-and-cables",
   "cash-counts",
 ];
@@ -1030,22 +1102,56 @@ function isDateKeyInCalendar(dateKey) {
   return dateKey >= CYCLE_START_KEY && dateKey <= CALENDAR_END_KEY;
 }
 
+function getCalendarOffset(dateKey) {
+  return CALENDAR_DATE_KEYS.indexOf(dateKey);
+}
+
+function getThemePlayability(themeId) {
+  return THEME_PLAYABILITY_BY_ID[themeId] ?? null;
+}
+
+function isPuzzleThemeId(themeId) {
+  return getThemePlayability(themeId) === "puzzle";
+}
+
+function isPuzzleScheduledInRecentWindow(mapping, dateKey, lookbackDays = 6) {
+  const dateIndex = getCalendarOffset(dateKey);
+  const windowStart = Math.max(0, dateIndex - lookbackDays);
+
+  for (let index = windowStart; index < dateIndex; index += 1) {
+    if (isPuzzleThemeId(mapping[CALENDAR_DATE_KEYS[index]])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function buildCalendarThemeMap() {
   const mapping = {};
   let weekdayIndex = 0;
   let fridayIndex = 0;
   let previousThemeId = null;
 
-  const takeNextThemeId = (rotation, cursor) => {
+  const canScheduleThemeId = (themeId, dateKey) => {
+    if (themeId === previousThemeId) return false;
+    if (!isPuzzleThemeId(themeId)) return true;
+    if (getCalendarOffset(dateKey) < 7) return false;
+    return !isPuzzleScheduledInRecentWindow(mapping, dateKey);
+  };
+
+  const takeNextThemeId = (rotation, cursor, dateKey) => {
     let nextCursor = cursor;
     let nextThemeId = rotation[nextCursor % rotation.length];
+    let attempts = 0;
 
     while (
-      rotation.length > 1 &&
-      nextThemeId === previousThemeId
+      attempts < rotation.length * 3 &&
+      !canScheduleThemeId(nextThemeId, dateKey)
     ) {
       nextCursor += 1;
       nextThemeId = rotation[nextCursor % rotation.length];
+      attempts += 1;
     }
 
     return {
@@ -1055,22 +1161,22 @@ function buildCalendarThemeMap() {
   };
 
   CALENDAR_DATE_KEYS.forEach((dateKey) => {
-    const holidayThemeId = HOLIDAY_THEME_BY_DATE[dateKey];
-    if (holidayThemeId) {
-      mapping[dateKey] = holidayThemeId;
-      previousThemeId = holidayThemeId;
+    const fixedThemeId = HOLIDAY_THEME_BY_DATE[dateKey] ?? FEATURED_THEME_BY_DATE[dateKey];
+    if (fixedThemeId) {
+      mapping[dateKey] = fixedThemeId;
+      previousThemeId = fixedThemeId;
       return;
     }
 
     if (isFridayDateKey(dateKey)) {
-      const nextFriday = takeNextThemeId(FRIDAY_ROTATION_THEME_IDS, fridayIndex);
+      const nextFriday = takeNextThemeId(FRIDAY_ROTATION_THEME_IDS, fridayIndex, dateKey);
       mapping[dateKey] = nextFriday.themeId;
       fridayIndex = nextFriday.nextCursor;
       previousThemeId = nextFriday.themeId;
       return;
     }
 
-    const nextWeekday = takeNextThemeId(WEEKDAY_ROTATION_THEME_IDS, weekdayIndex);
+    const nextWeekday = takeNextThemeId(WEEKDAY_ROTATION_THEME_IDS, weekdayIndex, dateKey);
     mapping[dateKey] = nextWeekday.themeId;
     weekdayIndex = nextWeekday.nextCursor;
     previousThemeId = nextWeekday.themeId;
@@ -1284,6 +1390,59 @@ function buildAuthorDailySetFromEntry(entry, dateKey) {
   return createDailySet(entry, dateKey, { source: "authored" });
 }
 
+function isPictureableQuestion(questionEntry) {
+  const prompt = questionEntry.prompt.toLowerCase();
+  const abstractOnlyPattern =
+    /\b(bits are in|seconds are in|minutes are in|hours are in|time zones|dictionary entries|total rectangles of all sizes)\b/i;
+
+  return !abstractOnlyPattern.test(prompt);
+}
+
+function getScheduledPlayability(dateKey) {
+  return getThemePlayability(CALENDAR_THEME_BY_DATE[dateKey]);
+}
+
+function auditCalendarPlayability(dateKeys) {
+  const warnings = [];
+
+  dateKeys.forEach((dateKey) => {
+    const themeId = CALENDAR_THEME_BY_DATE[dateKey];
+    const playability = getThemePlayability(themeId);
+
+    if (!VALID_PLAYABILITY_CLASSES.has(playability)) {
+      warnings.push(`${dateKey}: ${themeId} is missing a valid playability classification.`);
+      return;
+    }
+
+    if (playability === "puzzle" && getCalendarOffset(dateKey) < 7) {
+      warnings.push(`${dateKey}: puzzle theme appears during the first 7 authored days.`);
+    }
+
+    if (playability === "puzzle" && isFridayDateKey(dateKey)) {
+      warnings.push(`${dateKey}: Friday should prefer tactile or spectacle themes over puzzle themes.`);
+    }
+
+    if (playability === "puzzle") {
+      const previousDateKey = shiftDateKey(dateKey, -1);
+      if (getScheduledPlayability(previousDateKey) === "puzzle") {
+        warnings.push(`${dateKey}: puzzle theme appears back-to-back with the previous day.`);
+      }
+
+      const dateIndex = getCalendarOffset(dateKey);
+      const windowStart = Math.max(0, dateIndex - 6);
+      const puzzleCount = CALENDAR_DATE_KEYS.slice(windowStart, dateIndex + 1).filter(
+        (windowDateKey) => getScheduledPlayability(windowDateKey) === "puzzle"
+      ).length;
+
+      if (puzzleCount > 1) {
+        warnings.push(`${dateKey}: more than one puzzle theme appears in a rolling 7-day window.`);
+      }
+    }
+  });
+
+  return warnings;
+}
+
 function auditDailySetHeuristics(dailySet) {
   const answers = dailySet.questions.map((questionEntry) => questionEntry.answer);
   const scaleBands = dailySet.questions.map((questionEntry) => questionEntry.scaleBand);
@@ -1291,9 +1450,14 @@ function auditDailySetHeuristics(dailySet) {
   const tinyAnswerCount = answers.filter((answer) => answer <= 15).length;
   const magnitudeSpread = Math.max(...answers) / Math.min(...answers);
   const firstScaleRank = getScaleBandRank(scaleBands[0]);
+  const pictureableQuestionCount = dailySet.questions.filter(isPictureableQuestion).length;
 
   if (tinyAnswerCount > 1) {
     warnings.push("Contains more than one tiny-count answer, which can make the set feel recall-first.");
+  }
+
+  if (pictureableQuestionCount < 2) {
+    warnings.push("Needs at least two questions players can physically picture.");
   }
 
   if (new Set(scaleBands).size === 1 || magnitudeSpread < 4) {
@@ -1436,6 +1600,10 @@ export function validateAuthoredLibrary(
   if (authoredDateKeys.length === 0) {
     failures.push(`No authored Ballpark dates found for ${startDateKey}.`);
   }
+
+  auditCalendarPlayability(authoredDateKeys).forEach((warning) => {
+    warnings.push(warning);
+  });
 
   authoredDateKeys.forEach((dateKey) => {
     const scheduledThemeId = CALENDAR_THEME_BY_DATE[dateKey];
@@ -1587,6 +1755,11 @@ export function getCycleDay(dateKey) {
 export function getThemePreview(dateKey) {
   const themeId = CALENDAR_THEME_BY_DATE[dateKey];
   return themeId ? THEME_ENTRY_BY_ID.get(themeId)?.theme ?? FALLBACK_ENTRY.theme : FALLBACK_ENTRY.theme;
+}
+
+export function getThemePlayabilityForDate(dateKey) {
+  const themeId = CALENDAR_THEME_BY_DATE[dateKey];
+  return themeId ? getThemePlayability(themeId) ?? "tactile" : "tactile";
 }
 
 export async function getDailySet(dateKey = getTodayKey(), options = {}) {

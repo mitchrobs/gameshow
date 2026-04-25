@@ -603,13 +603,6 @@ function QuestionScreen({
         </Text>
       </View>
 
-      <View style={styles.questionHintCard}>
-        <Text style={styles.questionHintLabel}>Hint</Text>
-        <Text style={styles.questionHintText}>
-          Start with the scale, then use the chips to tighten the number.
-        </Text>
-      </View>
-
       {feedbackMessage ? (
         <View style={styles.feedbackCard}>
           <Text style={styles.feedbackTitle}>{feedbackMessage.title}</Text>
@@ -1406,25 +1399,6 @@ function createStyles(theme, screenAccent, viewportWidth) {
       fontSize: 12,
       lineHeight: 16,
       color: Colors.textMuted,
-    },
-    questionHintCard: {
-      ...ui.subtleCard,
-      paddingVertical: Spacing.sm,
-      paddingHorizontal: Spacing.md,
-      marginBottom: Spacing.sm,
-      gap: 4,
-    },
-    questionHintLabel: {
-      fontSize: 11,
-      fontWeight: '800',
-      textTransform: 'uppercase',
-      letterSpacing: 0.8,
-      color: screenAccent.badgeText,
-    },
-    questionHintText: {
-      fontSize: 12,
-      lineHeight: 17,
-      color: Colors.textSecondary,
     },
     feedbackCard: {
       borderRadius: BorderRadius.md,
