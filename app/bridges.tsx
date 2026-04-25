@@ -90,6 +90,21 @@ function getProgressStorageKey(dateKey: string): string {
   return `${STORAGE_PREFIX}:progress:${dateKey}`;
 }
 
+function getReadableTextColor(hexColor: string): string {
+  const normalized = hexColor.replace('#', '');
+  const hex = normalized.length === 3
+    ? normalized
+        .split('')
+        .map((value) => `${value}${value}`)
+        .join('')
+    : normalized;
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  const luminance = (r * 299 + g * 587 + b * 114) / 1000;
+  return luminance > 150 ? '#102130' : '#f8fbff';
+}
+
 function formatTime(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const remainder = seconds % 60;
@@ -456,18 +471,16 @@ export default function BridgesScreen() {
       setFocusedIsland(id);
       if (anchorIsland === null) {
         setAnchorIsland(id);
-        setStatusMessage(null);
         return;
       }
       if (anchorIsland === id) {
         setAnchorIsland(null);
-        setStatusMessage('Selection cleared.');
         return;
       }
 
       const key = makeBridgeKey(anchorIsland, id);
       if (!neighborPairs.has(key)) {
-        setStatusMessage('Choose a highlighted neighbor.');
+        setAnchorIsland(id);
         return;
       }
 
@@ -503,9 +516,8 @@ export default function BridgesScreen() {
         }
         return updated;
       });
-      setAnchorIsland(anchorIsland);
-      setFocusedIsland(id);
-      setStatusMessage(next === 0 ? 'Bridge cleared.' : next === 2 ? 'Double bridge set.' : 'Bridge placed.');
+      setAnchorIsland(null);
+      setFocusedIsland(null);
     },
     [anchorIsland, bridges, neighborPairs, bridgeList, islandMap, gameState]
   );
@@ -647,12 +659,43 @@ export default function BridgesScreen() {
     setStatusMessage('Hint applied.');
   }, [anchorIsland, bridgeList, bridges, focusedIsland, gameState, islandMap, puzzle.solution]);
 
+  const occupiedBounds = useMemo(() => {
+    if (puzzle.islands.length === 0) {
+      const fallbackRowCount = puzzle.rowCount ?? puzzle.gridSize;
+      const fallbackColCount = puzzle.colCount ?? puzzle.gridSize;
+      return {
+        minRow: 0,
+        maxRow: Math.max(0, fallbackRowCount - 1),
+        minCol: 0,
+        maxCol: Math.max(0, fallbackColCount - 1),
+      };
+    }
+
+    let minRow = Number.POSITIVE_INFINITY;
+    let maxRow = Number.NEGATIVE_INFINITY;
+    let minCol = Number.POSITIVE_INFINITY;
+    let maxCol = Number.NEGATIVE_INFINITY;
+
+    puzzle.islands.forEach((island) => {
+      minRow = Math.min(minRow, island.row);
+      maxRow = Math.max(maxRow, island.row);
+      minCol = Math.min(minCol, island.col);
+      maxCol = Math.max(maxCol, island.col);
+    });
+
+    return { minRow, maxRow, minCol, maxCol };
+  }, [puzzle.gridSize, puzzle.islands, puzzle.rowCount, puzzle.colCount]);
+
+  const occupiedRowSpan = Math.max(0, occupiedBounds.maxRow - occupiedBounds.minRow);
+  const occupiedColSpan = Math.max(0, occupiedBounds.maxCol - occupiedBounds.minCol);
+  const visualRowSpan = Math.max(1, occupiedRowSpan + 2);
+  const visualColSpan = Math.max(1, occupiedColSpan + 2);
+
   const { width } = useWindowDimensions();
-  const rowCount = puzzle.rowCount ?? puzzle.gridSize;
-  const colCount = puzzle.colCount ?? puzzle.gridSize;
   const maxBoardWidth = Math.max(240, Math.min(360, width - Spacing.lg * 2));
   const maxBoardHeight = 430;
-  const boardAspect = rowCount / Math.max(1, colCount);
+  const contentAspect = visualRowSpan / Math.max(1, visualColSpan);
+  const boardAspect = Math.max(0.72, Math.min(1.18, contentAspect));
   const boardWidth =
     boardAspect > 1
       ? Math.max(240, Math.min(maxBoardWidth, maxBoardHeight / boardAspect))
@@ -662,8 +705,8 @@ export default function BridgesScreen() {
   const previewInnerWidth = boardWidth - baseBoardPadding * 2;
   const previewInnerHeight = boardHeight - baseBoardPadding * 2;
   const previewCellSize = Math.min(
-    previewInnerWidth / Math.max(1, colCount - 1),
-    previewInnerHeight / Math.max(1, rowCount - 1)
+    previewInnerWidth / Math.max(1, visualColSpan),
+    previewInnerHeight / Math.max(1, visualRowSpan)
   );
   const islandSize = Math.min(46, Math.max(30, previewCellSize * 0.82));
   const islandRadius = islandSize / 2;
@@ -671,20 +714,20 @@ export default function BridgesScreen() {
   const boardPadding = Math.max(baseBoardPadding, islandRadius + lineThickness + 4);
   const innerWidth = boardWidth - boardPadding * 2;
   const innerHeight = boardHeight - boardPadding * 2;
-  const cellWidth = innerWidth / Math.max(1, colCount - 1);
-  const cellHeight = innerHeight / Math.max(1, rowCount - 1);
+  const cellWidth = innerWidth / Math.max(1, visualColSpan);
+  const cellHeight = innerHeight / Math.max(1, visualRowSpan);
   const doubleOffset = lineThickness + 4;
 
   const islandPositions = useMemo(() => {
     const next = new Map<number, { x: number; y: number }>();
     puzzle.islands.forEach((island) => {
       next.set(island.id, {
-        x: boardPadding + island.col * cellWidth,
-        y: boardPadding + island.row * cellHeight,
+        x: boardPadding + (island.col - occupiedBounds.minCol + 1) * cellWidth,
+        y: boardPadding + (island.row - occupiedBounds.minRow + 1) * cellHeight,
       });
     });
     return next;
-  }, [boardPadding, cellHeight, cellWidth, puzzle.islands]);
+  }, [boardPadding, cellHeight, cellWidth, occupiedBounds.minCol, occupiedBounds.minRow, puzzle.islands]);
 
   const themedIslands = useMemo<ThemedBoardIsland[]>(() => {
     return puzzle.islands
@@ -719,6 +762,25 @@ export default function BridgesScreen() {
   );
   const visualTheme = dailyLocation.theme;
   const useThemedBoard = themeMode === 'themed';
+  const themeToggleStyle = useMemo(
+    () =>
+      useThemedBoard
+        ? {
+            backgroundColor: visualTheme.accent,
+            borderColor: visualTheme.accent,
+          }
+        : null,
+    [useThemedBoard, visualTheme.accent]
+  );
+  const themeToggleTextStyle = useMemo(
+    () =>
+      useThemedBoard
+        ? {
+            color: getReadableTextColor(visualTheme.accent),
+          }
+        : null,
+    [useThemedBoard, visualTheme.accent]
+  );
   const shareText = useMemo(() => {
     const resultLine = `Solved in ${formatTime(elapsedSeconds)} · Hints ${hintsUsed}`;
     return [
@@ -735,14 +797,6 @@ export default function BridgesScreen() {
     hintsUsed,
     puzzleNumber,
   ]);
-  const selectionPrompt = useMemo(() => {
-    if (gameState !== 'playing') return null;
-    if (anchorIsland === null) return 'Pick an island to begin.';
-    const anchor = puzzle.islands.find((island) => island.id === anchorIsland);
-    if (!anchor) return 'Tap a highlighted neighbor to add, double, or clear a bridge.';
-    return `Island ${anchor.requiredBridges} selected. Tap a highlighted neighbor to add, double, or clear a bridge.`;
-  }, [anchorIsland, gameState, puzzle.islands]);
-
   useEffect(() => {
     setShareStatus(null);
   }, [shareText]);
@@ -814,6 +868,7 @@ export default function BridgesScreen() {
             <Pressable
               style={({ pressed }) => [
                 styles.themeToggle,
+                themeToggleStyle,
                 pressed && styles.themeTogglePressed,
               ]}
               accessibilityRole="button"
@@ -821,7 +876,7 @@ export default function BridgesScreen() {
               accessibilityLabel={`Use ${useThemedBoard ? 'plain' : 'themed'} Bridges board`}
               onPress={handleThemeModeToggle}
             >
-              <Text style={styles.themeToggleText}>
+              <Text style={[styles.themeToggleText, themeToggleTextStyle]}>
                 {useThemedBoard ? 'Theme On' : 'Plain'}
               </Text>
             </Pressable>
@@ -845,9 +900,6 @@ export default function BridgesScreen() {
                   if (!position) return null;
                   const count = islandCounts[island.id] ?? 0;
                   const isAnchor = anchorIsland === island.id;
-                  const isFocused = focusedIsland === island.id && anchorIsland !== island.id;
-                  const isSatisfied = count === island.requiredBridges;
-                  const isOver = count > island.requiredBridges;
                   return (
                     <Pressable
                       key={island.id}
@@ -859,10 +911,6 @@ export default function BridgesScreen() {
                           left: position.x - islandRadius,
                           top: position.y - islandRadius,
                         },
-                        isSatisfied && styles.themedIslandSatisfied,
-                        isOver && styles.themedIslandOver,
-                        isAnchor && styles.themedIslandSelected,
-                        isFocused && styles.themedIslandFocused,
                         pressed && styles.themedIslandHitTargetPressed,
                       ]}
                       accessibilityRole="button"
@@ -1016,8 +1064,6 @@ export default function BridgesScreen() {
               </View>
             )}
           </View>
-
-          {selectionPrompt && <Text style={styles.selectionPrompt}>{selectionPrompt}</Text>}
           {statusMessage && <Text style={styles.statusText}>{statusMessage}</Text>}
 
           {gameState === 'won' && (
@@ -1278,25 +1324,6 @@ const createStyles = (
     themedIslandHitTargetPressed: {
       transform: [{ scale: 0.97 }],
     },
-    themedIslandSelected: {
-      borderColor: bridgesPalette.accent,
-      backgroundColor: `${bridgesPalette.accent}22`,
-      shadowColor: bridgesPalette.accent,
-      shadowOpacity: 0.42,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: 0 },
-    },
-    themedIslandFocused: {
-      borderColor: `${Colors.text}77`,
-      backgroundColor: `${Colors.surfaceLight}22`,
-    },
-    themedIslandSatisfied: {
-      borderColor: `${bridgesPalette.satisfied}AA`,
-    },
-    themedIslandOver: {
-      borderColor: `${bridgesPalette.over}BB`,
-      backgroundColor: `${bridgesPalette.over}20`,
-    },
     islandPressed: {
       transform: [{ scale: 0.97 }],
     },
@@ -1322,13 +1349,6 @@ const createStyles = (
       fontSize: 16,
       fontWeight: '700',
       color: bridgesPalette.islandText,
-    },
-    selectionPrompt: {
-      marginTop: Spacing.md,
-      textAlign: 'center',
-      color: Colors.textSecondary,
-      fontSize: 13,
-      fontWeight: '600',
     },
     statusText: {
       marginTop: Spacing.sm,
