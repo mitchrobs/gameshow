@@ -24,7 +24,19 @@ type GameState = 'playing' | 'won';
 type SelectedCell = { row: number; col: number } | null;
 type NotesState = Record<string, number[]>;
 
+interface PersistedSudokuState {
+  version: 1;
+  grid: number[][];
+  notes: NotesState;
+  gameState: GameState;
+  elapsedSeconds: number;
+  hintsUsed: number;
+  hintedCellKeys: string[];
+}
+
 const STORAGE_PREFIX = 'sudoku';
+const MAX_HINTS = 3;
+const PROGRESS_STORAGE_VERSION = 1;
 const ROW_GLOW_BG = 'rgba(79, 180, 119, 0.14)';
 const ROW_GLOW_BORDER = 'rgba(79, 180, 119, 0.4)';
 
@@ -33,6 +45,26 @@ function getStorage(): Storage | null {
     return window.localStorage;
   }
   return null;
+}
+
+function readStorageItem(key: string): string | null {
+  try {
+    return getStorage()?.getItem(key) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStorageItem(key: string, value: string): void {
+  try {
+    getStorage()?.setItem(key, value);
+  } catch {
+    // Ignore storage failures so the game still works without persistence.
+  }
+}
+
+function getProgressStorageKey(dateKey: string): string {
+  return `${STORAGE_PREFIX}:progress:${dateKey}`;
 }
 
 function formatTime(seconds: number): string {
@@ -128,6 +160,129 @@ function removeNotesAt(notes: NotesState, row: number, col: number): NotesState 
   return next;
 }
 
+function removeHintedCellKey(hintedCellKeys: string[], row: number, col: number): string[] {
+  const key = makeCellKey(row, col);
+  if (!hintedCellKeys.includes(key)) return hintedCellKeys;
+  return hintedCellKeys.filter((entry) => entry !== key);
+}
+
+function sanitizeGrid(rawGrid: unknown, puzzle: SudokuPuzzle): number[][] {
+  if (!Array.isArray(rawGrid) || rawGrid.length !== puzzle.size) {
+    return copyGrid(puzzle.grid);
+  }
+
+  return puzzle.grid.map((row, rowIndex) =>
+    row.map((givenValue, colIndex) => {
+      if (givenValue !== 0) return givenValue;
+      const rawRow = Array.isArray(rawGrid[rowIndex]) ? rawGrid[rowIndex] : null;
+      const rawValue = rawRow?.[colIndex];
+      if (!Number.isInteger(rawValue)) return 0;
+      const value = Number(rawValue);
+      return value >= 0 && value <= puzzle.size ? value : 0;
+    })
+  );
+}
+
+function sanitizeNotesState(rawNotes: unknown, grid: number[][], puzzle: SudokuPuzzle): NotesState {
+  if (!rawNotes || typeof rawNotes !== 'object' || Array.isArray(rawNotes)) {
+    return {};
+  }
+
+  const next: NotesState = {};
+
+  Object.entries(rawNotes as Record<string, unknown>).forEach(([key, rawValues]) => {
+    const match = key.match(/^(\d+):(\d+)$/);
+    if (!match) return;
+
+    const row = Number(match[1]);
+    const col = Number(match[2]);
+    if (
+      row < 0 ||
+      row >= puzzle.size ||
+      col < 0 ||
+      col >= puzzle.size ||
+      puzzle.grid[row]?.[col] !== 0 ||
+      grid[row]?.[col] !== 0 ||
+      !Array.isArray(rawValues)
+    ) {
+      return;
+    }
+
+    const digits = [...new Set(rawValues)]
+      .map((value) => Number(value))
+      .filter(
+        (value) =>
+          Number.isInteger(value) && value >= puzzle.digits[0]! && value <= puzzle.digits[puzzle.digits.length - 1]!
+      )
+      .sort((left, right) => left - right);
+
+    if (digits.length > 0) {
+      next[key] = digits;
+    }
+  });
+
+  return next;
+}
+
+function sanitizeHintedCellKeys(
+  rawHintedCellKeys: unknown,
+  grid: number[][],
+  puzzle: SudokuPuzzle
+): string[] {
+  if (!Array.isArray(rawHintedCellKeys)) return [];
+
+  const seen = new Set<string>();
+  const next: string[] = [];
+
+  rawHintedCellKeys.forEach((value) => {
+    if (typeof value !== 'string' || seen.has(value)) return;
+    const match = value.match(/^(\d+):(\d+)$/);
+    if (!match) return;
+
+    const row = Number(match[1]);
+    const col = Number(match[2]);
+    if (
+      row < 0 ||
+      row >= puzzle.size ||
+      col < 0 ||
+      col >= puzzle.size ||
+      puzzle.grid[row]?.[col] !== 0 ||
+      grid[row]?.[col] === 0 ||
+      grid[row]?.[col] !== puzzle.solution[row]?.[col]
+    ) {
+      return;
+    }
+
+    seen.add(value);
+    next.push(value);
+  });
+
+  return next;
+}
+
+function getHintTarget(grid: number[][], puzzle: SudokuPuzzle): SelectedCell {
+  for (let row = 0; row < puzzle.size; row += 1) {
+    for (let col = 0; col < puzzle.size; col += 1) {
+      if (puzzle.grid[row]?.[col] !== 0) continue;
+      const value = grid[row]?.[col] ?? 0;
+      if (value !== 0 && value !== puzzle.solution[row]?.[col]) {
+        return { row, col };
+      }
+    }
+  }
+
+  for (let row = 0; row < puzzle.size; row += 1) {
+    for (let col = 0; col < puzzle.size; col += 1) {
+      if (puzzle.grid[row]?.[col] !== 0) continue;
+      if ((grid[row]?.[col] ?? 0) === 0) {
+        return { row, col };
+      }
+    }
+  }
+
+  return null;
+}
+
 export default function SudokuScreen() {
   const theme = useDaybreakTheme();
   const screenAccent = useMemo(() => resolveScreenAccent('sudoku', theme), [theme]);
@@ -137,15 +292,22 @@ export default function SudokuScreen() {
   const router = useRouter();
   const dailyEntry = useMemo(() => getDailySudoku(), []);
   const puzzle: SudokuPuzzle = dailyEntry.puzzle;
-  const dateLabel = useMemo(() => formatUtcDateLabel(dailyEntry.date), [dailyEntry.date]);
-  const storageKey = `${STORAGE_PREFIX}:daily:${dailyEntry.date}`;
+  const dateKey = dailyEntry.date;
+  const dateLabel = useMemo(() => formatUtcDateLabel(dateKey), [dateKey]);
+  const completionStorageKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
+  const progressStorageKey = getProgressStorageKey(dateKey);
   const [grid, setGrid] = useState<number[][]>(() => copyGrid(puzzle.grid));
   const [notes, setNotes] = useState<NotesState>(() => createEmptyNotesState());
   const [selected, setSelected] = useState<SelectedCell>(null);
   const [notesMode, setNotesMode] = useState(false);
   const [gameState, setGameState] = useState<GameState>('playing');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const [hintedCellKeys, setHintedCellKeys] = useState<string[]>([]);
+  const [hasRestoredProgress, setHasRestoredProgress] = useState(false);
+  const [focusedControl, setFocusedControl] = useState<string | null>(null);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const hintedCellKeySet = useMemo(() => new Set(hintedCellKeys), [hintedCellKeys]);
 
   const conflicts = useMemo(
     () => getConflicts(grid, puzzle.size, puzzle.boxRows, puzzle.boxCols),
@@ -172,16 +334,16 @@ export default function SudokuScreen() {
     if (gameState !== 'playing') return;
     if (!isComplete || hasConflict) return;
     setGameState('won');
-    getStorage()?.setItem(storageKey, '1');
-  }, [gameState, hasConflict, isComplete, storageKey]);
+    writeStorageItem(completionStorageKey, '1');
+  }, [completionStorageKey, gameState, hasConflict, isComplete]);
 
   useEffect(() => {
     const storage = getStorage();
     if (!storage) return;
-    const key = `${STORAGE_PREFIX}:playcount:${dailyEntry.date}`;
+    const key = `${STORAGE_PREFIX}:playcount:${dateKey}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
-  }, [dailyEntry.date]);
+  }, [dateKey]);
 
   const hasCountedRef = useRef(false);
   useEffect(() => {
@@ -192,12 +354,111 @@ export default function SudokuScreen() {
   }, [gameState]);
 
   useEffect(() => {
-    if (gameState !== 'playing') return;
+    if (!hasRestoredProgress || gameState !== 'playing') return;
     const id = setInterval(() => {
       setElapsedSeconds((previous) => previous + 1);
     }, 1000);
     return () => clearInterval(id);
-  }, [gameState]);
+  }, [gameState, hasRestoredProgress]);
+
+  useEffect(() => {
+    setHasRestoredProgress(false);
+
+    const resetToDailyStart = () => {
+      hasCountedRef.current = false;
+      setGrid(copyGrid(puzzle.grid));
+      setNotes(createEmptyNotesState());
+      setSelected(null);
+      setNotesMode(false);
+      setFocusedControl(null);
+      setGameState('playing');
+      setElapsedSeconds(0);
+      setHintsUsed(0);
+      setHintedCellKeys([]);
+      setHasRestoredProgress(true);
+    };
+
+    const raw = readStorageItem(progressStorageKey);
+    if (!raw) {
+      resetToDailyStart();
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as Partial<PersistedSudokuState> | null;
+      const nextGrid = sanitizeGrid(parsed?.grid, puzzle);
+      const nextNotes = sanitizeNotesState(parsed?.notes, nextGrid, puzzle);
+      const nextHintedCellKeys = sanitizeHintedCellKeys(
+        parsed?.hintedCellKeys,
+        nextGrid,
+        puzzle
+      );
+      const nextHintsUsed = Math.min(
+        MAX_HINTS,
+        Math.max(
+          0,
+          Number.isInteger(parsed?.hintsUsed) ? Number(parsed?.hintsUsed) : 0
+        )
+      );
+      const nextElapsedSeconds = Math.max(
+        0,
+        Number.isFinite(parsed?.elapsedSeconds) ? Number(parsed?.elapsedSeconds) : 0
+      );
+      const restoredConflicts = getConflicts(
+        nextGrid,
+        puzzle.size,
+        puzzle.boxRows,
+        puzzle.boxCols
+      );
+      const restoredIsComplete = nextGrid.every((row) => row.every((value) => value !== 0));
+      const restoredHasConflict = restoredConflicts.some((row) => row.some(Boolean));
+      const nextGameState =
+        parsed?.gameState === 'won' && restoredIsComplete && !restoredHasConflict
+          ? 'won'
+          : 'playing';
+
+      setGrid(nextGrid);
+      setNotes(nextNotes);
+      setSelected(null);
+      setNotesMode(false);
+      setFocusedControl(null);
+      setGameState(nextGameState);
+      setElapsedSeconds(nextElapsedSeconds);
+      setHintsUsed(nextHintsUsed);
+      setHintedCellKeys(nextHintedCellKeys);
+      hasCountedRef.current = nextGameState === 'won';
+    } catch {
+      resetToDailyStart();
+      return;
+    }
+
+    setHasRestoredProgress(true);
+  }, [progressStorageKey, puzzle]);
+
+  useEffect(() => {
+    if (!hasRestoredProgress) return;
+
+    const payload: PersistedSudokuState = {
+      version: PROGRESS_STORAGE_VERSION,
+      grid,
+      notes,
+      gameState,
+      elapsedSeconds,
+      hintsUsed,
+      hintedCellKeys,
+    };
+
+    writeStorageItem(progressStorageKey, JSON.stringify(payload));
+  }, [
+    elapsedSeconds,
+    gameState,
+    grid,
+    hasRestoredProgress,
+    hintedCellKeys,
+    hintsUsed,
+    notes,
+    progressStorageKey,
+  ]);
 
   const { width } = useWindowDimensions();
   const baseGap = puzzle.size === 9 ? 4 : 6;
@@ -247,6 +508,9 @@ export default function SudokuScreen() {
   const noteColumns = puzzle.boxCols;
   const noteRows = puzzle.boxRows;
   const noteCellWidth = Math.max(8, Math.floor((cellSize - 8) / noteColumns));
+  const hintTarget = useMemo(() => getHintTarget(grid, puzzle), [grid, puzzle]);
+  const remainingHints = Math.max(0, MAX_HINTS - hintsUsed);
+  const hintDisabled = remainingHints === 0 || !hintTarget;
   const selectedStatus = selected
     ? `Selected: Row ${selected.row + 1}, Col ${selected.col + 1}`
     : 'Select a square to start.';
@@ -281,6 +545,9 @@ export default function SudokuScreen() {
         return next;
       });
       setNotes((previous) => removeNotesAt(previous, selected.row, selected.col));
+      setHintedCellKeys((previous) =>
+        removeHintedCellKey(previous, selected.row, selected.col)
+      );
     },
     [gameState, grid, isGiven, notesMode, selected]
   );
@@ -295,17 +562,40 @@ export default function SudokuScreen() {
         next[selected.row][selected.col] = 0;
         return next;
       });
+      setHintedCellKeys((previous) =>
+        removeHintedCellKey(previous, selected.row, selected.col)
+      );
       return;
     }
 
     setNotes((previous) => removeNotesAt(previous, selected.row, selected.col));
   }, [gameState, grid, isGiven, selected]);
 
+  const handleHint = useCallback(() => {
+    if (gameState !== 'playing' || hintDisabled || !hintTarget) return;
+
+    const targetKey = makeCellKey(hintTarget.row, hintTarget.col);
+
+    setGrid((previous) => {
+      const next = copyGrid(previous);
+      next[hintTarget.row][hintTarget.col] = puzzle.solution[hintTarget.row]![hintTarget.col]!;
+      return next;
+    });
+    setNotes((previous) => removeNotesAt(previous, hintTarget.row, hintTarget.col));
+    setHintedCellKeys((previous) =>
+      previous.includes(targetKey) ? previous : [...previous, targetKey]
+    );
+    setHintsUsed((previous) => Math.min(MAX_HINTS, previous + 1));
+    setSelected({ row: hintTarget.row, col: hintTarget.col });
+  }, [gameState, hintDisabled, hintTarget, puzzle.solution]);
+
   const handleReset = useCallback(() => {
     setGrid(copyGrid(puzzle.grid));
     setNotes(createEmptyNotesState());
+    setHintedCellKeys([]);
     setSelected(null);
     setNotesMode(false);
+    setFocusedControl(null);
     setElapsedSeconds(0);
     setGameState('playing');
   }, [puzzle.grid]);
@@ -313,10 +603,10 @@ export default function SudokuScreen() {
   const shareText = useMemo(() => {
     return [
       `Mini Sudoku ${dateLabel} UTC`,
-      `Solved in ${formatTime(elapsedSeconds)} - ${dailyEntry.difficulty} ${puzzle.size}x${puzzle.size}`,
+      `Solved in ${formatTime(elapsedSeconds)} · Hints ${hintsUsed}/${MAX_HINTS} · ${dailyEntry.difficulty} ${puzzle.size}x${puzzle.size}`,
       'https://mitchrobs.github.io/gameshow/',
     ].join('\n');
-  }, [dailyEntry.difficulty, dateLabel, elapsedSeconds, puzzle.size]);
+  }, [dailyEntry.difficulty, dateLabel, elapsedSeconds, hintsUsed, puzzle.size]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -411,7 +701,11 @@ export default function SudokuScreen() {
                         : baseGap;
                     const cellKey = makeCellKey(rowIndex, colIndex);
                     const cellNotes = notes[cellKey] ?? [];
-                    const cellConflict = conflicts[rowIndex][colIndex];
+                    const givenCell = isGiven(rowIndex, colIndex);
+                    const cellConflict =
+                      conflicts[rowIndex][colIndex] &&
+                      !givenCell &&
+                      !hintedCellKeySet.has(cellKey);
 
                     return (
                       <Pressable
@@ -430,7 +724,7 @@ export default function SudokuScreen() {
                             marginRight: borderRight,
                             backgroundColor: relatedCell ? screenAccent.soft : Colors.surface,
                           },
-                          isGiven(rowIndex, colIndex) && styles.givenCell,
+                          givenCell && styles.givenCell,
                           cellConflict && styles.conflictCell,
                           selectedCell && styles.selectedCell,
                         ]}
@@ -439,7 +733,7 @@ export default function SudokuScreen() {
                           <Text
                             style={[
                               styles.cellText,
-                              isGiven(rowIndex, colIndex) && styles.givenText,
+                              givenCell && styles.givenText,
                               cellConflict && styles.conflictText,
                             ]}
                           >
@@ -485,8 +779,15 @@ export default function SudokuScreen() {
                     {notesMode ? 'Notes mode: tap digits to add/remove pencil marks.' : 'Entry mode: tap digits to place a value.'}
                   </Text>
                   <Pressable
+                    onFocus={() => setFocusedControl('notes-toggle')}
+                    onBlur={() =>
+                      setFocusedControl((current) =>
+                        current === 'notes-toggle' ? null : current
+                      )
+                    }
                     style={({ pressed }) => [
                       styles.modeToggle,
+                      focusedControl === 'notes-toggle' && styles.controlFocusRing,
                       notesMode && styles.modeToggleActive,
                       pressed && styles.modeTogglePressed,
                     ]}
@@ -513,9 +814,16 @@ export default function SudokuScreen() {
                   {puzzle.digits.map((digit) => (
                     <Pressable
                       key={digit}
+                      onFocus={() => setFocusedControl(`digit-${digit}`)}
+                      onBlur={() =>
+                        setFocusedControl((current) =>
+                          current === `digit-${digit}` ? null : current
+                        )
+                      }
                       style={({ pressed }) => [
                         styles.padButton,
                         { width: keypadButtonWidth, minHeight: keypadButtonHeight },
+                        focusedControl === `digit-${digit}` && styles.padButtonFocused,
                         pressed && styles.padButtonPressed,
                       ]}
                       onPress={() => handleNumberPress(digit)}
@@ -526,9 +834,38 @@ export default function SudokuScreen() {
                 </View>
                 <View style={styles.padActions}>
                   <Pressable
+                    onFocus={() => setFocusedControl('hint')}
+                    onBlur={() =>
+                      setFocusedControl((current) => (current === 'hint' ? null : current))
+                    }
+                    style={({ pressed }) => [
+                      styles.hintButton,
+                      { minHeight: keypadButtonHeight + 4 },
+                      focusedControl === 'hint' && styles.controlFocusRing,
+                      hintDisabled && styles.hintButtonDisabled,
+                      pressed && !hintDisabled && styles.hintButtonPressed,
+                    ]}
+                    disabled={hintDisabled}
+                    onPress={handleHint}
+                  >
+                    <Text
+                      style={[
+                        styles.hintText,
+                        hintDisabled && styles.hintTextDisabled,
+                      ]}
+                    >
+                      Hint ({remainingHints})
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onFocus={() => setFocusedControl('clear')}
+                    onBlur={() =>
+                      setFocusedControl((current) => (current === 'clear' ? null : current))
+                    }
                     style={({ pressed }) => [
                       styles.clearButton,
                       { minHeight: keypadButtonHeight + 4 },
+                      focusedControl === 'clear' && styles.controlFocusRing,
                       pressed && styles.clearButtonPressed,
                     ]}
                     onPress={handleClear}
@@ -536,9 +873,14 @@ export default function SudokuScreen() {
                     <Text style={styles.clearText}>Clear</Text>
                   </Pressable>
                   <Pressable
+                    onFocus={() => setFocusedControl('reset')}
+                    onBlur={() =>
+                      setFocusedControl((current) => (current === 'reset' ? null : current))
+                    }
                     style={({ pressed }) => [
                       styles.resetButton,
                       { minHeight: keypadButtonHeight + 4 },
+                      focusedControl === 'reset' && styles.controlFocusRing,
                       pressed && styles.resetButtonPressed,
                     ]}
                     onPress={handleReset}
@@ -550,9 +892,6 @@ export default function SudokuScreen() {
                   <Text style={styles.selectionText}>{selectedStatus}</Text>
                   <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
                 </View>
-                {hasConflict && (
-                  <Text style={styles.conflictHint}>Resolve conflicts to finish.</Text>
-                )}
               </View>
             )}
 
@@ -561,7 +900,7 @@ export default function SudokuScreen() {
                 <Text style={styles.confetti}>🎉 ✨ 🎊</Text>
                 <Text style={styles.resultTitle}>Nice solve!</Text>
                 <Text style={styles.resultSubtitle}>
-                  {formatTime(elapsedSeconds)} - {dailyEntry.difficulty} {puzzle.size}x{puzzle.size}
+                  {formatTime(elapsedSeconds)} · Hints {hintsUsed}/{MAX_HINTS} · {dailyEntry.difficulty} {puzzle.size}x{puzzle.size}
                 </Text>
                 <View style={styles.shareCard}>
                   <Text style={styles.shareTitle}>Share your result</Text>
@@ -817,8 +1156,13 @@ const createStyles = (
       shadowRadius: 1,
       shadowOffset: { width: 0, height: 1 },
     },
+    padButtonFocused: {
+      borderColor: screenAccent.main,
+      borderWidth: 2,
+    },
     padButtonPressed: {
-      backgroundColor: Colors.surfaceLight,
+      opacity: 0.88,
+      transform: [{ scale: 0.98 }],
     },
     padText: {
       fontSize: FontSize.md,
@@ -830,6 +1174,36 @@ const createStyles = (
       gap: Spacing.sm,
       marginTop: Spacing.md,
     },
+    controlFocusRing: {
+      borderColor: screenAccent.main,
+      borderWidth: 2,
+    },
+    hintButton: {
+      flex: 1,
+      backgroundColor: screenAccent.soft,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: screenAccent.main,
+    },
+    hintButtonDisabled: {
+      backgroundColor: Colors.surfaceLight,
+      borderColor: Colors.border,
+      opacity: 0.7,
+    },
+    hintButtonPressed: {
+      opacity: 0.88,
+      transform: [{ scale: 0.98 }],
+    },
+    hintText: {
+      fontSize: FontSize.sm,
+      color: Colors.textSecondary,
+      fontWeight: '700',
+    },
+    hintTextDisabled: {
+      color: Colors.textMuted,
+    },
     clearButton: {
       flex: 1,
       backgroundColor: Colors.surfaceLight,
@@ -840,7 +1214,8 @@ const createStyles = (
       borderColor: Colors.border,
     },
     clearButtonPressed: {
-      backgroundColor: Colors.border,
+      opacity: 0.88,
+      transform: [{ scale: 0.98 }],
     },
     clearText: {
       fontSize: FontSize.sm,
@@ -855,7 +1230,8 @@ const createStyles = (
       justifyContent: 'center',
     },
     resetButtonPressed: {
-      backgroundColor: Colors.primaryLight,
+      opacity: 0.9,
+      transform: [{ scale: 0.98 }],
     },
     resetText: {
       fontSize: FontSize.sm,
@@ -880,12 +1256,6 @@ const createStyles = (
       fontSize: FontSize.sm,
       color: Colors.textSecondary,
       fontWeight: '600',
-    },
-    conflictHint: {
-      fontSize: FontSize.sm,
-      color: Colors.error,
-      fontWeight: '600',
-      marginTop: Spacing.xs,
     },
     confetti: {
       fontSize: 28,
