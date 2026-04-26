@@ -21,11 +21,18 @@ import {
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { getDailyPuzzle, getLocalDateKey, MojiMashPuzzle } from '../src/data/mojiMashPuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
+import {
+  formatMojiMashHint,
+  formatMojiMashShareText,
+  getMojiMashLivesText,
+  getMojiMashSectionLabel,
+  MOJI_MASH_HINT_REVEAL_AFTER as HINT_REVEAL_AFTER,
+  MOJI_MASH_MAX_WRONG_GUESSES as MAX_WRONG_GUESSES,
+  shouldShowMojiMashWordSlots,
+  type MojiMashGameState as GameState,
+} from '../src/utils/mojiMashGame';
 
-const MAX_WRONG_GUESSES = 5;
 const STORAGE_PREFIX = 'mojimash';
-
-type GameState = 'playing' | 'won' | 'lost';
 
 function getStorage(): Storage | null {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -60,27 +67,24 @@ export default function MojiMashScreen() {
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [foundWords, setFoundWords] = useState<Set<string>>(new Set());
   const [wrongCount, setWrongCount] = useState(0);
-  const [showHint, setShowHint] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const inputRef = useRef<TextInput>(null);
   const foundCount = foundWords.size;
   const totalWords = puzzle.words.length;
+  const showHint = wrongCount >= HINT_REVEAL_AFTER;
+  const showWordSlots = shouldShowMojiMashWordSlots(foundCount, gameState);
+  const revealAllWords = gameState !== 'playing';
+  const sectionLabel = getMojiMashSectionLabel(totalWords, showWordSlots);
+  const hintText = useMemo(() => formatMojiMashHint(puzzle.words), [puzzle.words]);
 
   const shareText = useMemo(() => {
-    const wordRow =
-      'Words: ' +
-      '🟩'.repeat(foundCount) +
-      '⬜️'.repeat(Math.max(0, totalWords - foundCount));
-    const mistakeRow =
-      'Mistakes: ' +
-      '🟥'.repeat(wrongCount) +
-      '⬜️'.repeat(Math.max(0, MAX_WRONG_GUESSES - wrongCount));
-    return [
-      `Moji Mash ${dateLabel}`,
-      wordRow,
-      mistakeRow,
-      'https://mitchrobs.github.io/gameshow/',
-    ].join('\n');
+    return formatMojiMashShareText({
+      dateLabel,
+      foundCount,
+      totalWords,
+      wrongCount,
+      maxWrongGuesses: MAX_WRONG_GUESSES,
+    });
   }, [dateLabel, foundCount, totalWords, wrongCount]);
 
   useEffect(() => {
@@ -175,11 +179,6 @@ export default function MojiMashScreen() {
       setWrongCount(newWrongCount);
       triggerShake();
 
-      // Show hint after 3 wrong guesses
-      if (newWrongCount >= 3) {
-        setShowHint(true);
-      }
-
       if (newWrongCount >= MAX_WRONG_GUESSES) {
         setGameState('lost');
       }
@@ -227,30 +226,32 @@ export default function MojiMashScreen() {
             {/* Word slots */}
             <View style={styles.wordSlots}>
               <Text style={styles.sectionLabel}>
-                Guess the {puzzle.words.length} words used to create this genmoji
+                {sectionLabel}
               </Text>
               <Text style={styles.helperText}>
                 Enter one word at a time.
               </Text>
-              <View style={styles.slots}>
-                {puzzle.words.map((word, i) => {
-                  const isFound = foundWords.has(word);
-                  return (
-                    <View
-                      key={i}
-                      style={[styles.slot, isFound && styles.slotFound]}
-                    >
-                      {isFound ? (
-                        <Text style={styles.slotText}>{word}</Text>
-                      ) : (
-                        <Text style={styles.slotPlaceholder}>
-                          Word {i + 1}
-                        </Text>
-                      )}
-                    </View>
-                  );
-                })}
-              </View>
+              {showWordSlots && (
+                <View style={styles.slots}>
+                  {puzzle.words.map((word, i) => {
+                    const isRevealed = revealAllWords || foundWords.has(word);
+                    return (
+                      <View
+                        key={i}
+                        style={[styles.slot, isRevealed && styles.slotFound]}
+                      >
+                        {isRevealed ? (
+                          <Text style={styles.slotText}>{word}</Text>
+                        ) : (
+                          <Text style={styles.slotPlaceholder}>
+                            Word {i + 1}
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
             </View>
 
             {/* Lives indicator */}
@@ -265,7 +266,7 @@ export default function MojiMashScreen() {
                 />
               ))}
               <Text style={styles.livesText}>
-                {MAX_WRONG_GUESSES - wrongCount} guess{MAX_WRONG_GUESSES - wrongCount !== 1 ? 'es' : ''} remaining
+                {getMojiMashLivesText(MAX_WRONG_GUESSES - wrongCount)}
               </Text>
             </View>
 
@@ -273,7 +274,7 @@ export default function MojiMashScreen() {
             {showHint && gameState === 'playing' && (
               <View style={styles.hintContainer}>
                 <Text style={styles.hintLabel}>Hint</Text>
-                <Text style={styles.hintText}>{puzzle.hint}</Text>
+                <Text style={styles.hintText}>{hintText}</Text>
               </View>
             )}
 
@@ -334,14 +335,6 @@ export default function MojiMashScreen() {
                 <Text style={styles.endTitle}>
                   {gameState === 'won' ? 'You got it!' : 'Better luck next time'}
                 </Text>
-                {gameState === 'lost' && (
-                  <View style={styles.answerReveal}>
-                    <Text style={styles.answerLabel}>The words were:</Text>
-                    <Text style={styles.answerWords}>
-                      {puzzle.words.join(' + ')}
-                    </Text>
-                  </View>
-                )}
                 {gameState === 'won' && (
                   <Text style={styles.endStats}>
                     Solved with {wrongCount} wrong guess{wrongCount !== 1 ? 'es' : ''}
@@ -640,20 +633,6 @@ const createStyles = (
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     textAlign: 'center',
-  },
-  answerReveal: {
-    marginTop: Spacing.md,
-    alignItems: 'center',
-  },
-  answerLabel: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-  },
-  answerWords: {
-    fontSize: FontSize.lg,
-    fontWeight: '700',
-    color: screenAccent.main,
-    marginTop: Spacing.xs,
   },
   practiceButton: {
     ...ui.cta,
