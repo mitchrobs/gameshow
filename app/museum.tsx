@@ -389,11 +389,6 @@ function getMuseumLabel(artwork: MuseumArtwork): string {
   return 'Museum';
 }
 
-function getShortFact(fact: string): string {
-  const firstSentence = fact.split('. ')[0] ?? fact;
-  return firstSentence.length > 96 ? `${firstSentence.slice(0, 93)}...` : firstSentence;
-}
-
 function getResultHeadline(score: number): string {
   if (score === 3) return 'A close study';
   if (score === 2) return 'A strong reading';
@@ -1091,12 +1086,9 @@ export default function MuseumScreen() {
         `${artwork.title} — ${artwork.artist} (${artwork.objectDate})`,
         `Today's visit: ${score}/3 · Day ${museumStreak}`,
         `${getMuseumLabel(artwork)} · ${movement}`,
-        `"${getShortFact(artwork.context.surprisingFact)}"`,
-        'Daybreak',
       ].join('\n'),
     [
       artwork,
-      artwork.context.surprisingFact,
       artwork.objectDate,
       artwork.title,
       dateLabel,
@@ -1659,20 +1651,14 @@ export default function MuseumScreen() {
                     styles={styles}
                   />
                   <View style={styles.sharePreviewTextWrap}>
-                    <View style={styles.sharePreviewHeader}>
-                      <Text style={styles.sharePreviewEyebrow}>Museum</Text>
-                      <View style={styles.sharePreviewBadge}>
-                        <Text style={styles.sharePreviewBadgeText}>
-                          Day {museumStreak} · {score}/3
-                        </Text>
-                      </View>
-                    </View>
+                    <Text style={styles.sharePreviewEyebrow}>Museum · {dateLabel}</Text>
                     <Text style={styles.sharePreviewTitle}>{artwork.title}</Text>
                     <Text style={styles.sharePreviewMeta}>
-                      {artwork.artist} · {artwork.objectDate} · {getMuseumLabel(artwork)}
+                      {artwork.artist} ({artwork.objectDate})
                     </Text>
+                    <Text style={styles.sharePreviewVisit}>Today's visit: {score}/3 · Day {museumStreak}</Text>
                     <Text style={styles.sharePreviewQuote}>
-                      "{getShortFact(artwork.context.surprisingFact)}"
+                      {getMuseumLabel(artwork)} · {movement}
                     </Text>
                   </View>
                 </View>
@@ -2867,10 +2853,17 @@ const createStyles = (COLORS: MuseumPalette) =>
     lineHeight: 18,
     fontFamily: FONT_SANS,
   },
+  sharePreviewVisit: {
+    color: COLORS.text,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
   sharePreviewQuote: {
     color: COLORS.textDim,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 18,
     fontFamily: FONT_SANS,
   },
   shareStatus: {
