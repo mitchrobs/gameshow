@@ -20,6 +20,7 @@ import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
 import { getDailyBridges } from '../src/data/bridgesPuzzles';
 import { getDailyMiniCrossword } from '../src/data/miniCrosswordPuzzles';
 import { getDailyMuseumArtwork } from '../src/data/museumArtworks';
+import { getDailyDawnCabinet } from '../src/data/dawnCabinetPuzzles';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 import { formatUtcDateLabel, getUtcDateKey } from '../src/utils/dailyUtc';
 
@@ -141,6 +142,7 @@ export default function HomeScreen() {
   const bridgesPuzzle = getDailyBridges();
   const miniCrossword = getDailyMiniCrossword();
   const museumArtwork = getDailyMuseumArtwork();
+  const dawnCabinet = getDailyDawnCabinet();
   const miniCrosswordPreview = useMemo(() => {
     const map = new Map<string, { isBlock: boolean; number?: number }>();
     miniCrossword.cells.forEach((cell) => {
@@ -187,6 +189,13 @@ export default function HomeScreen() {
         isNew: true,
       },
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
+      {
+        label: 'Dawn Cabinet',
+        route: '/dawn-cabinet',
+        emoji: '🀄',
+        countKey: 'dawn-cabinet',
+        isNew: true,
+      },
       { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges' },
       { label: 'Museum', route: '/museum', emoji: '🖼️', countKey: 'museum', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
@@ -250,6 +259,8 @@ export default function HomeScreen() {
         storage.getItem(`ballpark:daily:${key}`) === '1' ||
         storage.getItem(`trivia:daily:${key}`) === '1' ||
         storage.getItem(`barter:daily:${key}`) === '1' ||
+        storage.getItem(`dawn-cabinet:daily:${key}`) === '1' ||
+        storage.getItem(`dawn-cabinet:daily:${utcKey}`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${utcKey}`) === '1' ||
         storage.getItem(`bridges:daily:${key}`) === '1' ||
@@ -275,6 +286,7 @@ export default function HomeScreen() {
       'wordie',
       'crossword',
       'sudoku',
+      'dawn-cabinet',
       'bridges',
       'museum',
       'whodunit',
@@ -622,6 +634,63 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Dawn Cabinet card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.cabinetKicker}>Tile Logic</Text>
+                <Text style={styles.gameTitle}>Dawn Cabinet</Text>
+              </View>
+              <View style={styles.newBadge}>
+                <Text style={styles.newBadgeText}>Beta</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              A Mahjong-inspired logic cabinet with hidden rails, exact tile banks, and reserve goals.
+            </Text>
+            {(playCounts['dawn-cabinet'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['dawn-cabinet']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.cabinetPreview}>
+                <Text style={styles.cabinetPreviewMeta}>
+                  Choose Standard, Hard, or Expert · {dawnCabinet.lines.length} rails
+                </Text>
+                {Array.from({ length: Math.min(dawnCabinet.rows, 3) }, (_, rowIndex) => (
+                  <View key={`cabinet-row-${rowIndex}`} style={styles.cabinetPreviewRow}>
+                    {Array.from({ length: Math.min(dawnCabinet.columns, 5) }, (_, colIndex) => {
+                      const tile = dawnCabinet.givens[`${rowIndex}:${colIndex}`];
+                      return (
+                        <View
+                          key={`cabinet-${rowIndex}-${colIndex}`}
+                          style={[
+                            styles.cabinetPreviewCell,
+                            tile && styles.cabinetPreviewCellFilled,
+                          ]}
+                        >
+                          <Text style={styles.cabinetPreviewCellText}>
+                            {tile ? tile.rank : ''}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                ))}
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/dawn-cabinet')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
           {/* Bridges card */}
           <View style={styles.gameSection}>
             <View style={styles.gameLabel}>
@@ -863,6 +932,7 @@ const createStyles = (
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
   const museumAccent = resolveScreenAccent('museum', theme);
   const ballparkAccent = resolveScreenAccent('trivia', theme);
+  const cabinetAccent = resolveScreenAccent('dawn-cabinet', theme);
   const quickLinkPressed = theme.mode === 'dark' ? screenAccent.soft : screenAccent.badgeBg;
   const hotBadge = theme.mode === 'dark'
     ? {
@@ -1086,6 +1156,14 @@ const createStyles = (
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
   },
+  cabinetKicker: {
+    color: cabinetAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
   ballparkKicker: {
     color: ballparkAccent.main,
     fontSize: FontSize.sm,
@@ -1227,6 +1305,44 @@ const createStyles = (
     fontSize: 12,
     color: Colors.textMuted,
     fontWeight: '600',
+  },
+  cabinetPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    gap: 5,
+  },
+  cabinetPreviewMeta: {
+    marginBottom: Spacing.xs,
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '700',
+  },
+  cabinetPreviewRow: {
+    flexDirection: 'row',
+    gap: 5,
+  },
+  cabinetPreviewCell: {
+    width: 30,
+    height: 38,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: cabinetAccent.badgeBorder,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cabinetPreviewCellFilled: {
+    backgroundColor: theme.mode === 'dark' ? '#fff8e9' : '#fff7e7',
+    borderColor: cabinetAccent.main,
+  },
+  cabinetPreviewCellText: {
+    fontSize: FontSize.sm,
+    fontWeight: '900',
+    color: theme.mode === 'dark' ? '#221a12' : Colors.text,
   },
   bridgesPreview: {
     alignItems: 'center',
