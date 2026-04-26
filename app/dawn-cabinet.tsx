@@ -61,8 +61,6 @@ type BankStack = {
 type GameState = 'playing' | 'won';
 type DailyPlayStatus = 'not-started' | 'in-progress' | 'complete';
 type SuitFilter = 'all' | DawnCabinetTile['suit'];
-type BoardPoint = { x: number; y: number };
-type BoardRect = { x1: number; y1: number; x2: number; y2: number };
 
 const STORAGE_PREFIX = 'dawn-cabinet-v10';
 const DAILY_DIFFICULTIES = DAWN_CABINET_DAILY_DIFFICULTIES;
@@ -1435,34 +1433,7 @@ function CabinetBoard({
     () => RAIL_LEGEND_ITEMS.filter((item) => activeLegendGoals.has(item.goal)),
     [activeLegendGoals]
   );
-  const protectedTileInfoRects = useMemo(() => {
-    return puzzle.cells.flatMap((cell) => {
-      const key = cellKey(cell.row, cell.col);
-      if (!placements[key]) return [];
-      const x = padding + cell.col * (cellSize + gap);
-      const y = padding + cell.row * (cellSize + gap);
-      return [
-        {
-          x1: x + cellSize * 0.2,
-          y1: y + cellSize * 0.02,
-          x2: x + cellSize * 0.8,
-          y2: y + cellSize * 0.34,
-        },
-        {
-          x1: x + cellSize * 0.2,
-          y1: y + cellSize * 0.34,
-          x2: x + cellSize * 0.8,
-          y2: y + cellSize * 0.7,
-        },
-        {
-          x1: x + cellSize * 0.08,
-          y1: y + cellSize * 0.72,
-          x2: x + cellSize * 0.92,
-          y2: y + cellSize * 0.98,
-        },
-      ];
-    });
-  }, [cellSize, gap, padding, placements, puzzle.cells]);
+  const showBoardRailLabels = !selectedCell && cellSize >= 66;
 
   useEffect(() => {
     setShowRailLegend(false);
@@ -1482,98 +1453,13 @@ function CabinetBoard({
     return accent.main;
   };
 
-  const rectIntersectionArea = (left: BoardRect, right: BoardRect) => {
-    const width = Math.max(0, Math.min(left.x2, right.x2) - Math.max(left.x1, right.x1));
-    const height = Math.max(0, Math.min(left.y2, right.y2) - Math.max(left.y1, right.y1));
-    return width * height;
-  };
-
-  const rectForLabel = (point: BoardPoint, size: number): BoardRect => ({
-    x1: point.x - size / 2,
-    y1: point.y - size / 2,
-    x2: point.x + size / 2,
-    y2: point.y + size / 2,
-  });
-
-  const labelCandidatesForSegment = (start: BoardPoint, end: BoardPoint, labelSize: number) => {
-    const dx = end.x - start.x;
-    const dy = end.y - start.y;
-    const length = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
-    const normal = { x: -dy / length, y: dx / length };
-    const offset = Math.min(4, labelSize * 0.2);
-    const at = (t: number, multiplier = 0) => {
-      return {
-        x: start.x + dx * t + normal.x * offset * multiplier,
-        y: start.y + dy * t + normal.y * offset * multiplier,
-      };
+  const labelFor = (points: { x: number; y: number }[]) => {
+    const start = points[0];
+    const end = points[1] ?? points[0];
+    return {
+      x: (start.x + end.x) / 2,
+      y: (start.y + end.y) / 2,
     };
-    return [
-      at(0.5, 0),
-      at(0.35, 0),
-      at(0.65, 0),
-      at(0.42, 0),
-      at(0.58, 0),
-      at(0.25, 0),
-      at(0.75, 0),
-      at(0.5, 1),
-      at(0.5, -1),
-      at(0.35, 1),
-      at(0.65, -1),
-      at(0.35, -1),
-      at(0.65, 1),
-    ];
-  };
-
-  const labelFor = (
-    lineCells: string[],
-    points: BoardPoint[],
-    labelSize: number,
-    placedLabelRects: BoardRect[]
-  ) => {
-    const selectedIndex = selectedCell ? lineCells.indexOf(selectedCell) : -1;
-    const segmentIndexes = points.slice(1).map((_, index) => index);
-    const orderedSegmentIndexes =
-      selectedIndex >= 0
-        ? [
-            ...segmentIndexes.filter((index) => index === selectedIndex || index === selectedIndex - 1),
-            ...segmentIndexes.filter((index) => index !== selectedIndex && index !== selectedIndex - 1),
-          ]
-        : segmentIndexes;
-    const candidates = orderedSegmentIndexes.flatMap((index, segmentPriority) => {
-      return labelCandidatesForSegment(points[index], points[index + 1], labelSize).map((point, pointPriority) => ({
-        point,
-        priority: segmentPriority * 12 + pointPriority,
-      }));
-    });
-    const fallbackPoint = candidates[0]?.point ?? points[0] ?? { x: padding, y: padding };
-    let best = {
-      point: fallbackPoint,
-      score: Number.POSITIVE_INFINITY,
-      rect: rectForLabel(fallbackPoint, labelSize),
-    };
-    candidates.forEach((candidate) => {
-      const rect = rectForLabel(candidate.point, labelSize);
-      const outOfBounds =
-        rect.x1 < 2 || rect.y1 < 2 || rect.x2 > boardWidth - 2 || rect.y2 > boardHeight - 2;
-      const protectedOverlap = protectedTileInfoRects.reduce(
-        (total, protectedRect) => total + rectIntersectionArea(rect, protectedRect),
-        0
-      );
-      const labelOverlap = placedLabelRects.reduce(
-        (total, placedRect) => total + rectIntersectionArea(rect, placedRect),
-        0
-      );
-      const score =
-        (outOfBounds ? 100000 : 0) +
-        protectedOverlap * 24 +
-        labelOverlap * 8 +
-        candidate.priority;
-      if (score < best.score) {
-        best = { point: candidate.point, score, rect };
-      }
-    });
-    placedLabelRects.push(best.rect);
-    return best.point;
   };
 
   return (
@@ -1650,6 +1536,53 @@ function CabinetBoard({
               </G>
             );
           })}
+          {showBoardRailLabels
+            ? puzzle.lines.map((line) => {
+                const state = getCabinetLineState(line, placements);
+                const visualState =
+                  line.goal === 'hidden' && state === 'valid' && !revealHiddenRails
+                    ? 'incomplete'
+                    : state;
+                const points = line.cells.map(centerFor);
+                const color = lineColor(visualState);
+                const labelPoint = labelFor(points);
+                const labelSize = 12;
+                const labelOpacity = visualState === 'incomplete' ? 0.56 : 0.72;
+                return (
+                  <G key={`${line.id}-label`}>
+                    <Circle
+                      cx={labelPoint.x}
+                      cy={labelPoint.y}
+                      r={labelSize / 2 + 1}
+                      fill={theme.colors.surface}
+                      opacity={0.72}
+                    />
+                    <Rect
+                      x={labelPoint.x - labelSize / 2}
+                      y={labelPoint.y - labelSize / 2}
+                      width={labelSize}
+                      height={labelSize}
+                      rx={999}
+                      fill={theme.colors.surface}
+                      stroke={color}
+                      strokeWidth={1.2}
+                      opacity={labelOpacity}
+                    />
+                    <SvgText
+                      x={labelPoint.x}
+                      y={labelPoint.y + 2.7}
+                      fill={color}
+                      fontSize={7}
+                      fontWeight="900"
+                      textAnchor="middle"
+                      opacity={labelOpacity}
+                    >
+                      {lineGoalShortLabel(line.goal)}
+                    </SvgText>
+                  </G>
+                );
+              })
+            : null}
         </Svg>
 
         <View style={[styles.boardGrid, { padding, gap }]}>
@@ -1682,9 +1615,9 @@ function CabinetBoard({
                     style={[
                       styles.cellButton,
                       { width: cellSize, height: cellSize },
+                      isRailRelated && styles.railRelatedCell,
                       isGiven && styles.givenCell,
                       isPlaced && styles.placedCell,
-                      isRailRelated && styles.railRelatedCell,
                       selectedEntryID && !tile && !isGiven && styles.readyCell,
                       isSelected && styles.selectedCell,
                       isRailDimmedCell && styles.unfocusedCell,
@@ -1709,69 +1642,6 @@ function CabinetBoard({
             </View>
           ))}
         </View>
-        <Svg
-          width={boardWidth}
-          height={boardHeight}
-          style={[StyleSheet.absoluteFill, styles.railLabelOverlay]}
-          pointerEvents="none"
-        >
-          {(() => {
-            const placedLabelRects: BoardRect[] = [];
-            return puzzle.lines.map((line) => {
-              const state = getCabinetLineState(line, placements);
-              const visualState =
-                line.goal === 'hidden' && state === 'valid' && !revealHiddenRails
-                  ? 'incomplete'
-                  : state;
-              const isRailHighlighted = selectedCellLineIDs.has(line.id);
-              const isRailDimmed = Boolean(selectedCell) && !isRailHighlighted;
-              const points = line.cells.map(centerFor);
-              const color = lineColor(visualState);
-              const labelSize = isRailHighlighted ? 22 : 18;
-              const labelPoint = labelFor(line.cells, points, labelSize, placedLabelRects);
-              const labelOpacity = isRailHighlighted
-                ? 1
-                : isRailDimmed
-                  ? 0.34
-                  : visualState === 'incomplete'
-                    ? 0.88
-                    : 0.94;
-              const labelFill = isRailHighlighted ? color : theme.colors.surface;
-              const textFill = isRailHighlighted ? '#ffffff' : color;
-              return (
-                <G key={`${line.id}-label`}>
-                  <Circle
-                    cx={labelPoint.x}
-                    cy={labelPoint.y}
-                    r={labelSize / 2 + 3}
-                    fill={theme.mode === 'dark' ? '#071018' : '#ffffff'}
-                    opacity={isRailDimmed ? 0.34 : 0.86}
-                  />
-                  <Circle
-                    cx={labelPoint.x}
-                    cy={labelPoint.y}
-                    r={labelSize / 2}
-                    fill={labelFill}
-                    stroke={color}
-                    strokeWidth={isRailHighlighted ? 2.2 : 1.7}
-                    opacity={labelOpacity}
-                  />
-                  <SvgText
-                    x={labelPoint.x}
-                    y={labelPoint.y + (isRailHighlighted ? 4.2 : 3.4)}
-                    fill={textFill}
-                    fontSize={isRailHighlighted ? 12 : 10}
-                    fontWeight="900"
-                    textAnchor="middle"
-                    opacity={isRailDimmed ? 0.78 : 1}
-                  >
-                    {lineGoalShortLabel(line.goal)}
-                  </SvgText>
-                </G>
-              );
-            });
-          })()}
-        </Svg>
       </View>
       {selectedCellLines.length > 0 ? (
         <View style={[styles.railFocusStrip, { width: boardWidth }]}>
@@ -2701,9 +2571,6 @@ const createStyles = (
       position: 'relative',
       zIndex: 2,
     },
-    railLabelOverlay: {
-      zIndex: 3,
-    },
     boardRow: {
       flexDirection: 'row',
     },
@@ -2727,13 +2594,8 @@ const createStyles = (
       borderColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.38)' : 'rgba(11,11,11,0.22)',
     },
     railRelatedCell: {
-      borderColor: screenAccent.main,
-      borderWidth: 2,
-      backgroundColor: screenAccent.soft,
-      shadowColor: screenAccent.main,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: theme.mode === 'dark' ? 0.28 : 0.16,
-      shadowRadius: 5,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
     },
     unfocusedCell: {
       opacity: 0.36,

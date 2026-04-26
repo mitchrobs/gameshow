@@ -30,6 +30,13 @@ RARE_LETTERS = set("QJXZ")
 VOWELS = set("AEIOU")
 SUPPORTED_LENGTHS = (4, 5, 6)
 SAFE_SWAP_COUNT = 50
+GUESS_BLACKLIST_CATEGORIES = {
+    "medical_trauma",
+    "political_religious",
+    "previously_flagged",
+    "slurs_profanity",
+    "violence_harm",
+}
 MIN_ANSWER_FREQUENCY = {
     4: 4.0,
     5: 3.8,
@@ -280,8 +287,8 @@ def build_candidates(
         for entries in raw_candidates["words"].values()
         for item in entries
     }
-    sensitivity_blacklist = set().union(
-        *(words for name, words in blacklists.items() if name != "regional_variants")
+    guess_blacklist = set().union(
+        *(words for name, words in blacklists.items() if name in GUESS_BLACKLIST_CATEGORIES)
     )
     answer_blacklist = set().union(*blacklists.values())
 
@@ -300,7 +307,7 @@ def build_candidates(
             word = str(entry["word"]).upper()
             if len(word) != length or not re.fullmatch(r"[A-Z]+", word):
                 continue
-            if word not in sensitivity_blacklist:
+            if word not in guess_blacklist:
                 allowed.append(word)
             if word in prior_words or word in answer_blacklist:
                 continue
@@ -319,7 +326,7 @@ def build_candidates(
         )
         for word in allowed_extras["words"].get(str(length), []):
             word = str(word).upper()
-            if len(word) == length and re.fullmatch(r"[A-Z]+", word) and word not in sensitivity_blacklist:
+            if len(word) == length and re.fullmatch(r"[A-Z]+", word) and word not in guess_blacklist:
                 allowed.append(word)
 
         allowed_words[length] = sorted(dict.fromkeys(allowed))
@@ -589,7 +596,7 @@ def main() -> None:
     allowed_payload = {
         "version": config["version"],
         "generated_at": config["generated_at"],
-        "source": "Generated from checked-in Wordie candidate pools plus allowed-guess additions after sensitivity filtering.",
+        "source": "Generated from checked-in Wordie candidate pools plus allowed-guess additions after guess-safety filtering.",
         "words": {str(length): allowed_words[length] for length in SUPPORTED_LENGTHS},
     }
 
