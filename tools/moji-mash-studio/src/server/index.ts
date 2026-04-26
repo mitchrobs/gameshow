@@ -11,6 +11,7 @@ import { imagesRoute } from './routes/images.js';
 import { conceptsRoute } from './routes/concepts.js';
 import { healthRoute } from './routes/health.js';
 import { revealRoute } from './routes/reveal.js';
+import { portfolioRoute } from './routes/portfolio.js';
 
 const app = new Hono();
 app.route('/api', chatRoute);
@@ -18,6 +19,7 @@ app.route('/api', imagesRoute);
 app.route('/api', conceptsRoute);
 app.route('/api', healthRoute);
 app.route('/api', revealRoute);
+app.route('/api', portfolioRoute);
 app.notFound((c) => c.json({ error: 'not found' }, 404));
 app.onError((err, c) => {
   console.error('[hono error]', err);

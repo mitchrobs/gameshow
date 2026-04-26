@@ -20,7 +20,9 @@ import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
 import { getDailyBridges } from '../src/data/bridgesPuzzles';
 import { getDailyMiniCrossword } from '../src/data/miniCrosswordPuzzles';
 import { getDailyMuseumArtwork } from '../src/data/museumArtworks';
+import { getDailyDawnCabinet } from '../src/data/dawnCabinetPuzzles';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
+import { formatUtcDateLabel, getUtcDateKey } from '../src/utils/dailyUtc';
 
 const WEB_NO_SELECT =
   Platform.OS === 'web'
@@ -129,11 +131,13 @@ export default function HomeScreen() {
   const whodunit = getDailyWhodunit();
   const wordie = getDailyWordie();
   const triviaCategories = getDailyTriviaCategories();
-  const sudoku = getDailySudoku();
+  const sudokuEntry = getDailySudoku();
+  const sudoku = sudokuEntry.puzzle;
   const barterPuzzle = getDailyBarter();
   const bridgesPuzzle = getDailyBridges();
   const miniCrossword = getDailyMiniCrossword();
   const museumArtwork = getDailyMuseumArtwork();
+  const dawnCabinet = getDailyDawnCabinet();
   const miniCrosswordPreview = useMemo(() => {
     const map = new Map<string, { isBlock: boolean; number?: number }>();
     miniCrossword.cells.forEach((cell) => {
@@ -147,6 +151,13 @@ export default function HomeScreen() {
     const values = bridgesPuzzle.islands.slice(0, 3).map((island) => island.requiredBridges);
     return values.length === 3 ? values : [2, 3, 1];
   }, [bridgesPuzzle]);
+  const sudokuPreviewCellSize = sudoku.size === 9 ? 16 : 26;
+  const sudokuPreviewBaseGap = sudoku.size === 9 ? 3 : 4;
+  const sudokuPreviewBlockGap = sudoku.size === 9 ? 7 : 4;
+  const sudokuDateLabel = useMemo(
+    () => `${formatUtcDateLabel(sudokuEntry.date)} UTC`,
+    [sudokuEntry.date]
+  );
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const dateLabel = new Date().toLocaleDateString('en-US', {
@@ -173,6 +184,13 @@ export default function HomeScreen() {
         isNew: true,
       },
       { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
+      {
+        label: 'Dawn Cabinet',
+        route: '/dawn-cabinet',
+        emoji: '🀄',
+        countKey: 'dawn-cabinet',
+        isNew: true,
+      },
       { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges' },
       { label: 'Museum', route: '/museum', emoji: '🖼️', countKey: 'museum', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
@@ -225,16 +243,21 @@ export default function HomeScreen() {
 
     const hasAnyDaily = (date: Date) => {
       const key = keyForDate(date);
+      const utcKey = getUtcDateKey(date);
       return (
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
         storage.getItem(`crossword:daily:${key}`) === '1' ||
-        storage.getItem(`sudoku:daily:${key}`) === '1' ||
-        storage.getItem(`bridges:daily:${key}`) === '1' ||
         storage.getItem(`museum:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
         storage.getItem(`trivia:daily:${key}`) === '1' ||
-        storage.getItem(`barter:daily:${key}`) === '1'
+        storage.getItem(`barter:daily:${key}`) === '1' ||
+        storage.getItem(`dawn-cabinet:daily:${key}`) === '1' ||
+        storage.getItem(`dawn-cabinet:daily:${utcKey}`) === '1' ||
+        storage.getItem(`sudoku:daily:${key}`) === '1' ||
+        storage.getItem(`sudoku:daily:${utcKey}`) === '1' ||
+        storage.getItem(`bridges:daily:${key}`) === '1' ||
+        storage.getItem(`bridges:daily:${utcKey}`) === '1'
       );
     };
 
@@ -256,6 +279,7 @@ export default function HomeScreen() {
       'wordie',
       'crossword',
       'sudoku',
+      'dawn-cabinet',
       'bridges',
       'museum',
       'whodunit',
@@ -433,7 +457,7 @@ export default function HomeScreen() {
               <Text style={styles.gameTitle}>Wordie</Text>
             </View>
             <Text style={styles.blurb}>
-              Solve the five-letter word in six guesses.
+              Solve the {wordie.length}-letter word in {wordie.guesses_allowed} guesses.
             </Text>
             {(playCounts['wordie'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
@@ -444,10 +468,16 @@ export default function HomeScreen() {
               <View style={styles.wordiePreview}>
                 {Array.from({ length: 2 }).map((_, row) => (
                   <View key={row} style={styles.wordieRow}>
-                    {Array.from({ length: 5 }).map((_, col) => (
-                      <View key={col} style={styles.wordieTile}>
+                    {Array.from({ length: wordie.length }).map((_, col) => (
+                      <View
+                        key={col}
+                        style={[
+                          styles.wordieTile,
+                          wordie.length === 6 && styles.wordieTileCompact,
+                        ]}
+                      >
                         {row === 0 && col === 0 ? (
-                          <Text style={styles.wordieTileText}>{wordie[0]}</Text>
+                          <Text style={styles.wordieTileText}>{wordie.word[0]}</Text>
                         ) : null}
                       </View>
                     ))}
@@ -478,7 +508,7 @@ export default function HomeScreen() {
               </View>
             </View>
             <Text style={styles.blurb}>
-              A quick 5x5 crossword with fresh clues every day.
+              A quick {miniCrossword.size}x{miniCrossword.size} crossword with fresh clues every day.
             </Text>
             {(playCounts['crossword'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
@@ -527,7 +557,7 @@ export default function HomeScreen() {
               <Text style={styles.gameTitle}>Mini Sudoku</Text>
             </View>
             <Text style={styles.blurb}>
-              A 6x6 daily Sudoku with a medium-hard bite.
+              A daily Sudoku that ramps from breezy 6x6 boards to full 9x9 hard days.
             </Text>
             {(playCounts['sudoku'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
@@ -536,17 +566,47 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.sudokuPreview}>
+                <Text style={styles.sudokuPreviewDate}>{sudokuDateLabel}</Text>
+                <Text style={styles.sudokuPreviewMeta}>
+                  {sudokuEntry.difficulty} · {sudoku.size}x{sudoku.size}
+                </Text>
                 {sudoku.grid.map((row, rowIndex) => (
-                  <View key={`sudoku-row-${rowIndex}`} style={styles.sudokuRow}>
+                  <View
+                    key={`sudoku-row-${rowIndex}`}
+                    style={[
+                      styles.sudokuRow,
+                      {
+                        marginBottom:
+                          rowIndex % sudoku.boxRows === sudoku.boxRows - 1 &&
+                          rowIndex !== sudoku.size - 1
+                            ? sudokuPreviewBlockGap
+                            : sudokuPreviewBaseGap,
+                      },
+                    ]}
+                  >
                     {row.map((value, colIndex) => (
                       <View
                         key={`sudoku-${rowIndex}-${colIndex}`}
                         style={[
                           styles.sudokuCell,
+                          {
+                            width: sudokuPreviewCellSize,
+                            height: sudokuPreviewCellSize,
+                            marginRight:
+                              colIndex % sudoku.boxCols === sudoku.boxCols - 1 &&
+                              colIndex !== sudoku.size - 1
+                                ? sudokuPreviewBlockGap
+                                : sudokuPreviewBaseGap,
+                          },
                           value !== 0 && styles.sudokuCellFilled,
                         ]}
                       >
-                        <Text style={styles.sudokuCellText}>
+                        <Text
+                          style={[
+                            styles.sudokuCellText,
+                            sudoku.size === 9 && styles.sudokuCellTextCompact,
+                          ]}
+                        >
                           {value !== 0 ? value : ''}
                         </Text>
                       </View>
@@ -560,6 +620,63 @@ export default function HomeScreen() {
                   pressed && styles.playButtonPressed,
                 ]}
                 onPress={() => router.push('/sudoku')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Dawn Cabinet card */}
+          <View style={styles.gameSection}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.cabinetKicker}>Tile Logic</Text>
+                <Text style={styles.gameTitle}>Dawn Cabinet</Text>
+              </View>
+              <View style={styles.newBadge}>
+                <Text style={styles.newBadgeText}>Beta</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              A Mahjong-inspired logic cabinet with hidden rails, exact tile banks, and reserve goals.
+            </Text>
+            {(playCounts['dawn-cabinet'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['dawn-cabinet']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.cabinetPreview}>
+                <Text style={styles.cabinetPreviewMeta}>
+                  Choose Standard, Hard, or Expert · {dawnCabinet.lines.length} rails
+                </Text>
+                {Array.from({ length: Math.min(dawnCabinet.rows, 3) }, (_, rowIndex) => (
+                  <View key={`cabinet-row-${rowIndex}`} style={styles.cabinetPreviewRow}>
+                    {Array.from({ length: Math.min(dawnCabinet.columns, 5) }, (_, colIndex) => {
+                      const tile = dawnCabinet.givens[`${rowIndex}:${colIndex}`];
+                      return (
+                        <View
+                          key={`cabinet-${rowIndex}-${colIndex}`}
+                          style={[
+                            styles.cabinetPreviewCell,
+                            tile && styles.cabinetPreviewCellFilled,
+                          ]}
+                        >
+                          <Text style={styles.cabinetPreviewCellText}>
+                            {tile ? tile.rank : ''}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                ))}
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/dawn-cabinet')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
@@ -759,6 +876,7 @@ const createStyles = (
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
   const museumAccent = resolveScreenAccent('museum', theme);
+  const cabinetAccent = resolveScreenAccent('dawn-cabinet', theme);
   const quickLinkPressed = theme.mode === 'dark' ? screenAccent.soft : screenAccent.badgeBg;
   const hotBadge = theme.mode === 'dark'
     ? {
@@ -982,6 +1100,14 @@ const createStyles = (
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
   },
+  cabinetKicker: {
+    color: cabinetAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
   newBadge: {
     marginTop: Spacing.xs,
     backgroundColor: barterAccent.badgeBg,
@@ -1048,6 +1174,10 @@ const createStyles = (
     alignItems: 'center',
     justifyContent: 'center',
   },
+  wordieTileCompact: {
+    width: 38,
+    height: 38,
+  },
   wordieTileText: {
     fontSize: FontSize.lg,
     fontWeight: '800',
@@ -1101,6 +1231,55 @@ const createStyles = (
     paddingHorizontal: Spacing.sm,
     gap: 4,
   },
+  sudokuPreviewDate: {
+    fontSize: 11,
+    color: Colors.textMuted,
+    letterSpacing: 0.2,
+  },
+  sudokuPreviewMeta: {
+    marginBottom: Spacing.xs,
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '600',
+  },
+  cabinetPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    gap: 5,
+  },
+  cabinetPreviewMeta: {
+    marginBottom: Spacing.xs,
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '700',
+  },
+  cabinetPreviewRow: {
+    flexDirection: 'row',
+    gap: 5,
+  },
+  cabinetPreviewCell: {
+    width: 30,
+    height: 38,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: cabinetAccent.badgeBorder,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cabinetPreviewCellFilled: {
+    backgroundColor: theme.mode === 'dark' ? '#fff8e9' : '#fff7e7',
+    borderColor: cabinetAccent.main,
+  },
+  cabinetPreviewCellText: {
+    fontSize: FontSize.sm,
+    fontWeight: '900',
+    color: theme.mode === 'dark' ? '#221a12' : Colors.text,
+  },
   bridgesPreview: {
     alignItems: 'center',
     marginVertical: Spacing.md,
@@ -1150,11 +1329,8 @@ const createStyles = (
   },
   sudokuRow: {
     flexDirection: 'row',
-    gap: 4,
   },
   sudokuCell: {
-    width: 26,
-    height: 26,
     borderRadius: 6,
     backgroundColor: Colors.surface,
     borderWidth: 1,
@@ -1169,6 +1345,9 @@ const createStyles = (
     fontSize: 12,
     fontWeight: '700',
     color: Colors.textSecondary,
+  },
+  sudokuCellTextCompact: {
+    fontSize: 10,
   },
   triviaPreview: {
     alignItems: 'center',

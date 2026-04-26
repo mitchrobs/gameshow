@@ -14,6 +14,7 @@
       "medium": "Oil on canvas",
       "periodKey": "post-impressionism",
       "periodTag": "Post-Impressionism - France - 1889",
+      "passportLabel": "Post-Impressionism",
       "mediumCategory": "Painting",
       "geoRegion": "Europe",
       "images": {
@@ -69,6 +70,7 @@
       "medium": "Woodblock print; ink and color on paper",
       "periodKey": "edo-ukiyo-e",
       "periodTag": "Edo Japan - Ukiyo-e - ca. 1830-32",
+      "passportLabel": "Ukiyo-e",
       "mediumCategory": "Print",
       "geoRegion": "Asia",
       "images": {
@@ -124,6 +126,7 @@
       "medium": "Oil on canvas",
       "periodKey": "american-romantic-history",
       "periodTag": "American Romanticism - History Painting - 1851",
+      "passportLabel": "American Romanticism",
       "mediumCategory": "Painting",
       "geoRegion": "North America",
       "images": {
@@ -179,6 +182,7 @@
       "medium": "Wool warp with wool, silk, silver, and gilt wefts",
       "periodKey": "late-medieval-tapestry",
       "periodTag": "Late Medieval - Tapestry - 1495-1505",
+      "passportLabel": "Late Medieval Tapestry",
       "mediumCategory": "Textile",
       "geoRegion": "Europe",
       "images": {
@@ -234,6 +238,7 @@
       "medium": "Terracotta",
       "periodKey": "greek-red-figure",
       "periodTag": "Ancient Greece - Red-Figure Vase - ca. 490 BCE",
+      "passportLabel": "Greek Red-Figure",
       "mediumCategory": "Ceramic",
       "geoRegion": "Mediterranean",
       "images": {
@@ -289,6 +294,7 @@
       "medium": "Sandstone",
       "periodKey": "kushan-buddhist-sculpture",
       "periodTag": "Kushan Dynasty - Buddhist Sculpture - 3rd-early 4th c.",
+      "passportLabel": "Buddhist Sculpture",
       "mediumCategory": "Sculpture",
       "geoRegion": "Asia",
       "images": {
@@ -330,6 +336,10 @@
         "objectUrl": "https://www.metmuseum.org/art/collection/search/38634",
         "license": "CC0"
       },
+      "presentation": {
+        "preferredFrameId": "gilded-arch-06",
+        "allowSpecialShapes": true
+      },
       "review": {
         "status": "reviewed",
         "factCheckSources": ["https://www.metmuseum.org/art/collection/search/38634"],
@@ -344,6 +354,7 @@
       "medium": "Faience",
       "periodKey": "middle-kingdom-egypt",
       "periodTag": "Middle Kingdom Egypt - Dynasty 12 - ca. 1961-1878 B.C.",
+      "passportLabel": "Middle Kingdom Egypt",
       "mediumCategory": "Sculpture",
       "geoRegion": "Africa",
       "images": {
@@ -399,6 +410,7 @@
       "medium": "Wood and applied organic materials",
       "periodKey": "bamana-sculpture",
       "periodTag": "Bamana Peoples - West African Sculpture - 15th-17th c.",
+      "passportLabel": "West African Sculpture",
       "mediumCategory": "Sculpture",
       "geoRegion": "Africa",
       "images": {
@@ -454,6 +466,7 @@
       "medium": "Gilded silver, gold, cloisonne enamel, and niello",
       "periodKey": "byzantine-devotional-metalwork",
       "periodTag": "Byzantine - Devotional Metalwork - Early 9th c.",
+      "passportLabel": "Byzantine Metalwork",
       "mediumCategory": "Metalwork",
       "geoRegion": "Mediterranean",
       "images": {
@@ -509,6 +522,7 @@
       "medium": "Oil on canvas",
       "periodKey": "neo-impressionism",
       "periodTag": "Neo-Impressionism - France - 1887-88",
+      "passportLabel": "Neo-Impressionism",
       "mediumCategory": "Painting",
       "geoRegion": "Europe",
       "images": {

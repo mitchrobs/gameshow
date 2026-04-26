@@ -12,17 +12,21 @@ import {
 export default function RootLayout() {
   const theme = useResolvedDaybreakTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const TextWithDefaults = Text as typeof Text & { defaultProps?: { style?: unknown } };
+  const TextInputWithDefaults = TextInput as typeof TextInput & {
+    defaultProps?: { style?: unknown };
+  };
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const fontStyle = { fontFamily: theme.typography.sans };
 
-    Text.defaultProps = Text.defaultProps ?? {};
-    Text.defaultProps.style = fontStyle;
+    TextWithDefaults.defaultProps = TextWithDefaults.defaultProps ?? {};
+    TextWithDefaults.defaultProps.style = fontStyle;
 
-    TextInput.defaultProps = TextInput.defaultProps ?? {};
-    TextInput.defaultProps.style = fontStyle;
+    TextInputWithDefaults.defaultProps = TextInputWithDefaults.defaultProps ?? {};
+    TextInputWithDefaults.defaultProps.style = fontStyle;
   }, [theme.typography.sans]);
 
   useEffect(() => {

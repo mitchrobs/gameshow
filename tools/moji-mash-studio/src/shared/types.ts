@@ -2,11 +2,30 @@
 // for state shape; the client mirrors it.
 
 export interface Rubric {
+  /** 1 = a word missing; 5 = every word leaps out. Target 4-5. */
   word_clarity?: number;
-  visual_appeal?: number;
+  /**
+   * How closely the image matches the open-genmoji LoRA style: single
+   * 3D-shaded sticker subject, soft volumetric lighting, no painted
+   * background, no cast/drop shadow, no photorealism. Target 4-5.
+   * Replaces the older `visual_appeal` dimension (which conflated charm
+   * with style).
+   */
+  style_fidelity?: number;
+  /** 1 = collage of separate objects; 5 = unified witty composition. Target 4-5. */
   concept_synergy?: number;
-  guessability?: number;
+  /** 1 = no aha; 5 = laugh-out-loud clever reveal. Target 4-5. */
   aha_factor?: number;
+  /**
+   * Measured puzzle difficulty from Pass-3 playtest. Claude plays the
+   * puzzle with only the image + public hint and lists its top 5 guesses;
+   * the rank of the true answer determines this score. Sweet spot 3
+   * (fair challenge). 5 means playtest cracked it on guess #1 (too
+   * obvious / idiom-trivial); 1 means playtest missed entirely (likely
+   * unsolvable). Replaces the older `guessability` dimension (which was
+   * Claude's *opinion* of difficulty rather than a measured behaviour).
+   */
+  playtest_difficulty?: number;
 }
 
 export interface Variant {
@@ -23,6 +42,17 @@ export interface Variant {
   decoded: string[];
   /** Answer words that did NOT appear in the blind decode. */
   missing: string[];
+  /**
+   * 1-indexed rank of the true answer in the playtest guess list, or 0
+   * if the answer was not in the top-5 playtest guesses.
+   */
+  playtest_rank?: number;
+  /**
+   * Playtest's top-5 guess list (each guess is an array of N lowercase
+   * words matching the hint starting-letter constraints). Empty if the
+   * contact sheet is older than the playtest pass.
+   */
+  playtest_guesses?: string[][];
   /** True for the variant with the highest composite score. */
   recommended: boolean;
 }

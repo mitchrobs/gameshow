@@ -24,6 +24,8 @@ expo-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+test-results/
+tmp/
 
 # macOS
 .DS_Store
@@ -43,8 +45,6 @@ yarn-error.*
 __pycache__/
 *.pyc
 
-# Moji Mash draft staging (generated image candidates, not committed)
-tmp/moji-mash/
-
-# Museum API candidate output; reviewed content is committed under src/data/museum/
-tmp/museum/
+# Generated duplicate museum frame exports; reviewed assets use the canonical names.
+assets/museum/frames/**/* 2.png
+assets/museum/frames/**/* 3.png

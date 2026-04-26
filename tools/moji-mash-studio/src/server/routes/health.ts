@@ -10,6 +10,7 @@ import {
   REPO_ROOT,
 } from '../config.js';
 import { listPoolTool } from '../tools/listPool.js';
+import { todayLocalISO } from '../util/today.js';
 import type { HealthStatus } from '../../shared/types.js';
 
 export const healthRoute = new Hono();
@@ -38,7 +39,7 @@ healthRoute.get('/health', (c) => {
     anthropicKeyPresent: ANTHROPIC_API_KEY.length > 0,
     pythonVersion,
     poolCount: pool.total,
-    today: new Date().toISOString().slice(0, 10),
+    today: todayLocalISO(),
     repoRoot: REPO_ROOT,
     port: PORT,
   };

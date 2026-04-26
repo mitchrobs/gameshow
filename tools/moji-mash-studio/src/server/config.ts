@@ -1,6 +1,12 @@
-import 'dotenv/config';
+import { config as dotenvConfig } from 'dotenv';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+
+// Override any inherited env vars with the values from .env. The studio's
+// .env is the source of truth for credentials; without `override: true`,
+// an empty `ANTHROPIC_API_KEY=` exported in the user's shell would silently
+// shadow the real key in .env.
+dotenvConfig({ override: true });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

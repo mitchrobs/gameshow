@@ -11,6 +11,9 @@ import {
 } from '../config.js';
 import { session, sessionEmitter } from '../state.js';
 import { parseContactSheet } from './contactSheetParser.js';
+import { loadImageAttachment } from './imageAttachment.js';
+import type { ViewImageImage } from './viewImage.js';
+import { todayLocalISO } from '../util/today.js';
 import type { Concept, Variant, ConceptUpdatedEvent } from '../../shared/types.js';
 
 export interface GenerateMojiInput {
@@ -27,6 +30,8 @@ export interface GenerateMojiResult {
   variants: Variant[];
   recommended: string | null;
   warnings: string[];
+  /** When present, agentLoop attaches this to the tool_result so the agent can see the image. */
+  images?: ViewImageImage[];
 }
 
 /** A line of stdout/stderr from the Python subprocess that we want the agent to see. */
@@ -51,9 +56,9 @@ function slugify(words: string[]): string {
   return words.map((w) => w.toLowerCase().trim()).join('-');
 }
 
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
+// Local-time today; must match Python's `date.today()` so the contact-sheet
+// parser reads the same directory the script wrote into.
+const todayISO = todayLocalISO;
 
 /**
  * Run scripts/generate_moji.py with --check, stream filtered progress to the
@@ -203,6 +208,15 @@ export async function generateMojiTool(
   }
   const recommended = variants.find((v) => v.recommended);
 
+  const images: ViewImageImage[] = [];
+  if (recommended) {
+    const att = loadImageAttachment(
+      join(stagedDirAbs, recommended.file),
+      `Recommended variant ${recommended.file} (composite ${recommended.composite.toFixed(1)}/25)`,
+    );
+    if (att) images.push(att);
+  }
+
   return {
     conceptId: concept.id,
     slug,
@@ -210,6 +224,7 @@ export async function generateMojiTool(
     variants,
     recommended: recommended ? recommended.file : null,
     warnings,
+    images,
   };
 }
 

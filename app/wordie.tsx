@@ -1,9 +1,10 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import {
+  AccessibilityInfo,
+  Animated,
   View,
   Text,
   StyleSheet,
-  TextInput,
   Pressable,
   ScrollView,
   Platform,
@@ -16,12 +17,20 @@ import {
   useDaybreakTheme,
 } from '../src/constants/theme';
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
-import { getDailyWordie } from '../src/data/wordiePuzzles';
+import {
+  getDailyWordie,
+  isAllowedWordieGuess,
+  type WordieLength,
+} from '../src/data/wordiePuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
-const WORD_LENGTH = 5;
-const MAX_GUESSES = 6;
 const STORAGE_PREFIX = 'wordie';
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const KEYBOARD_ROWS = [
+  'QWERTYUIOP'.split(''),
+  [...'ASDFGHJKL'.split(''), 'BACK'],
+  [...'ZXCVBNM'.split(''), 'ENTER'],
+];
 
 function getLocalDateKey(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -45,20 +54,21 @@ type GameState = 'playing' | 'won' | 'lost';
 type TileStatus = 'correct' | 'present' | 'absent' | 'empty';
 
 function evaluateGuess(guess: string, answer: string): TileStatus[] {
-  const result: TileStatus[] = Array(WORD_LENGTH).fill('absent');
+  const wordLength = answer.length;
+  const result: TileStatus[] = Array(wordLength).fill('absent');
   const answerChars = answer.split('');
-  const used = Array(WORD_LENGTH).fill(false);
+  const used = Array(wordLength).fill(false);
 
-  for (let i = 0; i < WORD_LENGTH; i += 1) {
+  for (let i = 0; i < wordLength; i += 1) {
     if (guess[i] === answer[i]) {
       result[i] = 'correct';
       used[i] = true;
     }
   }
 
-  for (let i = 0; i < WORD_LENGTH; i += 1) {
+  for (let i = 0; i < wordLength; i += 1) {
     if (result[i] !== 'absent') continue;
-    for (let j = 0; j < WORD_LENGTH; j += 1) {
+    for (let j = 0; j < wordLength; j += 1) {
       if (used[j]) continue;
       if (guess[i] === answer[j]) {
         result[i] = 'present';
@@ -75,16 +85,25 @@ export default function WordieScreen() {
   const theme = useDaybreakTheme();
   const screenAccent = useMemo(() => resolveScreenAccent('wordie', theme), [theme]);
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
-  const Colors = theme.colors;
   const router = useRouter();
   const [dateKey, setDateKey] = useState(() => getLocalDateKey());
   const activeDate = useMemo(() => getDateFromLocalDateKey(dateKey), [dateKey]);
-  const answer = useMemo(() => getDailyWordie(activeDate), [activeDate]);
+  const puzzle = useMemo(() => getDailyWordie(activeDate), [activeDate]);
+  const answer = puzzle.word;
+  const wordLength = puzzle.length;
+  const maxGuesses = puzzle.guesses_allowed;
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<GameState>('playing');
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const [removedLetters, setRemovedLetters] = useState<Set<string>>(() => new Set());
+  const [removingLetters, setRemovingLetters] = useState<Set<string>>(() => new Set());
+  const [showRemovedLetters, setShowRemovedLetters] = useState(false);
+  const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
   const hasCountedRef = useRef(false);
+  const keyAnimRefs = useRef<Record<string, Animated.Value>>({});
+  const rowShakeAnim = useRef(new Animated.Value(0)).current;
   const dateLabel = useMemo(
     () =>
       activeDate.toLocaleDateString('en-US', {
@@ -105,23 +124,159 @@ export default function WordieScreen() {
     return () => clearInterval(intervalId);
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
+      if (isMounted) {
+        setReduceMotionEnabled(enabled);
+      }
+    });
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotionEnabled
+    );
+    return () => {
+      isMounted = false;
+      subscription.remove();
+    };
+  }, []);
+
+  const getKeyAnim = useCallback((letter: string) => {
+    if (!keyAnimRefs.current[letter]) {
+      keyAnimRefs.current[letter] = new Animated.Value(1);
+    }
+    return keyAnimRefs.current[letter];
+  }, []);
+
+  const triggerRowShake = useCallback(() => {
+    rowShakeAnim.stopAnimation();
+    rowShakeAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(rowShakeAnim, { toValue: 8, duration: 40, useNativeDriver: true }),
+      Animated.timing(rowShakeAnim, { toValue: -8, duration: 40, useNativeDriver: true }),
+      Animated.timing(rowShakeAnim, { toValue: 5, duration: 35, useNativeDriver: true }),
+      Animated.timing(rowShakeAnim, { toValue: 0, duration: 35, useNativeDriver: true }),
+    ]).start();
+  }, [rowShakeAnim]);
+
+  const announceRemovedLetters = useCallback((letters: string[], remainingCount: number) => {
+    if (letters.length === 0) return;
+    const letterText =
+      letters.length === 1 ? `${letters[0]} disappeared` : `${letters.join(', ')} disappeared`;
+    const remainingText =
+      remainingCount === 1 ? 'visible letter remaining' : 'visible letters remaining';
+    AccessibilityInfo.announceForAccessibility(`${letterText}, ${remainingCount} ${remainingText}`);
+  }, []);
+
+  const removeLettersFromKeyboard = useCallback(
+    (letters: string[]) => {
+      if (letters.length === 0) return;
+      const remainingCount = ALPHABET.length - removedLetters.size - letters.length;
+
+      if (reduceMotionEnabled) {
+        setRemovedLetters((previous) => {
+          const next = new Set(previous);
+          letters.forEach((letter) => next.add(letter));
+          return next;
+        });
+        announceRemovedLetters(letters, remainingCount);
+        return;
+      }
+
+      setRemovingLetters((previous) => {
+        const next = new Set(previous);
+        letters.forEach((letter) => next.add(letter));
+        return next;
+      });
+      letters.forEach((letter) => getKeyAnim(letter).setValue(1));
+
+      Animated.stagger(
+        30,
+        letters.map((letter) =>
+          Animated.timing(getKeyAnim(letter), {
+            toValue: 0,
+            duration: 150,
+            useNativeDriver: true,
+          })
+        )
+      ).start(() => {
+        setRemovedLetters((previous) => {
+          const next = new Set(previous);
+          letters.forEach((letter) => next.add(letter));
+          return next;
+        });
+        setRemovingLetters((previous) => {
+          const next = new Set(previous);
+          letters.forEach((letter) => next.delete(letter));
+          return next;
+        });
+        letters.forEach((letter) => getKeyAnim(letter).setValue(1));
+        announceRemovedLetters(letters, remainingCount);
+      });
+    },
+    [announceRemovedLetters, getKeyAnim, reduceMotionEnabled, removedLetters.size]
+  );
+
+  const handleAppendLetter = useCallback(
+    (letter: string) => {
+      if (gameState !== 'playing') return;
+      if (removingLetters.has(letter) || (removedLetters.has(letter) && !showRemovedLetters)) {
+        triggerRowShake();
+        return;
+      }
+      setValidationMessage(null);
+      setCurrentGuess((guess) => (guess.length >= wordLength ? guess : `${guess}${letter}`));
+    },
+    [gameState, removedLetters, removingLetters, showRemovedLetters, triggerRowShake, wordLength]
+  );
+
+  const handleBackspace = useCallback(() => {
+    if (gameState !== 'playing') return;
+    setValidationMessage(null);
+    setCurrentGuess((guess) => guess.slice(0, -1));
+  }, [gameState]);
+
   const handleSubmit = useCallback(() => {
     if (gameState !== 'playing') return;
     const guess = currentGuess.trim().toUpperCase();
-    if (guess.length !== WORD_LENGTH) return;
+    if (guess.length !== wordLength) {
+      triggerRowShake();
+      return;
+    }
+    if (!isAllowedWordieGuess(guess, wordLength as WordieLength)) {
+      setValidationMessage('Not in word list');
+      triggerRowShake();
+      return;
+    }
     const nextGuesses = [...guesses, guess];
+    const nextGameState: GameState =
+      guess === answer ? 'won' : nextGuesses.length >= maxGuesses ? 'lost' : 'playing';
+    const lettersToRemove = Array.from(new Set(guess.split(''))).filter(
+      (letter) => !answer.includes(letter) && !removedLetters.has(letter)
+    );
+
     setGuesses(nextGuesses);
     setCurrentGuess('');
+    setValidationMessage(null);
+    setGameState(nextGameState);
 
-    if (guess === answer) {
-      setGameState('won');
-    } else if (nextGuesses.length >= MAX_GUESSES) {
-      setGameState('lost');
+    if (nextGameState === 'playing') {
+      removeLettersFromKeyboard(lettersToRemove);
     }
-  }, [gameState, currentGuess, guesses, answer]);
+  }, [
+    answer,
+    currentGuess,
+    gameState,
+    guesses,
+    maxGuesses,
+    removeLettersFromKeyboard,
+    removedLetters,
+    triggerRowShake,
+    wordLength,
+  ]);
 
   const shareText = useMemo(() => {
-    const result = gameState === 'won' ? `${guesses.length}/${MAX_GUESSES}` : 'X/6';
+    const result = gameState === 'won' ? `${guesses.length}/${maxGuesses}` : `X/${maxGuesses}`;
     const rows = guesses
       .map((guess) =>
         evaluateGuess(guess, answer)
@@ -137,7 +292,7 @@ export default function WordieScreen() {
       rows,
       'https://mitchrobs.github.io/gameshow/',
     ].join('\n');
-  }, [guesses, answer, dateLabel, gameState]);
+  }, [guesses, answer, dateLabel, gameState, maxGuesses]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -148,8 +303,14 @@ export default function WordieScreen() {
     setCurrentGuess('');
     setGameState('playing');
     setShareStatus(null);
+    setValidationMessage(null);
+    setRemovedLetters(new Set());
+    setRemovingLetters(new Set());
+    setShowRemovedLetters(false);
+    Object.values(keyAnimRefs.current).forEach((anim) => anim.setValue(1));
+    rowShakeAnim.setValue(0);
     hasCountedRef.current = false;
-  }, [dateKey]);
+  }, [dateKey, rowShakeAnim]);
 
   useEffect(() => {
     const storage = getStorage();
@@ -164,6 +325,31 @@ export default function WordieScreen() {
       incrementGlobalPlayCount('wordie');
     }
   }, [gameState]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        handleSubmit();
+        return;
+      }
+      if (event.key === 'Backspace') {
+        event.preventDefault();
+        handleBackspace();
+        return;
+      }
+      if (/^[a-zA-Z]$/.test(event.key)) {
+        event.preventDefault();
+        handleAppendLetter(event.key.toUpperCase());
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleAppendLetter, handleBackspace, handleSubmit]);
 
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;
@@ -182,6 +368,94 @@ export default function WordieScreen() {
     }
   }, [shareText]);
 
+  const renderKeyboardKey = (keyValue: string) => {
+    const isEnter = keyValue === 'ENTER';
+    const isBack = keyValue === 'BACK';
+    const isControl = isEnter || isBack;
+    const letter = isControl ? null : keyValue;
+    const keyAnim = letter ? getKeyAnim(letter) : null;
+    const isRemoving = letter ? removingLetters.has(letter) : false;
+    const isRemoved = letter ? removedLetters.has(letter) : false;
+    const isHiddenRemoved = Boolean(letter && isRemoved && !showRemovedLetters);
+    const isShownRemoved = Boolean(letter && isRemoved && showRemovedLetters);
+    const animatedLetterStyle = keyAnim
+      ? {
+          opacity: keyAnim,
+          transform: [
+            {
+              scale: keyAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.86, 1],
+              }),
+            },
+          ],
+        }
+      : null;
+    const label = isEnter ? 'Enter' : isBack ? 'Back' : isHiddenRemoved ? '' : keyValue;
+    const accessibilityLabel = isEnter
+      ? 'Enter guess'
+      : isBack
+        ? 'Delete letter'
+        : isShownRemoved
+          ? `Letter ${keyValue}, disappeared`
+          : `Letter ${keyValue}`;
+
+    const keyContent = (
+      <Animated.Text
+        style={[
+          styles.keyboardKeyText,
+          isControl && styles.keyboardControlKeyText,
+          isShownRemoved && styles.keyboardRemovedKeyText,
+          isRemoving && animatedLetterStyle,
+        ]}
+      >
+        {label}
+      </Animated.Text>
+    );
+
+    return (
+      <Animated.View
+        key={keyValue}
+        style={[styles.keyboardKeyShell, isControl && styles.keyboardControlKeyShell]}
+      >
+        {isHiddenRemoved ? (
+          <View
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            style={[styles.keyboardKey, styles.keyboardRemovedKey]}
+          >
+            {keyContent}
+          </View>
+        ) : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={accessibilityLabel}
+            disabled={isRemoving}
+            style={({ pressed }) => [
+              styles.keyboardKey,
+              isControl && styles.keyboardControlKey,
+              isRemoved && styles.keyboardRemovedKey,
+              pressed && styles.keyboardKeyPressed,
+            ]}
+            onPress={() => {
+              if (isEnter) {
+                handleSubmit();
+              } else if (isBack) {
+                handleBackspace();
+              } else {
+                handleAppendLetter(keyValue);
+              }
+            }}
+          >
+            {keyContent}
+          </Pressable>
+        )}
+      </Animated.View>
+    );
+  };
+  const showGhostLettersToggle = guesses.length > 0;
+  const ghostLettersLabel = showRemovedLetters ? 'Hide Ghost Letters' : 'Show Ghost Letters';
+
   return (
     <>
       <Stack.Screen options={{ title: 'Wordie', headerBackTitle: 'Home' }} />
@@ -194,20 +468,28 @@ export default function WordieScreen() {
             <View style={styles.pageAccent} />
             <View style={styles.header}>
               <Text style={styles.title}>Wordie</Text>
-              <Text style={styles.subtitle}>Guess the 5-letter word in 6 tries.</Text>
+              <Text style={styles.subtitle}>
+                Guess the {wordLength}-letter word in {maxGuesses} tries.
+              </Text>
             </View>
 
             <View style={styles.grid}>
-              {Array.from({ length: MAX_GUESSES }).map((_, row) => {
+              {Array.from({ length: maxGuesses }).map((_, row) => {
                 const guess = guesses[row] ?? '';
                 const isCurrent = row === guesses.length && gameState === 'playing';
-                const letters = (isCurrent ? currentGuess : guess).padEnd(WORD_LENGTH, ' ');
+                const letters = (isCurrent ? currentGuess : guess).padEnd(wordLength, ' ');
                 const statuses = guess
                   ? evaluateGuess(guess, answer)
-                  : Array(WORD_LENGTH).fill('empty');
+                  : Array(wordLength).fill('empty');
 
                 return (
-                  <View key={row} style={styles.row}>
+                  <Animated.View
+                    key={row}
+                    style={[
+                      styles.row,
+                      isCurrent && { transform: [{ translateX: rowShakeAnim }] },
+                    ]}
+                  >
                     {letters.split('').map((char, i) => {
                       const status = statuses[i] as TileStatus;
                       return (
@@ -215,6 +497,7 @@ export default function WordieScreen() {
                           key={i}
                           style={[
                             styles.tile,
+                            wordLength === 6 && styles.tileCompact,
                             status === 'correct' && styles.tileCorrect,
                             status === 'present' && styles.tilePresent,
                             status === 'absent' && styles.tileAbsent,
@@ -225,32 +508,42 @@ export default function WordieScreen() {
                         </View>
                       );
                     })}
-                  </View>
+                  </Animated.View>
                 );
               })}
             </View>
+            <View style={styles.validationSlot}>
+              {validationMessage && (
+                <Text accessibilityLiveRegion="polite" style={styles.validationMessage}>
+                  {validationMessage}
+                </Text>
+              )}
+            </View>
 
             {gameState === 'playing' && (
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.input}
-                  value={currentGuess}
-                  onChangeText={(text) => setCurrentGuess(text.toUpperCase().replace(/[^A-Z]/g, ''))}
-                  maxLength={WORD_LENGTH}
-                  autoCapitalize="characters"
-                  autoCorrect={false}
-                  placeholder="Enter guess"
-                  placeholderTextColor={Colors.textMuted}
-                />
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.submitButton,
-                    pressed && styles.submitButtonPressed,
-                  ]}
-                  onPress={handleSubmit}
-                >
-                  <Text style={styles.submitButtonText}>Guess</Text>
-                </Pressable>
+              <View style={styles.keyboard}>
+                <View style={styles.keyboardRows}>
+                  {KEYBOARD_ROWS.map((row, rowIndex) => (
+                    <View key={rowIndex} style={styles.keyboardRow}>
+                      {row.map(renderKeyboardKey)}
+                    </View>
+                  ))}
+                </View>
+                {showGhostLettersToggle && (
+                  <View style={styles.keyboardOptionsRow}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={ghostLettersLabel}
+                      style={({ pressed }) => [
+                        styles.removedLettersToggle,
+                        pressed && styles.removedLettersTogglePressed,
+                      ]}
+                      onPress={() => setShowRemovedLetters((isShowing) => !isShowing)}
+                    >
+                      <Text style={styles.removedLettersToggleText}>{ghostLettersLabel}</Text>
+                    </Pressable>
+                  </View>
+                )}
               </View>
             )}
 
@@ -310,6 +603,10 @@ const createStyles = (
   const FontSize = theme.fontSize;
   const BorderRadius = theme.borderRadius;
   const ui = createDaybreakPrimitives(theme, screenAccent);
+  const dimmedKeyBorder =
+    theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(11, 11, 11, 0.07)';
+  const dimmedLetterText =
+    theme.mode === 'dark' ? 'rgba(156, 167, 184, 0.5)' : 'rgba(106, 113, 128, 0.5)';
 
   return StyleSheet.create({
   container: {
@@ -358,6 +655,10 @@ const createStyles = (
     alignItems: 'center',
     justifyContent: 'center',
   },
+  tileCompact: {
+    width: 42,
+    height: 42,
+  },
   tileEmpty: {
     backgroundColor: Colors.surface,
   },
@@ -378,34 +679,94 @@ const createStyles = (
     fontWeight: '800',
     color: Colors.text,
   },
-  inputRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
+  validationSlot: {
+    minHeight: 20,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -Spacing.sm,
+    marginBottom: Spacing.sm,
   },
-  input: {
+  validationMessage: {
+    color: Colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  keyboard: {
+    marginBottom: Spacing.lg,
+    gap: Spacing.xs,
+  },
+  keyboardOptionsRow: {
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 480,
+    alignItems: 'center',
+    marginTop: Spacing.xs,
+  },
+  keyboardRows: {
+    gap: Spacing.sm,
+  },
+  keyboardRow: {
+    flexDirection: 'row',
+    gap: Spacing.xs,
+    justifyContent: 'center',
+  },
+  keyboardKeyShell: {
     flex: 1,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
+    maxWidth: 42,
+  },
+  keyboardControlKeyShell: {
+    flex: 1.35,
+    maxWidth: 64,
+  },
+  keyboardKey: {
+    minHeight: 44,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: Colors.border,
-    fontSize: FontSize.md,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.xs,
+  },
+  keyboardControlKey: {
+    backgroundColor: Colors.surfaceLight,
+  },
+  keyboardRemovedKey: {
+    backgroundColor: Colors.backgroundSoft,
+    borderColor: dimmedKeyBorder,
+  },
+  keyboardKeyPressed: {
+    backgroundColor: Colors.surfaceLight,
+    transform: [{ scale: 0.98 }],
+  },
+  keyboardKeyText: {
     color: Colors.text,
-  },
-  submitButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-  },
-  submitButtonPressed: {
-    backgroundColor: Colors.primaryLight,
-  },
-  submitButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.md,
+    fontSize: FontSize.sm,
     fontWeight: '700',
+  },
+  keyboardControlKeyText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  keyboardRemovedKeyText: {
+    color: dimmedLetterText,
+  },
+  removedLettersToggle: {
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: dimmedKeyBorder,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 6,
+  },
+  removedLettersTogglePressed: {
+    backgroundColor: Colors.surfaceLight,
+    transform: [{ scale: 0.98 }],
+  },
+  removedLettersToggleText: {
+    color: Colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
   },
   resultCard: {
     alignItems: 'center',

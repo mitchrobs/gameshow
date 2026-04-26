@@ -1,0 +1,16 @@
+{
+  "dates": [
+    { "date": "2026-06-21", "label": "Father's Day", "tags": ["father", "summer"] },
+    { "date": "2026-07-04", "label": "Independence Day", "tags": ["patriotic", "summer"] },
+    { "date": "2026-09-07", "label": "Labor Day", "tags": ["memorial-sensitive", "fall"] },
+    { "date": "2026-10-31", "label": "Halloween", "tags": ["spooky", "fall"] },
+    { "date": "2026-11-26", "label": "Thanksgiving", "tags": ["gratitude", "fall"] },
+    { "date": "2026-12-25", "label": "Christmas", "tags": ["winter"] },
+    { "date": "2026-12-31", "label": "New Year's Eve", "tags": ["new-year", "winter"] },
+    { "date": "2027-01-01", "label": "New Year's Day", "tags": ["new-year", "winter"] },
+    { "date": "2027-02-14", "label": "Valentine's Day", "tags": ["love", "winter"] },
+    { "date": "2027-04-22", "label": "Earth Day", "tags": ["earth", "spring"] },
+    { "date": "2027-05-09", "label": "Mother's Day", "tags": ["mother", "spring"] },
+    { "date": "2027-05-31", "label": "Memorial Day", "tags": ["memorial-sensitive", "spring"] }
+  ]
+}

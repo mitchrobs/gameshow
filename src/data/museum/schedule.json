@@ -1,8 +1,9 @@
 {
   "version": "museum-schedule-v1",
-  "generatedAt": "2026-04-23T02:37:01+00:00",
+  "generatedAt": "2026-04-24T13:27:05+00:00",
   "start": "2026-04-23",
-  "days": 30,
+  "through": "2026-12-31",
+  "days": 253,
   "entries": [
     {
       "date": "2026-04-23",
@@ -123,6 +124,898 @@
     {
       "date": "2026-05-22",
       "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-05-23",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-05-24",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-05-25",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-05-26",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-05-27",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-05-28",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-05-29",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-05-30",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-05-31",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-06-01",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-06-02",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-06-03",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-06-04",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-06-05",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-06-06",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-06-07",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-06-08",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-06-09",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-06-10",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-06-11",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-06-12",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-06-13",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-06-14",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-06-15",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-06-16",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-06-17",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-06-18",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-06-19",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-06-20",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-06-21",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-06-22",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-06-23",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-06-24",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-06-25",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-06-26",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-06-27",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-06-28",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-06-29",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-06-30",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-07-01",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-07-02",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-07-03",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-07-04",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-07-05",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-07-06",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-07-07",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-07-08",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-07-09",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-07-10",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-07-11",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-07-12",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-07-13",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-07-14",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-07-15",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-07-16",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-07-17",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-07-18",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-07-19",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-07-20",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-07-21",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-07-22",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-07-23",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-07-24",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-07-25",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-07-26",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-07-27",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-07-28",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-07-29",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-07-30",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-07-31",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-08-01",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-08-02",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-08-03",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-08-04",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-08-05",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-08-06",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-08-07",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-08-08",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-08-09",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-08-10",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-08-11",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-08-12",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-08-13",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-08-14",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-08-15",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-08-16",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-08-17",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-08-18",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-08-19",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-08-20",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-08-21",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-08-22",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-08-23",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-08-24",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-08-25",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-08-26",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-08-27",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-08-28",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-08-29",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-08-30",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-08-31",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-09-01",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-09-02",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-09-03",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-09-04",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-09-05",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-09-06",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-09-07",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-09-08",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-09-09",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-09-10",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-09-11",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-09-12",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-09-13",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-09-14",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-09-15",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-09-16",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-09-17",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-09-18",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-09-19",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-09-20",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-09-21",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-09-22",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-09-23",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-09-24",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-09-25",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-09-26",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-09-27",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-09-28",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-09-29",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-09-30",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-10-01",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-10-02",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-10-03",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-10-04",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-10-05",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-10-06",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-10-07",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-10-08",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-10-09",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-10-10",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-10-11",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-10-12",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-10-13",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-10-14",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-10-15",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-10-16",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-10-17",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-10-18",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-10-19",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-10-20",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-10-21",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-10-22",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-10-23",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-10-24",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-10-25",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-10-26",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-10-27",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-10-28",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-10-29",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-10-30",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-10-31",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-11-01",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-11-02",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-11-03",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-11-04",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-11-05",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-11-06",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-11-07",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-11-08",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-11-09",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-11-10",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-11-11",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-11-12",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-11-13",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-11-14",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-11-15",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-11-16",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-11-17",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-11-18",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-11-19",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-11-20",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-11-21",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-11-22",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-11-23",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-11-24",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-11-25",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-11-26",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-11-27",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-11-28",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-11-29",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-11-30",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-12-01",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-12-02",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-12-03",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-12-04",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-12-05",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-12-06",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-12-07",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-12-08",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-12-09",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-12-10",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-12-11",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-12-12",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-12-13",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-12-14",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-12-15",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-12-16",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-12-17",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-12-18",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-12-19",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-12-20",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-12-21",
+      "artworkId": "met-11417"
+    },
+    {
+      "date": "2026-12-22",
+      "artworkId": "met-467642"
+    },
+    {
+      "date": "2026-12-23",
+      "artworkId": "met-254896"
+    },
+    {
+      "date": "2026-12-24",
+      "artworkId": "met-38634"
+    },
+    {
+      "date": "2026-12-25",
+      "artworkId": "met-544227"
+    },
+    {
+      "date": "2026-12-26",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-12-27",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-12-28",
+      "artworkId": "met-312336"
+    },
+    {
+      "date": "2026-12-29",
+      "artworkId": "met-436535"
+    },
+    {
+      "date": "2026-12-30",
+      "artworkId": "met-39799"
+    },
+    {
+      "date": "2026-12-31",
+      "artworkId": "met-11417"
     }
   ]
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Keyboard,
@@ -11,6 +12,7 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
@@ -82,10 +84,14 @@ export default function MiniCrosswordScreen() {
   const screenAccent = useMemo(() => resolveScreenAccent('mini-crossword', theme), [theme]);
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
   const router = useRouter();
+  const { width: viewportWidth, height: viewportHeight } = useWindowDimensions();
 
   const [dateKey, setDateKey] = useState(() => getLocalDateKey());
   const activeDate = useMemo(() => getDateFromLocalDateKey(dateKey), [dateKey]);
   const puzzle = useMemo(() => getDailyMiniCrossword(activeDate), [activeDate]);
+  const isMegaMini = puzzle.size === 7;
+  const puzzleTitle = isMegaMini ? 'Mega Mini Crossword' : 'Mini Crossword';
+  const firstClue = useMemo(() => puzzle.across[0] ?? puzzle.down[0] ?? null, [puzzle]);
   const dateLabel = useMemo(
     () =>
       activeDate.toLocaleDateString('en-US', {
@@ -100,8 +106,12 @@ export default function MiniCrosswordScreen() {
   const bonusKey = `${STORAGE_PREFIX}:bonus:${dateKey}`;
 
   const [entries, setEntries] = useState<Record<string, string>>({});
-  const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
-  const [direction, setDirection] = useState<MiniCrosswordDirection>('across');
+  const [activeCell, setActiveCell] = useState<ActiveCell | null>(
+    firstClue ? { row: firstClue.row, col: firstClue.col } : null
+  );
+  const [direction, setDirection] = useState<MiniCrosswordDirection>(
+    firstClue?.direction ?? 'across'
+  );
   const [gameState, setGameState] = useState<GameState>('playing');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
@@ -113,6 +123,7 @@ export default function MiniCrosswordScreen() {
   const [bonusSolved, setBonusSolved] = useState(false);
   const [bonusStatus, setBonusStatus] = useState<string | null>(null);
   const [bonusPhase, setBonusPhase] = useState<BonusPhase>('hidden');
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   const hasCountedRef = useRef(false);
   const bonusAnimationStartedRef = useRef(false);
@@ -185,7 +196,19 @@ export default function MiniCrosswordScreen() {
   );
 
   const fillProgress = `${solvedCount}/${playableCellCount}`;
-  const isIPhoneTyping = Platform.OS === 'ios' && isKeyboardVisible;
+  const isCompactLayout = viewportWidth < 520;
+  const shouldCollapseClues =
+    isKeyboardVisible || (Platform.OS === 'web' && isCompactLayout && viewportHeight < 620);
+  const gridGap = puzzle.size === 7 ? 3 : 4;
+  const maxGridWidth = puzzle.size === 7 ? 390 : 310;
+  const availableGridWidth = Math.max(
+    240,
+    viewportWidth - theme.spacing.lg * 2 - theme.spacing.md * 2
+  );
+  const gridWidth = Math.min(maxGridWidth, availableGridWidth);
+  const cellSize = Math.floor((gridWidth - gridGap * (puzzle.size - 1)) / puzzle.size);
+  const cellFontSize = puzzle.size === 7 ? Math.max(20, Math.floor(cellSize * 0.52)) : 30;
+  const cellNumberSize = puzzle.size === 7 ? 8 : 10;
 
   const bonusTranslateY = useMemo(
     () => bonusAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }),
@@ -199,6 +222,10 @@ export default function MiniCrosswordScreen() {
     () => bonusAnim.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }),
     [bonusAnim]
   );
+  const bonusSlotLetters = useMemo(() => {
+    const source = bonusSolved ? puzzle.bonus.answer : bonusEntry;
+    return Array.from({ length: 7 }, (_, index) => source[index] ?? '');
+  }, [bonusEntry, bonusSolved, puzzle.bonus.answer]);
 
   useEffect(() => {
     const checkDateRollover = () => {
@@ -211,7 +238,14 @@ export default function MiniCrosswordScreen() {
   }, []);
 
   useEffect(() => {
-    const firstClue = puzzle.across[0] ?? puzzle.down[0] ?? null;
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
     setEntries({});
     setActiveCell(firstClue ? { row: firstClue.row, col: firstClue.col } : null);
     setDirection(firstClue?.direction ?? 'across');
@@ -229,7 +263,7 @@ export default function MiniCrosswordScreen() {
     bonusAnimationStartedRef.current = false;
     setBonusSolved(getStorage()?.getItem(bonusKey) === '1');
     hasCountedRef.current = false;
-  }, [bonusAnim, bonusKey, dateKey, puzzle.id, puzzle.across, puzzle.down]);
+  }, [bonusAnim, bonusKey, dateKey, firstClue, puzzle.id]);
 
   useEffect(() => {
     const storage = getStorage();
@@ -301,15 +335,15 @@ export default function MiniCrosswordScreen() {
     Animated.sequence([
       Animated.timing(bonusAnim, {
         toValue: 1,
-        duration: 1200,
+        duration: reduceMotion ? 1 : 1200,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
-      Animated.delay(180),
+      Animated.delay(reduceMotion ? 0 : 180),
     ]).start(() => {
       setBonusPhase('ready');
     });
-  }, [bonusAnim, bonusSolved, gameState]);
+  }, [bonusAnim, bonusSolved, gameState, reduceMotion]);
 
   const focusCell = useCallback((row: number, col: number) => {
     const key = cellKey(row, col);
@@ -365,6 +399,48 @@ export default function MiniCrosswordScreen() {
     [activeClue, focusCell, getOrderedCellsForClue]
   );
 
+  const findPlayableCellInDirection = useCallback(
+    (row: number, col: number, rowStep: number, colStep: number): ActiveCell | null => {
+      let nextRow = row + rowStep;
+      let nextCol = col + colStep;
+
+      while (
+        nextRow >= 0 &&
+        nextRow < puzzle.size &&
+        nextCol >= 0 &&
+        nextCol < puzzle.size
+      ) {
+        const nextCell = cellMap.get(cellKey(nextRow, nextCol));
+        if (nextCell && !nextCell.isBlock) {
+          return { row: nextRow, col: nextCol };
+        }
+        nextRow += rowStep;
+        nextCol += colStep;
+      }
+
+      return null;
+    },
+    [cellMap, puzzle.size]
+  );
+
+  const toggleDirectionAtCell = useCallback(
+    (row: number, col: number) => {
+      const clueLinks = cellToClues[cellKey(row, col)];
+      if (!clueLinks) return false;
+
+      if (clueLinks.across && clueLinks.down) {
+        setDirection((current) => (current === 'across' ? 'down' : 'across'));
+        return true;
+      }
+
+      const onlyDirection = clueLinks.across ? 'across' : clueLinks.down ? 'down' : null;
+      if (!onlyDirection) return false;
+      setDirection(onlyDirection);
+      return true;
+    },
+    [cellToClues]
+  );
+
   const handleCellText = useCallback(
     (row: number, col: number, value: string) => {
       if (gameState !== 'playing') return;
@@ -401,6 +477,61 @@ export default function MiniCrosswordScreen() {
       setCheckedWrongKeys((current) => current.filter((wrongKey) => wrongKey !== prevKey));
     },
     [activeClue, entries, gameState, getOrderedCellsForClue, moveToOffsetInActiveClue]
+  );
+
+  const handleWebCellKeyDown = useCallback(
+    (row: number, col: number, keyValue: string) => {
+      if (gameState !== 'playing') return false;
+
+      const move = (rowStep: number, colStep: number, nextDirection: MiniCrosswordDirection) => {
+        const next = findPlayableCellInDirection(row, col, rowStep, colStep);
+        setDirection(nextDirection);
+        if (!next) return true;
+        setActiveCell(next);
+        focusCell(next.row, next.col);
+        return true;
+      };
+
+      if (keyValue === 'ArrowLeft') return move(0, -1, 'across');
+      if (keyValue === 'ArrowRight') return move(0, 1, 'across');
+      if (keyValue === 'ArrowUp') return move(-1, 0, 'down');
+      if (keyValue === 'ArrowDown') return move(1, 0, 'down');
+
+      if (keyValue === 'Enter' || keyValue === ' ') {
+        return toggleDirectionAtCell(row, col);
+      }
+
+      if (keyValue !== 'Backspace') return false;
+
+      const key = cellKey(row, col);
+      if (entries[key]) {
+        setEntries((current) => ({ ...current, [key]: '' }));
+        setCheckedWrongKeys((current) => current.filter((wrongKey) => wrongKey !== key));
+        return true;
+      }
+
+      const clue = activeClue;
+      if (!clue) return true;
+      const cells = getOrderedCellsForClue(clue);
+      const index = cells.findIndex((cell) => cell.row === row && cell.col === col);
+      const prev = cells[index - 1];
+      if (!prev) return true;
+      const prevKey = cellKey(prev.row, prev.col);
+      setEntries((current) => ({ ...current, [prevKey]: '' }));
+      setCheckedWrongKeys((current) => current.filter((wrongKey) => wrongKey !== prevKey));
+      setActiveCell(prev);
+      focusCell(prev.row, prev.col);
+      return true;
+    },
+    [
+      activeClue,
+      entries,
+      findPlayableCellInDirection,
+      focusCell,
+      gameState,
+      getOrderedCellsForClue,
+      toggleDirectionAtCell,
+    ]
   );
 
   const handleCheck = useCallback(() => {
@@ -490,12 +621,13 @@ export default function MiniCrosswordScreen() {
 
   const shareText = useMemo(() => {
     return [
-      `Mini Crossword ${dateLabel}`,
+      `${puzzleTitle} ${dateLabel}`,
+      `Theme: ${puzzle.theme.label}`,
       `Solved in ${formatTime(elapsedSeconds)} · Hints ${hintsUsed}/${MAX_HINTS}`,
       `Bonus: ${bonusSolved ? '✅' : '⬜'}`,
       'https://mitchrobs.github.io/gameshow/#/mini-crossword',
     ].join('\n');
-  }, [bonusSolved, dateLabel, elapsedSeconds, hintsUsed]);
+  }, [bonusSolved, dateLabel, elapsedSeconds, hintsUsed, puzzle.theme.label, puzzleTitle]);
 
   useEffect(() => {
     setShareStatus(null);
@@ -518,21 +650,50 @@ export default function MiniCrosswordScreen() {
     }
   }, [shareText]);
 
+  const getWebCellKeyDownProps = useCallback(
+    (row: number, col: number) =>
+      Platform.OS === 'web'
+        ? ({
+            onKeyDown: (event: { key: string; preventDefault?: () => void }) => {
+              if (handleWebCellKeyDown(row, col, event.key)) {
+                event.preventDefault?.();
+              }
+            },
+          } as Record<string, unknown>)
+        : {},
+    [handleWebCellKeyDown]
+  );
+
   return (
     <>
-      <Stack.Screen options={{ title: 'Mini Crossword', headerBackTitle: 'Home' }} />
+      <Stack.Screen options={{ title: puzzleTitle, headerBackTitle: 'Home' }} />
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <KeyboardAvoidingView
           style={styles.keyboardAvoider}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           keyboardVerticalOffset={KEYBOARD_OFFSET}
         >
-          <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              shouldCollapseClues && styles.scrollContentKeyboard,
+            ]}
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={styles.page}>
               <View style={styles.pageAccent} />
               <View style={styles.header}>
-                <Text style={styles.title}>Mini Crossword</Text>
-                <Text style={styles.subtitle}>Fill the 5x5 daily crossword.</Text>
+                {isMegaMini ? (
+                  <View style={styles.megaHeaderBadge}>
+                    <Text style={styles.megaHeaderBadgeText}>Sunday Mega Mini</Text>
+                  </View>
+                ) : null}
+                <Text style={styles.title}>{puzzleTitle}</Text>
+                <Text style={styles.subtitle}>
+                  {isMegaMini
+                    ? 'Fill the Sunday 7x7 Mega Mini.'
+                    : `Fill the ${puzzle.size}x${puzzle.size} daily crossword.`}
+                </Text>
                 <Text style={styles.metaText}>{dateLabel}</Text>
                 <Text style={styles.metaText}>Progress {fillProgress}</Text>
               </View>
@@ -546,6 +707,11 @@ export default function MiniCrosswordScreen() {
                     <View style={styles.themePill}>
                       <Text style={styles.themePillText}>{puzzle.theme.label}</Text>
                     </View>
+                    {isMegaMini ? (
+                      <View style={styles.megaCluePill}>
+                        <Text style={styles.megaCluePillText}>Mega</Text>
+                      </View>
+                    ) : null}
                   </View>
                   <Text style={styles.activeClueText}>
                     {activeClue
@@ -554,14 +720,19 @@ export default function MiniCrosswordScreen() {
                   </Text>
                 </View>
 
-                <View style={styles.grid}>
+                <View style={[styles.grid, { gap: gridGap }]}>
                   {Array.from({ length: puzzle.size }).map((_, row) => (
-                    <View key={`row-${row}`} style={styles.gridRow}>
+                    <View key={`row-${row}`} style={[styles.gridRow, { gap: gridGap }]}>
                       {Array.from({ length: puzzle.size }).map((__, col) => {
                         const key = cellKey(row, col);
                         const cell = cellMap.get(key);
                         if (!cell || cell.isBlock) {
-                          return <View key={key} style={styles.blockCell} />;
+                          return (
+                            <View
+                              key={key}
+                              style={[styles.blockCell, { width: cellSize, height: cellSize }]}
+                            />
+                          );
                         }
                         const isActive = activeCell?.row === row && activeCell?.col === col;
                         const isInActiveClue = activeClueCellSet.has(key);
@@ -571,6 +742,7 @@ export default function MiniCrosswordScreen() {
                             key={key}
                             style={({ pressed }) => [
                               styles.letterCell,
+                              { width: cellSize, height: cellSize },
                               isInActiveClue && styles.letterCellClue,
                               isActive && styles.letterCellActive,
                               isWrong && styles.letterCellWrong,
@@ -578,18 +750,27 @@ export default function MiniCrosswordScreen() {
                             ]}
                             onPress={() => selectCell(row, col)}
                           >
-                            {cell.number ? <Text style={styles.cellNumber}>{cell.number}</Text> : null}
+                            {cell.number ? (
+                              <Text style={[styles.cellNumber, { fontSize: cellNumberSize }]}>
+                                {cell.number}
+                              </Text>
+                            ) : null}
                             <TextInput
                               ref={(node) => {
                                 inputRefs.current[key] = node;
                               }}
-                              style={styles.cellInput}
+                              style={[styles.cellInput, { fontSize: cellFontSize }]}
                               value={entries[key] ?? ''}
                               onFocus={() => {
                                 setActiveCell({ row, col });
                               }}
                               onChangeText={(value) => handleCellText(row, col, value)}
-                              onKeyPress={(event) => handleKeyPress(row, col, event.nativeEvent.key)}
+                              onKeyPress={(event) => {
+                                if (Platform.OS !== 'web') {
+                                  handleKeyPress(row, col, event.nativeEvent.key);
+                                }
+                              }}
+                              {...getWebCellKeyDownProps(row, col)}
                               maxLength={1}
                               autoCapitalize="characters"
                               autoCorrect={false}
@@ -629,50 +810,6 @@ export default function MiniCrosswordScreen() {
                 <Text style={styles.statusText}>{statusMessage ?? 'Tap a clue or cell to start.'}</Text>
               </View>
 
-              {isIPhoneTyping ? (
-                <View style={styles.cluesCollapsedCard}>
-                  <Text style={styles.cluesCollapsedText}>Clue list hidden while typing.</Text>
-                </View>
-              ) : (
-                <View style={styles.cluesCard}>
-                  <Text style={styles.cluesTitle}>Across</Text>
-                  {puzzle.across.map((clue) => (
-                    <Pressable
-                      key={clue.id}
-                      style={({ pressed }) => [
-                        styles.clueRow,
-                        activeClue?.id === clue.id && styles.clueRowActive,
-                        pressed && styles.clueRowPressed,
-                      ]}
-                      onPress={() => handleSelectClue(clue)}
-                    >
-                      <Text style={styles.clueNumber}>{clue.number}.</Text>
-                      <Text style={styles.clueText}>
-                        {clue.clue} ({clue.answer.length})
-                      </Text>
-                    </Pressable>
-                  ))}
-
-                  <Text style={styles.cluesTitle}>Down</Text>
-                  {puzzle.down.map((clue) => (
-                    <Pressable
-                      key={clue.id}
-                      style={({ pressed }) => [
-                        styles.clueRow,
-                        activeClue?.id === clue.id && styles.clueRowActive,
-                        pressed && styles.clueRowPressed,
-                      ]}
-                      onPress={() => handleSelectClue(clue)}
-                    >
-                      <Text style={styles.clueNumber}>{clue.number}.</Text>
-                      <Text style={styles.clueText}>
-                        {clue.clue} ({clue.answer.length})
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              )}
-
               {gameState === 'won-main' && (
                 <Animated.View
                   style={[
@@ -683,9 +820,68 @@ export default function MiniCrosswordScreen() {
                     },
                   ]}
                 >
-                  <Text style={styles.bonusTitle}>7-Letter Bonus</Text>
+                  <View
+                    style={[
+                      styles.bonusVisual,
+                      {
+                        backgroundColor: puzzle.bonus.visual.tint,
+                        borderColor: puzzle.bonus.visual.accent,
+                      },
+                    ]}
+                  >
+                    <View style={styles.bonusGlow} />
+                    {Array.from({ length: 6 }).map((_, index) => (
+                      <View
+                        key={`${puzzle.bonus.visual.motif}-${index}`}
+                        style={[
+                          styles.bonusVisualMark,
+                          {
+                            backgroundColor: puzzle.bonus.visual.accent,
+                            opacity: 0.18 + index * 0.08,
+                            transform: [
+                              { translateY: index % 2 === 0 ? -2 : 2 },
+                              { rotate: `${index % 2 === 0 ? -8 : 8}deg` },
+                            ],
+                          },
+                          puzzle.bonus.visual.motif === 'bars' && styles.bonusVisualMarkTall,
+                          puzzle.bonus.visual.motif === 'path' && styles.bonusVisualMarkRound,
+                        ]}
+                      />
+                    ))}
+                    <View style={styles.bonusVisualCenter}>
+                      <Text
+                        style={[
+                          styles.bonusVisualText,
+                          { color: puzzle.bonus.visual.accent },
+                        ]}
+                      >
+                        {puzzle.theme.label}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.bonusHeaderRow}>
+                    <View style={styles.bonusThemeBadge}>
+                      <Text style={styles.bonusThemeBadgeText}>{puzzle.theme.label}</Text>
+                    </View>
+                    <Text style={styles.bonusLengthText}>7 letters</Text>
+                  </View>
+                  <Text style={styles.bonusTitle}>Bonus Word</Text>
                   <Text style={styles.bonusInstruction}>{puzzle.bonus.instructionText}</Text>
                   <Text style={styles.bonusClue}>Clue: {puzzle.bonus.clue}</Text>
+                  <View style={styles.bonusSlots} accessibilityElementsHidden>
+                    {bonusSlotLetters.map((letter, index) => (
+                      <View
+                        key={`bonus-slot-${index}`}
+                        style={[
+                          styles.bonusSlot,
+                          Boolean(letter) && styles.bonusSlotFilled,
+                          bonusSolved && styles.bonusSlotSolved,
+                        ]}
+                      >
+                        <Text style={styles.bonusSlotText}>{letter}</Text>
+                      </View>
+                    ))}
+                  </View>
                   <TextInput
                     style={styles.bonusInput}
                     value={bonusEntry}
@@ -737,6 +933,52 @@ export default function MiniCrosswordScreen() {
                 </View>
               )}
 
+              {shouldCollapseClues ? (
+                <View style={styles.cluesCollapsedCard}>
+                  <Text style={styles.cluesCollapsedText}>
+                    Clue list hidden while typing. Use the clue above the grid.
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.cluesCard}>
+                  <Text style={styles.cluesTitle}>Across</Text>
+                  {puzzle.across.map((clue) => (
+                    <Pressable
+                      key={clue.id}
+                      style={({ pressed }) => [
+                        styles.clueRow,
+                        activeClue?.id === clue.id && styles.clueRowActive,
+                        pressed && styles.clueRowPressed,
+                      ]}
+                      onPress={() => handleSelectClue(clue)}
+                    >
+                      <Text style={styles.clueNumber}>{clue.number}.</Text>
+                      <Text style={styles.clueText}>
+                        {clue.clue} ({clue.answer.length})
+                      </Text>
+                    </Pressable>
+                  ))}
+
+                  <Text style={styles.cluesTitle}>Down</Text>
+                  {puzzle.down.map((clue) => (
+                    <Pressable
+                      key={clue.id}
+                      style={({ pressed }) => [
+                        styles.clueRow,
+                        activeClue?.id === clue.id && styles.clueRowActive,
+                        pressed && styles.clueRowPressed,
+                      ]}
+                      onPress={() => handleSelectClue(clue)}
+                    >
+                      <Text style={styles.clueNumber}>{clue.number}.</Text>
+                      <Text style={styles.clueText}>
+                        {clue.clue} ({clue.answer.length})
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+
               <Pressable
                 style={({ pressed }) => [styles.homeButton, pressed && styles.homeButtonPressed]}
                 onPress={() => router.back()}
@@ -760,6 +1002,19 @@ const createStyles = (
   const FontSize = theme.fontSize;
   const BorderRadius = theme.borderRadius;
   const ui = createDaybreakPrimitives(theme, screenAccent);
+  const crosswordCellBg = theme.mode === 'dark' ? '#fffdfb' : '#fffdfb';
+  const crosswordClueBg = theme.mode === 'dark' ? '#fff0e4' : '#fff4ec';
+  const crosswordActiveBg = theme.mode === 'dark' ? '#ffe4cf' : '#fff0e4';
+  const crosswordBlockBg = theme.mode === 'dark' ? '#05070b' : Colors.primary;
+  const webInputReset =
+    Platform.OS === 'web'
+      ? ({
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          outlineStyle: 'none',
+          boxShadow: 'none',
+        } as Record<string, unknown>)
+      : {};
 
   return StyleSheet.create({
     container: {
@@ -773,6 +1028,9 @@ const createStyles = (
       padding: Spacing.lg,
       paddingBottom: Spacing.xxl,
     },
+    scrollContentKeyboard: {
+      paddingBottom: Spacing.md,
+    },
     page: {
       ...ui.page,
     },
@@ -782,6 +1040,23 @@ const createStyles = (
     },
     header: {
       marginBottom: Spacing.md,
+    },
+    megaHeaderBadge: {
+      alignSelf: 'flex-start',
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 5,
+      marginBottom: Spacing.xs,
+    },
+    megaHeaderBadgeText: {
+      fontSize: 12,
+      color: screenAccent.badgeText,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.9,
     },
     title: {
       ...ui.title,
@@ -812,6 +1087,7 @@ const createStyles = (
     },
     activeClueTopRow: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
       justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: 4,
@@ -843,6 +1119,21 @@ const createStyles = (
       color: screenAccent.badgeText,
       fontWeight: '700',
     },
+    megaCluePill: {
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: Colors.surface,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 4,
+    },
+    megaCluePillText: {
+      fontSize: 12,
+      color: Colors.textSecondary,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
     grid: {
       alignItems: 'center',
       marginBottom: Spacing.md,
@@ -856,27 +1147,28 @@ const createStyles = (
       width: 58,
       height: 58,
       borderRadius: BorderRadius.sm,
-      backgroundColor: Colors.primary,
+      backgroundColor: crosswordBlockBg,
       borderWidth: 1,
-      borderColor: Colors.primaryLight,
+      borderColor: theme.mode === 'dark' ? '#20252d' : Colors.primaryLight,
     },
     letterCell: {
       width: 58,
       height: 58,
       borderRadius: BorderRadius.sm,
-      backgroundColor: Colors.surface,
+      backgroundColor: crosswordCellBg,
       borderWidth: 1,
-      borderColor: Colors.border,
+      borderColor: theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : Colors.border,
       justifyContent: 'center',
       alignItems: 'center',
       position: 'relative',
       overflow: 'hidden',
     },
     letterCellClue: {
-      backgroundColor: screenAccent.soft,
+      backgroundColor: crosswordClueBg,
       borderColor: screenAccent.badgeBorder,
     },
     letterCellActive: {
+      backgroundColor: crosswordActiveBg,
       borderColor: screenAccent.main,
       borderWidth: 2,
       shadowColor: screenAccent.main,
@@ -897,7 +1189,7 @@ const createStyles = (
       top: 3,
       left: 4,
       fontSize: 10,
-      color: Colors.textMuted,
+      color: theme.mode === 'dark' ? '#5f6875' : Colors.textMuted,
       fontWeight: '700',
       zIndex: 2,
     },
@@ -908,11 +1200,16 @@ const createStyles = (
       textAlignVertical: 'center',
       fontSize: 30,
       fontWeight: '800',
-      color: Colors.text,
+      color: '#1d2430',
       paddingTop: 6,
+      paddingHorizontal: 0,
+      paddingBottom: 0,
+      backgroundColor: 'transparent',
+      ...webInputReset,
     },
     controlsRow: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
       gap: Spacing.sm,
       justifyContent: 'center',
       marginBottom: Spacing.sm,
@@ -922,6 +1219,7 @@ const createStyles = (
       paddingVertical: Spacing.sm,
       paddingHorizontal: Spacing.lg,
       minWidth: 118,
+      maxWidth: '100%',
       alignItems: 'center',
       borderColor: screenAccent.badgeBorder,
       backgroundColor: screenAccent.badgeBg,
@@ -1003,11 +1301,89 @@ const createStyles = (
       borderWidth: 1,
       borderColor: screenAccent.badgeBorder,
       backgroundColor: screenAccent.soft,
+      overflow: 'hidden',
+    },
+    bonusVisual: {
+      minHeight: 64,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      marginBottom: Spacing.sm,
+      paddingHorizontal: Spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      overflow: 'hidden',
+    },
+    bonusGlow: {
+      position: 'absolute',
+      top: -20,
+      right: -12,
+      width: 104,
+      height: 104,
+      borderRadius: BorderRadius.full,
+      backgroundColor: Colors.surface,
+      opacity: theme.mode === 'dark' ? 0.09 : 0.42,
+    },
+    bonusVisualMark: {
+      width: 34,
+      height: 8,
+      borderRadius: BorderRadius.full,
+    },
+    bonusVisualMarkTall: {
+      width: 10,
+      height: 24,
+    },
+    bonusVisualMarkRound: {
+      width: 14,
+      height: 14,
+    },
+    bonusVisualCenter: {
+      position: 'absolute',
+      left: Spacing.md,
+      right: Spacing.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    bonusVisualText: {
+      fontSize: FontSize.sm,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 1.2,
+    },
+    bonusHeaderRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.sm,
+      marginBottom: Spacing.xs,
+    },
+    bonusThemeBadge: {
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: Colors.surface,
+      paddingVertical: 5,
+      paddingHorizontal: Spacing.sm,
+    },
+    bonusThemeBadgeText: {
+      fontSize: 12,
+      color: Colors.textSecondary,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
+    bonusLengthText: {
+      fontSize: 12,
+      color: Colors.textMuted,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
     },
     bonusTitle: {
-      fontSize: FontSize.md,
+      fontSize: FontSize.lg,
       color: Colors.text,
-      fontWeight: '800',
+      fontWeight: '900',
       marginBottom: Spacing.xs,
     },
     bonusInstruction: {
@@ -1021,6 +1397,34 @@ const createStyles = (
       color: Colors.text,
       fontWeight: '700',
       marginBottom: Spacing.sm,
+    },
+    bonusSlots: {
+      flexDirection: 'row',
+      gap: 6,
+      marginBottom: Spacing.sm,
+    },
+    bonusSlot: {
+      flex: 1,
+      minWidth: 0,
+      aspectRatio: 1,
+      borderRadius: BorderRadius.sm,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: Colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    bonusSlotFilled: {
+      backgroundColor: screenAccent.badgeBg,
+    },
+    bonusSlotSolved: {
+      borderColor: screenAccent.main,
+      backgroundColor: screenAccent.soft,
+    },
+    bonusSlotText: {
+      fontSize: FontSize.md,
+      color: Colors.text,
+      fontWeight: '900',
     },
     bonusInput: {
       borderRadius: BorderRadius.md,

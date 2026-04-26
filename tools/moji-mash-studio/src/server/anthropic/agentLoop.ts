@@ -12,8 +12,15 @@ import { loadSystemPrompt } from './systemPrompt.js';
 import { session } from '../state.js';
 import { readFileTool } from '../tools/readFile.js';
 import { listPoolTool } from '../tools/listPool.js';
+import { analyzePoolTool } from '../tools/analyzePool.js';
+import { searchPoolTool } from '../tools/searchPool.js';
+import { listStagedTool } from '../tools/listStaged.js';
+import { checkConceptTool } from '../tools/checkConcept.js';
 import { generateMojiTool } from '../tools/generateMoji.js';
+import { refineMojiTool } from '../tools/refineMoji.js';
 import { promoteMojiTool } from '../tools/promoteMoji.js';
+import { viewImageTool, type ViewImageImage } from '../tools/viewImage.js';
+import { todayLocalISO } from '../util/today.js';
 import type {
   ChatBlock,
   ChatMessage,
@@ -76,7 +83,7 @@ export async function runAgent({ userText, sink }: RunAgentOpts): Promise<void> 
   const userAppended: MessageAppendedEvent = { message: userMsg };
   await sink.send(SSE.MessageAppended, userAppended);
 
-  const systemPrompt = loadSystemPrompt(new Date().toISOString().slice(0, 10));
+  const systemPrompt = loadSystemPrompt(todayLocalISO());
 
   try {
     for (let iter = 0; iter < MAX_AGENT_ITERATIONS; iter++) {
@@ -194,7 +201,7 @@ export async function runAgent({ userText, sink }: RunAgentOpts): Promise<void> 
             b.type === 'tool_call' && b.toolUseId === tu.id,
         )!;
         try {
-          const { resultJson, summary } = await runOneTool(
+          const { resultJson, summary, images } = await runOneTool(
             tu.name,
             (tu.input as Record<string, unknown>) ?? {},
             tu.id,
@@ -209,11 +216,35 @@ export async function runAgent({ userText, sink }: RunAgentOpts): Promise<void> 
             summary,
           };
           await sink.send(SSE.ToolResult, resEvt);
-          resultBlocks.push({
-            type: 'tool_result',
-            tool_use_id: tu.id,
-            content: resultJson,
-          });
+          // If the tool attached images, wrap content as a multi-part array so
+          // the agent sees the vision block alongside the JSON result.
+          if (images && images.length > 0) {
+            const content: Array<Anthropic.TextBlockParam | Anthropic.ImageBlockParam> = [
+              { type: 'text', text: resultJson },
+            ];
+            for (const img of images) {
+              content.push({ type: 'text', text: img.caption });
+              content.push({
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: img.mediaType,
+                  data: img.base64,
+                },
+              });
+            }
+            resultBlocks.push({
+              type: 'tool_result',
+              tool_use_id: tu.id,
+              content,
+            });
+          } else {
+            resultBlocks.push({
+              type: 'tool_result',
+              tool_use_id: tu.id,
+              content: resultJson,
+            });
+          }
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
           card.status = 'error';
@@ -259,7 +290,7 @@ async function runOneTool(
   toolUseId: string,
   sink: SSESink,
   signal: AbortSignal,
-): Promise<{ resultJson: string; summary: string }> {
+): Promise<{ resultJson: string; summary: string; images?: ViewImageImage[] }> {
   switch (name) {
     case 'read_file': {
       const result = readFileTool({ path: String(input.path ?? '') });
@@ -274,6 +305,65 @@ async function runOneTool(
       return {
         resultJson: JSON.stringify(result),
         summary: `Loaded pool (${result.total} puzzles, ${wordTotal} unique words, ${result.pinnedCount} pinned)`,
+      };
+    }
+    case 'analyze_pool': {
+      const result = analyzePoolTool();
+      const focus = result.categories
+        .filter((c) => c.status !== 'in-range' && c.category !== 'unknown')
+        .map((c) => `${c.category} ${c.status}`)
+        .join(', ');
+      const summary = focus
+        ? `Analyzed ${result.total} puzzles — focus: ${focus}`
+        : `Analyzed ${result.total} puzzles — mix on target`;
+      return { resultJson: JSON.stringify(result), summary };
+    }
+    case 'search_pool': {
+      const result = searchPoolTool({
+        words: Array.isArray(input.words) ? (input.words as string[]) : undefined,
+        near_date: typeof input.near_date === 'string' ? input.near_date : undefined,
+        within_days: typeof input.within_days === 'number' ? input.within_days : undefined,
+        pinned_only: typeof input.pinned_only === 'boolean' ? input.pinned_only : undefined,
+        limit: typeof input.limit === 'number' ? input.limit : undefined,
+      });
+      const summary = result.conflict
+        ? `⚠ ${result.summary}`
+        : `${result.summary}`;
+      return { resultJson: JSON.stringify(result), summary };
+    }
+    case 'list_staged': {
+      const result = listStagedTool({
+        date: typeof input.date === 'string' ? input.date : undefined,
+        slug: typeof input.slug === 'string' ? input.slug : undefined,
+      });
+      const variantTotal = result.concepts.reduce((acc, c) => acc + c.variants.length, 0);
+      return {
+        resultJson: JSON.stringify(result),
+        summary: `Found ${result.total} staged concept${result.total === 1 ? '' : 's'} (${variantTotal} variants)`,
+      };
+    }
+    case 'check_concept': {
+      const interpretationsRaw = Array.isArray(input.interpretations)
+        ? (input.interpretations as Array<Record<string, unknown>>)
+        : undefined;
+      const interpretations = interpretationsRaw
+        ?.map((i) => ({
+          label: typeof i.label === 'string' ? i.label : '',
+          prompt: typeof i.prompt === 'string' ? i.prompt : '',
+        }))
+        .filter((i) => i.label && i.prompt);
+      const result = await checkConceptTool({
+        words: (input.words as string[]) ?? [],
+        prompt: typeof input.prompt === 'string' ? input.prompt : undefined,
+        interpretations,
+      });
+      const verdictEmoji = result.verdict === 'proceed' ? '✓' : result.verdict === 'revise' ? '~' : '✗';
+      const tail = result.recommendedInterpretation
+        ? ` — pick: ${result.recommendedInterpretation}`
+        : '';
+      return {
+        resultJson: JSON.stringify(result),
+        summary: `${verdictEmoji} rating ${result.rating}/5 (${result.verdict})${tail}`,
       };
     }
     case 'generate_moji': {
@@ -302,7 +392,50 @@ async function runOneTool(
       const summary = best
         ? `Generated ${result.variants.length} variants for \`${result.slug}\` — best ${best.file} (composite ${best.composite.toFixed(1)}/25)`
         : `Generated ${result.variants.length} variants for \`${result.slug}\``;
-      return { resultJson: JSON.stringify(result), summary };
+      // Strip images out of the JSON payload (the agent gets them as a
+      // separate vision block; sending them twice wastes tokens).
+      const { images, ...resultForJson } = result;
+      return { resultJson: JSON.stringify(resultForJson), summary, images };
+    }
+    case 'refine_moji': {
+      if (session.generationsThisTurn >= MAX_GENERATIONS_PER_TURN) {
+        throw new Error(
+          `MAX_GENERATIONS_PER_TURN (${MAX_GENERATIONS_PER_TURN}) reached. Stop and check in with the user before generating more candidates this turn.`,
+        );
+      }
+      session.generationsThisTurn += 1;
+      const result = await refineMojiTool(
+        {
+          words: (input.words as string[]) ?? [],
+          source_path: String(input.source_path ?? ''),
+          prompt: String(input.prompt ?? ''),
+          init_strength: typeof input.init_strength === 'number' ? input.init_strength : undefined,
+          count: typeof input.count === 'number' ? input.count : undefined,
+          seed: typeof input.seed === 'number' ? input.seed : undefined,
+        },
+        {
+          abortSignal: signal,
+          onProgress: async (line) => {
+            const evt: ToolProgressEvent = { toolUseId, line };
+            await sink.send(SSE.ToolProgress, evt);
+          },
+        },
+      );
+      const best = result.variants.find((v) => v.recommended);
+      const summary = best
+        ? `Refined ${result.variants.length} variants for \`${result.slug}\` — best ${best.file} (composite ${best.composite.toFixed(1)}/25)`
+        : `Refined ${result.variants.length} variants for \`${result.slug}\``;
+      const { images, ...resultForJson } = result;
+      return { resultJson: JSON.stringify(resultForJson), summary, images };
+    }
+    case 'view_image': {
+      const result = viewImageTool({ path: String(input.path ?? '') });
+      const { images, ...resultForJson } = result;
+      return {
+        resultJson: JSON.stringify(resultForJson),
+        summary: `Viewed \`${result.path}\` (${result.sizeBytes} bytes)`,
+        images,
+      };
     }
     case 'promote_moji': {
       const result = await promoteMojiTool({

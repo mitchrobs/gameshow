@@ -78,6 +78,11 @@ const puzzles: MojiMashPuzzle[] = [
     hint: 'Starts with: f, h, d',
   },
   {
+    image: require('../../assets/genmoji/ghost-pepper.png'),
+    words: ['ghost', 'pepper'],
+    hint: 'Starts with: g, p',
+  },
+  {
     image: require('../../assets/genmoji/green-machine.png'),
     words: ['green', 'machine'],
     hint: 'Starts with: g, m',

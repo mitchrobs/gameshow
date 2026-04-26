@@ -10,10 +10,25 @@ A Moji Mash puzzle is a single "genmoji" image — an emoji-style cartoon that v
 
 ---
 
+## Portfolio Quotas
+
+A great 365-day calendar is a *mix*, not 365 of the same pattern. Idioms feel clever but collapse the player's search space — once the phrase clicks, the puzzle is over, and the Pass-3 playtest will catch that (playtest_difficulty=5). Cap them. The absurd and literal categories take more brainstorming effort but produce the most memorable puzzles, because the player actually has to *look* at the image.
+
+| Category | Target share | Player experience |
+|---|---|---|
+| Idiom / phrase | **≤ 25%** | Phrase clicks and the puzzle snaps closed |
+| Absurd combo | **30–35%** | No phrase to fall back on; player enumerates |
+| Literal compound | **20–25%** | Observational; single named object in parts |
+| Cultural / seasonal | **15–20%** | Reference lands if you know it |
+
+When drafting a batch, brainstorm *per-category* — not freeform, converge, and tag. Freeform brainstorming over-rewards idioms because they're the easiest to invent. The four patterns below are in deliberate balance; read all four before drafting.
+
+---
+
 ## The Four Winning Patterns
 
 ### 1. Idioms & Compound Phrases
-The most satisfying category. The words form a phrase (idiomatic or literal) that most people recognize, but the genmoji depicts it *literally*.
+The most immediately satisfying category — but use them sparingly. The words form a phrase most people recognize; the genmoji depicts it *literally*. Great in small doses, but if a player spots the phrase in the image they don't really play the puzzle. **Use only when the literal image misdirects away from the phrase** (e.g. `party pooper` depicted as a poop wearing a party hat — looks like a sad poop first, phrase lands second).
 
 | Words | Why it works |
 |---|---|
@@ -169,46 +184,162 @@ Suggested concepts by date. Mark with `date: 'YYYY-MM-DD'` when adding to the po
 
 ## Genmoji Prompt Template
 
+We're not writing a free-form prompt — we're writing for the **open-genmoji LoRA**
+(see `~/tools/open-genmoji/metaprompt/open-genmoji.md` for the canonical spec).
+The trigger word is literally `emoji`. Phrases are separated by **periods**, not
+commas. Style/lighting tokens are hard-coded at the tail.
+
+### Canonical form
+
 ```
-an expressive emoji of <describe visual for word 1> and <describe visual for word 2>[, <word 3 visual>], cute cartoon sticker, thick outline, saturated colors, centered on white background
+emoji of <subject description>. <addon phrase>. <addon phrase>. 3D lighting. no cast shadows.
 ```
 
-### Rules
-- Open with `"an expressive emoji of"`
-- Name a concrete visual element for **every word** — the model can't infer it
-- Keep it ≤ 40 words
-- Don't describe style twice (one mention of "cute cartoon sticker" is enough)
-- Avoid negations ("not realistic") — describe what you want, not what you don't want
+### Hard rules (do not deviate)
 
-### Worked examples
+- Open with exactly `emoji of`. No "an", no "expressive", no "cute" prefix — those words appear in addons later.
+- Phrases end with a period (`.`). Treat the prompt as a list of declarative phrases, not a sentence.
+- End **every** prompt with the literal tail `3D lighting. no cast shadows.` — these are the sticker-style anchor tokens the LoRA was trained on.
+- **Never describe the background.** No "centered on white background", no "studio backdrop". The LoRA always renders on transparent/white; describing it fights training.
+- **Never describe drop shadows or cast shadows.** The tail explicitly forbids them.
+- Describe colors **per-part** ("red apple. green leaf.") rather than globally ("a red and green fruit").
+- Keep the whole prompt ≤ 40 words.
 
-**`spring cleaning`** (idiom)
+### Conditional addons (apply only when they fit)
+
+Add these as separate period-terminated phrases between the subject and the tail:
+
+| Subject type | Addon | When to use |
+|---|---|---|
+| Non-object, non-human (animals, food, abstract subjects) | `cute.` | Almost always for these categories |
+| Animal | `enlarged head in cartoon style.` | Apple-emoji style for any animal |
+| Animal or human | `head is turned towards viewer.` | When a face is in frame |
+| Object (tools, vehicles, food) | `detailed texture.` | Helps the LoRA push material detail |
+
+If none apply, just go subject → tail.
+
+### Single-subject discipline
+
+The LoRA was trained on Apple emojis — **single subject, centered, no scene**. Multi-subject collages ("a man holding a coffee cup with a phone, books behind him") almost always look worse, regardless of how good the prompt is. Most weak Moji Mash variants from before Phase B failed here.
+
+When a concept naturally splits across multiple subjects, before writing a prompt list **2–3 alternative single-subject framings** and let `check_concept` (multi-interpretation mode) pick the strongest. Examples:
+
+| Concept | Multi-subject framing (bad) | Single-subject framings (good) |
+|---|---|---|
+| `couch potato` | a man on a sofa holding a potato | (a) anthropomorphised potato lounging on a sofa; (b) a potato-shaped person watching TV |
+| `party pooper` | a poop emoji at a crowded party scene | (a) a sad poop wearing a tiny party hat; (b) a poop with a deflated balloon |
+| `tax return` | a man at a desk with tax forms and money | (a) a tax form with money flying back via a looping arrow; (b) a calculator with a refund-shaped dollar bill |
+
+Heuristics for picking:
+- Anthropomorphise a single noun ("smiling potato lounging on sofa") instead of pairing two nouns ("man + couch")
+- Reduce people/animals to single-subject scale; avoid named multi-character scenes
+- A single subject with one or two interacting **props** is fine — it's the second subject that breaks
+- When in doubt, draft both versions and run `check_concept` with both as `interpretations`
+
+### Worked examples (LoRA-faithful)
+
+**`spring cleaning`** (idiom — single-subject scene)
 ```
-an expressive emoji of spring flowers tied to a broom sweeping away dust clouds, cute cartoon sticker, thick outline, saturated colors, centered on white background
+emoji of a cartoon broom sweeping pastel spring flowers and dust clouds. cute. detailed texture. 3D lighting. no cast shadows.
 ```
 
-**`bunny basket egg`** (seasonal literal)
+**`bunny basket egg`** (seasonal — animal subject)
 ```
-an expressive emoji of a cartoon bunny holding a wicker basket overflowing with pastel Easter eggs, cute cartoon sticker, thick outline, saturated colors, centered on white background
-```
-
-**`couch potato`** (idiom — a great future candidate)
-```
-an expressive emoji of a cartoon potato lounging on a small sofa holding a TV remote with a contented smile, cute cartoon sticker, thick outline, saturated colors, centered on white background
+emoji of a small bunny holding a wicker basket of pastel eggs. cute. enlarged head in cartoon style. head is turned towards viewer. 3D lighting. no cast shadows.
 ```
 
-**`night owl`** (idiom — another good candidate)
+**`couch potato`** (idiom — anthropomorphised food)
 ```
-an expressive emoji of a wide-eyed owl wearing a tiny nightcap perched on a crescent moon, cute cartoon sticker, thick outline, saturated colors, centered on white background
+emoji of a smiling potato lounging on a small green sofa with a TV remote. cute. enlarged head in cartoon style. head is turned towards viewer. 3D lighting. no cast shadows.
+```
+
+**`night owl`** (idiom — animal subject)
+```
+emoji of a wide-eyed owl wearing a tiny nightcap perched on a yellow crescent moon. cute. enlarged head in cartoon style. head is turned towards viewer. 3D lighting. no cast shadows.
+```
+
+**`tax return`** (object scene — no animal/human)
+```
+emoji of a tax form with a looping arrow returning a stack of dollar bills. detailed texture. 3D lighting. no cast shadows.
 ```
 
 ### Common mistakes
 
 | Bad prompt | Problem | Fix |
 |---|---|---|
-| `"emoji of spring and cleaning"` | "spring" and "cleaning" aren't visualized | Describe the visual objects explicitly |
-| `"cute emoji of a magical horse"` | misses "magic" as a distinct element | Add wand + sparkles so the word is "pointable" |
-| `"emoji of a very complex scene with lots of details"` | too vague, model will hallucinate | Be specific about the 2–4 key elements |
+| `an expressive emoji of …, cute cartoon sticker, thick outline, saturated colors, centered on white background` | Old template — fights LoRA. `centered on white background` makes the model render a literal painted backdrop. | Use the canonical form above. Never describe background. |
+| `… with a subtle drop shadow.` | Directly contradicts the mandatory `no cast shadows.` tail. | Drop the shadow phrase entirely. |
+| `emoji of spring and cleaning.` | "spring" and "cleaning" aren't visualized — both need a concrete depictable form. | Pick one unified subject that embodies both: `cartoon broom sweeping pastel spring flowers`. |
+| `emoji of a magical horse.` | "magic" has no concrete form. | Make it pointable: `emoji of a horse with a glowing wand and sparkles`. |
+| `emoji of a man holding a coffee cup with a phone, books behind him, …` | Too many elements; LoRA was trained on single-subject Apple emojis. | Reframe as one subject (`a coffee cup`) with one or two interacting props. |
+
+---
+
+## What the LoRA Has Seen
+
+The open-genmoji LoRA is a Flux.1 Dev fine-tune on the Apple-emoji set — a few
+hundred single-subject, centered, soft-shaded stickers. Its fluency is
+strongly skewed toward concepts that *look like existing emojis*. Prompts that
+stray from the training distribution degrade fast, no matter how carefully
+worded. Plan around this.
+
+### Categories the LoRA is fluent in
+
+These render well on the first pass — expect a good variant in 2–3 tries:
+
+- **Common animals** (cat, dog, owl, fox, bear, bunny, duck) — especially with
+  `enlarged head in cartoon style` + `head is turned towards viewer`
+- **Food** (fruit, pastry, hot meals in bowls, individual desserts) — add
+  `detailed texture`
+- **Household objects** (phone, clock, hat, key, suitcase) — clean renders
+- **Vehicles** (car, plane, bike, train) — front/side profile is strongest
+- **Celestial / weather** (sun, moon, cloud, star, rainbow)
+- **Clothing & accessories** (shoe, ring, tie, crown) — iconic outlines
+- **Faces & hands** — as small accents on another subject
+
+### Categories that struggle
+
+Expect more regenerations or a fundamentally different framing:
+
+- **Named humans / characters** — ninja, chef, cowboy — shapes work but
+  identity drifts; treat as generic-role costume on an animal/object
+- **Multi-figure scenes** — any time you want two agents interacting, it
+  collapses. See "Single-subject discipline" above.
+- **Actions / verbs** — `sweeping`, `sharing`, `crashing` — the LoRA has no
+  reference for motion. Fake it with a prop (broom = sweeping; sparks = crash)
+- **Text / logos** — readable words almost never render. Keep brand marks
+  implicit (color + silhouette, not wordmark)
+- **Architecture at distance** — buildings become blobs; zoom into one element
+  (a door, a chimney) instead
+- **Liquid in motion** — waterfalls, splashes — LoRA smears them; use a glass
+  with a stylized wave instead
+
+### Framings that succeed
+
+Patterns we've seen score 4–5 on word_clarity + style_fidelity:
+
+- `emoji of a <cute animal> wearing a <tiny costume element>` — the
+  `tiny` keeps the prop from eating the subject
+- `emoji of a <object> with <contrasting color detail>` — color asymmetry
+  is the LoRA's favourite trick
+- `emoji of a smiling <anthropomorphised food>` — potato, avocado, pepper
+  all take faces well
+- `emoji of a <object> made of <material>` — chocolate key, glass flower
+  — the material-swap LoRA-clicks reliably
+
+### Framings that fail
+
+If your prompt looks like one of these, rewrite before generating:
+
+- `emoji of a <person> doing <action> at <location>` — too scene-like
+- `emoji of <noun1> and <noun2>` with no interaction — collages score
+  concept_synergy ≤ 2
+- `emoji of a <group of animals>` — the LoRA renders one and a blur
+- `emoji of <abstract concept>` — `luck`, `freedom`, `trust` — no visual anchor
+
+When a concept keeps failing, the root cause is almost always "you're asking
+the LoRA for something outside its training set." Reach for a concrete,
+single-subject reframing from the tables above.
 
 ---
 
@@ -224,40 +355,51 @@ Use the automated vision check plus the blind test to evaluate all three axes.
 
 ### The Scored Rubric (automated via `--check`)
 
-Running `generate_moji.py --check` performs a two-pass evaluation on each variant:
+Running `generate_moji.py --check` performs a **three-pass** evaluation on each variant:
 
 **Pass 1 — Blind decode**: Claude describes what it sees without knowing the answer. This simulates a player's first look. Answer words absent from the blind decode are flagged ⚠.
 
-**Pass 2 — Scored rubric**: given the answer words, Claude scores 5 dimensions (1–5):
+**Pass 2 — Scored rubric**: given the answer words, Claude scores 4 dimensions on a strict 1–5 scale. The anchors are deliberately tight: a 5 means top-decile work that would headline the calendar; a 4 is a solid keeper; a 3 has a real flaw. If you see a run where everything scores 4s and 5s, the rubric is drifting — inspect manually before trusting.
+
+**Pass 3 — Playtest**: Claude plays the puzzle with only the image + the public hint (starting letters), and lists its top 5 guess combinations. The rank of the true answer becomes `playtest_difficulty`. This is a *measured* behavior, not an opinion — it catches the idiom-trivial failure mode that Pass 2 alone cannot (a clever idiom image can score 5/5/5/5 on Pass 2 and still playtest at rank 1 because the phrase is too recognisable).
 
 | Dimension | What it measures | Target | Flag if… |
 |---|---|---|---|
 | `word_clarity` | All answer words visible and pointable? | 4–5 | ≤ 2: a word is missing |
-| `visual_appeal` | Charming, expressive, funny as a sticker? | 4–5 | ≤ 2: flat and generic |
+| `style_fidelity` | Matches the open-genmoji LoRA style — single 3D-shaded sticker, soft lighting, no painted background, no cast shadow, no photorealism? | 4–5 | ≤ 2: wrong style entirely (flat 2D, painted scene, photo, has a shadow) |
 | `concept_synergy` | Unified creative scene vs. literal word collage? | 4–5 | ≤ 2: just objects next to each other |
-| `guessability` | How likely is a player to guess all words? | **3–4** | ≤ 1: unsolvable; ≥ 5: trivially easy |
 | `aha_factor` | How satisfying is the reveal moment? | 4–5 | ≤ 2: concept itself may be weak |
+| `playtest_difficulty` | **Measured.** 5 = playtest cracked the answer on guess #1; 3 = ranked #3 (sweet spot); 1 = not in top 5. | **3** | = 5: too easy (idiom-trivial); = 1 or 0: too hard |
 
-**Composite score** (max 25): sum of all dimensions, with guessability penalised when far from the sweet spot of 3–4. The contact sheet sorts variants by composite and stars the recommended one.
+**Composite score** (max 25): sum of the 4 rubric dims + a bell-curved playtest contribution (5 pts at pd=3, 1 pt at pd=1 or pd=5). The contact sheet sorts variants by composite, stars the recommended one, and lists the playtest's top-5 guesses underneath.
+
+**Calibration**: expect most composites to land between **13 and 17**. A composite of 20+ is rare and reserved for portfolio-worthy variants. If a run produces three 22/25s, the rubric is inflating — check manually before promoting anything.
 
 **Decision tree:**
 - `word_clarity` ≤ 2 on all variants → rewrite prompt to foreground the missing element, regenerate
 - `concept_synergy` ≤ 2 on all variants → redesign prompt around a single interacting scene
 - `aha_factor` ≤ 2 on all variants → consider dropping the concept entirely
+- `playtest_difficulty = 5` on all variants AND category=idiom → the puzzle is too easy. Reframe or reject — do not ship a playtest-rank-1 puzzle just because its composite is high
+- `playtest_difficulty = 1` on all variants (answer not in top 5 anywhere) → the puzzle is unsolvable as framed. Make the weakest word more prominent
 - Composite < 12/25 on all variants → concept + prompt combination isn't working; start over
-- One strong variant (composite ≥ 18/25) → promote it with confidence
+- One variant with composite ≥ 17 AND playtest_difficulty ∈ {3, 4} → promote it with confidence
 
-### The Guessability Dimension
+### The Playtest Dimension
 
-Guessability is the most nuanced dimension — both extremes are wrong:
+`playtest_difficulty` is a *behavioural* measurement, not Claude's opinion. Claude is shown only the image and the public starting-letter hint, and asked to list its top 5 guesses. Where the true answer lands in that list determines the score:
 
-**Too easy (score 5)**: Answer is immediately obvious from a glance. The image is just a literal depiction with nothing to figure out. Players feel no satisfaction.
+| Rank | Playtest difficulty | Meaning |
+|---|---|---|
+| 1 | **5** | Cracked on guess #1 — too obvious / idiom-trivial |
+| 2 | 4 | Easy-fair — answer was the second guess |
+| 3 | **3** ★ sweet spot | Fair challenge — exactly the "mild work, then aha" zone |
+| 4 | 2 | Hard-fair — answer was low in the list but present |
+| 5 | 1 | Very hard but solvable — last guess still found it |
+| not in top 5 | 1 | Unsolvable as framed — likely a missing visual cue |
 
-**Too hard (score 1)**: Key elements are invisible, ambiguous, or too abstract. Players give up. No aha moment because there's no way to get there.
+The contact sheet prints the full top-5 guess list under each card. **Read it.** It tells you *what the player sees in the image*. If Claude's top guesses are `[party, hat]` and `[birthday, cake]` but the answer is `[party, pooper]`, the visual is sending the wrong signal — the prompt needs to foreground the "pooper" element, not the "party" element.
 
-**Sweet spot (score 3–4)**: Player sees something funny or weird. They can identify the elements if they look. The answer requires a moment of thought but feels completely fair in retrospect.
-
-The `--check` flag will warn when guessability is outside 2–4. A single image that scores guessability=2 can still be good — it means the puzzle is on the challenging end, which is fine. Guessability=1 or guessability=5 both warrant regeneration.
+A playtest-rank-1 variant starred as "recommended" is a trap: the composite is high because Pass 2 rubric loved the image, but the puzzle will feel trivial to play. Prefer a lower-composite variant that playtests at 3–4 over a high-composite variant that playtests at 5.
 
 ### The Blind Test (manual)
 
