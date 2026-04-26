@@ -66,6 +66,8 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     expect(puzzle.spareCount).toBeGreaterThanOrEqual(1);
     expect(puzzle.spareCount).toBeLessThanOrEqual(2);
     expect(puzzle.ledger?.run ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.gapRun ?? 0).toBe(0);
+    expect(puzzle.ledger?.mixedGap ?? 0).toBe(0);
     expect(puzzle.ledger?.match ?? 0).toBeGreaterThan(0);
     expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
     expect(puzzle.ledger?.number ?? 0).toBe(0);
@@ -78,46 +80,54 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
 
   if (puzzle.difficulty === 'Hard') {
     expect(suits).toBe(4);
-    expect(blanks).toBeGreaterThanOrEqual(19);
-    expect(blanks).toBeLessThanOrEqual(23);
-    expect(puzzle.lines.length).toBeGreaterThanOrEqual(23);
-    expect(puzzle.lines.length).toBeLessThanOrEqual(29);
-    expect(hidden).toBeGreaterThanOrEqual(18);
-    expect(hidden).toBeLessThanOrEqual(21);
+    expect(blanks).toBeGreaterThanOrEqual(21);
+    expect(blanks).toBeLessThanOrEqual(25);
+    expect(puzzle.lines.length).toBeGreaterThanOrEqual(25);
+    expect(puzzle.lines.length).toBeLessThanOrEqual(31);
+    expect(hidden).toBeGreaterThanOrEqual(20);
+    expect(hidden).toBeLessThanOrEqual(23);
     expect(puzzle.spareCount).toBeGreaterThanOrEqual(2);
     expect(puzzle.spareCount).toBeLessThanOrEqual(4);
     expect(puzzle.ledger?.run ?? 0).toBeGreaterThan(0);
     expect(puzzle.ledger?.mixedRun ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.gapRun ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.mixedGap ?? 0).toBe(0);
     expect(puzzle.ledger?.match ?? 0).toBeGreaterThan(0);
     expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
     expect(puzzle.ledger?.number ?? 0).toBeGreaterThan(0);
-    if (puzzle.bankGoal) expect(['pair', 'run', 'mixedRun', 'match', 'flush', 'number']).toContain(puzzle.bankGoal.type);
-    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(5);
-    expect(puzzle.motifs.length).toBeLessThanOrEqual(7);
+    if (puzzle.bankGoal) {
+      expect(['pair', 'run', 'mixedRun', 'gapRun', 'match', 'flush', 'number']).toContain(puzzle.bankGoal.type);
+    }
+    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(6);
+    expect(puzzle.motifs.length).toBeLessThanOrEqual(8);
     return;
   }
 
   expect(suits).toBe(5);
-  expect(blanks).toBeGreaterThanOrEqual(33);
-  expect(blanks).toBeLessThanOrEqual(35);
-  expect(puzzle.lines.length).toBeGreaterThanOrEqual(39);
-  expect(puzzle.lines.length).toBeLessThanOrEqual(45);
-  expect(hidden).toBeGreaterThanOrEqual(31);
-  expect(hidden).toBeLessThanOrEqual(33);
+  expect(blanks).toBeGreaterThanOrEqual(37);
+  expect(blanks).toBeLessThanOrEqual(39);
+  expect(puzzle.lines.length).toBeGreaterThanOrEqual(43);
+  expect(puzzle.lines.length).toBeLessThanOrEqual(49);
+  expect(hidden).toBeGreaterThanOrEqual(35);
+  expect(hidden).toBeLessThanOrEqual(37);
   expect(puzzle.spareCount).toBeGreaterThanOrEqual(3);
   expect(puzzle.spareCount).toBeLessThanOrEqual(5);
   expect(puzzle.ledger?.run ?? 0).toBeGreaterThan(0);
   expect(puzzle.ledger?.mixedRun ?? 0).toBeGreaterThan(0);
+  expect(puzzle.ledger?.gapRun ?? 0).toBeGreaterThan(0);
+  expect(puzzle.ledger?.mixedGap ?? 0).toBeGreaterThan(0);
   expect(puzzle.ledger?.match ?? 0).toBeGreaterThan(0);
   expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
   expect(puzzle.ledger?.number ?? 0).toBeGreaterThan(0);
-  if (puzzle.bankGoal) expect(['run', 'mixedRun', 'match', 'flush', 'number']).toContain(puzzle.bankGoal.type);
-  expect(puzzle.motifs.length).toBeGreaterThanOrEqual(8);
-  expect(puzzle.motifs.length).toBeLessThanOrEqual(10);
+  if (puzzle.bankGoal) {
+    expect(['run', 'mixedRun', 'gapRun', 'mixedGap', 'match', 'flush', 'number']).toContain(puzzle.bankGoal.type);
+  }
+  expect(puzzle.motifs.length).toBeGreaterThanOrEqual(10);
+  expect(puzzle.motifs.length).toBeLessThanOrEqual(12);
 }
 
 describe('dawn cabinet puzzle engine', () => {
-  test('accepts true matches, pairs, suited runs, mixed runs, flushes, and number sets', () => {
+  test('accepts true matches, pairs, suited runs, gapped runs, flushes, and number sets', () => {
     expect(
       isValidCabinetLine([
         { suit: 'bamboo', rank: 2 },
@@ -155,6 +165,28 @@ describe('dawn cabinet puzzle engine', () => {
           { suit: 'characters', rank: 5 },
         ],
         'mixedRun'
+      )
+    ).toBe(true);
+
+    expect(
+      isValidCabinetLine(
+        [
+          { suit: 'bamboo', rank: 2 },
+          { suit: 'bamboo', rank: 4 },
+          { suit: 'bamboo', rank: 6 },
+        ],
+        'gapRun'
+      )
+    ).toBe(true);
+
+    expect(
+      isValidCabinetLine(
+        [
+          { suit: 'bamboo', rank: 1 },
+          { suit: 'dots', rank: 3 },
+          { suit: 'characters', rank: 5 },
+        ],
+        'mixedGap'
       )
     ).toBe(true);
 
@@ -213,7 +245,7 @@ describe('dawn cabinet puzzle engine', () => {
     ).toBe(false);
   });
 
-  test('line classifier uses friendly set grammar with Run and Match priority', () => {
+  test('line classifier uses friendly set grammar priority', () => {
     expect(
       classifyCabinetLine([
         { suit: 'bamboo', rank: 2 },
@@ -228,6 +260,20 @@ describe('dawn cabinet puzzle engine', () => {
         { suit: 'characters', rank: 5 },
       ])
     ).toBe('mixedRun');
+    expect(
+      classifyCabinetLine([
+        { suit: 'bamboo', rank: 2 },
+        { suit: 'bamboo', rank: 4 },
+        { suit: 'bamboo', rank: 6 },
+      ])
+    ).toBe('gapRun');
+    expect(
+      classifyCabinetLine([
+        { suit: 'bamboo', rank: 1 },
+        { suit: 'dots', rank: 3 },
+        { suit: 'characters', rank: 5 },
+      ])
+    ).toBe('mixedGap');
     expect(
       classifyCabinetLine([
         { suit: 'bamboo', rank: 5 },
@@ -322,7 +368,7 @@ describe('dawn cabinet puzzle engine', () => {
     }
 
     expect(generated).toBe(250 * DAWN_CABINET_DAILY_DIFFICULTIES.length);
-  });
+  }, 90000);
 
   test('daily modular grammar varies shapes and count profiles', () => {
     DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
@@ -352,8 +398,12 @@ describe('dawn cabinet puzzle engine', () => {
         expect(motifs.has('copy-block')).toBe(true);
       } else {
         expect(motifs.has('knot-cell')).toBe(true);
+        expect(motifs.has('gap-run-pocket')).toBe(true);
       }
-      if (difficulty === 'Expert') expect(motifs.has('flush-basin')).toBe(true);
+      if (difficulty === 'Expert') {
+        expect(motifs.has('flush-basin')).toBe(true);
+        expect(motifs.has('mixed-gap-braid')).toBe(true);
+      }
       signatures.forEach((signature, index) => {
         const recent = signatures.slice(Math.max(0, index - 14), index);
         expect(recent).not.toContain(signature);
@@ -392,7 +442,7 @@ describe('dawn cabinet puzzle engine', () => {
       }).filter(Boolean)
     );
 
-    expect(goals).toEqual(new Set(['run', 'mixedRun', 'match', 'flush', 'number']));
+    expect(goals).toEqual(new Set(['run', 'mixedRun', 'gapRun', 'mixedGap', 'match', 'flush', 'number']));
   });
 
   test('daily tile families rotate through the full twelve-family set', () => {

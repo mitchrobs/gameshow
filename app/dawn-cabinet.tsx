@@ -64,6 +64,20 @@ type SuitFilter = 'all' | DawnCabinetTile['suit'];
 
 const STORAGE_PREFIX = 'dawn-cabinet-v10';
 const DAILY_DIFFICULTIES = DAWN_CABINET_DAILY_DIFFICULTIES;
+const RAIL_LEGEND_ITEMS: {
+  goal: DawnCabinetSetKind | 'hidden';
+  description: string;
+}[] = [
+  { goal: 'run', description: 'Same suit, consecutive' },
+  { goal: 'mixedRun', description: 'Different suits, consecutive' },
+  { goal: 'gapRun', description: 'Same suit, skip by two' },
+  { goal: 'mixedGap', description: 'Different suits, skip by two' },
+  { goal: 'match', description: 'Three identical' },
+  { goal: 'pair', description: 'Two identical' },
+  { goal: 'flush', description: 'Same suit, not a run' },
+  { goal: 'number', description: 'Same rank, different suits' },
+  { goal: 'hidden', description: 'Counts in Cabinet progress' },
+];
 const WEB_NO_SELECT =
   Platform.OS === 'web'
     ? {
@@ -260,32 +274,14 @@ function dailyPlayStatusLabel(status: DailyPlayStatus): string {
   return 'Open';
 }
 
-function getLedgerPillText(puzzle: DawnCabinetPuzzle): string | null {
-  const kinds = getLedgerKinds(puzzle);
-  if (kinds.length === 0) return null;
-  return kinds
-    .map((kind) => `${lineGoalShortLabel(kind)}${puzzle.ledger?.[kind] ?? 0}`)
-    .join(' ');
-}
-
 function getBankGoalText(puzzle: DawnCabinetPuzzle): string | null {
   if (puzzle.bankGoal) return `Leave ${lineGoalLabel(puzzle.bankGoal.type)}`;
   if (puzzle.spareCount > 0) return `Leave ${puzzle.spareCount}`;
   return null;
 }
 
-function getGoalSummary(puzzle: DawnCabinetPuzzle): string {
-  const ledger = getLedgerPillText(puzzle);
-  const reserve = getBankGoalText(puzzle) ?? 'Exact bank';
-  return ledger ? `Hidden rails ${ledger} · ${reserve}` : reserve;
-}
-
-function getDifficultySummary(puzzle: DawnCabinetPuzzle): string {
-  const blanks = puzzle.cells.length - Object.keys(puzzle.givens).length;
-  const suits = getPuzzleSuits(puzzle).length;
-  const hidden = puzzle.lines.filter((line) => line.goal === 'hidden').length;
-  const reserve = getBankGoalText(puzzle) ?? 'Exact bank';
-  return `${suits} suits · ${blanks} blanks · ${puzzle.lines.length} rails · ${hidden} hidden · ${reserve}`;
+function getCabinetReserveText(puzzle: DawnCabinetPuzzle): string {
+  return getBankGoalText(puzzle) ?? 'Use every tile';
 }
 
 function getDifficultyCardSummary(puzzle: DawnCabinetPuzzle): string {
@@ -302,7 +298,7 @@ function getDifficultyCardSummary(puzzle: DawnCabinetPuzzle): string {
     puzzle.spareCount >= 4 ? 'Strict reserve' :
     puzzle.spareCount >= 2 ? 'Reserve pressure' :
     puzzle.spareCount === 1 ? 'Light reserve' :
-    'Exact bank';
+    'Use every tile';
   const tempo =
     blanks >= 28 ? 'Long solve' :
     blanks >= 17 ? 'Deep solve' :
@@ -314,7 +310,7 @@ function getStartGoalPreview(puzzle: DawnCabinetPuzzle): string {
   const kinds = getLedgerKinds(puzzle).map(lineGoalLabel);
   const sets = kinds.length > 0 ? kinds.join(' / ') : 'Open rails';
   const reserve =
-    puzzle.spareCount === 0 ? 'Exact bank' :
+    puzzle.spareCount === 0 ? 'Use every tile' :
     puzzle.bankGoal ? `${lineGoalLabel(puzzle.bankGoal.type)} reserve` :
     'Loose reserve';
   return `${sets} · ${reserve}`;
@@ -364,7 +360,6 @@ export default function DawnCabinetScreen() {
   const [hasStartedPuzzle, setHasStartedPuzzle] = useState(() =>
     hasSavedPuzzleProgress(initialDailyPuzzle)
   );
-  const [goalsExpanded, setGoalsExpanded] = useState(false);
   const [hasChecked, setHasChecked] = useState(false);
   const [selectedSuitFilter, setSelectedSuitFilter] = useState<SuitFilter>('all');
   const puzzle = useMemo(
@@ -439,8 +434,9 @@ export default function DawnCabinetScreen() {
     () => getLedgerState(puzzle, placements),
     [placements, puzzle]
   );
-  const validLineCount = puzzle.lines.filter((line, index) => {
-    return lineStates[index] === 'valid' && (line.goal !== 'hidden' || gameState === 'won');
+  const visibleRailCount = puzzle.lines.filter((line) => line.goal !== 'hidden').length;
+  const validVisibleRailCount = puzzle.lines.filter((line, index) => {
+    return line.goal !== 'hidden' && lineStates[index] === 'valid';
   }).length;
   const invalidLineCount = lineStates.filter((state) => state === 'invalid').length;
   const allCellsFilled = puzzle.cells.every((cell) => Boolean(placements[cellKey(cell.row, cell.col)]));
@@ -448,19 +444,19 @@ export default function DawnCabinetScreen() {
   const bankGoalComplete = isBankGoalSatisfied(puzzle, placements);
   const tilesToPlace = Math.max(availableBankEntries.length - puzzle.spareCount, 0);
   const bankGoalText = getBankGoalText(puzzle);
-  const goalSummary = getGoalSummary(puzzle);
   const bankMeta =
     puzzle.bankGoal
-      ? `${tilesToPlace} to place, ${bankGoalText?.toLowerCase()}`
+      ? `${tilesToPlace} to place · ${bankGoalText}`
       : puzzle.spareCount > 0
-        ? `${tilesToPlace} to place, leave ${puzzle.spareCount}`
+        ? `${tilesToPlace} to place · Leave ${puzzle.spareCount}`
         : `${availableBankEntries.length} left`;
   const winSuffix =
     puzzle.bankGoal
-      ? `, with a bank ${lineGoalLabel(puzzle.bankGoal.type)} left`
+      ? `, with a ${lineGoalLabel(puzzle.bankGoal.type)} reserve left`
       : puzzle.spareCount > 0
-        ? `, with ${puzzle.spareCount} spare left`
+        ? `, with ${puzzle.spareCount} reserve left`
         : '';
+  const cabinetNotice = gameState === 'playing' && hasChecked ? message : null;
   const shareTileTrail = useMemo(() => {
     const trackedTiles = firstCorrectCells
       .map((cell) => puzzle.solution[cell])
@@ -526,7 +522,6 @@ export default function DawnCabinetScreen() {
     setElapsedSeconds(0);
     setGameState(solved ? 'won' : 'playing');
     setHasChecked(false);
-    setGoalsExpanded(false);
     setSelectedSuitFilter('all');
     setFirstCorrectCells([]);
     hasCountedRef.current = false;
@@ -683,7 +678,7 @@ export default function DawnCabinetScreen() {
     } else if (!ledgerComplete) {
       setMessage('The hidden-rail ledger does not balance.');
     } else if (!bankGoalComplete) {
-      setMessage(`The leftover bank tiles must form ${bankGoalText ? bankGoalText.toLowerCase().replace('leave ', 'a ') : 'the reserve goal'}.`);
+      setMessage(`The leftover Cabinet tiles must form ${bankGoalText ? bankGoalText.toLowerCase().replace('leave ', 'a ') : 'the reserve goal'}.`);
     } else {
       setMessage('Keep reading the rails.');
     }
@@ -707,7 +702,6 @@ export default function DawnCabinetScreen() {
     setMessage(null);
     setShareStatus(null);
     setHasChecked(false);
-    setGoalsExpanded(false);
     setFirstCorrectCells([]);
     setElapsedSeconds(0);
     setGameState('playing');
@@ -840,7 +834,7 @@ export default function DawnCabinetScreen() {
             </Pressable>
             <View style={styles.playTitleBlock}>
               <Text style={styles.playTitle}>Dawn Cabinet</Text>
-              <Text style={styles.playSubtitle}>{isPractice ? 'Easy Practice' : dateLabel}</Text>
+              <Text style={styles.playSubtitle}>{isPractice ? 'Easy Demo' : dateLabel}</Text>
             </View>
             <View style={styles.playStatusRow}>
               <View style={styles.statusPill}>
@@ -848,7 +842,7 @@ export default function DawnCabinetScreen() {
               </View>
               {isPractice ? (
                 <View style={styles.statusPill}>
-                  <Text style={styles.statusPillText}>Practice</Text>
+                  <Text style={styles.statusPillText}>Demo</Text>
                 </View>
               ) : null}
               <View style={styles.statusPill}>
@@ -927,25 +921,12 @@ export default function DawnCabinetScreen() {
               styles={styles}
               theme={theme}
             />
-            <GoalFooter
-              puzzle={puzzle}
-              ledgerState={ledgerState}
-              validLineCount={validLineCount}
-              goalSummary={goalSummary}
-              hasChecked={hasChecked}
-              allCellsFilled={allCellsFilled}
-              ledgerComplete={ledgerComplete}
-              bankGoalComplete={bankGoalComplete}
-              expanded={goalsExpanded}
-              onToggle={() => setGoalsExpanded((current) => !current)}
-              styles={styles}
-            />
           </View>
 
           {!isMobile ? (
             <View style={styles.bankSection}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Tile Bank</Text>
+                <Text style={styles.sectionTitle}>Cabinet</Text>
                 <Text style={styles.sectionMeta}>{bankMeta}</Text>
               </View>
               <View style={styles.bankGrid}>
@@ -979,6 +960,14 @@ export default function DawnCabinetScreen() {
                   );
                 })}
               </View>
+              <CabinetProgressPanel
+                puzzle={puzzle}
+                ledgerState={ledgerState}
+                validVisibleRailCount={validVisibleRailCount}
+                visibleRailCount={visibleRailCount}
+                notice={cabinetNotice}
+                styles={styles}
+              />
             </View>
           ) : null}
 
@@ -1019,7 +1008,7 @@ export default function DawnCabinetScreen() {
             </Pressable>
           </View>
 
-          {message && (
+          {message && !cabinetNotice && (
             <View style={styles.messageCard}>
               <Text style={styles.messageText}>{message}</Text>
             </View>
@@ -1034,6 +1023,11 @@ export default function DawnCabinetScreen() {
           stacks={visibleBankStacks}
           selectedEntryID={selectedEntryID}
           bankMeta={bankMeta}
+          puzzle={puzzle}
+          ledgerState={ledgerState}
+          validVisibleRailCount={validVisibleRailCount}
+          visibleRailCount={visibleRailCount}
+          notice={cabinetNotice}
           totalTileCounts={totalTileCounts}
           remainingTileCounts={remainingTileCounts}
           onFilterPress={handleSuitFilterSelect}
@@ -1139,14 +1133,6 @@ function StartScreen({
               >
                 {difficulty}
               </Text>
-              <Text
-                style={[
-                  styles.difficultyCardStatus,
-                  status === 'complete' && styles.difficultyCardStatusComplete,
-                ]}
-              >
-                {dailyPlayStatusLabel(status)}
-              </Text>
               <Text style={styles.difficultyCardText}>{getDifficultyCardSummary(optionPuzzle)}</Text>
             </Pressable>
           );
@@ -1155,7 +1141,6 @@ function StartScreen({
 
       <View style={styles.startSummaryBox}>
         <Text style={styles.startSummaryTitle}>{selectedDifficulty}</Text>
-        <Text style={styles.startSummaryStatus}>{dailyPlayStatusLabel(selectedStatus)}</Text>
         <Text style={styles.startSummaryText}>{getDifficultyCardSummary(puzzle).replace(/\n/g, ' · ')}</Text>
         <Text style={styles.startSummaryText}>{getStartGoalPreview(puzzle)}</Text>
       </View>
@@ -1183,85 +1168,76 @@ function StartScreen({
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Try Easy practice"
+        accessibilityLabel="Try Easy demo"
         testID="dawn-cabinet.practice-easy"
         style={({ pressed }) => [styles.practiceButton, pressed && styles.buttonPressed]}
         onPress={onPractice}
       >
-        <Text style={styles.practiceButtonText}>Try Easy Practice</Text>
+        <Text style={styles.practiceButtonText}>Try Easy Demo</Text>
       </Pressable>
     </View>
   );
 }
 
-function GoalFooter({
+function CabinetProgressPanel({
   puzzle,
   ledgerState,
-  validLineCount,
-  goalSummary,
-  hasChecked,
-  allCellsFilled,
-  ledgerComplete,
-  bankGoalComplete,
-  expanded,
-  onToggle,
+  validVisibleRailCount,
+  visibleRailCount,
+  notice,
+  compact,
   styles,
 }: {
   puzzle: DawnCabinetPuzzle;
   ledgerState: ReturnType<typeof getLedgerState>;
-  validLineCount: number;
-  goalSummary: string;
-  hasChecked: boolean;
-  allCellsFilled: boolean;
-  ledgerComplete: boolean;
-  bankGoalComplete: boolean;
-  expanded: boolean;
-  onToggle: () => void;
+  validVisibleRailCount: number;
+  visibleRailCount: number;
+  notice: string | null;
+  compact?: boolean;
   styles: ReturnType<typeof createStyles>;
 }) {
   const ledgerKinds = getLedgerKinds(puzzle);
-  const reserveText = getBankGoalText(puzzle) ?? 'Exact bank';
-  const warning =
-    hasChecked && allCellsFilled && !ledgerComplete
-      ? 'Ledger mismatch.'
-      : hasChecked && allCellsFilled && !bankGoalComplete
-        ? 'Reserve goal missing.'
-        : null;
+  const reserveText = getCabinetReserveText(puzzle);
+  const progressItems = [
+    {
+      key: 'visible-rails',
+      label: 'Visible rails',
+      value: validVisibleRailCount,
+      total: visibleRailCount,
+    },
+    ...ledgerKinds.map((kind: DawnCabinetSetKind) => ({
+      key: kind,
+      label: setKindPluralLabel(kind),
+      value: ledgerState.counts[kind],
+      total: puzzle.ledger?.[kind] ?? 0,
+    })),
+  ];
 
   return (
-    <View style={styles.goalFooter}>
-      <View style={styles.goalFooterHeader}>
-        <View style={styles.goalFooterCopy}>
-          <Text style={styles.goalFooterTitle}>Goal</Text>
-          <Text style={styles.goalFooterSummary}>{goalSummary}</Text>
+    <View style={[styles.cabinetProgressPanel, compact && styles.cabinetProgressPanelCompact]}>
+      <View style={compact ? styles.cabinetProgressScrollRow : styles.cabinetProgressWrap}>
+        {progressItems.map((item) => (
+          <View key={item.key} style={styles.cabinetProgressItem}>
+            <View style={styles.cabinetProgressLabelRow}>
+              <Text style={styles.cabinetProgressLabel}>{item.label}</Text>
+              <Text style={styles.cabinetProgressCount}>{`${item.value}/${item.total}`}</Text>
+            </View>
+            <View style={styles.cabinetProgressTrack}>
+              <View
+                style={[
+                  styles.cabinetProgressFill,
+                  { width: `${Math.min(100, Math.round((item.value / Math.max(1, item.total)) * 100))}%` },
+                ]}
+              />
+            </View>
+          </View>
+        ))}
+        <View style={[styles.cabinetProgressItem, styles.cabinetReserveItem]}>
+          <Text style={styles.cabinetProgressLabel}>Reserve</Text>
+          <Text style={styles.cabinetReserveText}>{reserveText}</Text>
         </View>
-        {ledgerKinds.length > 0 || puzzle.spareCount > 0 ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={expanded ? 'Hide goal details' : 'Show goal details'}
-            style={({ pressed }) => [styles.goalFooterToggle, pressed && styles.buttonPressed]}
-            onPress={onToggle}
-          >
-            <Text style={styles.goalFooterToggleText}>{expanded ? 'Hide' : 'Details'}</Text>
-          </Pressable>
-        ) : null}
       </View>
-
-      {expanded ? (
-        <View style={styles.goalDetails}>
-          <Text style={styles.goalDetailText}>
-            {`Visible rails ${validLineCount}/${puzzle.lines.length}`}
-          </Text>
-          {ledgerKinds.map((kind: DawnCabinetSetKind) => (
-            <Text key={kind} style={styles.goalDetailText}>
-              {`${setKindPluralLabel(kind)} ${ledgerState.counts[kind]}/${puzzle.ledger?.[kind] ?? 0}`}
-            </Text>
-          ))}
-          <Text style={styles.goalDetailText}>{reserveText}</Text>
-        </View>
-      ) : null}
-
-      {warning ? <Text style={styles.goalWarningText}>{warning}</Text> : null}
+      {notice ? <Text style={styles.cabinetProgressNotice}>{notice}</Text> : null}
     </View>
   );
 }
@@ -1272,6 +1248,11 @@ function MobileBankTray({
   stacks,
   selectedEntryID,
   bankMeta,
+  puzzle,
+  ledgerState,
+  validVisibleRailCount,
+  visibleRailCount,
+  notice,
   totalTileCounts,
   remainingTileCounts,
   onFilterPress,
@@ -1283,6 +1264,11 @@ function MobileBankTray({
   stacks: BankStack[];
   selectedEntryID: string | null;
   bankMeta: string;
+  puzzle: DawnCabinetPuzzle;
+  ledgerState: ReturnType<typeof getLedgerState>;
+  validVisibleRailCount: number;
+  visibleRailCount: number;
+  notice: string | null;
   totalTileCounts: Record<string, number>;
   remainingTileCounts: Record<string, number>;
   onFilterPress: (filter: SuitFilter) => void;
@@ -1294,7 +1280,7 @@ function MobileBankTray({
   return (
     <View style={styles.mobileBankTray} testID="dawn-cabinet.mobile-bank">
       <View style={styles.mobileBankHeader}>
-        <Text style={styles.mobileBankTitle}>Bank</Text>
+        <Text style={styles.mobileBankTitle}>Cabinet</Text>
         <Text style={styles.mobileBankMeta}>{bankMeta}</Text>
       </View>
       <ScrollView
@@ -1377,6 +1363,21 @@ function MobileBankTray({
           );
         })}
       </ScrollView>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.mobileCabinetProgressScroller}
+      >
+        <CabinetProgressPanel
+          puzzle={puzzle}
+          ledgerState={ledgerState}
+          validVisibleRailCount={validVisibleRailCount}
+          visibleRailCount={visibleRailCount}
+          notice={notice}
+          compact
+          styles={styles}
+        />
+      </ScrollView>
     </View>
   );
 }
@@ -1416,6 +1417,26 @@ function CabinetBoard({
     : [];
   const selectedCellLineIDs = new Set(selectedCellLines.map((line) => line.id));
   const selectedCellRailCells = new Set(selectedCellLines.flatMap((line) => line.cells));
+  const accent = resolveScreenAccent('dawn-cabinet', theme);
+  const [showRailLegend, setShowRailLegend] = useState(false);
+  const activeLegendGoals = useMemo(() => {
+    const goals = new Set<DawnCabinetSetKind | 'hidden'>();
+    puzzle.lines.forEach((line) => {
+      if (line.goal === 'hidden') goals.add('hidden');
+      else goals.add(line.goal);
+    });
+    getLedgerKinds(puzzle).forEach((kind) => goals.add(kind));
+    if (puzzle.bankGoal) goals.add(puzzle.bankGoal.type);
+    return goals;
+  }, [puzzle]);
+  const railLegendItems = useMemo(
+    () => RAIL_LEGEND_ITEMS.filter((item) => activeLegendGoals.has(item.goal)),
+    [activeLegendGoals]
+  );
+
+  useEffect(() => {
+    setShowRailLegend(false);
+  }, [selectedCell]);
 
   const centerFor = (cell: string) => {
     const [row, col] = cell.split(':').map(Number);
@@ -1428,150 +1449,269 @@ function CabinetBoard({
   const lineColor = (state: DawnCabinetLineState) => {
     if (state === 'valid') return theme.colors.success;
     if (state === 'invalid') return theme.colors.error;
-    return resolveScreenAccent('dawn-cabinet', theme).main;
+    return accent.main;
+  };
+
+  const labelFor = (points: { x: number; y: number }[]) => {
+    const start = points[0];
+    const end = points[1] ?? points[0];
+    return {
+      x: (start.x + end.x) / 2,
+      y: (start.y + end.y) / 2,
+    };
   };
 
   return (
-    <View style={[styles.boardWrap, { width: boardWidth, height: boardHeight }]}>
-      <Svg width={boardWidth} height={boardHeight} style={StyleSheet.absoluteFill}>
-        {puzzle.lines.map((line) => {
-          const state = getCabinetLineState(line, placements);
-          const visualState =
-            line.goal === 'hidden' && state === 'valid' && !revealHiddenRails
-              ? 'incomplete'
-              : state;
-          const isRailHighlighted = selectedCellLineIDs.has(line.id);
-          const isRailDimmed = Boolean(selectedCell) && !isRailHighlighted;
-          const points = line.cells.map(centerFor);
-          const color = lineColor(visualState);
-          const labelPoint = {
-            x: (points[0].x + points[1].x) / 2,
-            y: (points[0].y + points[1].y) / 2,
-          };
-          const railStrokeOpacity = isRailHighlighted
-            ? visualState === 'incomplete'
-              ? 0.68
-              : 0.88
-            : isRailDimmed
-              ? 0.1
-              : visualState === 'incomplete'
-                ? 0.22
-                : 0.5;
-          const railNodeOpacity = isRailHighlighted
-            ? 0.88
-            : isRailDimmed
-              ? 0.14
-              : visualState === 'incomplete'
-                ? 0.32
-                : 0.65;
-          const labelOpacity = isRailDimmed ? 0.24 : isRailHighlighted ? 1 : 0.94;
-          return (
-            <G key={line.id}>
-              {points.slice(1).map((point, index) => (
-                <Line
-                  key={`${line.id}-segment-${index}`}
-                  x1={points[index].x}
-                  y1={points[index].y}
-                  x2={point.x}
-                  y2={point.y}
-                  stroke={color}
-                  strokeWidth={isRailHighlighted ? 9 : visualState === 'incomplete' ? 5 : 7}
-                  strokeOpacity={railStrokeOpacity}
-                  strokeLinecap="round"
-                />
-              ))}
-              {points.map((point, index) => (
-                <Circle
-                  key={`${line.id}-${index}`}
-                  cx={point.x}
-                  cy={point.y}
-                  r={3}
-                  fill={color}
-                  opacity={railNodeOpacity}
-                />
-              ))}
-              <Rect
-                x={labelPoint.x - (isRailHighlighted ? 11 : 9)}
-                y={labelPoint.y - (isRailHighlighted ? 11 : 9)}
-                width={isRailHighlighted ? 22 : 18}
-                height={isRailHighlighted ? 22 : 18}
-                rx={999}
-                fill={theme.colors.surface}
-                stroke={color}
-                strokeWidth={isRailHighlighted ? 2.5 : 1.5}
-                opacity={labelOpacity}
-              />
-              <SvgText
-                x={labelPoint.x}
-                y={labelPoint.y + (isRailHighlighted ? 4 : 3.5)}
-                fill={color}
-                fontSize={isRailHighlighted ? 11 : 10}
-                fontWeight="900"
-                textAnchor="middle"
-                opacity={isRailDimmed ? 0.24 : 1}
-              >
-                {lineGoalShortLabel(line.goal)}
-              </SvgText>
-            </G>
-          );
-        })}
-      </Svg>
-
-      <View style={[styles.boardGrid, { padding, gap }]}>
-        {Array.from({ length: puzzle.rows }, (_, row) => (
-          <View key={`row-${row}`} style={[styles.boardRow, { gap }]}>
-            {Array.from({ length: puzzle.columns }, (_, col) => {
-              const key = cellKey(row, col);
-              const tile = placements[key];
-              const isActive = activeCells.has(key);
-              const isGiven = Boolean(puzzle.givens[key]);
-              const isPlaced = Boolean(placedEntryIdsByCell[key]);
-              const isSelected = selectedCell === key;
-              const isRailRelated = selectedCellRailCells.has(key);
-              if (!isActive) {
-                return (
-                  <View
-                    key={key}
-                    style={[styles.cellButton, styles.inactiveCell, { width: cellSize, height: cellSize }]}
+    <View style={styles.boardColumn}>
+      <View style={[styles.boardWrap, { width: boardWidth, height: boardHeight }]}>
+        <Svg width={boardWidth} height={boardHeight} style={StyleSheet.absoluteFill}>
+          {puzzle.lines.map((line) => {
+            const state = getCabinetLineState(line, placements);
+            const visualState =
+              line.goal === 'hidden' && state === 'valid' && !revealHiddenRails
+                ? 'incomplete'
+                : state;
+            const isRailHighlighted = selectedCellLineIDs.has(line.id);
+            const isRailDimmed = Boolean(selectedCell) && !isRailHighlighted;
+            const points = line.cells.map(centerFor);
+            const color = lineColor(visualState);
+            const railStrokeWidth = isRailHighlighted ? 10 : visualState === 'incomplete' ? 5 : 7;
+            const railStrokeOpacity = isRailHighlighted
+              ? visualState === 'incomplete'
+                ? 0.82
+                : 0.96
+              : isRailDimmed
+                ? 0.08
+                : visualState === 'incomplete'
+                  ? 0.2
+                  : 0.48;
+            const railNodeOpacity = isRailHighlighted
+              ? 1
+              : isRailDimmed
+                ? 0.12
+                : visualState === 'incomplete'
+                  ? 0.28
+                  : 0.62;
+            return (
+              <G key={line.id}>
+                {isRailHighlighted
+                  ? points.slice(1).map((point, index) => (
+                      <Line
+                        key={`${line.id}-glow-${index}`}
+                        x1={points[index].x}
+                        y1={points[index].y}
+                        x2={point.x}
+                        y2={point.y}
+                        stroke={color}
+                        strokeWidth={18}
+                        strokeOpacity={0.18}
+                        strokeLinecap="round"
+                      />
+                    ))
+                  : null}
+                {points.slice(1).map((point, index) => (
+                  <Line
+                    key={`${line.id}-segment-${index}`}
+                    x1={points[index].x}
+                    y1={points[index].y}
+                    x2={point.x}
+                    y2={point.y}
+                    stroke={color}
+                    strokeWidth={railStrokeWidth}
+                    strokeOpacity={railStrokeOpacity}
+                    strokeLinecap="round"
                   />
-                );
-              }
+                ))}
+                {points.map((point, index) => (
+                  <Circle
+                    key={`${line.id}-${index}`}
+                    cx={point.x}
+                    cy={point.y}
+                    r={isRailHighlighted ? 4.5 : 3}
+                    fill={color}
+                    opacity={railNodeOpacity}
+                  />
+                ))}
+              </G>
+            );
+          })}
+        </Svg>
 
-              return (
-                <Pressable
-                  key={key}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Cabinet cell ${row + 1}, ${col + 1}`}
-                  testID={`dawn-cabinet.cell.${key}`}
-                  style={[
-                    styles.cellButton,
-                    { width: cellSize, height: cellSize },
-                    isRailRelated && styles.railRelatedCell,
-                    isGiven && styles.givenCell,
-                    isPlaced && styles.placedCell,
-                    selectedEntryID && !tile && !isGiven && styles.readyCell,
-                    isSelected && styles.selectedCell,
-                  ]}
-                  onPress={() => onCellPress(key)}
-                >
-                  {tile ? (
-                    <MahjongTile
-                      tile={tile}
-                      styles={styles}
-                      size={cellSize < 58 ? 'compact' : 'large'}
-                      given={isGiven}
+        <View style={[styles.boardGrid, { padding, gap }]}>
+          {Array.from({ length: puzzle.rows }, (_, row) => (
+            <View key={`row-${row}`} style={[styles.boardRow, { gap }]}>
+              {Array.from({ length: puzzle.columns }, (_, col) => {
+                const key = cellKey(row, col);
+                const tile = placements[key];
+                const isActive = activeCells.has(key);
+                const isGiven = Boolean(puzzle.givens[key]);
+                const isPlaced = Boolean(placedEntryIdsByCell[key]);
+                const isSelected = selectedCell === key;
+                const isRailRelated = selectedCellRailCells.has(key);
+                const isRailDimmedCell = Boolean(selectedCell) && !isRailRelated && !isSelected;
+                if (!isActive) {
+                  return (
+                    <View
+                      key={key}
+                      style={[styles.cellButton, styles.inactiveCell, { width: cellSize, height: cellSize }]}
                     />
-                  ) : (
-                    <View style={styles.emptySlot}>
-                      <Text style={styles.emptySlotText}>+</Text>
-                    </View>
-                  )}
-                </Pressable>
+                  );
+                }
+
+                return (
+                  <Pressable
+                    key={key}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Cabinet cell ${row + 1}, ${col + 1}`}
+                    testID={`dawn-cabinet.cell.${key}`}
+                    style={[
+                      styles.cellButton,
+                      { width: cellSize, height: cellSize },
+                      isRailRelated && styles.railRelatedCell,
+                      isGiven && styles.givenCell,
+                      isPlaced && styles.placedCell,
+                      selectedEntryID && !tile && !isGiven && styles.readyCell,
+                      isSelected && styles.selectedCell,
+                      isRailDimmedCell && styles.unfocusedCell,
+                    ]}
+                    onPress={() => onCellPress(key)}
+                  >
+                    {tile ? (
+                      <MahjongTile
+                        tile={tile}
+                        styles={styles}
+                        size={cellSize < 58 ? 'compact' : 'large'}
+                        given={isGiven}
+                      />
+                    ) : (
+                      <View style={styles.emptySlot}>
+                        <Text style={styles.emptySlotText}>+</Text>
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+          ))}
+        </View>
+        <Svg
+          width={boardWidth}
+          height={boardHeight}
+          style={[StyleSheet.absoluteFill, styles.railLabelLayer]}
+          pointerEvents="none"
+        >
+          {puzzle.lines.map((line) => {
+            const state = getCabinetLineState(line, placements);
+            const visualState =
+              line.goal === 'hidden' && state === 'valid' && !revealHiddenRails
+                ? 'incomplete'
+                : state;
+            const isRailHighlighted = selectedCellLineIDs.has(line.id);
+            const isRailDimmed = Boolean(selectedCell) && !isRailHighlighted;
+            const points = line.cells.map(centerFor);
+            const color = lineColor(visualState);
+            const labelPoint = labelFor(points);
+            const labelOpacity = isRailDimmed ? 0 : isRailHighlighted ? 0.96 : 0.72;
+            const labelSize = isRailHighlighted ? 18 : 14;
+            return (
+              <G key={`${line.id}-label`}>
+                <Circle
+                  cx={labelPoint.x}
+                  cy={labelPoint.y}
+                  r={labelSize / 2 + (isRailHighlighted ? 2 : 1)}
+                  fill={theme.colors.surface}
+                  opacity={labelOpacity > 0 ? 0.82 : 0}
+                />
+                <Rect
+                  x={labelPoint.x - labelSize / 2}
+                  y={labelPoint.y - labelSize / 2}
+                  width={labelSize}
+                  height={labelSize}
+                  rx={999}
+                  fill={isRailHighlighted ? color : theme.colors.surface}
+                  stroke={color}
+                  strokeWidth={isRailHighlighted ? 2 : 1.4}
+                  opacity={labelOpacity}
+                />
+                <SvgText
+                  x={labelPoint.x}
+                  y={labelPoint.y + (isRailHighlighted ? 3.5 : 3)}
+                  fill={isRailHighlighted ? '#ffffff' : color}
+                  fontSize={isRailHighlighted ? 9.5 : 8}
+                  fontWeight="900"
+                  textAnchor="middle"
+                  opacity={labelOpacity > 0 ? 1 : 0}
+                >
+                  {lineGoalShortLabel(line.goal)}
+                </SvgText>
+              </G>
+            );
+          })}
+        </Svg>
+      </View>
+      {selectedCellLines.length > 0 ? (
+        <View style={[styles.railFocusStrip, { width: boardWidth }]}>
+          <View style={styles.railFocusHeader}>
+            <Text style={styles.railFocusTitle}>Attached rails</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={showRailLegend ? 'Hide set type legend' : 'Show set type legend'}
+              style={({ pressed }) => [
+                styles.railFocusInfoButton,
+                showRailLegend && styles.railFocusInfoButtonActive,
+                pressed && styles.bankTilePressed,
+              ]}
+              onPress={() => setShowRailLegend((current) => !current)}
+            >
+              <Text
+                style={[
+                  styles.railFocusInfoText,
+                  showRailLegend && styles.railFocusInfoTextActive,
+                ]}
+              >
+                i
+              </Text>
+            </Pressable>
+          </View>
+          <View style={styles.railFocusItems}>
+            {selectedCellLines.map((line) => {
+              const state = getCabinetLineState(line, placements);
+              const visualState =
+                line.goal === 'hidden' && state === 'valid' && !revealHiddenRails
+                  ? 'incomplete'
+                  : state;
+              const color = lineColor(visualState);
+              return (
+                <View key={line.id} style={styles.railFocusItem}>
+                  <View style={[styles.railFocusBadge, { borderColor: color, backgroundColor: color }]}>
+                    <Text style={styles.railFocusBadgeText}>{lineGoalShortLabel(line.goal)}</Text>
+                  </View>
+                  <Text style={styles.railFocusText}>
+                    {line.goal === 'hidden' ? 'Hidden ?' : lineGoalLabel(line.goal)}
+                  </Text>
+                </View>
               );
             })}
           </View>
-        ))}
-      </View>
+          {showRailLegend ? (
+            <View style={styles.railLegendGrid}>
+              {railLegendItems.map((item) => (
+                <View key={item.goal} style={styles.railLegendItem}>
+                  <View style={styles.railLegendCode}>
+                    <Text style={styles.railLegendCodeText}>{lineGoalShortLabel(item.goal)}</Text>
+                  </View>
+                  <View style={styles.railLegendCopy}>
+                    <Text style={styles.railLegendTitle}>
+                      {item.goal === 'hidden' ? 'Hidden' : lineGoalLabel(item.goal)}
+                    </Text>
+                    <Text style={styles.railLegendDescription}>{item.description}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : null}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -1708,6 +1848,16 @@ function TutorialModal({
     { suit: 'dots', rank: 4 },
     { suit: 'characters', rank: 5 },
   ] satisfies DawnCabinetTile[];
+  const gapRunTiles = [
+    { suit: 'bamboo', rank: 2 },
+    { suit: 'bamboo', rank: 4 },
+    { suit: 'bamboo', rank: 6 },
+  ] satisfies DawnCabinetTile[];
+  const mixedGapTiles = [
+    { suit: 'bamboo', rank: 1 },
+    { suit: 'dots', rank: 3 },
+    { suit: 'characters', rank: 5 },
+  ] satisfies DawnCabinetTile[];
   const pairTiles = [
     { suit: 'characters', rank: 8 },
     { suit: 'characters', rank: 8 },
@@ -1722,6 +1872,18 @@ function TutorialModal({
     { suit: 'dots', rank: 5 },
     { suit: 'characters', rank: 5 },
   ] satisfies DawnCabinetTile[];
+  const railRules = [
+    'Only tiles joined by a rail belong to the same set.',
+    'Tiles may touch on the board and still be unrelated.',
+    'Tap a cell to spotlight every rail that uses it.',
+    'R, X, G, Z, M, P, F, and N rails name their required set.',
+    '? rails are hidden rails: the ledger tells how many of each set they become.',
+    'The Attached rails info button opens the set-type legend for the current cabinet.',
+    'A crossing tile must satisfy every rail that passes through it.',
+    'Cabinet progress tracks visible rails, hidden set counts, and any reserve goal.',
+    'Copy pips show how many identical Cabinet tiles remain.',
+    'Harder cabinets include reserve tiles that must form the listed leftover set.',
+  ];
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -1732,6 +1894,13 @@ function TutorialModal({
           showsVerticalScrollIndicator={false}
         >
           <Text style={styles.modalKicker}>How to Play</Text>
+          <View style={styles.objectiveCard}>
+            <Text style={styles.objectiveTitle}>Objective</Text>
+            <Text style={styles.objectiveText}>
+              Complete Dawn Cabinet by placing Cabinet tiles so every rail forms its required set,
+              hidden rail counts balance, and only the listed reserve remains.
+            </Text>
+          </View>
           <Text style={styles.modalTitle}>Read the rails</Text>
 
           <View style={styles.lessonRow}>
@@ -1741,7 +1910,12 @@ function TutorialModal({
               ))}
             </View>
             <View style={styles.lessonCopy}>
-              <Text style={styles.lessonTitle}>Run</Text>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Run</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Core</Text>
+                </View>
+              </View>
               <Text style={styles.lessonText}>Three consecutive ranks, all in one suit.</Text>
             </View>
           </View>
@@ -1753,7 +1927,12 @@ function TutorialModal({
               ))}
             </View>
             <View style={styles.lessonCopy}>
-              <Text style={styles.lessonTitle}>Match</Text>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Match</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Core</Text>
+                </View>
+              </View>
               <Text style={styles.lessonText}>Three identical tiles.</Text>
             </View>
           </View>
@@ -1765,7 +1944,12 @@ function TutorialModal({
               ))}
             </View>
             <View style={styles.lessonCopy}>
-              <Text style={styles.lessonTitle}>Mixed Run</Text>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Mixed Run</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Standard+</Text>
+                </View>
+              </View>
               <Text style={styles.lessonText}>Three consecutive ranks, each in a different suit.</Text>
             </View>
           </View>
@@ -1777,8 +1961,47 @@ function TutorialModal({
               ))}
             </View>
             <View style={styles.lessonCopy}>
-              <Text style={styles.lessonTitle}>Pair</Text>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Pair</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Core</Text>
+                </View>
+              </View>
               <Text style={styles.lessonText}>Two identical tiles.</Text>
+            </View>
+          </View>
+
+          <View style={styles.lessonRow}>
+            <View style={styles.lessonTiles}>
+              {gapRunTiles.map((tile) => (
+                <MahjongTile key={tileKey(tile)} tile={tile} styles={styles} size="small" />
+              ))}
+            </View>
+            <View style={styles.lessonCopy}>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Gap Run</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Hard+</Text>
+                </View>
+              </View>
+              <Text style={styles.lessonText}>Three same-suit ranks stepping by two.</Text>
+            </View>
+          </View>
+
+          <View style={styles.lessonRow}>
+            <View style={styles.lessonTiles}>
+              {mixedGapTiles.map((tile) => (
+                <MahjongTile key={tileKey(tile)} tile={tile} styles={styles} size="small" />
+              ))}
+            </View>
+            <View style={styles.lessonCopy}>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Mixed Gap</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Expert</Text>
+                </View>
+              </View>
+              <Text style={styles.lessonText}>Three different suits stepping by two ranks.</Text>
             </View>
           </View>
 
@@ -1789,8 +2012,13 @@ function TutorialModal({
               ))}
             </View>
             <View style={styles.lessonCopy}>
-              <Text style={styles.lessonTitle}>Flush</Text>
-              <Text style={styles.lessonText}>Three tiles in one suit, but not a Run or Match.</Text>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Flush</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Standard+</Text>
+                </View>
+              </View>
+              <Text style={styles.lessonText}>Three tiles in one suit, but not a Run, Gap Run, or Match.</Text>
             </View>
           </View>
 
@@ -1801,39 +2029,73 @@ function TutorialModal({
               ))}
             </View>
             <View style={styles.lessonCopy}>
-              <Text style={styles.lessonTitle}>Number Set</Text>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Number Set</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Hard+</Text>
+                </View>
+              </View>
               <Text style={styles.lessonText}>Three suits sharing the same rank.</Text>
             </View>
           </View>
 
           <View style={styles.rulesList}>
-            <Text style={styles.ruleText}>Only tiles joined by a rail belong to the same set.</Text>
-            <Text style={styles.ruleText}>Tiles may touch on the board and still be unrelated.</Text>
-            <Text style={styles.ruleText}>R, X, M, P, F, and N rails name their required set.</Text>
-            <Text style={styles.ruleText}>? rails are hidden rails: the ledger tells how many of each set they become.</Text>
-            <Text style={styles.ruleText}>A crossing tile must satisfy every rail that passes through it.</Text>
-            <Text style={styles.ruleText}>Copy pips show how many identical bank tiles remain.</Text>
-            <Text style={styles.ruleText}>Harder cabinets include reserve tiles that must form the listed leftover set.</Text>
+            <Text style={styles.ruleListTitle}>Rail Rules</Text>
+            {railRules.map((rule) => (
+              <View key={rule} style={styles.ruleItem}>
+                <View style={styles.ruleBullet} />
+                <Text style={styles.ruleText}>{rule}</Text>
+              </View>
+            ))}
           </View>
 
           <View style={styles.tutorialGrid}>
-            {Array.from({ length: tutorial.rows }, (_, row) => (
-              <View key={`tutorial-row-${row}`} style={styles.tutorialGridRow}>
-                {Array.from({ length: tutorial.columns }, (_, col) => {
-                  const key = cellKey(row, col);
-                  const tile = tutorial.givens[key];
-                  return (
-                    <View key={key} style={styles.tutorialCell}>
-                      {tile ? (
-                        <MahjongTile tile={tile} styles={styles} size="small" given />
-                      ) : (
-                        <Text style={styles.tutorialBlank}>+</Text>
-                      )}
-                    </View>
-                  );
-                })}
-              </View>
-            ))}
+            <View style={styles.tutorialGridStage}>
+              <Svg width={172} height={208} style={styles.tutorialRailSvg} pointerEvents="none">
+                <Line
+                  x1={27}
+                  y1={33}
+                  x2={145}
+                  y2={33}
+                  stroke="#c87820"
+                  strokeWidth={9}
+                  strokeOpacity={0.82}
+                  strokeLinecap="round"
+                />
+                {[27, 86, 145].map((x) => (
+                  <Circle key={`tutorial-rail-dot-${x}`} cx={x} cy={33} r={4} fill="#c87820" />
+                ))}
+                <Circle cx={86} cy={33} r={13} fill="#c87820" />
+                <SvgText
+                  x={86}
+                  y={37}
+                  fill="#fffaf0"
+                  fontSize={11}
+                  fontWeight="900"
+                  textAnchor="middle"
+                >
+                  R
+                </SvgText>
+              </Svg>
+              {Array.from({ length: tutorial.rows }, (_, row) => (
+                <View key={`tutorial-row-${row}`} style={styles.tutorialGridRow}>
+                  {Array.from({ length: tutorial.columns }, (_, col) => {
+                    const key = cellKey(row, col);
+                    const tile = tutorial.givens[key];
+                    return (
+                      <View key={key} style={styles.tutorialCell}>
+                        {tile ? (
+                          <MahjongTile tile={tile} styles={styles} size="small" given />
+                        ) : (
+                          <Text style={styles.tutorialBlank}>+</Text>
+                        )}
+                      </View>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
+            <Text style={styles.tutorialRailCaption}>The rail marks one set across the cabinet.</Text>
           </View>
           <Text style={styles.lessonText}>
             The best moves resolve more than one rail at once.
@@ -1858,12 +2120,12 @@ function TutorialModal({
           </Pressable>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Try Easy practice"
+            accessibilityLabel="Try Easy demo"
             testID="dawn-cabinet.practice-easy"
             style={({ pressed }) => [styles.modalSecondaryButton, pressed && styles.buttonPressed]}
             onPress={onPracticeEasy}
           >
-            <Text style={styles.modalSecondaryButtonText}>Try Easy Practice</Text>
+            <Text style={styles.modalSecondaryButtonText}>Try Easy Demo</Text>
           </Pressable>
         </ScrollView>
       </View>
@@ -1896,7 +2158,7 @@ const createStyles = (
       paddingBottom: Spacing.xxl,
     },
     scrollContentWithMobileTray: {
-      paddingBottom: 238,
+      paddingBottom: 324,
     },
     page: {
       ...ui.page,
@@ -1956,26 +2218,6 @@ const createStyles = (
     difficultyCardTitleSelected: {
       color: screenAccent.main,
     },
-    difficultyCardStatus: {
-      alignSelf: 'flex-start',
-      marginTop: Spacing.xs,
-      paddingHorizontal: Spacing.xs,
-      paddingVertical: 3,
-      borderRadius: BorderRadius.full,
-      backgroundColor: Colors.surfaceLight,
-      borderWidth: 1,
-      borderColor: Colors.line,
-      color: Colors.textMuted,
-      fontSize: 10,
-      fontWeight: '900',
-      textTransform: 'uppercase',
-      letterSpacing: 0.6,
-    },
-    difficultyCardStatusComplete: {
-      backgroundColor: theme.mode === 'dark' ? 'rgba(79, 180, 119, 0.2)' : '#e6f8ec',
-      borderColor: Colors.success,
-      color: Colors.success,
-    },
     difficultyCardText: {
       color: Colors.textMuted,
       fontSize: 12,
@@ -1995,13 +2237,6 @@ const createStyles = (
       color: screenAccent.badgeText,
       fontSize: FontSize.md,
       fontWeight: '900',
-    },
-    startSummaryStatus: {
-      color: screenAccent.main,
-      fontSize: 11,
-      fontWeight: '900',
-      textTransform: 'uppercase',
-      letterSpacing: 0.7,
     },
     startSummaryText: {
       color: Colors.textSecondary,
@@ -2251,75 +2486,85 @@ const createStyles = (
       padding: Spacing.md,
       alignItems: 'center',
     },
-    goalFooter: {
+    cabinetProgressPanel: {
       width: '100%',
       marginTop: Spacing.md,
+      paddingTop: Spacing.md,
       borderTopWidth: 1,
       borderTopColor: Colors.line,
-      paddingTop: Spacing.md,
       gap: Spacing.sm,
     },
-    goalFooterHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: Spacing.sm,
+    cabinetProgressPanelCompact: {
+      width: 'auto',
+      minWidth: '100%',
+      marginTop: Spacing.sm,
+      paddingTop: Spacing.sm,
     },
-    goalFooterCopy: {
-      flex: 1,
-      minWidth: 0,
-    },
-    goalFooterTitle: {
-      color: screenAccent.main,
-      fontSize: 11,
-      fontWeight: '900',
-      textTransform: 'uppercase',
-      letterSpacing: 0.8,
-    },
-    goalFooterSummary: {
-      color: Colors.textSecondary,
-      fontSize: FontSize.sm,
-      lineHeight: 20,
-      fontWeight: '800',
-      marginTop: 2,
-    },
-    goalFooterToggle: {
-      minHeight: 34,
-      paddingHorizontal: Spacing.sm,
-      borderRadius: BorderRadius.full,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: Colors.surfaceLight,
-      alignItems: 'center',
-      justifyContent: 'center',
-      ...WEB_NO_SELECT,
-    },
-    goalFooterToggleText: {
-      color: Colors.textSecondary,
-      fontSize: 12,
-      fontWeight: '900',
-    },
-    goalDetails: {
+    cabinetProgressWrap: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: Spacing.xs,
+      gap: Spacing.sm,
     },
-    goalDetailText: {
-      color: Colors.textMuted,
-      fontSize: 12,
-      lineHeight: 17,
-      fontWeight: '800',
-      paddingHorizontal: Spacing.sm,
-      paddingVertical: 5,
-      borderRadius: BorderRadius.full,
-      backgroundColor: Colors.surfaceLight,
+    cabinetProgressScrollRow: {
+      flexDirection: 'row',
+      gap: Spacing.sm,
+    },
+    cabinetProgressItem: {
+      minWidth: 132,
+      borderRadius: BorderRadius.md,
       borderWidth: 1,
       borderColor: Colors.line,
+      backgroundColor: Colors.surfaceLight,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xs,
+      gap: 5,
     },
-    goalWarningText: {
-      color: Colors.error,
-      fontSize: FontSize.sm,
+    cabinetReserveItem: {
+      minWidth: 118,
+      justifyContent: 'center',
+    },
+    cabinetProgressLabelRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: Spacing.sm,
+    },
+    cabinetProgressLabel: {
+      color: Colors.textSecondary,
+      fontSize: 11,
       fontWeight: '900',
+    },
+    cabinetProgressCount: {
+      color: Colors.textMuted,
+      fontSize: 11,
+      fontWeight: '900',
+    },
+    cabinetProgressTrack: {
+      height: 4,
+      borderRadius: BorderRadius.full,
+      overflow: 'hidden',
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(13,37,32,0.1)',
+    },
+    cabinetProgressFill: {
+      height: '100%',
+      borderRadius: BorderRadius.full,
+      backgroundColor: screenAccent.main,
+    },
+    cabinetReserveText: {
+      color: screenAccent.main,
+      fontSize: 12,
+      fontWeight: '900',
+      marginTop: 2,
+    },
+    cabinetProgressNotice: {
+      color: Colors.error,
+      fontSize: 12,
+      fontWeight: '900',
+      lineHeight: 17,
+    },
+    boardColumn: {
+      alignItems: 'center',
+      width: '100%',
     },
     boardWrap: {
       borderRadius: BorderRadius.lg,
@@ -2330,6 +2575,10 @@ const createStyles = (
     },
     boardGrid: {
       position: 'relative',
+      zIndex: 2,
+    },
+    railLabelLayer: {
+      zIndex: 3,
     },
     boardRow: {
       flexDirection: 'row',
@@ -2356,6 +2605,9 @@ const createStyles = (
     railRelatedCell: {
       borderColor: screenAccent.badgeBorder,
       backgroundColor: screenAccent.badgeBg,
+    },
+    unfocusedCell: {
+      opacity: 0.36,
     },
     readyCell: {
       borderColor: screenAccent.main,
@@ -2399,6 +2651,133 @@ const createStyles = (
       color: Colors.error,
       fontSize: FontSize.sm,
       fontWeight: '800',
+    },
+    railFocusStrip: {
+      marginTop: Spacing.sm,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xs,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.line,
+      backgroundColor: Colors.surfaceLight,
+      gap: Spacing.xs,
+    },
+    railFocusHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.sm,
+    },
+    railFocusTitle: {
+      color: Colors.textMuted,
+      fontSize: 10,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.7,
+    },
+    railFocusInfoButton: {
+      width: 24,
+      height: 24,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...WEB_NO_SELECT,
+    },
+    railFocusInfoButtonActive: {
+      borderColor: screenAccent.main,
+      backgroundColor: screenAccent.main,
+    },
+    railFocusInfoText: {
+      color: Colors.textSecondary,
+      fontSize: 13,
+      fontWeight: '900',
+      lineHeight: 16,
+    },
+    railFocusInfoTextActive: {
+      color: Colors.white,
+    },
+    railFocusItems: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: Spacing.xs,
+    },
+    railFocusItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      paddingRight: Spacing.xs,
+      paddingVertical: 2,
+    },
+    railFocusBadge: {
+      width: 20,
+      height: 20,
+      borderRadius: 999,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    railFocusBadgeText: {
+      color: Colors.white,
+      fontSize: 10,
+      fontWeight: '900',
+    },
+    railFocusText: {
+      color: Colors.textSecondary,
+      fontSize: 12,
+      fontWeight: '900',
+    },
+    railLegendGrid: {
+      marginTop: 2,
+      paddingTop: Spacing.xs,
+      borderTopWidth: 1,
+      borderTopColor: Colors.line,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: Spacing.xs,
+    },
+    railLegendItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      minWidth: 136,
+      flexGrow: 1,
+      flexBasis: 136,
+      paddingVertical: 4,
+      paddingHorizontal: 6,
+      borderRadius: BorderRadius.sm,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.035)',
+    },
+    railLegendCode: {
+      width: 20,
+      height: 20,
+      borderRadius: 999,
+      backgroundColor: screenAccent.main,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    railLegendCodeText: {
+      color: Colors.white,
+      fontSize: 10,
+      fontWeight: '900',
+    },
+    railLegendCopy: {
+      flex: 1,
+      minWidth: 0,
+    },
+    railLegendTitle: {
+      color: Colors.textSecondary,
+      fontSize: 11,
+      fontWeight: '900',
+      lineHeight: 14,
+    },
+    railLegendDescription: {
+      color: Colors.textMuted,
+      fontSize: 10,
+      fontWeight: '700',
+      lineHeight: 13,
     },
     bankSection: {
       ...ui.card,
@@ -2514,6 +2893,9 @@ const createStyles = (
     },
     mobileBankScroller: {
       gap: Spacing.sm,
+      paddingRight: Spacing.xl,
+    },
+    mobileCabinetProgressScroller: {
       paddingRight: Spacing.xl,
     },
     mobileBankStack: {
@@ -2770,6 +3152,29 @@ const createStyles = (
       marginTop: Spacing.xs,
       marginBottom: Spacing.lg,
     },
+    objectiveCard: {
+      marginTop: Spacing.sm,
+      marginBottom: Spacing.md,
+      padding: Spacing.md,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+      gap: Spacing.xs,
+    },
+    objectiveTitle: {
+      color: screenAccent.main,
+      fontSize: FontSize.sm,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
+    objectiveText: {
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 20,
+      fontWeight: '800',
+    },
     lessonRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -2783,10 +3188,31 @@ const createStyles = (
     lessonCopy: {
       flex: 1,
     },
+    lessonTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: Spacing.xs,
+    },
     lessonTitle: {
       color: Colors.text,
       fontSize: FontSize.md,
       fontWeight: '900',
+    },
+    lessonDifficultyBadge: {
+      paddingHorizontal: 7,
+      paddingVertical: 2,
+      borderRadius: BorderRadius.full,
+      backgroundColor: screenAccent.soft,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+    },
+    lessonDifficultyText: {
+      color: screenAccent.main,
+      fontSize: 10,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
     },
     lessonText: {
       color: Colors.textMuted,
@@ -2804,7 +3230,28 @@ const createStyles = (
       borderWidth: 1,
       borderColor: screenAccent.badgeBorder,
     },
+    ruleListTitle: {
+      color: screenAccent.main,
+      fontSize: FontSize.sm,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      marginBottom: 2,
+    },
+    ruleItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: Spacing.sm,
+    },
+    ruleBullet: {
+      width: 6,
+      height: 6,
+      borderRadius: 999,
+      backgroundColor: screenAccent.main,
+      marginTop: 7,
+    },
     ruleText: {
+      flex: 1,
       color: Colors.textSecondary,
       fontSize: FontSize.sm,
       lineHeight: 20,
@@ -2818,9 +3265,22 @@ const createStyles = (
       borderRadius: BorderRadius.md,
       backgroundColor: Colors.surfaceLight,
     },
+    tutorialGridStage: {
+      position: 'relative',
+      width: 172,
+      height: 208,
+      gap: 5,
+    },
+    tutorialRailSvg: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      zIndex: 2,
+    },
     tutorialGridRow: {
       flexDirection: 'row',
       gap: 5,
+      zIndex: 1,
     },
     tutorialCell: {
       width: 54,
@@ -2836,6 +3296,14 @@ const createStyles = (
       color: Colors.textMuted,
       fontSize: FontSize.lg,
       fontWeight: '800',
+    },
+    tutorialRailCaption: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      lineHeight: 17,
+      fontWeight: '800',
+      textAlign: 'center',
+      marginTop: Spacing.xs,
     },
     modalButton: {
       marginTop: Spacing.lg,

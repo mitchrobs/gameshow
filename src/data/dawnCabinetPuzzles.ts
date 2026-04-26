@@ -16,7 +16,15 @@ export type DawnCabinetSuit =
 export type DawnCabinetDifficulty = 'Easy' | 'Standard' | 'Hard' | 'Expert';
 export type DawnCabinetDailyDifficulty = Exclude<DawnCabinetDifficulty, 'Easy'>;
 export type DawnCabinetLineState = 'incomplete' | 'valid' | 'invalid';
-export type DawnCabinetSetKind = 'run' | 'mixedRun' | 'match' | 'pair' | 'flush' | 'number';
+export type DawnCabinetSetKind =
+  | 'run'
+  | 'mixedRun'
+  | 'gapRun'
+  | 'mixedGap'
+  | 'match'
+  | 'pair'
+  | 'flush'
+  | 'number';
 export type DawnCabinetLineGoal = DawnCabinetSetKind | 'hidden';
 
 export interface DawnCabinetTile {
@@ -158,8 +166,25 @@ const SUIT_SHARE_MARKS: Record<DawnCabinetSuit, string> = {
   moons: '🟣',
   suns: '🟧',
 };
-const SET_KINDS: DawnCabinetSetKind[] = ['run', 'mixedRun', 'match', 'pair', 'flush', 'number'];
-const THREE_TILE_SET_KINDS: DawnCabinetSetKind[] = ['run', 'mixedRun', 'match', 'flush', 'number'];
+const SET_KINDS: DawnCabinetSetKind[] = [
+  'run',
+  'mixedRun',
+  'gapRun',
+  'mixedGap',
+  'match',
+  'pair',
+  'flush',
+  'number',
+];
+const THREE_TILE_SET_KINDS: DawnCabinetSetKind[] = [
+  'run',
+  'mixedRun',
+  'gapRun',
+  'mixedGap',
+  'match',
+  'flush',
+  'number',
+];
 const CANDIDATE_CACHE = new Map<string, DawnCabinetPuzzle[]>();
 export const DAWN_CABINET_DAILY_DIFFICULTIES: DawnCabinetDailyDifficulty[] = [
   'Standard',
@@ -203,6 +228,8 @@ export function tileMatchesCellClue(
 export function lineGoalLabel(goal: DawnCabinetLineGoal): string {
   if (goal === 'run') return 'Run';
   if (goal === 'mixedRun') return 'Mixed Run';
+  if (goal === 'gapRun') return 'Gap Run';
+  if (goal === 'mixedGap') return 'Mixed Gap';
   if (goal === 'match') return 'Match';
   if (goal === 'pair') return 'Pair';
   if (goal === 'flush') return 'Flush';
@@ -213,6 +240,8 @@ export function lineGoalLabel(goal: DawnCabinetLineGoal): string {
 export function lineGoalShortLabel(goal: DawnCabinetLineGoal): string {
   if (goal === 'run') return 'R';
   if (goal === 'mixedRun') return 'X';
+  if (goal === 'gapRun') return 'G';
+  if (goal === 'mixedGap') return 'Z';
   if (goal === 'match') return 'M';
   if (goal === 'pair') return 'P';
   if (goal === 'flush') return 'F';
@@ -223,6 +252,8 @@ export function lineGoalShortLabel(goal: DawnCabinetLineGoal): string {
 export function setKindPluralLabel(kind: DawnCabinetSetKind): string {
   if (kind === 'run') return 'Runs';
   if (kind === 'mixedRun') return 'Mixed Runs';
+  if (kind === 'gapRun') return 'Gap Runs';
+  if (kind === 'mixedGap') return 'Mixed Gaps';
   if (kind === 'match') return 'Matches';
   if (kind === 'pair') return 'Pairs';
   if (kind === 'flush') return 'Flushes';
@@ -265,12 +296,15 @@ export function classifyCabinetLine(
   const sameSuit = tiles.every((tile) => tile.suit === tiles[0].suit);
   const ranks = tiles.map((tile) => tile.rank).sort((left, right) => left - right);
   const isConsecutive = ranks[0] + 1 === ranks[1] && ranks[1] + 1 === ranks[2];
-  if (sameSuit && ranks[0] + 1 === ranks[1] && ranks[1] + 1 === ranks[2]) return 'run';
+  const isGapped = ranks[0] + 2 === ranks[1] && ranks[1] + 2 === ranks[2];
+  if (sameSuit && isConsecutive) return 'run';
+  if (sameSuit && isGapped) return 'gapRun';
   if (sameSuit) return 'flush';
 
   const sameRank = tiles.every((tile) => tile.rank === tiles[0].rank);
   const distinctSuits = new Set(tiles.map((tile) => tile.suit)).size === tiles.length;
   if (isConsecutive && distinctSuits) return 'mixedRun';
+  if (isGapped && distinctSuits) return 'mixedGap';
   return sameRank && distinctSuits ? 'number' : null;
 }
 
@@ -331,7 +365,7 @@ export function getLedgerState(
         return counts;
       },
       {
-        counts: { run: 0, mixedRun: 0, match: 0, pair: 0, flush: 0, number: 0 },
+        counts: { run: 0, mixedRun: 0, gapRun: 0, mixedGap: 0, match: 0, pair: 0, flush: 0, number: 0 },
         unknown: 0,
         invalid: 0,
       } satisfies DawnCabinetLedgerState
@@ -957,6 +991,14 @@ function makeHardPuzzle(config: {
     row: getDraftMaxRow(draft) + 1,
     col: config.variant % 2 === 0 ? 0 : 2,
   });
+  motifs.push('gap-run-pocket');
+  addGapRunPocket(draft, {
+    idPrefix: 'hard-gap-pocket',
+    suit: config.variant % 2 === 0 ? c : d,
+    baseRank: r,
+    row: getDraftMaxRow(draft) + 1,
+    col: config.variant % 2 === 0 ? 0 : 3,
+  });
   if (config.variant % 3 === 0) {
     motifs.push('knot-cell');
     addKnotCell(draft, {
@@ -969,7 +1011,7 @@ function makeHardPuzzle(config: {
   }
 
   const reserveCount = 2 + (config.variant % 3);
-  const bankGoalType = reserveCount === 2 ? 'pair' : getExpertBankGoal(config.id, r, a);
+  const bankGoalType = reserveCount === 2 ? 'pair' : getThreeTileBankGoal(config.id, r, a, false);
   const spares = reserveCount === 4
     ? makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant)
     : makeBankGoalTiles(bankGoalType, config.suits, r);
@@ -1089,6 +1131,22 @@ function makeExpertPuzzle(config: {
     row: getDraftMaxRow(draft) + 1,
     col: config.variant % 2 === 0 ? 0 : 2,
   });
+  motifs.push('gap-run-pocket');
+  addGapRunPocket(draft, {
+    idPrefix: 'expert-gap-pocket',
+    suit: config.variant % 2 === 0 ? d : e,
+    baseRank: r,
+    row: getDraftMaxRow(draft) + 1,
+    col: config.variant % 2 === 0 ? 0 : 3,
+  });
+  motifs.push('mixed-gap-braid');
+  addMixedGapBraid(draft, {
+    idPrefix: 'expert-mixed-gap',
+    suits: [b, d, e],
+    baseRank: r,
+    row: getDraftMaxRow(draft) + 1,
+    col: config.variant % 2 === 0 ? 2 : 0,
+  });
   if (config.variant % 2 === 0) {
     motifs.push('knot-cell');
     addKnotCell(draft, {
@@ -1110,7 +1168,7 @@ function makeExpertPuzzle(config: {
   }
 
   const reserveCount = 3 + (config.variant % 3);
-  const bankGoalType = reserveCount === 3 ? getExpertBankGoal(config.id, r, a) : undefined;
+  const bankGoalType = reserveCount === 3 ? getThreeTileBankGoal(config.id, r, a, true) : undefined;
   const spares = bankGoalType
     ? makeBankGoalTiles(bankGoalType, config.suits, r)
     : makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant);
@@ -1296,6 +1354,61 @@ function addMixedRunBraid(
   addLine(draft, `${config.idPrefix}-bottom`, [bottomLow, bottomMid, bottomHigh], 'hidden');
 }
 
+function addGapRunPocket(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    suit: DawnCabinetSuit;
+    baseRank: number;
+    row: number;
+    col: number;
+  }
+) {
+  const r = config.baseRank;
+  const topLow = cellKey(config.row, config.col);
+  const topMid = cellKey(config.row, config.col + 1);
+  const topHigh = cellKey(config.row, config.col + 2);
+  const bottomLow = cellKey(config.row + 1, config.col);
+  const bottomMid = cellKey(config.row + 1, config.col + 1);
+  const bottomHigh = cellKey(config.row + 1, config.col + 2);
+  place(draft, topLow, { suit: config.suit, rank: r }, true);
+  place(draft, topMid, { suit: config.suit, rank: r + 2 });
+  place(draft, topHigh, { suit: config.suit, rank: r + 4 }, true);
+  place(draft, bottomLow, { suit: config.suit, rank: r + 1 }, true);
+  place(draft, bottomMid, { suit: config.suit, rank: r + 3 });
+  place(draft, bottomHigh, { suit: config.suit, rank: r + 5 }, true);
+  addLine(draft, `${config.idPrefix}-top`, [topLow, topMid, topHigh], 'hidden');
+  addLine(draft, `${config.idPrefix}-bottom`, [bottomLow, bottomMid, bottomHigh], 'hidden');
+}
+
+function addMixedGapBraid(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    suits: [DawnCabinetSuit, DawnCabinetSuit, DawnCabinetSuit];
+    baseRank: number;
+    row: number;
+    col: number;
+  }
+) {
+  const [a, b, c] = config.suits;
+  const r = config.baseRank;
+  const topLow = cellKey(config.row, config.col);
+  const topMid = cellKey(config.row, config.col + 1);
+  const topHigh = cellKey(config.row, config.col + 2);
+  const bottomLow = cellKey(config.row + 1, config.col);
+  const bottomMid = cellKey(config.row + 1, config.col + 1);
+  const bottomHigh = cellKey(config.row + 1, config.col + 2);
+  place(draft, topLow, { suit: a, rank: r }, true);
+  place(draft, topMid, { suit: b, rank: r + 2 });
+  place(draft, topHigh, { suit: c, rank: r + 4 }, true);
+  place(draft, bottomLow, { suit: c, rank: r + 1 }, true);
+  place(draft, bottomMid, { suit: a, rank: r + 3 });
+  place(draft, bottomHigh, { suit: b, rank: r + 5 }, true);
+  addLine(draft, `${config.idPrefix}-top`, [topLow, topMid, topHigh], 'hidden');
+  addLine(draft, `${config.idPrefix}-bottom`, [bottomLow, bottomMid, bottomHigh], 'hidden');
+}
+
 function addKnotCell(
   draft: PuzzleDraft,
   config: {
@@ -1432,8 +1545,15 @@ function addExpertFifthSuitTail(
   addLine(draft, `${config.idPrefix}-anchor`, [cells[5], cells[6]], 'pair');
 }
 
-function getExpertBankGoal(id: string, baseRank: number, firstSuit: DawnCabinetSuit): Exclude<DawnCabinetSetKind, 'pair'> {
-  const goals: Exclude<DawnCabinetSetKind, 'pair'>[] = ['run', 'mixedRun', 'match', 'flush', 'number'];
+function getThreeTileBankGoal(
+  id: string,
+  baseRank: number,
+  firstSuit: DawnCabinetSuit,
+  includeMixedGap: boolean
+): Exclude<DawnCabinetSetKind, 'pair'> {
+  const goals: Exclude<DawnCabinetSetKind, 'pair'>[] = includeMixedGap
+    ? ['run', 'mixedRun', 'gapRun', 'mixedGap', 'match', 'flush', 'number']
+    : ['run', 'mixedRun', 'gapRun', 'match', 'flush', 'number'];
   const offset = (id.length + baseRank + SUITS.indexOf(firstSuit)) % goals.length;
   return goals[offset];
 }
@@ -1461,6 +1581,20 @@ function makeBankGoalTiles(
     return [
       { suit: a, rank: baseRank + 4 },
       { suit: b, rank: baseRank + 5 },
+      { suit: c, rank: baseRank + 6 },
+    ];
+  }
+  if (goal === 'gapRun') {
+    return [
+      { suit: a, rank: baseRank + 2 },
+      { suit: a, rank: baseRank + 4 },
+      { suit: a, rank: baseRank + 6 },
+    ];
+  }
+  if (goal === 'mixedGap') {
+    return [
+      { suit: a, rank: baseRank + 2 },
+      { suit: b, rank: baseRank + 4 },
       { suit: c, rank: baseRank + 6 },
     ];
   }
@@ -1679,7 +1813,16 @@ function makeLedgerForLines(
   lines: DawnCabinetLine[],
   solution: Record<string, DawnCabinetTile>
 ): DawnCabinetLedger | undefined {
-  const ledger: Record<DawnCabinetSetKind, number> = { run: 0, mixedRun: 0, match: 0, pair: 0, flush: 0, number: 0 };
+  const ledger: Record<DawnCabinetSetKind, number> = {
+    run: 0,
+    mixedRun: 0,
+    gapRun: 0,
+    mixedGap: 0,
+    match: 0,
+    pair: 0,
+    flush: 0,
+    number: 0,
+  };
   lines.forEach((line) => {
     if (line.goal !== 'hidden') return;
     const kind = classifyCabinetLine(line.cells.map((cell) => solution[cell]));
@@ -1821,10 +1964,16 @@ function canCompleteLine(assigned: DawnCabinetTile[], goal: DawnCabinetLineGoal)
     return assigned.every((tile) => tileKey(tile) === tileKey(assigned[0]));
   }
   if (goal === 'run') {
-    return canCompleteRankWindow(assigned) && assigned.every((tile) => tile.suit === assigned[0].suit);
+    return canCompleteRankWindow(assigned, 1) && assigned.every((tile) => tile.suit === assigned[0].suit);
   }
   if (goal === 'mixedRun') {
-    return canCompleteRankWindow(assigned) && new Set(assigned.map((tile) => tile.suit)).size === assigned.length;
+    return canCompleteRankWindow(assigned, 1) && new Set(assigned.map((tile) => tile.suit)).size === assigned.length;
+  }
+  if (goal === 'gapRun') {
+    return canCompleteRankWindow(assigned, 2) && assigned.every((tile) => tile.suit === assigned[0].suit);
+  }
+  if (goal === 'mixedGap') {
+    return canCompleteRankWindow(assigned, 2) && new Set(assigned.map((tile) => tile.suit)).size === assigned.length;
   }
   if (goal === 'flush') {
     return assigned.every((tile) => tile.suit === assigned[0].suit);
@@ -1835,13 +1984,18 @@ function canCompleteLine(assigned: DawnCabinetTile[], goal: DawnCabinetLineGoal)
   );
 }
 
-function canCompleteRankWindow(assigned: DawnCabinetTile[]): boolean {
+function canCompleteRankWindow(assigned: DawnCabinetTile[], step: 1 | 2): boolean {
   const ranks = assigned.map((tile) => tile.rank);
   if (new Set(ranks).size !== ranks.length) return false;
   const min = Math.min(...ranks);
   const max = Math.max(...ranks);
-  if (max - min > 2) return false;
-  const firstPossibleStart = Math.max(1, max - 2);
-  const lastPossibleStart = Math.min(min, 7);
-  return firstPossibleStart <= lastPossibleStart;
+  if (max - min > step * 2) return false;
+  const firstPossibleStart = Math.max(1, max - step * 2);
+  const lastPossibleStart = Math.min(min, 9 - step * 2);
+  for (let start = firstPossibleStart; start <= lastPossibleStart; start += 1) {
+    if (ranks.every((rank) => (rank - start) % step === 0 && rank >= start && rank <= start + step * 2)) {
+      return true;
+    }
+  }
+  return false;
 }
