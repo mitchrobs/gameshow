@@ -337,6 +337,8 @@ export default function DawnCabinetScreen() {
     () => initialPlacedEntryIdsByCell
   );
   const [selectedEntryID, setSelectedEntryID] = useState<string | null>(null);
+  const [selectedCell, setSelectedCell] = useState<string | null>(null);
+  const [armedCell, setArmedCell] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState>(() => (initialIsSolved ? 'won' : 'playing'));
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -460,6 +462,8 @@ export default function DawnCabinetScreen() {
 
     setPlacedEntryIdsByCell(savedPlacements);
     setSelectedEntryID(null);
+    setSelectedCell(null);
+    setArmedCell(null);
     setMessage(null);
     setElapsedSeconds(0);
     setGameState(solved ? 'won' : 'playing');
@@ -494,13 +498,50 @@ export default function DawnCabinetScreen() {
     completePuzzle();
   }, [completePuzzle, gameState, placements, puzzle]);
 
+  const trackCorrectPlacement = useCallback(
+    (cell: string, entry: BankEntry | undefined) => {
+      const solutionTile = puzzle.solution[cell];
+      if (!entry || !solutionTile || tileKey(entry.tile) !== tileKey(solutionTile)) return;
+      setFirstCorrectCells((previous) =>
+        previous.includes(cell) || previous.length >= 3 ? previous : [...previous, cell]
+      );
+    },
+    [puzzle.solution]
+  );
+
+  const placeEntryInCell = useCallback(
+    (cell: string, entryID: string) => {
+      if (gameState !== 'playing' || puzzle.givens[cell]) return false;
+      const entry = bankByID.get(entryID);
+      if (!entry || usedEntryIDs.has(entryID)) return false;
+
+      setPlacedEntryIdsByCell((previous) => {
+        const next = {
+          ...previous,
+          [cell]: entryID,
+        };
+        writeSavedPlacements(puzzle.id, next);
+        return next;
+      });
+      trackCorrectPlacement(cell, entry);
+      setSelectedEntryID(null);
+      setSelectedCell(cell);
+      setArmedCell(null);
+      setMessage(null);
+      setHasChecked(false);
+      return true;
+    },
+    [bankByID, gameState, puzzle.givens, puzzle.id, trackCorrectPlacement, usedEntryIDs]
+  );
+
   const handleBankPress = useCallback(
     (entryID: string) => {
       if (gameState !== 'playing') return;
+      if (armedCell && placeEntryInCell(armedCell, entryID)) return;
       setSelectedEntryID((current) => (current === entryID ? null : entryID));
       setMessage(null);
     },
-    [gameState]
+    [armedCell, gameState, placeEntryInCell]
   );
 
   const handleBankStackPress = useCallback(
@@ -508,12 +549,13 @@ export default function DawnCabinetScreen() {
       if (gameState !== 'playing') return;
       const nextEntry = stack.availableEntries[0];
       if (!nextEntry) return;
+      if (armedCell && placeEntryInCell(armedCell, nextEntry.id)) return;
       setSelectedEntryID((current) =>
         stack.entries.some((entry) => entry.id === current) ? null : nextEntry.id
       );
       setMessage(null);
     },
-    [gameState]
+    [armedCell, gameState, placeEntryInCell]
   );
 
   const handleSuitFilterSelect = useCallback(
@@ -528,31 +570,21 @@ export default function DawnCabinetScreen() {
 
   const handleCellPress = useCallback(
     (cell: string) => {
-      if (gameState !== 'playing' || puzzle.givens[cell]) return;
+      if (gameState !== 'playing') return;
 
-      if (selectedEntryID) {
-        setPlacedEntryIdsByCell((previous) => {
-          const next = {
-            ...previous,
-            [cell]: selectedEntryID,
-          };
-          writeSavedPlacements(puzzle.id, next);
-          return next;
-        });
-        const selectedEntry = bankByID.get(selectedEntryID);
-        const solutionTile = puzzle.solution[cell];
-        if (selectedEntry && solutionTile && tileKey(selectedEntry.tile) === tileKey(solutionTile)) {
-          setFirstCorrectCells((previous) =>
-            previous.includes(cell) || previous.length >= 3 ? previous : [...previous, cell]
-          );
-        }
-        setSelectedEntryID(null);
+      setSelectedCell((current) => (current === cell ? current : cell));
+      if (puzzle.givens[cell]) {
+        setArmedCell(null);
         setMessage(null);
-        setHasChecked(false);
         return;
       }
 
-      if (placedEntryIdsByCell[cell]) {
+      if (selectedEntryID) {
+        placeEntryInCell(cell, selectedEntryID);
+        return;
+      }
+
+      if (placedEntryIdsByCell[cell] && selectedCell === cell && armedCell === cell) {
         setPlacedEntryIdsByCell((previous) => {
           const next = { ...previous };
           delete next[cell];
@@ -561,15 +593,20 @@ export default function DawnCabinetScreen() {
         });
         setMessage(null);
         setHasChecked(false);
+        setArmedCell(cell);
+        return;
       }
+
+      setArmedCell(cell);
+      setMessage(null);
     },
     [
-      bankByID,
+      armedCell,
       gameState,
       placedEntryIdsByCell,
+      placeEntryInCell,
       puzzle.givens,
-      puzzle.id,
-      puzzle.solution,
+      selectedCell,
       selectedEntryID,
     ]
   );
@@ -604,6 +641,8 @@ export default function DawnCabinetScreen() {
     storage?.removeItem(`${STORAGE_PREFIX}:state:${puzzle.id}`);
     setPlacedEntryIdsByCell({});
     setSelectedEntryID(null);
+    setSelectedCell(null);
+    setArmedCell(null);
     setMessage(null);
     setShareStatus(null);
     setHasChecked(false);
@@ -798,6 +837,7 @@ export default function DawnCabinetScreen() {
               placements={placements}
               placedEntryIdsByCell={placedEntryIdsByCell}
               selectedEntryID={selectedEntryID}
+              selectedCell={selectedCell}
               revealHiddenRails={gameState === 'won'}
               onCellPress={handleCellPress}
               styles={styles}
@@ -1236,6 +1276,7 @@ function CabinetBoard({
   placements,
   placedEntryIdsByCell,
   selectedEntryID,
+  selectedCell,
   revealHiddenRails,
   onCellPress,
   styles,
@@ -1245,6 +1286,7 @@ function CabinetBoard({
   placements: Record<string, DawnCabinetTile>;
   placedEntryIdsByCell: Record<string, string>;
   selectedEntryID: string | null;
+  selectedCell: string | null;
   revealHiddenRails: boolean;
   onCellPress: (cell: string) => void;
   styles: ReturnType<typeof createStyles>;
@@ -1259,6 +1301,11 @@ function CabinetBoard({
   const boardWidth = cellSize * puzzle.columns + gap * (puzzle.columns - 1) + padding * 2;
   const boardHeight = cellSize * puzzle.rows + gap * (puzzle.rows - 1) + padding * 2;
   const activeCells = new Set(puzzle.cells.map((cell) => cellKey(cell.row, cell.col)));
+  const selectedCellLines = selectedCell
+    ? puzzle.lines.filter((line) => line.cells.includes(selectedCell))
+    : [];
+  const selectedCellLineIDs = new Set(selectedCellLines.map((line) => line.id));
+  const selectedCellRailCells = new Set(selectedCellLines.flatMap((line) => line.cells));
 
   const centerFor = (cell: string) => {
     const [row, col] = cell.split(':').map(Number);
@@ -1283,12 +1330,31 @@ function CabinetBoard({
             line.goal === 'hidden' && state === 'valid' && !revealHiddenRails
               ? 'incomplete'
               : state;
+          const isRailHighlighted = selectedCellLineIDs.has(line.id);
+          const isRailDimmed = Boolean(selectedCell) && !isRailHighlighted;
           const points = line.cells.map(centerFor);
           const color = lineColor(visualState);
           const labelPoint = {
             x: (points[0].x + points[1].x) / 2,
             y: (points[0].y + points[1].y) / 2,
           };
+          const railStrokeOpacity = isRailHighlighted
+            ? visualState === 'incomplete'
+              ? 0.68
+              : 0.88
+            : isRailDimmed
+              ? 0.1
+              : visualState === 'incomplete'
+                ? 0.22
+                : 0.5;
+          const railNodeOpacity = isRailHighlighted
+            ? 0.88
+            : isRailDimmed
+              ? 0.14
+              : visualState === 'incomplete'
+                ? 0.32
+                : 0.65;
+          const labelOpacity = isRailDimmed ? 0.24 : isRailHighlighted ? 1 : 0.94;
           return (
             <G key={line.id}>
               {points.slice(1).map((point, index) => (
@@ -1299,8 +1365,8 @@ function CabinetBoard({
                   x2={point.x}
                   y2={point.y}
                   stroke={color}
-                  strokeWidth={visualState === 'incomplete' ? 5 : 7}
-                  strokeOpacity={visualState === 'incomplete' ? 0.22 : 0.5}
+                  strokeWidth={isRailHighlighted ? 9 : visualState === 'incomplete' ? 5 : 7}
+                  strokeOpacity={railStrokeOpacity}
                   strokeLinecap="round"
                 />
               ))}
@@ -1311,27 +1377,28 @@ function CabinetBoard({
                   cy={point.y}
                   r={3}
                   fill={color}
-                  opacity={visualState === 'incomplete' ? 0.32 : 0.65}
+                  opacity={railNodeOpacity}
                 />
               ))}
               <Rect
-                x={labelPoint.x - 9}
-                y={labelPoint.y - 9}
-                width={18}
-                height={18}
-                rx={9}
+                x={labelPoint.x - (isRailHighlighted ? 11 : 9)}
+                y={labelPoint.y - (isRailHighlighted ? 11 : 9)}
+                width={isRailHighlighted ? 22 : 18}
+                height={isRailHighlighted ? 22 : 18}
+                rx={999}
                 fill={theme.colors.surface}
                 stroke={color}
-                strokeWidth={1.5}
-                opacity={0.94}
+                strokeWidth={isRailHighlighted ? 2.5 : 1.5}
+                opacity={labelOpacity}
               />
               <SvgText
                 x={labelPoint.x}
-                y={labelPoint.y + 3.5}
+                y={labelPoint.y + (isRailHighlighted ? 4 : 3.5)}
                 fill={color}
-                fontSize={10}
+                fontSize={isRailHighlighted ? 11 : 10}
                 fontWeight="900"
                 textAnchor="middle"
+                opacity={isRailDimmed ? 0.24 : 1}
               >
                 {lineGoalShortLabel(line.goal)}
               </SvgText>
@@ -1349,6 +1416,8 @@ function CabinetBoard({
               const isActive = activeCells.has(key);
               const isGiven = Boolean(puzzle.givens[key]);
               const isPlaced = Boolean(placedEntryIdsByCell[key]);
+              const isSelected = selectedCell === key;
+              const isRailRelated = selectedCellRailCells.has(key);
               if (!isActive) {
                 return (
                   <View
@@ -1364,13 +1433,14 @@ function CabinetBoard({
                   accessibilityRole="button"
                   accessibilityLabel={`Cabinet cell ${row + 1}, ${col + 1}`}
                   testID={`dawn-cabinet.cell.${key}`}
-                  disabled={isGiven}
                   style={[
                     styles.cellButton,
                     { width: cellSize, height: cellSize },
+                    isRailRelated && styles.railRelatedCell,
                     isGiven && styles.givenCell,
                     isPlaced && styles.placedCell,
                     selectedEntryID && !tile && !isGiven && styles.readyCell,
+                    isSelected && styles.selectedCell,
                   ]}
                   onPress={() => onCellPress(key)}
                 >
@@ -2115,9 +2185,18 @@ const createStyles = (
     placedCell: {
       borderColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.38)' : 'rgba(11,11,11,0.22)',
     },
+    railRelatedCell: {
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+    },
     readyCell: {
       borderColor: screenAccent.main,
       borderStyle: 'dashed',
+      backgroundColor: screenAccent.soft,
+    },
+    selectedCell: {
+      borderColor: screenAccent.main,
+      borderWidth: 2,
       backgroundColor: screenAccent.soft,
     },
     emptySlot: {
