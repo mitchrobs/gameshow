@@ -1433,6 +1433,7 @@ function CabinetBoard({
     () => RAIL_LEGEND_ITEMS.filter((item) => activeLegendGoals.has(item.goal)),
     [activeLegendGoals]
   );
+  const showBoardRailLabels = !selectedCell && cellSize >= 66;
 
   useEffect(() => {
     setShowRailLegend(false);
@@ -1535,6 +1536,53 @@ function CabinetBoard({
               </G>
             );
           })}
+          {showBoardRailLabels
+            ? puzzle.lines.map((line) => {
+                const state = getCabinetLineState(line, placements);
+                const visualState =
+                  line.goal === 'hidden' && state === 'valid' && !revealHiddenRails
+                    ? 'incomplete'
+                    : state;
+                const points = line.cells.map(centerFor);
+                const color = lineColor(visualState);
+                const labelPoint = labelFor(points);
+                const labelSize = 12;
+                const labelOpacity = visualState === 'incomplete' ? 0.56 : 0.72;
+                return (
+                  <G key={`${line.id}-label`}>
+                    <Circle
+                      cx={labelPoint.x}
+                      cy={labelPoint.y}
+                      r={labelSize / 2 + 1}
+                      fill={theme.colors.surface}
+                      opacity={0.72}
+                    />
+                    <Rect
+                      x={labelPoint.x - labelSize / 2}
+                      y={labelPoint.y - labelSize / 2}
+                      width={labelSize}
+                      height={labelSize}
+                      rx={999}
+                      fill={theme.colors.surface}
+                      stroke={color}
+                      strokeWidth={1.2}
+                      opacity={labelOpacity}
+                    />
+                    <SvgText
+                      x={labelPoint.x}
+                      y={labelPoint.y + 2.7}
+                      fill={color}
+                      fontSize={7}
+                      fontWeight="900"
+                      textAnchor="middle"
+                      opacity={labelOpacity}
+                    >
+                      {lineGoalShortLabel(line.goal)}
+                    </SvgText>
+                  </G>
+                );
+              })
+            : null}
         </Svg>
 
         <View style={[styles.boardGrid, { padding, gap }]}>
@@ -1594,60 +1642,6 @@ function CabinetBoard({
             </View>
           ))}
         </View>
-        <Svg
-          width={boardWidth}
-          height={boardHeight}
-          style={[StyleSheet.absoluteFill, styles.railLabelLayer]}
-          pointerEvents="none"
-        >
-          {puzzle.lines.map((line) => {
-            const state = getCabinetLineState(line, placements);
-            const visualState =
-              line.goal === 'hidden' && state === 'valid' && !revealHiddenRails
-                ? 'incomplete'
-                : state;
-            const isRailHighlighted = selectedCellLineIDs.has(line.id);
-            const isRailDimmed = Boolean(selectedCell) && !isRailHighlighted;
-            const points = line.cells.map(centerFor);
-            const color = lineColor(visualState);
-            const labelPoint = labelFor(points);
-            const labelOpacity = isRailDimmed ? 0 : isRailHighlighted ? 0.96 : 0.72;
-            const labelSize = isRailHighlighted ? 18 : 14;
-            return (
-              <G key={`${line.id}-label`}>
-                <Circle
-                  cx={labelPoint.x}
-                  cy={labelPoint.y}
-                  r={labelSize / 2 + (isRailHighlighted ? 2 : 1)}
-                  fill={theme.colors.surface}
-                  opacity={labelOpacity > 0 ? 0.82 : 0}
-                />
-                <Rect
-                  x={labelPoint.x - labelSize / 2}
-                  y={labelPoint.y - labelSize / 2}
-                  width={labelSize}
-                  height={labelSize}
-                  rx={999}
-                  fill={isRailHighlighted ? color : theme.colors.surface}
-                  stroke={color}
-                  strokeWidth={isRailHighlighted ? 2 : 1.4}
-                  opacity={labelOpacity}
-                />
-                <SvgText
-                  x={labelPoint.x}
-                  y={labelPoint.y + (isRailHighlighted ? 3.5 : 3)}
-                  fill={isRailHighlighted ? '#ffffff' : color}
-                  fontSize={isRailHighlighted ? 9.5 : 8}
-                  fontWeight="900"
-                  textAnchor="middle"
-                  opacity={labelOpacity > 0 ? 1 : 0}
-                >
-                  {lineGoalShortLabel(line.goal)}
-                </SvgText>
-              </G>
-            );
-          })}
-        </Svg>
       </View>
       {selectedCellLines.length > 0 ? (
         <View style={[styles.railFocusStrip, { width: boardWidth }]}>
@@ -1913,7 +1907,7 @@ function TutorialModal({
               <View style={styles.lessonTitleRow}>
                 <Text style={styles.lessonTitle}>Run</Text>
                 <View style={styles.lessonDifficultyBadge}>
-                  <Text style={styles.lessonDifficultyText}>Core</Text>
+                  <Text style={styles.lessonDifficultyText}>All</Text>
                 </View>
               </View>
               <Text style={styles.lessonText}>Three consecutive ranks, all in one suit.</Text>
@@ -1930,7 +1924,7 @@ function TutorialModal({
               <View style={styles.lessonTitleRow}>
                 <Text style={styles.lessonTitle}>Match</Text>
                 <View style={styles.lessonDifficultyBadge}>
-                  <Text style={styles.lessonDifficultyText}>Core</Text>
+                  <Text style={styles.lessonDifficultyText}>All</Text>
                 </View>
               </View>
               <Text style={styles.lessonText}>Three identical tiles.</Text>
@@ -1947,7 +1941,7 @@ function TutorialModal({
               <View style={styles.lessonTitleRow}>
                 <Text style={styles.lessonTitle}>Mixed Run</Text>
                 <View style={styles.lessonDifficultyBadge}>
-                  <Text style={styles.lessonDifficultyText}>Standard+</Text>
+                  <Text style={styles.lessonDifficultyText}>All</Text>
                 </View>
               </View>
               <Text style={styles.lessonText}>Three consecutive ranks, each in a different suit.</Text>
@@ -1964,10 +1958,27 @@ function TutorialModal({
               <View style={styles.lessonTitleRow}>
                 <Text style={styles.lessonTitle}>Pair</Text>
                 <View style={styles.lessonDifficultyBadge}>
-                  <Text style={styles.lessonDifficultyText}>Core</Text>
+                  <Text style={styles.lessonDifficultyText}>All</Text>
                 </View>
               </View>
               <Text style={styles.lessonText}>Two identical tiles.</Text>
+            </View>
+          </View>
+
+          <View style={styles.lessonRow}>
+            <View style={styles.lessonTiles}>
+              {flushTiles.map((tile) => (
+                <MahjongTile key={tileKey(tile)} tile={tile} styles={styles} size="small" />
+              ))}
+            </View>
+            <View style={styles.lessonCopy}>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Flush</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>All</Text>
+                </View>
+              </View>
+              <Text style={styles.lessonText}>Three tiles in one suit, but not a Run, Gap Run, or Match.</Text>
             </View>
           </View>
 
@@ -1990,40 +2001,6 @@ function TutorialModal({
 
           <View style={styles.lessonRow}>
             <View style={styles.lessonTiles}>
-              {mixedGapTiles.map((tile) => (
-                <MahjongTile key={tileKey(tile)} tile={tile} styles={styles} size="small" />
-              ))}
-            </View>
-            <View style={styles.lessonCopy}>
-              <View style={styles.lessonTitleRow}>
-                <Text style={styles.lessonTitle}>Mixed Gap</Text>
-                <View style={styles.lessonDifficultyBadge}>
-                  <Text style={styles.lessonDifficultyText}>Expert</Text>
-                </View>
-              </View>
-              <Text style={styles.lessonText}>Three different suits stepping by two ranks.</Text>
-            </View>
-          </View>
-
-          <View style={styles.lessonRow}>
-            <View style={styles.lessonTiles}>
-              {flushTiles.map((tile) => (
-                <MahjongTile key={tileKey(tile)} tile={tile} styles={styles} size="small" />
-              ))}
-            </View>
-            <View style={styles.lessonCopy}>
-              <View style={styles.lessonTitleRow}>
-                <Text style={styles.lessonTitle}>Flush</Text>
-                <View style={styles.lessonDifficultyBadge}>
-                  <Text style={styles.lessonDifficultyText}>Standard+</Text>
-                </View>
-              </View>
-              <Text style={styles.lessonText}>Three tiles in one suit, but not a Run, Gap Run, or Match.</Text>
-            </View>
-          </View>
-
-          <View style={styles.lessonRow}>
-            <View style={styles.lessonTiles}>
               {numberTiles.map((tile) => (
                 <MahjongTile key={tileKey(tile)} tile={tile} styles={styles} size="small" />
               ))}
@@ -2036,6 +2013,23 @@ function TutorialModal({
                 </View>
               </View>
               <Text style={styles.lessonText}>Three suits sharing the same rank.</Text>
+            </View>
+          </View>
+
+          <View style={styles.lessonRow}>
+            <View style={styles.lessonTiles}>
+              {mixedGapTiles.map((tile) => (
+                <MahjongTile key={tileKey(tile)} tile={tile} styles={styles} size="small" />
+              ))}
+            </View>
+            <View style={styles.lessonCopy}>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Mixed Gap</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Expert</Text>
+                </View>
+              </View>
+              <Text style={styles.lessonText}>Three different suits stepping by two ranks.</Text>
             </View>
           </View>
 
@@ -2576,9 +2570,6 @@ const createStyles = (
     boardGrid: {
       position: 'relative',
       zIndex: 2,
-    },
-    railLabelLayer: {
-      zIndex: 3,
     },
     boardRow: {
       flexDirection: 'row',
