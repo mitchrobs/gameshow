@@ -261,6 +261,9 @@ export default function HomeScreen() {
         storage.getItem(`barter:daily:${key}`) === '1' ||
         storage.getItem(`dawn-cabinet:daily:${key}`) === '1' ||
         storage.getItem(`dawn-cabinet:daily:${utcKey}`) === '1' ||
+        storage.getItem(`dawn-cabinet-v10:daily:${utcKey}:Standard`) === '1' ||
+        storage.getItem(`dawn-cabinet-v10:daily:${utcKey}:Hard`) === '1' ||
+        storage.getItem(`dawn-cabinet-v10:daily:${utcKey}:Expert`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${utcKey}`) === '1' ||
         storage.getItem(`bridges:daily:${key}`) === '1' ||

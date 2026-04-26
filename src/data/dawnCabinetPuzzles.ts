@@ -16,7 +16,7 @@ export type DawnCabinetSuit =
 export type DawnCabinetDifficulty = 'Easy' | 'Standard' | 'Hard' | 'Expert';
 export type DawnCabinetDailyDifficulty = Exclude<DawnCabinetDifficulty, 'Easy'>;
 export type DawnCabinetLineState = 'incomplete' | 'valid' | 'invalid';
-export type DawnCabinetSetKind = 'run' | 'match' | 'pair' | 'flush' | 'number';
+export type DawnCabinetSetKind = 'run' | 'mixedRun' | 'match' | 'pair' | 'flush' | 'number';
 export type DawnCabinetLineGoal = DawnCabinetSetKind | 'hidden';
 
 export interface DawnCabinetTile {
@@ -45,10 +45,13 @@ export interface DawnCabinetDifficultyRating {
   blanks: number;
   hiddenRails: number;
   lineCount: number;
+  bankCount: number;
   setKindCount: number;
   reserveCount: number;
   overlapDensity: number;
   branchCount: number;
+  motifCount: number;
+  shapeSignature: string;
   score: number;
 }
 
@@ -88,6 +91,8 @@ export interface DawnCabinetPuzzle {
   solution: Record<string, DawnCabinetTile>;
   bank: DawnCabinetTile[];
   spareCount: number;
+  motifs: string[];
+  shapeSignature: string;
 }
 
 type PuzzleDraft = {
@@ -153,9 +158,9 @@ const SUIT_SHARE_MARKS: Record<DawnCabinetSuit, string> = {
   moons: '🟣',
   suns: '🟧',
 };
-const SET_KINDS: DawnCabinetSetKind[] = ['run', 'match', 'pair', 'flush', 'number'];
-const THREE_TILE_SET_KINDS: DawnCabinetSetKind[] = ['run', 'match', 'flush', 'number'];
-const VALID_LINE_CACHE: Partial<Record<DawnCabinetLineGoal, DawnCabinetTile[][]>> = {};
+const SET_KINDS: DawnCabinetSetKind[] = ['run', 'mixedRun', 'match', 'pair', 'flush', 'number'];
+const THREE_TILE_SET_KINDS: DawnCabinetSetKind[] = ['run', 'mixedRun', 'match', 'flush', 'number'];
+const CANDIDATE_CACHE = new Map<string, DawnCabinetPuzzle[]>();
 export const DAWN_CABINET_DAILY_DIFFICULTIES: DawnCabinetDailyDifficulty[] = [
   'Standard',
   'Hard',
@@ -197,6 +202,7 @@ export function tileMatchesCellClue(
 
 export function lineGoalLabel(goal: DawnCabinetLineGoal): string {
   if (goal === 'run') return 'Run';
+  if (goal === 'mixedRun') return 'Mixed Run';
   if (goal === 'match') return 'Match';
   if (goal === 'pair') return 'Pair';
   if (goal === 'flush') return 'Flush';
@@ -206,6 +212,7 @@ export function lineGoalLabel(goal: DawnCabinetLineGoal): string {
 
 export function lineGoalShortLabel(goal: DawnCabinetLineGoal): string {
   if (goal === 'run') return 'R';
+  if (goal === 'mixedRun') return 'X';
   if (goal === 'match') return 'M';
   if (goal === 'pair') return 'P';
   if (goal === 'flush') return 'F';
@@ -215,6 +222,7 @@ export function lineGoalShortLabel(goal: DawnCabinetLineGoal): string {
 
 export function setKindPluralLabel(kind: DawnCabinetSetKind): string {
   if (kind === 'run') return 'Runs';
+  if (kind === 'mixedRun') return 'Mixed Runs';
   if (kind === 'match') return 'Matches';
   if (kind === 'pair') return 'Pairs';
   if (kind === 'flush') return 'Flushes';
@@ -256,11 +264,13 @@ export function classifyCabinetLine(
 
   const sameSuit = tiles.every((tile) => tile.suit === tiles[0].suit);
   const ranks = tiles.map((tile) => tile.rank).sort((left, right) => left - right);
+  const isConsecutive = ranks[0] + 1 === ranks[1] && ranks[1] + 1 === ranks[2];
   if (sameSuit && ranks[0] + 1 === ranks[1] && ranks[1] + 1 === ranks[2]) return 'run';
   if (sameSuit) return 'flush';
 
   const sameRank = tiles.every((tile) => tile.rank === tiles[0].rank);
   const distinctSuits = new Set(tiles.map((tile) => tile.suit)).size === tiles.length;
+  if (isConsecutive && distinctSuits) return 'mixedRun';
   return sameRank && distinctSuits ? 'number' : null;
 }
 
@@ -321,7 +331,7 @@ export function getLedgerState(
         return counts;
       },
       {
-        counts: { run: 0, match: 0, pair: 0, flush: 0, number: 0 },
+        counts: { run: 0, mixedRun: 0, match: 0, pair: 0, flush: 0, number: 0 },
         unknown: 0,
         invalid: 0,
       } satisfies DawnCabinetLedgerState
@@ -400,16 +410,20 @@ export function rateDawnCabinetPuzzle(puzzle: DawnCabinetPuzzle): DawnCabinetDif
     setKindCount * 12 +
     puzzle.spareCount * 14 +
     overlapDensity * 20 +
-    branchCount * 2;
+    branchCount * 2 +
+    puzzle.motifs.length * 4;
 
   return {
     blanks,
     hiddenRails,
     lineCount: puzzle.lines.length,
+    bankCount: puzzle.bank.length,
     setKindCount,
     reserveCount: puzzle.spareCount,
     overlapDensity,
     branchCount,
+    motifCount: puzzle.motifs.length,
+    shapeSignature: puzzle.shapeSignature,
     score,
   };
 }
@@ -487,9 +501,47 @@ function getDawnCabinetByDifficulty(
   difficulty: DawnCabinetDifficulty,
   seed: bigint
 ): DawnCabinetPuzzle {
+  const candidates = getCandidateSet(date, difficulty, seed);
+  if (difficulty === 'Easy') return candidates[0];
+  return selectAntiFingerprintCandidate(date, difficulty, seed, candidates);
+}
+
+function selectAntiFingerprintCandidate(
+  date: string,
+  difficulty: DawnCabinetDifficulty,
+  seed: bigint,
+  candidates: DawnCabinetPuzzle[]
+): DawnCabinetPuzzle {
+  const selectedSignatures: string[] = [];
+  let selectedToday = candidates[Number(seed % BigInt(candidates.length))];
+
+  for (let dayOffset = -60; dayOffset <= 0; dayOffset += 1) {
+    const currentDate = shiftUtcDate(date, dayOffset);
+    const currentSeed = dayOffset === 0 ? seed : stableSeed(`${currentDate}:${difficulty}:daily`);
+    const currentCandidates = dayOffset === 0
+      ? candidates
+      : getCandidateSet(currentDate, difficulty, currentSeed);
+    const offset = Number(currentSeed % BigInt(currentCandidates.length));
+    const ordered = [...currentCandidates.slice(offset), ...currentCandidates.slice(0, offset)];
+    const recent = new Set(selectedSignatures.slice(-14));
+    const selected = ordered.find((candidate) => !recent.has(candidate.shapeSignature)) ?? ordered[0];
+    selectedSignatures.push(selected.shapeSignature);
+    if (dayOffset === 0) selectedToday = selected;
+  }
+  return selectedToday;
+}
+
+function getCandidateSet(
+  date: string,
+  difficulty: DawnCabinetDifficulty,
+  seed: bigint
+): DawnCabinetPuzzle[] {
+  const key = `${date}:${difficulty}:${seed.toString()}`;
+  const cached = CANDIDATE_CACHE.get(key);
+  if (cached) return cached;
   const candidates = makeCandidates(date, difficulty, seed);
-  const offset = Number(seed % BigInt(candidates.length));
-  return candidates[offset];
+  CANDIDATE_CACHE.set(key, candidates);
+  return candidates;
 }
 
 export function makeTutorialPuzzle(date = 'tutorial'): DawnCabinetPuzzle {
@@ -589,6 +641,9 @@ function makeCandidates(
   const fourSuits = pickSuits(seed, 4);
   const fiveSuits = pickSuits(seed, 5);
   const baseRank = 1 + Number((seed >> 5n) % 3n);
+  const variants = Array.from({ length: 72 }, (_, index) =>
+    Number((seed + BigInt(index) * 104_729n) % 10_000n)
+  );
 
   switch (difficulty) {
     case 'Easy':
@@ -599,38 +654,42 @@ function makeCandidates(
           difficulty,
           suits: twoSuits,
           baseRank,
+          variant: variants[0],
         }),
       ];
     case 'Standard':
-      return [
+      return variants.map((variant) =>
         makeStandardPuzzle({
-          id: `dawn-cabinet-${date}-standard-a`,
+          id: `dawn-cabinet-${date}-standard-${variant}`,
           date,
           difficulty,
           suits: threeSuits,
           baseRank,
-        }),
-      ];
+          variant,
+        })
+      );
     case 'Hard':
-      return [
+      return variants.map((variant) =>
         makeHardPuzzle({
-          id: `dawn-cabinet-${date}-hard-a`,
+          id: `dawn-cabinet-${date}-hard-${variant}`,
           date,
           difficulty,
           suits: fourSuits,
           baseRank,
-        }),
-      ];
+          variant,
+        })
+      );
     case 'Expert':
-      return [
+      return variants.map((variant) =>
         makeExpertPuzzle({
-          id: `dawn-cabinet-${date}-expert-a`,
+          id: `dawn-cabinet-${date}-expert-${variant}`,
           date,
           difficulty,
           suits: fiveSuits,
           baseRank,
-        }),
-      ];
+          variant,
+        })
+      );
   }
 }
 
@@ -640,6 +699,7 @@ function makeEasyPuzzle(config: {
   difficulty: DawnCabinetDifficulty;
   suits: DawnCabinetSuit[];
   baseRank: number;
+  variant?: number;
 }): DawnCabinetPuzzle {
   const [a, b] = config.suits;
   const r = config.baseRank;
@@ -692,54 +752,129 @@ function makeStandardPuzzle(config: {
   difficulty: DawnCabinetDifficulty;
   suits: DawnCabinetSuit[];
   baseRank: number;
+  variant: number;
 }): DawnCabinetPuzzle {
   const [a, b, c] = config.suits;
   const r = config.baseRank;
   const draft = createDraft();
+  const motifs = ['weave', 'weave'];
+  const columnLayouts = [[0, 4], [0, 3], [1, 4]] as const;
+  const [leftCol, rightCol] = columnLayouts[config.variant % columnLayouts.length];
+  const leftRow = Math.floor(config.variant / 3) % 4;
+  const rightRow = Math.floor(config.variant / 11) % 4;
+  const baseBottom = Math.max(leftRow, rightRow) + 5;
+  const leftPocketCol = leftCol === 1 ? 1 : 0;
+  const rightPocketCol = rightCol >= 4 ? 4 : 3;
+  const leftMask = getStandardWeaveMask(config.variant);
+  const rightMask = getStandardWeaveMask(config.variant >> 2);
 
-  addWeaveCluster(draft, {
+  const left = addWeaveCluster(draft, {
     idPrefix: 'standard-left',
     suit: a,
     baseRank: r,
-    originRow: 0,
-    originCol: 0,
-    givens: ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottom', 'bottomRight'],
+    originRow: leftRow,
+    originCol: leftCol,
+    givens: leftMask,
   });
-  addLine(draft, 'standard-left-pair', ['0:0', '2:0'], 'pair');
+  addWeavePairAnchor(draft, 'standard-left-pair', left, config.variant);
 
-  addWeaveCluster(draft, {
+  const right = addWeaveCluster(draft, {
     idPrefix: 'standard-right',
     suit: b,
     baseRank: r,
-    originRow: 0,
-    originCol: 4,
-    givens: ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottom', 'bottomRight'],
+    originRow: rightRow,
+    originCol: rightCol,
+    givens: rightMask,
   });
-  addLine(draft, 'standard-right-pair', ['0:6', '2:6'], 'pair');
+  addWeavePairAnchor(draft, 'standard-right-pair', right, config.variant >> 1);
 
-  place(draft, '5:0', { suit: c, rank: r }, true);
-  place(draft, '5:1', { suit: c, rank: r + 3 });
-  place(draft, '5:2', { suit: c, rank: r + 6 }, true);
-  place(draft, '6:1', { suit: c, rank: r + 3 }, true);
-  addLine(draft, 'standard-low-flush', ['5:0', '5:1', '5:2'], 'hidden');
-  addLine(draft, 'standard-low-flush-anchor', ['5:1', '6:1'], 'pair');
-
-  place(draft, '5:4', { suit: c, rank: r + 1 }, true);
-  place(draft, '5:5', { suit: c, rank: r + 4 });
-  place(draft, '5:6', { suit: c, rank: r + 6 }, true);
-  place(draft, '6:5', { suit: c, rank: r + 4 }, true);
-  addLine(draft, 'standard-high-flush', ['5:4', '5:5', '5:6'], 'hidden');
-  addLine(draft, 'standard-high-flush-anchor', ['5:5', '6:5'], 'pair');
+  if (config.variant % 3 === 0) {
+    motifs.push('flush-pocket', 'flush-pocket');
+    addFlushPocket(draft, {
+      idPrefix: 'standard-low-flush',
+      suit: c,
+      baseRank: r,
+      row: baseBottom,
+      col: leftPocketCol,
+      orientation: config.variant % 4 === 0 ? 'horizontal' : 'vertical',
+      rankOffset: 0,
+    });
+    addFlushPocket(draft, {
+      idPrefix: 'standard-high-flush',
+      suit: c,
+      baseRank: r,
+      row: baseBottom,
+      col: rightPocketCol,
+      orientation: config.variant % 4 === 0 ? 'horizontal' : 'vertical',
+      rankOffset: 1,
+    });
+  } else if (config.variant % 3 === 1) {
+    motifs.push('flush-pocket', 'copy-block');
+    addFlushPocket(draft, {
+      idPrefix: 'standard-center-flush',
+      suit: c,
+      baseRank: r,
+      row: baseBottom,
+      col: config.variant % 4 === 1 ? 2 : leftPocketCol,
+      orientation: 'horizontal',
+      rankOffset: 1,
+    });
+    addCopyIsland(draft, {
+      idPrefix: 'standard-copy-island',
+      suit: c,
+      rank: r + 6,
+      row: baseBottom + 2,
+      col: config.variant % 2 === 0 ? 1 : 2,
+    });
+  } else {
+    motifs.push('flush-pocket', 'run-ladder');
+    addFlushPocket(draft, {
+      idPrefix: 'standard-center-flush',
+      suit: c,
+      baseRank: r,
+      row: baseBottom,
+      col: config.variant % 4 === 1 ? 2 : leftPocketCol,
+      orientation: 'horizontal',
+      rankOffset: 1,
+    });
+    addRunLadder(draft, {
+      idPrefix: 'standard-run-ladder',
+      suit: c,
+      baseRank: r,
+      row: baseBottom + 2,
+      col: 0,
+    });
+  }
+  motifs.push('switchback-ladder');
+  addSwitchbackLadder(draft, {
+    idPrefix: 'standard-switchback',
+    suit: c,
+    baseRank: r,
+    row: getDraftMaxRow(draft) + 1,
+    col: config.variant % 2 === 0 ? 0 : 2,
+  });
+  if (config.variant % 2 === 0) {
+    motifs.push('mixed-run-braid');
+    addMixedRunBraid(draft, {
+      idPrefix: 'standard-mixed-braid',
+      suits: [a, b, c],
+      baseRank: r,
+      row: getDraftMaxRow(draft) + 1,
+      col: config.variant % 4 === 0 ? 0 : 2,
+    });
+  }
+  const reserveCount = config.variant % 5 === 0 ? 2 : 1;
+  const spares = makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant);
 
   return makePuzzle({
     id: config.id,
     date: config.date,
     title: 'Dawn Cabinet',
     difficulty: config.difficulty,
-    rows: 7,
+    rows: Math.max(...Object.keys(draft.solution).map((cell) => Number(cell.split(':')[0]))) + 1,
     columns: 7,
-    spares: [{ suit: a, rank: r + 6 }],
-    ledger: { run: 6, match: 4, flush: 2 },
+    spares,
+    motifs,
     ...draft,
   });
 }
@@ -750,64 +885,105 @@ function makeHardPuzzle(config: {
   difficulty: DawnCabinetDifficulty;
   suits: DawnCabinetSuit[];
   baseRank: number;
+  variant: number;
 }): DawnCabinetPuzzle {
   const [a, b, c, d] = config.suits;
   const r = config.baseRank;
   const draft = createDraft();
+  const motifs = ['weave', 'weave', 'number-bridge', 'flush-pocket'];
+  const columnLayouts = [[0, 4], [0, 3], [1, 4]] as const;
+  const [leftCol, rightCol] = columnLayouts[config.variant % columnLayouts.length];
+  const leftRow = Math.floor(config.variant / 3) % 4;
+  const rightRow = Math.floor(config.variant / 11) % 4;
+  const baseBottom = Math.max(leftRow, rightRow) + 5;
 
-  addWeaveCluster(draft, {
+  const left = addWeaveCluster(draft, {
     idPrefix: 'hard-left',
     suit: a,
     baseRank: r,
-    originRow: 0,
-    originCol: 0,
-    givens: ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottomRight'],
+    originRow: leftRow,
+    originCol: leftCol,
+    givens: getHardWeaveMask(config.variant),
   });
-  addLine(draft, 'hard-left-pair-a', ['0:0', '2:0'], 'pair');
-  addLine(draft, 'hard-left-pair-b', ['0:2', '2:2'], 'pair');
+  addWeavePairAnchor(draft, 'hard-left-pair-a', left, config.variant);
+  if (config.variant % 3 !== 0) addWeavePairAnchor(draft, 'hard-left-pair-b', left, config.variant + 1);
 
-  addWeaveCluster(draft, {
+  const right = addWeaveCluster(draft, {
     idPrefix: 'hard-right',
     suit: b,
     baseRank: r,
-    originRow: 0,
-    originCol: 4,
-    givens: ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottomRight'],
+    originRow: rightRow,
+    originCol: rightCol,
+    givens: getHardWeaveMask(config.variant >> 2),
   });
-  addLine(draft, 'hard-right-pair-a', ['0:4', '2:4'], 'pair');
-  addLine(draft, 'hard-right-pair-b', ['0:6', '2:6'], 'pair');
+  addWeavePairAnchor(draft, 'hard-right-pair-a', right, config.variant >> 1);
+  if (config.variant % 4 !== 0) addWeavePairAnchor(draft, 'hard-right-pair-b', right, (config.variant >> 1) + 1);
 
-  place(draft, '5:0', { suit: c, rank: r });
-  place(draft, '5:1', { suit: d, rank: r + 2 });
-  place(draft, '5:2', { suit: c, rank: r + 1 });
-  place(draft, '5:3', { suit: c, rank: r + 5 }, true);
-  place(draft, '5:4', { suit: d, rank: r + 4 });
-  place(draft, '5:5', { suit: d, rank: r + 6 }, true);
-  place(draft, '6:0', { suit: c, rank: r + 3 });
-  place(draft, '6:1', { suit: c, rank: r + 6 }, true);
-  place(draft, '6:2', { suit: c, rank: r + 3 }, true);
-  place(draft, '6:4', { suit: d, rank: r + 4 }, true);
-  addLine(draft, 'hard-number-low', ['0:0', '0:4', '5:0'], 'hidden');
-  addLine(draft, 'hard-number-mid', ['2:1', '2:5', '5:2'], 'hidden');
-  addLine(draft, 'hard-number-high', ['0:2', '0:6', '5:1'], 'hidden');
-  addLine(draft, 'hard-flush-c-low', ['5:0', '5:2', '5:3'], 'hidden');
-  addLine(draft, 'hard-flush-c-high', ['6:0', '5:3', '6:1'], 'hidden');
-  addLine(draft, 'hard-flush-d', ['5:1', '5:4', '5:5'], 'hidden');
-  addLine(draft, 'hard-flush-c-anchor', ['6:0', '6:2'], 'pair');
-  addLine(draft, 'hard-flush-d-anchor', ['5:4', '6:4'], 'pair');
+  addNumberFlushTail(draft, {
+    idPrefix: 'hard-tail',
+    row: baseBottom,
+    col: config.variant % 2,
+    left,
+    right,
+    suitC: c,
+    suitD: d,
+    baseRank: r,
+  });
 
-  const bankGoalType = getExpertBankGoal(config.id, r, a);
+  if (config.variant % 5 === 0) {
+    motifs.push('run-ladder');
+    addRunLadder(draft, {
+      idPrefix: 'hard-run-ladder',
+      suit: config.variant % 10 === 0 ? c : d,
+      baseRank: r,
+      row: baseBottom + 3,
+      col: 0,
+    });
+  } else if (config.variant % 4 === 1) {
+    motifs.push('copy-block');
+    addCopyIsland(draft, {
+      idPrefix: 'hard-copy-island',
+      suit: config.variant % 8 === 1 ? c : d,
+      rank: r + 6,
+      row: baseBottom + 3,
+      col: config.variant % 2 === 0 ? 1 : 2,
+    });
+  }
+  motifs.push('mixed-run-braid');
+  addMixedRunBraid(draft, {
+    idPrefix: 'hard-mixed-braid',
+    suits: [a, c, d],
+    baseRank: r,
+    row: getDraftMaxRow(draft) + 1,
+    col: config.variant % 2 === 0 ? 0 : 2,
+  });
+  if (config.variant % 3 === 0) {
+    motifs.push('knot-cell');
+    addKnotCell(draft, {
+      idPrefix: 'hard-knot',
+      suits: [b, c, d],
+      baseRank: r,
+      row: getDraftMaxRow(draft) + 1,
+      col: config.variant % 2 === 0 ? 0 : 2,
+    });
+  }
+
+  const reserveCount = 2 + (config.variant % 3);
+  const bankGoalType = reserveCount === 2 ? 'pair' : getExpertBankGoal(config.id, r, a);
+  const spares = reserveCount === 4
+    ? makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant)
+    : makeBankGoalTiles(bankGoalType, config.suits, r);
 
   return makePuzzle({
     id: config.id,
     date: config.date,
     title: 'Dawn Cabinet',
     difficulty: config.difficulty,
-    rows: 7,
+    rows: Math.max(...Object.keys(draft.solution).map((cell) => Number(cell.split(':')[0]))) + 1,
     columns: 7,
-    spares: makeBankGoalTiles(bankGoalType, [a, b, c, d], r),
-    ledger: { run: 6, match: 4, flush: 3, number: 3 },
-    bankGoal: { type: bankGoalType },
+    spares,
+    bankGoal: reserveCount === 4 ? undefined : { type: bankGoalType },
+    motifs,
     ...draft,
   });
 }
@@ -818,103 +994,474 @@ function makeExpertPuzzle(config: {
   difficulty: DawnCabinetDifficulty;
   suits: DawnCabinetSuit[];
   baseRank: number;
+  variant: number;
 }): DawnCabinetPuzzle {
   const [a, b, c, d, e] = config.suits;
   const r = config.baseRank;
   const draft = createDraft();
+  const motifs = ['weave', 'weave', 'weave', 'weave', 'number-bridge', 'flush-pocket'];
+  const columnLayouts = [[0, 4], [0, 3], [1, 4]] as const;
+  const [leftCol, rightCol] = columnLayouts[config.variant % columnLayouts.length];
+  const topStagger = config.variant % 3;
+  const bottomStagger = (config.variant >> 2) % 3;
+  const topLeftRow = topStagger === 1 ? 1 : 0;
+  const topRightRow = topStagger === 2 ? 1 : 0;
+  const bottomBase = Math.max(topLeftRow, topRightRow) + 5 + (config.variant % 2);
+  const bottomLeftRow = bottomBase + (bottomStagger === 1 ? 1 : 0);
+  const bottomRightRow = bottomBase + (bottomStagger === 2 ? 1 : 0);
 
-  addWeaveCluster(draft, {
+  const topLeft = addWeaveCluster(draft, {
     idPrefix: 'expert-left',
     suit: a,
     baseRank: r,
-    originRow: 0,
-    originCol: 0,
-    givens: ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottomRight'],
+    originRow: topLeftRow,
+    originCol: leftCol,
+    givens: getHardWeaveMask(config.variant),
   });
-  addLine(draft, 'expert-left-pair-a', ['0:0', '2:0'], 'pair');
-  addLine(draft, 'expert-left-pair-b', ['0:2', '2:2'], 'pair');
+  addWeavePairAnchor(draft, 'expert-left-pair-a', topLeft, config.variant);
+  addWeavePairAnchor(draft, 'expert-left-pair-b', topLeft, config.variant + 1);
 
-  addWeaveCluster(draft, {
+  const topRight = addWeaveCluster(draft, {
     idPrefix: 'expert-right',
     suit: b,
     baseRank: r,
-    originRow: 0,
-    originCol: 4,
-    givens: ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottomRight'],
+    originRow: topRightRow,
+    originCol: rightCol,
+    givens: getHardWeaveMask(config.variant >> 1),
   });
-  addLine(draft, 'expert-right-pair-a', ['0:4', '2:4'], 'pair');
-  addLine(draft, 'expert-right-pair-b', ['0:6', '2:6'], 'pair');
+  addWeavePairAnchor(draft, 'expert-right-pair-a', topRight, config.variant >> 1);
+  if (config.variant % 4 !== 0) addWeavePairAnchor(draft, 'expert-right-pair-b', topRight, (config.variant >> 1) + 1);
 
-  addWeaveCluster(draft, {
+  const lowerLeft = addWeaveCluster(draft, {
     idPrefix: 'expert-lower-left',
     suit: c,
     baseRank: r,
-    originRow: 5,
-    originCol: 0,
-    givens: ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottomRight'],
+    originRow: bottomLeftRow,
+    originCol: leftCol,
+    givens: getHardWeaveMask(config.variant >> 2),
   });
-  addLine(draft, 'expert-lower-left-pair-a', ['5:0', '7:0'], 'pair');
-  addLine(draft, 'expert-lower-left-pair-b', ['5:2', '7:2'], 'pair');
+  addWeavePairAnchor(draft, 'expert-lower-left-pair-a', lowerLeft, config.variant >> 2);
+  if (config.variant % 5 !== 0) addWeavePairAnchor(draft, 'expert-lower-left-pair-b', lowerLeft, (config.variant >> 2) + 1);
 
-  addWeaveCluster(draft, {
+  const lowerRight = addWeaveCluster(draft, {
     idPrefix: 'expert-lower-right',
     suit: d,
     baseRank: r,
-    originRow: 5,
-    originCol: 4,
-    givens: ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottomRight'],
+    originRow: bottomRightRow,
+    originCol: rightCol,
+    givens: getHardWeaveMask(config.variant >> 3),
   });
-  addLine(draft, 'expert-lower-right-pair-a', ['5:4', '7:4'], 'pair');
-  addLine(draft, 'expert-lower-right-pair-b', ['5:6', '7:6'], 'pair');
+  addWeavePairAnchor(draft, 'expert-lower-right-pair-a', lowerRight, config.variant >> 3);
+  addWeavePairAnchor(draft, 'expert-lower-right-pair-b', lowerRight, (config.variant >> 3) + 1);
 
-  place(draft, '10:0', { suit: e, rank: r });
-  place(draft, '10:1', { suit: e, rank: r + 1 });
-  place(draft, '10:2', { suit: e, rank: r + 2 });
-  place(draft, '10:3', { suit: e, rank: r });
-  place(draft, '10:4', { suit: e, rank: r + 5 }, true);
-  place(draft, '10:5', { suit: e, rank: r + 6 });
-  place(draft, '10:6', { suit: e, rank: r + 6 }, true);
-  addLine(draft, 'expert-number-north-low', ['0:0', '0:4', '10:0'], 'hidden');
-  addLine(draft, 'expert-number-north-mid', ['2:1', '2:5', '10:1'], 'hidden');
-  addLine(draft, 'expert-number-north-high', ['0:2', '0:6', '10:2'], 'hidden');
-  addLine(draft, 'expert-number-south-low', ['5:0', '5:4', '10:3'], 'hidden');
-  addLine(draft, 'expert-fifth-suit-low-flush', ['10:0', '10:2', '10:4'], 'hidden');
-  addLine(draft, 'expert-fifth-suit-high-flush', ['10:1', '10:3', '10:5'], 'hidden');
-  addLine(draft, 'expert-fifth-suit-anchor', ['10:5', '10:6'], 'pair');
+  const tailRow = Math.max(bottomLeftRow, bottomRightRow) + 5 + (config.variant % 3 === 0 ? 1 : 0);
+  addExpertFifthSuitTail(draft, {
+    idPrefix: 'expert-tail',
+    row: tailRow,
+    topLeft,
+    topRight,
+    lowerLeft,
+    lowerRight,
+    suit: e,
+    baseRank: r,
+  });
 
-  const bankGoalType = getExpertBankGoal(config.id, r, a);
+  if (config.variant % 2 === 0) {
+    motifs.push('long-spine');
+    addLine(draft, 'expert-cross-low', [topLeft.midLeft, topRight.midLeft, lowerLeft.midLeft], 'hidden');
+    addLine(draft, 'expert-cross-high', [topLeft.midRight, topRight.midRight, lowerRight.midRight], 'hidden');
+  }
+  if (config.variant % 3 === 0) {
+    motifs.push('run-ladder');
+    addRunLadder(draft, {
+      idPrefix: 'expert-run-ladder',
+      suit: e,
+      baseRank: r,
+      row: tailRow + 2,
+      col: 0,
+    });
+  }
+  motifs.push('mixed-run-braid');
+  addMixedRunBraid(draft, {
+    idPrefix: 'expert-mixed-braid',
+    suits: [a, c, e],
+    baseRank: r,
+    row: getDraftMaxRow(draft) + 1,
+    col: config.variant % 2 === 0 ? 0 : 2,
+  });
+  if (config.variant % 2 === 0) {
+    motifs.push('knot-cell');
+    addKnotCell(draft, {
+      idPrefix: 'expert-knot',
+      suits: [b, d, e],
+      baseRank: r,
+      row: getDraftMaxRow(draft) + 1,
+      col: 0,
+    });
+  } else {
+    motifs.push('flush-basin');
+    addFlushBasin(draft, {
+      idPrefix: 'expert-basin',
+      suit: e,
+      baseRank: r,
+      row: getDraftMaxRow(draft) + 1,
+      col: 0,
+    });
+  }
+
+  const reserveCount = 3 + (config.variant % 3);
+  const bankGoalType = reserveCount === 3 ? getExpertBankGoal(config.id, r, a) : undefined;
+  const spares = bankGoalType
+    ? makeBankGoalTiles(bankGoalType, config.suits, r)
+    : makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant);
 
   return makePuzzle({
     id: config.id,
     date: config.date,
     title: 'Dawn Cabinet',
     difficulty: config.difficulty,
-    rows: 11,
+    rows: Math.max(...Object.keys(draft.solution).map((cell) => Number(cell.split(':')[0]))) + 1,
     columns: 7,
-    spares: makeBankGoalTiles(bankGoalType, [a, b, c, d, e], r),
-    ledger: { run: 12, match: 8, flush: 2, number: 4 },
-    bankGoal: { type: bankGoalType },
+    spares,
+    bankGoal: bankGoalType ? { type: bankGoalType } : undefined,
+    motifs,
     ...draft,
   });
 }
 
+function getStandardWeaveMask(variant: number): WeaveCellName[] {
+  const masks: WeaveCellName[][] = [
+    ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottom', 'bottomRight'],
+    ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottomRight'],
+    ['topLeft', 'top', 'mid', 'bottomLeft', 'bottomRight'],
+  ];
+  return masks[Math.abs(variant) % masks.length];
+}
+
+function getHardWeaveMask(variant: number): WeaveCellName[] {
+  const masks: WeaveCellName[][] = [
+    ['topLeft', 'topRight', 'mid', 'bottomLeft', 'bottomRight'],
+    ['topLeft', 'topRight', 'midLeft', 'midRight', 'bottom'],
+    ['topLeft', 'top', 'mid', 'bottomLeft', 'bottomRight'],
+  ];
+  return masks[Math.abs(variant) % masks.length];
+}
+
+function addWeavePairAnchor(
+  draft: PuzzleDraft,
+  id: string,
+  cells: Record<WeaveCellName, string>,
+  variant: number
+) {
+  const anchorChoices: [WeaveCellName, WeaveCellName][] = [
+    ['topLeft', 'midLeft'],
+    ['midLeft', 'bottomLeft'],
+    ['topRight', 'midRight'],
+    ['midRight', 'bottomRight'],
+  ];
+  const [first, second] = anchorChoices[Math.abs(variant) % anchorChoices.length];
+  addLine(draft, id, [cells[first], cells[second]], 'pair');
+}
+
+function addFlushPocket(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    suit: DawnCabinetSuit;
+    baseRank: number;
+    row: number;
+    col: number;
+    orientation: 'horizontal' | 'vertical';
+    rankOffset: number;
+  }
+) {
+  const low = config.baseRank + config.rankOffset;
+  const mid = config.baseRank + config.rankOffset + 3;
+  const high = config.baseRank + 6;
+  const start = cellKey(config.row, config.col);
+  const wait = config.orientation === 'horizontal'
+    ? cellKey(config.row, config.col + 1)
+    : cellKey(config.row + 1, config.col);
+  const end = config.orientation === 'horizontal'
+    ? cellKey(config.row, config.col + 2)
+    : cellKey(config.row + 2, config.col);
+  const anchor = config.orientation === 'horizontal'
+    ? cellKey(config.row + 1, config.col + 1)
+    : cellKey(config.row + 1, config.col + 1);
+
+  place(draft, start, { suit: config.suit, rank: low }, true);
+  place(draft, wait, { suit: config.suit, rank: mid });
+  place(draft, end, { suit: config.suit, rank: high }, true);
+  place(draft, anchor, { suit: config.suit, rank: mid }, true);
+  addLine(draft, `${config.idPrefix}-flush`, [start, wait, end], 'hidden');
+  addLine(draft, `${config.idPrefix}-anchor`, [wait, anchor], 'pair');
+}
+
+function addRunLadder(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    suit: DawnCabinetSuit;
+    baseRank: number;
+    row: number;
+    col: number;
+  }
+) {
+  addLinkedRunWait(draft, {
+    idPrefix: config.idPrefix,
+    suit: config.suit,
+    baseRank: config.baseRank,
+    lowA: cellKey(config.row, config.col),
+    lowB: cellKey(config.row, config.col + 1),
+    left: cellKey(config.row, config.col + 2),
+    center: cellKey(config.row, config.col + 3),
+    right: cellKey(config.row, config.col + 4),
+    highA: cellKey(config.row, config.col + 5),
+    highB: cellKey(config.row, config.col + 6),
+  });
+}
+
+function addCopyIsland(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    suit: DawnCabinetSuit;
+    rank: number;
+    row: number;
+    col: number;
+  }
+) {
+  addCopyBlock(draft, {
+    idPrefix: config.idPrefix,
+    suit: config.suit,
+    rank: config.rank,
+    blankA: cellKey(config.row, config.col),
+    matchGiven: cellKey(config.row, config.col + 1),
+    blankB: cellKey(config.row, config.col + 2),
+    pairGivenA: cellKey(config.row + 1, config.col),
+    pairGivenB: cellKey(config.row + 1, config.col + 2),
+  });
+}
+
+function addSwitchbackLadder(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    suit: DawnCabinetSuit;
+    baseRank: number;
+    row: number;
+    col: number;
+  }
+) {
+  const r = config.baseRank;
+  const low = cellKey(config.row, config.col);
+  const lowMid = cellKey(config.row, config.col + 1);
+  const pivot = cellKey(config.row, config.col + 2);
+  const highMid = cellKey(config.row, config.col + 3);
+  const high = cellKey(config.row, config.col + 4);
+  place(draft, low, { suit: config.suit, rank: r }, true);
+  place(draft, lowMid, { suit: config.suit, rank: r + 1 }, true);
+  place(draft, pivot, { suit: config.suit, rank: r + 2 });
+  place(draft, highMid, { suit: config.suit, rank: r + 3 }, true);
+  place(draft, high, { suit: config.suit, rank: r + 4 }, true);
+  addLine(draft, `${config.idPrefix}-low`, [low, lowMid, pivot], 'hidden');
+  addLine(draft, `${config.idPrefix}-high`, [pivot, highMid, high], 'hidden');
+}
+
+function addMixedRunBraid(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    suits: [DawnCabinetSuit, DawnCabinetSuit, DawnCabinetSuit];
+    baseRank: number;
+    row: number;
+    col: number;
+  }
+) {
+  const [a, b, c] = config.suits;
+  const r = config.baseRank;
+  const topLow = cellKey(config.row, config.col);
+  const topMid = cellKey(config.row, config.col + 1);
+  const topHigh = cellKey(config.row, config.col + 2);
+  const bottomLow = cellKey(config.row + 1, config.col);
+  const bottomMid = cellKey(config.row + 1, config.col + 1);
+  const bottomHigh = cellKey(config.row + 1, config.col + 2);
+  place(draft, topLow, { suit: a, rank: r }, true);
+  place(draft, topMid, { suit: b, rank: r + 1 });
+  place(draft, topHigh, { suit: c, rank: r + 2 }, true);
+  place(draft, bottomLow, { suit: c, rank: r }, true);
+  place(draft, bottomMid, { suit: a, rank: r + 1 });
+  place(draft, bottomHigh, { suit: b, rank: r + 2 }, true);
+  addLine(draft, `${config.idPrefix}-top`, [topLow, topMid, topHigh], 'hidden');
+  addLine(draft, `${config.idPrefix}-bottom`, [bottomLow, bottomMid, bottomHigh], 'hidden');
+}
+
+function addKnotCell(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    suits: [DawnCabinetSuit, DawnCabinetSuit, DawnCabinetSuit];
+    baseRank: number;
+    row: number;
+    col: number;
+  }
+) {
+  const [a, b, c] = config.suits;
+  const r = config.baseRank + 1;
+  const center = cellKey(config.row + 1, config.col + 1);
+  const runLow = cellKey(config.row + 1, config.col);
+  const runHigh = cellKey(config.row + 1, config.col + 2);
+  const matchTop = cellKey(config.row, config.col + 1);
+  const matchBottom = cellKey(config.row + 2, config.col + 1);
+  const numberTop = cellKey(config.row, config.col);
+  const numberBottom = cellKey(config.row + 2, config.col + 2);
+  place(draft, center, { suit: a, rank: r });
+  place(draft, runLow, { suit: a, rank: r - 1 }, true);
+  place(draft, runHigh, { suit: a, rank: r + 1 }, true);
+  place(draft, matchTop, { suit: a, rank: r }, true);
+  place(draft, matchBottom, { suit: a, rank: r });
+  place(draft, numberTop, { suit: b, rank: r }, true);
+  place(draft, numberBottom, { suit: c, rank: r }, true);
+  addLine(draft, `${config.idPrefix}-run`, [runLow, center, runHigh], 'hidden');
+  addLine(draft, `${config.idPrefix}-match`, [matchTop, center, matchBottom], 'hidden');
+  addLine(draft, `${config.idPrefix}-number`, [numberTop, center, numberBottom], 'hidden');
+}
+
+function addFlushBasin(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    suit: DawnCabinetSuit;
+    baseRank: number;
+    row: number;
+    col: number;
+  }
+) {
+  const r = config.baseRank;
+  const a = cellKey(config.row, config.col);
+  const b = cellKey(config.row, config.col + 2);
+  const c = cellKey(config.row, config.col + 4);
+  const d = cellKey(config.row + 1, config.col + 1);
+  const e = cellKey(config.row + 1, config.col + 3);
+  place(draft, a, { suit: config.suit, rank: r }, true);
+  place(draft, b, { suit: config.suit, rank: r + 2 });
+  place(draft, c, { suit: config.suit, rank: r + 6 }, true);
+  place(draft, d, { suit: config.suit, rank: r + 3 });
+  place(draft, e, { suit: config.suit, rank: r + 5 }, true);
+  addCellClue(draft, b, { rank: r + 2 });
+  addCellClue(draft, d, { rank: r + 3 });
+  addLine(draft, `${config.idPrefix}-wide`, [a, b, c], 'hidden');
+  addLine(draft, `${config.idPrefix}-middle`, [b, d, e], 'hidden');
+  addLine(draft, `${config.idPrefix}-rim`, [a, d, c], 'hidden');
+}
+
+function addNumberFlushTail(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    row: number;
+    col: number;
+    left: Record<WeaveCellName, string>;
+    right: Record<WeaveCellName, string>;
+    suitC: DawnCabinetSuit;
+    suitD: DawnCabinetSuit;
+    baseRank: number;
+  }
+) {
+  const r = config.baseRank;
+  const cLow = cellKey(config.row, config.col);
+  const dLow = cellKey(config.row, config.col + 1);
+  const cMid = cellKey(config.row, config.col + 2);
+  const cBridge = cellKey(config.row, config.col + 3);
+  const dMid = cellKey(config.row, config.col + 4);
+  const dHigh = cellKey(config.row, config.col + 5);
+  const cLowPair = cellKey(config.row + 1, config.col);
+  const cHigh = cellKey(config.row + 1, config.col + 1);
+  const cLowPairAnchor = cellKey(config.row + 1, config.col + 2);
+  const dMidAnchor = cellKey(config.row + 1, config.col + 4);
+
+  place(draft, cLow, { suit: config.suitC, rank: r });
+  place(draft, dLow, { suit: config.suitD, rank: r + 2 });
+  place(draft, cMid, { suit: config.suitC, rank: r + 1 });
+  place(draft, cBridge, { suit: config.suitC, rank: r + 5 }, true);
+  place(draft, dMid, { suit: config.suitD, rank: r + 4 });
+  place(draft, dHigh, { suit: config.suitD, rank: r + 6 }, true);
+  place(draft, cLowPair, { suit: config.suitC, rank: r + 3 });
+  place(draft, cHigh, { suit: config.suitC, rank: r + 6 }, true);
+  place(draft, cLowPairAnchor, { suit: config.suitC, rank: r + 3 }, true);
+  place(draft, dMidAnchor, { suit: config.suitD, rank: r + 4 }, true);
+
+  addLine(draft, `${config.idPrefix}-number-low`, [config.left.topLeft, config.right.topLeft, cLow], 'hidden');
+  addLine(draft, `${config.idPrefix}-number-mid`, [config.left.mid, config.right.mid, cMid], 'hidden');
+  addLine(draft, `${config.idPrefix}-number-high`, [config.left.topRight, config.right.topRight, dLow], 'hidden');
+  addLine(draft, `${config.idPrefix}-flush-c-low`, [cLow, cMid, cBridge], 'hidden');
+  addLine(draft, `${config.idPrefix}-flush-c-high`, [cLowPair, cBridge, cHigh], 'hidden');
+  addLine(draft, `${config.idPrefix}-flush-d`, [dLow, dMid, dHigh], 'hidden');
+  addLine(draft, `${config.idPrefix}-flush-c-anchor`, [cLowPair, cLowPairAnchor], 'pair');
+  addLine(draft, `${config.idPrefix}-flush-d-anchor`, [dMid, dMidAnchor], 'pair');
+}
+
+function addExpertFifthSuitTail(
+  draft: PuzzleDraft,
+  config: {
+    idPrefix: string;
+    row: number;
+    topLeft: Record<WeaveCellName, string>;
+    topRight: Record<WeaveCellName, string>;
+    lowerLeft: Record<WeaveCellName, string>;
+    lowerRight: Record<WeaveCellName, string>;
+    suit: DawnCabinetSuit;
+    baseRank: number;
+  }
+) {
+  const r = config.baseRank;
+  const cells = Array.from({ length: 7 }, (_, col) => cellKey(config.row, col));
+  place(draft, cells[0], { suit: config.suit, rank: r });
+  place(draft, cells[1], { suit: config.suit, rank: r + 1 });
+  place(draft, cells[2], { suit: config.suit, rank: r + 2 });
+  place(draft, cells[3], { suit: config.suit, rank: r });
+  place(draft, cells[4], { suit: config.suit, rank: r + 5 }, true);
+  place(draft, cells[5], { suit: config.suit, rank: r + 6 });
+  place(draft, cells[6], { suit: config.suit, rank: r + 6 }, true);
+  addLine(draft, `${config.idPrefix}-number-north-low`, [config.topLeft.topLeft, config.topRight.topLeft, cells[0]], 'hidden');
+  addLine(draft, `${config.idPrefix}-number-north-mid`, [config.topLeft.mid, config.topRight.mid, cells[1]], 'hidden');
+  addLine(draft, `${config.idPrefix}-number-north-high`, [config.topLeft.topRight, config.topRight.topRight, cells[2]], 'hidden');
+  addLine(draft, `${config.idPrefix}-number-south-low`, [config.lowerLeft.topLeft, config.lowerRight.topLeft, cells[3]], 'hidden');
+  addLine(draft, `${config.idPrefix}-low-flush`, [cells[0], cells[2], cells[4]], 'hidden');
+  addLine(draft, `${config.idPrefix}-high-flush`, [cells[1], cells[3], cells[5]], 'hidden');
+  addLine(draft, `${config.idPrefix}-anchor`, [cells[5], cells[6]], 'pair');
+}
+
 function getExpertBankGoal(id: string, baseRank: number, firstSuit: DawnCabinetSuit): Exclude<DawnCabinetSetKind, 'pair'> {
-  const goals: Exclude<DawnCabinetSetKind, 'pair'>[] = ['run', 'match', 'flush', 'number'];
+  const goals: Exclude<DawnCabinetSetKind, 'pair'>[] = ['run', 'mixedRun', 'match', 'flush', 'number'];
   const offset = (id.length + baseRank + SUITS.indexOf(firstSuit)) % goals.length;
   return goals[offset];
 }
 
 function makeBankGoalTiles(
-  goal: Exclude<DawnCabinetSetKind, 'pair'>,
+  goal: DawnCabinetSetKind,
   suits: DawnCabinetSuit[],
   baseRank: number
 ): DawnCabinetTile[] {
   const [a, b, c, d] = suits;
+  if (goal === 'pair') {
+    return [
+      { suit: a, rank: baseRank + 6 },
+      { suit: a, rank: baseRank + 6 },
+    ];
+  }
   if (goal === 'run') {
     return [
       { suit: a, rank: baseRank + 4 },
       { suit: a, rank: baseRank + 5 },
       { suit: a, rank: baseRank + 6 },
+    ];
+  }
+  if (goal === 'mixedRun') {
+    return [
+      { suit: a, rank: baseRank + 4 },
+      { suit: b, rank: baseRank + 5 },
+      { suit: c, rank: baseRank + 6 },
     ];
   }
   if (goal === 'match') {
@@ -936,6 +1483,19 @@ function makeBankGoalTiles(
     { suit: b, rank: baseRank + 6 },
     { suit: c, rank: baseRank + 6 },
   ];
+}
+
+function makeArbitraryReserveTiles(
+  suits: DawnCabinetSuit[],
+  baseRank: number,
+  count: number,
+  variant: number
+): DawnCabinetTile[] {
+  return Array.from({ length: count }, (_, index) => {
+    const suit = suits[(variant + index * 2) % suits.length];
+    const rank = Math.min(9, baseRank + 6 - (index % 2));
+    return { suit, rank };
+  });
 }
 
 type WeaveCellName =
@@ -961,7 +1521,7 @@ function addWeaveCluster(
     originCol: number;
     givens: WeaveCellName[];
   }
-) {
+): Record<WeaveCellName, string> {
   const keyFor = (rowOffset: number, colOffset: number) =>
     cellKey(config.originRow + rowOffset, config.originCol + colOffset);
   const cells: Record<WeaveCellName, string> = {
@@ -1001,6 +1561,7 @@ function addWeaveCluster(
   addLine(draft, `${config.idPrefix}-middle`, [cells.midLeft, cells.mid, cells.midRight], 'hidden');
   addLine(draft, `${config.idPrefix}-lower-spine`, [cells.mid, cells.lower, cells.bottom], 'hidden');
   addLine(draft, `${config.idPrefix}-bottom`, [cells.bottomLeft, cells.bottom, cells.bottomRight], 'hidden');
+  return cells;
 }
 
 function addLinkedRunWait(
@@ -1070,6 +1631,8 @@ function makePuzzle(config: {
   cellClues?: Record<string, DawnCabinetCellClue>;
   ledger?: DawnCabinetLedger;
   bankGoal?: DawnCabinetBankGoal;
+  motifs?: string[];
+  shapeSignature?: string;
 }): DawnCabinetPuzzle {
   const givenSet = new Set(config.givens);
   const cells = Object.keys(config.solution)
@@ -1088,6 +1651,8 @@ function makePuzzle(config: {
       .map((key) => config.solution[key]),
     ...config.spares,
   ].sort(compareTiles);
+  const ledger = config.ledger ?? makeLedgerForLines(config.lines, config.solution);
+  const shapeSignature = config.shapeSignature ?? makeShapeSignature(cells, config.lines);
 
   return {
     id: config.id,
@@ -1100,16 +1665,69 @@ function makePuzzle(config: {
     lines: config.lines,
     givens,
     cellClues: config.cellClues ?? {},
-    ledger: config.ledger,
+    ledger,
     bankGoal: config.bankGoal,
     solution: config.solution,
     bank,
     spareCount: config.spares.length,
+    motifs: config.motifs ?? [],
+    shapeSignature,
   };
+}
+
+function makeLedgerForLines(
+  lines: DawnCabinetLine[],
+  solution: Record<string, DawnCabinetTile>
+): DawnCabinetLedger | undefined {
+  const ledger: Record<DawnCabinetSetKind, number> = { run: 0, mixedRun: 0, match: 0, pair: 0, flush: 0, number: 0 };
+  lines.forEach((line) => {
+    if (line.goal !== 'hidden') return;
+    const kind = classifyCabinetLine(line.cells.map((cell) => solution[cell]));
+    if (!kind || kind === 'pair') {
+      throw new Error(`Hidden rail ${line.id} does not resolve to a 3-tile set`);
+    }
+    ledger[kind] += 1;
+  });
+
+  const compact = Object.fromEntries(
+    SET_KINDS
+      .filter((kind) => ledger[kind] > 0)
+      .map((kind) => [kind, ledger[kind]])
+  ) as DawnCabinetLedger;
+  return Object.keys(compact).length > 0 ? compact : undefined;
+}
+
+function makeShapeSignature(cells: DawnCabinetCell[], lines: DawnCabinetLine[]): string {
+  if (cells.length === 0) return 'empty';
+  const minRow = Math.min(...cells.map((cell) => cell.row));
+  const minCol = Math.min(...cells.map((cell) => cell.col));
+  const active = cells
+    .map((cell) => `${cell.row - minRow}:${cell.col - minCol}`)
+    .sort()
+    .join('.');
+  const rails = lines
+    .map((line) => {
+      const railCells = line.cells
+        .map((cell) => {
+          const [row, col] = cell.split(':').map(Number);
+          return `${row - minRow}:${col - minCol}`;
+        })
+        .join('-');
+      return `${line.goal}:${railCells}`;
+    })
+    .sort()
+    .join('.');
+  return `${active}|${rails}`;
 }
 
 function createDraft(): PuzzleDraft {
   return { solution: {}, lines: [], givens: [], cellClues: {} };
+}
+
+function getDraftMaxRow(draft: PuzzleDraft): number {
+  return Object.keys(draft.solution).reduce((max, cell) => {
+    return Math.max(max, Number(cell.split(':')[0]));
+  }, -1);
 }
 
 function place(
@@ -1118,6 +1736,10 @@ function place(
   tile: DawnCabinetTile,
   given = false
 ) {
+  const existing = draft.solution[cell];
+  if (existing && tileKey(existing) !== tileKey(tile)) {
+    throw new Error(`Dawn Cabinet cell ${cell} already has ${tileKey(existing)}, cannot place ${tileKey(tile)}`);
+  }
   draft.solution[cell] = tile;
   if (given && !draft.givens.includes(cell)) draft.givens.push(cell);
 }
@@ -1153,6 +1775,12 @@ function stableSeed(value: string): bigint {
   return hash;
 }
 
+function shiftUtcDate(date: string, dayOffset: number): string {
+  const time = Date.parse(`${date}T00:00:00.000Z`);
+  if (Number.isNaN(time)) return date;
+  return new Date(time + dayOffset * 86_400_000).toISOString().slice(0, 10);
+}
+
 function countTiles(tiles: DawnCabinetTile[]): Record<string, number> {
   return tiles.reduce<Record<string, number>>((counts, tile) => {
     const key = tileKey(tile);
@@ -1182,93 +1810,38 @@ function getLinesByCell(puzzle: DawnCabinetPuzzle): Record<string, DawnCabinetLi
 
 function canCompleteLine(assigned: DawnCabinetTile[], goal: DawnCabinetLineGoal): boolean {
   if (assigned.length === 0) return true;
-  return getAllValidLineMultisets(goal).some((valid) => isSubsetMultiset(assigned, valid));
-}
-
-function getAllValidLineMultisets(goal: DawnCabinetLineGoal): DawnCabinetTile[][] {
-  const cached = VALID_LINE_CACHE[goal];
-  if (cached) return cached;
-
-  const valid: DawnCabinetTile[][] = [];
-  if (goal === 'run' || goal === 'hidden') {
-    SUITS.forEach((suit) => {
-      for (let rank = 1; rank <= 7; rank += 1) {
-        valid.push([
-          { suit, rank },
-          { suit, rank: rank + 1 },
-          { suit, rank: rank + 2 },
-        ]);
-      }
-    });
+  if (assigned.length > 3) return false;
+  if (goal === 'hidden') {
+    return THREE_TILE_SET_KINDS.some((kind) => canCompleteLine(assigned, kind));
   }
-
-  if (goal === 'match' || goal === 'hidden') {
-    SUITS.forEach((suit) => {
-      for (let rank = 1; rank <= 9; rank += 1) {
-        valid.push([
-          { suit, rank },
-          { suit, rank },
-          { suit, rank },
-        ]);
-      }
-    });
-  }
-
-  if (goal === 'flush' || goal === 'hidden') {
-    SUITS.forEach((suit) => {
-      for (let first = 1; first <= 9; first += 1) {
-        for (let second = first; second <= 9; second += 1) {
-          for (let third = second; third <= 9; third += 1) {
-            if (first === second && second === third) continue;
-            if (first + 1 === second && second + 1 === third) continue;
-            valid.push([
-              { suit, rank: first },
-              { suit, rank: second },
-              { suit, rank: third },
-            ]);
-          }
-        }
-      }
-    });
-  }
-
-  if (goal === 'number' || goal === 'hidden') {
-    for (let rank = 1; rank <= 9; rank += 1) {
-      for (let first = 0; first <= SUITS.length - 3; first += 1) {
-        for (let second = first + 1; second <= SUITS.length - 2; second += 1) {
-          for (let third = second + 1; third <= SUITS.length - 1; third += 1) {
-            valid.push([
-              { suit: SUITS[first], rank },
-              { suit: SUITS[second], rank },
-              { suit: SUITS[third], rank },
-            ]);
-          }
-        }
-      }
-    }
-  }
-
   if (goal === 'pair') {
-    SUITS.forEach((suit) => {
-      for (let rank = 1; rank <= 9; rank += 1) {
-        valid.push([
-          { suit, rank },
-          { suit, rank },
-        ]);
-      }
-    });
+    return assigned.length <= 2 && assigned.every((tile) => tileKey(tile) === tileKey(assigned[0]));
   }
-
-  VALID_LINE_CACHE[goal] = valid;
-  return valid;
+  if (goal === 'match') {
+    return assigned.every((tile) => tileKey(tile) === tileKey(assigned[0]));
+  }
+  if (goal === 'run') {
+    return canCompleteRankWindow(assigned) && assigned.every((tile) => tile.suit === assigned[0].suit);
+  }
+  if (goal === 'mixedRun') {
+    return canCompleteRankWindow(assigned) && new Set(assigned.map((tile) => tile.suit)).size === assigned.length;
+  }
+  if (goal === 'flush') {
+    return assigned.every((tile) => tile.suit === assigned[0].suit);
+  }
+  return (
+    assigned.every((tile) => tile.rank === assigned[0].rank) &&
+    new Set(assigned.map((tile) => tile.suit)).size === assigned.length
+  );
 }
 
-function isSubsetMultiset(subset: DawnCabinetTile[], superset: DawnCabinetTile[]): boolean {
-  const counts = countTiles(superset);
-  return subset.every((tile) => {
-    const key = tileKey(tile);
-    if (!counts[key]) return false;
-    counts[key] -= 1;
-    return true;
-  });
+function canCompleteRankWindow(assigned: DawnCabinetTile[]): boolean {
+  const ranks = assigned.map((tile) => tile.rank);
+  if (new Set(ranks).size !== ranks.length) return false;
+  const min = Math.min(...ranks);
+  const max = Math.max(...ranks);
+  if (max - min > 2) return false;
+  const firstPossibleStart = Math.max(1, max - 2);
+  const lastPossibleStart = Math.min(min, 7);
+  return firstPossibleStart <= lastPossibleStart;
 }

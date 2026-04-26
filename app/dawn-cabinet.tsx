@@ -59,6 +59,7 @@ type BankStack = {
 };
 
 type GameState = 'playing' | 'won';
+type DailyPlayStatus = 'not-started' | 'in-progress' | 'complete';
 type SuitFilter = 'all' | DawnCabinetTile['suit'];
 
 const STORAGE_PREFIX = 'dawn-cabinet-v10';
@@ -98,7 +99,11 @@ function puzzleSolvedKey(puzzle: DawnCabinetPuzzle): string {
   return `${STORAGE_PREFIX}:daily:${puzzle.id}`;
 }
 
-function dailySolvedKey(date: string): string {
+function dailySolvedKey(date: string, difficulty: DawnCabinetDailyDifficulty): string {
+  return `${STORAGE_PREFIX}:daily:${date}:${difficulty}`;
+}
+
+function legacyDifficultylessSolvedKey(date: string): string {
   return `${STORAGE_PREFIX}:daily:${date}`;
 }
 
@@ -112,12 +117,18 @@ function markPuzzleSolved(puzzle: DawnCabinetPuzzle, isPractice: boolean): boole
 
   storage.setItem(puzzleSolvedKey(puzzle), '1');
   if (isPractice) return false;
+  if (!isDailyDifficulty(puzzle.difficulty)) return false;
 
   const wasAlreadyCounted =
-    storage.getItem(dailySolvedKey(puzzle.date)) === '1' ||
-    storage.getItem(legacyDailySolvedKey(puzzle.date)) === '1';
-  storage.setItem(dailySolvedKey(puzzle.date), '1');
-  storage.setItem(legacyDailySolvedKey(puzzle.date), '1');
+    storage.getItem(dailySolvedKey(puzzle.date, puzzle.difficulty)) === '1' ||
+    (
+      puzzle.difficulty === 'Standard' &&
+      (
+        storage.getItem(legacyDifficultylessSolvedKey(puzzle.date)) === '1' ||
+        storage.getItem(legacyDailySolvedKey(puzzle.date)) === '1'
+      )
+    );
+  storage.setItem(dailySolvedKey(puzzle.date, puzzle.difficulty), '1');
   return !wasAlreadyCounted;
 }
 
@@ -228,6 +239,27 @@ function hasSavedPuzzleProgress(puzzle: DawnCabinetPuzzle): boolean {
   }
 }
 
+function getDailyPlayStatus(puzzle: DawnCabinetPuzzle): DailyPlayStatus {
+  const storage = getStorage();
+  if (!storage) return 'not-started';
+  if (storage.getItem(puzzleSolvedKey(puzzle)) === '1') return 'complete';
+
+  try {
+    const raw = storage.getItem(`${STORAGE_PREFIX}:state:${puzzle.id}`);
+    if (!raw) return 'not-started';
+    const parsed = JSON.parse(raw) as { placedEntryIdsByCell?: Record<string, string> };
+    return Object.keys(parsed.placedEntryIdsByCell ?? {}).length > 0 ? 'in-progress' : 'not-started';
+  } catch {
+    return 'not-started';
+  }
+}
+
+function dailyPlayStatusLabel(status: DailyPlayStatus): string {
+  if (status === 'complete') return 'Complete';
+  if (status === 'in-progress') return 'Resume';
+  return 'Open';
+}
+
 function getLedgerPillText(puzzle: DawnCabinetPuzzle): string | null {
   const kinds = getLedgerKinds(puzzle);
   if (kinds.length === 0) return null;
@@ -258,8 +290,34 @@ function getDifficultySummary(puzzle: DawnCabinetPuzzle): string {
 
 function getDifficultyCardSummary(puzzle: DawnCabinetPuzzle): string {
   const blanks = puzzle.cells.length - Object.keys(puzzle.givens).length;
-  const reserve = getBankGoalText(puzzle) ?? 'Exact bank';
-  return `${blanks} blanks\n${puzzle.lines.length} rails\n${reserve}`;
+  const hidden = puzzle.lines.filter((line) => line.goal === 'hidden').length;
+  const density =
+    puzzle.lines.length >= 34 ? 'Sprawling cabinet' :
+    puzzle.lines.length >= 22 ? 'Dense cabinet' :
+    'Compact cabinet';
+  const secrecy =
+    hidden / Math.max(1, puzzle.lines.length) >= 0.72 ? 'Hidden-heavy rails' :
+    'Mixed rail clues';
+  const reserve =
+    puzzle.spareCount >= 4 ? 'Strict reserve' :
+    puzzle.spareCount >= 2 ? 'Reserve pressure' :
+    puzzle.spareCount === 1 ? 'Light reserve' :
+    'Exact bank';
+  const tempo =
+    blanks >= 28 ? 'Long solve' :
+    blanks >= 17 ? 'Deep solve' :
+    'Quick solve';
+  return `${density}\n${secrecy}\n${reserve} · ${tempo}`;
+}
+
+function getStartGoalPreview(puzzle: DawnCabinetPuzzle): string {
+  const kinds = getLedgerKinds(puzzle).map(lineGoalLabel);
+  const sets = kinds.length > 0 ? kinds.join(' / ') : 'Open rails';
+  const reserve =
+    puzzle.spareCount === 0 ? 'Exact bank' :
+    puzzle.bankGoal ? `${lineGoalLabel(puzzle.bankGoal.type)} reserve` :
+    'Loose reserve';
+  return `${sets} · ${reserve}`;
 }
 
 function getShareUrl(): string {
@@ -634,9 +692,12 @@ export default function DawnCabinetScreen() {
   const handleClear = useCallback(() => {
     const storage = getStorage();
     storage?.removeItem(puzzleSolvedKey(puzzle));
-    if (!isPractice) {
-      storage?.removeItem(dailySolvedKey(puzzle.date));
-      storage?.removeItem(legacyDailySolvedKey(puzzle.date));
+    if (!isPractice && isDailyDifficulty(puzzle.difficulty)) {
+      storage?.removeItem(dailySolvedKey(puzzle.date, puzzle.difficulty));
+      if (puzzle.difficulty === 'Standard') {
+        storage?.removeItem(legacyDifficultylessSolvedKey(puzzle.date));
+        storage?.removeItem(legacyDailySolvedKey(puzzle.date));
+      }
     }
     storage?.removeItem(`${STORAGE_PREFIX}:state:${puzzle.id}`);
     setPlacedEntryIdsByCell({});
@@ -657,12 +718,20 @@ export default function DawnCabinetScreen() {
       writeSavedDailyDifficulty(dailyDate, difficulty);
       setSelectedDailyDifficulty(difficulty);
       setIsPractice(false);
-      setHasStartedPuzzle(hasSavedPuzzleProgress(getDailyDawnCabinet(dailyDate, difficulty)));
+      setHasStartedPuzzle(false);
       setShareStatus(null);
       setMessage(null);
     },
     [dailyDate]
   );
+
+  const handleChooseLevel = useCallback(() => {
+    setIsPractice(false);
+    setHasStartedPuzzle(false);
+    setShowTutorial(false);
+    setShareStatus(null);
+    setMessage(null);
+  }, []);
 
   const handleStartDaily = useCallback(() => {
     writeSavedDailyDifficulty(dailyDate, selectedDailyDifficulty);
@@ -731,6 +800,7 @@ export default function DawnCabinetScreen() {
         </ScrollView>
         <TutorialModal
           visible={showTutorial}
+          onClose={() => setShowTutorial(false)}
           onStartDaily={handleStartDaily}
           onPracticeEasy={handlePracticeEasy}
           styles={styles}
@@ -817,6 +887,20 @@ export default function DawnCabinetScreen() {
                   {shareStatus ? <Text style={styles.shareStatus}>{shareStatus}</Text> : null}
                 </View>
               ) : null}
+              {!isPractice ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Choose another Dawn Cabinet level"
+                  style={({ pressed }) => [
+                    styles.winHomeButton,
+                    styles.winLevelButton,
+                    pressed && styles.buttonPressed,
+                  ]}
+                  onPress={handleChooseLevel}
+                >
+                  <Text style={styles.winHomeButtonText}>Choose Level</Text>
+                </Pressable>
+              ) : null}
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Back to the main page"
@@ -899,6 +983,16 @@ export default function DawnCabinetScreen() {
           ) : null}
 
           <View style={styles.actionRow}>
+            {!isPractice ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Choose another Dawn Cabinet level"
+                style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonPressed]}
+                onPress={handleChooseLevel}
+              >
+                <Text style={styles.secondaryButtonText}>Levels</Text>
+              </Pressable>
+            ) : null}
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Show rules"
@@ -950,6 +1044,7 @@ export default function DawnCabinetScreen() {
 
       <TutorialModal
         visible={showTutorial}
+        onClose={() => setShowTutorial(false)}
         onStartDaily={handleStartDaily}
         onPracticeEasy={handlePracticeEasy}
         styles={styles}
@@ -982,6 +1077,11 @@ function StartScreen({
   const accentTiles = Array.from(
     new Map(puzzle.bank.map((tile) => [tileKey(tile), tile])).values()
   ).slice(0, 5);
+  const selectedStatus = getDailyPlayStatus(puzzle);
+  const startLabel =
+    selectedStatus === 'complete' ? 'View Results' :
+    selectedStatus === 'in-progress' ? 'Resume' :
+    'Start';
 
   return (
     <View style={styles.startPage}>
@@ -1017,11 +1117,12 @@ function StartScreen({
         {DAILY_DIFFICULTIES.map((difficulty) => {
           const isSelected = difficulty === selectedDifficulty;
           const optionPuzzle = getDailyDawnCabinet(puzzle.date, difficulty);
+          const status = getDailyPlayStatus(optionPuzzle);
           return (
             <Pressable
               key={difficulty}
               accessibilityRole="button"
-              accessibilityLabel={`Select ${difficulty} Dawn Cabinet`}
+              accessibilityLabel={`Select ${difficulty} Dawn Cabinet, ${dailyPlayStatusLabel(status)}`}
               testID={`dawn-cabinet.difficulty.${difficulty.toLowerCase()}`}
               style={({ pressed }) => [
                 styles.difficultyCard,
@@ -1038,6 +1139,14 @@ function StartScreen({
               >
                 {difficulty}
               </Text>
+              <Text
+                style={[
+                  styles.difficultyCardStatus,
+                  status === 'complete' && styles.difficultyCardStatusComplete,
+                ]}
+              >
+                {dailyPlayStatusLabel(status)}
+              </Text>
               <Text style={styles.difficultyCardText}>{getDifficultyCardSummary(optionPuzzle)}</Text>
             </Pressable>
           );
@@ -1046,8 +1155,9 @@ function StartScreen({
 
       <View style={styles.startSummaryBox}>
         <Text style={styles.startSummaryTitle}>{selectedDifficulty}</Text>
-        <Text style={styles.startSummaryText}>{getDifficultySummary(puzzle)}</Text>
-        <Text style={styles.startSummaryText}>{getGoalSummary(puzzle)}</Text>
+        <Text style={styles.startSummaryStatus}>{dailyPlayStatusLabel(selectedStatus)}</Text>
+        <Text style={styles.startSummaryText}>{getDifficultyCardSummary(puzzle).replace(/\n/g, ' · ')}</Text>
+        <Text style={styles.startSummaryText}>{getStartGoalPreview(puzzle)}</Text>
       </View>
 
       <View style={styles.startActionRow}>
@@ -1058,7 +1168,7 @@ function StartScreen({
           style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
           onPress={onStart}
         >
-          <Text style={styles.primaryButtonText}>Start</Text>
+          <Text style={styles.primaryButtonText}>{startLabel}</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -1571,11 +1681,13 @@ function SuitMark({
 
 function TutorialModal({
   visible,
+  onClose,
   onStartDaily,
   onPracticeEasy,
   styles,
 }: {
   visible: boolean;
+  onClose: () => void;
   onStartDaily: () => void;
   onPracticeEasy: () => void;
   styles: ReturnType<typeof createStyles>;
@@ -1590,6 +1702,11 @@ function TutorialModal({
     { suit: 'dots', rank: 6 },
     { suit: 'dots', rank: 6 },
     { suit: 'dots', rank: 6 },
+  ] satisfies DawnCabinetTile[];
+  const mixedRunTiles = [
+    { suit: 'bamboo', rank: 3 },
+    { suit: 'dots', rank: 4 },
+    { suit: 'characters', rank: 5 },
   ] satisfies DawnCabinetTile[];
   const pairTiles = [
     { suit: 'characters', rank: 8 },
@@ -1607,7 +1724,7 @@ function TutorialModal({
   ] satisfies DawnCabinetTile[];
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onStartDaily}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalScrim}>
         <ScrollView
           style={styles.modalCard}
@@ -1638,6 +1755,18 @@ function TutorialModal({
             <View style={styles.lessonCopy}>
               <Text style={styles.lessonTitle}>Match</Text>
               <Text style={styles.lessonText}>Three identical tiles.</Text>
+            </View>
+          </View>
+
+          <View style={styles.lessonRow}>
+            <View style={styles.lessonTiles}>
+              {mixedRunTiles.map((tile) => (
+                <MahjongTile key={tileKey(tile)} tile={tile} styles={styles} size="small" />
+              ))}
+            </View>
+            <View style={styles.lessonCopy}>
+              <Text style={styles.lessonTitle}>Mixed Run</Text>
+              <Text style={styles.lessonText}>Three consecutive ranks, each in a different suit.</Text>
             </View>
           </View>
 
@@ -1680,7 +1809,7 @@ function TutorialModal({
           <View style={styles.rulesList}>
             <Text style={styles.ruleText}>Only tiles joined by a rail belong to the same set.</Text>
             <Text style={styles.ruleText}>Tiles may touch on the board and still be unrelated.</Text>
-            <Text style={styles.ruleText}>R, M, P, F, and N rails name their required set.</Text>
+            <Text style={styles.ruleText}>R, X, M, P, F, and N rails name their required set.</Text>
             <Text style={styles.ruleText}>? rails are hidden rails: the ledger tells how many of each set they become.</Text>
             <Text style={styles.ruleText}>A crossing tile must satisfy every rail that passes through it.</Text>
             <Text style={styles.ruleText}>Copy pips show how many identical bank tiles remain.</Text>
@@ -1718,6 +1847,14 @@ function TutorialModal({
             onPress={onStartDaily}
           >
             <Text style={styles.modalButtonText}>Start Today</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close rules"
+            style={({ pressed }) => [styles.modalSecondaryButton, pressed && styles.buttonPressed]}
+            onPress={onClose}
+          >
+            <Text style={styles.modalSecondaryButtonText}>Close</Text>
           </Pressable>
           <Pressable
             accessibilityRole="button"
@@ -1819,6 +1956,26 @@ const createStyles = (
     difficultyCardTitleSelected: {
       color: screenAccent.main,
     },
+    difficultyCardStatus: {
+      alignSelf: 'flex-start',
+      marginTop: Spacing.xs,
+      paddingHorizontal: Spacing.xs,
+      paddingVertical: 3,
+      borderRadius: BorderRadius.full,
+      backgroundColor: Colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: Colors.line,
+      color: Colors.textMuted,
+      fontSize: 10,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.6,
+    },
+    difficultyCardStatusComplete: {
+      backgroundColor: theme.mode === 'dark' ? 'rgba(79, 180, 119, 0.2)' : '#e6f8ec',
+      borderColor: Colors.success,
+      color: Colors.success,
+    },
     difficultyCardText: {
       color: Colors.textMuted,
       fontSize: 12,
@@ -1838,6 +1995,13 @@ const createStyles = (
       color: screenAccent.badgeText,
       fontSize: FontSize.md,
       fontWeight: '900',
+    },
+    startSummaryStatus: {
+      color: screenAccent.main,
+      fontSize: 11,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.7,
     },
     startSummaryText: {
       color: Colors.textSecondary,
@@ -2071,6 +2235,10 @@ const createStyles = (
       alignItems: 'center',
       justifyContent: 'center',
       ...WEB_NO_SELECT,
+    },
+    winLevelButton: {
+      borderColor: screenAccent.main,
+      backgroundColor: screenAccent.soft,
     },
     winHomeButtonText: {
       color: Colors.textSecondary,
@@ -2379,6 +2547,7 @@ const createStyles = (
     },
     actionRow: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
       gap: Spacing.sm,
       marginTop: Spacing.lg,
     },
@@ -2388,6 +2557,7 @@ const createStyles = (
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: 48,
+      minWidth: 88,
       ...WEB_NO_SELECT,
     },
     secondaryButtonText: {
@@ -2402,6 +2572,7 @@ const createStyles = (
       justifyContent: 'center',
       borderRadius: BorderRadius.full,
       backgroundColor: screenAccent.main,
+      minWidth: 104,
       ...WEB_NO_SELECT,
     },
     primaryButtonPressed: {

@@ -27,6 +27,15 @@ function hiddenCount(puzzle: DawnCabinetPuzzle): number {
   return puzzle.lines.filter((line) => line.goal === 'hidden').length;
 }
 
+function expectLedgerMatchesSolution(puzzle: DawnCabinetPuzzle) {
+  const ledgerState = getLedgerState(puzzle, puzzle.solution);
+  expect(ledgerState.invalid).toBe(0);
+  expect(ledgerState.unknown).toBe(0);
+  Object.entries(puzzle.ledger ?? {}).forEach(([kind, count]) => {
+    expect(ledgerState.counts[kind as keyof typeof ledgerState.counts]).toBe(count);
+  });
+}
+
 function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
   const blanks = blankCount(puzzle);
   const hidden = hiddenCount(puzzle);
@@ -48,45 +57,67 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
 
   if (puzzle.difficulty === 'Standard') {
     expect(suits).toBe(3);
-    expect(blanks).toBe(12);
-    expect(puzzle.lines.length).toBeGreaterThanOrEqual(15);
-    expect(puzzle.lines.length).toBeLessThanOrEqual(16);
-    expect(hidden).toBeGreaterThanOrEqual(12);
-    expect(hidden).toBeLessThanOrEqual(14);
-    expect(puzzle.spareCount).toBe(1);
-    expect(puzzle.ledger).toEqual({ run: 6, match: 4, flush: 2 });
+    expect(blanks).toBeGreaterThanOrEqual(13);
+    expect(blanks).toBeLessThanOrEqual(18);
+    expect(puzzle.lines.length).toBeGreaterThanOrEqual(18);
+    expect(puzzle.lines.length).toBeLessThanOrEqual(21);
+    expect(hidden).toBeGreaterThanOrEqual(13);
+    expect(hidden).toBeLessThanOrEqual(16);
+    expect(puzzle.spareCount).toBeGreaterThanOrEqual(1);
+    expect(puzzle.spareCount).toBeLessThanOrEqual(2);
+    expect(puzzle.ledger?.run ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.match ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.number ?? 0).toBe(0);
     expect(puzzle.bankGoal).toBeUndefined();
+    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(5);
+    expect(puzzle.motifs.length).toBeLessThanOrEqual(6);
+    expect(puzzle.shapeSignature.length).toBeGreaterThan(40);
     return;
   }
 
   if (puzzle.difficulty === 'Hard') {
     expect(suits).toBe(4);
-    expect(blanks).toBeGreaterThanOrEqual(16);
-    expect(blanks).toBeLessThanOrEqual(18);
-    expect(puzzle.lines.length).toBeGreaterThanOrEqual(20);
-    expect(puzzle.lines.length).toBeLessThanOrEqual(22);
-    expect(hidden).toBeGreaterThanOrEqual(16);
-    expect(hidden).toBeLessThanOrEqual(19);
-    expect(puzzle.spareCount).toBe(3);
-    expect(puzzle.ledger).toEqual({ run: 6, match: 4, flush: 3, number: 3 });
-    expect(['run', 'match', 'flush', 'number']).toContain(puzzle.bankGoal?.type);
+    expect(blanks).toBeGreaterThanOrEqual(19);
+    expect(blanks).toBeLessThanOrEqual(23);
+    expect(puzzle.lines.length).toBeGreaterThanOrEqual(23);
+    expect(puzzle.lines.length).toBeLessThanOrEqual(29);
+    expect(hidden).toBeGreaterThanOrEqual(18);
+    expect(hidden).toBeLessThanOrEqual(21);
+    expect(puzzle.spareCount).toBeGreaterThanOrEqual(2);
+    expect(puzzle.spareCount).toBeLessThanOrEqual(4);
+    expect(puzzle.ledger?.run ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.mixedRun ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.match ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
+    expect(puzzle.ledger?.number ?? 0).toBeGreaterThan(0);
+    if (puzzle.bankGoal) expect(['pair', 'run', 'mixedRun', 'match', 'flush', 'number']).toContain(puzzle.bankGoal.type);
+    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(5);
+    expect(puzzle.motifs.length).toBeLessThanOrEqual(7);
     return;
   }
 
   expect(suits).toBe(5);
-  expect(blanks).toBeGreaterThanOrEqual(26);
-  expect(blanks).toBeLessThanOrEqual(30);
-  expect(puzzle.lines.length).toBeGreaterThanOrEqual(32);
-  expect(puzzle.lines.length).toBeLessThanOrEqual(36);
-  expect(hidden).toBeGreaterThanOrEqual(24);
-  expect(hidden).toBeLessThanOrEqual(28);
+  expect(blanks).toBeGreaterThanOrEqual(33);
+  expect(blanks).toBeLessThanOrEqual(35);
+  expect(puzzle.lines.length).toBeGreaterThanOrEqual(39);
+  expect(puzzle.lines.length).toBeLessThanOrEqual(45);
+  expect(hidden).toBeGreaterThanOrEqual(31);
+  expect(hidden).toBeLessThanOrEqual(33);
   expect(puzzle.spareCount).toBeGreaterThanOrEqual(3);
-  expect(puzzle.ledger).toEqual({ run: 12, match: 8, flush: 2, number: 4 });
-  expect(['run', 'match', 'flush', 'number']).toContain(puzzle.bankGoal?.type);
+  expect(puzzle.spareCount).toBeLessThanOrEqual(5);
+  expect(puzzle.ledger?.run ?? 0).toBeGreaterThan(0);
+  expect(puzzle.ledger?.mixedRun ?? 0).toBeGreaterThan(0);
+  expect(puzzle.ledger?.match ?? 0).toBeGreaterThan(0);
+  expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
+  expect(puzzle.ledger?.number ?? 0).toBeGreaterThan(0);
+  if (puzzle.bankGoal) expect(['run', 'mixedRun', 'match', 'flush', 'number']).toContain(puzzle.bankGoal.type);
+  expect(puzzle.motifs.length).toBeGreaterThanOrEqual(8);
+  expect(puzzle.motifs.length).toBeLessThanOrEqual(10);
 }
 
 describe('dawn cabinet puzzle engine', () => {
-  test('accepts true matches, pairs, suited runs, flushes, and number sets', () => {
+  test('accepts true matches, pairs, suited runs, mixed runs, flushes, and number sets', () => {
     expect(
       isValidCabinetLine([
         { suit: 'bamboo', rank: 2 },
@@ -113,6 +144,17 @@ describe('dawn cabinet puzzle engine', () => {
           { suit: 'characters', rank: 8 },
         ],
         'pair'
+      )
+    ).toBe(true);
+
+    expect(
+      isValidCabinetLine(
+        [
+          { suit: 'bamboo', rank: 3 },
+          { suit: 'dots', rank: 4 },
+          { suit: 'characters', rank: 5 },
+        ],
+        'mixedRun'
       )
     ).toBe(true);
 
@@ -179,6 +221,13 @@ describe('dawn cabinet puzzle engine', () => {
         { suit: 'bamboo', rank: 4 },
       ])
     ).toBe('run');
+    expect(
+      classifyCabinetLine([
+        { suit: 'bamboo', rank: 3 },
+        { suit: 'dots', rank: 4 },
+        { suit: 'characters', rank: 5 },
+      ])
+    ).toBe('mixedRun');
     expect(
       classifyCabinetLine([
         { suit: 'bamboo', rank: 5 },
@@ -253,12 +302,7 @@ describe('dawn cabinet puzzle engine', () => {
 
     [easy, standard, hard, expert].forEach((puzzle) => {
       expect(countCabinetSolutions(puzzle, 2)).toBe(1);
-      const ledgerState = getLedgerState(puzzle, puzzle.solution);
-      expect(ledgerState.invalid).toBe(0);
-      expect(ledgerState.unknown).toBe(0);
-      Object.entries(puzzle.ledger ?? {}).forEach(([kind, count]) => {
-        expect(ledgerState.counts[kind as keyof typeof ledgerState.counts]).toBe(count);
-      });
+      expectLedgerMatchesSolution(puzzle);
     });
   }, 90000);
 
@@ -278,6 +322,43 @@ describe('dawn cabinet puzzle engine', () => {
     }
 
     expect(generated).toBe(250 * DAWN_CABINET_DAILY_DIFFICULTIES.length);
+  });
+
+  test('daily modular grammar varies shapes and count profiles', () => {
+    DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
+      const signatures: string[] = [];
+      const profiles: string[] = [];
+      const motifs = new Set<string>();
+
+      for (let index = 0; index < 90; index += 1) {
+        const date = new Date(Date.UTC(2026, 3, 26 + index)).toISOString().slice(0, 10);
+        const puzzle = getDailyDawnCabinet(date, difficulty);
+        signatures.push(puzzle.shapeSignature);
+        puzzle.motifs.forEach((motif) => motifs.add(motif));
+        profiles.push([
+          blankCount(puzzle),
+          puzzle.lines.length,
+          puzzle.bank.length,
+          puzzle.spareCount,
+          puzzle.bankGoal?.type ?? 'any',
+        ].join('/'));
+      }
+
+      expect(new Set(signatures).size).toBeGreaterThanOrEqual(difficulty === 'Standard' ? 45 : 60);
+      expect(new Set(profiles).size).toBeGreaterThanOrEqual(difficulty === 'Standard' ? 8 : 14);
+      expect(motifs.has('mixed-run-braid')).toBe(true);
+      if (difficulty === 'Standard') {
+        expect(motifs.has('switchback-ladder')).toBe(true);
+        expect(motifs.has('copy-block')).toBe(true);
+      } else {
+        expect(motifs.has('knot-cell')).toBe(true);
+      }
+      if (difficulty === 'Expert') expect(motifs.has('flush-basin')).toBe(true);
+      signatures.forEach((signature, index) => {
+        const recent = signatures.slice(Math.max(0, index - 14), index);
+        expect(recent).not.toContain(signature);
+      });
+    });
   });
 
   test('sampled daily puzzles remain uniquely solvable', () => {
@@ -305,12 +386,13 @@ describe('dawn cabinet puzzle engine', () => {
 
   test('expert reserve goals rotate through all three-tile set types', () => {
     const goals = new Set(
-      ['2026-01-01', '2026-01-02', '2026-01-04', '2026-01-09'].map((date) => {
+      Array.from({ length: 120 }, (_, index) => {
+        const date = new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10);
         return getDailyDawnCabinet(date, 'Expert').bankGoal?.type;
-      })
+      }).filter(Boolean)
     );
 
-    expect(goals).toEqual(new Set(['run', 'match', 'flush', 'number']));
+    expect(goals).toEqual(new Set(['run', 'mixedRun', 'match', 'flush', 'number']));
   });
 
   test('daily tile families rotate through the full twelve-family set', () => {
