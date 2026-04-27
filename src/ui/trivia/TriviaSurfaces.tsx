@@ -49,6 +49,9 @@ export function createTriviaStyles(theme: ThemeTokens, screenAccent: ScreenAccen
   const BorderRadius = theme.borderRadius;
   const ui = createDaybreakPrimitives(theme, screenAccent);
   const infoColor = theme.mode === 'dark' ? '#70b8ff' : '#2563eb';
+  const activeToggleBackground = theme.mode === 'dark' ? Colors.white : Colors.text;
+  const activeToggleBorder = theme.mode === 'dark' ? Colors.white : Colors.text;
+  const activeToggleText = theme.mode === 'dark' ? Colors.background : Colors.white;
 
   return StyleSheet.create({
     container: {
@@ -156,8 +159,8 @@ export function createTriviaStyles(theme: ThemeTokens, screenAccent: ScreenAccen
       paddingHorizontal: Spacing.md,
     },
     feedToggleActive: {
-      backgroundColor: Colors.text,
-      borderColor: Colors.text,
+      backgroundColor: activeToggleBackground,
+      borderColor: activeToggleBorder,
     },
     feedTogglePressed: {
       opacity: 0.92,
@@ -168,7 +171,7 @@ export function createTriviaStyles(theme: ThemeTokens, screenAccent: ScreenAccen
       color: Colors.textSecondary,
     },
     feedToggleTextActive: {
-      color: Colors.white,
+      color: activeToggleText,
     },
     introTitleBlock: {
       gap: Spacing.sm,
@@ -1022,10 +1025,18 @@ export function TriviaQuestionSurface({
           <View style={styles.shieldRow}>
             <View style={styles.shieldMeta}>
               <Text style={styles.shieldTitle}>
-                {shieldAvailable ? (shieldArmed ? 'Shield active' : 'Shield ready') : 'Shield spent'}
+                {shieldAvailable
+                  ? shieldArmed
+                    ? 'Shield is on this question'
+                    : 'You still have your shield'
+                  : 'Shield already used'}
               </Text>
               <Text style={styles.shieldBody}>
-                Use it before a miss or timeout to stay alive on that question.
+                {shieldAvailable
+                  ? shieldArmed
+                    ? 'One miss or timeout on this question will turn into a save.'
+                    : 'Use it before you answer if you want one question to turn into a save.'
+                  : 'You got your one save already. The rest is all you.'}
               </Text>
             </View>
             <Pressable
@@ -1044,7 +1055,7 @@ export function TriviaQuestionSurface({
                   shieldArmed && styles.shieldButtonTextActive,
                 ]}
               >
-                {shieldArmed ? 'Shield active' : 'Use shield'}
+                {shieldArmed ? 'Shield on' : 'Use shield here'}
               </Text>
             </Pressable>
           </View>
@@ -1062,9 +1073,11 @@ export function TriviaQuestionSurface({
                     : 'Miss'}
             </Text>
             <Text style={styles.revealBody}>{currentQuestion.rationaleShort}</Text>
-            <Text style={styles.revealMeta}>
-              Correct answer: {currentQuestion.options[currentQuestion.answerIndex]}
-            </Text>
+            {!lastAnswer.correct ? (
+              <Text style={styles.revealMeta}>
+                Correct answer: {currentQuestion.options[currentQuestion.answerIndex]}
+              </Text>
+            ) : null}
           </Animated.View>
         ) : null}
       </View>
