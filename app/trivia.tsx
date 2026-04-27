@@ -22,6 +22,7 @@ import {
   type TriviaRunAnswer,
   type TriviaRunResult,
 } from '../src/data/trivia';
+import { canArmShield, resolveShieldAfterQuestion } from '../src/data/trivia/gameplay';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 import {
   createTriviaStyles,
@@ -82,6 +83,7 @@ export default function TriviaScreen() {
   const [answers, setAnswers] = useState<TriviaRunAnswer[]>([]);
   const [shieldAvailable, setShieldAvailable] = useState(true);
   const [shieldArmed, setShieldArmed] = useState(false);
+  const [shieldQuestionsUsed, setShieldQuestionsUsed] = useState(0);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [showReview, setShowReview] = useState(false);
   const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
@@ -329,6 +331,7 @@ export default function TriviaScreen() {
     setAnswers([]);
     setShieldAvailable(true);
     setShieldArmed(false);
+    setShieldQuestionsUsed(0);
     setShareStatus(null);
     setShowReview(false);
     setCountdown(getTimerSeconds(nextEpisode));
@@ -365,7 +368,13 @@ export default function TriviaScreen() {
       if (selectedOption !== null) return;
 
       const actualCorrect = !timedOut && optionIndex === currentQuestion.answerIndex;
-      const savedByShield = shieldArmed && shieldAvailable && !actualCorrect;
+      const shieldResolution = resolveShieldAfterQuestion({
+        shieldArmed,
+        shieldAvailable,
+        shieldQuestionsUsed,
+        actualCorrect,
+      });
+      const savedByShield = shieldResolution.savedByShield;
       const points = actualCorrect
         ? BASE_POINTS + Math.max(0, Math.round((countdown / currentTimerSeconds) * SPEED_BONUS))
         : savedByShield
@@ -374,9 +383,8 @@ export default function TriviaScreen() {
 
       setSelectedOption(timedOut ? -1 : optionIndex);
       setShieldArmed(false);
-      if (savedByShield) {
-        setShieldAvailable(false);
-      }
+      setShieldAvailable(shieldResolution.shieldAvailable);
+      setShieldQuestionsUsed(shieldResolution.shieldQuestionsUsed);
 
       setAnswers((previous) => [
         ...previous,
@@ -402,6 +410,7 @@ export default function TriviaScreen() {
       selectedOption,
       shieldArmed,
       shieldAvailable,
+      shieldQuestionsUsed,
     ]
   );
 
@@ -417,10 +426,10 @@ export default function TriviaScreen() {
   }, [resolveAnswer]);
 
   const toggleShield = useCallback(() => {
-    if (!shieldAvailable) return;
+    if (!canArmShield(shieldAvailable, shieldQuestionsUsed)) return;
     if (screenMode !== 'question') return;
     setShieldArmed((previous) => !previous);
-  }, [screenMode, shieldAvailable]);
+  }, [screenMode, shieldAvailable, shieldQuestionsUsed]);
 
   useEffect(() => {
     if (screenMode !== 'question') return;
@@ -572,6 +581,7 @@ export default function TriviaScreen() {
                 selectedOption={selectedOption}
                 shieldArmed={shieldArmed}
                 shieldAvailable={shieldAvailable}
+                shieldQuestionsUsed={shieldQuestionsUsed}
                 showFinalStretchTag={
                   questionIndex >= activeEpisode.finalStretchStartsAt && screenMode !== 'transition'
                 }

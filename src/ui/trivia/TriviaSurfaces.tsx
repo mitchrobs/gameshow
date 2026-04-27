@@ -8,6 +8,9 @@ import type {
   TriviaRunAnswer,
   TriviaRunResult,
 } from '../../data/trivia';
+import {
+  canArmShield,
+} from '../../data/trivia/gameplay';
 import { createDaybreakPrimitives } from '../daybreakPrimitives';
 
 const FEEDS: TriviaFeed[] = ['mix', 'sports'];
@@ -40,6 +43,46 @@ function getAnswerMarkLabel(mark: TriviaAnswerMark): string {
   if (mark === 'shielded') return 'Shielded';
   if (mark === 'wrong') return 'Wrong';
   return 'Time';
+}
+
+function getShieldTitle(
+  shieldAvailable: boolean,
+  shieldArmed: boolean,
+  shieldQuestionsUsed: number
+): string {
+  if (!shieldAvailable) return 'Shield spent';
+  if (shieldArmed) return 'Shield active';
+  return shieldQuestionsUsed > 0 ? 'One shield try left' : 'Shield ready';
+}
+
+function getShieldBody(
+  shieldAvailable: boolean,
+  shieldArmed: boolean,
+  shieldQuestionsUsed: number
+): string {
+  if (!shieldAvailable) {
+    return 'No more saves this run. Finish it straight up from here.';
+  }
+
+  if (shieldArmed) {
+    return shieldQuestionsUsed > 0
+      ? 'A miss or timeout here will turn into a save. This is your final shield question.'
+      : 'A miss or timeout here will turn into a save. If you nail it, you will still have one shield try left.';
+  }
+
+  return shieldQuestionsUsed > 0
+    ? 'You can still cover one miss or timeout, but this is your last shield question.'
+    : 'Use it before you answer to cover one miss or timeout. If you do not need it here, you still get one final shield try later.';
+}
+
+function getShieldButtonLabel(
+  shieldAvailable: boolean,
+  shieldArmed: boolean,
+  shieldQuestionsUsed: number
+): string {
+  if (!shieldAvailable) return 'Shield spent';
+  if (shieldArmed) return 'Shield active';
+  return shieldQuestionsUsed > 0 ? 'Use last shield' : 'Use shield';
 }
 
 export function createTriviaStyles(theme: ThemeTokens, screenAccent: ScreenAccentTokens) {
@@ -301,18 +344,23 @@ export function createTriviaStyles(theme: ThemeTokens, screenAccent: ScreenAccen
     progressRail: {
       flexDirection: 'row',
       gap: 6,
+      alignItems: 'center',
     },
     progressSegment: {
       flex: 1,
-      height: 7,
+      height: 8,
       borderRadius: BorderRadius.full,
       backgroundColor: Colors.border,
     },
     progressSegmentCurrent: {
-      backgroundColor: screenAccent.main,
+      height: 11,
+      marginVertical: -1,
+      backgroundColor: theme.mode === 'dark' ? Colors.white : screenAccent.main,
+      borderWidth: 1,
+      borderColor: theme.mode === 'dark' ? screenAccent.main : screenAccent.main,
     },
     progressSegmentDone: {
-      backgroundColor: Colors.surfaceLight,
+      backgroundColor: theme.mode === 'dark' ? Colors.line : Colors.surfaceLight,
     },
     progressSegmentCorrect: {
       backgroundColor: Colors.success,
@@ -900,6 +948,7 @@ interface TriviaQuestionSurfaceProps {
   selectedOption: number | null;
   shieldArmed: boolean;
   shieldAvailable: boolean;
+  shieldQuestionsUsed: number;
   showFinalStretchTag: boolean;
   styles: TriviaStyles;
 }
@@ -921,9 +970,12 @@ export function TriviaQuestionSurface({
   selectedOption,
   shieldArmed,
   shieldAvailable,
+  shieldQuestionsUsed,
   showFinalStretchTag,
   styles,
 }: TriviaQuestionSurfaceProps) {
+  const shieldCanArm = canArmShield(shieldAvailable, shieldQuestionsUsed);
+
   return (
     <Animated.View
       style={[
@@ -1025,29 +1077,21 @@ export function TriviaQuestionSurface({
           <View style={styles.shieldRow}>
             <View style={styles.shieldMeta}>
               <Text style={styles.shieldTitle}>
-                {shieldAvailable
-                  ? shieldArmed
-                    ? 'Shield is on this question'
-                    : 'You still have your shield'
-                  : 'Shield already used'}
+                {getShieldTitle(shieldAvailable, shieldArmed, shieldQuestionsUsed)}
               </Text>
               <Text style={styles.shieldBody}>
-                {shieldAvailable
-                  ? shieldArmed
-                    ? 'One miss or timeout on this question will turn into a save.'
-                    : 'Use it before you answer if you want one question to turn into a save.'
-                  : 'You got your one save already. The rest is all you.'}
+                {getShieldBody(shieldAvailable, shieldArmed, shieldQuestionsUsed)}
               </Text>
             </View>
             <Pressable
               style={({ pressed }) => [
                 styles.shieldButton,
                 shieldArmed && styles.shieldButtonActive,
-                !shieldAvailable && styles.shieldButtonDisabled,
+                !shieldCanArm && styles.shieldButtonDisabled,
                 pressed && styles.shieldButtonPressed,
               ]}
               onPress={onToggleShield}
-              disabled={!shieldAvailable || disabled}
+              disabled={!shieldCanArm || disabled}
             >
               <Text
                 style={[
@@ -1055,7 +1099,7 @@ export function TriviaQuestionSurface({
                   shieldArmed && styles.shieldButtonTextActive,
                 ]}
               >
-                {shieldArmed ? 'Shield on' : 'Use shield here'}
+                {getShieldButtonLabel(shieldAvailable, shieldArmed, shieldQuestionsUsed)}
               </Text>
             </Pressable>
           </View>

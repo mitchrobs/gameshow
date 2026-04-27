@@ -6,19 +6,19 @@
   "calibrationDays": 28,
   "feeds": {
     "mix": {
-      "libraryCount": 4797,
+      "libraryCount": 4547,
       "scheduledCount": 4380,
-      "reserveCount": 417,
+      "reserveCount": 167,
       "refreshableCount": 1460,
       "byBucket": {
-        "evergreen": 4334,
-        "topical": 7,
+        "evergreen": 4335,
+        "topical": 6,
         "experimental": 39
       },
       "byDifficulty": {
         "1": 1460,
-        "2": 1460,
-        "3": 1460
+        "2": 1095,
+        "3": 1825
       },
       "rollingQuotaViolations": 0,
       "staleQuestionCount": 0,
@@ -45,78 +45,78 @@
         "2027-04": 3
       },
       "topRepeatedGroups": [],
-      "lateSlotLegibilityScore": 68.7,
+      "lateSlotLegibilityScore": 68.3,
       "agentFrictionBySlot": [
         {
           "slot": 1,
-          "averageCorrectRate": 0.898,
-          "timeoutRate": 0.028,
+          "averageCorrectRate": 0.881,
+          "timeoutRate": 0.035,
           "shieldUseRate": 0
         },
         {
           "slot": 2,
-          "averageCorrectRate": 0.893,
-          "timeoutRate": 0.037,
+          "averageCorrectRate": 0.898,
+          "timeoutRate": 0.033,
           "shieldUseRate": 0
         },
         {
           "slot": 3,
-          "averageCorrectRate": 0.904,
-          "timeoutRate": 0.011,
+          "averageCorrectRate": 0.896,
+          "timeoutRate": 0.033,
           "shieldUseRate": 0
         },
         {
           "slot": 4,
-          "averageCorrectRate": 0.887,
-          "timeoutRate": 0.028,
+          "averageCorrectRate": 0.891,
+          "timeoutRate": 0.019,
           "shieldUseRate": 0
         },
         {
           "slot": 5,
-          "averageCorrectRate": 0.731,
-          "timeoutRate": 0.057,
+          "averageCorrectRate": 0.754,
+          "timeoutRate": 0.063,
           "shieldUseRate": 0
         },
         {
           "slot": 6,
-          "averageCorrectRate": 0.724,
+          "averageCorrectRate": 0.694,
           "timeoutRate": 0.061,
           "shieldUseRate": 0
         },
         {
           "slot": 7,
-          "averageCorrectRate": 0.722,
-          "timeoutRate": 0.065,
-          "shieldUseRate": 0.002
+          "averageCorrectRate": 0.689,
+          "timeoutRate": 0.063,
+          "shieldUseRate": 0
         },
         {
           "slot": 8,
-          "averageCorrectRate": 0.707,
-          "timeoutRate": 0.054,
-          "shieldUseRate": 0.002
+          "averageCorrectRate": 0.457,
+          "timeoutRate": 0.119,
+          "shieldUseRate": 0
         },
         {
           "slot": 9,
-          "averageCorrectRate": 0.476,
-          "timeoutRate": 0.122,
-          "shieldUseRate": 0.019
+          "averageCorrectRate": 0.426,
+          "timeoutRate": 0.115,
+          "shieldUseRate": 0.006
         },
         {
           "slot": 10,
-          "averageCorrectRate": 0.478,
+          "averageCorrectRate": 0.474,
           "timeoutRate": 0.111,
-          "shieldUseRate": 0.024
+          "shieldUseRate": 0.031
         },
         {
           "slot": 11,
-          "averageCorrectRate": 0.47,
+          "averageCorrectRate": 0.481,
           "timeoutRate": 0.098,
-          "shieldUseRate": 0.019
+          "shieldUseRate": 0.024
         },
         {
           "slot": 12,
-          "averageCorrectRate": 0.511,
-          "timeoutRate": 0.078,
+          "averageCorrectRate": 0.469,
+          "timeoutRate": 0.111,
           "shieldUseRate": 0.024
         }
       ],
@@ -129,10 +129,10 @@
           "displayName": "Commuter Max",
           "archetype": "casual",
           "sampleDays": 28,
-          "averageCorrect": 7.21,
-          "averageScore": 911.9,
+          "averageCorrect": 6.86,
+          "averageScore": 866.8,
           "shieldUseRate": 0,
-          "timeoutRate": 0.07,
+          "timeoutRate": 0.09,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",
@@ -148,10 +148,10 @@
           "displayName": "Streak Jules",
           "archetype": "streak-hunter",
           "sampleDays": 28,
-          "averageCorrect": 7.96,
-          "averageScore": 1022.6,
+          "averageCorrect": 7.32,
+          "averageScore": 939,
           "shieldUseRate": 0,
-          "timeoutRate": 0.05,
+          "timeoutRate": 0.08,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed"
@@ -165,27 +165,29 @@
           "displayName": "Culture Maya",
           "archetype": "culture-first",
           "sampleDays": 28,
-          "averageCorrect": 9.11,
-          "averageScore": 1182.3,
-          "shieldUseRate": 0.21,
-          "timeoutRate": 0.05,
+          "averageCorrect": 8.21,
+          "averageScore": 1061.4,
+          "shieldUseRate": 0.11,
+          "timeoutRate": 0.04,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",
             "movies",
             "music"
           ],
-          "frictionFlags": []
+          "frictionFlags": [
+            "trick-needs-softening"
+          ]
         },
         {
           "agentId": "sports-ryan",
           "displayName": "Sports Ryan",
           "archetype": "sports-core",
           "sampleDays": 28,
-          "averageCorrect": 8.39,
-          "averageScore": 1066.2,
+          "averageCorrect": 7.64,
+          "averageScore": 966.8,
           "shieldUseRate": 0,
-          "timeoutRate": 0.07,
+          "timeoutRate": 0.04,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "football",
@@ -202,10 +204,10 @@
           "archetype": "analytical",
           "sampleDays": 28,
           "averageCorrect": 9.18,
-          "averageScore": 1204.1,
-          "shieldUseRate": 0.29,
-          "timeoutRate": 0.06,
-          "cleanRunRate": 0.04,
+          "averageScore": 1206.2,
+          "shieldUseRate": 0.32,
+          "timeoutRate": 0.07,
+          "cleanRunRate": 0.11,
           "standoutStrengths": [
             "native fit for this feed",
             "technology",
@@ -218,35 +220,37 @@
           "displayName": "Broad Ava",
           "archetype": "broad-fan",
           "sampleDays": 28,
-          "averageCorrect": 8.68,
-          "averageScore": 1113.2,
-          "shieldUseRate": 0.11,
-          "timeoutRate": 0.05,
+          "averageCorrect": 8.57,
+          "averageScore": 1093.6,
+          "shieldUseRate": 0.07,
+          "timeoutRate": 0.06,
           "cleanRunRate": 0.04,
           "standoutStrengths": [
             "native fit for this feed",
             "movies",
             "music"
           ],
-          "frictionFlags": []
+          "frictionFlags": [
+            "trick-needs-softening"
+          ]
         }
       ],
       "launchReady": true
     },
     "sports": {
-      "libraryCount": 3984,
+      "libraryCount": 3584,
       "scheduledCount": 3285,
-      "reserveCount": 699,
+      "reserveCount": 299,
       "refreshableCount": 1216,
       "byBucket": {
-        "event": 54,
-        "current": 1605,
-        "evergreen": 1626
+        "current": 1630,
+        "evergreen": 1618,
+        "event": 37
       },
       "byDifficulty": {
-        "1": 1095,
+        "1": 730,
         "2": 1095,
-        "3": 1095
+        "3": 1460
       },
       "rollingQuotaViolations": 0,
       "staleQuestionCount": 0,
@@ -273,64 +277,64 @@
         "2027-04": 3
       },
       "topRepeatedGroups": [],
-      "lateSlotLegibilityScore": 86.37,
+      "lateSlotLegibilityScore": 87.17,
       "agentFrictionBySlot": [
         {
           "slot": 1,
-          "averageCorrectRate": 0.907,
-          "timeoutRate": 0.026,
+          "averageCorrectRate": 0.833,
+          "timeoutRate": 0.022,
           "shieldUseRate": 0
         },
         {
           "slot": 2,
-          "averageCorrectRate": 0.939,
-          "timeoutRate": 0.015,
+          "averageCorrectRate": 0.822,
+          "timeoutRate": 0.041,
           "shieldUseRate": 0
         },
         {
           "slot": 3,
-          "averageCorrectRate": 0.9,
-          "timeoutRate": 0.017,
+          "averageCorrectRate": 0.602,
+          "timeoutRate": 0.087,
           "shieldUseRate": 0
         },
         {
           "slot": 4,
-          "averageCorrectRate": 0.746,
-          "timeoutRate": 0.054,
+          "averageCorrectRate": 0.604,
+          "timeoutRate": 0.08,
           "shieldUseRate": 0
         },
         {
           "slot": 5,
-          "averageCorrectRate": 0.759,
-          "timeoutRate": 0.048,
+          "averageCorrectRate": 0.615,
+          "timeoutRate": 0.065,
           "shieldUseRate": 0
         },
         {
           "slot": 6,
-          "averageCorrectRate": 0.787,
-          "timeoutRate": 0.044,
-          "shieldUseRate": 0.031
+          "averageCorrectRate": 0.415,
+          "timeoutRate": 0.113,
+          "shieldUseRate": 0.024
         },
         {
           "slot": 7,
-          "averageCorrectRate": 0.546,
-          "timeoutRate": 0.069,
-          "shieldUseRate": 0.07
+          "averageCorrectRate": 0.319,
+          "timeoutRate": 0.126,
+          "shieldUseRate": 0.002
         },
         {
           "slot": 8,
-          "averageCorrectRate": 0.535,
-          "timeoutRate": 0.093,
-          "shieldUseRate": 0.096
+          "averageCorrectRate": 0.269,
+          "timeoutRate": 0.161,
+          "shieldUseRate": 0
         },
         {
           "slot": 9,
-          "averageCorrectRate": 0.55,
-          "timeoutRate": 0.096,
-          "shieldUseRate": 0.067
+          "averageCorrectRate": 0.23,
+          "timeoutRate": 0.141,
+          "shieldUseRate": 0
         }
       ],
-      "coreSubdomainShare": 0.758,
+      "coreSubdomainShare": 0.781,
       "playerGatePass": true,
       "playerGateFailures": [],
       "playerAgentSummaries": [
@@ -339,10 +343,10 @@
           "displayName": "Commuter Max",
           "archetype": "casual",
           "sampleDays": 28,
-          "averageCorrect": 5.61,
-          "averageScore": 716,
-          "shieldUseRate": 0.07,
-          "timeoutRate": 0.08,
+          "averageCorrect": 3.96,
+          "averageScore": 488.2,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.12,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "movies",
@@ -356,43 +360,47 @@
           "displayName": "Streak Jules",
           "archetype": "streak-hunter",
           "sampleDays": 28,
-          "averageCorrect": 6.68,
-          "averageScore": 859.4,
+          "averageCorrect": 4.61,
+          "averageScore": 574.1,
           "shieldUseRate": 0,
-          "timeoutRate": 0.06,
+          "timeoutRate": 0.14,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed"
           ],
-          "frictionFlags": []
+          "frictionFlags": [
+            "timer-friction"
+          ]
         },
         {
           "agentId": "culture-maya",
           "displayName": "Culture Maya",
           "archetype": "culture-first",
           "sampleDays": 28,
-          "averageCorrect": 5.75,
-          "averageScore": 726.6,
+          "averageCorrect": 3.64,
+          "averageScore": 447,
           "shieldUseRate": 0,
-          "timeoutRate": 0.06,
+          "timeoutRate": 0.11,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "movies",
             "music",
             "arts"
           ],
-          "frictionFlags": []
+          "frictionFlags": [
+            "difficulty-spike"
+          ]
         },
         {
           "agentId": "sports-ryan",
           "displayName": "Sports Ryan",
           "archetype": "sports-core",
           "sampleDays": 28,
-          "averageCorrect": 7.61,
-          "averageScore": 1025.7,
-          "shieldUseRate": 0.54,
-          "timeoutRate": 0.04,
-          "cleanRunRate": 0.11,
+          "averageCorrect": 6.68,
+          "averageScore": 858.8,
+          "shieldUseRate": 0.04,
+          "timeoutRate": 0.06,
+          "cleanRunRate": 0.04,
           "standoutStrengths": [
             "native fit for this feed",
             "football",
@@ -405,11 +413,11 @@
           "displayName": "Analyst Eli",
           "archetype": "analytical",
           "sampleDays": 28,
-          "averageCorrect": 7,
-          "averageScore": 929.6,
-          "shieldUseRate": 0.39,
-          "timeoutRate": 0.07,
-          "cleanRunRate": 0.07,
+          "averageCorrect": 4.79,
+          "averageScore": 607.5,
+          "shieldUseRate": 0.11,
+          "timeoutRate": 0.1,
+          "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",
             "technology",
@@ -422,10 +430,10 @@
           "displayName": "Broad Ava",
           "archetype": "broad-fan",
           "sampleDays": 28,
-          "averageCorrect": 6.86,
-          "averageScore": 913.6,
-          "shieldUseRate": 0.54,
-          "timeoutRate": 0.02,
+          "averageCorrect": 4.96,
+          "averageScore": 627.9,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.08,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",

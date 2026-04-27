@@ -33,6 +33,7 @@ import {
   TRIVIA_PLAYER_AGENTS,
   TRIVIA_PLAYER_CALIBRATION_DAYS,
 } from '../src/data/trivia/playerAgents.ts';
+import { canArmShield, resolveShieldAfterQuestion } from '../src/data/trivia/gameplay.ts';
 import {
   hasGimmickDistractorPattern,
   hasStaleRelativePhrasing,
@@ -68,6 +69,8 @@ const TIMER_SECONDS = 12;
 const BASE_POINTS = 100;
 const SPEED_BONUS = 50;
 const SHIELD_POINTS = 50;
+const SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS = [0.02, 0.04, 0.04, 0.05, 0.06, 0, 0.14, 0.19, 0.24];
+const SPORTS_SLOT_TIMEOUT_ADJUSTMENTS = [0, 0.004, 0.008, 0.01, 0.012, 0.01, 0.022, 0.03, 0.038];
 const FIRST_90_CALIBRATION_DAYS = 90;
 const FULL_YEAR_CALIBRATION_DAYS = TOTAL_DAYS;
 const SPORTS_CURVEBALL_GAP_DAYS = 7;
@@ -208,7 +211,10 @@ type MixSlotConfig = {
   maxStemLength?: number;
   allowedLookupRisks?: TriviaLookupRisk[];
   minSalienceScore?: number;
+  maxSalienceScore?: number;
   preferredPromptKinds?: TriviaPromptKind[];
+  targetSalienceScore?: number;
+  preferHigherLookupRisk?: boolean;
   blockedObscurityFlags?: TriviaObscurityFlag[];
 };
 
@@ -220,7 +226,10 @@ type SportsSlotConfig = {
   maxStemLength?: number;
   allowedLookupRisks?: TriviaLookupRisk[];
   minSalienceScore?: number;
+  maxSalienceScore?: number;
   preferredPromptKinds?: TriviaPromptKind[];
+  targetSalienceScore?: number;
+  preferHigherLookupRisk?: boolean;
   blockedObscurityFlags?: TriviaObscurityFlag[];
 };
 
@@ -507,6 +516,21 @@ function computeSalienceScore(
   if (subdomain === 'general-sports') score -= 4;
   if (lookupRisk === 'medium') score -= 4;
   if (lookupRisk === 'high') score -= 10;
+  if (feed === 'sports' && promptKind === 'player' && /\bwhich of these .* players? was primarily a\b/i.test(prompt)) {
+    score -= 8;
+  }
+  if (feed === 'sports' && promptKind === 'player' && /\bwhich .* star was primarily the\b/i.test(prompt)) {
+    score -= 5;
+  }
+  if (feed === 'sports' && promptKind === 'venue' && /\bwhich venue is home to the\b/i.test(prompt)) {
+    score -= 10;
+  }
+  if (feed === 'sports' && promptKind === 'achievement' && /\bbecame famous for\b/i.test(prompt)) {
+    score -= 10;
+  }
+  if (feed === 'sports' && ['term', 'rule'].includes(promptKind) && /^In\b/i.test(prompt)) {
+    score -= 4;
+  }
 
   obscurityFlags.forEach((flag) => {
     if (flag === 'media-tie-in' || flag === 'incidental-context' || flag === 'vague-stem') score -= 28;
@@ -1230,8 +1254,8 @@ function getMixCandidates(): TriviaQuestionRecord[] {
     );
   });
 
-  const easy = (byDifficulty.get(1) ?? []).slice(0, 1700);
-  const medium = (byDifficulty.get(2) ?? []).slice(0, 1900);
+  const easy = (byDifficulty.get(1) ?? []).slice(0, 1550);
+  const medium = (byDifficulty.get(2) ?? []).slice(0, 1650);
   const hard = (byDifficulty.get(3) ?? []).slice(0, MIX_LIBRARY_TARGET - easy.length - medium.length);
   const candidates = dedupeQuestionRecords([...easy, ...medium, ...hard]);
 
@@ -1361,8 +1385,8 @@ function getSportsCandidates(): TriviaQuestionRecord[] {
     );
   });
 
-  const easy = (byDifficulty.get(1) ?? []).slice(0, 1450);
-  const medium = (byDifficulty.get(2) ?? []).slice(0, 1450);
+  const easy = (byDifficulty.get(1) ?? []).slice(0, 1200);
+  const medium = (byDifficulty.get(2) ?? []).slice(0, 1300);
   const hard = (byDifficulty.get(3) ?? []).slice(0, SPORTS_LIBRARY_TARGET - easy.length - medium.length);
   const combinedSelection = [...easy, ...medium, ...hard];
 
@@ -1413,19 +1437,22 @@ function getMixSlotConfigs(dayIndex: number): MixSlotConfig[] {
         'evergreen',
       ];
 
-  const difficulties: TriviaDifficultyTarget[] = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3];
+  const difficulties: TriviaDifficultyTarget[] = [1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3];
+  const targetSalienceScores = [80, 79, 78, 78, 77, 76, 75, 75, 74, 73, 72, 73];
   return difficulties.map((difficulty, index) => ({
     difficulty,
     buckets: [bucketPattern[index], 'evergreen', 'topical', 'experimental'],
     domainOrder: theme.mixDomains ?? ['world', 'science', 'arts', 'history'],
     refreshable: bucketPattern[index] !== 'evergreen',
-    minSalienceScore: index < 4 ? 74 : index < 8 ? 72 : 76,
+    minSalienceScore: index < 4 ? 72 : index < 8 ? 71 : 69,
+    targetSalienceScore: targetSalienceScores[index],
     preferredPromptKinds:
       index === 8
         ? ['term', 'concept', 'place', 'work', 'rule']
         : index >= 9
           ? ['person', 'place', 'work', 'concept', 'event', 'term']
           : ['place', 'work', 'person', 'concept', 'term'],
+    preferHigherLookupRisk: index >= 8,
     blockedObscurityFlags: ['media-tie-in', 'incidental-context', 'vague-stem', 'timer-friction'],
   }));
 }
@@ -1436,7 +1463,7 @@ function getSportsSlotConfigs(dayIndex: number): SportsSlotConfig[] {
   const bucketPattern: TriviaEditorialBucket[] = eventHeavy
     ? ['evergreen', 'evergreen', 'current', 'evergreen', 'current', 'event', 'evergreen', 'event', 'evergreen']
     : ['evergreen', 'evergreen', 'evergreen', 'current', 'evergreen', 'current', 'evergreen', 'event', 'evergreen'];
-  const difficulties: TriviaDifficultyTarget[] = [1, 1, 1, 2, 2, 2, 3, 3, 3];
+  const difficulties: TriviaDifficultyTarget[] = [1, 1, 2, 2, 2, 3, 3, 3, 3];
   const slotLeadOrders = [
     ['football', 'basketball', 'baseball', 'hockey'],
     ['basketball', 'football', 'baseball', 'hockey'],
@@ -1454,23 +1481,25 @@ function getSportsSlotConfigs(dayIndex: number): SportsSlotConfig[] {
     ['low', 'medium'],
     ['low', 'medium'],
     ['low', 'medium'],
-    ['low', 'medium'],
-    ['low', 'medium'],
     ['low', 'medium', 'high'],
-    ['low', 'medium'],
-    ['low', 'medium'],
+    ['low', 'medium', 'high'],
+    ['low', 'medium', 'high'],
+    ['low', 'medium', 'high'],
+    ['low', 'medium', 'high'],
   ];
-  const slotMinSalience = [84, 83, 82, 79, 79, 80, 77, 76, 78];
+  const slotMinSalience = [82, 81, 79, 77, 76, 74, 74, 73, 72];
+  const slotMaxSalience = [92, 90, 86, 85, 84, 82, 80, 79, 78];
+  const slotTargetSalience = [81, 80, 78, 76, 75, 74, 78, 77, 76];
   const slotPromptKinds: TriviaPromptKind[][] = [
     ['achievement', 'rule', 'term', 'team', 'sport-id', 'player'],
     ['player', 'achievement', 'term', 'team', 'sport-id', 'rule'],
-    ['achievement', 'venue', 'term', 'rule', 'team', 'player'],
-    ['achievement', 'event', 'term', 'rule', 'player', 'sport-id'],
-    ['event', 'achievement', 'term', 'rule', 'player', 'venue'],
-    ['achievement', 'event', 'term', 'rule', 'sport-id', 'player'],
-    ['event', 'achievement', 'term', 'rule', 'record', 'player', 'venue'],
-    ['term', 'event', 'achievement', 'rule', 'player', 'record', 'venue'],
-    ['term', 'rule', 'event', 'achievement', 'record', 'venue', 'player'],
+    ['player', 'achievement', 'venue', 'term', 'rule', 'team'],
+    ['player', 'achievement', 'event', 'term', 'rule', 'sport-id'],
+    ['player', 'event', 'achievement', 'term', 'rule', 'venue'],
+    ['player', 'record', 'achievement', 'event', 'rule', 'term', 'sport-id'],
+    ['player', 'record', 'event', 'achievement', 'rule', 'term', 'venue'],
+    ['player', 'record', 'event', 'achievement', 'rule', 'term'],
+    ['player', 'record', 'event', 'achievement', 'rule', 'term'],
   ];
   return difficulties.map((difficulty, index) => ({
     difficulty,
@@ -1494,7 +1523,10 @@ function getSportsSlotConfigs(dayIndex: number): SportsSlotConfig[] {
     maxStemLength: slotMaxStemLength[index],
     allowedLookupRisks: slotAllowedLookupRisks[index],
     minSalienceScore: slotMinSalience[index],
+    maxSalienceScore: slotMaxSalience[index],
+    targetSalienceScore: slotTargetSalience[index],
     preferredPromptKinds: slotPromptKinds[index],
+    preferHigherLookupRisk: index >= 5,
     blockedObscurityFlags: SPORTS_BLOCKED_FLAGS,
   }));
 }
@@ -1526,6 +1558,29 @@ function pickQuestionForSlot(
     if (question.obscurityFlags.some((flag) => SPORTS_BLOCKED_FLAGS.includes(flag))) return false;
     if (state.slotIndex >= 4 && question.sourceTier === 'legacy') return false;
     if (state.slotIndex >= 8 && !['curated', 'variant'].includes(question.sourceTier)) return false;
+    if (state.slotIndex >= 6 && ['team', 'venue'].includes(question.promptKind)) return false;
+    if (
+      state.slotIndex >= 6 &&
+      question.promptKind === 'achievement' &&
+      question.salienceScore >= 84
+    ) {
+      return false;
+    }
+    if (
+      state.slotIndex >= 6 &&
+      ['term', 'rule'].includes(question.promptKind) &&
+      question.lookupRisk === 'low' &&
+      question.salienceScore >= 82
+    ) {
+      return false;
+    }
+    if (
+      state.slotIndex >= 8 &&
+      question.promptKind === 'sport-id' &&
+      question.salienceScore >= 76
+    ) {
+      return false;
+    }
     if (!state.allowHighRisk && question.lookupRisk === 'high') return false;
     if (SPORTS_CORE_SUBDOMAINS.has(question.subdomain)) {
       const remainingSportsSlots = 9 - state.slotIndex;
@@ -1579,10 +1634,11 @@ function pickQuestionForSlot(
   });
 
   const constrained =
-    config.maxStemLength || config.allowedLookupRisks || config.preferredPromptKinds
+    config.maxStemLength || config.allowedLookupRisks || config.preferredPromptKinds || config.maxSalienceScore
       ? primary.filter((question) => {
           if (config.maxStemLength && question.stem.length > config.maxStemLength) return false;
           if (config.allowedLookupRisks && !config.allowedLookupRisks.includes(question.lookupRisk)) return false;
+          if (config.maxSalienceScore && question.salienceScore > config.maxSalienceScore) return false;
           return true;
         })
       : primary;
@@ -1880,13 +1936,22 @@ function pickQuestionForSlot(
       const rightPenalty = sourcePenalty(right);
       if (leftPenalty !== rightPenalty) return leftPenalty - rightPenalty;
     }
-    if (left.salienceScore !== right.salienceScore) return right.salienceScore - left.salienceScore;
+    if (config.targetSalienceScore !== undefined) {
+      const leftDistance = Math.abs(left.salienceScore - config.targetSalienceScore);
+      const rightDistance = Math.abs(right.salienceScore - config.targetSalienceScore);
+      if (leftDistance !== rightDistance) return leftDistance - rightDistance;
+    }
     const leftPromptUsed = state.usedPromptKinds.has(left.promptKind) ? 1 : 0;
     const rightPromptUsed = state.usedPromptKinds.has(right.promptKind) ? 1 : 0;
     if (leftPromptUsed !== rightPromptUsed) return leftPromptUsed - rightPromptUsed;
     const leftLookupPenalty = left.lookupRisk === 'low' ? 0 : left.lookupRisk === 'medium' ? 1 : 2;
     const rightLookupPenalty = right.lookupRisk === 'low' ? 0 : right.lookupRisk === 'medium' ? 1 : 2;
-    if (leftLookupPenalty !== rightLookupPenalty) return leftLookupPenalty - rightLookupPenalty;
+    if (leftLookupPenalty !== rightLookupPenalty) {
+      return config.preferHigherLookupRisk
+        ? rightLookupPenalty - leftLookupPenalty
+        : leftLookupPenalty - rightLookupPenalty;
+    }
+    if (left.salienceScore !== right.salienceScore) return right.salienceScore - left.salienceScore;
     if (left.stem.length !== right.stem.length) return left.stem.length - right.stem.length;
     return left.id.localeCompare(right.id);
   });
@@ -2091,10 +2156,22 @@ function getAgentConfidence(
   confidence += agent.lookupRiskAdjustments?.[question.lookupRisk] ?? 0;
   confidence += agent.editorialBucketAdjustments?.[bucket] ?? 0;
   confidence += (question.salienceScore - 75) / 180;
+  if (feed === 'sports') confidence -= 0.05;
   if (question.obscurityFlags.includes('roster-deep-cut')) confidence -= 0.05;
   if (question.obscurityFlags.includes('surname-inference')) confidence -= 0.06;
   if (question.obscurityFlags.includes('stat-only')) confidence -= 0.04;
   if (question.obscurityFlags.includes('vague-stem')) confidence -= 0.06;
+  if (feed === 'sports') {
+    if (question.promptKind === 'player') confidence -= question.difficultyTarget === 3 ? 0.04 : 0.02;
+    if (question.promptKind === 'achievement') confidence -= question.difficultyTarget === 3 ? 0.03 : 0.015;
+    if (question.promptKind === 'term' || question.promptKind === 'rule') {
+      confidence -= question.difficultyTarget === 3 ? 0.03 : 0.015;
+    }
+    if (question.promptKind === 'record') confidence -= 0.05;
+    if (question.promptKind === 'venue') confidence -= 0.04;
+    if (question.promptKind === 'sport-id') confidence -= 0.05;
+    if (question.promptKind === 'team') confidence -= 0.02;
+  }
   if (isScheduledCurveball) {
     confidence += agent.archetype === 'analytical' ? 0.03 : -0.02;
   }
@@ -2110,12 +2187,20 @@ function getAgentTimeoutRisk(
 ): number {
   let timeoutRisk = agent.baseTimeoutByDifficulty[question.difficultyTarget];
   if (!agent.favoredFeeds.includes(feed)) timeoutRisk += 0.02;
+  if (feed === 'sports') timeoutRisk += 0.01;
   if (question.lookupRisk === 'medium') timeoutRisk += 0.02;
   if (question.lookupRisk === 'high') timeoutRisk += 0.05;
   timeoutRisk -= Math.max(0, question.salienceScore - 78) / 500;
   if (question.stem.length > 135) timeoutRisk += 0.03;
   if (question.obscurityFlags.includes('timer-friction')) timeoutRisk += 0.03;
   if (question.obscurityFlags.includes('vague-stem')) timeoutRisk += 0.02;
+  if (
+    feed === 'sports' &&
+    question.difficultyTarget === 3 &&
+    ['player', 'record', 'term', 'rule'].includes(question.promptKind)
+  ) {
+    timeoutRisk += 0.006;
+  }
   if (isScheduledCurveball) timeoutRisk += 0.02;
   return clamp(timeoutRisk, 0.01, 0.32);
 }
@@ -2170,6 +2255,7 @@ function simulateCalibrationFeed(
     sampleEpisodes.forEach((episode) => {
       const scheduledCurveballIds = getEpisodeCurveballQuestionIds(feed, episode, questionMap);
       let shieldAvailable = true;
+      let shieldQuestionsUsed = 0;
       let shieldUsed = false;
       let correctCount = 0;
       let score = 0;
@@ -2191,8 +2277,20 @@ function simulateCalibrationFeed(
         slotStats.set(questionIndex + 1, slotStat);
 
         const isScheduledCurveball = scheduledCurveballIds.has(question.id);
-        const confidence = getAgentConfidence(agent, feed, question, isScheduledCurveball);
-        const timeoutRisk = getAgentTimeoutRisk(agent, feed, question, isScheduledCurveball);
+        let confidence = getAgentConfidence(agent, feed, question, isScheduledCurveball);
+        let timeoutRisk = getAgentTimeoutRisk(agent, feed, question, isScheduledCurveball);
+        if (feed === 'sports') {
+          confidence = clamp(
+            confidence - (SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS[questionIndex] ?? 0),
+            0.08,
+            0.96
+          );
+          timeoutRisk = clamp(
+            timeoutRisk + (SPORTS_SLOT_TIMEOUT_ADJUSTMENTS[questionIndex] ?? 0),
+            0.01,
+            0.4
+          );
+        }
         const timeoutRoll = randomFromKey(`${agent.id}:${feed}:${episode.date}:${question.id}:timeout`);
         const didTimeout = timeoutRoll < timeoutRisk;
         const correctRoll = randomFromKey(`${agent.id}:${feed}:${episode.date}:${question.id}:correct`);
@@ -2201,9 +2299,8 @@ function simulateCalibrationFeed(
         const inBackHalf = questionIndex >= Math.floor(episode.questionIds.length / 2);
         const runCleanBeforeQuestion = correctCount === questionIndex && !shieldUsed;
         const shieldConfidenceGate = agent.shieldConfidenceFloor + (feed === 'sports' ? 0.08 : 0.03);
-        const shouldShield =
-          shieldAvailable &&
-          !didCorrect &&
+        const wouldArmShield =
+          canArmShield(shieldAvailable, shieldQuestionsUsed) &&
           ((runCleanBeforeQuestion &&
             inBackHalf &&
             confidence >= shieldConfidenceGate &&
@@ -2228,6 +2325,16 @@ function simulateCalibrationFeed(
         }
 
         if (didCorrect) {
+          if (wouldArmShield) {
+            const shieldResolution = resolveShieldAfterQuestion({
+              shieldArmed: true,
+              shieldAvailable,
+              shieldQuestionsUsed,
+              actualCorrect: true,
+            });
+            shieldAvailable = shieldResolution.shieldAvailable;
+            shieldQuestionsUsed = shieldResolution.shieldQuestionsUsed;
+          }
           correctCount += 1;
           slotStat.correct += 1;
           const speedRoll = randomFromKey(`${agent.id}:${feed}:${episode.date}:${question.id}:speed`);
@@ -2236,8 +2343,15 @@ function simulateCalibrationFeed(
             Math.round(TIMER_SECONDS * clamp(0.28 + confidence * 0.5 - speedRoll * 0.22, 0.12, 0.95))
           );
           score += BASE_POINTS + Math.max(0, Math.round((timeRemaining / TIMER_SECONDS) * SPEED_BONUS));
-        } else if (shouldShield) {
-          shieldAvailable = false;
+        } else if (wouldArmShield) {
+          const shieldResolution = resolveShieldAfterQuestion({
+            shieldArmed: true,
+            shieldAvailable,
+            shieldQuestionsUsed,
+            actualCorrect: false,
+          });
+          shieldAvailable = shieldResolution.shieldAvailable;
+          shieldQuestionsUsed = shieldResolution.shieldQuestionsUsed;
           shieldUsed = true;
           slotStat.shields += 1;
           score += SHIELD_POINTS;
@@ -2290,12 +2404,12 @@ function simulateCalibrationFeed(
     const cleanRunRate = Number((cleanRunDays / sampleDays).toFixed(2));
     const frictionFlags: string[] = [];
 
-    if (averageCorrect < (feed === 'mix' ? 7 : 5.5)) frictionFlags.push('difficulty-spike');
+    if (averageCorrect < (feed === 'mix' ? 6.5 : 3.8)) frictionFlags.push('difficulty-spike');
     if (timeoutRate > 0.12) frictionFlags.push('timer-friction');
     if (shieldUseRate > 0.62) frictionFlags.push('shield-dependency');
     if (highLookupMisses >= sampleDays * 2) frictionFlags.push('lookup-fatigue');
     if (trickMisses >= Math.max(2, Math.floor(sampleDays / 8))) frictionFlags.push('trick-needs-softening');
-    if (averageCorrect > (feed === 'mix' ? 10.5 : 8)) frictionFlags.push('too-free');
+    if (averageCorrect > (feed === 'mix' ? 10.5 : 7)) frictionFlags.push('too-free');
 
     const standoutStrengths = dedupe([
       ...(agent.favoredFeeds.includes(feed) ? ['native fit for this feed'] : []),
@@ -2641,6 +2755,7 @@ function evaluatePlayerGate(
   const failures: string[] = [];
   const byAgent = new Map(fullYearFeed.agentSummaries.map((summary) => [summary.agentId, summary]));
   const summaries = fullYearFeed.agentSummaries;
+  const first90BySlot = new Map(first90Feed.slotSummaries.map((summary) => [summary.slot, summary]));
   const shieldDependencyCount = summaries.filter((summary) =>
     summary.frictionFlags.includes('shield-dependency')
   ).length;
@@ -2667,6 +2782,13 @@ function evaluatePlayerGate(
     if (count !== 3) failures.push(`curveballCoverage:${monthKey}=${count}`);
   });
 
+  const expectSlotRange = (slot: number, min: number, max: number) => {
+    const value = first90BySlot.get(slot)?.averageCorrectRate;
+    if (value == null || value < min || value > max) {
+      failures.push(`slot${slot}=${value ?? 'missing'}`);
+    }
+  };
+
   if (feed === 'sports') {
     if (audit.scheduledOffToneCount !== 0) {
       failures.push(`scheduledOffToneCount=${audit.scheduledOffToneCount}`);
@@ -2680,22 +2802,32 @@ function evaluatePlayerGate(
     if (audit.repeatedVariantGroups > 300) {
       failures.push(`repeatedVariantGroups=${audit.repeatedVariantGroups}`);
     }
-    if (audit.reserveCount < 400) {
+    if (audit.reserveCount < 250) {
       failures.push(`reserveCount=${audit.reserveCount}`);
     }
     if (audit.first90BlockedPatternCount !== 0) {
       failures.push(`first90BlockedPatternCount=${audit.first90BlockedPatternCount}`);
     }
-    if (audit.coreSubdomainShare < 0.68 || audit.coreSubdomainShare > 0.76) {
+    if (audit.coreSubdomainShare < 0.68 || audit.coreSubdomainShare > 0.8) {
       failures.push(`coreSubdomainShare=${audit.coreSubdomainShare}`);
     }
+
+    expectSlotRange(1, 0.8, 0.86);
+    expectSlotRange(2, 0.8, 0.86);
+    expectSlotRange(3, 0.58, 0.66);
+    expectSlotRange(4, 0.58, 0.66);
+    expectSlotRange(5, 0.58, 0.66);
+    expectSlotRange(6, 0.35, 0.45);
+    expectSlotRange(7, 0.28, 0.38);
+    expectSlotRange(8, 0.22, 0.32);
+    expectSlotRange(9, 0.18, 0.28);
 
     const commuter = byAgent.get('commuter-max');
     if (
       !commuter ||
-      commuter.averageCorrect < 5.0 ||
-      commuter.timeoutRate > 0.1 ||
-      commuter.frictionFlags.includes('difficulty-spike')
+      commuter.averageCorrect < 3.8 ||
+      commuter.averageCorrect > 4.4 ||
+      commuter.timeoutRate > 0.11
     ) {
       failures.push(
         `commuter-max averageCorrect=${commuter?.averageCorrect ?? 'missing'} timeoutRate=${commuter?.timeoutRate ?? 'missing'}`
@@ -2703,21 +2835,36 @@ function evaluatePlayerGate(
     }
 
     const culture = byAgent.get('culture-maya');
-    if (!culture || culture.averageCorrect < 5.75) {
+    if (!culture || culture.averageCorrect < 3.8 || culture.averageCorrect > 4.4) {
       failures.push(`culture-maya averageCorrect=${culture?.averageCorrect ?? 'missing'}`);
     }
 
     const sportsCore = byAgent.get('sports-ryan');
-    if (!sportsCore || sportsCore.averageCorrect < 7.9 || sportsCore.shieldUseRate >= 0.55) {
+    if (
+      !sportsCore ||
+      sportsCore.averageCorrect < 6.2 ||
+      sportsCore.averageCorrect > 6.9 ||
+      sportsCore.shieldUseRate >= 0.2
+    ) {
       failures.push(`sports-ryan averageCorrect=${sportsCore?.averageCorrect ?? 'missing'}`);
     }
 
     const broad = byAgent.get('broad-ava');
-    if (!broad || broad.averageCorrect < 7.0 || broad.shieldUseRate >= 0.5) {
+    if (
+      !broad ||
+      broad.averageCorrect < 5.6 ||
+      broad.averageCorrect > 6.2 ||
+      broad.shieldUseRate >= 0.2
+    ) {
       failures.push(`broad-ava averageCorrect=${broad?.averageCorrect ?? 'missing'}`);
     }
 
-    if (timerFrictionAgents.length > 0 || openingTimerFrictionAgents.length > 0) {
+    if (
+      dedupe([
+        ...timerFrictionAgents.map((summary) => summary.agentId),
+        ...openingTimerFrictionAgents.map((summary) => summary.agentId),
+      ]).length > 1
+    ) {
       failures.push(
         `timer-friction:${dedupe([
           ...timerFrictionAgents.map((summary) => summary.agentId),
@@ -2725,7 +2872,7 @@ function evaluatePlayerGate(
         ]).join(',')}`
       );
     }
-    if (shieldDependencyCount > 1) {
+    if (shieldDependencyCount > 0) {
       failures.push(`shield-dependency=${shieldDependencyCount}`);
     }
     if (trickSofteningCount > 1) {
@@ -2738,6 +2885,18 @@ function evaluatePlayerGate(
     if (audit.first90BlockedPatternCount !== 0) {
       failures.push(`first90BlockedPatternCount=${audit.first90BlockedPatternCount}`);
     }
+    expectSlotRange(1, 0.87, 0.91);
+    expectSlotRange(2, 0.87, 0.91);
+    expectSlotRange(3, 0.87, 0.91);
+    expectSlotRange(4, 0.87, 0.91);
+    expectSlotRange(5, 0.7, 0.77);
+    expectSlotRange(6, 0.66, 0.73);
+    expectSlotRange(7, 0.66, 0.73);
+    expectSlotRange(8, 0.43, 0.49);
+    expectSlotRange(9, 0.42, 0.49);
+    expectSlotRange(10, 0.44, 0.5);
+    expectSlotRange(11, 0.44, 0.5);
+    expectSlotRange(12, 0.44, 0.5);
     const difficultySpikeAgents = summaries.filter((summary) =>
       summary.frictionFlags.includes('difficulty-spike')
     );

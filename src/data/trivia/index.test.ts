@@ -157,25 +157,74 @@ describe('daily trivia episodes', () => {
     });
   });
 
-  it('keeps the current structural quality floor for both feeds', () => {
+  it('keeps the updated structural quality floor for both feeds', () => {
     const audit = getTriviaAuditReport();
+    const mixSlotMap = new Map(audit.feeds.mix.agentFrictionBySlot.map((slot) => [slot.slot, slot]));
+    const sportsSlotMap = new Map(audit.feeds.sports.agentFrictionBySlot.map((slot) => [slot.slot, slot]));
+    const mixAgents = new Map(audit.feeds.mix.playerAgentSummaries.map((summary) => [summary.agentId, summary]));
+    const sportsAgents = new Map(
+      audit.feeds.sports.playerAgentSummaries.map((summary) => [summary.agentId, summary])
+    );
 
     expect(audit.feeds.mix.playerGatePass).toBe(true);
     expect(audit.feeds.mix.playerGateFailures).toEqual([]);
+    expect(audit.feeds.mix.scheduledOffToneCount).toBe(0);
+    expect(mixSlotMap.get(1)?.averageCorrectRate ?? 0).toBeGreaterThanOrEqual(0.87);
+    expect(mixSlotMap.get(1)?.averageCorrectRate ?? 1).toBeLessThanOrEqual(0.91);
+    expect(mixSlotMap.get(8)?.averageCorrectRate ?? 0).toBeGreaterThanOrEqual(0.43);
+    expect(mixSlotMap.get(8)?.averageCorrectRate ?? 1).toBeLessThanOrEqual(0.49);
+    expect(mixSlotMap.get(12)?.averageCorrectRate ?? 0).toBeGreaterThanOrEqual(0.44);
+    expect(mixSlotMap.get(12)?.averageCorrectRate ?? 1).toBeLessThanOrEqual(0.5);
+    expect(mixAgents.get('commuter-max')?.averageCorrect ?? 0).toBeGreaterThanOrEqual(6.5);
+    expect(mixAgents.get('broad-ava')?.averageCorrect ?? 0).toBeGreaterThanOrEqual(8.3);
 
     expect(audit.feeds.sports.scheduledOffToneCount).toBe(0);
     expect(audit.feeds.sports.lateSlotGeneralSportsCount).toBe(0);
     expect(audit.feeds.sports.curveballSpacingViolations).toBe(0);
-    expect(audit.feeds.sports.repeatedVariantGroups).toBeLessThanOrEqual(650);
-    expect(audit.feeds.sports.reserveCount).toBeGreaterThanOrEqual(160);
-    expect(
-      audit.feeds.sports.playerAgentSummaries.find((summary) => summary.agentId === 'sports-ryan')
-        ?.averageCorrect ?? 0
-    ).toBeGreaterThanOrEqual(7.5);
-    expect(
-      audit.feeds.sports.playerAgentSummaries.find((summary) => summary.agentId === 'broad-ava')
-        ?.averageCorrect ?? 0
-    ).toBeGreaterThanOrEqual(6.75);
+    expect(audit.feeds.sports.playerGatePass).toBe(true);
+    expect(audit.feeds.sports.playerGateFailures).toEqual([]);
+    expect(audit.feeds.sports.repeatedVariantGroups).toBeLessThanOrEqual(300);
+    expect(audit.feeds.sports.reserveCount).toBeGreaterThanOrEqual(250);
+    expect(audit.feeds.sports.coreSubdomainShare).toBeGreaterThanOrEqual(0.68);
+    expect(audit.feeds.sports.coreSubdomainShare).toBeLessThanOrEqual(0.8);
+    expect(sportsSlotMap.get(1)?.averageCorrectRate ?? 0).toBeGreaterThanOrEqual(0.8);
+    expect(sportsSlotMap.get(1)?.averageCorrectRate ?? 1).toBeLessThanOrEqual(0.86);
+    expect(sportsSlotMap.get(3)?.averageCorrectRate ?? 0).toBeGreaterThanOrEqual(0.58);
+    expect(sportsSlotMap.get(3)?.averageCorrectRate ?? 1).toBeLessThanOrEqual(0.66);
+    expect(sportsSlotMap.get(6)?.averageCorrectRate ?? 0).toBeGreaterThanOrEqual(0.35);
+    expect(sportsSlotMap.get(6)?.averageCorrectRate ?? 1).toBeLessThanOrEqual(0.45);
+    expect(sportsSlotMap.get(7)?.averageCorrectRate ?? 0).toBeGreaterThanOrEqual(0.28);
+    expect(sportsSlotMap.get(7)?.averageCorrectRate ?? 1).toBeLessThanOrEqual(0.38);
+    expect(sportsSlotMap.get(8)?.averageCorrectRate ?? 0).toBeGreaterThanOrEqual(0.22);
+    expect(sportsSlotMap.get(8)?.averageCorrectRate ?? 1).toBeLessThanOrEqual(0.32);
+    expect(sportsSlotMap.get(9)?.averageCorrectRate ?? 0).toBeGreaterThanOrEqual(0.18);
+    expect(sportsSlotMap.get(9)?.averageCorrectRate ?? 1).toBeLessThanOrEqual(0.28);
+    expect(sportsAgents.get('commuter-max')?.averageCorrect ?? 0).toBeGreaterThanOrEqual(3.8);
+    expect(sportsAgents.get('commuter-max')?.averageCorrect ?? 1).toBeLessThanOrEqual(4.4);
+    expect(sportsAgents.get('sports-ryan')?.averageCorrect ?? 0).toBeGreaterThanOrEqual(6.2);
+    expect(sportsAgents.get('sports-ryan')?.averageCorrect ?? 1).toBeLessThanOrEqual(6.9);
+    expect(sportsAgents.get('broad-ava')?.averageCorrect ?? 0).toBeGreaterThanOrEqual(4.8);
+    expect(sportsAgents.get('broad-ava')?.averageCorrect ?? 1).toBeLessThanOrEqual(5.2);
+    expect(sportsAgents.get('culture-maya')?.averageCorrect ?? 0).toBeGreaterThanOrEqual(3.5);
+    expect(sportsAgents.get('culture-maya')?.averageCorrect ?? 1).toBeLessThanOrEqual(4.2);
+  });
+
+  it('keeps Sports harder than Mix in the calibrated first-90-day window', () => {
+    const audit = getTriviaAuditReport();
+    const mixAgents = new Map(audit.feeds.mix.playerAgentSummaries.map((summary) => [summary.agentId, summary]));
+    const sportsAgents = new Map(
+      audit.feeds.sports.playerAgentSummaries.map((summary) => [summary.agentId, summary])
+    );
+
+    expect((sportsAgents.get('commuter-max')?.averageCorrect ?? 99)).toBeLessThan(
+      mixAgents.get('commuter-max')?.averageCorrect ?? 0
+    );
+    expect((sportsAgents.get('broad-ava')?.averageCorrect ?? 99)).toBeLessThan(
+      mixAgents.get('broad-ava')?.averageCorrect ?? 0
+    );
+    expect((sportsAgents.get('sports-ryan')?.averageCorrect ?? 99)).toBeLessThan(
+      mixAgents.get('sports-ryan')?.averageCorrect ?? 0
+    );
   });
 
   it('keeps Sports core-heavy rather than soccer- or Olympics-led', () => {
