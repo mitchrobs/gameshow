@@ -19,18 +19,24 @@ import {
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import {
   analyzeBarterPuzzle,
+  BarterMarketTab,
   BarterQualityReport,
   applyTrade,
   BarterPuzzle,
   canAfford as canAffordTrade,
-  getBarterTutorialPuzzle,
+  getDefaultSelectedTradeKey,
+  getMarketTradeEntries,
+  getTradeActionState,
   getTradeFeedback,
+  getTradeOfferLabel,
   GoodId,
   missingForTrade,
-  NightVendorRole,
+  MarketTradeEntry,
   previewTrade,
-  RouteSummary,
+  shouldShowHiddenNightPlaceholder,
+  sortMarketTradeEntries,
   Trade,
+  TradeActionState,
   TradeFeedback,
   tradeKey,
   getDailyBarter,
@@ -38,6 +44,7 @@ import {
   getMarketIdentity as getSharedMarketIdentity,
 } from '../src/data/barterPuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
+import { BarterActionIsland, BarterPhaseTabs } from '../src/ui/barterLayout';
 
 type GameState = 'playing' | 'won' | 'lost';
 type ActiveTradeFeedback = TradeFeedback & { id: string };
@@ -131,92 +138,18 @@ function formatSideList(
     .join(', ');
 }
 
-function inventoryToSideList(
-  inventory: Record<GoodId, number> | null,
-  puzzle: BarterPuzzle
-): Array<{ good: GoodId; qty: number }> {
-  if (!inventory) return [];
-  return puzzle.goods
-    .map((good) => ({ good: good.id, qty: inventory[good.id] ?? 0 }))
-    .filter((side) => side.qty > 0);
-}
-
-function applyTradesThroughDepth(
-  startingInventory: Record<GoodId, number>,
-  trades: Trade[],
-  depth: number
-): Record<GoodId, number> {
-  let next = cloneInventory(startingInventory);
-  trades.slice(0, depth).forEach((trade) => {
-    next = applyTrade(next, trade);
-  });
-  return next;
-}
-
-function getMarketRead(
-  puzzle: BarterPuzzle,
-  qualityReport: BarterQualityReport,
+function formatMissingLine(
+  missing: Array<{ good: GoodId; qty: number }>,
   getDisplayGood: (id: GoodId) => ReturnType<typeof getGoodById>
 ): string {
-  const bottleneck = qualityReport.bottleneckGood
-    ? getDisplayGood(qualityReport.bottleneckGood).name
-    : 'one prepared good';
-  const goal = getDisplayGood(puzzle.goal.good).name;
+  if (missing.length === 0) return '';
+  return `Missing ${missing
+    .map((side) => `${side.qty} ${getDisplayGood(side.good).emoji}`)
+    .join(' + ')}`;
+}
 
-  switch (puzzle.feltThesis) {
-    case 'protect_key_good':
-      return `${bottleneck} has two jobs tonight. Save it until the better use is clear.`;
-    case 'spend_the_heap':
-      return 'You start rich but awkward. Turn the heap into flexible pieces.';
-    case 'carry_the_pair':
-      return 'Carry a matched pair into night. The bundle is the shortcut.';
-    case 'use_the_ugly_trade':
-      return 'The odd trade may be useful because it opens more stalls.';
-    case 'stop_early':
-      return `More ${bottleneck} is not always better. Stop once the bundle has enough.`;
-    case 'night_told_you':
-      return 'The visible Night Market already tells you what to prepare.';
-    case 'hidden_is_mercy':
-      return 'The hidden stall is backup. The clean route is already visible.';
-  }
-
-  switch (puzzle.economicThesis) {
-    case 'save_one_good':
-      return `${bottleneck} has two jobs today. The clean route saves it for the better Night Market use.`;
-    case 'stay_flexible':
-      return `Keep one flexible piece alive for night. The cheap-looking route can become expensive fast.`;
-    case 'enough_not_more':
-      return `Make enough for ${goal}, then stop. Extra production usually turns into cleanup.`;
-    case 'prepare_the_bundle':
-      return `Prepare both halves before night. The bundle is the trade that makes par feel clever.`;
-    case 'round_trip':
-      return `A short round trip can turn spare goods into the missing night piece.`;
-    case 'rebuild_the_catalyst':
-      return `Spend the catalyst only when your route rebuilds it before the payoff.`;
-  }
-
-  switch (qualityReport.topology ?? puzzle.topology) {
-    case 'balanced_pair':
-      return `Keep two prepared goods close together; the clean route turns a balanced pair into ${goal}.`;
-    case 'catalyst_debt':
-      return `${bottleneck} is doing double duty. Spending it early is fine only if your route rebuilds it.`;
-    case 'scarce_bridge':
-      return `${bottleneck} has competing uses. Pick which night payoff it should serve before the day closes.`;
-    case 'tempo_discount':
-      return `The fast line overpays. The slower line is harder to read, but it can buy the night discount.`;
-    case 'night_pivot':
-      return `Most of the night market is visible now. The covered stall is a pivot, not the whole answer.`;
-    case 'delayed_multiplier':
-      return `A quiet day setup can multiply late. Save the piece that looks idle before night opens.`;
-    case 'split_pipeline':
-      return `Two pipelines feed the goal. Balanced leftovers matter more than building one big pile.`;
-    case 'compression_route':
-      return `The bundle route saves a trade only if the day market prepares both halves first.`;
-    case 'overproduction_trap':
-      return `Extra goods can strand you. Make enough for ${goal}, not the biggest possible pile.`;
-    default:
-      return puzzle.thesis ?? 'Read the visible night contracts before spending the day market.';
-  }
+function shortGoodName(name: string): string {
+  return name.trim().split(/\s+/)[0] || name;
 }
 
 function getShareRouteEmojis(
@@ -519,38 +452,6 @@ function getMarketIdentity(marketName: string, marketEmoji: string): MarketIdent
   };
 }
 
-function formatVendorGoods(
-  sides: Trade['give'],
-  getDisplayGood: (id: GoodId) => ReturnType<typeof getGoodById>
-): string {
-  const label = sides
-    .slice(0, 2)
-    .map((side) => getDisplayGood(side.good).name)
-    .join(' & ');
-  return label || 'Market';
-}
-
-function getTradeVendorName(
-  trade: Trade,
-  getDisplayGood: (id: GoodId) => ReturnType<typeof getGoodById>
-): string {
-  const giveLabel = formatVendorGoods(trade.give, getDisplayGood);
-  const receiveLabel = formatVendorGoods(trade.receive, getDisplayGood);
-  const vendorRole: NightVendorRole | undefined = trade.vendorRole;
-
-  if (vendorRole === 'bundle_payoff') return `${receiveLabel} Appraiser`;
-  if (vendorRole === 'reserve_payoff') return `${giveLabel} Buyer`;
-  if (vendorRole === 'bridge_vendor') return `${giveLabel} Broker`;
-  if (vendorRole === 'recycler') return `${giveLabel} Recycler`;
-  if (vendorRole === 'loop_finisher') return `${giveLabel} Finisher`;
-
-  if (trade.role === 'compound_gate') return `${receiveLabel} Appraiser`;
-  if (trade.hiddenUntilNight || trade.role === 'tempo_bailout') return `${giveLabel} Reserve`;
-  if (trade.give.length > 1) return `${giveLabel} Broker`;
-  if (trade.role === 'engine_payoff') return `${giveLabel} Refiner`;
-  return `${giveLabel} Trader`;
-}
-
 function getResultTier(gameState: GameState, tradesUsed: number, puzzle: BarterPuzzle): string {
   if (gameState === 'lost') return 'Bust';
   if (gameState !== 'won') return 'Planning';
@@ -569,7 +470,6 @@ export default function BarterScreen() {
   const previewDate = useMemo(() => getPreviewDate(), []);
   const puzzle = useMemo<BarterPuzzle>(() => getDailyBarter(previewDate), [previewDate]);
   const qualityReport = useMemo(() => analyzeBarterPuzzle(puzzle), [puzzle]);
-  const tutorialPuzzle = useMemo(() => getBarterTutorialPuzzle(), []);
   const displayGoods = useMemo(() => {
     return new Map(puzzle.goods.map((good) => [good.id, good]));
   }, [puzzle.goods]);
@@ -577,24 +477,20 @@ export default function BarterScreen() {
     (id: GoodId) => displayGoods.get(id) ?? getGoodById(id),
     [displayGoods]
   );
-  const tradeLookup = useMemo(() => {
-    return new Map(puzzle.trades.map((trade) => [tradeKey(trade), trade]));
-  }, [puzzle.trades]);
   const { width } = useWindowDimensions();
   const isCompact = width < 400;
   const canGoBack = router.canGoBack();
   const dateKey = useMemo(() => getLocalDateKey(previewDate), [previewDate]);
-  const dateLabel = useMemo(
+  const shortDateLabel = useMemo(
     () =>
       previewDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
+        weekday: 'short',
+        month: 'short',
         day: 'numeric',
       }),
     [previewDate]
   );
   const dailyKey = useMemo(() => `${STORAGE_PREFIX}:daily:${dateKey}`, [dateKey]);
-  const tutorialKey = `${STORAGE_PREFIX}:tutorial:v1`;
 
   const [inventory, setInventory] = useState<Record<GoodId, number>>(
     () => capInventory(cloneInventory(puzzle.inventory))
@@ -609,14 +505,16 @@ export default function BarterScreen() {
   const [dailyCompleted, setDailyCompleted] = useState(false);
   const [lateWindowOpen, setLateWindowOpen] = useState(false);
   const [lateTransition, setLateTransition] = useState(false);
+  const [activeTab, setActiveTab] = useState<BarterMarketTab>('day');
+  const [selectedGood, setSelectedGood] = useState<GoodId | null>(null);
+  const [selectedTradeKey, setSelectedTradeKey] = useState<string | null>(null);
+  const [nightNoticeDismissed, setNightNoticeDismissed] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
   const [tradeHistory, setTradeHistory] = useState<Trade[]>([]);
   const [newlyAffordableKeys, setNewlyAffordableKeys] = useState<Set<string>>(
     () => new Set()
   );
-  const [showTutorial, setShowTutorial] = useState(() => {
-    const storage = getStorage();
-    return storage?.getItem(tutorialKey) !== '1';
-  });
+  const [showTutorial, setShowTutorial] = useState(false);
   const lateTransitionAnim = useRef(new Animated.Value(0)).current;
   const tradeEffectAnim = useRef(new Animated.Value(0)).current;
 
@@ -628,40 +526,23 @@ export default function BarterScreen() {
   const isMarinerMarket = marketName === "Mariner's Market";
   const earlyWindowTrades = puzzle.earlyWindowTrades ?? 4;
   const lateWindowTrigger = earlyWindowTrades;
-  const earlyWindowRemaining = Math.max(0, earlyWindowTrades - tradesUsed);
-  const tradingWindowTitle = lateWindowOpen ? 'Night Market' : 'Day Market';
-  const tradingWindowCounter = lateWindowOpen
-    ? 'Night vendors open'
-    : `${earlyWindowRemaining} trades left`;
-  const marketAlertTone = useMemo(() => {
-    const dark = theme.mode === 'dark';
-    switch (marketEmoji) {
-      case '🌶️':
-        return dark
-          ? { bg: 'rgba(255, 138, 92, 0.18)', border: 'rgba(255, 138, 92, 0.36)', text: '#ffd4bf' }
-          : { bg: '#fff0e8', border: '#f1b48c', text: '#8b3a12' };
-      case '🏺':
-        return dark
-          ? { bg: 'rgba(232, 168, 56, 0.18)', border: 'rgba(232, 168, 56, 0.36)', text: '#ffe0a8' }
-          : { bg: '#fff4e5', border: '#e9c79a', text: '#7a4a1a' };
-      case '⚓️':
-        return dark
-          ? { bg: 'rgba(116, 173, 255, 0.18)', border: 'rgba(116, 173, 255, 0.36)', text: '#c9e2ff' }
-          : { bg: '#e9f3ff', border: '#9dbde6', text: '#2d4f7a' };
-      case '🧵':
-        return dark
-          ? { bg: 'rgba(170, 141, 255, 0.2)', border: 'rgba(170, 141, 255, 0.36)', text: '#dfd0ff' }
-          : { bg: '#f1edff', border: '#c4b6f3', text: '#4a3b84' };
-      case '🫖':
-        return dark
-          ? { bg: 'rgba(215, 194, 167, 0.2)', border: 'rgba(215, 194, 167, 0.36)', text: '#efdbc5' }
-          : { bg: '#f7f0e8', border: '#d7c2a7', text: '#6a4c2a' };
-      default:
-        return dark
-          ? { bg: screenAccent.soft, border: screenAccent.badgeBorder, text: Colors.text }
-          : { bg: '#fff4e5', border: '#f1c38a', text: '#8a4a0b' };
-    }
-  }, [marketEmoji, theme.mode, screenAccent, Colors.text]);
+  const barterUxColors = useMemo(
+    () => ({
+      day: '#FFA41F',
+      night: '#9C88FF',
+      text: theme.mode === 'dark' ? '#F0EDE6' : Colors.text,
+      muted: '#888888',
+      border: theme.mode === 'dark' ? '#1F2024' : Colors.border,
+      surface: theme.mode === 'dark' ? '#111214' : Colors.surfaceElevated,
+      surfaceMuted: theme.mode === 'dark' ? '#1A1A1A' : Colors.surfaceLight,
+      button: theme.mode === 'dark' ? '#263244' : '#1f1b16',
+      buttonPressed: theme.mode === 'dark' ? '#34435a' : '#3a342d',
+      buttonText: '#ffffff',
+      disabledBg: Colors.surfaceLight,
+      disabledText: Colors.textMuted,
+    }),
+    [Colors, theme.mode]
+  );
 
   const tradeWaves = useMemo(() => {
     const wave1 = puzzle.trades.filter((trade) => trade.window !== 'late');
@@ -680,68 +561,54 @@ export default function BarterScreen() {
     [marketEmoji, marketName]
   );
 
-  const visibleTrades = lateWindowOpen ? tradeWaves.wave2 : tradeWaves.wave1;
-  const formatRouteSummary = useCallback(
-    (route: RouteSummary | null): string => {
-      if (!route) return 'No route available';
-      return route.tradeKeys
-        .map((key) => {
-          const trade = tradeLookup.get(key);
-          return trade ? formatTrade(trade, getDisplayGood) : key;
-        })
-        .join('  /  ');
-    },
-    [getDisplayGood, tradeLookup]
+  const marketEntries = useMemo(() => {
+    const entries = getMarketTradeEntries(puzzle, activeTab, lateWindowOpen, selectedGood);
+    return sortMarketTradeEntries(entries, inventory, selectedGood);
+  }, [activeTab, inventory, lateWindowOpen, puzzle, selectedGood]);
+  const selectedEntry = useMemo(
+    () => marketEntries.find((entry) => entry.key === selectedTradeKey) ?? null,
+    [marketEntries, selectedTradeKey]
   );
-
-  const startSummary = useMemo(() => {
-    const entries = puzzle.goods
-      .filter((good) => puzzle.inventory[good.id] > 0)
-      .map(
-        (good) =>
-          `${puzzle.inventory[good.id]} ${good.emoji} ${good.name}`
-      );
-    return entries.join(', ');
-  }, [puzzle.goods, puzzle.inventory]);
+  const selectedActionState: TradeActionState = useMemo(
+    () =>
+      getTradeActionState(selectedEntry, inventory, {
+        gameState,
+        lateTransition,
+        tradesUsed,
+        maxTrades: puzzle.maxTrades,
+      }),
+    [gameState, inventory, lateTransition, puzzle.maxTrades, selectedEntry, tradesUsed]
+  );
+  const showHiddenNightPlaceholder = useMemo(
+    () => shouldShowHiddenNightPlaceholder(puzzle, activeTab, lateWindowOpen),
+    [activeTab, lateWindowOpen, puzzle]
+  );
+  const activeTabTitle = activeTab === 'night' ? 'Night Trades' : "Today's Trades";
+  const activeTabSubtitle =
+    activeTab === 'night'
+      ? lateWindowOpen
+        ? 'Night market'
+        : `Opens after trade ${earlyWindowTrades}`
+      : 'Day market';
+  const nightTabLabel = lateWindowOpen
+    ? 'open'
+    : `${tradeWaves.previewLateTrades.length} visible`;
+  const dayTabLabel = lateWindowOpen
+    ? 'done'
+    : 'active';
   const openingStock = useMemo(() => {
     const entries = puzzle.goods
       .filter((good) => puzzle.inventory[good.id] > 0)
       .map((good) => ({ good: good.id, qty: puzzle.inventory[good.id] }));
     return formatSideList(entries, getDisplayGood);
   }, [getDisplayGood, puzzle.goods, puzzle.inventory]);
-  const marketRead = useMemo(
-    () => getMarketRead(puzzle, qualityReport, getDisplayGood),
-    [getDisplayGood, puzzle, qualityReport]
-  );
-  const nightRead = useMemo(() => {
-    const visibleNightCount = tradeWaves.previewLateTrades.length;
-    const hiddenCount = tradeWaves.hiddenTrade ? 1 : 0;
-    return `${visibleNightCount} night contracts are readable now${
-      hiddenCount ? '; one stall joins when night opens.' : '.'
-    }`;
-  }, [tradeWaves.hiddenTrade, tradeWaves.previewLateTrades.length]);
-  const routeRead = useMemo(() => {
-    const firstTrade = tradeHistory[0];
-    if (!firstTrade) return 'Reading the stalls';
-    const usedHiddenVendor =
-      qualityReport.hiddenVendorKey !== null &&
-      tradeHistory.some((trade) => tradeKey(trade) === qualityReport.hiddenVendorKey);
-    if (usedHiddenVendor) return 'Night pivot recovery';
-    const regret = qualityReport.openingRegrets.find(
-      (entry) => entry.tradeKey === tradeKey(firstTrade)
-    );
-    if (!regret || regret.regret === null) return 'Uncharted route';
-    if (regret.regret === 0) return 'Par opening';
-    if (regret.regret === 1) return '+1 recovery';
-    return `+${regret.regret} recovery`;
-  }, [qualityReport.hiddenVendorKey, qualityReport.openingRegrets, tradeHistory]);
 
   const shareText = useMemo(() => {
     const scoreCode =
       gameState === 'won' ? `${tradesUsed}/${puzzle.par}` : `X/${puzzle.maxTrades}`;
     const resultLine =
       gameState === 'won'
-        ? `${resultTier} route`
+        ? resultTier
         : gameState === 'lost'
         ? 'Bust'
         : 'Planning';
@@ -749,7 +616,7 @@ export default function BarterScreen() {
     return [
       `Barter ${dateKey} ${scoreCode}`,
       `${resultLine} · ${marketName} ${marketEmoji}`,
-      `Route: ${routeEmojis} · ${formatTime(elapsedSeconds)}`,
+      `${routeEmojis} · ${formatTime(elapsedSeconds)}`,
       'https://mitchrobs.github.io/gameshow/barter',
     ].join('\n');
   }, [
@@ -765,41 +632,6 @@ export default function BarterScreen() {
     resultTier,
     tradeHistory,
     tradesUsed,
-  ]);
-
-  const openingRegretNote = useMemo(() => {
-    const firstTrade = tradeHistory[0];
-    if (!firstTrade) return 'No opening trade recorded.';
-    const firstKey = tradeKey(firstTrade);
-    const regret = qualityReport.openingRegrets.find((entry) => entry.tradeKey === firstKey);
-    if (!regret || regret.regret === null) return 'Your first trade did not reach a solving line.';
-    if (regret.regret === 0) return 'Your first trade stayed on a par route.';
-    if (regret.regret === 1) return 'Your first trade found a +1 recovery route.';
-    return `Your first trade found a +${regret.regret} recovery route.`;
-  }, [qualityReport.openingRegrets, tradeHistory]);
-
-  const dayCloseComparison = useMemo(() => {
-    const playerClose =
-      tradeHistory.length > 0
-        ? applyTradesThroughDepth(puzzle.inventory, tradeHistory, earlyWindowTrades)
-        : null;
-    const parClose = qualityReport.bestDayCloseInventory;
-    return {
-      player:
-        playerClose === null
-          ? 'No day close recorded'
-          : formatSideList(inventoryToSideList(playerClose, puzzle), getDisplayGood),
-      par:
-        parClose === null
-          ? 'No par close available'
-          : formatSideList(inventoryToSideList(parClose, puzzle), getDisplayGood),
-    };
-  }, [
-    earlyWindowTrades,
-    getDisplayGood,
-    puzzle,
-    qualityReport.bestDayCloseInventory,
-    tradeHistory,
   ]);
 
   useEffect(() => {
@@ -827,12 +659,12 @@ export default function BarterScreen() {
   }, [gameState]);
 
   useEffect(() => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || showIntro) return;
     const timer = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, [gameState]);
+  }, [gameState, showIntro]);
 
   useEffect(() => {
     if (lastTradeIndex === null) return;
@@ -865,23 +697,62 @@ export default function BarterScreen() {
   }, [lateTransitionAnim, lateWindowOpen, lateTransition, tradesUsed, lateWindowTrigger]);
 
   useEffect(() => {
+    if (!lateWindowOpen) return;
+    setActiveTab('night');
+    setNightNoticeDismissed(false);
+    setNewlyAffordableKeys(new Set());
+  }, [lateWindowOpen]);
+
+  useEffect(() => {
+    const nextKey = getDefaultSelectedTradeKey(marketEntries, inventory, selectedTradeKey);
+    if (nextKey !== selectedTradeKey) setSelectedTradeKey(nextKey);
+  }, [inventory, marketEntries, selectedTradeKey]);
+
+  useEffect(() => {
     if (gameState === 'playing') return;
     setShowResult(true);
   }, [gameState]);
 
   const handleDismissTutorial = useCallback(() => {
-    const storage = getStorage();
-    storage?.setItem(tutorialKey, '1');
     setShowTutorial(false);
-  }, [tutorialKey]);
+  }, []);
 
   const handleOpenTutorial = useCallback(() => {
     setShowTutorial(true);
   }, []);
 
+  const handleStartDayMarket = useCallback(() => {
+    setShowTutorial(false);
+    setShowIntro(false);
+  }, []);
+
+  const handleLeave = useCallback(() => {
+    if (canGoBack) {
+      router.back();
+      return;
+    }
+    router.replace('/');
+  }, [canGoBack, router]);
+
+  const handleSelectTab = useCallback(
+    (tab: BarterMarketTab) => {
+      if (tab === 'day' && lateWindowOpen) return;
+      if (tab === 'night') setNewlyAffordableKeys(new Set());
+      setActiveTab(tab);
+      setSelectedTradeKey(null);
+    },
+    [lateWindowOpen]
+  );
+
+  const handleSelectGood = useCallback((goodId: GoodId) => {
+    setSelectedGood((current) => (current === goodId ? null : goodId));
+    setSelectedTradeKey(null);
+  }, []);
+
   const handleTrade = useCallback(
     (index: number) => {
       if (gameState !== 'playing') return;
+      if (showIntro) return;
       if (lateTransition) return;
       if (tradesUsed >= puzzle.maxTrades) return;
       const trade = puzzle.trades[index];
@@ -940,7 +811,7 @@ export default function BarterScreen() {
         setGameState('lost');
       }
     },
-    [gameState, lateTransition, tradesUsed, puzzle, inventory, tradeEffectAnim]
+    [gameState, showIntro, lateTransition, tradesUsed, puzzle, inventory, tradeEffectAnim]
   );
 
   const handleCopyResults = useCallback(async () => {
@@ -962,8 +833,8 @@ export default function BarterScreen() {
     }
   }, [shareText]);
 
-  const renderTradeCard = (trade: Trade, locked = false) => {
-    const tradeIndex = puzzle.trades.indexOf(trade);
+  const renderTradeCard = (entry: MarketTradeEntry) => {
+    const { trade, tradeIndex, locked, key } = entry;
     const giveGoods = trade.give.map((side) => ({
       side,
       good: getDisplayGood(side.good),
@@ -979,18 +850,11 @@ export default function BarterScreen() {
       !lateTransition &&
       tradesUsed < puzzle.maxTrades &&
       missing.length === 0;
-    const key = tradeKey(trade);
     const isNewlyAffordable = newlyAffordableKeys.has(key);
-    const vendorName = getTradeVendorName(trade, getDisplayGood);
-    const showMetaRow = locked || isNewlyAffordable;
-    let buttonLabel = locked ? 'Night' : 'Trade';
-    if (gameState !== 'playing') {
-      buttonLabel = 'Closed';
-    } else if (!locked && missing.length > 0) {
-      buttonLabel = `Need ${missing
-        .map((side) => `${side.qty} ${getDisplayGood(side.good).emoji}`)
-        .join(' + ')}`;
-    }
+    const isSelected = selectedTradeKey === key;
+    const offerLabel = getTradeOfferLabel(trade, puzzle.goal.good);
+    const showMetaRow =
+      isNewlyAffordable || entry.matchesSelectedGood || (missing.length > 0 && !locked);
     const isLatestTrade = tradeEffect !== null && lastTradeIndex === tradeIndex && !locked;
     const tradeCardMotion = isLatestTrade
       ? {
@@ -1017,6 +881,8 @@ export default function BarterScreen() {
         style={[
           styles.tradeCard,
           canTrade ? styles.tradeCardAvailable : styles.tradeCardUnavailable,
+          isSelected && styles.tradeCardSelected,
+          entry.matchesSelectedGood && styles.tradeCardMatched,
           isNewlyAffordable && styles.tradeCardNewlyAffordable,
           lastTradeIndex === tradeIndex && styles.tradeCardFlash,
           locked && styles.tradeCardLocked,
@@ -1025,200 +891,252 @@ export default function BarterScreen() {
           tradeCardMotion,
         ]}
       >
-        <View style={styles.tradeTopRow}>
-          <Text style={styles.tradeVendorName}>{vendorName}</Text>
-          {showMetaRow && (
-            <View style={styles.tradeMetaRow}>
-              {locked && <Text style={styles.tradeLockedText}>Opens at night</Text>}
-              {isNewlyAffordable && <Text style={styles.tradeNewText}>Newly open</Text>}
-            </View>
-          )}
-        </View>
-        {missing.length > 0 && !locked && (
-          <View style={styles.tradeMetaRow}>
-            <Text style={styles.tradeMissingText}>
-              Missing {missing.map((side) => `${side.qty} ${getDisplayGood(side.good).emoji}`).join(', ')}
-            </Text>
-          </View>
-        )}
-        <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
-          <View
-            style={[
-              styles.tradeInfo,
-              styles.tradeInfoPassive,
-              isCompact && styles.tradeInfoCompact,
-            ]}
-          >
-            <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
-              {giveGoods.map(({ side, good }, index) => (
-                <View
-                  key={`${side.good}-${index}`}
-                  style={[
-                    styles.tradeGiveItem,
-                    isCompact && styles.tradeGiveItemCompact,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.tradeQty,
-                      isCompact && styles.tradeQtyCompact,
-                      isMarinerMarket && styles.tradeQtyMariner,
-                    ]}
-                  >
-                    {side.qty}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.tradeEmoji,
-                      isCompact && styles.tradeEmojiCompact,
-                      isMarinerMarket && styles.tradeEmojiMariner,
-                    ]}
-                  >
-                    {good.emoji}
-                  </Text>
-                  {index < giveGoods.length - 1 && (
-                    <Text style={styles.tradePlus}>+</Text>
-                  )}
-                </View>
-              ))}
-            </View>
-            <Text style={styles.tradeArrow}>→</Text>
-            <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
-              {receiveGoods.map(({ side, good }, index) => (
-                <View
-                  key={`${side.good}-${index}`}
-                  style={[
-                    styles.tradeGiveItem,
-                    isCompact && styles.tradeGiveItemCompact,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.tradeQty,
-                      isCompact && styles.tradeQtyCompact,
-                      isMarinerMarket && styles.tradeQtyMariner,
-                    ]}
-                  >
-                    {side.qty}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.tradeEmoji,
-                      isCompact && styles.tradeEmojiCompact,
-                      isMarinerMarket && styles.tradeEmojiMariner,
-                    ]}
-                  >
-                    {good.emoji}
-                  </Text>
-                  {index < receiveGoods.length - 1 && (
-                    <Text style={styles.tradePlus}>+</Text>
-                  )}
-                </View>
-              ))}
-            </View>
-          </View>
-          <Pressable
-            style={({ pressed }) => [
-              styles.tradeButton,
-              !canTrade && styles.tradeButtonDisabled,
-              pressed && canTrade ? styles.tradeButtonPressed : null,
-              isCompact && styles.tradeButtonCompact,
-              isMarinerMarket && styles.tradeButtonMariner,
-            ]}
-            onPress={() => handleTrade(tradeIndex)}
-            disabled={!canTrade}
-          >
-            <Text
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ selected: isSelected, disabled: locked }}
+          onPress={() => setSelectedTradeKey(key)}
+          style={({ pressed }) => [styles.tradePressable, pressed && styles.tradeCardPressed]}
+        >
+          <View style={[styles.tradeRow, isCompact && styles.tradeRowCompact]}>
+            <View
               style={[
-                styles.tradeButtonText,
-                !canTrade && styles.tradeButtonTextDisabled,
+                styles.tradeInfo,
+                styles.tradeInfoPassive,
+                isCompact && styles.tradeInfoCompact,
               ]}
             >
-              {buttonLabel}
-            </Text>
-          </Pressable>
-        </View>
+              <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
+                {giveGoods.map(({ side, good }, index) => (
+                  <View
+                    key={`${side.good}-${index}`}
+                    style={[
+                      styles.tradeGiveItem,
+                      isCompact && styles.tradeGiveItemCompact,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.tradeQty,
+                        isCompact && styles.tradeQtyCompact,
+                        isMarinerMarket && styles.tradeQtyMariner,
+                      ]}
+                    >
+                      {side.qty}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tradeEmoji,
+                        isCompact && styles.tradeEmojiCompact,
+                        isMarinerMarket && styles.tradeEmojiMariner,
+                      ]}
+                    >
+                      {good.emoji}
+                    </Text>
+                    {index < giveGoods.length - 1 && (
+                      <Text style={styles.tradePlus}>+</Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+              <Text style={styles.tradeArrow}>→</Text>
+              <View style={[styles.tradeSide, isCompact && styles.tradeSideCompact]}>
+                {receiveGoods.map(({ side, good }, index) => (
+                  <View
+                    key={`${side.good}-${index}`}
+                    style={[
+                      styles.tradeGiveItem,
+                      isCompact && styles.tradeGiveItemCompact,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.tradeQty,
+                        isCompact && styles.tradeQtyCompact,
+                        isMarinerMarket && styles.tradeQtyMariner,
+                      ]}
+                    >
+                      {side.qty}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tradeEmoji,
+                        isCompact && styles.tradeEmojiCompact,
+                        isMarinerMarket && styles.tradeEmojiMariner,
+                      ]}
+                    >
+                      {good.emoji}
+                    </Text>
+                    {index < receiveGoods.length - 1 && (
+                      <Text style={styles.tradePlus}>+</Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+            </View>
+            <View style={styles.tradeVendorColumn}>
+              <Text style={styles.tradeVendorName} numberOfLines={1}>
+                {offerLabel}
+              </Text>
+              {locked && (
+                <Text style={styles.tradeLockedText}>
+                  {entry.lockReason === 'day_closed' ? 'Day done' : 'Opens at night'}
+                </Text>
+              )}
+            </View>
+            <Text style={styles.tradeSelectArrow}>›</Text>
+          </View>
+          {showMetaRow && (
+            <View style={styles.tradeMetaRow}>
+              {isNewlyAffordable && <Text style={styles.tradeNewText}>Newly open</Text>}
+              {entry.matchesSelectedGood && (
+                <Text style={styles.tradeMatchedText}>Uses selected good</Text>
+              )}
+              {missing.length > 0 && !locked && (
+                <Text style={styles.tradeMissingText}>
+                  {formatMissingLine(missing, getDisplayGood)}
+                </Text>
+              )}
+            </View>
+          )}
+        </Pressable>
       </Animated.View>
     );
   };
 
+  const actionTradeLine = selectedEntry
+    ? formatTrade(selectedEntry.trade, getDisplayGood)
+    : 'Choose a trade';
+  const actionTitle = selectedEntry
+    ? getTradeOfferLabel(selectedEntry.trade, puzzle.goal.good)
+    : activeTabTitle;
+  const actionMissingLine = selectedEntry?.locked
+    ? ''
+    : formatMissingLine(selectedActionState.missing, getDisplayGood);
+
   return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen
-          options={{
-            title: 'Barter',
-            headerBackTitle: 'Home',
-            headerStyle: { backgroundColor: Colors.background },
-            headerTintColor: Colors.text,
-            headerShadowVisible: false,
-            headerTitleStyle: { fontWeight: '700' },
-            ...(canGoBack
-              ? {}
-              : {
-                  headerLeft: () => (
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.headerFallbackButton,
-                        pressed && styles.headerFallbackButtonPressed,
-                      ]}
-                      onPress={() => router.replace('/')}
-                    >
-                      <Text style={styles.headerFallbackButtonText}>← Home</Text>
-                    </Pressable>
-                  ),
-                }),
-          }}
-        />
-        <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[1]}>
-          <View style={styles.page}>
-            <View style={styles.header}>
-              <Text style={[styles.title, isCompact && styles.titleCompact]}>Barter</Text>
-              <Text style={[styles.dateLabel, isCompact && styles.dateLabelCompact]}>
-                {dateLabel}
+        <Stack.Screen options={{ headerShown: false }} />
+
+        <View style={styles.chrome}>
+          <View style={styles.topNav}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={handleLeave}
+              style={({ pressed }) => [styles.chromeClose, pressed && styles.chromeButtonPressed]}
+            >
+              <Text style={styles.chromeCloseText}>×</Text>
+            </Pressable>
+            <View style={styles.chromeMark}>
+              <Text style={styles.chromeMarkText}>⚖</Text>
+            </View>
+            <View style={styles.chromeTitleBlock}>
+              <Text style={styles.chromeTitle}>Barter</Text>
+              <Text style={styles.chromeMeta}>
+                {shortDateLabel} · {lateWindowOpen ? 'night market' : 'day market'}
               </Text>
             </View>
+            <Text style={styles.chromeTimer}>{formatTime(elapsedSeconds)}</Text>
+            <Pressable
+              accessibilityRole="button"
+              onPress={handleOpenTutorial}
+              style={({ pressed }) => [styles.chromeHelp, pressed && styles.chromeButtonPressed]}
+            >
+              <Text style={styles.chromeHelpText}>?</Text>
+            </Pressable>
           </View>
+          <View style={styles.goalBar}>
+            <View style={styles.goalTextBlock}>
+              <Text style={styles.goalKicker}>Goal</Text>
+              <Text style={styles.goalLine}>
+                Collect{' '}
+                <Text style={{ color: lateWindowOpen ? barterUxColors.night : barterUxColors.day }}>
+                  {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
+                </Text>
+              </Text>
+            </View>
+            <View style={styles.goalPips}>
+              {Array.from({ length: puzzle.goal.qty }).map((_, index) => {
+                const filled = index < Math.min(inventory[puzzle.goal.good], puzzle.goal.qty);
+                return (
+                  <View
+                    key={`goal-pip-${index}`}
+                    style={[
+                      styles.goalPip,
+                      filled && {
+                        borderColor: lateWindowOpen ? barterUxColors.night : barterUxColors.day,
+                        backgroundColor: lateWindowOpen ? '#242044' : '#2a2111',
+                      },
+                    ]}
+                  >
+                    {filled && <Text style={styles.goalPipEmoji}>{goalGood.emoji}</Text>}
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </View>
 
-          <View style={styles.stickyHeader}>
-            <View style={styles.stickyInner}>
-              <View style={styles.summaryCard}>
-                <View style={[styles.summaryRow, isCompact && styles.summaryRowCompact]}>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>Trades</Text>
-                    <Text style={[styles.summaryValue, isCompact && styles.summaryValueCompact]}>
-                      {tradesUsed}/{puzzle.maxTrades}
-                    </Text>
-                  </View>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>Goal</Text>
-                    <Text style={[styles.summaryValue, isCompact && styles.summaryValueCompact]}>
-                      {goalShort}
-                    </Text>
-                  </View>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>Time</Text>
-                    <Text style={[styles.summaryValue, isCompact && styles.summaryValueCompact]}>
-                      {formatTime(elapsedSeconds)}
-                    </Text>
-                  </View>
-                  <View style={[styles.summaryItem, styles.summaryStatusItem]}>
-                    <View
-                      style={[
-                        styles.summaryStatusPill,
-                        lateWindowOpen ? styles.summaryStatusLate : styles.summaryStatusEarly,
-                      ]}
-                    >
-                      <Text style={styles.summaryStatusTitle}>{tradingWindowTitle}</Text>
-                      <Text style={styles.summaryStatusCounter}>{tradingWindowCounter}</Text>
-                    </View>
-                  </View>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {showIntro ? (
+            <View style={styles.marketIntroPage}>
+              <View style={styles.marketIntroCard}>
+                <Text style={styles.marketIntroEmoji}>{marketEmoji}</Text>
+                <Text style={styles.marketIntroKicker}>Today's market</Text>
+                <Text style={styles.marketIntroTitle}>Welcome to {marketName}</Text>
+                <Text style={styles.marketIntroFlavor}>{marketIdentity.flavor}</Text>
+                <View style={styles.marketIntroGoal}>
+                  <Text style={styles.marketIntroGoalText}>
+                    Collect {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
+                  </Text>
+                  <Text style={styles.marketIntroGoalMeta}>
+                    Day has {earlyWindowTrades} trades. Night opens after that.
+                  </Text>
+                </View>
+                <View style={styles.marketIntroStock}>
+                  <Text style={styles.marketIntroStockTitle}>You start with</Text>
+                  <Text style={styles.marketIntroStockText}>{openingStock}</Text>
+                </View>
+                <View style={styles.marketIntroActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={handleStartDayMarket}
+                    style={({ pressed }) => [
+                      styles.marketIntroPrimaryButton,
+                      pressed && styles.marketIntroPrimaryButtonPressed,
+                    ]}
+                  >
+                    <Text style={styles.marketIntroPrimaryButtonText}>Start day market</Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={handleOpenTutorial}
+                    style={({ pressed }) => [
+                      styles.marketIntroSecondaryButton,
+                      pressed && styles.marketIntroSecondaryButtonPressed,
+                    ]}
+                  >
+                    <Text style={styles.marketIntroSecondaryButtonText}>How to play</Text>
+                  </Pressable>
                 </View>
               </View>
-
+            </View>
+          ) : (
+          <View style={styles.page}>
+            <BarterPhaseTabs
+              activeTab={activeTab}
+              lateWindowOpen={lateWindowOpen}
+              dayLabel={dayTabLabel}
+              nightLabel={nightTabLabel}
+              colors={barterUxColors}
+              onSelectTab={handleSelectTab}
+            />
+            <View style={styles.stallSection}>
+              <Text style={styles.stallTitle}>Your stall</Text>
               <View style={[styles.inventoryRow, isCompact && styles.inventoryRowCompact]}>
                 {puzzle.goods.map((good) => {
                   const count = inventory[good.id];
                   const changed = tradeEffect?.changedGoods.includes(good.id) ?? false;
+                  const isSelectedGood = selectedGood === good.id;
                   const inventoryPulseStyle = changed
                     ? {
                         transform: [
@@ -1238,42 +1156,34 @@ export default function BarterScreen() {
                         styles.inventoryCard,
                         isCompact && styles.inventoryCardCompact,
                         count === 0 && styles.inventoryCardEmpty,
+                        isSelectedGood && styles.inventoryCardSelected,
                         changed && styles.inventoryCardChanged,
                         inventoryPulseStyle,
                       ]}
                     >
-                      <Text style={[styles.inventoryEmoji, isCompact && styles.inventoryEmojiCompact]}>
-                        {good.emoji}
-                      </Text>
-                      <Text style={[styles.inventoryCount, isCompact && styles.inventoryCountCompact]}>
-                        {count}
-                      </Text>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: isSelectedGood }}
+                        onPress={() => handleSelectGood(good.id)}
+                        style={({ pressed }) => [
+                          styles.inventoryPressable,
+                          pressed && styles.inventoryCardPressed,
+                        ]}
+                      >
+                        <Text style={[styles.inventoryEmoji, isCompact && styles.inventoryEmojiCompact]}>
+                          {good.emoji}
+                        </Text>
+                        <Text style={[styles.inventoryCount, isCompact && styles.inventoryCountCompact]}>
+                          {count}
+                        </Text>
+                        <Text style={styles.inventoryLabel} numberOfLines={1}>
+                          {shortGoodName(good.name)}
+                        </Text>
+                      </Pressable>
                     </Animated.View>
                   );
                 })}
               </View>
-            </View>
-          </View>
-
-          <View style={styles.page}>
-            <View style={styles.introCard}>
-              <Text style={styles.introTitle}>
-                Welcome to {marketName} {marketEmoji}
-              </Text>
-              <Text style={styles.introBody}>
-                Objective: turn your starting goods into {goalShort} within {puzzle.maxTrades} trades.
-              </Text>
-              <Text style={styles.marketRead}>Today's read: {marketRead}</Text>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.helpButton,
-                  styles.introHelpButton,
-                  pressed && styles.helpButtonPressed,
-                ]}
-                onPress={handleOpenTutorial}
-              >
-                <Text style={styles.helpButtonText}>How to play</Text>
-              </Pressable>
             </View>
             {tradeEffect && (
               <Animated.View
@@ -1331,14 +1241,29 @@ export default function BarterScreen() {
                 </Text>
               </Animated.View>
             )}
+            {lateWindowOpen && !nightNoticeDismissed && (
+              <View style={styles.nightWelcomeCard}>
+                <Text style={styles.nightWelcomeTitle}>Night Market is open</Text>
+                <Text style={styles.nightWelcomeBody}>
+                  {marketIdentity.nightScene} {tradeWaves.hiddenTrade ? 'The hidden stall has joined the row.' : ''}
+                </Text>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.nightWelcomeButton,
+                    pressed && styles.nightWelcomeButtonPressed,
+                  ]}
+                  onPress={() => setNightNoticeDismissed(true)}
+                >
+                  <Text style={styles.nightWelcomeButtonText}>Enter night</Text>
+                </Pressable>
+              </View>
+            )}
             {lateTransition && (
               <Animated.View
                 style={[
                   styles.transitionBanner,
                   {
                     opacity: lateTransitionAnim,
-                    backgroundColor: marketAlertTone.bg,
-                    borderColor: marketAlertTone.border,
                     transform: [
                       {
                         translateY: lateTransitionAnim.interpolate({
@@ -1350,23 +1275,13 @@ export default function BarterScreen() {
                   },
                 ]}
               >
-                <Text style={[styles.transitionTitle, { color: marketAlertTone.text }]}>
-                  Vendors are shuffling
-                </Text>
-                <Text style={[styles.transitionBody, { color: marketAlertTone.text }]}>
-                  The night market opens shortly.
-                </Text>
+                <Text style={styles.transitionTitle}>Night Market opens</Text>
+                <Text style={styles.transitionBody}>The hidden stall is joining the row.</Text>
               </Animated.View>
             )}
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>
-                {lateWindowOpen ? 'Night Market' : 'Day Market'}
-              </Text>
-              <Text style={styles.sectionSubtitle}>
-                {lateWindowOpen
-                  ? 'Spend the ingredients you prepared.'
-                  : `Make the first ${earlyWindowTrades} trades count.`}
-              </Text>
+              <Text style={styles.sectionTitle}>{activeTabTitle}</Text>
+              <Text style={styles.sectionSubtitle}>{activeTabSubtitle}</Text>
             </View>
             <Animated.View
               style={[
@@ -1380,32 +1295,46 @@ export default function BarterScreen() {
                 },
               ]}
             >
-              {visibleTrades.map((trade) => renderTradeCard(trade))}
-            </Animated.View>
-            {!lateWindowOpen && (
-              <>
-                <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>Night Market</Text>
-                  <Text style={styles.sectionSubtitle}>
-                    Plan around these now. They open after trade {earlyWindowTrades}.
-                  </Text>
-                </View>
-                <View style={[styles.tradeList, isCompact && styles.tradeListCompact]}>
-                  {tradeWaves.previewLateTrades.map((trade) => renderTradeCard(trade, true))}
-                  {tradeWaves.hiddenTrade && (
-                    <View style={styles.bonusVendorCard}>
-                      <Text style={styles.bonusVendorTitle}>A night vendor is setting up</Text>
-                      <Text style={styles.bonusVendorBody}>
-                        {marketIdentity.hiddenStall}
-                      </Text>
+              {marketEntries.map((entry) => renderTradeCard(entry))}
+              {showHiddenNightPlaceholder && (
+                <View style={[styles.tradeCard, styles.tradeCardLocked]}>
+                  <View style={styles.tradeRow}>
+                    <Text style={styles.hiddenVendorEquation}>?</Text>
+                    <View style={styles.tradeVendorColumn}>
+                      <Text style={styles.tradeVendorName} numberOfLines={1}>Hidden stall</Text>
+                      <Text style={styles.tradeLockedText}>Opens at night</Text>
                     </View>
-                  )}
+                    <Text style={styles.tradeSelectArrow}>🔒</Text>
+                  </View>
                 </View>
-              </>
-            )}
+              )}
+            </Animated.View>
 
           </View>
+          )}
         </ScrollView>
+
+        {!showIntro && (
+        <View style={styles.actionIslandDock}>
+          <BarterActionIsland
+            title={actionTitle}
+            tradeLine={actionTradeLine}
+            detail={selectedActionState.detail}
+            missingLine={actionMissingLine}
+            buttonLabel={selectedActionState.buttonLabel}
+            canExecute={selectedActionState.canExecute}
+            activeTab={activeTab}
+            tradesUsed={tradesUsed}
+            maxTrades={puzzle.maxTrades}
+            dayTradeCount={earlyWindowTrades}
+            colors={barterUxColors}
+            onTrade={() => {
+              if (!selectedEntry) return;
+              handleTrade(selectedEntry.tradeIndex);
+            }}
+          />
+        </View>
+        )}
 
         {showTutorial && (
           <View style={styles.modalOverlay}>
@@ -1418,29 +1347,21 @@ export default function BarterScreen() {
                 {marketIdentity.flavor}
               </Text>
               <View style={styles.marketReadBox}>
-                <Text style={styles.marketReadBoxTitle}>Today's read</Text>
-                <Text style={styles.marketReadBoxText}>{marketRead}</Text>
+                <Text style={styles.marketReadBoxTitle}>Today</Text>
                 <Text style={styles.marketReadBoxText}>Start: {openingStock}</Text>
                 <Text style={styles.marketReadBoxText}>
-                  Goal: {goalShort} in par {puzzle.par}. {nightRead}
+                  Goal: collect {goalShort} within {puzzle.maxTrades} trades.
                 </Text>
                 <Text style={styles.marketReadBoxText}>
-                  Use the first {earlyWindowTrades} trades in the day market, then close in at the night market.
+                  Day Market closes after trade {earlyWindowTrades}. Night Market opens after that.
                 </Text>
               </View>
-              <Text style={styles.tutorialModalSectionTitle}>First pattern</Text>
+              <Text style={styles.tutorialModalSectionTitle}>Rules</Text>
               <Text style={styles.tutorialModalBody}>
-                Day trades create ingredients. Night Market trades reward balanced goods, especially pairs.
+                Tap a good in your stall to bring matching trades upward. Other trades stay visible.
               </Text>
-              <View style={styles.tutorialModalSteps}>
-                {tutorialPuzzle.solution.map((trade, index) => (
-                  <Text key={`tutorial-${index}`} style={styles.tutorialStepText}>
-                    {index + 1}. {formatTrade(trade)}
-                  </Text>
-                ))}
-              </View>
               <Text style={styles.tutorialModalHint}>
-                Read the visible Night Market before spending your Day Market trades.
+                The Night tab can be previewed before it opens. One hidden stall joins at night.
               </Text>
               <Pressable
                 style={({ pressed }) => [
@@ -1450,7 +1371,7 @@ export default function BarterScreen() {
                 onPress={handleDismissTutorial}
               >
                 <Text style={styles.tutorialButtonText}>
-                  {tradesUsed === 0 && gameState === 'playing' ? 'Start day market' : 'Back to market'}
+                  {showIntro ? 'Back to intro' : 'Back to market'}
                 </Text>
               </Pressable>
             </View>
@@ -1459,19 +1380,22 @@ export default function BarterScreen() {
 
         {showResult && (
           <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
+            <View style={[styles.modalCard, styles.resultModalCard]}>
+              <ScrollView
+                style={styles.resultModalScroll}
+                contentContainerStyle={styles.resultModalContent}
+                showsVerticalScrollIndicator={false}
+              >
               <Text style={styles.resultEmoji}>
                 {gameState === 'won' ? (resultTier === 'Perfect' ? '⭐' : '🎉') : '😔'}
               </Text>
               <Text style={styles.resultTitle}>
-                {resultTier === 'Bust' ? 'Out of Trades' : `${resultTier} Route`}
+                {resultTier === 'Bust' ? 'Out of Trades' : resultTier}
               </Text>
               <Text style={styles.resultSummary}>
-                Start: {startSummary} → Goal: {puzzle.goal.qty} {goalGood.emoji}{' '}
-                {goalGood.name}
-              </Text>
-              <Text style={styles.resultRead}>
-                {marketName} · {routeRead}
+                {gameState === 'won'
+                  ? `Collected ${puzzle.goal.qty} ${goalGood.emoji} in ${tradesUsed} trades.`
+                  : `Goal: ${puzzle.goal.qty} ${goalGood.emoji} ${goalGood.name}.`}
               </Text>
 
               <View style={styles.resultStats}>
@@ -1487,27 +1411,20 @@ export default function BarterScreen() {
                 </View>
               </View>
 
-              <View style={styles.autopsyCard}>
-                <Text style={styles.autopsyTitle}>Route notes</Text>
-                <Text style={styles.autopsyInsight}>{qualityReport.strategicInsight}</Text>
-                <Text style={styles.autopsyInsight}>{openingRegretNote}</Text>
-                <Text style={styles.autopsyLabel}>Day Market close</Text>
-                <Text style={styles.autopsyRoute}>You: {dayCloseComparison.player}</Text>
-                <Text style={styles.autopsyRoute}>Par: {dayCloseComparison.par}</Text>
-                <Text style={styles.autopsyLabel}>Your route</Text>
-                <Text style={styles.autopsyRoute}>
-                  {tradeHistory.length > 0
-                    ? tradeHistory.map((trade) => formatTrade(trade, getDisplayGood)).join('  /  ')
-                    : 'No trades made'}
-                </Text>
-                <Text style={styles.autopsyLabel}>Par route</Text>
-                <Text style={styles.autopsyRoute}>
-                  {formatRouteSummary(qualityReport.bestRoute)}
-                </Text>
-                <Text style={styles.autopsyLabel}>Alternate route</Text>
-                <Text style={styles.autopsyRoute}>
-                  {formatRouteSummary(qualityReport.alternateRoute)}
-                </Text>
+              <View style={styles.tradeLogCard}>
+                <Text style={styles.autopsyTitle}>Trade log</Text>
+                {tradeHistory.length > 0 ? (
+                  tradeHistory.map((trade, index) => (
+                    <View key={`result-trade-${index}`} style={styles.tradeLogRow}>
+                      <Text style={styles.tradeLogIndex}>{index + 1}</Text>
+                      <Text style={styles.tradeLogText}>
+                        {formatTrade(trade, getDisplayGood)}
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.autopsyInsight}>No trades made.</Text>
+                )}
               </View>
 
               <View style={styles.shareCard}>
@@ -1542,6 +1459,7 @@ export default function BarterScreen() {
                   <Text style={styles.homeButtonText}>Back to games</Text>
                 </Pressable>
               </View>
+              </ScrollView>
             </View>
           </View>
         )}
@@ -1558,13 +1476,13 @@ const createStyles = (
   const FontSize = theme.fontSize;
   const BorderRadius = theme.borderRadius;
   const ui = createDaybreakPrimitives(theme, screenAccent);
-  const paper = theme.mode === 'dark' ? Colors.surfaceElevated : '#fffdf8';
-  const paperMuted = theme.mode === 'dark' ? Colors.surfaceLight : '#f0ede8';
-  const canvas = theme.mode === 'dark' ? Colors.backgroundSoft : '#f6f3ef';
-  const borderSoft = theme.mode === 'dark' ? Colors.border : '#e6e0d6';
-  const inkStrong = theme.mode === 'dark' ? Colors.text : '#1f1b16';
-  const inkMuted = theme.mode === 'dark' ? Colors.textSecondary : '#5f584f';
-  const inkSoft = theme.mode === 'dark' ? Colors.textMuted : '#8a8174';
+  const paper = theme.mode === 'dark' ? '#111214' : '#fffdf8';
+  const paperMuted = theme.mode === 'dark' ? '#171a20' : '#f0ede8';
+  const canvas = theme.mode === 'dark' ? '#0E1014' : '#f6f3ef';
+  const borderSoft = theme.mode === 'dark' ? '#1F2024' : '#e6e0d6';
+  const inkStrong = theme.mode === 'dark' ? '#f0ede6' : '#1f1b16';
+  const inkMuted = theme.mode === 'dark' ? '#c6c0b7' : '#5f584f';
+  const inkSoft = theme.mode === 'dark' ? '#888888' : '#8a8174';
   const windowPillStrong = theme.mode === 'dark' ? '#1a2c46' : inkStrong;
   const windowPillMuted = theme.mode === 'dark' ? '#39587f' : inkMuted;
   const darkButtonBg = theme.mode === 'dark' ? Colors.primary : '#1f1b16';
@@ -1578,15 +1496,145 @@ const createStyles = (
     backgroundColor: canvas,
   },
   scrollContent: {
-    paddingTop: Spacing.sm,
-    paddingBottom: Spacing.xxl,
+    paddingTop: 12,
+    paddingBottom: Spacing.xxl + 132,
   },
-  stickyHeader: {
+  chrome: {
+    width: '100%',
+    alignItems: 'center',
     backgroundColor: canvas,
     borderBottomWidth: 1,
     borderBottomColor: borderSoft,
+  },
+  topNav: {
+    width: '100%',
+    maxWidth: 520,
+    paddingHorizontal: Spacing.md,
+    paddingTop: 8,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  chromeClose: {
+    width: 26,
+    height: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+  },
+  chromeCloseText: {
+    color: inkSoft,
+    fontSize: 22,
+    lineHeight: 24,
+  },
+  chromeButtonPressed: {
+    backgroundColor: paperMuted,
+  },
+  chromeMark: {
+    width: 26,
+    height: 26,
+    borderRadius: 7,
+    backgroundColor: '#FFA41F',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chromeMarkText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  chromeTitleBlock: {
+    flex: 1,
+    minWidth: 0,
+  },
+  chromeTitle: {
+    color: inkStrong,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  chromeMeta: {
+    marginTop: 1,
+    color: theme.mode === 'dark' ? '#FFA41F' : '#b75f00',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.9,
+    textTransform: 'uppercase',
+  },
+  chromeTimer: {
+    color: inkSoft,
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  chromeHelp: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: borderSoft,
+  },
+  chromeHelpText: {
+    color: inkMuted,
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  goalBar: {
+    width: '100%',
+    maxWidth: 520,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
+    backgroundColor: paper,
+    borderTopWidth: 1,
+    borderTopColor: borderSoft,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  goalTextBlock: {
+    flex: 1,
+    minWidth: 0,
+  },
+  goalKicker: {
+    color: inkSoft,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+  goalLine: {
+    marginTop: 1,
+    color: inkStrong,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  goalPips: {
+    flexDirection: 'row',
+    gap: 4,
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    maxWidth: 190,
+  },
+  goalPip: {
+    width: 26,
+    height: 26,
+    borderRadius: 7,
+    backgroundColor: theme.mode === 'dark' ? '#1A1A2A' : '#E8E4F0',
+    borderWidth: 1.5,
+    borderColor: theme.mode === 'dark' ? '#2A2A3A' : '#C8C4D8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  goalPipEmoji: {
+    fontSize: 13,
+  },
+  stickyHeader: {
+    backgroundColor: canvas,
+    borderBottomWidth: 0,
+    borderBottomColor: borderSoft,
     paddingHorizontal: 0,
-    paddingBottom: Spacing.sm,
+    paddingBottom: 10,
     zIndex: 10,
     width: '100%',
     alignItems: 'center',
@@ -1598,11 +1646,135 @@ const createStyles = (
     paddingHorizontal: Spacing.md,
   },
   page: {
-    ...ui.page,
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
     paddingHorizontal: Spacing.md,
   },
-  header: {
+  marketIntroPage: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.lg,
+  },
+  marketIntroCard: {
+    backgroundColor: paper,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: borderSoft,
+    padding: Spacing.xl,
+    alignItems: 'center',
+  },
+  marketIntroEmoji: {
+    fontSize: 42,
     marginBottom: Spacing.sm,
+  },
+  marketIntroKicker: {
+    color: inkSoft,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+  },
+  marketIntroTitle: {
+    marginTop: 5,
+    color: inkStrong,
+    fontSize: 24,
+    fontWeight: '900',
+    textAlign: 'center',
+  },
+  marketIntroFlavor: {
+    marginTop: Spacing.sm,
+    color: inkMuted,
+    fontSize: 13,
+    lineHeight: 19,
+    textAlign: 'center',
+  },
+  marketIntroGoal: {
+    width: '100%',
+    marginTop: Spacing.lg,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: theme.mode === 'dark' ? '#3a2b11' : '#f1c38a',
+    backgroundColor: theme.mode === 'dark' ? '#1f1710' : '#fff7e6',
+    padding: Spacing.md,
+  },
+  marketIntroGoalText: {
+    color: inkStrong,
+    fontSize: 16,
+    fontWeight: '900',
+    textAlign: 'center',
+  },
+  marketIntroGoalMeta: {
+    marginTop: 4,
+    color: inkMuted,
+    fontSize: 12,
+    lineHeight: 17,
+    textAlign: 'center',
+  },
+  marketIntroStock: {
+    width: '100%',
+    marginTop: Spacing.sm,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: borderSoft,
+    backgroundColor: paperMuted,
+    padding: Spacing.md,
+  },
+  marketIntroStockTitle: {
+    color: inkSoft,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  marketIntroStockText: {
+    marginTop: 5,
+    color: inkStrong,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '700',
+  },
+  marketIntroActions: {
+    width: '100%',
+    marginTop: Spacing.lg,
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  marketIntroPrimaryButton: {
+    flex: 1,
+    borderRadius: 14,
+    backgroundColor: '#FFA41F',
+    paddingVertical: 13,
+    alignItems: 'center',
+  },
+  marketIntroPrimaryButtonPressed: {
+    backgroundColor: '#e99116',
+  },
+  marketIntroPrimaryButtonText: {
+    color: '#1b1203',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  marketIntroSecondaryButton: {
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: borderSoft,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  marketIntroSecondaryButtonPressed: {
+    backgroundColor: paperMuted,
+  },
+  marketIntroSecondaryButtonText: {
+    color: inkStrong,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  header: {
+    marginBottom: 6,
     alignItems: 'center',
   },
   headerFallbackButton: {
@@ -1641,11 +1813,60 @@ const createStyles = (
   },
   introCard: {
     backgroundColor: paper,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.sm,
     borderWidth: 1,
     borderColor: borderSoft,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
+    padding: 14,
+    marginBottom: 12,
+  },
+  introActions: {
+    marginTop: Spacing.sm,
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  continueButton: {
+    borderRadius: BorderRadius.sm,
+    backgroundColor: darkButtonBg,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+  },
+  continueButtonPressed: {
+    backgroundColor: darkButtonPressed,
+  },
+  continueButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  readStrip: {
+    backgroundColor: paper,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    borderColor: borderSoft,
+    padding: 10,
+    marginBottom: 12,
+    gap: 8,
+  },
+  readStripText: {
+    color: inkStrong,
+    fontSize: 12,
+    fontWeight: '700',
+    lineHeight: 17,
+  },
+  readStripButton: {
+    alignSelf: 'flex-start',
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    borderColor: borderSoft,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+  },
+  readStripButtonText: {
+    color: inkStrong,
+    fontSize: 11,
+    fontWeight: '800',
   },
   introTitle: {
     fontSize: 14,
@@ -1781,22 +2002,57 @@ const createStyles = (
     fontWeight: '700',
   },
   transitionBanner: {
-    backgroundColor: '#fff4e5',
-    borderRadius: BorderRadius.md,
+    backgroundColor: theme.mode === 'dark' ? '#12102A' : '#f2edff',
+    borderRadius: BorderRadius.sm,
     borderWidth: 1,
-    borderColor: '#f1c38a',
+    borderColor: theme.mode === 'dark' ? '#2A2466' : '#c8b9ff',
     padding: Spacing.sm,
     marginBottom: Spacing.sm,
   },
   transitionTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
-    color: '#8a4a0b',
+    color: theme.mode === 'dark' ? '#9C88FF' : '#5142ad',
   },
   transitionBody: {
     marginTop: 2,
     fontSize: 11,
-    color: '#8a4a0b',
+    color: theme.mode === 'dark' ? '#8877CC' : '#6656cc',
+  },
+  nightWelcomeCard: {
+    backgroundColor: theme.mode === 'dark' ? '#181630' : '#f2edff',
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    borderColor: theme.mode === 'dark' ? '#4a3f82' : '#c8b9ff',
+    padding: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  nightWelcomeTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: theme.mode === 'dark' ? '#ded7ff' : '#392c83',
+  },
+  nightWelcomeBody: {
+    marginTop: 3,
+    fontSize: 11,
+    color: theme.mode === 'dark' ? '#b8b0df' : '#5b4fa0',
+    lineHeight: 16,
+  },
+  nightWelcomeButton: {
+    marginTop: Spacing.sm,
+    alignSelf: 'flex-start',
+    borderRadius: BorderRadius.sm,
+    backgroundColor: theme.mode === 'dark' ? '#5f50c9' : '#6656cc',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+  },
+  nightWelcomeButtonPressed: {
+    backgroundColor: theme.mode === 'dark' ? '#7568e0' : '#5142ad',
+  },
+  nightWelcomeButtonText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '800',
   },
   tradeEffectToast: {
     pointerEvents: 'none',
@@ -1834,8 +2090,8 @@ const createStyles = (
     fontWeight: '800',
   },
   bonusVendorCard: {
-    backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#f7f2ea',
-    borderRadius: BorderRadius.md,
+    backgroundColor: theme.mode === 'dark' ? '#151c26' : '#f7f2ea',
+    borderRadius: BorderRadius.sm,
     borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: borderSoft,
@@ -1853,7 +2109,7 @@ const createStyles = (
     lineHeight: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 21,
     fontWeight: '800',
     color: inkStrong,
   },
@@ -1870,12 +2126,12 @@ const createStyles = (
   },
   summaryCard: {
     backgroundColor: paper,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.sm,
     borderWidth: 1,
     borderColor: borderSoft,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.sm,
-    marginBottom: Spacing.xs,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginBottom: 6,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -1893,7 +2149,7 @@ const createStyles = (
     minWidth: 0,
   },
   summaryLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: inkSoft,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
@@ -1914,12 +2170,12 @@ const createStyles = (
   summaryStatusPill: {
     marginTop: 2,
     alignSelf: 'flex-start',
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.sm,
     borderWidth: 1,
     borderColor: borderSoft,
     paddingHorizontal: 10,
-    paddingVertical: 7,
-    minWidth: 112,
+    paddingVertical: 6,
+    minWidth: 105,
     shadowColor: '#000',
     shadowOpacity: theme.mode === 'dark' ? 0.12 : 0.04,
     shadowOffset: { width: 0, height: 1 },
@@ -1947,66 +2203,107 @@ const createStyles = (
     borderColor: '#c2a9ec',
   },
   sectionHeader: {
-    marginBottom: Spacing.sm,
+    marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: inkStrong,
+    fontSize: 10,
+    fontWeight: '800',
+    color: inkSoft,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
   },
   sectionSubtitle: {
-    marginTop: 2,
-    fontSize: FontSize.sm,
+    marginTop: 4,
+    fontSize: 11,
     color: inkSoft,
+  },
+  selectedGoodText: {
+    marginTop: 4,
+    fontSize: 11,
+    color: inkMuted,
+    lineHeight: 16,
   },
   inventoryRow: {
     flexDirection: 'row',
-    flexWrap: 'nowrap',
-    gap: Spacing.xs,
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'flex-start',
   },
   inventoryRowCompact: {
     gap: 4,
   },
   inventoryCard: {
     backgroundColor: paper,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
+    borderRadius: 14,
+    borderWidth: 1.5,
     borderColor: borderSoft,
-    paddingVertical: 5,
+    paddingVertical: 7,
     paddingHorizontal: 4,
-    flex: 1,
-    minWidth: 0,
+    width: 64,
+    minHeight: 64,
     alignItems: 'center',
   },
   inventoryCardCompact: {
     paddingVertical: 4,
     paddingHorizontal: 3,
   },
+  inventoryPressable: {
+    width: '100%',
+    alignItems: 'center',
+    minHeight: 48,
+    justifyContent: 'center',
+  },
+  inventoryCardSelected: {
+    borderColor: '#FFA41F',
+    borderWidth: 2,
+    backgroundColor: theme.mode === 'dark' ? '#2a2111' : '#fff7e6',
+  },
+  inventoryCardPressed: {
+    opacity: 0.82,
+  },
   inventoryCardEmpty: {
     opacity: 0.35,
   },
   inventoryCardChanged: {
-    borderColor: screenAccent.main,
-    backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#fff7df',
+    borderColor: '#FFA41F',
+    backgroundColor: theme.mode === 'dark' ? '#2a2111' : '#fff7df',
   },
   inventoryEmoji: {
-    fontSize: 18,
+    fontSize: 22,
   },
   inventoryEmojiCompact: {
     fontSize: 15,
   },
   inventoryCount: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '800',
     color: inkStrong,
-    marginTop: 2,
+    marginTop: 0,
   },
   inventoryCountCompact: {
     fontSize: 12,
   },
+  inventoryLabel: {
+    marginTop: 2,
+    maxWidth: 54,
+    color: inkSoft,
+    fontSize: 8,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  stallSection: {
+    marginBottom: 12,
+  },
+  stallTitle: {
+    marginBottom: 10,
+    color: inkSoft,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+  },
   tradeList: {
-    gap: Spacing.sm,
+    gap: 8,
     marginBottom: Spacing.xxl,
   },
   tradeListBeforeBonus: {
@@ -2018,12 +2315,20 @@ const createStyles = (
   },
   tradeCard: {
     backgroundColor: paper,
-    borderRadius: BorderRadius.md,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: borderSoft,
-    padding: Spacing.sm,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     shadowOpacity: 0,
     elevation: 0,
+    minHeight: 56,
+  },
+  tradePressable: {
+    width: '100%',
+  },
+  tradeCardPressed: {
+    opacity: 0.88,
   },
   tradeCardCompact: {
     borderRadius: BorderRadius.md,
@@ -2039,6 +2344,14 @@ const createStyles = (
   tradeCardUnavailable: {
     borderColor: borderSoft,
     opacity: 0.65,
+  },
+  tradeCardSelected: {
+    borderColor: '#FFA41F',
+    borderWidth: 1.5,
+    backgroundColor: theme.mode === 'dark' ? '#131313' : '#fffaf0',
+  },
+  tradeCardMatched: {
+    backgroundColor: theme.mode === 'dark' ? '#131313' : '#fffaf0',
   },
   tradeCardNewlyAffordable: {
     borderColor: screenAccent.main,
@@ -2058,20 +2371,38 @@ const createStyles = (
     marginBottom: 6,
   },
   tradeVendorName: {
-    flexShrink: 1,
     color: inkMuted,
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'right',
+  },
+  tradeVendorColumn: {
+    width: 122,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: 2,
   },
   tradeMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     flexShrink: 0,
+    marginTop: 5,
+    flexWrap: 'wrap',
   },
   tradeLockedText: {
     color: inkSoft,
+    fontSize: 9,
+    fontWeight: '700',
+  },
+  tradeSelectedText: {
+    color: theme.mode === 'dark' ? '#ffbf5c' : '#b75f00',
     fontSize: 10,
+    fontWeight: '800',
+  },
+  tradeMatchedText: {
+    color: inkMuted,
+    fontSize: 9,
     fontWeight: '700',
   },
   tradeNewText: {
@@ -2083,7 +2414,7 @@ const createStyles = (
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: Spacing.sm,
+    gap: 8,
   },
   tradeRowCompact: {
     gap: Spacing.xs,
@@ -2092,7 +2423,8 @@ const createStyles = (
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: Spacing.sm,
+    gap: 8,
+    minWidth: 0,
   },
   tradeInfoPassive: {
     pointerEvents: 'none',
@@ -2103,9 +2435,9 @@ const createStyles = (
   tradeSide: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
+    justifyContent: 'flex-start',
     gap: 6,
+    flexShrink: 1,
   },
   tradeSideCompact: {
     gap: 4,
@@ -2130,7 +2462,7 @@ const createStyles = (
     fontSize: 16,
   },
   tradeEmoji: {
-    fontSize: 16,
+    fontSize: 18,
   },
   tradeEmojiCompact: {
     fontSize: 14,
@@ -2149,15 +2481,27 @@ const createStyles = (
     color: inkSoft,
   },
   tradeMissingText: {
-    marginTop: 6,
     fontSize: 10,
     color: disabledText,
     fontWeight: '700',
   },
   tradeArrow: {
-    fontSize: 16,
-    color: inkSoft,
+    fontSize: 15,
+    color: theme.mode === 'dark' ? '#444444' : '#b6afa5',
     fontWeight: '700',
+  },
+  tradeSelectArrow: {
+    fontSize: 19,
+    color: theme.mode === 'dark' ? '#555555' : '#b6afa5',
+    fontWeight: '700',
+    width: 12,
+    textAlign: 'right',
+  },
+  hiddenVendorEquation: {
+    flex: 1,
+    color: inkSoft,
+    fontSize: 18,
+    fontWeight: '800',
   },
   tradeButton: {
     backgroundColor: darkButtonBg,
@@ -2192,12 +2536,27 @@ const createStyles = (
   tradeButtonTextDisabled: {
     color: disabledText,
   },
+  actionIslandDock: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.sm,
+    backgroundColor: canvas,
+    borderTopWidth: 1,
+    borderTopColor: borderSoft,
+    zIndex: 20,
+  },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(10, 16, 24, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.lg,
+    zIndex: 50,
   },
   modalCard: {
     width: '100%',
@@ -2209,6 +2568,17 @@ const createStyles = (
     borderColor: Colors.border,
     ...theme.shadows.elevated,
     ...WEB_NO_SELECT,
+  },
+  resultModalCard: {
+    maxHeight: '88%',
+    padding: 0,
+    overflow: 'hidden',
+  },
+  resultModalScroll: {
+    width: '100%',
+  },
+  resultModalContent: {
+    padding: Spacing.xl,
   },
   resultEmoji: {
     fontSize: 40,
@@ -2252,6 +2622,37 @@ const createStyles = (
     fontSize: FontSize.sm,
     color: Colors.textMuted,
     marginTop: 2,
+  },
+  tradeLogCard: {
+    marginTop: Spacing.lg,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    gap: 6,
+  },
+  tradeLogRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  tradeLogIndex: {
+    width: 20,
+    height: 20,
+    borderRadius: 8,
+    textAlign: 'center',
+    lineHeight: 20,
+    overflow: 'hidden',
+    backgroundColor: theme.mode === 'dark' ? Colors.surfaceElevated : '#ffffff',
+    color: Colors.textMuted,
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  tradeLogText: {
+    flex: 1,
+    color: Colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
   },
   autopsyCard: {
     marginTop: Spacing.lg,
