@@ -196,36 +196,12 @@ interface MarketIdentity {
   };
 }
 
-const MARKET_FLAVOR: Record<string, string> = {
-  'Silk Road Bazaar': 'Bright bolts hang over narrow lanes while brokers trade in whispers and hand signs.',
-  'Spice Wharf': 'Dockhands unload red sacks before sunrise; every stall smells expensive by noon.',
-  'Golden Caravan': 'Caravan bells mark the rhythm here, and every trader watches what leaves the shade.',
-  'Jade Exchange': 'Polished counters, quiet offers, and one wrong imbalance can echo through the room.',
-  'Porcelain Court': 'Tea steam curls over porcelain shelves while patient vendors wait for perfect pairs.',
-  'Saffron Arcade': 'Lanterns catch on saffron dust, and fast deals can cost more than they seem.',
-  'Lantern Market': 'Paper lanterns mark the night stalls early, giving careful planners a route to read.',
-  'Amber Row': 'Amber beads click across tables as merchants test whether you saved the right pieces.',
-  'Salt & Timber Yard': 'Salt blocks and timber stacks move slowly here, but the right bundle travels far.',
-  'Copperstone Square': 'Copper scales ring all morning; the square rewards balance more than speed.',
-  'Moonlit Souk': 'Moonlit awnings hide one late stall, so the visible contracts matter even more.',
-  'Rivergate Trades': 'River barges arrive in pairs, and the best traders keep their cargo matched.',
-  'Crimson Ledger': 'Every offer is marked in red ink; overpay once and the ledger remembers.',
-  'Starlit Agora': 'Under open sky, vendors price the future before the night market fully wakes.',
-  'Indigo Harbor': 'Indigo tarps snap in the harbor wind while rare goods wait behind clean timing.',
-  'Windmill Exchange': 'Canvas sails turn over the stalls, and every gust seems to change what a fair trade means.',
-  'Oasis Ledger': 'Water sellers and caravan clerks count every promise before the night lamps are lit.',
-  'Tea Road Arcade': 'Tea tins pass from stall to stall; the clever route keeps enough warmth for later.',
-  "Mariner's Market": 'Rope, salt, and tide charts crowd the tables; nothing stays useful forever.',
-  'Atlas Bazaar': 'Mapmakers argue over routes while vendors reward the trader who planned two turns ahead.',
-  'Sunrise Caravan': 'Sunrise opens the caravan gates, but the best bargains are aimed at night.',
-};
-
 const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   'Silk Road Bazaar': {
     dayScene: 'Silk awnings split the lane into color and shadow.',
-    nightScene: 'Lamp cords drop between fabric stalls as brokers reopen their ledgers.',
+    nightScene: 'Night lamps warm the fabric stalls as the cloth lanes reopen.',
     sceneMarks: ['🧵', '🏮', '🤝'],
-    hiddenStall: 'A curtained silk broker is tying up one last night offer.',
+    hiddenStall: 'A curtained night stall is tying off one last cloth bundle.',
     vendors: {
       day: ['Bolt Cutter', 'Thread Broker', 'Dye Clerk', 'Caravan Weaver'],
       night: ['Lantern Draper', 'Quiet Broker', 'Silk Appraiser', 'Back-Lane Weaver'],
@@ -233,9 +209,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Spice Wharf': {
     dayScene: 'Sacks thump onto wet boards while gulls circle the scales.',
-    nightScene: 'Braziers glow near the quay and the sharpest spices move under cover.',
+    nightScene: 'Braziers glow near the quay while covered spice lots come forward.',
     sceneMarks: ['🌶️', '⚓️', '🔥'],
-    hiddenStall: 'A quay cook is grinding a night-only offer behind the shutters.',
+    hiddenStall: 'A shuttered quay stall is grinding one night-only mix.',
     vendors: {
       day: ['Dock Scale', 'Pepper Runner', 'Sack Captain', 'Harbor Clerk'],
       night: ['Brazier Cook', 'Tide Broker', 'Red-Sack Agent', 'Midnight Porter'],
@@ -245,7 +221,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
     dayScene: 'Camel bells mark each offer before the shade disappears.',
     nightScene: 'The caravan circle tightens and lantern-lit bundles change hands.',
     sceneMarks: ['🐪', '🪙', '⛺'],
-    hiddenStall: 'A caravan guard is unpacking a locked chest for nightfall.',
+    hiddenStall: 'A locked caravan chest is being opened for nightfall.',
     vendors: {
       day: ['Bell Keeper', 'Shade Trader', 'Gold Clerk', 'Water Scout'],
       night: ['Camp Appraiser', 'Dune Broker', 'Chest Keeper', 'Lamp Merchant'],
@@ -253,9 +229,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Jade Exchange': {
     dayScene: 'Quiet counters shine while clerks compare every weight twice.',
-    nightScene: 'The polished room hushes as paired goods reach the jade tables.',
+    nightScene: 'The polished room quiets as green weights settle on the tables.',
     sceneMarks: ['🏺', '⚖️', '🫖'],
-    hiddenStall: 'A back-room appraiser is preparing one sealed night quote.',
+    hiddenStall: 'A sealed back-room quote is being set out for night.',
     vendors: {
       day: ['Jade Clerk', 'Scale Master', 'Porcelain Reader', 'Quiet Counter'],
       night: ['Seal Appraiser', 'Gallery Broker', 'Ledger Keeper', 'Lamp Counter'],
@@ -263,9 +239,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Porcelain Court': {
     dayScene: 'Tea steam softens the shelves, but the offers stay precise.',
-    nightScene: 'Porcelain bells ring as the court rewards careful pairs.',
+    nightScene: 'Porcelain bells ring while the screened tables open for night.',
     sceneMarks: ['🫖', '🍵', '🏺'],
-    hiddenStall: 'A court steward is polishing a night contract behind the screen.',
+    hiddenStall: 'A screened court table is setting one night contract.',
     vendors: {
       day: ['Tea Steward', 'Shelf Keeper', 'Cup Turner', 'Porcelain Clerk'],
       night: ['Screen Steward', 'Bell Broker', 'Moon Cupper', 'Court Appraiser'],
@@ -273,9 +249,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Saffron Arcade': {
     dayScene: 'Saffron dust catches in the arcade light around every bargain.',
-    nightScene: 'Red-gold lamps turn the arcade into a narrow row of payoffs.',
+    nightScene: 'Red-gold lamps narrow the arcade around late spice offers.',
     sceneMarks: ['🟧', '🌶️', '🏮'],
-    hiddenStall: 'A spice painter is opening a side shutter for nightfall.',
+    hiddenStall: 'A side shutter is opening for one late spice offer.',
     vendors: {
       day: ['Dust Clerk', 'Arcade Runner', 'Saffron Scale', 'Tin Keeper'],
       night: ['Lamp Painter', 'Side-Stall Broker', 'Red-Gold Clerk', 'Night Sifter'],
@@ -283,9 +259,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Lantern Market': {
     dayScene: 'Lantern frames hang unlit above a market that already points to night.',
-    nightScene: 'Every paper lantern becomes a signpost for the final trades.',
+    nightScene: 'Paper lanterns light the contracts that were visible all day.',
     sceneMarks: ['🏮', '✨', '🧵'],
-    hiddenStall: 'A paper-lantern vendor is lighting one covered stall.',
+    hiddenStall: 'A covered lantern stall is being lit for night.',
     vendors: {
       day: ['Frame Maker', 'Paper Clerk', 'Wick Runner', 'Dawn Lighter'],
       night: ['Lantern Keeper', 'Shadow Broker', 'Paper Appraiser', 'Glow Stall'],
@@ -293,19 +269,19 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Amber Row': {
     dayScene: 'Amber beads click across counters while merchants test your patience.',
-    nightScene: 'Candlelight turns every bead warm and every mistake visible.',
+    nightScene: 'Candlelight warms the row and makes every kept bead count.',
     sceneMarks: ['🟠', '🕯️', '🪙'],
-    hiddenStall: 'A bead cutter is sorting a private strand for the night row.',
+    hiddenStall: 'A private amber strand is being sorted for night.',
     vendors: {
       day: ['Bead Cutter', 'Row Clerk', 'Amber Counter', 'Wax Broker'],
       night: ['Candle Appraiser', 'Private Strand', 'Night Counter', 'Warm Ledger'],
     },
   },
   'Salt & Timber Yard': {
-    dayScene: 'Salt blocks and timber stacks make every route feel heavy.',
+    dayScene: 'Salt blocks and timber stacks make every exchange feel heavy.',
     nightScene: 'Torchlight marks the prepared bundles that can finally move.',
     sceneMarks: ['🧂', '🪵', '🔥'],
-    hiddenStall: 'A yard foreman is unlocking one night stack.',
+    hiddenStall: 'One locked yard stack is being opened for night.',
     vendors: {
       day: ['Salt Measurer', 'Timber Foreman', 'Stack Clerk', 'Yard Carter'],
       night: ['Torch Foreman', 'Locked Stack', 'Grain Broker', 'Night Carter'],
@@ -315,7 +291,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
     dayScene: 'Copper scales ring across the square as traders weigh every shortcut.',
     nightScene: 'Stone arches echo with late offers for anyone who kept balance.',
     sceneMarks: ['🪙', '⚖️', '🏛️'],
-    hiddenStall: 'A copper minter is setting one scale behind the arch.',
+    hiddenStall: 'A scale behind the arch is being set for night.',
     vendors: {
       day: ['Scale Ringer', 'Copper Clerk', 'Stone Broker', 'Mint Runner'],
       night: ['Arch Appraiser', 'Coin Keeper', 'Late Minter', 'Square Notary'],
@@ -323,9 +299,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Moonlit Souk': {
     dayScene: 'Canvas awnings hide cool shade and hotter arguments.',
-    nightScene: 'Moonlight turns the souk quiet, and one covered stall joins the route.',
+    nightScene: 'Moonlight quiets the souk as one covered stall joins the market.',
     sceneMarks: ['🌙', '🏮', '🐪'],
-    hiddenStall: 'A moonlit stall is still hidden behind a blue awning.',
+    hiddenStall: 'A covered moonlit stall waits behind a blue awning.',
     vendors: {
       day: ['Shade Broker', 'Awnings Clerk', 'Date Runner', 'Souk Caller'],
       night: ['Moon Clerk', 'Blue Awning', 'Lamp Broker', 'Silent Carter'],
@@ -335,7 +311,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
     dayScene: 'Barges arrive in pairs and the gate clerks move goods by rhythm.',
     nightScene: 'The river gate narrows, rewarding cargo that still matches.',
     sceneMarks: ['🌊', '🚪', '⚓️'],
-    hiddenStall: 'A lock keeper is raising one hidden night gate.',
+    hiddenStall: 'One hidden river gate is lifting for night.',
     vendors: {
       day: ['Gate Clerk', 'Barge Pairer', 'River Porter', 'Lock Scale'],
       night: ['Night Lock', 'Tide Appraiser', 'Gate Broker', 'Moon Porter'],
@@ -343,9 +319,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Crimson Ledger': {
     dayScene: 'Red ink dries fast, and every overpay stays on the page.',
-    nightScene: 'The ledger closes around the goods you chose to preserve.',
+    nightScene: 'The ledger closes around the goods left on the page.',
     sceneMarks: ['🟥', '🖋️', '📕'],
-    hiddenStall: 'A red-ink auditor is balancing one hidden night line.',
+    hiddenStall: 'A final red-ink line is being balanced for night.',
     vendors: {
       day: ['Ink Auditor', 'Margin Clerk', 'Red Notary', 'Page Runner'],
       night: ['Closing Clerk', 'Night Auditor', 'Hidden Line', 'Ledger Broker'],
@@ -353,9 +329,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Starlit Agora': {
     dayScene: 'Open stalls price the future before the stars are visible.',
-    nightScene: 'Starlight picks out the contracts that were readable all along.',
+    nightScene: 'Starlight picks out the contracts that were waiting in plain sight.',
     sceneMarks: ['✨', '🏛️', '🌙'],
-    hiddenStall: 'An agora speaker is waiting to announce one night offer.',
+    hiddenStall: 'One late agora offer is waiting for its signal.',
     vendors: {
       day: ['Open Caller', 'Agora Clerk', 'Sky Broker', 'Pillar Runner'],
       night: ['Star Speaker', 'Moon Appraiser', 'Pillar Broker', 'Late Caller'],
@@ -363,9 +339,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Indigo Harbor': {
     dayScene: 'Indigo tarps snap above crates while the harbor wind keeps score.',
-    nightScene: 'Blue lamps swing over the docks as prepared cargo pays off.',
+    nightScene: 'Blue lamps swing over the docks as prepared cargo comes due.',
     sceneMarks: ['⚓️', '🟦', '🌊'],
-    hiddenStall: 'A dock lamp is swinging over one hidden night crate.',
+    hiddenStall: 'A dock lamp is swinging over one covered crate.',
     vendors: {
       day: ['Tarp Broker', 'Harbor Clerk', 'Crate Turner', 'Rope Runner'],
       night: ['Blue Lamp', 'Night Dockhand', 'Tide Appraiser', 'Hidden Crate'],
@@ -373,9 +349,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Windmill Exchange': {
     dayScene: 'Canvas sails turn above the stalls, pushing every deal into motion.',
-    nightScene: 'The sails slow at dusk, and balanced goods finally catch the wind.',
+    nightScene: 'The sails slow at dusk, and the right goods finally catch the wind.',
     sceneMarks: ['🌬️', '🪽', '🧵'],
-    hiddenStall: 'A miller is raising one canvas shutter for the night market.',
+    hiddenStall: 'One canvas shutter is rising for the night market.',
     vendors: {
       day: ['Sail Tally', 'Grain Clerk', 'Canvas Broker', 'Gust Runner'],
       night: ['Shutter Miller', 'Dusk Broker', 'Wind Appraiser', 'Night Sail'],
@@ -383,9 +359,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Oasis Ledger': {
     dayScene: 'Water sellers and caravan clerks count promises before the heat peaks.',
-    nightScene: 'Cool lamps make the oasis ledger strict but generous to planners.',
+    nightScene: 'Cool lamps make the oasis ledger count what survived the heat.',
     sceneMarks: ['🌴', '💧', '📒'],
-    hiddenStall: 'A water clerk is uncorking one night reserve.',
+    hiddenStall: 'One cool night reserve is being uncorked.',
     vendors: {
       day: ['Water Clerk', 'Palm Broker', 'Reserve Tally', 'Caravan Scribe'],
       night: ['Night Reserve', 'Lamp Scribe', 'Oasis Appraiser', 'Cool Ledger'],
@@ -393,9 +369,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Tea Road Arcade': {
     dayScene: 'Tea tins pass from stall to stall while the arcade keeps its rhythm.',
-    nightScene: 'The final cups pour only for traders who saved the right warmth.',
+    nightScene: 'The final cups pour only for warmth kept from the day.',
     sceneMarks: ['🍵', '🫖', '🏮'],
-    hiddenStall: 'A tea master is steeping one hidden night blend.',
+    hiddenStall: 'A hidden night blend is still steeping.',
     vendors: {
       day: ['Tea Runner', 'Tin Keeper', 'Arcade Brewer', 'Steam Clerk'],
       night: ['Night Brewer', 'Hidden Blend', 'Cup Appraiser', 'Lamp Steeper'],
@@ -403,19 +379,19 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   "Mariner's Market": {
     dayScene: 'Ropes, tide charts, and salt air crowd the tables.',
-    nightScene: 'The tide turns, and the prepared cargo decides the route home.',
+    nightScene: 'The tide turns, and prepared cargo finds its harbor.',
     sceneMarks: ['⚓️', '🪢', '🌊'],
-    hiddenStall: 'A mariner is tying off one hidden night mooring.',
+    hiddenStall: 'One hidden night mooring is being tied off.',
     vendors: {
       day: ['Tide Clerk', 'Rope Broker', 'Chart Runner', 'Salt Pilot'],
       night: ['Night Mooring', 'Lamp Pilot', 'Dock Appraiser', 'Moon Chart'],
     },
   },
   'Atlas Bazaar': {
-    dayScene: 'Mapmakers argue over routes while vendors watch your first commitment.',
-    nightScene: 'The maps fold smaller at night, leaving only the planned paths.',
+    dayScene: 'Mapmakers argue over paths while the first marks go down.',
+    nightScene: 'The maps fold smaller at night, leaving only the marked paths.',
     sceneMarks: ['🗺️', '📍', '🧭'],
-    hiddenStall: 'A cartographer is inking one hidden night route.',
+    hiddenStall: 'One covered map case is being inked for night.',
     vendors: {
       day: ['Map Clerk', 'Compass Broker', 'Route Caller', 'Pin Runner'],
       night: ['Night Cartographer', 'Hidden Route', 'Atlas Appraiser', 'Lamp Surveyor'],
@@ -423,9 +399,9 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
   },
   'Sunrise Caravan': {
     dayScene: 'Sunrise opens the caravan gates with every bargain pointed at dusk.',
-    nightScene: 'The camp settles into lamplight and the prepared packs matter most.',
+    nightScene: 'The camp settles into lamplight and the tied packs matter most.',
     sceneMarks: ['🌅', '🐪', '⛺'],
-    hiddenStall: 'A pack master is tying one hidden bundle for nightfall.',
+    hiddenStall: 'One hidden bundle is being tied for nightfall.',
     vendors: {
       day: ['Gate Caller', 'Pack Clerk', 'Sun Broker', 'Dawn Carter'],
       night: ['Pack Master', 'Camp Appraiser', 'Lamp Carter', 'Hidden Bundle'],
@@ -437,12 +413,12 @@ function getMarketIdentity(marketName: string, marketEmoji: string): MarketIdent
   const shared = getSharedMarketIdentity(marketName, marketEmoji);
   const details = MARKET_DETAILS[marketName] ?? {
     dayScene: `${marketEmoji} Stalls open with enough information to plan the night.`,
-    nightScene: 'The night market rewards the goods you chose to protect.',
+    nightScene: 'The night market opens around the goods you chose to keep.',
     sceneMarks: [marketEmoji, '🤝', '🌙'],
     hiddenStall: 'One night stall is still setting up.',
     vendors: {
-      day: ['Day Broker', 'Market Clerk', 'Route Trader', 'Stall Keeper'],
-      night: ['Night Broker', 'Late Appraiser', 'Moon Clerk', 'Hidden Stall'],
+      day: ['Day Offer', 'Market Offer', 'Table Offer', 'Stall Offer'],
+      night: ['Night Offer', 'Late Offer', 'Moon Offer', 'Hidden Stall'],
     },
   };
   return {
