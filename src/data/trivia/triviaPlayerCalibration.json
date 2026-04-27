@@ -1,0 +1,1386 @@
+{
+  "generatedAt": "2026-04-26",
+  "sampleDays": 28,
+  "feeds": {
+    "mix": {
+      "feed": "mix",
+      "sampleDays": 28,
+      "agentSummaries": [
+        {
+          "agentId": "commuter-max",
+          "displayName": "Commuter Max",
+          "archetype": "casual",
+          "sampleDays": 28,
+          "averageCorrect": 7.21,
+          "averageScore": 911.9,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.07,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "movies",
+            "music"
+          ],
+          "frictionFlags": [
+            "trick-needs-softening"
+          ]
+        },
+        {
+          "agentId": "streak-jules",
+          "displayName": "Streak Jules",
+          "archetype": "streak-hunter",
+          "sampleDays": 28,
+          "averageCorrect": 7.96,
+          "averageScore": 1022.6,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.05,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed"
+          ],
+          "frictionFlags": [
+            "trick-needs-softening"
+          ]
+        },
+        {
+          "agentId": "culture-maya",
+          "displayName": "Culture Maya",
+          "archetype": "culture-first",
+          "sampleDays": 28,
+          "averageCorrect": 9.11,
+          "averageScore": 1182.3,
+          "shieldUseRate": 0.21,
+          "timeoutRate": 0.05,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "movies",
+            "music"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "sports-ryan",
+          "displayName": "Sports Ryan",
+          "archetype": "sports-core",
+          "sampleDays": 28,
+          "averageCorrect": 8.39,
+          "averageScore": 1066.2,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.07,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "football",
+            "basketball",
+            "sports"
+          ],
+          "frictionFlags": [
+            "trick-needs-softening"
+          ]
+        },
+        {
+          "agentId": "analyst-eli",
+          "displayName": "Analyst Eli",
+          "archetype": "analytical",
+          "sampleDays": 28,
+          "averageCorrect": 9.18,
+          "averageScore": 1204.1,
+          "shieldUseRate": 0.29,
+          "timeoutRate": 0.06,
+          "cleanRunRate": 0.04,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "technology",
+            "brain-teaser"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "broad-ava",
+          "displayName": "Broad Ava",
+          "archetype": "broad-fan",
+          "sampleDays": 28,
+          "averageCorrect": 8.68,
+          "averageScore": 1113.2,
+          "shieldUseRate": 0.11,
+          "timeoutRate": 0.05,
+          "cleanRunRate": 0.04,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "movies",
+            "music"
+          ],
+          "frictionFlags": []
+        }
+      ],
+      "daySamples": [
+        {
+          "date": "2026-05-11",
+          "agentId": "commuter-max",
+          "displayName": "Commuter Max",
+          "correctCount": 3,
+          "timeoutCount": 2,
+          "shieldUsed": false,
+          "note": "Commuter Max hit timer pressure on Mix for 2026-05-11, suggesting the day needs shorter stems or less lookup drag."
+        },
+        {
+          "date": "2026-04-26",
+          "agentId": "streak-jules",
+          "displayName": "Streak Jules",
+          "correctCount": 5,
+          "timeoutCount": 2,
+          "shieldUsed": false,
+          "note": "Streak Jules hit timer pressure on Mix for 2026-04-26, suggesting the day needs shorter stems or less lookup drag."
+        },
+        {
+          "date": "2026-04-28",
+          "agentId": "broad-ava",
+          "displayName": "Broad Ava",
+          "correctCount": 5,
+          "timeoutCount": 1,
+          "shieldUsed": false,
+          "note": "Broad Ava found Mix rough on 2026-04-28; the miss pattern suggests the day may be too sharp for this archetype."
+        },
+        {
+          "date": "2026-04-26",
+          "agentId": "culture-maya",
+          "displayName": "Culture Maya",
+          "correctCount": 6,
+          "timeoutCount": 0,
+          "shieldUsed": false,
+          "note": "Culture Maya found Mix rough on 2026-04-26; the miss pattern suggests the day may be too sharp for this archetype."
+        },
+        {
+          "date": "2026-05-07",
+          "agentId": "sports-ryan",
+          "displayName": "Sports Ryan",
+          "correctCount": 6,
+          "timeoutCount": 1,
+          "shieldUsed": false,
+          "note": "Sports Ryan found Mix rough on 2026-05-07; the miss pattern suggests the day may be too sharp for this archetype."
+        },
+        {
+          "date": "2026-05-11",
+          "agentId": "analyst-eli",
+          "displayName": "Analyst Eli",
+          "correctCount": 6,
+          "timeoutCount": 4,
+          "shieldUsed": true,
+          "note": "Analyst Eli hit timer pressure on Mix for 2026-05-11, suggesting the day needs shorter stems or less lookup drag."
+        }
+      ],
+      "slotSummaries": [
+        {
+          "slot": 1,
+          "averageCorrectRate": 0.917,
+          "timeoutRate": 0.024,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 2,
+          "averageCorrectRate": 0.911,
+          "timeoutRate": 0.042,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 3,
+          "averageCorrectRate": 0.887,
+          "timeoutRate": 0.006,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 4,
+          "averageCorrectRate": 0.887,
+          "timeoutRate": 0.024,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 5,
+          "averageCorrectRate": 0.732,
+          "timeoutRate": 0.06,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 6,
+          "averageCorrectRate": 0.714,
+          "timeoutRate": 0.036,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 7,
+          "averageCorrectRate": 0.708,
+          "timeoutRate": 0.071,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 8,
+          "averageCorrectRate": 0.738,
+          "timeoutRate": 0.048,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 9,
+          "averageCorrectRate": 0.488,
+          "timeoutRate": 0.107,
+          "shieldUseRate": 0.024
+        },
+        {
+          "slot": 10,
+          "averageCorrectRate": 0.476,
+          "timeoutRate": 0.095,
+          "shieldUseRate": 0.036
+        },
+        {
+          "slot": 11,
+          "averageCorrectRate": 0.44,
+          "timeoutRate": 0.107,
+          "shieldUseRate": 0.012
+        },
+        {
+          "slot": 12,
+          "averageCorrectRate": 0.524,
+          "timeoutRate": 0.089,
+          "shieldUseRate": 0.03
+        }
+      ]
+    },
+    "sports": {
+      "feed": "sports",
+      "sampleDays": 28,
+      "agentSummaries": [
+        {
+          "agentId": "commuter-max",
+          "displayName": "Commuter Max",
+          "archetype": "casual",
+          "sampleDays": 28,
+          "averageCorrect": 5.61,
+          "averageScore": 716,
+          "shieldUseRate": 0.07,
+          "timeoutRate": 0.08,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "movies",
+            "music",
+            "arts"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "streak-jules",
+          "displayName": "Streak Jules",
+          "archetype": "streak-hunter",
+          "sampleDays": 28,
+          "averageCorrect": 6.68,
+          "averageScore": 859.4,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.06,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "culture-maya",
+          "displayName": "Culture Maya",
+          "archetype": "culture-first",
+          "sampleDays": 28,
+          "averageCorrect": 5.75,
+          "averageScore": 726.6,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.06,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "movies",
+            "music",
+            "arts"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "sports-ryan",
+          "displayName": "Sports Ryan",
+          "archetype": "sports-core",
+          "sampleDays": 28,
+          "averageCorrect": 7.61,
+          "averageScore": 1025.7,
+          "shieldUseRate": 0.54,
+          "timeoutRate": 0.04,
+          "cleanRunRate": 0.11,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "football",
+            "basketball"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "analyst-eli",
+          "displayName": "Analyst Eli",
+          "archetype": "analytical",
+          "sampleDays": 28,
+          "averageCorrect": 7,
+          "averageScore": 929.6,
+          "shieldUseRate": 0.39,
+          "timeoutRate": 0.07,
+          "cleanRunRate": 0.07,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "technology",
+            "brain-teaser"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "broad-ava",
+          "displayName": "Broad Ava",
+          "archetype": "broad-fan",
+          "sampleDays": 28,
+          "averageCorrect": 6.86,
+          "averageScore": 913.6,
+          "shieldUseRate": 0.54,
+          "timeoutRate": 0.02,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "movies",
+            "music"
+          ],
+          "frictionFlags": []
+        }
+      ],
+      "daySamples": [
+        {
+          "date": "2026-05-01",
+          "agentId": "commuter-max",
+          "displayName": "Commuter Max",
+          "correctCount": 2,
+          "timeoutCount": 2,
+          "shieldUsed": false,
+          "note": "Commuter Max hit timer pressure on Sports for 2026-05-01, suggesting the day needs shorter stems or less lookup drag."
+        },
+        {
+          "date": "2026-05-20",
+          "agentId": "streak-jules",
+          "displayName": "Streak Jules",
+          "correctCount": 4,
+          "timeoutCount": 1,
+          "shieldUsed": false,
+          "note": "Streak Jules found Sports rough on 2026-05-20; the miss pattern suggests the day may be too sharp for this archetype."
+        },
+        {
+          "date": "2026-05-06",
+          "agentId": "culture-maya",
+          "displayName": "Culture Maya",
+          "correctCount": 4,
+          "timeoutCount": 1,
+          "shieldUsed": false,
+          "note": "Culture Maya found Sports rough on 2026-05-06; the miss pattern suggests the day may be too sharp for this archetype."
+        },
+        {
+          "date": "2026-05-13",
+          "agentId": "analyst-eli",
+          "displayName": "Analyst Eli",
+          "correctCount": 4,
+          "timeoutCount": 3,
+          "shieldUsed": true,
+          "note": "Analyst Eli hit timer pressure on Sports for 2026-05-13, suggesting the day needs shorter stems or less lookup drag."
+        },
+        {
+          "date": "2026-05-23",
+          "agentId": "broad-ava",
+          "displayName": "Broad Ava",
+          "correctCount": 4,
+          "timeoutCount": 0,
+          "shieldUsed": true,
+          "note": "Broad Ava needed the shield to stay in rhythm on Sports for 2026-05-23."
+        },
+        {
+          "date": "2026-05-01",
+          "agentId": "sports-ryan",
+          "displayName": "Sports Ryan",
+          "correctCount": 6,
+          "timeoutCount": 0,
+          "shieldUsed": false,
+          "note": "Sports Ryan found Sports shareable on 2026-05-01, with clean pacing and solid reveal value."
+        }
+      ],
+      "slotSummaries": [
+        {
+          "slot": 1,
+          "averageCorrectRate": 0.923,
+          "timeoutRate": 0.018,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 2,
+          "averageCorrectRate": 0.946,
+          "timeoutRate": 0,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 3,
+          "averageCorrectRate": 0.863,
+          "timeoutRate": 0.03,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 4,
+          "averageCorrectRate": 0.72,
+          "timeoutRate": 0.065,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 5,
+          "averageCorrectRate": 0.732,
+          "timeoutRate": 0.03,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 6,
+          "averageCorrectRate": 0.762,
+          "timeoutRate": 0.06,
+          "shieldUseRate": 0.024
+        },
+        {
+          "slot": 7,
+          "averageCorrectRate": 0.536,
+          "timeoutRate": 0.107,
+          "shieldUseRate": 0.06
+        },
+        {
+          "slot": 8,
+          "averageCorrectRate": 0.536,
+          "timeoutRate": 0.095,
+          "shieldUseRate": 0.077
+        },
+        {
+          "slot": 9,
+          "averageCorrectRate": 0.565,
+          "timeoutRate": 0.095,
+          "shieldUseRate": 0.095
+        }
+      ]
+    }
+  },
+  "cohorts": {
+    "first90": {
+      "sampleDays": 90,
+      "feeds": {
+        "mix": {
+          "feed": "mix",
+          "sampleDays": 90,
+          "agentSummaries": [
+            {
+              "agentId": "commuter-max",
+              "displayName": "Commuter Max",
+              "archetype": "casual",
+              "sampleDays": 90,
+              "averageCorrect": 7.21,
+              "averageScore": 912,
+              "shieldUseRate": 0.02,
+              "timeoutRate": 0.09,
+              "cleanRunRate": 0,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "movies",
+                "music"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "streak-jules",
+              "displayName": "Streak Jules",
+              "archetype": "streak-hunter",
+              "sampleDays": 90,
+              "averageCorrect": 8.23,
+              "averageScore": 1053.4,
+              "shieldUseRate": 0.01,
+              "timeoutRate": 0.06,
+              "cleanRunRate": 0,
+              "standoutStrengths": [
+                "native fit for this feed"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "culture-maya",
+              "displayName": "Culture Maya",
+              "archetype": "culture-first",
+              "sampleDays": 90,
+              "averageCorrect": 9.03,
+              "averageScore": 1168.4,
+              "shieldUseRate": 0.18,
+              "timeoutRate": 0.05,
+              "cleanRunRate": 0.01,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "movies",
+                "music"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "sports-ryan",
+              "displayName": "Sports Ryan",
+              "archetype": "sports-core",
+              "sampleDays": 90,
+              "averageCorrect": 8.08,
+              "averageScore": 1027.1,
+              "shieldUseRate": 0.02,
+              "timeoutRate": 0.06,
+              "cleanRunRate": 0,
+              "standoutStrengths": [
+                "football",
+                "basketball",
+                "sports"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "analyst-eli",
+              "displayName": "Analyst Eli",
+              "archetype": "analytical",
+              "sampleDays": 90,
+              "averageCorrect": 9.42,
+              "averageScore": 1235.3,
+              "shieldUseRate": 0.24,
+              "timeoutRate": 0.06,
+              "cleanRunRate": 0.06,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "technology",
+                "brain-teaser"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "broad-ava",
+              "displayName": "Broad Ava",
+              "archetype": "broad-fan",
+              "sampleDays": 90,
+              "averageCorrect": 8.43,
+              "averageScore": 1081,
+              "shieldUseRate": 0.06,
+              "timeoutRate": 0.05,
+              "cleanRunRate": 0.01,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "movies",
+                "music"
+              ],
+              "frictionFlags": []
+            }
+          ],
+          "daySamples": [
+            {
+              "date": "2026-05-11",
+              "agentId": "commuter-max",
+              "displayName": "Commuter Max",
+              "correctCount": 3,
+              "timeoutCount": 2,
+              "shieldUsed": false,
+              "note": "Commuter Max hit timer pressure on Mix for 2026-05-11, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2026-07-05",
+              "agentId": "sports-ryan",
+              "displayName": "Sports Ryan",
+              "correctCount": 4,
+              "timeoutCount": 0,
+              "shieldUsed": false,
+              "note": "Sports Ryan found Mix rough on 2026-07-05; the miss pattern suggests the day may be too sharp for this archetype."
+            },
+            {
+              "date": "2026-04-26",
+              "agentId": "streak-jules",
+              "displayName": "Streak Jules",
+              "correctCount": 5,
+              "timeoutCount": 2,
+              "shieldUsed": false,
+              "note": "Streak Jules hit timer pressure on Mix for 2026-04-26, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2026-04-28",
+              "agentId": "broad-ava",
+              "displayName": "Broad Ava",
+              "correctCount": 5,
+              "timeoutCount": 1,
+              "shieldUsed": false,
+              "note": "Broad Ava found Mix rough on 2026-04-28; the miss pattern suggests the day may be too sharp for this archetype."
+            },
+            {
+              "date": "2026-04-26",
+              "agentId": "culture-maya",
+              "displayName": "Culture Maya",
+              "correctCount": 6,
+              "timeoutCount": 0,
+              "shieldUsed": false,
+              "note": "Culture Maya found Mix rough on 2026-04-26; the miss pattern suggests the day may be too sharp for this archetype."
+            },
+            {
+              "date": "2026-05-11",
+              "agentId": "analyst-eli",
+              "displayName": "Analyst Eli",
+              "correctCount": 6,
+              "timeoutCount": 4,
+              "shieldUsed": true,
+              "note": "Analyst Eli hit timer pressure on Mix for 2026-05-11, suggesting the day needs shorter stems or less lookup drag."
+            }
+          ],
+          "slotSummaries": [
+            {
+              "slot": 1,
+              "averageCorrectRate": 0.898,
+              "timeoutRate": 0.028,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 2,
+              "averageCorrectRate": 0.893,
+              "timeoutRate": 0.037,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 3,
+              "averageCorrectRate": 0.904,
+              "timeoutRate": 0.011,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 4,
+              "averageCorrectRate": 0.887,
+              "timeoutRate": 0.028,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 5,
+              "averageCorrectRate": 0.731,
+              "timeoutRate": 0.057,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 6,
+              "averageCorrectRate": 0.724,
+              "timeoutRate": 0.061,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 7,
+              "averageCorrectRate": 0.722,
+              "timeoutRate": 0.065,
+              "shieldUseRate": 0.002
+            },
+            {
+              "slot": 8,
+              "averageCorrectRate": 0.707,
+              "timeoutRate": 0.054,
+              "shieldUseRate": 0.002
+            },
+            {
+              "slot": 9,
+              "averageCorrectRate": 0.476,
+              "timeoutRate": 0.122,
+              "shieldUseRate": 0.019
+            },
+            {
+              "slot": 10,
+              "averageCorrectRate": 0.478,
+              "timeoutRate": 0.111,
+              "shieldUseRate": 0.024
+            },
+            {
+              "slot": 11,
+              "averageCorrectRate": 0.47,
+              "timeoutRate": 0.098,
+              "shieldUseRate": 0.019
+            },
+            {
+              "slot": 12,
+              "averageCorrectRate": 0.511,
+              "timeoutRate": 0.078,
+              "shieldUseRate": 0.024
+            }
+          ]
+        },
+        "sports": {
+          "feed": "sports",
+          "sampleDays": 90,
+          "agentSummaries": [
+            {
+              "agentId": "commuter-max",
+              "displayName": "Commuter Max",
+              "archetype": "casual",
+              "sampleDays": 90,
+              "averageCorrect": 5.88,
+              "averageScore": 748.9,
+              "shieldUseRate": 0.06,
+              "timeoutRate": 0.09,
+              "cleanRunRate": 0.02,
+              "standoutStrengths": [
+                "movies",
+                "music",
+                "arts"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "streak-jules",
+              "displayName": "Streak Jules",
+              "archetype": "streak-hunter",
+              "sampleDays": 90,
+              "averageCorrect": 6.64,
+              "averageScore": 854.3,
+              "shieldUseRate": 0.01,
+              "timeoutRate": 0.04,
+              "cleanRunRate": 0.01,
+              "standoutStrengths": [
+                "native fit for this feed"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "culture-maya",
+              "displayName": "Culture Maya",
+              "archetype": "culture-first",
+              "sampleDays": 90,
+              "averageCorrect": 5.83,
+              "averageScore": 739.2,
+              "shieldUseRate": 0.04,
+              "timeoutRate": 0.05,
+              "cleanRunRate": 0,
+              "standoutStrengths": [
+                "movies",
+                "music",
+                "arts"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "sports-ryan",
+              "displayName": "Sports Ryan",
+              "archetype": "sports-core",
+              "sampleDays": 90,
+              "averageCorrect": 7.72,
+              "averageScore": 1035.2,
+              "shieldUseRate": 0.42,
+              "timeoutRate": 0.04,
+              "cleanRunRate": 0.21,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "football",
+                "basketball"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "analyst-eli",
+              "displayName": "Analyst Eli",
+              "archetype": "analytical",
+              "sampleDays": 90,
+              "averageCorrect": 6.93,
+              "averageScore": 928.2,
+              "shieldUseRate": 0.56,
+              "timeoutRate": 0.06,
+              "cleanRunRate": 0.09,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "technology",
+                "brain-teaser"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "broad-ava",
+              "displayName": "Broad Ava",
+              "archetype": "broad-fan",
+              "sampleDays": 90,
+              "averageCorrect": 7.01,
+              "averageScore": 932.2,
+              "shieldUseRate": 0.5,
+              "timeoutRate": 0.03,
+              "cleanRunRate": 0.03,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "movies",
+                "music"
+              ],
+              "frictionFlags": []
+            }
+          ],
+          "daySamples": [
+            {
+              "date": "2026-05-01",
+              "agentId": "commuter-max",
+              "displayName": "Commuter Max",
+              "correctCount": 2,
+              "timeoutCount": 2,
+              "shieldUsed": false,
+              "note": "Commuter Max hit timer pressure on Sports for 2026-05-01, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2026-06-05",
+              "agentId": "culture-maya",
+              "displayName": "Culture Maya",
+              "correctCount": 3,
+              "timeoutCount": 0,
+              "shieldUsed": false,
+              "note": "Culture Maya found Sports rough on 2026-06-05; the miss pattern suggests the day may be too sharp for this archetype."
+            },
+            {
+              "date": "2026-05-20",
+              "agentId": "streak-jules",
+              "displayName": "Streak Jules",
+              "correctCount": 4,
+              "timeoutCount": 1,
+              "shieldUsed": false,
+              "note": "Streak Jules found Sports rough on 2026-05-20; the miss pattern suggests the day may be too sharp for this archetype."
+            },
+            {
+              "date": "2026-05-13",
+              "agentId": "analyst-eli",
+              "displayName": "Analyst Eli",
+              "correctCount": 4,
+              "timeoutCount": 3,
+              "shieldUsed": true,
+              "note": "Analyst Eli hit timer pressure on Sports for 2026-05-13, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2026-05-23",
+              "agentId": "broad-ava",
+              "displayName": "Broad Ava",
+              "correctCount": 4,
+              "timeoutCount": 0,
+              "shieldUsed": true,
+              "note": "Broad Ava needed the shield to stay in rhythm on Sports for 2026-05-23."
+            },
+            {
+              "date": "2026-07-10",
+              "agentId": "sports-ryan",
+              "displayName": "Sports Ryan",
+              "correctCount": 5,
+              "timeoutCount": 1,
+              "shieldUsed": false,
+              "note": "Sports Ryan found Sports shareable on 2026-07-10, with clean pacing and solid reveal value."
+            }
+          ],
+          "slotSummaries": [
+            {
+              "slot": 1,
+              "averageCorrectRate": 0.907,
+              "timeoutRate": 0.026,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 2,
+              "averageCorrectRate": 0.939,
+              "timeoutRate": 0.015,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 3,
+              "averageCorrectRate": 0.9,
+              "timeoutRate": 0.017,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 4,
+              "averageCorrectRate": 0.746,
+              "timeoutRate": 0.054,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 5,
+              "averageCorrectRate": 0.759,
+              "timeoutRate": 0.048,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 6,
+              "averageCorrectRate": 0.787,
+              "timeoutRate": 0.044,
+              "shieldUseRate": 0.031
+            },
+            {
+              "slot": 7,
+              "averageCorrectRate": 0.546,
+              "timeoutRate": 0.069,
+              "shieldUseRate": 0.07
+            },
+            {
+              "slot": 8,
+              "averageCorrectRate": 0.535,
+              "timeoutRate": 0.093,
+              "shieldUseRate": 0.096
+            },
+            {
+              "slot": 9,
+              "averageCorrectRate": 0.55,
+              "timeoutRate": 0.096,
+              "shieldUseRate": 0.067
+            }
+          ]
+        }
+      }
+    },
+    "fullYear": {
+      "sampleDays": 365,
+      "feeds": {
+        "mix": {
+          "feed": "mix",
+          "sampleDays": 365,
+          "agentSummaries": [
+            {
+              "agentId": "commuter-max",
+              "displayName": "Commuter Max",
+              "archetype": "casual",
+              "sampleDays": 365,
+              "averageCorrect": 7.39,
+              "averageScore": 938.7,
+              "shieldUseRate": 0.11,
+              "timeoutRate": 0.08,
+              "cleanRunRate": 0.01,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "movies",
+                "music"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "streak-jules",
+              "displayName": "Streak Jules",
+              "archetype": "streak-hunter",
+              "sampleDays": 365,
+              "averageCorrect": 8.19,
+              "averageScore": 1048.6,
+              "shieldUseRate": 0.05,
+              "timeoutRate": 0.05,
+              "cleanRunRate": 0.01,
+              "standoutStrengths": [
+                "native fit for this feed"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "culture-maya",
+              "displayName": "Culture Maya",
+              "archetype": "culture-first",
+              "sampleDays": 365,
+              "averageCorrect": 8.78,
+              "averageScore": 1135.5,
+              "shieldUseRate": 0.14,
+              "timeoutRate": 0.05,
+              "cleanRunRate": 0.02,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "movies",
+                "music"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "sports-ryan",
+              "displayName": "Sports Ryan",
+              "archetype": "sports-core",
+              "sampleDays": 365,
+              "averageCorrect": 7.95,
+              "averageScore": 1012.9,
+              "shieldUseRate": 0.08,
+              "timeoutRate": 0.07,
+              "cleanRunRate": 0,
+              "standoutStrengths": [
+                "football",
+                "basketball",
+                "sports"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "analyst-eli",
+              "displayName": "Analyst Eli",
+              "archetype": "analytical",
+              "sampleDays": 365,
+              "averageCorrect": 9.36,
+              "averageScore": 1224.3,
+              "shieldUseRate": 0.21,
+              "timeoutRate": 0.06,
+              "cleanRunRate": 0.06,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "technology",
+                "brain-teaser"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "broad-ava",
+              "displayName": "Broad Ava",
+              "archetype": "broad-fan",
+              "sampleDays": 365,
+              "averageCorrect": 8.38,
+              "averageScore": 1072,
+              "shieldUseRate": 0.05,
+              "timeoutRate": 0.05,
+              "cleanRunRate": 0.01,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "movies",
+                "music"
+              ],
+              "frictionFlags": []
+            }
+          ],
+          "daySamples": [
+            {
+              "date": "2027-03-28",
+              "agentId": "sports-ryan",
+              "displayName": "Sports Ryan",
+              "correctCount": 2,
+              "timeoutCount": 3,
+              "shieldUsed": false,
+              "note": "Sports Ryan hit timer pressure on Mix for 2027-03-28, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2026-05-11",
+              "agentId": "commuter-max",
+              "displayName": "Commuter Max",
+              "correctCount": 3,
+              "timeoutCount": 2,
+              "shieldUsed": false,
+              "note": "Commuter Max hit timer pressure on Mix for 2026-05-11, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2027-03-31",
+              "agentId": "streak-jules",
+              "displayName": "Streak Jules",
+              "correctCount": 3,
+              "timeoutCount": 3,
+              "shieldUsed": false,
+              "note": "Streak Jules hit timer pressure on Mix for 2027-03-31, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2027-04-24",
+              "agentId": "culture-maya",
+              "displayName": "Culture Maya",
+              "correctCount": 3,
+              "timeoutCount": 1,
+              "shieldUsed": false,
+              "note": "Culture Maya found Mix rough on 2027-04-24; the miss pattern suggests the day may be too sharp for this archetype."
+            },
+            {
+              "date": "2027-04-23",
+              "agentId": "broad-ava",
+              "displayName": "Broad Ava",
+              "correctCount": 3,
+              "timeoutCount": 4,
+              "shieldUsed": false,
+              "note": "Broad Ava hit timer pressure on Mix for 2027-04-23, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2026-12-12",
+              "agentId": "analyst-eli",
+              "displayName": "Analyst Eli",
+              "correctCount": 5,
+              "timeoutCount": 2,
+              "shieldUsed": false,
+              "note": "Analyst Eli hit timer pressure on Mix for 2026-12-12, suggesting the day needs shorter stems or less lookup drag."
+            }
+          ],
+          "slotSummaries": [
+            {
+              "slot": 1,
+              "averageCorrectRate": 0.873,
+              "timeoutRate": 0.032,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 2,
+              "averageCorrectRate": 0.863,
+              "timeoutRate": 0.033,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 3,
+              "averageCorrectRate": 0.859,
+              "timeoutRate": 0.024,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 4,
+              "averageCorrectRate": 0.859,
+              "timeoutRate": 0.031,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 5,
+              "averageCorrectRate": 0.691,
+              "timeoutRate": 0.061,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 6,
+              "averageCorrectRate": 0.704,
+              "timeoutRate": 0.06,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 7,
+              "averageCorrectRate": 0.707,
+              "timeoutRate": 0.059,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 8,
+              "averageCorrectRate": 0.696,
+              "timeoutRate": 0.062,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 9,
+              "averageCorrectRate": 0.528,
+              "timeoutRate": 0.099,
+              "shieldUseRate": 0.014
+            },
+            {
+              "slot": 10,
+              "averageCorrectRate": 0.535,
+              "timeoutRate": 0.09,
+              "shieldUseRate": 0.032
+            },
+            {
+              "slot": 11,
+              "averageCorrectRate": 0.512,
+              "timeoutRate": 0.095,
+              "shieldUseRate": 0.031
+            },
+            {
+              "slot": 12,
+              "averageCorrectRate": 0.515,
+              "timeoutRate": 0.077,
+              "shieldUseRate": 0.028
+            }
+          ]
+        },
+        "sports": {
+          "feed": "sports",
+          "sampleDays": 365,
+          "agentSummaries": [
+            {
+              "agentId": "commuter-max",
+              "displayName": "Commuter Max",
+              "archetype": "casual",
+              "sampleDays": 365,
+              "averageCorrect": 5.98,
+              "averageScore": 765.2,
+              "shieldUseRate": 0.09,
+              "timeoutRate": 0.08,
+              "cleanRunRate": 0.04,
+              "standoutStrengths": [
+                "movies",
+                "music",
+                "arts"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "streak-jules",
+              "displayName": "Streak Jules",
+              "archetype": "streak-hunter",
+              "sampleDays": 365,
+              "averageCorrect": 6.67,
+              "averageScore": 862.1,
+              "shieldUseRate": 0.06,
+              "timeoutRate": 0.04,
+              "cleanRunRate": 0.07,
+              "standoutStrengths": [
+                "native fit for this feed"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "culture-maya",
+              "displayName": "Culture Maya",
+              "archetype": "culture-first",
+              "sampleDays": 365,
+              "averageCorrect": 5.95,
+              "averageScore": 758.9,
+              "shieldUseRate": 0.09,
+              "timeoutRate": 0.05,
+              "cleanRunRate": 0.02,
+              "standoutStrengths": [
+                "movies",
+                "music",
+                "arts"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "sports-ryan",
+              "displayName": "Sports Ryan",
+              "archetype": "sports-core",
+              "sampleDays": 365,
+              "averageCorrect": 7.93,
+              "averageScore": 1058.2,
+              "shieldUseRate": 0.29,
+              "timeoutRate": 0.04,
+              "cleanRunRate": 0.31,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "football",
+                "basketball"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "analyst-eli",
+              "displayName": "Analyst Eli",
+              "archetype": "analytical",
+              "sampleDays": 365,
+              "averageCorrect": 6.97,
+              "averageScore": 922.2,
+              "shieldUseRate": 0.35,
+              "timeoutRate": 0.05,
+              "cleanRunRate": 0.11,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "technology",
+                "brain-teaser"
+              ],
+              "frictionFlags": []
+            },
+            {
+              "agentId": "broad-ava",
+              "displayName": "Broad Ava",
+              "archetype": "broad-fan",
+              "sampleDays": 365,
+              "averageCorrect": 7.23,
+              "averageScore": 954.5,
+              "shieldUseRate": 0.29,
+              "timeoutRate": 0.03,
+              "cleanRunRate": 0.16,
+              "standoutStrengths": [
+                "native fit for this feed",
+                "movies",
+                "music"
+              ],
+              "frictionFlags": []
+            }
+          ],
+          "daySamples": [
+            {
+              "date": "2026-10-31",
+              "agentId": "commuter-max",
+              "displayName": "Commuter Max",
+              "correctCount": 2,
+              "timeoutCount": 3,
+              "shieldUsed": false,
+              "note": "Commuter Max hit timer pressure on Sports for 2026-10-31, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2026-09-18",
+              "agentId": "streak-jules",
+              "displayName": "Streak Jules",
+              "correctCount": 2,
+              "timeoutCount": 1,
+              "shieldUsed": false,
+              "note": "Streak Jules found Sports rough on 2026-09-18; the miss pattern suggests the day may be too sharp for this archetype."
+            },
+            {
+              "date": "2027-03-08",
+              "agentId": "culture-maya",
+              "displayName": "Culture Maya",
+              "correctCount": 2,
+              "timeoutCount": 2,
+              "shieldUsed": false,
+              "note": "Culture Maya hit timer pressure on Sports for 2027-03-08, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2026-08-20",
+              "agentId": "analyst-eli",
+              "displayName": "Analyst Eli",
+              "correctCount": 3,
+              "timeoutCount": 1,
+              "shieldUsed": false,
+              "note": "Analyst Eli found Sports rough on 2026-08-20; the miss pattern suggests the day may be too sharp for this archetype."
+            },
+            {
+              "date": "2027-01-26",
+              "agentId": "broad-ava",
+              "displayName": "Broad Ava",
+              "correctCount": 3,
+              "timeoutCount": 2,
+              "shieldUsed": false,
+              "note": "Broad Ava hit timer pressure on Sports for 2027-01-26, suggesting the day needs shorter stems or less lookup drag."
+            },
+            {
+              "date": "2027-02-21",
+              "agentId": "sports-ryan",
+              "displayName": "Sports Ryan",
+              "correctCount": 5,
+              "timeoutCount": 2,
+              "shieldUsed": true,
+              "note": "Sports Ryan hit timer pressure on Sports for 2027-02-21, suggesting the day needs shorter stems or less lookup drag."
+            }
+          ],
+          "slotSummaries": [
+            {
+              "slot": 1,
+              "averageCorrectRate": 0.89,
+              "timeoutRate": 0.019,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 2,
+              "averageCorrectRate": 0.825,
+              "timeoutRate": 0.04,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 3,
+              "averageCorrectRate": 0.815,
+              "timeoutRate": 0.041,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 4,
+              "averageCorrectRate": 0.731,
+              "timeoutRate": 0.051,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 5,
+              "averageCorrectRate": 0.756,
+              "timeoutRate": 0.055,
+              "shieldUseRate": 0
+            },
+            {
+              "slot": 6,
+              "averageCorrectRate": 0.766,
+              "timeoutRate": 0.049,
+              "shieldUseRate": 0.022
+            },
+            {
+              "slot": 7,
+              "averageCorrectRate": 0.67,
+              "timeoutRate": 0.061,
+              "shieldUseRate": 0.057
+            },
+            {
+              "slot": 8,
+              "averageCorrectRate": 0.667,
+              "timeoutRate": 0.063,
+              "shieldUseRate": 0.066
+            },
+            {
+              "slot": 9,
+              "averageCorrectRate": 0.668,
+              "timeoutRate": 0.063,
+              "shieldUseRate": 0.05
+            }
+          ]
+        }
+      }
+    }
+  }
+}

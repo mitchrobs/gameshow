@@ -1,39 +1,48 @@
-import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ScrollView,
+  AccessibilityInfo,
+  Animated,
+  Easing,
+  Linking,
   Platform,
+  ScrollView,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-import {
-  type ThemeTokens,
-  resolveScreenAccent,
-  useDaybreakTheme,
-} from '../src/constants/theme';
-import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
+import { resolveScreenAccent, useDaybreakTheme } from '../src/constants/theme';
 import { BUILD_ID } from '../src/constants/build';
 import {
-  getDailyTriviaCategories,
-  getTriviaQuestionPools,
-  getTriviaCategory,
-  TriviaQuestion,
-  TriviaDifficulty,
-} from '../src/data/triviaCatalog';
+  formatTriviaShareText,
+  getTodayTriviaEpisode,
+  getTriviaFeedSummary,
+  getTriviaLocalDateKey,
+  type TriviaFeed,
+  type TriviaEpisode,
+  type TriviaRunAnswer,
+  type TriviaRunResult,
+} from '../src/data/trivia';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
+import {
+  createTriviaStyles,
+  TriviaFinalStretchOverlay,
+  TriviaIntroSurface,
+  TriviaPageHeader,
+  TriviaQuestionSurface,
+  TriviaResultsSurface,
+} from '../src/ui/trivia/TriviaSurfaces';
 
-const QUESTION_COUNT = 8;
-const TIME_PER_QUESTION = 20;
 const STORAGE_PREFIX = 'trivia';
+const BASE_POINTS = 100;
+const SPEED_BONUS = 50;
+const SHIELD_POINTS = 50;
+const QUESTION_ENTRY_MS = 220;
+const REVEAL_ENTRY_MS = 180;
+const OVERLAY_ENTRY_MS = 240;
+const REVEAL_DELAY_MS = 1350;
+const FINAL_STRETCH_DELAY_MS = 1500;
 
-function getLocalDateKey(date: Date = new Date()): string {
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-}
+type ScreenMode = 'start' | 'question' | 'transition' | 'reveal' | 'results';
 
 function getStorage(): Storage | null {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -42,159 +51,122 @@ function getStorage(): Storage | null {
   return null;
 }
 
-type GameMode = 'choose' | 'quiz' | 'finished';
-
-type QuestionPools = Record<TriviaDifficulty, TriviaQuestion[]>;
-
-function clampDifficulty(value: number): TriviaDifficulty {
-  if (value <= 1) return 1;
-  if (value >= 3) return 3;
-  return value as TriviaDifficulty;
+function formatLocalDateLabel(dateKey: string): string {
+  return new Date(`${dateKey}T12:00:00`).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
-function drawFromPools(pools: QuestionPools, target: TriviaDifficulty): TriviaQuestion | null {
-  const order: TriviaDifficulty[] =
-    target === 1 ? [1, 2, 3] : target === 2 ? [2, 3, 1] : [3, 2, 1];
-  for (const diff of order) {
-    const next = pools[diff].shift();
-    if (next) return next;
-  }
-  return null;
+function getTimerSeconds(episode: TriviaEpisode): number {
+  return episode.timerSeconds;
+}
+
+function buildRunStorageKey(feed: TriviaFeed, dateKey: string): string {
+  return `${STORAGE_PREFIX}:run:${feed}:${dateKey}`;
 }
 
 export default function TriviaScreen() {
   const theme = useDaybreakTheme();
   const screenAccent = useMemo(() => resolveScreenAccent('trivia', theme), [theme]);
-  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
-  const Colors = theme.colors;
+  const styles = useMemo(() => createTriviaStyles(theme, screenAccent), [theme, screenAccent]);
   const router = useRouter();
-  const dateKey = useMemo(() => getLocalDateKey(), []);
-  const storageKey = `${STORAGE_PREFIX}:daily:${dateKey}`;
-  const dateLabel = useMemo(
-    () =>
-      new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-    []
-  );
 
-  const dailyCategories = useMemo(() => getDailyTriviaCategories(), []);
-  const [mode, setMode] = useState<GameMode>('choose');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [questionOrder, setQuestionOrder] = useState<TriviaQuestion[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedFeed, setSelectedFeed] = useState<TriviaFeed>('mix');
+  const [screenMode, setScreenMode] = useState<ScreenMode>('start');
+  const [activeEpisode, setActiveEpisode] = useState<TriviaEpisode | null>(null);
+  const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [answers, setAnswers] = useState<{ correct: boolean; timedOut: boolean }[]>([]);
-  const [countdown, setCountdown] = useState(TIME_PER_QUESTION);
+  const [countdown, setCountdown] = useState(0);
+  const [answers, setAnswers] = useState<TriviaRunAnswer[]>([]);
+  const [shieldAvailable, setShieldAvailable] = useState(true);
+  const [shieldArmed, setShieldArmed] = useState(false);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
-  const [difficulty, setDifficulty] = useState<TriviaDifficulty>(1);
-  const poolsRef = useRef<QuestionPools | null>(null);
+  const [showReview, setShowReview] = useState(false);
+  const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
+  const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasCountedRef = useRef(false);
 
-  const category = useMemo(
-    () => (selectedCategoryId ? getTriviaCategory(selectedCategoryId) : undefined),
-    [selectedCategoryId]
-  );
+  const surfaceOpacity = useRef(new Animated.Value(1)).current;
+  const surfaceTranslateY = useRef(new Animated.Value(0)).current;
+  const questionOpacity = useRef(new Animated.Value(1)).current;
+  const questionTranslateY = useRef(new Animated.Value(0)).current;
+  const revealOpacity = useRef(new Animated.Value(0)).current;
+  const revealTranslateY = useRef(new Animated.Value(8)).current;
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const overlayCardOpacity = useRef(new Animated.Value(0)).current;
+  const overlayCardTranslateY = useRef(new Animated.Value(12)).current;
 
-  const currentQuestion = questionOrder[currentIndex];
-  const correctCount = answers.filter((a) => a.correct).length;
+  const previewEpisode = useMemo(() => getTodayTriviaEpisode(selectedFeed), [selectedFeed]);
+  const previewSummary = useMemo(() => getTriviaFeedSummary(selectedFeed), [selectedFeed]);
+  const currentEpisode = activeEpisode ?? previewEpisode;
+  const currentQuestion = activeEpisode?.questions[questionIndex] ?? null;
+  const dateLabel = useMemo(() => formatLocalDateLabel(currentEpisode.date), [currentEpisode.date]);
+  const currentTimerSeconds = useMemo(() => getTimerSeconds(currentEpisode), [currentEpisode]);
+  const lastAnswer = answers[answers.length - 1] ?? null;
 
-  const takeNextQuestion = useCallback(
-    (nextDifficulty: TriviaDifficulty) => {
-      if (!poolsRef.current) return;
-      const next = drawFromPools(poolsRef.current, nextDifficulty);
-      if (!next) return;
-      setQuestionOrder((prev) => [...prev, next]);
-    },
-    []
-  );
-
-  const startTrivia = useCallback(
-    (categoryId: string) => {
-      const pools = getTriviaQuestionPools(categoryId);
-      poolsRef.current = pools;
-      const first = drawFromPools(pools, 1);
-      setSelectedCategoryId(categoryId);
-      setQuestionOrder(first ? [first] : []);
-      setCurrentIndex(0);
-      setAnswers([]);
-      setSelectedOption(null);
-      setCountdown(TIME_PER_QUESTION);
-      setDifficulty(1);
-      setMode('quiz');
-    },
-    []
-  );
-
-  const goNext = useCallback((nextDifficulty: TriviaDifficulty) => {
-    setSelectedOption(null);
-    setCountdown(TIME_PER_QUESTION);
-    setCurrentIndex((prev) => {
-      const next = prev + 1;
-      if (next >= QUESTION_COUNT) {
-        setMode('finished');
-        return prev;
-      }
-      takeNextQuestion(nextDifficulty);
-      return next;
+  const runResult = useMemo<TriviaRunResult | null>(() => {
+    if (!activeEpisode || answers.length === 0) return null;
+    const answerMarks = answers.map((answer) => {
+      if (answer.shielded) return 'shielded';
+      if (answer.correct) return 'correct';
+      if (answer.timedOut) return 'timeout';
+      return 'wrong';
     });
-  }, [takeNextQuestion]);
-
-  const handleAnswer = useCallback(
-    (index: number) => {
-      if (mode !== 'quiz') return;
-      if (selectedOption !== null) return;
-      if (!currentQuestion) return;
-      setSelectedOption(index);
-      const isCorrect = index === currentQuestion.answerIndex;
-      const nextDifficulty = clampDifficulty(difficulty + (isCorrect ? 1 : -1));
-      setDifficulty(nextDifficulty);
-      setAnswers((prev) => [...prev, { correct: isCorrect, timedOut: false }]);
-      setTimeout(() => goNext(nextDifficulty), 650);
-    },
-    [mode, selectedOption, currentQuestion, goNext, difficulty]
-  );
-
-  const handleTimeout = useCallback(() => {
-    if (mode !== 'quiz') return;
-    if (selectedOption !== null) return;
-    setSelectedOption(-1);
-    const nextDifficulty = clampDifficulty(difficulty - 1);
-    setDifficulty(nextDifficulty);
-    setAnswers((prev) => [...prev, { correct: false, timedOut: true }]);
-    setTimeout(() => goNext(nextDifficulty), 500);
-  }, [mode, selectedOption, goNext, difficulty]);
-
-  useEffect(() => {
-    if (mode !== 'quiz') return;
-    if (selectedOption !== null) return;
-    if (countdown <= 0) return;
-    const id = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(id);
-  }, [mode, selectedOption, countdown]);
-
-  useEffect(() => {
-    if (mode !== 'quiz') return;
-    if (selectedOption !== null) return;
-    if (countdown <= 0) {
-      handleTimeout();
-    }
-  }, [countdown, handleTimeout, mode, selectedOption]);
+    const score = answers.reduce((total, answer) => total + answer.points, 0);
+    const correctCount = answers.filter((answer) => answer.correct).length;
+    const shieldUsed = answers.some((answer) => answer.shielded);
+    const cleanRun =
+      answers.length === activeEpisode.questionCount &&
+      !shieldUsed &&
+      answers.every((answer) => answer.correct);
+    return {
+      feed: activeEpisode.feed,
+      dateKey: activeEpisode.date,
+      timerSeconds: activeEpisode.timerSeconds,
+      score,
+      correctCount,
+      totalQuestions: activeEpisode.questionCount,
+      shieldUsed,
+      cleanRun,
+      answerMarks,
+    };
+  }, [activeEpisode, answers]);
 
   const shareText = useMemo(() => {
-    const resultRow = answers
-      .map((a) => (a.correct ? '🟩' : a.timedOut ? '⏱️' : '⬛️'))
-      .join('');
-    return [
-      `Trivia ${dateLabel} ${correctCount}/${QUESTION_COUNT}`,
-      category?.name ?? 'Daily Trivia',
-      resultRow,
-      'https://mitchrobs.github.io/gameshow/',
-    ].join('\n');
-  }, [answers, dateLabel, correctCount, category?.name]);
+    if (!runResult || !activeEpisode) return '';
+    return formatTriviaShareText(runResult, activeEpisode, dateLabel);
+  }, [activeEpisode, dateLabel, runResult]);
+
+  const resetTimers = useCallback(() => {
+    if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+    transitionTimerRef.current = null;
+    revealTimerRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    return () => resetTimers();
+  }, [resetTimers]);
+
+  useEffect(() => {
+    let isMounted = true;
+    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
+      if (isMounted) {
+        setReduceMotionEnabled(enabled);
+      }
+    });
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotionEnabled
+    );
+    return () => {
+      isMounted = false;
+      subscription.remove();
+    };
+  }, []);
 
   useEffect(() => {
     setShareStatus(null);
@@ -203,27 +175,308 @@ export default function TriviaScreen() {
   useEffect(() => {
     const storage = getStorage();
     if (!storage) return;
-    const key = `${STORAGE_PREFIX}:playcount:${getLocalDateKey()}`;
+    const key = `${STORAGE_PREFIX}:playcount:${getTriviaLocalDateKey()}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
   }, []);
 
-  const hasCountedRef = useRef(false);
   useEffect(() => {
-    if (mode === 'finished' && !hasCountedRef.current) {
+    if (screenMode !== 'start' && screenMode !== 'results') return;
+    surfaceOpacity.stopAnimation();
+    surfaceTranslateY.stopAnimation();
+    if (reduceMotionEnabled) {
+      surfaceOpacity.setValue(1);
+      surfaceTranslateY.setValue(0);
+      return;
+    }
+    surfaceOpacity.setValue(0);
+    surfaceTranslateY.setValue(14);
+    Animated.parallel([
+      Animated.timing(surfaceOpacity, {
+        toValue: 1,
+        duration: QUESTION_ENTRY_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(surfaceTranslateY, {
+        toValue: 0,
+        duration: QUESTION_ENTRY_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [reduceMotionEnabled, screenMode, surfaceOpacity, surfaceTranslateY]);
+
+  useEffect(() => {
+    if (!activeEpisode) return;
+    if (screenMode !== 'question' && screenMode !== 'transition') return;
+    questionOpacity.stopAnimation();
+    questionTranslateY.stopAnimation();
+    if (reduceMotionEnabled) {
+      questionOpacity.setValue(1);
+      questionTranslateY.setValue(0);
+      return;
+    }
+    questionOpacity.setValue(0);
+    questionTranslateY.setValue(12);
+    Animated.parallel([
+      Animated.timing(questionOpacity, {
+        toValue: 1,
+        duration: QUESTION_ENTRY_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(questionTranslateY, {
+        toValue: 0,
+        duration: QUESTION_ENTRY_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [
+    activeEpisode,
+    questionIndex,
+    questionOpacity,
+    questionTranslateY,
+    reduceMotionEnabled,
+    screenMode,
+  ]);
+
+  useEffect(() => {
+    if (screenMode !== 'reveal') {
+      revealOpacity.setValue(0);
+      revealTranslateY.setValue(8);
+      return;
+    }
+    revealOpacity.stopAnimation();
+    revealTranslateY.stopAnimation();
+    if (reduceMotionEnabled) {
+      revealOpacity.setValue(1);
+      revealTranslateY.setValue(0);
+      return;
+    }
+    revealOpacity.setValue(0);
+    revealTranslateY.setValue(8);
+    Animated.parallel([
+      Animated.timing(revealOpacity, {
+        toValue: 1,
+        duration: REVEAL_ENTRY_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(revealTranslateY, {
+        toValue: 0,
+        duration: REVEAL_ENTRY_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [reduceMotionEnabled, revealOpacity, revealTranslateY, screenMode]);
+
+  useEffect(() => {
+    if (screenMode !== 'transition') {
+      overlayOpacity.setValue(0);
+      overlayCardOpacity.setValue(0);
+      overlayCardTranslateY.setValue(12);
+      return;
+    }
+    overlayOpacity.stopAnimation();
+    overlayCardOpacity.stopAnimation();
+    overlayCardTranslateY.stopAnimation();
+    if (reduceMotionEnabled) {
+      overlayOpacity.setValue(1);
+      overlayCardOpacity.setValue(1);
+      overlayCardTranslateY.setValue(0);
+      return;
+    }
+    overlayOpacity.setValue(0);
+    overlayCardOpacity.setValue(0);
+    overlayCardTranslateY.setValue(12);
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 1,
+        duration: OVERLAY_ENTRY_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(overlayCardOpacity, {
+        toValue: 1,
+        duration: OVERLAY_ENTRY_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(overlayCardTranslateY, {
+        toValue: 0,
+        duration: OVERLAY_ENTRY_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [
+    overlayCardOpacity,
+    overlayCardTranslateY,
+    overlayOpacity,
+    reduceMotionEnabled,
+    screenMode,
+  ]);
+
+  const startRun = useCallback(() => {
+    const nextEpisode = getTodayTriviaEpisode(selectedFeed);
+    resetTimers();
+    setActiveEpisode(nextEpisode);
+    setQuestionIndex(0);
+    setSelectedOption(null);
+    setAnswers([]);
+    setShieldAvailable(true);
+    setShieldArmed(false);
+    setShareStatus(null);
+    setShowReview(false);
+    setCountdown(getTimerSeconds(nextEpisode));
+    setScreenMode('question');
+    hasCountedRef.current = false;
+  }, [resetTimers, selectedFeed]);
+
+  const advanceToNextQuestion = useCallback(
+    (nextIndex: number) => {
+      if (!activeEpisode) return;
+      setQuestionIndex(nextIndex);
+      setSelectedOption(null);
+      setShieldArmed(false);
+      setCountdown(getTimerSeconds(activeEpisode));
+      setScreenMode(nextIndex === activeEpisode.finalStretchStartsAt ? 'transition' : 'question');
+    },
+    [activeEpisode]
+  );
+
+  const advanceAfterReveal = useCallback(() => {
+    if (!activeEpisode) return;
+    const nextIndex = questionIndex + 1;
+    if (nextIndex >= activeEpisode.questionCount) {
+      setScreenMode('results');
+      return;
+    }
+    advanceToNextQuestion(nextIndex);
+  }, [activeEpisode, advanceToNextQuestion, questionIndex]);
+
+  const resolveAnswer = useCallback(
+    (optionIndex: number | null, timedOut: boolean) => {
+      if (!activeEpisode || !currentQuestion) return;
+      if (screenMode !== 'question') return;
+      if (selectedOption !== null) return;
+
+      const actualCorrect = !timedOut && optionIndex === currentQuestion.answerIndex;
+      const savedByShield = shieldArmed && shieldAvailable && !actualCorrect;
+      const points = actualCorrect
+        ? BASE_POINTS + Math.max(0, Math.round((countdown / currentTimerSeconds) * SPEED_BONUS))
+        : savedByShield
+          ? SHIELD_POINTS
+          : 0;
+
+      setSelectedOption(timedOut ? -1 : optionIndex);
+      setShieldArmed(false);
+      if (savedByShield) {
+        setShieldAvailable(false);
+      }
+
+      setAnswers((previous) => [
+        ...previous,
+        {
+          questionId: currentQuestion.id,
+          selectedOption: timedOut ? null : optionIndex,
+          correct: actualCorrect,
+          timedOut,
+          shielded: savedByShield,
+          points,
+          timeRemaining: countdown,
+          correctAnswerIndex: currentQuestion.answerIndex,
+        },
+      ]);
+      setScreenMode('reveal');
+    },
+    [
+      activeEpisode,
+      countdown,
+      currentQuestion,
+      currentTimerSeconds,
+      screenMode,
+      selectedOption,
+      shieldArmed,
+      shieldAvailable,
+    ]
+  );
+
+  const handleAnswer = useCallback(
+    (optionIndex: number) => {
+      resolveAnswer(optionIndex, false);
+    },
+    [resolveAnswer]
+  );
+
+  const handleTimeout = useCallback(() => {
+    resolveAnswer(null, true);
+  }, [resolveAnswer]);
+
+  const toggleShield = useCallback(() => {
+    if (!shieldAvailable) return;
+    if (screenMode !== 'question') return;
+    setShieldArmed((previous) => !previous);
+  }, [screenMode, shieldAvailable]);
+
+  useEffect(() => {
+    if (screenMode !== 'question') return;
+    if (selectedOption !== null) return;
+    if (countdown <= 0) {
+      handleTimeout();
+      return;
+    }
+    const intervalId = setInterval(() => {
+      setCountdown((previous) => previous - 1);
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, [countdown, handleTimeout, screenMode, selectedOption]);
+
+  useEffect(() => {
+    if (screenMode !== 'transition') return;
+    transitionTimerRef.current = setTimeout(() => {
+      setScreenMode('question');
+    }, FINAL_STRETCH_DELAY_MS);
+    return () => {
+      if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    };
+  }, [screenMode]);
+
+  useEffect(() => {
+    if (screenMode !== 'reveal') return;
+    revealTimerRef.current = setTimeout(() => {
+      advanceAfterReveal();
+    }, REVEAL_DELAY_MS);
+    return () => {
+      if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+    };
+  }, [advanceAfterReveal, screenMode]);
+
+  useEffect(() => {
+    if (screenMode !== 'results' || !activeEpisode || !runResult) return;
+    const storage = getStorage();
+    if (storage) {
+      storage.setItem(`${STORAGE_PREFIX}:${activeEpisode.feed}:daily:${activeEpisode.date}`, '1');
+      storage.setItem(`${STORAGE_PREFIX}:daily:${activeEpisode.date}`, '1');
+      storage.setItem(
+        buildRunStorageKey(activeEpisode.feed, activeEpisode.date),
+        JSON.stringify(runResult)
+      );
+    }
+  }, [activeEpisode, runResult, screenMode]);
+
+  useEffect(() => {
+    if (screenMode === 'results' && !hasCountedRef.current) {
       hasCountedRef.current = true;
       incrementGlobalPlayCount('trivia');
     }
-  }, [mode]);
-
-  useEffect(() => {
-    if (mode !== 'finished') return;
-    const storage = getStorage();
-    storage?.setItem(storageKey, '1');
-  }, [mode, storageKey]);
+  }, [screenMode]);
 
   const handleCopyResults = useCallback(async () => {
-    if (Platform.OS !== 'web') return;
+    if (!shareText || Platform.OS !== 'web') return;
     const clipboard = (globalThis as typeof globalThis & {
       navigator?: { clipboard?: { writeText?: (text: string) => Promise<void> } };
     }).navigator?.clipboard;
@@ -239,386 +492,124 @@ export default function TriviaScreen() {
     }
   }, [shareText]);
 
+  const handleOpenCitation = useCallback(async (url: string) => {
+    try {
+      await Linking.openURL(url);
+    } catch {
+      // Ignore citation-open failures in static/web contexts.
+    }
+  }, []);
+
+  const panelAnimatedStyle = {
+    opacity: surfaceOpacity,
+    transform: [{ translateY: surfaceTranslateY }],
+  };
+
+  const questionAnimatedStyle = {
+    opacity: questionOpacity,
+    transform: [{ translateY: questionTranslateY }],
+  };
+
+  const revealAnimatedStyle = {
+    opacity: revealOpacity,
+    transform: [{ translateY: revealTranslateY }],
+  };
+
+  const overlayBackdropAnimatedStyle = {
+    opacity: overlayOpacity,
+  };
+
+  const overlayCardAnimatedStyle = {
+    opacity: overlayCardOpacity,
+    transform: [{ translateY: overlayCardTranslateY }],
+  };
+
   return (
     <>
       <Stack.Screen options={{ title: 'Daily Trivia', headerBackTitle: 'Home' }} />
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.page}>
-            <View style={styles.pageAccent} />
-            <View style={styles.header}>
-              <Text style={styles.title}>Daily Trivia</Text>
-              <Text style={styles.subtitle}>{dateLabel}</Text>
-            </View>
+            <TriviaPageHeader
+              dateLabel={dateLabel}
+              questionCount={currentEpisode.questionCount}
+              styles={styles}
+            />
 
-            {mode === 'choose' && (
-              <View style={styles.choiceCard}>
-                <View style={styles.choiceHeaderRow}>
-                  <Text style={styles.choiceTitle}>Pick today&apos;s category</Text>
-                  <View style={styles.choiceBadge}>
-                    <Text style={styles.choiceBadgeText}>{dailyCategories.length} choices</Text>
-                  </View>
-                </View>
-                <Text style={styles.choiceSubtitle}>
-                  {QUESTION_COUNT} questions. {TIME_PER_QUESTION} seconds each.
-                </Text>
-                <View style={styles.categoryList}>
-                  {dailyCategories.map((cat) => (
-                    <Pressable
-                      key={cat.id}
-                      style={({ pressed }) => [
-                        styles.categoryCard,
-                        pressed && styles.categoryCardPressed,
-                      ]}
-                      onPress={() => startTrivia(cat.id)}
-                    >
-                      <View style={styles.categoryCopy}>
-                        <Text style={styles.categoryName}>{cat.name}</Text>
-                        <Text style={styles.categoryDesc}>{cat.description}</Text>
-                      </View>
-                      <Text style={styles.categoryAction}>Start</Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-            )}
+            {screenMode === 'start' ? (
+              <Animated.View style={panelAnimatedStyle}>
+                <TriviaIntroSurface
+                  dateLabel={dateLabel}
+                  onSelectFeed={setSelectedFeed}
+                  onStart={startRun}
+                  previewEpisode={previewEpisode}
+                  previewSummary={previewSummary}
+                  selectedFeed={selectedFeed}
+                  styles={styles}
+                />
+              </Animated.View>
+            ) : null}
 
-            {mode === 'quiz' && currentQuestion && (
-              <View style={styles.quizCard}>
-                <View style={styles.quizTop}>
-                  <Text style={styles.quizMeta}>
-                    Question {currentIndex + 1} / {QUESTION_COUNT}
-                  </Text>
-                  <View style={styles.timerPill}>
-                    <Text style={styles.timerText}>{countdown}s</Text>
-                  </View>
-                </View>
-                <Text style={styles.question}>{currentQuestion.prompt}</Text>
-                <View style={styles.optionsList}>
-                  {currentQuestion.options.map((option, idx) => {
-                    const isSelected = selectedOption === idx;
-                    const isCorrect = idx === currentQuestion.answerIndex;
-                    const showResult = selectedOption !== null;
-                    return (
-                      <Pressable
-                        key={option}
-                        style={({ pressed }) => [
-                          styles.option,
-                          pressed && styles.optionPressed,
-                          showResult && isSelected && styles.optionSelected,
-                          showResult && isCorrect && styles.optionCorrect,
-                          showResult && isSelected && !isCorrect && styles.optionWrong,
-                        ]}
-                        onPress={() => handleAnswer(idx)}
-                        disabled={selectedOption !== null}
-                      >
-                        <Text style={styles.optionText}>{option}</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-            )}
+            {(screenMode === 'question' ||
+              screenMode === 'reveal' ||
+              screenMode === 'transition') &&
+            activeEpisode &&
+            currentQuestion ? (
+              <TriviaQuestionSurface
+                activeEpisode={activeEpisode}
+                answers={answers}
+                countdown={countdown}
+                currentQuestion={currentQuestion}
+                disabled={screenMode !== 'question'}
+                lastAnswer={lastAnswer}
+                onAnswer={handleAnswer}
+                onToggleShield={toggleShield}
+                questionAnimatedStyle={questionAnimatedStyle}
+                questionIndex={questionIndex}
+                revealAnimatedStyle={revealAnimatedStyle}
+                revealVisible={screenMode === 'reveal'}
+                screenMode={screenMode}
+                selectedOption={selectedOption}
+                shieldArmed={shieldArmed}
+                shieldAvailable={shieldAvailable}
+                showFinalStretchTag={
+                  questionIndex >= activeEpisode.finalStretchStartsAt && screenMode !== 'transition'
+                }
+                styles={styles}
+              />
+            ) : null}
 
-            {mode === 'finished' && (
-              <View style={styles.resultCard}>
-                <Text style={styles.resultEmoji}>🎯</Text>
-                <Text style={styles.resultTitle}>You scored {correctCount}/8</Text>
-                <Text style={styles.resultSubtitle}>{category?.name}</Text>
-                <View style={styles.shareCard}>
-                  <Text style={styles.shareTitle}>Share your result</Text>
-                  <View style={styles.shareBox}>
-                    <Text selectable style={styles.shareText}>
-                      {shareText}
-                    </Text>
-                  </View>
-                  {Platform.OS === 'web' && (
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.shareButton,
-                        pressed && styles.shareButtonPressed,
-                      ]}
-                      onPress={handleCopyResults}
-                    >
-                      <Text style={styles.shareButtonText}>Copy results</Text>
-                    </Pressable>
-                  )}
-                  {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
-                </View>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.homeButton,
-                    pressed && styles.homeButtonPressed,
-                  ]}
-                  onPress={() => router.back()}
-                >
-                  <Text style={styles.homeButtonText}>Back to games</Text>
-                </Pressable>
-                <Text style={styles.buildText}>Build: {BUILD_ID}</Text>
-              </View>
-            )}
+            {screenMode === 'results' && activeEpisode && runResult ? (
+              <Animated.View style={panelAnimatedStyle}>
+                <TriviaResultsSurface
+                  activeEpisode={activeEpisode}
+                  answers={answers}
+                  buildId={BUILD_ID}
+                  dateLabel={dateLabel}
+                  onBack={() => router.replace('/')}
+                  onCopy={handleCopyResults}
+                  onOpenCitation={handleOpenCitation}
+                  onToggleReview={() => setShowReview((previous) => !previous)}
+                  runResult={runResult}
+                  shareStatus={shareStatus}
+                  shareText={shareText}
+                  showReview={showReview}
+                  styles={styles}
+                />
+              </Animated.View>
+            ) : null}
           </View>
         </ScrollView>
+
+        {screenMode === 'transition' && activeEpisode ? (
+          <TriviaFinalStretchOverlay
+            activeEpisode={activeEpisode}
+            backdropAnimatedStyle={overlayBackdropAnimatedStyle}
+            cardAnimatedStyle={overlayCardAnimatedStyle}
+            styles={styles}
+          />
+        ) : null}
       </SafeAreaView>
     </>
   );
 }
-
-const createStyles = (
-  theme: ThemeTokens,
-  screenAccent: ReturnType<typeof resolveScreenAccent>
-) => {
-  const Colors = theme.colors;
-  const Spacing = theme.spacing;
-  const FontSize = theme.fontSize;
-  const BorderRadius = theme.borderRadius;
-  const ui = createDaybreakPrimitives(theme, screenAccent);
-
-  return StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.backgroundSoft,
-  },
-  scrollContent: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxl,
-  },
-  page: {
-    ...ui.page,
-  },
-  pageAccent: {
-    ...ui.accentBar,
-    marginBottom: Spacing.md,
-  },
-  header: {
-    marginBottom: Spacing.md,
-  },
-  title: {
-    fontSize: FontSize.xxl,
-    fontWeight: '800',
-    color: Colors.text,
-  },
-  subtitle: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-    marginTop: Spacing.xs,
-  },
-  choiceCard: {
-    gap: Spacing.sm,
-  },
-  choiceHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.sm,
-    flexWrap: 'wrap',
-  },
-  choiceTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  choiceBadge: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  choiceBadgeText: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: Colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  choiceSubtitle: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-  },
-  categoryList: {
-    gap: Spacing.sm,
-  },
-  categoryCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.md,
-  },
-  categoryCardPressed: {
-    backgroundColor: Colors.surfaceLight,
-  },
-  categoryCopy: {
-    flex: 1,
-  },
-  categoryName: {
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  categoryDesc: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-    marginTop: 2,
-  },
-  categoryAction: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: Colors.primary,
-  },
-  quizCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  quizTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  quizMeta: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-  },
-  timerPill: {
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  timerText: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  question: {
-    fontSize: FontSize.lg,
-    fontWeight: '700',
-    color: Colors.text,
-    marginBottom: Spacing.md,
-  },
-  optionsList: {
-    gap: Spacing.sm,
-  },
-  option: {
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  optionPressed: {
-    backgroundColor: Colors.border,
-  },
-  optionSelected: {
-    borderColor: Colors.primary,
-  },
-  optionCorrect: {
-    backgroundColor: theme.mode === 'dark' ? 'rgba(79, 180, 119, 0.22)' : 'rgba(24, 169, 87, 0.15)',
-    borderColor: Colors.success,
-  },
-  optionWrong: {
-    backgroundColor: theme.mode === 'dark' ? 'rgba(255, 107, 107, 0.22)' : 'rgba(224, 68, 68, 0.15)',
-    borderColor: Colors.error,
-  },
-  optionText: {
-    fontSize: FontSize.md,
-    color: Colors.text,
-    fontWeight: '600',
-  },
-  resultCard: {
-    alignItems: 'center',
-    ...ui.card,
-    padding: Spacing.lg,
-  },
-  resultEmoji: {
-    fontSize: 56,
-  },
-  resultTitle: {
-    fontSize: FontSize.xl,
-    fontWeight: '800',
-    color: Colors.text,
-    marginTop: Spacing.md,
-  },
-  resultSubtitle: {
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-    marginTop: Spacing.xs,
-  },
-  shareCard: {
-    width: '100%',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginTop: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  shareTitle: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  shareBox: {
-    marginTop: Spacing.sm,
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-  },
-  shareText: {
-    fontSize: FontSize.sm,
-    color: Colors.text,
-    lineHeight: 18,
-  },
-  shareButton: {
-    ...ui.cta,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.sm,
-    marginTop: Spacing.sm,
-  },
-  shareButtonPressed: {
-    ...ui.ctaPressed,
-  },
-  shareButtonText: {
-    ...ui.ctaText,
-  },
-  shareStatus: {
-    marginTop: Spacing.xs,
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-    textAlign: 'center',
-  },
-  homeButton: {
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.xl,
-    marginTop: Spacing.sm,
-  },
-  homeButtonPressed: {
-    backgroundColor: Colors.surfaceLight,
-  },
-  homeButtonText: {
-    color: Colors.textSecondary,
-    fontSize: FontSize.md,
-    fontWeight: '600',
-  },
-  buildText: {
-    marginTop: Spacing.md,
-    fontSize: FontSize.sm,
-    color: Colors.textMuted,
-  },
-  });
-};

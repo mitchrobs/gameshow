@@ -1,0 +1,441 @@
+{
+  "version": "trivia-v1",
+  "generatedAt": "2026-04-26",
+  "scheduleStart": "2026-04-26",
+  "scheduleEnd": "2027-04-25",
+  "calibrationDays": 28,
+  "feeds": {
+    "mix": {
+      "libraryCount": 4797,
+      "scheduledCount": 4380,
+      "reserveCount": 417,
+      "refreshableCount": 1460,
+      "byBucket": {
+        "evergreen": 4334,
+        "topical": 7,
+        "experimental": 39
+      },
+      "byDifficulty": {
+        "1": 1460,
+        "2": 1460,
+        "3": 1460
+      },
+      "rollingQuotaViolations": 0,
+      "staleQuestionCount": 0,
+      "repeatedVariantGroups": 0,
+      "variantReuseCount": 0,
+      "trickQuestionCount": 39,
+      "scheduledOffToneCount": 0,
+      "lateSlotGeneralSportsCount": 0,
+      "curveballSpacingViolations": 0,
+      "first90BlockedPatternCount": 0,
+      "curveballCoverageByMonth": {
+        "2026-04": 3,
+        "2026-05": 3,
+        "2026-06": 3,
+        "2026-07": 3,
+        "2026-08": 3,
+        "2026-09": 3,
+        "2026-10": 3,
+        "2026-11": 3,
+        "2026-12": 3,
+        "2027-01": 3,
+        "2027-02": 3,
+        "2027-03": 3,
+        "2027-04": 3
+      },
+      "topRepeatedGroups": [],
+      "lateSlotLegibilityScore": 68.7,
+      "agentFrictionBySlot": [
+        {
+          "slot": 1,
+          "averageCorrectRate": 0.898,
+          "timeoutRate": 0.028,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 2,
+          "averageCorrectRate": 0.893,
+          "timeoutRate": 0.037,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 3,
+          "averageCorrectRate": 0.904,
+          "timeoutRate": 0.011,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 4,
+          "averageCorrectRate": 0.887,
+          "timeoutRate": 0.028,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 5,
+          "averageCorrectRate": 0.731,
+          "timeoutRate": 0.057,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 6,
+          "averageCorrectRate": 0.724,
+          "timeoutRate": 0.061,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 7,
+          "averageCorrectRate": 0.722,
+          "timeoutRate": 0.065,
+          "shieldUseRate": 0.002
+        },
+        {
+          "slot": 8,
+          "averageCorrectRate": 0.707,
+          "timeoutRate": 0.054,
+          "shieldUseRate": 0.002
+        },
+        {
+          "slot": 9,
+          "averageCorrectRate": 0.476,
+          "timeoutRate": 0.122,
+          "shieldUseRate": 0.019
+        },
+        {
+          "slot": 10,
+          "averageCorrectRate": 0.478,
+          "timeoutRate": 0.111,
+          "shieldUseRate": 0.024
+        },
+        {
+          "slot": 11,
+          "averageCorrectRate": 0.47,
+          "timeoutRate": 0.098,
+          "shieldUseRate": 0.019
+        },
+        {
+          "slot": 12,
+          "averageCorrectRate": 0.511,
+          "timeoutRate": 0.078,
+          "shieldUseRate": 0.024
+        }
+      ],
+      "coreSubdomainShare": 0,
+      "playerGatePass": true,
+      "playerGateFailures": [],
+      "playerAgentSummaries": [
+        {
+          "agentId": "commuter-max",
+          "displayName": "Commuter Max",
+          "archetype": "casual",
+          "sampleDays": 28,
+          "averageCorrect": 7.21,
+          "averageScore": 911.9,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.07,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "movies",
+            "music"
+          ],
+          "frictionFlags": [
+            "trick-needs-softening"
+          ]
+        },
+        {
+          "agentId": "streak-jules",
+          "displayName": "Streak Jules",
+          "archetype": "streak-hunter",
+          "sampleDays": 28,
+          "averageCorrect": 7.96,
+          "averageScore": 1022.6,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.05,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed"
+          ],
+          "frictionFlags": [
+            "trick-needs-softening"
+          ]
+        },
+        {
+          "agentId": "culture-maya",
+          "displayName": "Culture Maya",
+          "archetype": "culture-first",
+          "sampleDays": 28,
+          "averageCorrect": 9.11,
+          "averageScore": 1182.3,
+          "shieldUseRate": 0.21,
+          "timeoutRate": 0.05,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "movies",
+            "music"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "sports-ryan",
+          "displayName": "Sports Ryan",
+          "archetype": "sports-core",
+          "sampleDays": 28,
+          "averageCorrect": 8.39,
+          "averageScore": 1066.2,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.07,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "football",
+            "basketball",
+            "sports"
+          ],
+          "frictionFlags": [
+            "trick-needs-softening"
+          ]
+        },
+        {
+          "agentId": "analyst-eli",
+          "displayName": "Analyst Eli",
+          "archetype": "analytical",
+          "sampleDays": 28,
+          "averageCorrect": 9.18,
+          "averageScore": 1204.1,
+          "shieldUseRate": 0.29,
+          "timeoutRate": 0.06,
+          "cleanRunRate": 0.04,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "technology",
+            "brain-teaser"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "broad-ava",
+          "displayName": "Broad Ava",
+          "archetype": "broad-fan",
+          "sampleDays": 28,
+          "averageCorrect": 8.68,
+          "averageScore": 1113.2,
+          "shieldUseRate": 0.11,
+          "timeoutRate": 0.05,
+          "cleanRunRate": 0.04,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "movies",
+            "music"
+          ],
+          "frictionFlags": []
+        }
+      ],
+      "launchReady": true
+    },
+    "sports": {
+      "libraryCount": 3984,
+      "scheduledCount": 3285,
+      "reserveCount": 699,
+      "refreshableCount": 1216,
+      "byBucket": {
+        "event": 54,
+        "current": 1605,
+        "evergreen": 1626
+      },
+      "byDifficulty": {
+        "1": 1095,
+        "2": 1095,
+        "3": 1095
+      },
+      "rollingQuotaViolations": 0,
+      "staleQuestionCount": 0,
+      "repeatedVariantGroups": 0,
+      "variantReuseCount": 0,
+      "trickQuestionCount": 37,
+      "scheduledOffToneCount": 0,
+      "lateSlotGeneralSportsCount": 0,
+      "curveballSpacingViolations": 0,
+      "first90BlockedPatternCount": 0,
+      "curveballCoverageByMonth": {
+        "2026-04": 1,
+        "2026-05": 3,
+        "2026-06": 3,
+        "2026-07": 3,
+        "2026-08": 3,
+        "2026-09": 3,
+        "2026-10": 3,
+        "2026-11": 3,
+        "2026-12": 3,
+        "2027-01": 3,
+        "2027-02": 3,
+        "2027-03": 3,
+        "2027-04": 3
+      },
+      "topRepeatedGroups": [],
+      "lateSlotLegibilityScore": 86.37,
+      "agentFrictionBySlot": [
+        {
+          "slot": 1,
+          "averageCorrectRate": 0.907,
+          "timeoutRate": 0.026,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 2,
+          "averageCorrectRate": 0.939,
+          "timeoutRate": 0.015,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 3,
+          "averageCorrectRate": 0.9,
+          "timeoutRate": 0.017,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 4,
+          "averageCorrectRate": 0.746,
+          "timeoutRate": 0.054,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 5,
+          "averageCorrectRate": 0.759,
+          "timeoutRate": 0.048,
+          "shieldUseRate": 0
+        },
+        {
+          "slot": 6,
+          "averageCorrectRate": 0.787,
+          "timeoutRate": 0.044,
+          "shieldUseRate": 0.031
+        },
+        {
+          "slot": 7,
+          "averageCorrectRate": 0.546,
+          "timeoutRate": 0.069,
+          "shieldUseRate": 0.07
+        },
+        {
+          "slot": 8,
+          "averageCorrectRate": 0.535,
+          "timeoutRate": 0.093,
+          "shieldUseRate": 0.096
+        },
+        {
+          "slot": 9,
+          "averageCorrectRate": 0.55,
+          "timeoutRate": 0.096,
+          "shieldUseRate": 0.067
+        }
+      ],
+      "coreSubdomainShare": 0.758,
+      "playerGatePass": true,
+      "playerGateFailures": [],
+      "playerAgentSummaries": [
+        {
+          "agentId": "commuter-max",
+          "displayName": "Commuter Max",
+          "archetype": "casual",
+          "sampleDays": 28,
+          "averageCorrect": 5.61,
+          "averageScore": 716,
+          "shieldUseRate": 0.07,
+          "timeoutRate": 0.08,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "movies",
+            "music",
+            "arts"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "streak-jules",
+          "displayName": "Streak Jules",
+          "archetype": "streak-hunter",
+          "sampleDays": 28,
+          "averageCorrect": 6.68,
+          "averageScore": 859.4,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.06,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "culture-maya",
+          "displayName": "Culture Maya",
+          "archetype": "culture-first",
+          "sampleDays": 28,
+          "averageCorrect": 5.75,
+          "averageScore": 726.6,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.06,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "movies",
+            "music",
+            "arts"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "sports-ryan",
+          "displayName": "Sports Ryan",
+          "archetype": "sports-core",
+          "sampleDays": 28,
+          "averageCorrect": 7.61,
+          "averageScore": 1025.7,
+          "shieldUseRate": 0.54,
+          "timeoutRate": 0.04,
+          "cleanRunRate": 0.11,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "football",
+            "basketball"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "analyst-eli",
+          "displayName": "Analyst Eli",
+          "archetype": "analytical",
+          "sampleDays": 28,
+          "averageCorrect": 7,
+          "averageScore": 929.6,
+          "shieldUseRate": 0.39,
+          "timeoutRate": 0.07,
+          "cleanRunRate": 0.07,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "technology",
+            "brain-teaser"
+          ],
+          "frictionFlags": []
+        },
+        {
+          "agentId": "broad-ava",
+          "displayName": "Broad Ava",
+          "archetype": "broad-fan",
+          "sampleDays": 28,
+          "averageCorrect": 6.86,
+          "averageScore": 913.6,
+          "shieldUseRate": 0.54,
+          "timeoutRate": 0.02,
+          "cleanRunRate": 0,
+          "standoutStrengths": [
+            "native fit for this feed",
+            "movies",
+            "music"
+          ],
+          "frictionFlags": []
+        }
+      ],
+      "launchReady": true
+    }
+  }
+}

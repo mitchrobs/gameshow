@@ -14,7 +14,7 @@ import { BUILD_ID } from '../src/constants/build';
 import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 import { getDailyWordie } from '../src/data/wordiePuzzles';
-import { getDailyTriviaCategories } from '../src/data/triviaCatalog';
+import { getTriviaFeedSummary } from '../src/data/trivia';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
 import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
 import { getDailyBridges } from '../src/data/bridgesPuzzles';
@@ -135,7 +135,10 @@ export default function HomeScreen() {
   const puzzle = getDailyPuzzle();
   const whodunit = getDailyWhodunit();
   const wordie = getDailyWordie();
-  const triviaCategories = getDailyTriviaCategories();
+  const triviaFeeds = useMemo(
+    () => [getTriviaFeedSummary('mix'), getTriviaFeedSummary('sports')],
+    []
+  );
   const sudokuEntry = getDailySudoku();
   const sudoku = sudokuEntry.puzzle;
   const barterPuzzle = getDailyBarter();
@@ -791,7 +794,8 @@ export default function HomeScreen() {
               <Text style={styles.gameTitle}>Daily Trivia</Text>
             </View>
             <Text style={styles.blurb}>
-              Eight rapid questions - pick one of today's three categories and race the clock.
+              Daily Mix and Daily Sports, both built for quick reads, one shield, and a clean
+              share at the end.
             </Text>
             {(playCounts['trivia'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
@@ -800,14 +804,20 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.triviaPreview}>
-                <Text style={styles.triviaPreviewTitle}>Today's choices</Text>
-                <View style={styles.triviaCategoryRow}>
-                  {triviaCategories.map((cat) => (
-                    <View key={cat.id} style={styles.triviaCategoryChip}>
-                      <Text style={styles.triviaCategoryText}>{cat.name}</Text>
+                <Text style={styles.triviaPreviewTitle}>Today's feeds</Text>
+                <View style={styles.triviaFeedGrid}>
+                  {triviaFeeds.map((feed) => (
+                    <View key={feed.feed} style={styles.triviaFeedCard}>
+                      <Text style={styles.triviaFeedName}>{feed.title}</Text>
+                      <Text style={styles.triviaFeedMeta}>
+                        {feed.questionCount} questions · {feed.timerSeconds}s timer
+                      </Text>
                     </View>
                   ))}
                 </View>
+                <Text style={styles.triviaPreviewNote}>
+                  Three choices each, one shield per feed, and a steady 12-second pace.
+                </Text>
               </View>
               <Pressable
                 style={({ pressed }) => [
@@ -1435,24 +1445,38 @@ const createStyles = (
     letterSpacing: 1,
     fontWeight: '600',
   },
-  triviaCategoryRow: {
+  triviaFeedGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: Spacing.sm,
+    width: '100%',
   },
-  triviaCategoryChip: {
+  triviaFeedCard: {
     backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.full,
+    borderRadius: BorderRadius.md,
+    minWidth: 132,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
+    paddingVertical: Spacing.sm,
     borderWidth: 1,
     borderColor: Colors.border,
+    gap: 4,
   },
-  triviaCategoryText: {
+  triviaFeedName: {
     fontSize: FontSize.sm,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  triviaFeedMeta: {
+    fontSize: 12,
     color: Colors.textSecondary,
     fontWeight: '600',
+  },
+  triviaPreviewNote: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   ballparkPreview: {
     alignItems: 'center',
