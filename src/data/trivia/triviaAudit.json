@@ -6,19 +6,19 @@
   "calibrationDays": 28,
   "feeds": {
     "mix": {
-      "libraryCount": 4547,
+      "libraryCount": 4550,
       "scheduledCount": 4380,
-      "reserveCount": 167,
+      "reserveCount": 170,
       "refreshableCount": 1460,
       "byBucket": {
-        "evergreen": 4335,
-        "topical": 6,
-        "experimental": 39
+        "evergreen": 4334,
+        "experimental": 39,
+        "topical": 7
       },
       "byDifficulty": {
-        "1": 1460,
+        "1": 365,
         "2": 1095,
-        "3": 1825
+        "3": 2920
       },
       "rollingQuotaViolations": 0,
       "staleQuestionCount": 0,
@@ -45,79 +45,79 @@
         "2027-04": 3
       },
       "topRepeatedGroups": [],
-      "lateSlotLegibilityScore": 68.3,
+      "lateSlotLegibilityScore": 73.53,
       "agentFrictionBySlot": [
         {
           "slot": 1,
-          "averageCorrectRate": 0.881,
-          "timeoutRate": 0.035,
+          "averageCorrectRate": 0.831,
+          "timeoutRate": 0.024,
           "shieldUseRate": 0
         },
         {
           "slot": 2,
-          "averageCorrectRate": 0.898,
-          "timeoutRate": 0.033,
+          "averageCorrectRate": 0.702,
+          "timeoutRate": 0.057,
           "shieldUseRate": 0
         },
         {
           "slot": 3,
-          "averageCorrectRate": 0.896,
-          "timeoutRate": 0.033,
+          "averageCorrectRate": 0.687,
+          "timeoutRate": 0.063,
           "shieldUseRate": 0
         },
         {
           "slot": 4,
-          "averageCorrectRate": 0.891,
-          "timeoutRate": 0.019,
+          "averageCorrectRate": 0.67,
+          "timeoutRate": 0.056,
           "shieldUseRate": 0
         },
         {
           "slot": 5,
-          "averageCorrectRate": 0.754,
-          "timeoutRate": 0.063,
+          "averageCorrectRate": 0.419,
+          "timeoutRate": 0.104,
           "shieldUseRate": 0
         },
         {
           "slot": 6,
-          "averageCorrectRate": 0.694,
-          "timeoutRate": 0.061,
+          "averageCorrectRate": 0.4,
+          "timeoutRate": 0.117,
           "shieldUseRate": 0
         },
         {
           "slot": 7,
-          "averageCorrectRate": 0.689,
-          "timeoutRate": 0.063,
+          "averageCorrectRate": 0.387,
+          "timeoutRate": 0.117,
           "shieldUseRate": 0
         },
         {
           "slot": 8,
-          "averageCorrectRate": 0.457,
+          "averageCorrectRate": 0.32,
           "timeoutRate": 0.119,
           "shieldUseRate": 0
         },
         {
           "slot": 9,
-          "averageCorrectRate": 0.426,
-          "timeoutRate": 0.115,
-          "shieldUseRate": 0.006
+          "averageCorrectRate": 0.309,
+          "timeoutRate": 0.113,
+          "shieldUseRate": 0.004
         },
         {
           "slot": 10,
-          "averageCorrectRate": 0.474,
-          "timeoutRate": 0.111,
-          "shieldUseRate": 0.031
+          "averageCorrectRate": 0.207,
+          "timeoutRate": 0.137,
+          "shieldUseRate": 0
         },
         {
           "slot": 11,
-          "averageCorrectRate": 0.481,
-          "timeoutRate": 0.098,
-          "shieldUseRate": 0.024
+          "averageCorrectRate": 0.196,
+          "timeoutRate": 0.139,
+          "shieldUseRate": 0
         },
         {
           "slot": 12,
-          "averageCorrectRate": 0.469,
-          "timeoutRate": 0.111,
-          "shieldUseRate": 0.024
+          "averageCorrectRate": 0.204,
+          "timeoutRate": 0.113,
+          "shieldUseRate": 0
         }
       ],
       "coreSubdomainShare": 0,
@@ -129,10 +129,10 @@
           "displayName": "Commuter Max",
           "archetype": "casual",
           "sampleDays": 28,
-          "averageCorrect": 6.86,
-          "averageScore": 866.8,
+          "averageCorrect": 4.57,
+          "averageScore": 560.1,
           "shieldUseRate": 0,
-          "timeoutRate": 0.09,
+          "timeoutRate": 0.1,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",
@@ -140,6 +140,7 @@
             "music"
           ],
           "frictionFlags": [
+            "difficulty-spike",
             "trick-needs-softening"
           ]
         },
@@ -148,10 +149,10 @@
           "displayName": "Streak Jules",
           "archetype": "streak-hunter",
           "sampleDays": 28,
-          "averageCorrect": 7.32,
-          "averageScore": 939,
+          "averageCorrect": 5.07,
+          "averageScore": 624.1,
           "shieldUseRate": 0,
-          "timeoutRate": 0.08,
+          "timeoutRate": 0.11,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed"
@@ -165,10 +166,10 @@
           "displayName": "Culture Maya",
           "archetype": "culture-first",
           "sampleDays": 28,
-          "averageCorrect": 8.21,
-          "averageScore": 1061.4,
-          "shieldUseRate": 0.11,
-          "timeoutRate": 0.04,
+          "averageCorrect": 5.25,
+          "averageScore": 653.2,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.07,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",
@@ -184,10 +185,10 @@
           "displayName": "Sports Ryan",
           "archetype": "sports-core",
           "sampleDays": 28,
-          "averageCorrect": 7.64,
-          "averageScore": 966.8,
+          "averageCorrect": 5.04,
+          "averageScore": 614.9,
           "shieldUseRate": 0,
-          "timeoutRate": 0.04,
+          "timeoutRate": 0.11,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "football",
@@ -203,11 +204,11 @@
           "displayName": "Analyst Eli",
           "archetype": "analytical",
           "sampleDays": 28,
-          "averageCorrect": 9.18,
-          "averageScore": 1206.2,
-          "shieldUseRate": 0.32,
-          "timeoutRate": 0.07,
-          "cleanRunRate": 0.11,
+          "averageCorrect": 6.36,
+          "averageScore": 797.8,
+          "shieldUseRate": 0.07,
+          "timeoutRate": 0.1,
+          "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",
             "technology",
@@ -220,17 +221,18 @@
           "displayName": "Broad Ava",
           "archetype": "broad-fan",
           "sampleDays": 28,
-          "averageCorrect": 8.57,
-          "averageScore": 1093.6,
-          "shieldUseRate": 0.07,
-          "timeoutRate": 0.06,
-          "cleanRunRate": 0.04,
+          "averageCorrect": 4.54,
+          "averageScore": 560.1,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.12,
+          "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",
             "movies",
             "music"
           ],
           "frictionFlags": [
+            "difficulty-spike",
             "trick-needs-softening"
           ]
         }
@@ -238,24 +240,24 @@
       "launchReady": true
     },
     "sports": {
-      "libraryCount": 3584,
+      "libraryCount": 4600,
       "scheduledCount": 3285,
-      "reserveCount": 299,
+      "reserveCount": 1315,
       "refreshableCount": 1216,
       "byBucket": {
-        "current": 1630,
-        "evergreen": 1618,
-        "event": 37
+        "current": 1219,
+        "evergreen": 1902,
+        "event": 164
       },
       "byDifficulty": {
-        "1": 730,
-        "2": 1095,
-        "3": 1460
+        "1": 365,
+        "2": 730,
+        "3": 2190
       },
       "rollingQuotaViolations": 0,
       "staleQuestionCount": 0,
-      "repeatedVariantGroups": 0,
-      "variantReuseCount": 0,
+      "repeatedVariantGroups": 14,
+      "variantReuseCount": 14,
       "trickQuestionCount": 37,
       "scheduledOffToneCount": 0,
       "lateSlotGeneralSportsCount": 0,
@@ -276,65 +278,162 @@
         "2027-03": 3,
         "2027-04": 3
       },
-      "topRepeatedGroups": [],
-      "lateSlotLegibilityScore": 87.17,
+      "topRepeatedGroups": [
+        {
+          "variantGroup": "sports-curated-sports-core-which-of-these-soccer-players-was-primarily-a-forward-cristiano-ronaldo",
+          "stem": "Which of these soccer players was primarily a forward?",
+          "subdomain": "soccer",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 2
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-of-these-soccer-players-was-primarily-a-forward-pele",
+          "stem": "Which of these soccer players was primarily a forward?",
+          "subdomain": "soccer",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 2
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-of-these-soccer-players-was-primarily-a-forward-lionel-messi",
+          "stem": "Which of these soccer players was primarily a forward?",
+          "subdomain": "soccer",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 2
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-soccer-star-was-primarily-the-forward-for-the-argentina-lionel-messi",
+          "stem": "Which soccer star was primarily the forward for the Argentina?",
+          "subdomain": "soccer",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 2
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-soccer-star-was-primarily-the-forward-for-the-brazil-pele",
+          "stem": "Which soccer star was primarily the forward for the Brazil?",
+          "subdomain": "soccer",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 2
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-soccer-star-was-primarily-the-forward-for-the-portugal-cristiano-ronaldo",
+          "stem": "Which soccer star was primarily the forward for the Portugal?",
+          "subdomain": "soccer",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 2
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-baseball-star-was-primarily-the-outfielder-for-the-new-york-yankees-babe-r",
+          "stem": "Which baseball star was primarily the outfielder for the New York Yankees?",
+          "subdomain": "baseball",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 1
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-basketball-star-was-primarily-the-shooting-guard-for-the-chicago-bulls-mic",
+          "stem": "Which basketball star was primarily the shooting guard for the Chicago Bulls?",
+          "subdomain": "basketball",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 1
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-hockey-star-was-primarily-the-center-for-the-edmonton-oilers-wayne-gretzky",
+          "stem": "Which hockey star was primarily the center for the Edmonton Oilers?",
+          "subdomain": "hockey",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 1
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-hockey-star-was-primarily-the-right-wing-for-the-detroit-red-wings-gordie-",
+          "stem": "Which hockey star was primarily the right wing for the Detroit Red Wings?",
+          "subdomain": "hockey",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 1
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-of-these-basketball-players-was-primarily-a-shooting-guard-michael-jordan",
+          "stem": "Which of these basketball players was primarily a shooting guard?",
+          "subdomain": "basketball",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 1
+        },
+        {
+          "variantGroup": "sports-curated-sports-core-which-basketball-star-was-primarily-the-forward-for-the-los-angeles-lakers-lebro",
+          "stem": "Which basketball star was primarily the forward for the Los Angeles Lakers?",
+          "subdomain": "basketball",
+          "sourceTier": "variant",
+          "count": 2,
+          "lateSlotHits": 0
+        }
+      ],
+      "lateSlotLegibilityScore": 84.6,
       "agentFrictionBySlot": [
         {
           "slot": 1,
-          "averageCorrectRate": 0.833,
-          "timeoutRate": 0.022,
+          "averageCorrectRate": 0.857,
+          "timeoutRate": 0.024,
           "shieldUseRate": 0
         },
         {
           "slot": 2,
-          "averageCorrectRate": 0.822,
-          "timeoutRate": 0.041,
+          "averageCorrectRate": 0.678,
+          "timeoutRate": 0.059,
           "shieldUseRate": 0
         },
         {
           "slot": 3,
-          "averageCorrectRate": 0.602,
-          "timeoutRate": 0.087,
+          "averageCorrectRate": 0.611,
+          "timeoutRate": 0.059,
           "shieldUseRate": 0
         },
         {
           "slot": 4,
-          "averageCorrectRate": 0.604,
-          "timeoutRate": 0.08,
+          "averageCorrectRate": 0.343,
+          "timeoutRate": 0.102,
           "shieldUseRate": 0
         },
         {
           "slot": 5,
-          "averageCorrectRate": 0.615,
-          "timeoutRate": 0.065,
+          "averageCorrectRate": 0.296,
+          "timeoutRate": 0.135,
           "shieldUseRate": 0
         },
         {
           "slot": 6,
-          "averageCorrectRate": 0.415,
-          "timeoutRate": 0.113,
-          "shieldUseRate": 0.024
+          "averageCorrectRate": 0.246,
+          "timeoutRate": 0.107,
+          "shieldUseRate": 0
         },
         {
           "slot": 7,
-          "averageCorrectRate": 0.319,
-          "timeoutRate": 0.126,
-          "shieldUseRate": 0.002
+          "averageCorrectRate": 0.169,
+          "timeoutRate": 0.128,
+          "shieldUseRate": 0
         },
         {
           "slot": 8,
-          "averageCorrectRate": 0.269,
-          "timeoutRate": 0.161,
+          "averageCorrectRate": 0.12,
+          "timeoutRate": 0.154,
           "shieldUseRate": 0
         },
         {
           "slot": 9,
-          "averageCorrectRate": 0.23,
-          "timeoutRate": 0.141,
+          "averageCorrectRate": 0.059,
+          "timeoutRate": 0.187,
           "shieldUseRate": 0
         }
       ],
-      "coreSubdomainShare": 0.781,
+      "coreSubdomainShare": 0.728,
       "playerGatePass": true,
       "playerGateFailures": [],
       "playerAgentSummaries": [
@@ -343,33 +442,36 @@
           "displayName": "Commuter Max",
           "archetype": "casual",
           "sampleDays": 28,
-          "averageCorrect": 3.96,
-          "averageScore": 488.2,
+          "averageCorrect": 2.43,
+          "averageScore": 300.5,
           "shieldUseRate": 0,
-          "timeoutRate": 0.12,
+          "timeoutRate": 0.18,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "movies",
             "music",
             "arts"
           ],
-          "frictionFlags": []
+          "frictionFlags": [
+            "difficulty-spike",
+            "timer-friction"
+          ]
         },
         {
           "agentId": "streak-jules",
           "displayName": "Streak Jules",
           "archetype": "streak-hunter",
           "sampleDays": 28,
-          "averageCorrect": 4.61,
-          "averageScore": 574.1,
+          "averageCorrect": 2.39,
+          "averageScore": 297.9,
           "shieldUseRate": 0,
-          "timeoutRate": 0.14,
+          "timeoutRate": 0.11,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed"
           ],
           "frictionFlags": [
-            "timer-friction"
+            "difficulty-spike"
           ]
         },
         {
@@ -377,10 +479,10 @@
           "displayName": "Culture Maya",
           "archetype": "culture-first",
           "sampleDays": 28,
-          "averageCorrect": 3.64,
-          "averageScore": 447,
+          "averageCorrect": 2.46,
+          "averageScore": 300.8,
           "shieldUseRate": 0,
-          "timeoutRate": 0.11,
+          "timeoutRate": 0.1,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "movies",
@@ -396,11 +498,11 @@
           "displayName": "Sports Ryan",
           "archetype": "sports-core",
           "sampleDays": 28,
-          "averageCorrect": 6.68,
-          "averageScore": 858.8,
-          "shieldUseRate": 0.04,
-          "timeoutRate": 0.06,
-          "cleanRunRate": 0.04,
+          "averageCorrect": 4.36,
+          "averageScore": 545.7,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.1,
+          "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",
             "football",
@@ -413,10 +515,10 @@
           "displayName": "Analyst Eli",
           "archetype": "analytical",
           "sampleDays": 28,
-          "averageCorrect": 4.79,
-          "averageScore": 607.5,
-          "shieldUseRate": 0.11,
-          "timeoutRate": 0.1,
+          "averageCorrect": 3.36,
+          "averageScore": 418.9,
+          "shieldUseRate": 0,
+          "timeoutRate": 0.09,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",
@@ -430,10 +532,10 @@
           "displayName": "Broad Ava",
           "archetype": "broad-fan",
           "sampleDays": 28,
-          "averageCorrect": 4.96,
-          "averageScore": 627.9,
+          "averageCorrect": 3.54,
+          "averageScore": 441,
           "shieldUseRate": 0,
-          "timeoutRate": 0.08,
+          "timeoutRate": 0.11,
           "cleanRunRate": 0,
           "standoutStrengths": [
             "native fit for this feed",

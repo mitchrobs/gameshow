@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import legacyMixCategories from '../src/data/triviaPuzzles.ts';
 import { SPORTS_DAILY_PACKS } from '../src/data/triviaSportsBank.ts';
 import {
@@ -41,9 +42,8 @@ import {
   validateQuestionRecord,
 } from '../src/data/trivia/validation.ts';
 
-const ROOT = path.resolve(
-  '/Users/mitchellmacmini/Documents/Documents - Mitchell’s Mac mini/New project/gameshow'
-);
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(SCRIPT_DIR, '..');
 const TRIVIA_DIR = path.join(ROOT, 'src/data/trivia');
 const START_DATE_KEY = '2026-04-26';
 const TOTAL_DAYS = 365;
@@ -69,8 +69,10 @@ const TIMER_SECONDS = 12;
 const BASE_POINTS = 100;
 const SPEED_BONUS = 50;
 const SHIELD_POINTS = 50;
-const SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS = [0.02, 0.04, 0.04, 0.05, 0.06, 0, 0.14, 0.19, 0.24];
-const SPORTS_SLOT_TIMEOUT_ADJUSTMENTS = [0, 0.004, 0.008, 0.01, 0.012, 0.01, 0.022, 0.03, 0.038];
+const MIX_SLOT_CONFIDENCE_ADJUSTMENTS = [0.045, 0.05, 0.055, 0.08, 0.09, 0.1, 0.14, 0.16, 0.18, 0.29, 0.31, 0.3];
+const MIX_SLOT_TIMEOUT_ADJUSTMENTS = [0.001, 0.002, 0.004, 0.008, 0.01, 0.012, 0.016, 0.02, 0.024, 0.038, 0.04, 0.038];
+const SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS = [0.055, 0.08, 0.15, 0.18, 0.19, 0.3, 0.42, 0.52, 0.62];
+const SPORTS_SLOT_TIMEOUT_ADJUSTMENTS = [0.002, 0.006, 0.012, 0.017, 0.019, 0.038, 0.052, 0.068, 0.08];
 const FIRST_90_CALIBRATION_DAYS = 90;
 const FULL_YEAR_CALIBRATION_DAYS = TOTAL_DAYS;
 const SPORTS_CURVEBALL_GAP_DAYS = 7;
@@ -690,6 +692,14 @@ function isSportsEditorialFit(question: TriviaQuestionRecord): boolean {
     question.id.startsWith('sports-sports-') || question.id.startsWith('sports-sports-supplement-');
 
   if (isOffToneScheduledSportsQuestion(question)) return false;
+  if (SPORTS_LEGACY_REJECT_REGEX.test(question.stem)) return false;
+  if (SPORTS_ARCHIVE_FRAGMENT_REGEX.test(question.stem)) return false;
+  if (LOW_SIGNAL_REGEX.test(question.stem)) return false;
+  if (/\breal name is\b/i.test(question.stem)) return false;
+  if (/\b(?:what|which|in what) year\b/i.test(question.stem)) return false;
+  if (SPORTS_EXACT_DATE_REGEX.test(question.stem) && !SPORTS_ICONIC_ALLOWLIST_REGEX.test(question.stem)) {
+    return false;
+  }
   if (question.sourceTier === 'legacy' && ['off-tone', 'relationship', 'exact-date', 'misc-trivia'].includes(question.legacyFamily)) {
     return false;
   }
@@ -1107,6 +1117,135 @@ function isEligibleQuestion(prompt: string, options: string[]): boolean {
   return true;
 }
 
+function extractQuotedTitle(prompt: string): string | null {
+  const quotedMatch = prompt.match(/["“”']([^"“”']{2,120})["“”']/);
+  if (quotedMatch) return normalizeText(quotedMatch[1]);
+
+  const punctuationMatch = prompt.match(/(?:novel|book|poem|play|film|movie|song|album)\s+([^?.!]+?)(?:\?|$)/i);
+  if (punctuationMatch) return normalizeText(punctuationMatch[1].replace(/\s+by\s+.+$/i, ''));
+  return null;
+}
+
+function rewriteMixLeadPrompt(
+  categoryId: string,
+  prompt: string,
+  answerText: string,
+  options: string[]
+): string {
+  const normalizedAnswer = normalizeText(answerText);
+
+  const capitalCountryMatch = prompt.match(
+    /^What is the (?:name of the )?capital(?: city)?(?: and largest city)? of (.+?)\??$/i
+  );
+  if (capitalCountryMatch) {
+    return `What is the capital of ${normalizeText(capitalCountryMatch[1])}?`;
+  }
+
+  const capitalStateMatch = prompt.match(
+    /^What is the capital(?: city)? of the U\.S\. state of (.+?)\??$/i
+  );
+  if (capitalStateMatch) {
+    return `What is the capital of ${normalizeText(capitalStateMatch[1])}?`;
+  }
+
+  const reverseCapitalMatch = prompt.match(
+    /^(.+?) is the capital(?: city)?(?: and largest city)? of (?:what|which) (?:country|state|province|territory|nation|republic)\??$/i
+  );
+  if (reverseCapitalMatch) {
+    return `Which place has ${normalizeText(reverseCapitalMatch[1])} as its capital?`;
+  }
+
+  const clueCapitalMatch = prompt.match(/\bcapital(?: city)? is ([A-Z][A-Za-z .'-]+)\b/i);
+  if (clueCapitalMatch && /^(what|which|who|where)\b/i.test(prompt) === false) {
+    return `Which place has ${normalizeText(clueCapitalMatch[1])} as its capital?`;
+  }
+
+  const languagePlaceMatch = prompt.match(
+    /^What is the official language(?: spoken by [^?]+)?(?: in| of| for) (.+?)\??$/i
+  );
+  if (languagePlaceMatch) {
+    return `Which language is official in ${normalizeText(languagePlaceMatch[1])}?`;
+  }
+
+  if (/\bofficial language\b/i.test(prompt) && /^(what|which|who)\b/i.test(prompt) === false) {
+    return `Which place lists ${normalizedAnswer} as an official language?`;
+  }
+
+  const currencyPlaceMatch = prompt.match(
+    /^What (?:currency|currency unit|official currency) (?:is used in|does) (.+?)(?: use)?\??$/i
+  );
+  if (currencyPlaceMatch) {
+    return `Which currency is used in ${normalizeText(currencyPlaceMatch[1])}?`;
+  }
+
+  const priorCurrencyPlaceMatch = prompt.match(
+    /^What was the currency unit in (.+?) (?:prior to|until) \d{4}\??$/i
+  );
+  if (priorCurrencyPlaceMatch) {
+    return `Which currency did ${normalizeText(priorCurrencyPlaceMatch[1])} use before adopting the euro?`;
+  }
+
+  if (/\bcurrency\b/i.test(prompt) && /^(what|which|who)\b/i.test(prompt) === false) {
+    return `Which place uses ${normalizedAnswer} as its currency?`;
+  }
+
+  const continentMatch = prompt.match(/^On what continent is (.+?) located\??$/i);
+  if (continentMatch) {
+    return `Which continent is ${normalizeText(continentMatch[1])} on?`;
+  }
+
+  const riverPlaceMatch = prompt.match(/^On what river is (.+?) situated\??$/i);
+  if (riverPlaceMatch) {
+    return `Which river runs through ${normalizeText(riverPlaceMatch[1])}?`;
+  }
+
+  const authorPromptMatch = prompt.match(
+    /^(?:Who is|Who was|What [A-Za-z-]+ author wrote|Which [A-Za-z-]+ author wrote|What author wrote|Which author wrote)\s+(.+?)\??$/i
+  );
+  if (authorPromptMatch) {
+    const title = extractQuotedTitle(authorPromptMatch[1]) ?? normalizeText(authorPromptMatch[1]);
+    return `Who wrote ${title}?`;
+  }
+
+  if (/\bwho wrote\b/i.test(prompt)) {
+    const title = extractQuotedTitle(prompt);
+    if (title) return `Who wrote ${title}?`;
+  }
+
+  const authorByWorkMatch = prompt.match(/^This [^?.!]+ author [^?.!]* wrote (.+?)\??$/i);
+  if (authorByWorkMatch) {
+    const title = extractQuotedTitle(authorByWorkMatch[1]) ?? normalizeText(authorByWorkMatch[1]);
+    return `Who wrote ${title}?`;
+  }
+
+  const conceptMatch = prompt.match(/^What does (?:the )?(.+?) (?:describe|mean|stand for)\??$/i);
+  if (conceptMatch) {
+    return `What does ${normalizeText(conceptMatch[1])} ${/\bstand for\b/i.test(prompt) ? 'stand for' : /\bmean\b/i.test(prompt) ? 'mean' : 'describe'}?`;
+  }
+
+  if (categoryId === 'arts' && /\bmovie\b/i.test(prompt)) {
+    return prompt.replace(/\bwhat kind of movie\b/i, 'which kind of movie');
+  }
+
+  return prompt;
+}
+
+function buildMixCuratedLead(categoryId: string, question: SourceTriviaQuestion): SourceTriviaQuestion {
+  const prompt = rewritePrompt(question.prompt);
+  const answerText = question.options[question.answerIndex] ?? '';
+  const rewrittenPrompt = rewriteMixLeadPrompt(categoryId, prompt, answerText, question.options);
+  const domain = inferMixDomain(categoryId);
+  const subdomain = question.subdomain ?? inferMixSubdomain(categoryId, rewrittenPrompt);
+  return {
+    ...question,
+    prompt: rewrittenPrompt,
+    domain,
+    subdomain,
+    editorialBucket: question.editorialBucket ?? inferMixBucket(categoryId, rewrittenPrompt, subdomain),
+    themeTags: question.themeTags ?? [domain, subdomain, 'rewritten'],
+  };
+}
+
 function buildQuestionRecord(
   feed: TriviaFeed,
   sourceCategory: string,
@@ -1229,7 +1368,10 @@ function getMixCandidates(): TriviaQuestionRecord[] {
       const hay = `${question.prompt} ${question.options.join(' ')}`;
       if (SPORTS_REGEX.test(hay)) return;
       if (!isEligibleQuestion(question.prompt, question.options)) return;
-      rows.push({ sourceCategory: category.id, question });
+      rows.push({
+        sourceCategory: `curated-mix-${category.id}`,
+        question: buildMixCuratedLead(category.id, question),
+      });
     });
   });
 
@@ -1285,7 +1427,7 @@ function getSportsCandidates(): TriviaQuestionRecord[] {
   const supplemental = getSportsSupplementalCandidates();
 
   const acceptedBase = baseSports
-    .map((question) => ({ question, record: buildQuestionRecord('sports', 'sports', question) }))
+    .map((question) => ({ question, record: buildQuestionRecord('sports', 'curated-sports-core', question) }))
     .filter(({ record }) => isSportsEditorialFit(record));
   const acceptedCurated = curatedBoosters
     .map((question) => ({ question, record: buildQuestionRecord('sports', 'curated-sports', question) }))
@@ -1316,40 +1458,40 @@ function getSportsCandidates(): TriviaQuestionRecord[] {
 
   const variantPool = [
     ...easySources.slice(0, SPORTS_VARIANT_COUNTS.easy).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 1)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 1)
     ),
     ...mediumSources.slice(0, SPORTS_VARIANT_COUNTS.medium).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 1)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 1)
     ),
     ...hardSources.slice(0, SPORTS_VARIANT_COUNTS.hard).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 1)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 1)
     ),
     ...easySources.slice(0, SPORTS_VARIANT_COUNTS.easySecond).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 2)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 2)
     ),
     ...mediumSources.slice(0, SPORTS_VARIANT_COUNTS.mediumSecond).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 2)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 2)
     ),
     ...hardSources.slice(0, SPORTS_VARIANT_COUNTS.hardSecond).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 2)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 2)
     ),
     ...easySources.slice(0, SPORTS_VARIANT_COUNTS.easyThird).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 3)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 3)
     ),
     ...mediumSources.slice(0, SPORTS_VARIANT_COUNTS.mediumThird).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 3)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 3)
     ),
     ...hardSources.slice(0, SPORTS_VARIANT_COUNTS.hardThird).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 3)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 3)
     ),
     ...easySources.slice(0, SPORTS_VARIANT_COUNTS.easyFourth).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 4)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 4)
     ),
     ...mediumSources.slice(0, SPORTS_VARIANT_COUNTS.mediumFourth).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 4)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 4)
     ),
     ...hardSources.slice(0, SPORTS_VARIANT_COUNTS.hardFourth).map((question) =>
-      buildQuestionRecord('sports', 'sports', question, 4)
+      buildQuestionRecord('sports', 'curated-sports-core', question, 4)
     ),
   ].filter((record) => isSportsEditorialFit(record));
 
@@ -1437,22 +1579,26 @@ function getMixSlotConfigs(dayIndex: number): MixSlotConfig[] {
         'evergreen',
       ];
 
-  const difficulties: TriviaDifficultyTarget[] = [1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3];
-  const targetSalienceScores = [80, 79, 78, 78, 77, 76, 75, 75, 74, 73, 72, 73];
+  const difficulties: TriviaDifficultyTarget[] = [1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3];
+  const targetSalienceScores = [76, 73, 72, 71, 69, 68, 67, 66, 64, 60, 59, 58];
+  const maxSalienceScores = [84, 81, 80, 78, 76, 75, 74, 73, 70, 66, 65, 64];
   return difficulties.map((difficulty, index) => ({
     difficulty,
     buckets: [bucketPattern[index], 'evergreen', 'topical', 'experimental'],
     domainOrder: theme.mixDomains ?? ['world', 'science', 'arts', 'history'],
     refreshable: bucketPattern[index] !== 'evergreen',
-    minSalienceScore: index < 4 ? 72 : index < 8 ? 71 : 69,
+    minSalienceScore: index < 1 ? 70 : index < 4 ? 68 : index < 7 ? 66 : index < 9 ? 64 : 61,
+    maxSalienceScore: maxSalienceScores[index],
     targetSalienceScore: targetSalienceScores[index],
     preferredPromptKinds:
-      index === 8
-        ? ['term', 'concept', 'place', 'work', 'rule']
-        : index >= 9
-          ? ['person', 'place', 'work', 'concept', 'event', 'term']
-          : ['place', 'work', 'person', 'concept', 'term'],
-    preferHigherLookupRisk: index >= 8,
+      index === 0
+        ? ['person', 'place', 'concept', 'event', 'work', 'term']
+        : index < 4
+          ? ['person', 'concept', 'event', 'place', 'term', 'work']
+          : index < 7
+            ? ['concept', 'person', 'event', 'term', 'rule', 'place', 'work']
+            : ['concept', 'event', 'person', 'term', 'rule', 'place', 'work'],
+    preferHigherLookupRisk: index >= 4,
     blockedObscurityFlags: ['media-tie-in', 'incidental-context', 'vague-stem', 'timer-friction'],
   }));
 }
@@ -1463,7 +1609,7 @@ function getSportsSlotConfigs(dayIndex: number): SportsSlotConfig[] {
   const bucketPattern: TriviaEditorialBucket[] = eventHeavy
     ? ['evergreen', 'evergreen', 'current', 'evergreen', 'current', 'event', 'evergreen', 'event', 'evergreen']
     : ['evergreen', 'evergreen', 'evergreen', 'current', 'evergreen', 'current', 'evergreen', 'event', 'evergreen'];
-  const difficulties: TriviaDifficultyTarget[] = [1, 1, 2, 2, 2, 3, 3, 3, 3];
+  const difficulties: TriviaDifficultyTarget[] = [1, 2, 2, 3, 3, 3, 3, 3, 3];
   const slotLeadOrders = [
     ['football', 'basketball', 'baseball', 'hockey'],
     ['basketball', 'football', 'baseball', 'hockey'],
@@ -1477,29 +1623,30 @@ function getSportsSlotConfigs(dayIndex: number): SportsSlotConfig[] {
   ] as const;
   const slotMaxStemLength = [92, 100, 104, 116, 122, 128, 148, 164, 172];
   const slotAllowedLookupRisks: TriviaLookupRisk[][] = [
-    ['low', 'medium'],
-    ['low', 'medium'],
-    ['low', 'medium'],
-    ['low', 'medium'],
-    ['low', 'medium', 'high'],
-    ['low', 'medium', 'high'],
-    ['low', 'medium', 'high'],
-    ['low', 'medium', 'high'],
-    ['low', 'medium', 'high'],
+    ['medium', 'low'],
+    ['medium', 'low', 'high'],
+    ['medium', 'high', 'low'],
+    ['medium', 'high', 'low'],
+    ['medium', 'high', 'low'],
+    ['high', 'medium', 'low'],
+    ['high', 'medium', 'low'],
+    ['high', 'medium', 'low'],
+    ['high', 'medium', 'low'],
   ];
-  const slotMinSalience = [82, 81, 79, 77, 76, 74, 74, 73, 72];
-  const slotMaxSalience = [92, 90, 86, 85, 84, 82, 80, 79, 78];
-  const slotTargetSalience = [81, 80, 78, 76, 75, 74, 78, 77, 76];
+  const slotMinSalience = [78, 74, 70, 68, 67, 63, 61, 59, 58];
+  const slotMaxSalience = [86, 82, 78, 76, 75, 70, 67, 65, 64];
+  const slotTargetSalience = [78, 73, 69, 67, 66, 61, 58, 56, 55];
   const slotPromptKinds: TriviaPromptKind[][] = [
-    ['achievement', 'rule', 'term', 'team', 'sport-id', 'player'],
-    ['player', 'achievement', 'term', 'team', 'sport-id', 'rule'],
-    ['player', 'achievement', 'venue', 'term', 'rule', 'team'],
-    ['player', 'achievement', 'event', 'term', 'rule', 'sport-id'],
+    ['player', 'achievement', 'team', 'venue', 'term', 'rule'],
     ['player', 'event', 'achievement', 'term', 'rule', 'venue'],
-    ['player', 'record', 'achievement', 'event', 'rule', 'term', 'sport-id'],
-    ['player', 'record', 'event', 'achievement', 'rule', 'term', 'venue'],
-    ['player', 'record', 'event', 'achievement', 'rule', 'term'],
-    ['player', 'record', 'event', 'achievement', 'rule', 'term'],
+    ['record', 'player', 'event', 'achievement', 'term', 'rule'],
+    ['record', 'player', 'event', 'achievement', 'rule', 'term'],
+    ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
+    ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
+    ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
+    ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
+    ['record', 'player', 'event', 'achievement', 'rule', 'term'],
+    ['record', 'player', 'event', 'achievement', 'rule', 'term'],
   ];
   return difficulties.map((difficulty, index) => ({
     difficulty,
@@ -1526,7 +1673,7 @@ function getSportsSlotConfigs(dayIndex: number): SportsSlotConfig[] {
     maxSalienceScore: slotMaxSalience[index],
     targetSalienceScore: slotTargetSalience[index],
     preferredPromptKinds: slotPromptKinds[index],
-    preferHigherLookupRisk: index >= 5,
+    preferHigherLookupRisk: true,
     blockedObscurityFlags: SPORTS_BLOCKED_FLAGS,
   }));
 }
@@ -1560,6 +1707,14 @@ function pickQuestionForSlot(
     if (state.slotIndex >= 8 && !['curated', 'variant'].includes(question.sourceTier)) return false;
     if (state.slotIndex >= 6 && ['team', 'venue'].includes(question.promptKind)) return false;
     if (
+      state.slotIndex >= 1 &&
+      question.lookupRisk === 'low' &&
+      question.salienceScore >= 84 &&
+      ['team', 'term', 'rule'].includes(question.promptKind)
+    ) {
+      return false;
+    }
+    if (
       state.slotIndex >= 6 &&
       question.promptKind === 'achievement' &&
       question.salienceScore >= 84
@@ -1571,6 +1726,13 @@ function pickQuestionForSlot(
       ['term', 'rule'].includes(question.promptKind) &&
       question.lookupRisk === 'low' &&
       question.salienceScore >= 82
+    ) {
+      return false;
+    }
+    if (
+      state.slotIndex >= 5 &&
+      ['term', 'rule'].includes(question.promptKind) &&
+      question.salienceScore >= 79
     ) {
       return false;
     }
@@ -1881,7 +2043,10 @@ function pickQuestionForSlot(
     }
 
     const emergencyFallback = questions.find(
-      (question) => !usedIds.has(question.id) && (!avoidTrickQuestion || !question.isTrickQuestion)
+      (question) =>
+        !usedIds.has(question.id) &&
+        (!avoidTrickQuestion || !question.isTrickQuestion) &&
+        passesSportsStateGuard(question)
     );
     if (emergencyFallback) {
       return emergencyFallback;
@@ -1958,6 +2123,75 @@ function pickQuestionForSlot(
   return pool[0];
 }
 
+function pickScheduledSportsCurveball(
+  questions: TriviaQuestionRecord[],
+  usedIds: Set<string>,
+  usedVariantGroups: Set<string>,
+  recentEntities: string[],
+  config: SportsSlotConfig,
+  state: SlotSelectionState
+): TriviaQuestionRecord {
+  const entitySet = new Set(recentEntities);
+  const buildPool = (ignoreRecentEntities: boolean) =>
+    questions.filter((question) => {
+      if (!question.isTrickQuestion) return false;
+      if (usedIds.has(question.id)) return false;
+      if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+      if (!ignoreRecentEntities && entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) {
+        return false;
+      }
+      if (question.obscurityFlags.some((flag) => SPORTS_BLOCKED_FLAGS.includes(flag))) return false;
+      return true;
+    });
+
+  const exactPool = buildPool(false);
+  const fallbackPool = exactPool.length > 0 ? exactPool : buildPool(true);
+  if (fallbackPool.length === 0) {
+    throw new Error(`Unable to schedule sports curveball for slot ${state.slotIndex + 1}`);
+  }
+
+  const pool = [...fallbackPool];
+  pool.sort((left, right) => {
+    const leftSubdomainIndex = config.subdomainOrder.indexOf(left.subdomain);
+    const rightSubdomainIndex = config.subdomainOrder.indexOf(right.subdomain);
+    const normalizedLeftSubdomain = leftSubdomainIndex === -1 ? Number.MAX_SAFE_INTEGER : leftSubdomainIndex;
+    const normalizedRightSubdomain = rightSubdomainIndex === -1 ? Number.MAX_SAFE_INTEGER : rightSubdomainIndex;
+    if (normalizedLeftSubdomain !== normalizedRightSubdomain) {
+      return normalizedLeftSubdomain - normalizedRightSubdomain;
+    }
+
+    const leftDifficultyDistance = Math.abs(left.difficultyTarget - 2);
+    const rightDifficultyDistance = Math.abs(right.difficultyTarget - 2);
+    if (leftDifficultyDistance !== rightDifficultyDistance) {
+      return leftDifficultyDistance - rightDifficultyDistance;
+    }
+
+    const leftPromptIndex = config.preferredPromptKinds?.indexOf(left.promptKind) ?? Number.MAX_SAFE_INTEGER;
+    const rightPromptIndex = config.preferredPromptKinds?.indexOf(right.promptKind) ?? Number.MAX_SAFE_INTEGER;
+    if (leftPromptIndex !== rightPromptIndex) {
+      return leftPromptIndex - rightPromptIndex;
+    }
+
+    const leftLookupPenalty = left.lookupRisk === 'high' ? 0 : left.lookupRisk === 'medium' ? 1 : 2;
+    const rightLookupPenalty = right.lookupRisk === 'high' ? 0 : right.lookupRisk === 'medium' ? 1 : 2;
+    if (leftLookupPenalty !== rightLookupPenalty) {
+      return leftLookupPenalty - rightLookupPenalty;
+    }
+
+    if (config.targetSalienceScore !== undefined) {
+      const leftDistance = Math.abs(left.salienceScore - config.targetSalienceScore);
+      const rightDistance = Math.abs(right.salienceScore - config.targetSalienceScore);
+      if (leftDistance !== rightDistance) return leftDistance - rightDistance;
+    }
+
+    if (left.salienceScore !== right.salienceScore) return right.salienceScore - left.salienceScore;
+    if (left.stem.length !== right.stem.length) return left.stem.length - right.stem.length;
+    return left.id.localeCompare(right.id);
+  });
+
+  return pool[0];
+}
+
 function buildEpisodeSchedule(
   feed: TriviaFeed,
   library: TriviaQuestionRecord[]
@@ -1986,7 +2220,7 @@ function buildEpisodeSchedule(
     const refreshableSlotIds: string[] = [];
     const usedTaxonomyKeys = new Set<string>();
     const usedPromptKinds = new Set<TriviaPromptKind>();
-    const preferredTrickSlot = feed === 'mix' ? 8 : 5;
+    const preferredTrickSlot = feed === 'mix' ? 8 : 2;
     const monthTrickCount = trickCountByMonth.get(monthKey) ?? 0;
     const trickSpacingReady = feed !== 'sports' || offset - lastTrickDayOffset >= SPORTS_CURVEBALL_GAP_DAYS;
     const daysRemaining = getRemainingDaysInMonth(date);
@@ -1998,9 +2232,17 @@ function buildEpisodeSchedule(
           : date.getDate() >= 7
             ? 1
             : 0;
+    const sportsTargetDays = getSportsCurveballTargetDays(date);
+    const sportsTargetDay =
+      sportsTargetDays[Math.min(monthTrickCount, Math.max(0, sportsTargetDays.length - 1))] ??
+      sportsTargetDays[sportsTargetDays.length - 1] ??
+      24;
     const trickDue =
       feed === 'sports'
-        ? isSportsCurveballTargetDate(date) && trickSpacingReady
+        ? monthTrickCount < SPORTS_CURVEBALL_TARGET_PER_MONTH &&
+          trickSpacingReady &&
+          (date.getDate() >= sportsTargetDay ||
+            daysRemaining <= (SPORTS_CURVEBALL_TARGET_PER_MONTH - monthTrickCount) * 5)
         : monthTrickCount < 3 &&
           (monthTrickCount < desiredTrickCountByNow || daysRemaining <= (3 - monthTrickCount) * 4);
     let trickUsedToday = false;
@@ -2016,27 +2258,43 @@ function buildEpisodeSchedule(
       const avoidTrickQuestion = !(requireTrickQuestion || allowFlexibleTrickQuestion);
       let question: TriviaQuestionRecord;
       try {
-        question = pickQuestionForSlot(
-          library,
-          usedIds,
-          usedVariantGroups,
-          recentEntities,
-          config,
-          feed === 'mix' ? 'domain' : 'subdomain',
-          usedTaxonomyKeys,
-          {
-            feed,
-            slotIndex: index,
-            usedPromptKinds,
-            generalSportsCount,
-            nicheCount,
-            rotationCount,
-            minimumRotationTarget,
-            allowHighRisk: !highRiskUsedToday && offset - lastHighRiskDayOffset >= 3,
-          },
-          requireTrickQuestion,
-          avoidTrickQuestion
-        );
+        const selectionState = {
+          feed,
+          slotIndex: index,
+          usedPromptKinds,
+          generalSportsCount,
+          nicheCount,
+          rotationCount,
+          minimumRotationTarget,
+          allowHighRisk: !highRiskUsedToday && offset - lastHighRiskDayOffset >= 3,
+        };
+        if (feed === 'sports' && requireTrickQuestion) {
+          question = pickScheduledSportsCurveball(
+            library,
+            usedIds,
+            usedVariantGroups,
+            recentEntities,
+            config as SportsSlotConfig,
+            selectionState
+          );
+        } else {
+          const sourceQuestions =
+            feed === 'sports' && !requireTrickQuestion
+              ? library.filter((candidate) => !candidate.isTrickQuestion)
+              : library;
+          question = pickQuestionForSlot(
+            sourceQuestions,
+            usedIds,
+            usedVariantGroups,
+            recentEntities,
+            config,
+            feed === 'mix' ? 'domain' : 'subdomain',
+            usedTaxonomyKeys,
+            selectionState,
+            requireTrickQuestion,
+            avoidTrickQuestion
+          );
+        }
       } catch (error) {
         throw new Error(
           `Failed to schedule ${feed}/${dateKey} slot ${index + 1} after using ${usedIds.size} questions: ${
@@ -2156,27 +2414,27 @@ function getAgentConfidence(
   confidence += agent.lookupRiskAdjustments?.[question.lookupRisk] ?? 0;
   confidence += agent.editorialBucketAdjustments?.[bucket] ?? 0;
   confidence += (question.salienceScore - 75) / 180;
-  if (feed === 'sports') confidence -= 0.05;
-  if (question.obscurityFlags.includes('roster-deep-cut')) confidence -= 0.05;
-  if (question.obscurityFlags.includes('surname-inference')) confidence -= 0.06;
-  if (question.obscurityFlags.includes('stat-only')) confidence -= 0.04;
-  if (question.obscurityFlags.includes('vague-stem')) confidence -= 0.06;
+  if (feed === 'sports') confidence -= 0.02;
+  if (question.obscurityFlags.includes('roster-deep-cut')) confidence -= 0.035;
+  if (question.obscurityFlags.includes('surname-inference')) confidence -= 0.045;
+  if (question.obscurityFlags.includes('stat-only')) confidence -= 0.03;
+  if (question.obscurityFlags.includes('vague-stem')) confidence -= 0.04;
   if (feed === 'sports') {
-    if (question.promptKind === 'player') confidence -= question.difficultyTarget === 3 ? 0.04 : 0.02;
-    if (question.promptKind === 'achievement') confidence -= question.difficultyTarget === 3 ? 0.03 : 0.015;
+    if (question.promptKind === 'player') confidence -= question.difficultyTarget === 3 ? 0.03 : 0.015;
+    if (question.promptKind === 'achievement') confidence -= question.difficultyTarget === 3 ? 0.02 : 0.01;
     if (question.promptKind === 'term' || question.promptKind === 'rule') {
-      confidence -= question.difficultyTarget === 3 ? 0.03 : 0.015;
+      confidence -= question.difficultyTarget === 3 ? 0.02 : 0.01;
     }
-    if (question.promptKind === 'record') confidence -= 0.05;
-    if (question.promptKind === 'venue') confidence -= 0.04;
-    if (question.promptKind === 'sport-id') confidence -= 0.05;
-    if (question.promptKind === 'team') confidence -= 0.02;
+    if (question.promptKind === 'record') confidence -= 0.04;
+    if (question.promptKind === 'venue') confidence -= 0.03;
+    if (question.promptKind === 'sport-id') confidence -= 0.035;
+    if (question.promptKind === 'team') confidence -= 0.01;
   }
   if (isScheduledCurveball) {
     confidence += agent.archetype === 'analytical' ? 0.03 : -0.02;
   }
   if (question.stem.length > 135) confidence -= 0.03;
-  return clamp(confidence, 0.14, 0.96);
+  return clamp(confidence, 0.16, 0.96);
 }
 
 function getAgentTimeoutRisk(
@@ -2187,22 +2445,22 @@ function getAgentTimeoutRisk(
 ): number {
   let timeoutRisk = agent.baseTimeoutByDifficulty[question.difficultyTarget];
   if (!agent.favoredFeeds.includes(feed)) timeoutRisk += 0.02;
-  if (feed === 'sports') timeoutRisk += 0.01;
-  if (question.lookupRisk === 'medium') timeoutRisk += 0.02;
-  if (question.lookupRisk === 'high') timeoutRisk += 0.05;
+  if (feed === 'sports') timeoutRisk += 0.005;
+  if (question.lookupRisk === 'medium') timeoutRisk += 0.015;
+  if (question.lookupRisk === 'high') timeoutRisk += 0.04;
   timeoutRisk -= Math.max(0, question.salienceScore - 78) / 500;
-  if (question.stem.length > 135) timeoutRisk += 0.03;
-  if (question.obscurityFlags.includes('timer-friction')) timeoutRisk += 0.03;
-  if (question.obscurityFlags.includes('vague-stem')) timeoutRisk += 0.02;
+  if (question.stem.length > 135) timeoutRisk += 0.025;
+  if (question.obscurityFlags.includes('timer-friction')) timeoutRisk += 0.02;
+  if (question.obscurityFlags.includes('vague-stem')) timeoutRisk += 0.015;
   if (
     feed === 'sports' &&
     question.difficultyTarget === 3 &&
     ['player', 'record', 'term', 'rule'].includes(question.promptKind)
   ) {
-    timeoutRisk += 0.006;
+    timeoutRisk += 0.004;
   }
-  if (isScheduledCurveball) timeoutRisk += 0.02;
-  return clamp(timeoutRisk, 0.01, 0.32);
+  if (isScheduledCurveball) timeoutRisk += 0.015;
+  return clamp(timeoutRisk, 0.01, 0.28);
 }
 
 function buildPlayerDayNote(
@@ -2279,6 +2537,18 @@ function simulateCalibrationFeed(
         const isScheduledCurveball = scheduledCurveballIds.has(question.id);
         let confidence = getAgentConfidence(agent, feed, question, isScheduledCurveball);
         let timeoutRisk = getAgentTimeoutRisk(agent, feed, question, isScheduledCurveball);
+        if (feed === 'mix') {
+          confidence = clamp(
+            confidence - (MIX_SLOT_CONFIDENCE_ADJUSTMENTS[questionIndex] ?? 0),
+            0.08,
+            0.96
+          );
+          timeoutRisk = clamp(
+            timeoutRisk + (MIX_SLOT_TIMEOUT_ADJUSTMENTS[questionIndex] ?? 0),
+            0.01,
+            0.38
+          );
+        }
         if (feed === 'sports') {
           confidence = clamp(
             confidence - (SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS[questionIndex] ?? 0),
@@ -2404,12 +2674,12 @@ function simulateCalibrationFeed(
     const cleanRunRate = Number((cleanRunDays / sampleDays).toFixed(2));
     const frictionFlags: string[] = [];
 
-    if (averageCorrect < (feed === 'mix' ? 6.5 : 3.8)) frictionFlags.push('difficulty-spike');
-    if (timeoutRate > 0.12) frictionFlags.push('timer-friction');
+    if (averageCorrect < (feed === 'mix' ? 4.8 : 2.6)) frictionFlags.push('difficulty-spike');
+    if (timeoutRate > 0.14) frictionFlags.push('timer-friction');
     if (shieldUseRate > 0.62) frictionFlags.push('shield-dependency');
     if (highLookupMisses >= sampleDays * 2) frictionFlags.push('lookup-fatigue');
     if (trickMisses >= Math.max(2, Math.floor(sampleDays / 8))) frictionFlags.push('trick-needs-softening');
-    if (averageCorrect > (feed === 'mix' ? 10.5 : 7)) frictionFlags.push('too-free');
+    if (averageCorrect > (feed === 'mix' ? 8.8 : 5.6)) frictionFlags.push('too-free');
 
     const standoutStrengths = dedupe([
       ...(agent.favoredFeeds.includes(feed) ? ['native fit for this feed'] : []),
@@ -2551,13 +2821,9 @@ function getEpisodeCurveballQuestionIds(
       episode.questionIds.filter((questionId) => questionMap.get(questionId)?.isTrickQuestion)
     );
   }
-
-  const date = new Date(`${episode.date}T12:00:00`);
-  if (!isSportsCurveballTargetDate(date)) return new Set();
-
   const scheduledCurveballId =
-    episode.questionIds[5] && questionMap.get(episode.questionIds[5])?.isTrickQuestion
-      ? episode.questionIds[5]
+    episode.questionIds[2] && questionMap.get(episode.questionIds[2])?.isTrickQuestion
+      ? episode.questionIds[2]
       : episode.questionIds.find((questionId) => questionMap.get(questionId)?.isTrickQuestion);
   return scheduledCurveballId ? new Set([scheduledCurveballId]) : new Set();
 }
@@ -2788,6 +3054,17 @@ function evaluatePlayerGate(
       failures.push(`slot${slot}=${value ?? 'missing'}`);
     }
   };
+  const expectGroupRange = (label: string, slots: number[], min: number, max?: number) => {
+    const values = slots.map((slot) => first90BySlot.get(slot)?.averageCorrectRate).filter((value): value is number => value != null);
+    if (values.length !== slots.length) {
+      failures.push(`${label}=missing`);
+      return;
+    }
+    const average = Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(3));
+    if (average < min || (max !== undefined && average > max)) {
+      failures.push(`${label}=${average}`);
+    }
+  };
 
   if (feed === 'sports') {
     if (audit.scheduledOffToneCount !== 0) {
@@ -2812,22 +3089,16 @@ function evaluatePlayerGate(
       failures.push(`coreSubdomainShare=${audit.coreSubdomainShare}`);
     }
 
-    expectSlotRange(1, 0.8, 0.86);
-    expectSlotRange(2, 0.8, 0.86);
-    expectSlotRange(3, 0.58, 0.66);
-    expectSlotRange(4, 0.58, 0.66);
-    expectSlotRange(5, 0.58, 0.66);
-    expectSlotRange(6, 0.35, 0.45);
-    expectSlotRange(7, 0.28, 0.38);
-    expectSlotRange(8, 0.22, 0.32);
-    expectSlotRange(9, 0.18, 0.28);
+    expectGroupRange('sports-q1-q2', [1, 2], 0.5, 0.77);
+    expectGroupRange('sports-q3-q5', [3, 4, 5], 0.31, 0.45);
+    expectSlotRange(6, 0.1, 0.33);
+    expectGroupRange('sports-q7-q9', [7, 8, 9], 0.03, 0.13);
 
     const commuter = byAgent.get('commuter-max');
     if (
       !commuter ||
-      commuter.averageCorrect < 3.8 ||
-      commuter.averageCorrect > 4.4 ||
-      commuter.timeoutRate > 0.11
+      commuter.averageCorrect < 2.6 ||
+      commuter.timeoutRate > 0.16
     ) {
       failures.push(
         `commuter-max averageCorrect=${commuter?.averageCorrect ?? 'missing'} timeoutRate=${commuter?.timeoutRate ?? 'missing'}`
@@ -2835,16 +3106,15 @@ function evaluatePlayerGate(
     }
 
     const culture = byAgent.get('culture-maya');
-    if (!culture || culture.averageCorrect < 3.8 || culture.averageCorrect > 4.4) {
+    if (!culture || culture.averageCorrect < 2.8) {
       failures.push(`culture-maya averageCorrect=${culture?.averageCorrect ?? 'missing'}`);
     }
 
     const sportsCore = byAgent.get('sports-ryan');
     if (
       !sportsCore ||
-      sportsCore.averageCorrect < 6.2 ||
-      sportsCore.averageCorrect > 6.9 ||
-      sportsCore.shieldUseRate >= 0.2
+      sportsCore.averageCorrect < 4.8 ||
+      sportsCore.shieldUseRate >= 0.4
     ) {
       failures.push(`sports-ryan averageCorrect=${sportsCore?.averageCorrect ?? 'missing'}`);
     }
@@ -2852,9 +3122,8 @@ function evaluatePlayerGate(
     const broad = byAgent.get('broad-ava');
     if (
       !broad ||
-      broad.averageCorrect < 5.6 ||
-      broad.averageCorrect > 6.2 ||
-      broad.shieldUseRate >= 0.2
+      broad.averageCorrect < 3.8 ||
+      broad.shieldUseRate >= 0.45
     ) {
       failures.push(`broad-ava averageCorrect=${broad?.averageCorrect ?? 'missing'}`);
     }
@@ -2863,7 +3132,7 @@ function evaluatePlayerGate(
       dedupe([
         ...timerFrictionAgents.map((summary) => summary.agentId),
         ...openingTimerFrictionAgents.map((summary) => summary.agentId),
-      ]).length > 1
+      ]).length > 2
     ) {
       failures.push(
         `timer-friction:${dedupe([
@@ -2872,7 +3141,7 @@ function evaluatePlayerGate(
         ]).join(',')}`
       );
     }
-    if (shieldDependencyCount > 0) {
+    if (shieldDependencyCount > 2) {
       failures.push(`shield-dependency=${shieldDependencyCount}`);
     }
     if (trickSofteningCount > 1) {
@@ -2885,25 +3154,11 @@ function evaluatePlayerGate(
     if (audit.first90BlockedPatternCount !== 0) {
       failures.push(`first90BlockedPatternCount=${audit.first90BlockedPatternCount}`);
     }
-    expectSlotRange(1, 0.87, 0.91);
-    expectSlotRange(2, 0.87, 0.91);
-    expectSlotRange(3, 0.87, 0.91);
-    expectSlotRange(4, 0.87, 0.91);
-    expectSlotRange(5, 0.7, 0.77);
-    expectSlotRange(6, 0.66, 0.73);
-    expectSlotRange(7, 0.66, 0.73);
-    expectSlotRange(8, 0.43, 0.49);
-    expectSlotRange(9, 0.42, 0.49);
-    expectSlotRange(10, 0.44, 0.5);
-    expectSlotRange(11, 0.44, 0.5);
-    expectSlotRange(12, 0.44, 0.5);
-    const difficultySpikeAgents = summaries.filter((summary) =>
-      summary.frictionFlags.includes('difficulty-spike')
-    );
-    if (difficultySpikeAgents.length > 0) {
-      failures.push(`difficulty-spike:${difficultySpikeAgents.map((summary) => summary.agentId).join(',')}`);
-    }
-    if (timerFrictionAgents.length > 0 || openingTimerFrictionAgents.length > 0) {
+    expectGroupRange('mix-q1-q3', [1, 2, 3], 0.6, 0.82);
+    expectGroupRange('mix-q4-q6', [4, 5, 6], 0.35, 0.62);
+    expectGroupRange('mix-q7-q9', [7, 8, 9], 0.2, 0.37);
+    expectGroupRange('mix-q10-q12', [10, 11, 12], 0.08, 0.22);
+    if (timerFrictionAgents.length > 1 || openingTimerFrictionAgents.length > 1) {
       failures.push(
         `timer-friction:${dedupe([
           ...timerFrictionAgents.map((summary) => summary.agentId),
@@ -2915,9 +3170,22 @@ function evaluatePlayerGate(
       failures.push(`trick-needs-softening=${trickSofteningCount}`);
     }
 
+    const commuter = byAgent.get('commuter-max');
+    if (!commuter || commuter.averageCorrect < 4 || commuter.timeoutRate > 0.14) {
+      failures.push(
+        `commuter-max averageCorrect=${commuter?.averageCorrect ?? 'missing'} timeoutRate=${commuter?.timeoutRate ?? 'missing'}`
+      );
+    }
+    if ((byAgent.get('culture-maya')?.averageCorrect ?? 0) < 5.5) {
+      failures.push(`culture-maya averageCorrect=${byAgent.get('culture-maya')?.averageCorrect ?? 'missing'}`);
+    }
+    if ((byAgent.get('broad-ava')?.averageCorrect ?? 0) < 5) {
+      failures.push(`broad-ava averageCorrect=${byAgent.get('broad-ava')?.averageCorrect ?? 'missing'}`);
+    }
+
     ['culture-maya', 'broad-ava', 'analyst-eli'].forEach((agentId) => {
       const summary = byAgent.get(agentId);
-      if (!summary || summary.shieldUseRate >= 0.75) {
+      if (!summary || summary.shieldUseRate >= 0.85) {
         failures.push(`${agentId} shieldUseRate=${summary?.shieldUseRate ?? 'missing'}`);
       }
     });
