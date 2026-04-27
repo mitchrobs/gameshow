@@ -12,7 +12,9 @@ export type DawnCabinetSuit =
   | 'waves'
   | 'knots'
   | 'moons'
-  | 'suns';
+  | 'suns'
+  | 'lanterns'
+  | 'sparks';
 export type DawnCabinetDifficulty = 'Easy' | 'Standard' | 'Hard' | 'Expert';
 export type DawnCabinetDailyDifficulty = Exclude<DawnCabinetDifficulty, 'Easy'>;
 export type DawnCabinetLineState = 'incomplete' | 'valid' | 'invalid';
@@ -30,6 +32,13 @@ export type DawnCabinetLineGoal = DawnCabinetSetKind | 'hidden';
 export interface DawnCabinetTile {
   suit: DawnCabinetSuit;
   rank: number;
+}
+
+export interface DawnCabinetDawnTile {
+  id: string;
+  solutionCell: string;
+  resolvedTile: DawnCabinetTile;
+  options: DawnCabinetTile[];
 }
 
 export interface DawnCabinetCellClue {
@@ -60,6 +69,12 @@ export interface DawnCabinetDifficultyRating {
   branchCount: number;
   motifCount: number;
   shapeSignature: string;
+  compositeSignature: string;
+  hasDawnTile: boolean;
+  dawnOptionCount: number;
+  dawnRailTouchCount: number;
+  dawnHiddenRailTouchCount: number;
+  dawnAmbiguityScore: number;
   score: number;
 }
 
@@ -99,8 +114,10 @@ export interface DawnCabinetPuzzle {
   solution: Record<string, DawnCabinetTile>;
   bank: DawnCabinetTile[];
   spareCount: number;
+  dawnTile?: DawnCabinetDawnTile;
   motifs: string[];
   shapeSignature: string;
+  compositeSignature: string;
 }
 
 type PuzzleDraft = {
@@ -123,6 +140,8 @@ const SUITS: DawnCabinetSuit[] = [
   'knots',
   'moons',
   'suns',
+  'lanterns',
+  'sparks',
 ];
 const SUIT_LABELS: Record<DawnCabinetSuit, string> = {
   bamboo: 'Bamboo',
@@ -137,6 +156,8 @@ const SUIT_LABELS: Record<DawnCabinetSuit, string> = {
   knots: 'Knots',
   moons: 'Moons',
   suns: 'Suns',
+  lanterns: 'Lanterns',
+  sparks: 'Sparks',
 };
 const SUIT_SHORT_LABELS: Record<DawnCabinetSuit, string> = {
   bamboo: 'BAM',
@@ -151,6 +172,8 @@ const SUIT_SHORT_LABELS: Record<DawnCabinetSuit, string> = {
   knots: 'KNT',
   moons: 'MON',
   suns: 'SUN',
+  lanterns: 'LAN',
+  sparks: 'SPK',
 };
 const SUIT_SHARE_MARKS: Record<DawnCabinetSuit, string> = {
   bamboo: '🟩',
@@ -165,6 +188,8 @@ const SUIT_SHARE_MARKS: Record<DawnCabinetSuit, string> = {
   knots: '🟫',
   moons: '🟣',
   suns: '🟧',
+  lanterns: '🟠',
+  sparks: '✨',
 };
 const SET_KINDS: DawnCabinetSetKind[] = [
   'run',
@@ -186,6 +211,8 @@ const THREE_TILE_SET_KINDS: DawnCabinetSetKind[] = [
   'number',
 ];
 const CANDIDATE_CACHE = new Map<string, DawnCabinetPuzzle[]>();
+const SELECTED_CANDIDATE_CACHE = new Map<string, DawnCabinetPuzzle>();
+const MAX_CANDIDATE_CACHE_SIZE = 360;
 export const DAWN_CABINET_DAILY_DIFFICULTIES: DawnCabinetDailyDifficulty[] = [
   'Standard',
   'Hard',
@@ -204,8 +231,29 @@ export function tileLabel(tile: DawnCabinetTile): string {
   return `${tile.rank} ${SUIT_LABELS[tile.suit]}`;
 }
 
+export function dawnTileLabel(dawnTile: DawnCabinetDawnTile): string {
+  return `Dawn tile: ${dawnTile.options.map(tileLabel).join(' / ')}`;
+}
+
 export function suitShortLabel(suit: DawnCabinetSuit): string {
   return SUIT_SHORT_LABELS[suit];
+}
+
+export function getDawnTileResolvedValueForCell(
+  puzzle: DawnCabinetPuzzle,
+  cell: string
+): DawnCabinetTile | undefined {
+  const dawnTile = puzzle.dawnTile;
+  const solutionTile = puzzle.solution[cell];
+  if (!dawnTile || !solutionTile) return undefined;
+  if (cell !== dawnTile.solutionCell) return undefined;
+  return dawnTile.options.some((option) => tileKey(option) === tileKey(solutionTile))
+    ? solutionTile
+    : undefined;
+}
+
+export function getCabinetEntryCount(puzzle: DawnCabinetPuzzle): number {
+  return puzzle.bank.length + (puzzle.dawnTile ? 1 : 0);
 }
 
 export function cellClueLabel(clue: DawnCabinetCellClue): string {
@@ -437,6 +485,10 @@ export function rateDawnCabinetPuzzle(puzzle: DawnCabinetPuzzle): DawnCabinetDif
   const setKindCount = getPuzzleSetKinds(puzzle).size;
   const overlapDensity = getOverlapDensity(puzzle);
   const branchCount = estimateBranchCount(puzzle);
+  const dawnRailTouchCount = getDawnRailTouchCount(puzzle);
+  const dawnHiddenRailTouchCount = getDawnHiddenRailTouchCount(puzzle);
+  const dawnOptionCount = puzzle.dawnTile?.options.length ?? 0;
+  const dawnAmbiguityScore = Math.max(0, dawnOptionCount - 1) + Math.max(0, dawnRailTouchCount - 1);
   const score =
     blanks * 10 +
     hiddenRails * 7 +
@@ -445,19 +497,27 @@ export function rateDawnCabinetPuzzle(puzzle: DawnCabinetPuzzle): DawnCabinetDif
     puzzle.spareCount * 14 +
     overlapDensity * 20 +
     branchCount * 2 +
-    puzzle.motifs.length * 4;
+    puzzle.motifs.length * 4 +
+    dawnOptionCount * 12 +
+    dawnRailTouchCount * 6;
 
   return {
     blanks,
     hiddenRails,
     lineCount: puzzle.lines.length,
-    bankCount: puzzle.bank.length,
+    bankCount: getCabinetEntryCount(puzzle),
     setKindCount,
     reserveCount: puzzle.spareCount,
     overlapDensity,
     branchCount,
     motifCount: puzzle.motifs.length,
     shapeSignature: puzzle.shapeSignature,
+    compositeSignature: puzzle.compositeSignature,
+    hasDawnTile: Boolean(puzzle.dawnTile),
+    dawnOptionCount,
+    dawnRailTouchCount,
+    dawnHiddenRailTouchCount,
+    dawnAmbiguityScore,
     score,
   };
 }
@@ -488,10 +548,22 @@ function getOverlapDensity(puzzle: DawnCabinetPuzzle): number {
   return overlappingCells / activeCells;
 }
 
+function getDawnRailTouchCount(puzzle: DawnCabinetPuzzle): number {
+  if (!puzzle.dawnTile) return 0;
+  return getLinesByCell(puzzle)[puzzle.dawnTile.solutionCell]?.length ?? 0;
+}
+
+function getDawnHiddenRailTouchCount(puzzle: DawnCabinetPuzzle): number {
+  if (!puzzle.dawnTile) return 0;
+  return (getLinesByCell(puzzle)[puzzle.dawnTile.solutionCell] ?? [])
+    .filter((line) => line.goal === 'hidden').length;
+}
+
 function estimateBranchCount(puzzle: DawnCabinetPuzzle): number {
   const linesByCell = getLinesByCell(puzzle);
   const remaining = countTiles(puzzle.bank);
   const placements: Record<string, DawnCabinetTile> = { ...puzzle.givens };
+  let dawnAvailable = Boolean(puzzle.dawnTile);
   return puzzle.cells
     .map((cell) => cellKey(cell.row, cell.col))
     .filter((key) => !puzzle.givens[key])
@@ -511,7 +583,22 @@ function estimateBranchCount(puzzle: DawnCabinetPuzzle): number {
           delete placements[cell];
           return canResolve;
         }).length;
-      return sum + Math.max(options - 1, 0);
+      const dawnResolvedTile = dawnAvailable ? getDawnTileResolvedValueForCell(puzzle, cell) : undefined;
+      const dawnOptions = dawnResolvedTile
+        ? [dawnResolvedTile].filter((tile) => {
+            placements[cell] = tile;
+            const canResolve = tileMatchesCellClue(tile, puzzle.cellClues[cell]) &&
+              (linesByCell[cell] ?? []).every((line) => {
+                const assigned = line.cells.map((lineCell) => placements[lineCell]).filter(Boolean);
+                if (assigned.length === line.cells.length) return isValidCabinetLine(assigned, line.goal);
+                return canCompleteLine(assigned, line.goal);
+              }) &&
+              isLedgerPossible(puzzle, placements);
+            delete placements[cell];
+            return canResolve;
+          }).length
+        : 0;
+      return sum + Math.max(options + dawnOptions - 1, 0);
     }, 0);
 }
 
@@ -546,23 +633,51 @@ function selectAntiFingerprintCandidate(
   seed: bigint,
   candidates: DawnCabinetPuzzle[]
 ): DawnCabinetPuzzle {
-  const selectedSignatures: string[] = [];
-  let selectedToday = candidates[Number(seed % BigInt(candidates.length))];
+  const cacheKey = selectedCandidateCacheKey(date, difficulty, seed);
+  const cached = SELECTED_CANDIDATE_CACHE.get(cacheKey);
+  if (cached) return cached;
 
-  for (let dayOffset = -60; dayOffset <= 0; dayOffset += 1) {
-    const currentDate = shiftUtcDate(date, dayOffset);
-    const currentSeed = dayOffset === 0 ? seed : stableSeed(`${currentDate}:${difficulty}:daily`);
-    const currentCandidates = dayOffset === 0
-      ? candidates
-      : getCandidateSet(currentDate, difficulty, currentSeed);
-    const offset = Number(currentSeed % BigInt(currentCandidates.length));
-    const ordered = [...currentCandidates.slice(offset), ...currentCandidates.slice(0, offset)];
-    const recent = new Set(selectedSignatures.slice(-14));
-    const selected = ordered.find((candidate) => !recent.has(candidate.shapeSignature)) ?? ordered[0];
-    selectedSignatures.push(selected.shapeSignature);
-    if (dayOffset === 0) selectedToday = selected;
+  const dayIndex = getUtcDayIndex(date);
+  const dateOffset = Number.isNaN(dayIndex) ? 0 : dayIndex;
+  const recent = getCachedRecentCompositeSignatures(date, difficulty);
+  const offset = Number((seed + BigInt(dateOffset)) % BigInt(candidates.length));
+  const ordered = [...candidates.slice(offset), ...candidates.slice(0, offset)];
+  const selected =
+    ordered.find((candidate) => !recent.has(candidate.compositeSignature) && isSelectableDawnCandidate(candidate)) ??
+    ordered.find(isSelectableDawnCandidate) ??
+    ordered.find((candidate) => !recent.has(candidate.compositeSignature)) ??
+    ordered[0];
+  SELECTED_CANDIDATE_CACHE.set(cacheKey, selected);
+  return selected;
+}
+
+function selectedCandidateCacheKey(
+  date: string,
+  difficulty: DawnCabinetDifficulty,
+  seed: bigint
+): string {
+  return `${date}:${difficulty}:${seed.toString()}`;
+}
+
+function getCachedRecentCompositeSignatures(date: string, difficulty: DawnCabinetDifficulty): Set<string> {
+  const recent = new Set<string>();
+  const dateIndex = getUtcDayIndex(date);
+  if (Number.isNaN(dateIndex)) return recent;
+  for (let dayIndex = dateIndex - 90; dayIndex < dateIndex; dayIndex += 1) {
+    const currentDate = utcDateFromDayIndex(dayIndex);
+    const currentSeed = stableSeed(`${currentDate}:${difficulty}:daily`);
+    const selected = SELECTED_CANDIDATE_CACHE.get(selectedCandidateCacheKey(currentDate, difficulty, currentSeed));
+    if (selected) recent.add(selected.compositeSignature);
   }
-  return selectedToday;
+  return recent;
+}
+
+function isSelectableDawnCandidate(candidate: DawnCabinetPuzzle): boolean {
+  const dawnTile = candidate.dawnTile;
+  if (!dawnTile) return true;
+  return dawnTile.options.some((tile) => tileKey(tile) === tileKey(dawnTile.resolvedTile)) &&
+    getDawnRailTouchCount(candidate) >= 2 &&
+    getDawnHiddenRailTouchCount(candidate) >= 1;
 }
 
 function getCandidateSet(
@@ -575,6 +690,11 @@ function getCandidateSet(
   if (cached) return cached;
   const candidates = makeCandidates(date, difficulty, seed);
   CANDIDATE_CACHE.set(key, candidates);
+  while (CANDIDATE_CACHE.size > MAX_CANDIDATE_CACHE_SIZE) {
+    const oldestKey = CANDIDATE_CACHE.keys().next().value;
+    if (!oldestKey) break;
+    CANDIDATE_CACHE.delete(oldestKey);
+  }
   return candidates;
 }
 
@@ -614,6 +734,7 @@ export function countCabinetSolutions(puzzle: DawnCabinetPuzzle, limit = 2): num
     .sort((left, right) => (linesByCell[right]?.length ?? 0) - (linesByCell[left]?.length ?? 0));
   const placements: Record<string, DawnCabinetTile> = { ...puzzle.givens };
   const remaining = countTiles(puzzle.bank);
+  let dawnAvailable = Boolean(puzzle.dawnTile);
   let count = 0;
 
   const affectedLinesCanResolve = (cell: string): boolean => {
@@ -625,8 +746,8 @@ export function countCabinetSolutions(puzzle: DawnCabinetPuzzle, limit = 2): num
     }) && isLedgerPossible(puzzle, placements);
   };
 
-  const candidatesFor = (cell: string): DawnCabinetTile[] => {
-    return Object.entries(remaining)
+  const candidatesFor = (cell: string): { tile: DawnCabinetTile; dawn: boolean }[] => {
+    const tileCandidates = Object.entries(remaining)
       .filter(([, amount]) => amount > 0)
       .map(([key]) => parseTileKey(key))
       .filter((tile) => {
@@ -635,7 +756,20 @@ export function countCabinetSolutions(puzzle: DawnCabinetPuzzle, limit = 2): num
         delete placements[cell];
         return canResolve;
       })
-      .sort(compareTiles);
+      .map((tile) => ({ tile, dawn: false }));
+    const dawnResolvedTile = dawnAvailable ? getDawnTileResolvedValueForCell(puzzle, cell) : undefined;
+    const dawnCandidates = dawnResolvedTile
+      ? [dawnResolvedTile]
+          .filter((tile) => {
+            placements[cell] = tile;
+            const canResolve = affectedLinesCanResolve(cell);
+            delete placements[cell];
+            return canResolve;
+          })
+          .map((tile) => ({ tile, dawn: true }))
+      : [];
+    return [...tileCandidates, ...dawnCandidates]
+      .sort((left, right) => Number(left.dawn) - Number(right.dawn) || compareTiles(left.tile, right.tile));
   };
 
   const search = () => {
@@ -646,17 +780,19 @@ export function countCabinetSolutions(puzzle: DawnCabinetPuzzle, limit = 2): num
 
     if (!openCell) {
       const remainingTiles = Object.values(remaining).reduce((sum, value) => sum + value, 0);
-      if (remainingTiles === puzzle.spareCount && isCabinetSolved(puzzle, placements)) count += 1;
+      if (!dawnAvailable && remainingTiles === puzzle.spareCount && isCabinetSolved(puzzle, placements)) count += 1;
       return;
     }
 
-    candidatesFor(openCell).forEach((tile) => {
-      const key = tileKey(tile);
-      if (!remaining[key]) return;
-      placements[openCell] = tile;
-      remaining[key] -= 1;
+    candidatesFor(openCell).forEach((candidate) => {
+      const key = tileKey(candidate.tile);
+      if (!candidate.dawn && !remaining[key]) return;
+      placements[openCell] = candidate.tile;
+      if (candidate.dawn) dawnAvailable = false;
+      else remaining[key] -= 1;
       if (affectedLinesCanResolve(openCell)) search();
-      remaining[key] += 1;
+      if (candidate.dawn) dawnAvailable = true;
+      else remaining[key] += 1;
       delete placements[openCell];
     });
   };
@@ -675,7 +811,8 @@ function makeCandidates(
   const fourSuits = pickSuits(seed, 4);
   const fiveSuits = pickSuits(seed, 5);
   const baseRank = 1 + Number((seed >> 5n) % 3n);
-  const variants = Array.from({ length: 72 }, (_, index) =>
+  const variantCount = difficulty === 'Expert' ? 120 : 72;
+  const variants = Array.from({ length: variantCount }, (_, index) =>
     Number((seed + BigInt(index) * 104_729n) % 10_000n)
   );
 
@@ -897,6 +1034,7 @@ function makeStandardPuzzle(config: {
       col: config.variant % 4 === 0 ? 0 : 2,
     });
   }
+  applyRailExposureProfile(draft, config.difficulty, config.variant);
   const reserveCount = config.variant % 5 === 0 ? 2 : 1;
   const spares = makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant);
 
@@ -1009,6 +1147,7 @@ function makeHardPuzzle(config: {
       col: config.variant % 2 === 0 ? 0 : 2,
     });
   }
+  applyRailExposureProfile(draft, config.difficulty, config.variant);
 
   const reserveCount = 2 + (config.variant % 3);
   const bankGoalType = reserveCount === 2 ? 'pair' : getThreeTileBankGoal(config.id, r, a, false);
@@ -1016,7 +1155,7 @@ function makeHardPuzzle(config: {
     ? makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant)
     : makeBankGoalTiles(bankGoalType, config.suits, r);
 
-  return makePuzzle({
+  return addDawnTileToPuzzle(makePuzzle({
     id: config.id,
     date: config.date,
     title: 'Dawn Cabinet',
@@ -1027,7 +1166,7 @@ function makeHardPuzzle(config: {
     bankGoal: reserveCount === 4 ? undefined : { type: bankGoalType },
     motifs,
     ...draft,
-  });
+  }), 3, config.variant);
 }
 
 function makeExpertPuzzle(config: {
@@ -1166,14 +1305,15 @@ function makeExpertPuzzle(config: {
       col: 0,
     });
   }
+  applyRailExposureProfile(draft, config.difficulty, config.variant);
 
-  const reserveCount = 3 + (config.variant % 3);
-  const bankGoalType = reserveCount === 3 ? getThreeTileBankGoal(config.id, r, a, true) : undefined;
+  const reserveCount = 3;
+  const bankGoalType = reserveCount === 3 ? getThreeTileBankGoal(config.date, r, a, true) : undefined;
   const spares = bankGoalType
     ? makeBankGoalTiles(bankGoalType, config.suits, r)
     : makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant);
 
-  return makePuzzle({
+  return addDawnTileToPuzzle(makePuzzle({
     id: config.id,
     date: config.date,
     title: 'Dawn Cabinet',
@@ -1184,7 +1324,7 @@ function makeExpertPuzzle(config: {
     bankGoal: bankGoalType ? { type: bankGoalType } : undefined,
     motifs,
     ...draft,
-  });
+  }), 4, config.variant);
 }
 
 function getStandardWeaveMask(variant: number): WeaveCellName[] {
@@ -1554,7 +1694,10 @@ function getThreeTileBankGoal(
   const goals: Exclude<DawnCabinetSetKind, 'pair'>[] = includeMixedGap
     ? ['run', 'mixedRun', 'gapRun', 'mixedGap', 'match', 'flush', 'number']
     : ['run', 'mixedRun', 'gapRun', 'match', 'flush', 'number'];
-  const offset = (id.length + baseRank + SUITS.indexOf(firstSuit)) % goals.length;
+  const dayIndex = getUtcDayIndex(id);
+  const offset = Number.isNaN(dayIndex)
+    ? Number(stableSeed(`${id}:${baseRank}:${firstSuit}:${includeMixedGap}`) % BigInt(goals.length))
+    : Math.abs(dayIndex + baseRank + SUITS.indexOf(firstSuit)) % goals.length;
   return goals[offset];
 }
 
@@ -1751,6 +1894,148 @@ function addCopyBlock(
   addLine(draft, `${config.idPrefix}-right-pair`, [config.pairGivenB, config.blankB], 'pair');
 }
 
+function addDawnTileToPuzzle(
+  puzzle: DawnCabinetPuzzle,
+  optionCount: 3 | 4,
+  variant: number
+): DawnCabinetPuzzle {
+  const linesByCell = getLinesByCell(puzzle);
+  const bankCounts = countTiles(puzzle.bank);
+  const blankCells = puzzle.cells
+    .map((cell) => cellKey(cell.row, cell.col))
+    .filter((cell) => !puzzle.givens[cell]);
+  const candidates = blankCells
+    .map((cell) => {
+      const lines = linesByCell[cell] ?? [];
+      const hiddenCount = lines.filter((line) => line.goal === 'hidden').length;
+      const tile = puzzle.solution[cell];
+      return { cell, tile, lineCount: lines.length, hiddenCount };
+    })
+    .filter(({ tile, lineCount, hiddenCount }) => {
+      return tile && bankCounts[tileKey(tile)] === 1 && lineCount >= 2 && hiddenCount >= 1;
+    })
+    .sort((left, right) =>
+      right.hiddenCount - left.hiddenCount ||
+      right.lineCount - left.lineCount ||
+      tileKey(left.tile).localeCompare(tileKey(right.tile)) ||
+      left.cell.localeCompare(right.cell)
+    );
+
+  if (candidates.length === 0) return puzzle;
+
+  const offset = Math.abs(variant) % candidates.length;
+  const ordered = [...candidates.slice(offset), ...candidates.slice(0, offset)];
+  const chosen = ordered[0];
+  const options = makeDawnOptions(puzzle, chosen.cell, chosen.tile, optionCount, variant);
+  const dawnTile: DawnCabinetDawnTile = {
+    id: `${puzzle.id}-dawn`,
+    solutionCell: chosen.cell,
+    resolvedTile: chosen.tile,
+    options,
+  };
+  const bank = removeOneTile(puzzle.bank, chosen.tile).sort(compareTiles);
+  const next = {
+    ...puzzle,
+    bank,
+    dawnTile,
+    motifs: [...puzzle.motifs, 'dawn-tile'],
+  };
+  return {
+    ...next,
+    compositeSignature: makeCompositeSignature(next),
+  };
+}
+
+function makeDawnOptions(
+  puzzle: DawnCabinetPuzzle,
+  chosenCell: string,
+  resolvedTile: DawnCabinetTile,
+  optionCount: 3 | 4,
+  variant: number
+): DawnCabinetTile[] {
+  const suits = Array.from(new Set(Object.values(puzzle.solution).map((tile) => tile.suit)));
+  const otherSolutionKeys = new Set(
+    Object.entries(puzzle.solution)
+      .filter(([cell]) => cell !== chosenCell)
+      .map(([, tile]) => tileKey(tile))
+  );
+  const pool: DawnCabinetTile[] = [
+    ...suits.flatMap((suit) => Array.from({ length: 9 }, (_, index) => ({ suit, rank: index + 1 }))),
+    ...suits.map((suit) => ({ suit, rank: resolvedTile.rank })),
+    { suit: resolvedTile.suit, rank: Math.max(1, resolvedTile.rank - 2) },
+    { suit: resolvedTile.suit, rank: Math.max(1, resolvedTile.rank - 1) },
+    { suit: resolvedTile.suit, rank: Math.min(9, resolvedTile.rank + 1) },
+    { suit: resolvedTile.suit, rank: Math.min(9, resolvedTile.rank + 2) },
+    ...suits.flatMap((suit, index) => [
+      { suit, rank: Math.max(1, resolvedTile.rank - 1 - (index % 2)) },
+      { suit, rank: Math.min(9, resolvedTile.rank + 1 + (index % 2)) },
+    ]),
+  ];
+  const seen = new Set([tileKey(resolvedTile)]);
+  const ordered = pool
+    .filter((tile) => tile.rank >= 1 && tile.rank <= 9 && tileKey(tile) !== tileKey(resolvedTile))
+    .sort((left, right) => {
+      const leftHash = stableSeed(`${variant}:${tileKey(left)}`);
+      const rightHash = stableSeed(`${variant}:${tileKey(right)}`);
+      return leftHash < rightHash ? -1 : leftHash > rightHash ? 1 : compareTiles(left, right);
+    });
+  const safeOptions = ordered.filter((tile) =>
+    !otherSolutionKeys.has(tileKey(tile)) &&
+    !canDawnOptionFitCell(puzzle, chosenCell, tile) &&
+    !canDawnOptionFitAnotherCell(puzzle, chosenCell, tile)
+  );
+  const unusedOptions = ordered.filter((tile) =>
+    !otherSolutionKeys.has(tileKey(tile)) && !canDawnOptionFitCell(puzzle, chosenCell, tile)
+  );
+  const optionPool = [...safeOptions, ...unusedOptions, ...ordered];
+  const options = [resolvedTile];
+  optionPool.forEach((tile) => {
+    if (options.length >= optionCount) return;
+    const key = tileKey(tile);
+    if (seen.has(key)) return;
+    seen.add(key);
+    options.push(tile);
+  });
+  return options.sort(compareTiles);
+}
+
+function canDawnOptionFitAnotherCell(
+  puzzle: DawnCabinetPuzzle,
+  chosenCell: string,
+  tile: DawnCabinetTile
+): boolean {
+  return puzzle.cells
+    .map((cell) => cellKey(cell.row, cell.col))
+    .filter((cell) => cell !== chosenCell && !puzzle.givens[cell])
+    .some((cell) => canDawnOptionFitCell(puzzle, cell, tile));
+}
+
+function canDawnOptionFitCell(
+  puzzle: DawnCabinetPuzzle,
+  cell: string,
+  tile: DawnCabinetTile
+): boolean {
+  if (!tileMatchesCellClue(tile, puzzle.cellClues[cell])) return false;
+  const linesByCell = getLinesByCell(puzzle);
+  const placements = { ...puzzle.givens, [cell]: tile };
+  return (linesByCell[cell] ?? []).every((line) => {
+    const assigned = line.cells.map((lineCell) => placements[lineCell]).filter(Boolean);
+    if (assigned.length === line.cells.length) return isValidCabinetLine(assigned, line.goal);
+    return canCompleteLine(assigned, line.goal);
+  });
+}
+
+function removeOneTile(tiles: DawnCabinetTile[], tile: DawnCabinetTile): DawnCabinetTile[] {
+  let removed = false;
+  return tiles.filter((candidate) => {
+    if (!removed && tileKey(candidate) === tileKey(tile)) {
+      removed = true;
+      return false;
+    }
+    return true;
+  });
+}
+
 function makePuzzle(config: {
   id: string;
   date: string;
@@ -1767,6 +2052,7 @@ function makePuzzle(config: {
   bankGoal?: DawnCabinetBankGoal;
   motifs?: string[];
   shapeSignature?: string;
+  compositeSignature?: string;
 }): DawnCabinetPuzzle {
   const givenSet = new Set(config.givens);
   const cells = Object.keys(config.solution)
@@ -1787,8 +2073,7 @@ function makePuzzle(config: {
   ].sort(compareTiles);
   const ledger = config.ledger ?? makeLedgerForLines(config.lines, config.solution);
   const shapeSignature = config.shapeSignature ?? makeShapeSignature(cells, config.lines);
-
-  return {
+  const basePuzzle = {
     id: config.id,
     date: config.date,
     title: config.title,
@@ -1806,6 +2091,11 @@ function makePuzzle(config: {
     spareCount: config.spares.length,
     motifs: config.motifs ?? [],
     shapeSignature,
+  };
+
+  return {
+    ...basePuzzle,
+    compositeSignature: config.compositeSignature ?? makeCompositeSignature(basePuzzle),
   };
 }
 
@@ -1863,6 +2153,45 @@ function makeShapeSignature(cells: DawnCabinetCell[], lines: DawnCabinetLine[]):
   return `${active}|${rails}`;
 }
 
+function makeCompositeSignature(puzzle: {
+  cells: DawnCabinetCell[];
+  lines: DawnCabinetLine[];
+  solution: Record<string, DawnCabinetTile>;
+  motifs: string[];
+  spareCount: number;
+  bankGoal?: DawnCabinetBankGoal;
+  dawnTile?: DawnCabinetDawnTile;
+}): string {
+  const shape = makeShapeSignature(puzzle.cells, puzzle.lines);
+  const visibleGoals = puzzle.lines
+    .filter((line) => line.goal !== 'hidden')
+    .map((line) => line.goal)
+    .sort()
+    .join('.');
+  const hiddenKinds = makeLedgerForLines(puzzle.lines, puzzle.solution);
+  const motifProfile = [...puzzle.motifs].sort().join('.');
+  const reserveProfile = puzzle.bankGoal ? `${puzzle.spareCount}:${puzzle.bankGoal.type}` : `${puzzle.spareCount}:any`;
+  const dawnProfile = puzzle.dawnTile
+    ? `${puzzle.dawnTile.options.length}:${getNormalizedCellKey(puzzle.cells, puzzle.dawnTile.solutionCell)}:${puzzle.dawnTile.options.map(tileKey).sort().join('.')}`
+    : 'none';
+  return [
+    shape,
+    `visible=${visibleGoals}`,
+    `hidden=${puzzle.lines.filter((line) => line.goal === 'hidden').length}`,
+    `ledger=${Object.entries(hiddenKinds ?? {}).sort().map(([kind, count]) => `${kind}:${count}`).join('.')}`,
+    `motifs=${motifProfile}`,
+    `reserve=${reserveProfile}`,
+    `dawn=${dawnProfile}`,
+  ].join('|');
+}
+
+function getNormalizedCellKey(cells: DawnCabinetCell[], cell: string): string {
+  const minRow = Math.min(...cells.map((item) => item.row));
+  const minCol = Math.min(...cells.map((item) => item.col));
+  const [row, col] = cell.split(':').map(Number);
+  return `${row - minRow}:${col - minCol}`;
+}
+
 function createDraft(): PuzzleDraft {
   return { solution: {}, lines: [], givens: [], cellClues: {} };
 }
@@ -1904,6 +2233,51 @@ function setLineGoal(draft: PuzzleDraft, id: string, goal: DawnCabinetLineGoal) 
   draft.lines = draft.lines.map((line) => (line.id === id ? { ...line, goal } : line));
 }
 
+function applyRailExposureProfile(
+  draft: PuzzleDraft,
+  difficulty: DawnCabinetDifficulty,
+  variant: number
+) {
+  if (difficulty === 'Easy') return;
+
+  const targetKindCount = difficulty === 'Standard' ? 2 : difficulty === 'Hard' ? 3 : 4;
+  const maxReveals = difficulty === 'Standard' ? 2 : difficulty === 'Hard' ? 3 : 4;
+  const priority: DawnCabinetSetKind[] =
+    difficulty === 'Standard'
+      ? ['run', 'flush', 'mixedRun', 'match']
+      : difficulty === 'Hard'
+        ? ['number', 'gapRun', 'mixedRun', 'flush', 'match', 'run']
+        : ['mixedGap', 'number', 'gapRun', 'mixedRun', 'flush', 'match', 'run'];
+
+  const visibleKinds = () =>
+    new Set(draft.lines.filter((line) => line.goal !== 'hidden').map((line) => line.goal as DawnCabinetSetKind));
+  const hiddenCandidates = draft.lines
+    .map((line, index) => ({
+      line,
+      index,
+      kind: line.goal === 'hidden'
+        ? classifyCabinetLine(line.cells.map((cell) => draft.solution[cell]))
+        : null,
+    }))
+    .filter((candidate): candidate is { line: DawnCabinetLine; index: number; kind: DawnCabinetSetKind } => {
+      return Boolean(candidate.kind && candidate.kind !== 'pair');
+    });
+  const offset = hiddenCandidates.length ? Math.abs(variant) % hiddenCandidates.length : 0;
+  const ordered = [...hiddenCandidates.slice(offset), ...hiddenCandidates.slice(0, offset)];
+  let revealCount = 0;
+
+  priority.forEach((kind) => {
+    if (revealCount >= maxReveals) return;
+    if (visibleKinds().size >= targetKindCount && Math.abs(variant + revealCount) % 3 !== 0) return;
+    if (visibleKinds().has(kind) && Math.abs(variant + revealCount) % 5 !== 0) return;
+
+    const candidate = ordered.find((item) => item.kind === kind && draft.lines[item.index].goal === 'hidden');
+    if (!candidate) return;
+    draft.lines[candidate.index] = { ...candidate.line, goal: kind };
+    revealCount += 1;
+  });
+}
+
 function pickSuits(seed: bigint, count: number): DawnCabinetSuit[] {
   const start = Number(seed % BigInt(SUITS.length));
   return Array.from({ length: count }, (_, index) => SUITS[(start + index) % SUITS.length]);
@@ -1918,10 +2292,14 @@ function stableSeed(value: string): bigint {
   return hash;
 }
 
-function shiftUtcDate(date: string, dayOffset: number): string {
+function getUtcDayIndex(date: string): number {
   const time = Date.parse(`${date}T00:00:00.000Z`);
-  if (Number.isNaN(time)) return date;
-  return new Date(time + dayOffset * 86_400_000).toISOString().slice(0, 10);
+  if (Number.isNaN(time)) return Number.NaN;
+  return Math.floor(time / 86_400_000);
+}
+
+function utcDateFromDayIndex(dayIndex: number): string {
+  return new Date(dayIndex * 86_400_000).toISOString().slice(0, 10);
 }
 
 function countTiles(tiles: DawnCabinetTile[]): Record<string, number> {

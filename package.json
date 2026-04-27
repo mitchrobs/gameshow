@@ -23,6 +23,13 @@
     "moji-schedule": "python3 scripts/show_schedule.py",
     "moji-calendar": "python3 scripts/show_calendar.py",
     "barter:decision-tree": "node --experimental-strip-types scripts/barter-decision-tree.ts",
+    "build:dawn-art": "python3 scripts/build_dawn_tile_assets.py",
+    "prepare:dawn-art": "python3 scripts/generate_dawn_tile_art.py prepare",
+    "generate:dawn-art": "python3 scripts/generate_dawn_tile_art.py generate",
+    "accept:dawn-art": "python3 scripts/generate_dawn_tile_art.py accept",
+    "extract:dawn-art": "python3 scripts/extract_dawn_tile_contact_sheet.py",
+    "preview:dawn-art": "tsx scripts/dawn_tile_art_contact_sheet.ts",
+    "preview:dawn-art-html": "tsx scripts/dawn_tile_art_gallery.ts",
     "test": "vitest run",
     "test:barter": "vitest run src/data/barter/barter.test.ts",
     "studio": "cd tools/moji-mash-studio && npm run dev"

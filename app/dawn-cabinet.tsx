@@ -9,19 +9,22 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import Svg, { Circle, G, Line, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, G, Line, Text as SvgText } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import {
   DAWN_CABINET_DAILY_DIFFICULTIES,
   type DawnCabinetDailyDifficulty,
+  type DawnCabinetDawnTile,
   type DawnCabinetLineState,
   type DawnCabinetPuzzle,
   type DawnCabinetSetKind,
   type DawnCabinetTile,
   cellKey,
+  dawnTileLabel,
   formatDawnCabinetShareText,
   getCabinetLineState,
+  getDawnTileResolvedValueForCell,
   getDailyDawnCabinet,
   getDemoDawnCabinet,
   getLedgerKinds,
@@ -45,22 +48,29 @@ import {
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 import { formatUtcDateLabel } from '../src/utils/dailyUtc';
+import { DAWN_VARIANT_COUNT, DawnTileMark } from '../src/ui/dawnTileArt';
 
 type BankEntry = {
   id: string;
-  tile: DawnCabinetTile;
-};
+} & (
+  | { kind: 'tile'; tile: DawnCabinetTile }
+  | { kind: 'dawn'; dawnTile: DawnCabinetDawnTile }
+);
 
 type BankStack = {
   key: string;
-  tile: DawnCabinetTile;
   entries: BankEntry[];
   availableEntries: BankEntry[];
-};
+} & (
+  | { kind: 'tile'; tile: DawnCabinetTile }
+  | { kind: 'dawn'; dawnTile: DawnCabinetDawnTile }
+);
 
 type GameState = 'playing' | 'won';
 type DailyPlayStatus = 'not-started' | 'in-progress' | 'complete';
-type SuitFilter = 'all' | DawnCabinetTile['suit'];
+type SuitFilter = 'all' | 'dawn' | DawnCabinetTile['suit'];
+type TileRenderSize = 'small' | 'compact' | 'large';
+type SuitMarkSize = TileRenderSize | 'micro';
 type BoardPoint = { x: number; y: number };
 type BoardRect = { x1: number; y1: number; x2: number; y2: number };
 
@@ -155,10 +165,19 @@ function formatTime(seconds: number): string {
 }
 
 function createBankEntries(puzzle: DawnCabinetPuzzle): BankEntry[] {
-  return puzzle.bank.map((tile, index) => ({
+  const entries: BankEntry[] = puzzle.bank.map((tile, index) => ({
     id: `${tileKey(tile)}:${index}`,
+    kind: 'tile',
     tile,
   }));
+  if (puzzle.dawnTile) {
+    entries.push({
+      id: puzzle.dawnTile.id,
+      kind: 'dawn',
+      dawnTile: puzzle.dawnTile,
+    });
+  }
+  return entries;
 }
 
 function readSavedPlacements(puzzle: DawnCabinetPuzzle, bankEntries: BankEntry[]): Record<string, string> {
@@ -191,7 +210,13 @@ function createPlacements(
   const next: Record<string, DawnCabinetTile> = { ...puzzle.givens };
   Object.entries(placedEntryIdsByCell).forEach(([cell, entryID]) => {
     const entry = bankByID.get(entryID);
-    if (entry) next[cell] = entry.tile;
+    if (!entry) return;
+    if (entry.kind === 'tile') {
+      next[cell] = entry.tile;
+      return;
+    }
+    const resolvedTile = getDawnTileResolvedValueForCell(puzzle, cell);
+    if (resolvedTile) next[cell] = resolvedTile;
   });
   return next;
 }
@@ -205,6 +230,7 @@ function writeSavedPlacements(puzzleID: string, placedEntryIdsByCell: Record<str
 
 function countEntriesByTile(entries: BankEntry[]): Record<string, number> {
   return entries.reduce<Record<string, number>>((counts, entry) => {
+    if (entry.kind === 'dawn') return counts;
     const key = tileKey(entry.tile);
     counts[key] = (counts[key] ?? 0) + 1;
     return counts;
@@ -213,18 +239,30 @@ function countEntriesByTile(entries: BankEntry[]): Record<string, number> {
 
 function createBankStacks(entries: BankEntry[], usedEntryIDs: Set<string>): BankStack[] {
   const stackMap = entries.reduce<Map<string, BankStack>>((map, entry) => {
-    const key = tileKey(entry.tile);
+    const key = entry.kind === 'dawn' ? 'dawn' : tileKey(entry.tile);
     const existing = map.get(key);
     if (existing) {
       existing.entries.push(entry);
       if (!usedEntryIDs.has(entry.id)) existing.availableEntries.push(entry);
     } else {
-      map.set(key, {
+      map.set(
         key,
-        tile: entry.tile,
-        entries: [entry],
-        availableEntries: usedEntryIDs.has(entry.id) ? [] : [entry],
-      });
+        entry.kind === 'dawn'
+          ? {
+              key,
+              kind: 'dawn',
+              dawnTile: entry.dawnTile,
+              entries: [entry],
+              availableEntries: usedEntryIDs.has(entry.id) ? [] : [entry],
+            }
+          : {
+              key,
+              kind: 'tile',
+              tile: entry.tile,
+              entries: [entry],
+              availableEntries: usedEntryIDs.has(entry.id) ? [] : [entry],
+            }
+      );
     }
     return map;
   }, new Map());
@@ -238,6 +276,67 @@ function getPuzzleSuits(puzzle: DawnCabinetPuzzle): DawnCabinetTile['suit'][] {
     seen.add(tile.suit);
   });
   return Array.from(seen);
+}
+
+function bankEntryLabel(entry: BankEntry): string {
+  return entry.kind === 'dawn' ? dawnTileLabel(entry.dawnTile) : tileLabel(entry.tile);
+}
+
+function getDawnVariantIndex(dawnTile: DawnCabinetDawnTile): number {
+  const source = `${dawnTile.id}:${dawnTile.solutionCell}:${dawnTile.options.map(tileKey).join('|')}`;
+  let hash = 0;
+  for (let index = 0; index < source.length; index += 1) {
+    hash = (hash * 31 + source.charCodeAt(index)) >>> 0;
+  }
+  return hash % DAWN_VARIANT_COUNT;
+}
+
+function bankEntryMatchesFilter(entry: BankEntry, filter: SuitFilter): boolean {
+  if (filter === 'all') return true;
+  if (filter === 'dawn') return entry.kind === 'dawn';
+  return entry.kind === 'tile' && entry.tile.suit === filter;
+}
+
+function renderBankEntryTile({
+  entry,
+  styles,
+  size,
+  muted,
+  selected,
+  totalTileCounts,
+  remainingTileCounts,
+}: {
+  entry: BankEntry;
+  styles: ReturnType<typeof createStyles>;
+  size: TileRenderSize;
+  muted?: boolean;
+  selected?: boolean;
+  totalTileCounts?: Record<string, number>;
+  remainingTileCounts?: Record<string, number>;
+}) {
+  if (entry.kind === 'dawn') {
+    return (
+      <DawnTile
+        dawnTile={entry.dawnTile}
+        styles={styles}
+        size={size}
+        muted={muted}
+        selected={selected}
+      />
+    );
+  }
+  const key = tileKey(entry.tile);
+  return (
+    <MahjongTile
+      tile={entry.tile}
+      styles={styles}
+      size={size}
+      muted={muted}
+      selected={selected}
+      totalCount={totalTileCounts?.[key] ?? 0}
+      remainingCount={remainingTileCounts?.[key] ?? 0}
+    />
+  );
 }
 
 function hasSavedPuzzleProgress(puzzle: DawnCabinetPuzzle): boolean {
@@ -340,6 +439,8 @@ const SUIT_MARK_COLORS: Record<DawnCabinetTile['suit'], string> = {
   knots: '#a3562d',
   moons: '#5964b3',
   suns: '#d16d22',
+  lanterns: '#c24f34',
+  sparks: '#c08a16',
 };
 
 export default function DawnCabinetScreen() {
@@ -425,7 +526,7 @@ export default function DawnCabinetScreen() {
     () =>
       selectedSuitFilter === 'all'
         ? bankStacks
-        : bankStacks.filter((stack) => stack.tile.suit === selectedSuitFilter),
+        : bankStacks.filter((stack) => bankEntryMatchesFilter(stack.entries[0], selectedSuitFilter)),
     [bankStacks, selectedSuitFilter]
   );
   const lineStates = useMemo(
@@ -556,7 +657,9 @@ export default function DawnCabinetScreen() {
   const trackCorrectPlacement = useCallback(
     (cell: string, entry: BankEntry | undefined) => {
       const solutionTile = puzzle.solution[cell];
-      if (!entry || !solutionTile || tileKey(entry.tile) !== tileKey(solutionTile)) return;
+      if (!entry || !solutionTile) return;
+      if (entry.kind === 'tile' && tileKey(entry.tile) !== tileKey(solutionTile)) return;
+      if (entry.kind === 'dawn' && cell !== entry.dawnTile.solutionCell) return;
       setFirstCorrectCells((previous) =>
         previous.includes(cell) || previous.length >= 3 ? previous : [...previous, cell]
       );
@@ -618,7 +721,7 @@ export default function DawnCabinetScreen() {
       setSelectedSuitFilter(filter);
       if (filter === 'all' || !selectedEntryID) return;
       const selectedEntry = bankByID.get(selectedEntryID);
-      if (selectedEntry?.tile.suit !== filter) setSelectedEntryID(null);
+      if (!selectedEntry || !bankEntryMatchesFilter(selectedEntry, filter)) setSelectedEntryID(null);
     },
     [bankByID, selectedEntryID]
   );
@@ -916,6 +1019,7 @@ export default function DawnCabinetScreen() {
               puzzle={puzzle}
               placements={placements}
               placedEntryIdsByCell={placedEntryIdsByCell}
+              bankByID={bankByID}
               selectedEntryID={selectedEntryID}
               selectedCell={selectedCell}
               revealHiddenRails={gameState === 'won'}
@@ -938,7 +1042,7 @@ export default function DawnCabinetScreen() {
                     <Pressable
                       key={entry.id}
                       accessibilityRole="button"
-                      accessibilityLabel={tileLabel(entry.tile)}
+                      accessibilityLabel={bankEntryLabel(entry)}
                       testID={`dawn-cabinet.bank.${entry.id}`}
                       disabled={isUsed || gameState !== 'playing'}
                       style={({ pressed }) => [
@@ -949,15 +1053,15 @@ export default function DawnCabinetScreen() {
                       ]}
                       onPress={() => handleBankPress(entry.id)}
                     >
-                      <MahjongTile
-                        tile={entry.tile}
-                        styles={styles}
-                        size="small"
-                        muted={isUsed}
-                        selected={selectedEntryID === entry.id}
-                        totalCount={totalTileCounts[tileKey(entry.tile)] ?? 0}
-                        remainingCount={remainingTileCounts[tileKey(entry.tile)] ?? 0}
-                      />
+                      {renderBankEntryTile({
+                        entry,
+                        styles,
+                        muted: isUsed,
+                        selected: selectedEntryID === entry.id,
+                        size: 'small',
+                        totalTileCounts,
+                        remainingTileCounts,
+                      })}
                     </Pressable>
                   );
                 })}
@@ -1277,7 +1381,12 @@ function MobileBankTray({
   onStackPress: (stack: BankStack) => void;
   styles: ReturnType<typeof createStyles>;
 }) {
-  const filters: SuitFilter[] = ['all', ...activeSuits];
+  const filters: SuitFilter[] = ['all', ...activeSuits, ...(puzzle.dawnTile ? ['dawn' as const] : [])];
+  const dawnStack = selectedSuitFilter === 'dawn'
+    ? stacks.find((stack): stack is Extract<BankStack, { kind: 'dawn' }> => stack.kind === 'dawn')
+    : undefined;
+  const isDawnSelected = Boolean(dawnStack?.entries.some((entry) => entry.id === selectedEntryID));
+  const isDawnEmpty = Boolean(dawnStack && dawnStack.availableEntries.length === 0);
 
   return (
     <View style={styles.mobileBankTray} testID="dawn-cabinet.mobile-bank">
@@ -1292,7 +1401,7 @@ function MobileBankTray({
       >
         {filters.map((filter) => {
           const selected = filter === selectedSuitFilter;
-          const label = filter === 'all' ? 'All' : suitShortLabel(filter);
+          const label = filter === 'all' ? 'All' : filter === 'dawn' ? 'Dawn' : suitShortLabel(filter);
           return (
             <Pressable
               key={filter}
@@ -1315,6 +1424,14 @@ function MobileBankTray({
                 >
                   All
                 </Text>
+              ) : filter === 'dawn' ? (
+                puzzle.dawnTile ? (
+                  <DawnVariantMark
+                    variant={getDawnVariantIndex(puzzle.dawnTile)}
+                    styles={styles}
+                    size="compact"
+                  />
+                ) : null
               ) : (
                 <View style={styles.suitFilterIconWrap}>
                   <SuitMark suit={filter} styles={styles} compact />
@@ -1324,47 +1441,74 @@ function MobileBankTray({
           );
         })}
       </ScrollView>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.mobileBankScroller}
-      >
-        {stacks.map((stack) => {
-          const isEmpty = stack.availableEntries.length === 0;
-          const selected = stack.entries.some((entry) => entry.id === selectedEntryID);
-          const key = tileKey(stack.tile);
-          return (
-            <Pressable
-              key={stack.key}
-              accessibilityRole="button"
-              accessibilityLabel={`${tileLabel(stack.tile)}, ${stack.availableEntries.length} available`}
-              disabled={isEmpty}
-              style={({ pressed }) => [
-                styles.mobileBankStack,
-                selected && styles.bankTileSelected,
-                isEmpty && styles.bankTileUsed,
-                pressed && !isEmpty && styles.bankTilePressed,
-              ]}
-              onPress={() => onStackPress(stack)}
-            >
-              <MahjongTile
-                tile={stack.tile}
-                styles={styles}
-                size="small"
-                muted={isEmpty}
-                selected={selected}
-                totalCount={totalTileCounts[key] ?? 0}
-                remainingCount={remainingTileCounts[key] ?? 0}
-              />
-              <View style={styles.stackCountBadge}>
-                <Text style={styles.stackCountText}>
-                  {`${stack.availableEntries.length}/${stack.entries.length}`}
-                </Text>
-              </View>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      {dawnStack ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${dawnTileLabel(dawnStack.dawnTile)}, ${dawnStack.availableEntries.length} available`}
+          disabled={isDawnEmpty}
+          style={({ pressed }) => [
+            styles.dawnFilterDetailCard,
+            isDawnSelected && styles.bankTileSelected,
+            isDawnEmpty && styles.bankTileUsed,
+            pressed && !isDawnEmpty && styles.bankTilePressed,
+          ]}
+          onPress={() => onStackPress(dawnStack)}
+        >
+          <View style={styles.dawnFilterDetailTile}>
+            {renderBankEntryTile({
+              entry: dawnStack.entries[0],
+              styles,
+              size: 'small',
+              muted: isDawnEmpty,
+              selected: isDawnSelected,
+              totalTileCounts,
+              remainingTileCounts,
+            })}
+          </View>
+          <DawnFilterNote dawnTile={dawnStack.dawnTile} styles={styles} />
+        </Pressable>
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.mobileBankScroller}
+        >
+          {stacks.map((stack) => {
+            const isEmpty = stack.availableEntries.length === 0;
+            const selected = stack.entries.some((entry) => entry.id === selectedEntryID);
+            return (
+              <Pressable
+                key={stack.key}
+                accessibilityRole="button"
+                accessibilityLabel={`${stack.kind === 'dawn' ? dawnTileLabel(stack.dawnTile) : tileLabel(stack.tile)}, ${stack.availableEntries.length} available`}
+                disabled={isEmpty}
+                style={({ pressed }) => [
+                  styles.mobileBankStack,
+                  selected && styles.bankTileSelected,
+                  isEmpty && styles.bankTileUsed,
+                  pressed && !isEmpty && styles.bankTilePressed,
+                ]}
+                onPress={() => onStackPress(stack)}
+              >
+                {renderBankEntryTile({
+                  entry: stack.entries[0],
+                  styles,
+                  size: 'small',
+                  muted: isEmpty,
+                  selected,
+                  totalTileCounts,
+                  remainingTileCounts,
+                })}
+                <View style={styles.stackCountBadge}>
+                  <Text style={styles.stackCountText}>
+                    {`${stack.availableEntries.length}/${stack.entries.length}`}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      )}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -1388,6 +1532,7 @@ function CabinetBoard({
   puzzle,
   placements,
   placedEntryIdsByCell,
+  bankByID,
   selectedEntryID,
   selectedCell,
   revealHiddenRails,
@@ -1398,6 +1543,7 @@ function CabinetBoard({
   puzzle: DawnCabinetPuzzle;
   placements: Record<string, DawnCabinetTile>;
   placedEntryIdsByCell: Record<string, string>;
+  bankByID: Map<string, BankEntry>;
   selectedEntryID: string | null;
   selectedCell: string | null;
   revealHiddenRails: boolean;
@@ -1661,6 +1807,8 @@ function CabinetBoard({
                 const isActive = activeCells.has(key);
                 const isGiven = Boolean(puzzle.givens[key]);
                 const isPlaced = Boolean(placedEntryIdsByCell[key]);
+                const placedEntry = placedEntryIdsByCell[key] ? bankByID.get(placedEntryIdsByCell[key]) : undefined;
+                const isDawnPlaced = placedEntry?.kind === 'dawn' && !revealHiddenRails;
                 const isSelected = selectedCell === key;
                 const isRailRelated = selectedCellRailCells.has(key);
                 const isRailDimmedCell = Boolean(selectedCell) && !isRailRelated && !isSelected;
@@ -1691,7 +1839,13 @@ function CabinetBoard({
                     ]}
                     onPress={() => onCellPress(key)}
                   >
-                    {tile ? (
+                    {isDawnPlaced && placedEntry?.kind === 'dawn' ? (
+                      <DawnTile
+                        dawnTile={placedEntry.dawnTile}
+                        styles={styles}
+                        size={cellSize < 58 ? 'compact' : 'large'}
+                      />
+                    ) : tile ? (
                       <MahjongTile
                         tile={tile}
                         styles={styles}
@@ -1852,7 +2006,7 @@ function MahjongTile({
 }: {
   tile: DawnCabinetTile;
   styles: ReturnType<typeof createStyles>;
-  size: 'small' | 'compact' | 'large';
+  size: TileRenderSize;
   muted?: boolean;
   selected?: boolean;
   given?: boolean;
@@ -1860,6 +2014,7 @@ function MahjongTile({
   remainingCount?: number;
 }) {
   const showCopyPips = size === 'small' && Boolean(totalCount && totalCount > 1);
+  const isSmall = size !== 'large';
 
   return (
     <View
@@ -1872,24 +2027,125 @@ function MahjongTile({
         given && styles.mahjongTileGiven,
       ]}
     >
-      <Text style={[styles.tileRank, size !== 'large' && styles.tileRankSmall]}>{tile.rank}</Text>
-      <SuitMark suit={tile.suit} styles={styles} compact={size !== 'large'} />
-      <Text style={[styles.tileSuitText, size !== 'large' && styles.tileSuitTextSmall]}>
-        {suitShortLabel(tile.suit)}
-      </Text>
-      {showCopyPips && (
-        <View style={styles.copyPipRow}>
-          {Array.from({ length: totalCount ?? 0 }, (_, index) => (
-            <View
-              key={`${tileKey(tile)}-pip-${index}`}
-              style={[
-                styles.copyPip,
-                index >= (remainingCount ?? 0) && styles.copyPipSpent,
-              ]}
-            />
-          ))}
+      <View style={[styles.tileRankSlot, isSmall && styles.tileRankSlotSmall, size === 'compact' && styles.tileRankSlotCompact]}>
+        <Text style={[styles.tileRank, isSmall && styles.tileRankSmall, size === 'compact' && styles.tileRankCompact]}>{tile.rank}</Text>
+      </View>
+      <View style={[styles.tileSuitSlot, isSmall && styles.tileSuitSlotSmall, size === 'compact' && styles.tileSuitSlotCompact]}>
+        <SuitMark suit={tile.suit} styles={styles} tileSize={size} />
+      </View>
+      <View style={[styles.tileSuitLabelSlot, isSmall && styles.tileSuitLabelSlotSmall, size === 'compact' && styles.tileSuitLabelSlotCompact]}>
+        <Text style={[styles.tileSuitText, isSmall && styles.tileSuitTextSmall, size === 'compact' && styles.tileSuitTextCompact]}>
+          {suitShortLabel(tile.suit)}
+        </Text>
+      </View>
+      <View style={[styles.copyPipSlot, !showCopyPips && styles.copyPipSlotEmpty]}>
+        {showCopyPips ? (
+          <View style={styles.copyPipRow}>
+            {Array.from({ length: totalCount ?? 0 }, (_, index) => (
+              <View
+                key={`${tileKey(tile)}-pip-${index}`}
+                style={[
+                  styles.copyPip,
+                  index >= (remainingCount ?? 0) && styles.copyPipSpent,
+                ]}
+              />
+            ))}
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+function DawnTile({
+  dawnTile,
+  styles,
+  size,
+  muted,
+  selected,
+}: {
+  dawnTile: DawnCabinetDawnTile;
+  styles: ReturnType<typeof createStyles>;
+  size: TileRenderSize;
+  muted?: boolean;
+  selected?: boolean;
+}) {
+  const variant = getDawnVariantIndex(dawnTile);
+  const isSmall = size !== 'large';
+  return (
+    <View
+      style={[
+        styles.mahjongTile,
+        styles.dawnTile,
+        size === 'small' && styles.mahjongTileSmall,
+        size === 'compact' && styles.mahjongTileCompact,
+        muted && styles.mahjongTileMuted,
+        selected && styles.mahjongTileSelected,
+      ]}
+    >
+      <View style={[styles.dawnTitleSlot, isSmall && styles.dawnTitleSlotSmall]}>
+        <Text style={[styles.dawnTileTitle, isSmall && styles.dawnTileTitleSmall]}>Dawn</Text>
+      </View>
+      <View style={[styles.dawnIconSlot, isSmall && styles.dawnIconSlotSmall]}>
+        <DawnVariantMark variant={variant} styles={styles} size={size} />
+      </View>
+    </View>
+  );
+}
+
+function DawnCandidateChips({
+  dawnTile,
+  styles,
+  compact,
+  leftAligned,
+}: {
+  dawnTile: DawnCabinetDawnTile;
+  styles: ReturnType<typeof createStyles>;
+  compact?: boolean;
+  leftAligned?: boolean;
+}) {
+  return (
+    <View style={[styles.dawnCandidateRow, compact && styles.dawnCandidateRowCompact, leftAligned && styles.dawnCandidateRowLeft]}>
+      {dawnTile.options.map((tile) => (
+        <View key={`${dawnTile.id}-${tileKey(tile)}`} style={[styles.dawnCandidateChip, compact && styles.dawnCandidateChipCompact]}>
+          <Text style={[styles.dawnCandidateRank, compact && styles.dawnCandidateRankCompact]}>{tile.rank}</Text>
+          <SuitMark suit={tile.suit} styles={styles} tileSize="micro" />
         </View>
-      )}
+      ))}
+    </View>
+  );
+}
+
+function DawnFilterNote({
+  dawnTile,
+  styles,
+}: {
+  dawnTile: DawnCabinetDawnTile;
+  styles: ReturnType<typeof createStyles>;
+}) {
+  return (
+    <View style={styles.dawnFilterNote}>
+      <View style={styles.dawnFilterNoteCopy}>
+        <Text style={styles.dawnFilterNoteTitle}>Today's Dawn Tile</Text>
+        <DawnCandidateChips dawnTile={dawnTile} styles={styles} leftAligned />
+        <Text style={styles.dawnFilterNoteText}>Must be placed on the board.</Text>
+      </View>
+    </View>
+  );
+}
+
+function DawnVariantMark({
+  variant,
+  styles,
+  size,
+}: {
+  variant: number;
+  styles: ReturnType<typeof createStyles>;
+  size: TileRenderSize;
+}) {
+  return (
+    <View style={[styles.dawnTileMark, size !== 'large' && styles.dawnTileMarkSmall]}>
+      <DawnTileMark variant={variant} />
     </View>
   );
 }
@@ -1898,47 +2154,114 @@ function SuitMark({
   suit,
   styles,
   compact,
+  tileSize,
 }: {
   suit: DawnCabinetTile['suit'];
   styles: ReturnType<typeof createStyles>;
   compact?: boolean;
+  tileSize?: SuitMarkSize;
 }) {
-  if (suit === 'bamboo') {
-    return (
-      <View style={[styles.bambooMark, compact && styles.suitMarkCompact]}>
-        {[0, 1, 2].map((item) => (
-          <View key={item} style={styles.bambooStem} />
-        ))}
+  const color = SUIT_MARK_COLORS[suit];
+  const resolvedSize = tileSize ?? (compact ? 'compact' : 'large');
+  const icon = suit === 'bamboo' ? (
+    <View style={styles.bambooMark}>
+      {[0, 1, 2].map((item) => (
+        <View key={item} style={[styles.bambooStem, { backgroundColor: color, borderColor: '#0f6143' }]} />
+      ))}
+    </View>
+  ) : suit === 'dots' ? (
+    <View style={[styles.dotMark, { borderColor: color }]}>
+      <View style={styles.dotInner} />
+    </View>
+  ) : suit === 'characters' ? (
+    <View style={[styles.characterMark, { backgroundColor: color }]}>
+      <Text style={styles.characterMarkText}>C</Text>
+    </View>
+  ) : suit === 'coins' ? (
+    <View style={[styles.coinMark, { borderColor: color }]}>
+      <View style={[styles.coinHole, { borderColor: color }]} />
+    </View>
+  ) : suit === 'lotus' ? (
+    <View style={styles.lotusMark}>
+      {[styles.lotusPetalTop, styles.lotusPetalRight, styles.lotusPetalBottom, styles.lotusPetalLeft].map((style, index) => (
+        <View key={index} style={[styles.lotusPetal, style, { backgroundColor: color }]} />
+      ))}
+      <View style={styles.lotusCenter} />
+    </View>
+  ) : suit === 'jade' ? (
+    <View style={[styles.jadeMark, { borderColor: color }]}>
+      <View style={[styles.jadeCore, { backgroundColor: color }]} />
+    </View>
+  ) : suit === 'clouds' ? (
+    <View style={styles.cloudMark}>
+      <View style={[styles.cloudPuff, styles.cloudPuffLeft, { backgroundColor: color }]} />
+      <View style={[styles.cloudPuff, styles.cloudPuffCenter, { backgroundColor: color }]} />
+      <View style={[styles.cloudPuff, styles.cloudPuffRight, { backgroundColor: color }]} />
+      <View style={[styles.cloudBase, { backgroundColor: color }]} />
+    </View>
+  ) : suit === 'stars' ? (
+    <View style={styles.starMark}>
+      <View style={[styles.starArmVertical, { backgroundColor: color }]} />
+      <View style={[styles.starArmHorizontal, { backgroundColor: color }]} />
+      <View style={[styles.starCore, { backgroundColor: color }]} />
+    </View>
+  ) : suit === 'waves' ? (
+    <View style={styles.waveMark}>
+      {[0, 1, 2].map((item) => (
+        <View key={item} style={[styles.waveLine, { backgroundColor: color, width: item === 1 ? 24 : 18 }]} />
+      ))}
+    </View>
+  ) : suit === 'knots' ? (
+    <View style={styles.knotMark}>
+      <View style={[styles.knotLoop, styles.knotLoopLeft, { borderColor: color }]} />
+      <View style={[styles.knotLoop, styles.knotLoopRight, { borderColor: color }]} />
+      <View style={[styles.knotBand, { backgroundColor: color }]} />
+    </View>
+  ) : suit === 'moons' ? (
+    <View style={[styles.moonMark, { backgroundColor: color }]}>
+      <View style={styles.moonCutout} />
+    </View>
+  ) : suit === 'suns' ? (
+    <View style={styles.sunMark}>
+      <View style={[styles.sunRayVertical, { backgroundColor: color }]} />
+      <View style={[styles.sunRayHorizontal, { backgroundColor: color }]} />
+      <View style={[styles.sunCore, { backgroundColor: color }]} />
+    </View>
+  ) : suit === 'lanterns' ? (
+    <View style={styles.lanternMark}>
+      <View style={[styles.lanternCap, { backgroundColor: color }]} />
+      <View style={[styles.lanternBody, { borderColor: color }]}>
+        <View style={[styles.lanternGlow, { backgroundColor: color }]} />
       </View>
-    );
-  }
+      <View style={[styles.lanternBase, { backgroundColor: color }]} />
+    </View>
+  ) : (
+    <View style={styles.sparkMark}>
+      <View style={[styles.sparkArmVertical, { backgroundColor: color }]} />
+      <View style={[styles.sparkArmHorizontal, { backgroundColor: color }]} />
+      <View style={[styles.sparkDiamond, { borderColor: color }]} />
+    </View>
+  );
 
-  if (suit === 'dots') {
-    return (
-      <View style={[styles.dotMark, compact && styles.suitMarkCompact]}>
-        <View style={styles.dotInner} />
-      </View>
-    );
-  }
-
-  if (suit === 'characters') {
-    return (
-      <View style={[styles.characterMark, compact && styles.suitMarkCompact]}>
-        <Text style={styles.characterMarkText}>C</Text>
-      </View>
-    );
-  }
-
-  const shortLabel = suitShortLabel(suit);
   return (
     <View
       style={[
-        styles.genericSuitMark,
-        { backgroundColor: SUIT_MARK_COLORS[suit] },
-        compact && styles.suitMarkCompact,
+        styles.suitIcon,
+        resolvedSize === 'small' && styles.suitIconSmall,
+        resolvedSize === 'compact' && styles.suitIconCompact,
+        resolvedSize === 'micro' && styles.suitIconMicro,
       ]}
     >
-      <Text style={styles.genericSuitMarkText}>{shortLabel[0]}</Text>
+      <View
+        style={[
+          styles.suitMarkArt,
+          resolvedSize === 'small' && styles.suitMarkArtSmall,
+          resolvedSize === 'compact' && styles.suitMarkArtCompact,
+          resolvedSize === 'micro' && styles.suitMarkArtMicro,
+        ]}
+      >
+        {icon}
+      </View>
     </View>
   );
 }
@@ -3024,12 +3347,61 @@ const createStyles = (
       gap: Spacing.sm,
       paddingRight: Spacing.xl,
     },
+    dawnFilterDetailCard: {
+      marginBottom: Spacing.xs,
+      minHeight: 92,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
+      borderRadius: BorderRadius.md,
+      backgroundColor: theme.mode === 'dark' ? '#1c2734' : '#fff7eb',
+      borderWidth: 1,
+      borderColor: theme.mode === 'dark' ? 'rgba(200,120,32,0.42)' : 'rgba(122,69,17,0.2)',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      ...WEB_NO_SELECT,
+    },
+    dawnFilterDetailTile: {
+      width: 62,
+      height: 76,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.mode === 'dark' ? 'rgba(255,248,223,0.2)' : 'rgba(122,69,17,0.18)',
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,248,223,0.07)' : 'rgba(255,248,223,0.78)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 5,
+      flexShrink: 0,
+    },
+    dawnFilterNote: {
+      flex: 1,
+      minWidth: 0,
+      justifyContent: 'center',
+    },
+    dawnFilterNoteCopy: {
+      flex: 1,
+      minWidth: 0,
+      gap: 5,
+    },
+    dawnFilterNoteTitle: {
+      color: screenAccent.main,
+      fontSize: 12,
+      lineHeight: 15,
+      fontWeight: '900',
+      letterSpacing: 0,
+    },
+    dawnFilterNoteText: {
+      color: Colors.textSecondary,
+      fontSize: 10,
+      lineHeight: 13,
+      fontWeight: '800',
+    },
     mobileCabinetProgressScroller: {
       paddingRight: Spacing.xl,
     },
     mobileBankStack: {
       width: 66,
-      height: 84,
+      height: 88,
       borderRadius: 10,
       borderWidth: 1,
       borderColor: Colors.line,
@@ -3115,14 +3487,17 @@ const createStyles = (
     mahjongTile: {
       width: '86%',
       height: '90%',
-      minWidth: 44,
-      minHeight: 56,
+      minWidth: 0,
+      minHeight: 0,
       borderRadius: 8,
       borderWidth: 1,
       borderColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.28)' : 'rgba(88,62,35,0.22)',
       backgroundColor: theme.mode === 'dark' ? '#f4efe5' : '#fffaf0',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'space-between',
+      overflow: 'hidden',
+      paddingHorizontal: 2,
+      paddingVertical: 2,
       shadowColor: '#000',
       shadowOpacity: theme.mode === 'dark' ? 0.22 : 0.1,
       shadowRadius: 8,
@@ -3131,13 +3506,19 @@ const createStyles = (
     },
     mahjongTileSmall: {
       width: 52,
-      height: 64,
+      height: 68,
       minWidth: 52,
-      minHeight: 64,
+      minHeight: 68,
+      paddingVertical: 3,
     },
     mahjongTileCompact: {
-      minWidth: 38,
-      minHeight: 48,
+      width: '84%',
+      height: '88%',
+      minWidth: 0,
+      minHeight: 0,
+      borderRadius: 7,
+      paddingHorizontal: 1,
+      paddingVertical: 1,
     },
     mahjongTileMuted: {
       opacity: 0.58,
@@ -3148,6 +3529,123 @@ const createStyles = (
     mahjongTileGiven: {
       backgroundColor: theme.mode === 'dark' ? '#fff8e9' : '#fff7e7',
     },
+    dawnTile: {
+      borderColor: screenAccent.main,
+      backgroundColor: theme.mode === 'dark' ? '#fff4d7' : '#fff0cf',
+    },
+    dawnTitleSlot: {
+      height: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      flexShrink: 0,
+    },
+    dawnTitleSlotSmall: {
+      height: 10,
+    },
+    dawnTileTitle: {
+      color: '#7a4511',
+      fontSize: 10,
+      fontWeight: '900',
+      lineHeight: 12,
+    },
+    dawnTileTitleSmall: {
+      fontSize: 8,
+      lineHeight: 10,
+    },
+    dawnIconSlot: {
+      flex: 1,
+      height: 42,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      flexShrink: 1,
+      minHeight: 34,
+      paddingBottom: 4,
+    },
+    dawnIconSlotSmall: {
+      height: 42,
+      minHeight: 34,
+      paddingBottom: 5,
+    },
+    dawnTileMark: {
+      width: 38,
+      height: 38,
+      borderRadius: 7,
+      backgroundColor: 'transparent',
+      borderWidth: 0,
+      borderColor: 'transparent',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    },
+    dawnTileMarkSmall: {
+      width: 34,
+      height: 34,
+      borderRadius: 5,
+    },
+    dawnCandidateRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexWrap: 'wrap',
+      gap: 3,
+      width: '100%',
+    },
+    dawnCandidateRowLeft: {
+      justifyContent: 'flex-start',
+      width: 'auto',
+      flexShrink: 1,
+    },
+    dawnCandidateRowCompact: {
+      gap: 1,
+    },
+    dawnCandidateChip: {
+      minWidth: 18,
+      minHeight: 15,
+      paddingHorizontal: 2,
+      paddingVertical: 1,
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: 'rgba(122,69,17,0.26)',
+      backgroundColor: 'rgba(255,248,223,0.86)',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 1,
+    },
+    dawnCandidateChipCompact: {
+      minWidth: 12,
+      minHeight: 9,
+      paddingHorizontal: 1,
+      paddingVertical: 0,
+      borderRadius: 3,
+      borderWidth: 0,
+      backgroundColor: 'transparent',
+    },
+    dawnCandidateRank: {
+      color: '#221a12',
+      fontSize: 9,
+      lineHeight: 10,
+      fontWeight: '900',
+    },
+    dawnCandidateRankCompact: {
+      fontSize: 6,
+      lineHeight: 7,
+    },
+    tileRankSlot: {
+      height: 17,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      flexShrink: 0,
+    },
+    tileRankSlotSmall: {
+      height: 15,
+    },
+    tileRankSlotCompact: {
+      height: 14,
+    },
     tileRank: {
       color: '#221a12',
       fontSize: 18,
@@ -3155,27 +3653,76 @@ const createStyles = (
       lineHeight: 20,
     },
     tileRankSmall: {
-      fontSize: 15,
-      lineHeight: 17,
+      fontSize: 14,
+      lineHeight: 15,
+    },
+    tileRankCompact: {
+      fontSize: 13,
+      lineHeight: 14,
+    },
+    tileSuitSlot: {
+      height: 22,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      flexShrink: 1,
+      minHeight: 17,
+    },
+    tileSuitSlotSmall: {
+      height: 20,
+      minHeight: 16,
+    },
+    tileSuitSlotCompact: {
+      height: 18,
+      minHeight: 15,
+    },
+    tileSuitLabelSlot: {
+      height: 9,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      flexShrink: 0,
+    },
+    tileSuitLabelSlotSmall: {
+      height: 8,
+    },
+    tileSuitLabelSlotCompact: {
+      height: 8,
     },
     tileSuitText: {
-      marginTop: 2,
       color: '#6b4e2d',
       fontSize: 9,
       fontWeight: '900',
       letterSpacing: 0.8,
+      lineHeight: 9,
     },
     tileSuitTextSmall: {
-      fontSize: 8,
+      fontSize: 7,
+      lineHeight: 8,
+      letterSpacing: 0.7,
+    },
+    tileSuitTextCompact: {
+      fontSize: 6.5,
+      lineHeight: 8,
+      letterSpacing: 0.5,
+    },
+    copyPipSlot: {
+      height: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      flexShrink: 0,
+    },
+    copyPipSlotEmpty: {
+      height: 0,
     },
     copyPipRow: {
       flexDirection: 'row',
       gap: 2,
-      marginTop: 3,
     },
     copyPip: {
-      width: 5,
-      height: 5,
+      width: 4.5,
+      height: 4.5,
       borderRadius: 999,
       backgroundColor: '#6b4e2d',
       opacity: 0.9,
@@ -3183,10 +3730,44 @@ const createStyles = (
     copyPipSpent: {
       opacity: 0.18,
     },
+    suitIcon: {
+      width: 24,
+      height: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    },
+    suitIconSmall: {
+      width: 20,
+      height: 20,
+    },
+    suitIconCompact: {
+      width: 18,
+      height: 18,
+    },
+    suitIconMicro: {
+      width: 9,
+      height: 9,
+    },
+    suitMarkArt: {
+      width: 30,
+      height: 30,
+      alignItems: 'center',
+      justifyContent: 'center',
+      transform: [{ scale: 0.8 }],
+    },
+    suitMarkArtSmall: {
+      transform: [{ scale: 0.66 }],
+    },
+    suitMarkArtCompact: {
+      transform: [{ scale: 0.58 }],
+    },
+    suitMarkArtMicro: {
+      transform: [{ scale: 0.3 }],
+    },
     bambooMark: {
       flexDirection: 'row',
       gap: 3,
-      marginVertical: 4,
       height: 22,
       alignItems: 'center',
     },
@@ -3203,10 +3784,8 @@ const createStyles = (
       height: 26,
       borderRadius: 999,
       borderWidth: 5,
-      borderColor: '#1767b1',
       alignItems: 'center',
       justifyContent: 'center',
-      marginVertical: 3,
     },
     dotInner: {
       width: 6,
@@ -3218,30 +3797,276 @@ const createStyles = (
       width: 25,
       height: 25,
       borderRadius: 6,
-      backgroundColor: '#cb392f',
       alignItems: 'center',
       justifyContent: 'center',
-      marginVertical: 4,
     },
     characterMarkText: {
       color: '#fffaf0',
       fontSize: 14,
       fontWeight: '900',
     },
-    genericSuitMark: {
-      width: 25,
-      height: 25,
+    coinMark: {
+      width: 26,
+      height: 26,
       borderRadius: 999,
+      borderWidth: 5,
       alignItems: 'center',
       justifyContent: 'center',
-      marginVertical: 4,
+    },
+    coinHole: {
+      width: 8,
+      height: 8,
+      borderWidth: 2,
+      borderRadius: 2,
+      backgroundColor: '#fffaf0',
+    },
+    lotusMark: {
+      width: 30,
+      height: 30,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    lotusPetal: {
+      position: 'absolute',
+      width: 10,
+      height: 16,
+      borderRadius: 999,
       borderWidth: 1,
       borderColor: 'rgba(34,26,18,0.24)',
     },
-    genericSuitMarkText: {
-      color: '#fffaf0',
-      fontSize: 13,
-      fontWeight: '900',
+    lotusPetalTop: {
+      top: 2,
+    },
+    lotusPetalRight: {
+      right: 4,
+      transform: [{ rotate: '90deg' }],
+    },
+    lotusPetalBottom: {
+      bottom: 2,
+    },
+    lotusPetalLeft: {
+      left: 4,
+      transform: [{ rotate: '90deg' }],
+    },
+    lotusCenter: {
+      width: 7,
+      height: 7,
+      borderRadius: 999,
+      backgroundColor: '#fffaf0',
+      borderWidth: 1,
+      borderColor: 'rgba(34,26,18,0.18)',
+    },
+    jadeMark: {
+      width: 23,
+      height: 23,
+      borderWidth: 4,
+      borderRadius: 6,
+      transform: [{ rotate: '45deg' }],
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    jadeCore: {
+      width: 7,
+      height: 7,
+      borderRadius: 2,
+    },
+    cloudMark: {
+      width: 30,
+      height: 24,
+    },
+    cloudPuff: {
+      position: 'absolute',
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: 'rgba(34,26,18,0.16)',
+    },
+    cloudPuffLeft: {
+      width: 15,
+      height: 15,
+      left: 2,
+      top: 8,
+    },
+    cloudPuffCenter: {
+      width: 18,
+      height: 18,
+      left: 8,
+      top: 3,
+    },
+    cloudPuffRight: {
+      width: 14,
+      height: 14,
+      right: 2,
+      top: 9,
+    },
+    cloudBase: {
+      position: 'absolute',
+      left: 5,
+      right: 4,
+      bottom: 2,
+      height: 9,
+      borderRadius: 999,
+    },
+    starMark: {
+      width: 30,
+      height: 30,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    starArmVertical: {
+      position: 'absolute',
+      width: 7,
+      height: 26,
+      borderRadius: 999,
+    },
+    starArmHorizontal: {
+      position: 'absolute',
+      width: 26,
+      height: 7,
+      borderRadius: 999,
+    },
+    starCore: {
+      width: 10,
+      height: 10,
+      borderRadius: 999,
+      backgroundColor: '#fffaf0',
+      borderWidth: 1,
+      borderColor: 'rgba(34,26,18,0.14)',
+    },
+    waveMark: {
+      width: 30,
+      height: 26,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 3,
+    },
+    waveLine: {
+      height: 5,
+      borderRadius: 999,
+      transform: [{ skewX: '-20deg' }],
+    },
+    knotMark: {
+      width: 30,
+      height: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    knotLoop: {
+      position: 'absolute',
+      width: 16,
+      height: 16,
+      borderRadius: 5,
+      borderWidth: 4,
+      transform: [{ rotate: '45deg' }],
+    },
+    knotLoopLeft: {
+      left: 3,
+    },
+    knotLoopRight: {
+      right: 3,
+    },
+    knotBand: {
+      width: 10,
+      height: 10,
+      borderRadius: 3,
+    },
+    moonMark: {
+      width: 25,
+      height: 25,
+      borderRadius: 999,
+      overflow: 'hidden',
+    },
+    moonCutout: {
+      position: 'absolute',
+      width: 23,
+      height: 23,
+      borderRadius: 999,
+      backgroundColor: '#fffaf0',
+      right: -6,
+      top: 1,
+    },
+    sunMark: {
+      width: 30,
+      height: 30,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    sunRayVertical: {
+      position: 'absolute',
+      width: 6,
+      height: 28,
+      borderRadius: 999,
+      opacity: 0.8,
+    },
+    sunRayHorizontal: {
+      position: 'absolute',
+      width: 28,
+      height: 6,
+      borderRadius: 999,
+      opacity: 0.8,
+    },
+    sunCore: {
+      width: 19,
+      height: 19,
+      borderRadius: 999,
+      borderWidth: 2,
+      borderColor: '#fffaf0',
+    },
+    lanternMark: {
+      width: 28,
+      height: 30,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 1,
+    },
+    lanternCap: {
+      width: 14,
+      height: 4,
+      borderRadius: 2,
+    },
+    lanternBody: {
+      width: 22,
+      height: 20,
+      borderRadius: 7,
+      borderWidth: 4,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    lanternGlow: {
+      width: 7,
+      height: 12,
+      borderRadius: 999,
+      opacity: 0.35,
+    },
+    lanternBase: {
+      width: 10,
+      height: 3,
+      borderRadius: 2,
+    },
+    sparkMark: {
+      width: 30,
+      height: 30,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    sparkArmVertical: {
+      position: 'absolute',
+      width: 5,
+      height: 27,
+      borderRadius: 999,
+    },
+    sparkArmHorizontal: {
+      position: 'absolute',
+      width: 27,
+      height: 5,
+      borderRadius: 999,
+    },
+    sparkDiamond: {
+      width: 15,
+      height: 15,
+      borderRadius: 3,
+      borderWidth: 3,
+      backgroundColor: '#fffaf0',
+      transform: [{ rotate: '45deg' }],
     },
     suitMarkCompact: {
       transform: [{ scale: 0.8 }],

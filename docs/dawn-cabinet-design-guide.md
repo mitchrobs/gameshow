@@ -58,6 +58,9 @@ Avoid:
   types, but the board should not reveal which type early.
 - **Ledger**: Counts of hidden rail set types that must be satisfied exactly.
 - **Reserve**: Required leftover Cabinet tiles after the board is complete.
+- **Dawn tile**: A special bounded wild tile used on Hard and Expert. It has
+  visible candidate values, but resolves only at its generator-chosen solution
+  cell.
 - **Easy Demo**: Tutorial/practice mode. It is not a daily difficulty.
 - **Daily levels**: Standard, Hard, and Expert.
 
@@ -66,16 +69,84 @@ Avoid:
 Dawn Cabinet uses modern Mahjong-inspired numbered suits.
 
 - Tiles have a `suit` and `rank`.
-- There are 12 rotating suit families:
+- There are 14 rotating suit families:
   - bamboo, dots, characters, coins, lotus, jade, clouds, stars, waves, knots,
-    moons, suns.
-- Daily puzzles use a subset of the 12 suits:
+    moons, suns, lanterns, sparks.
+- Daily puzzles use a subset of the 14 suits:
   - Standard uses fewer suits than Hard and Expert.
   - Expert uses the broadest suit variety.
 - The suit labels such as `BAM`, `CHR`, `SUN`, and `DOT` are suit identifiers,
   not rules.
+- Every suit should have a distinct Daybreak/Mahjong-flavored icon mark. Avoid
+  falling back to generic first-letter circles for newer suits.
+- Tile faces must reserve separate visual lanes for rank, suit icon, suit
+  label, and copy pips. The icon should shrink before rank, label, or pips are
+  clipped.
 - Copy pips on Cabinet tiles show how many identical Cabinet tiles remain.
 - The Cabinet supply is finite. Every placed tile comes from this supply.
+- Hard and Expert include exactly one Dawn tile. Standard and Easy Demo do not.
+
+## Dawn Tile Rules
+
+The Dawn tile is Dawn Cabinet's flower/season-inspired special tile. It adds
+freshness and allocation tension without becoming an unbounded wild card.
+
+- Hard has one Dawn tile with three visible candidate values.
+- Expert has one Dawn tile with four visible candidate values.
+- The Dawn tile is placed from the Cabinet like any other Cabinet tile.
+- The Dawn tile cannot be left as reserve.
+- The concrete solution still has an ordinary tile at the Dawn cell.
+- The Dawn tile resolves to that concrete solution tile only at its
+  generator-chosen `solutionCell`.
+- Candidate values are visible so the puzzle remains deductive rather than
+  guessy.
+- The resolved Dawn value should be revealed only after the puzzle is solved.
+- Dawn art uses 20 seeded Mahjong Bonus Panel asset variants. The target source
+  is `gpt-image-2` generated PNGs reviewed as complete style sets, with
+  deterministic local PNGs kept only as fallback/review placeholders. Dawn marks
+  must remain cosmetic only and must not imply solution, candidate value,
+  difficulty, or reserve status.
+- The current art pipeline is asset-backed:
+  - Accepted shipped PNGs live in `assets/dawn-cabinet/dawn-tiles/`.
+  - The prompt manifest lives at
+    `assets/dawn-cabinet/dawn-tiles/dawn-tile-prompts.json`.
+  - `scripts/build_dawn_tile_assets.py` creates deterministic local review
+    assets when no external image-generation key or artist exports are present.
+  - `scripts/generate_dawn_tile_art.py` prepares the `gpt-image-2` prompt
+    matrix, writes raw candidates to `tmp/dawn-cabinet/dawn-art-review/`, and
+    accepts one approved style set into the shipped asset folder.
+  - `scripts/extract_dawn_tile_contact_sheet.py` extracts 20 reviewed tile
+    panels from a generated contact sheet, strips the generated paper/frame
+    background, and maps the mark-only PNGs back to the seeded Dawn filenames.
+  - `scripts/dawn_tile_art_contact_sheet.ts` previews every asset at filter
+    chip, compact-board, and Cabinet detail sizes. It can target either the
+    shipped folder or a generated review direction folder.
+  - `src/ui/dawnTileArt.tsx` renders assets with `Image` and keeps the older
+    SVG renderer only as a lightweight fallback.
+- Avoid visual overlap with numbered suits. Do not use bamboo bars, dot targets,
+  character blocks, coin rings, lotus diamonds, jade-window marks, clouds, star
+  pluses, wave bands, knots, moon crescents, sun crosses, lantern forms, or spark
+  diamonds as Dawn marks. Use the contact sheet at all three gameplay sizes
+  before accepting any future Dawn art pass.
+- Dawn candidate values should be shown with the game's normal visual language:
+  rank plus suit icon. Avoid compact letter-only codes like `8D` or `5S` in
+  player-facing Dawn candidate displays.
+- The Dawn tile face itself should show only the day's Dawn mark. Do not print
+  candidate values, suit icons, or extra explanation on the tile face; those
+  belong beside the tile in the filtered Cabinet detail card.
+- The Dawn filtered Cabinet card copy should stay short and product-native:
+  `Today's Dawn Tile`, candidate chips, then `Must be placed on the board.`
+- When Cabinet filters are shown, the Dawn filter appears only if a Dawn tile is
+  present and should be the final filter after all suit filters.
+- The Dawn filtered view should replace the normal tile scroller with one
+  horizontal detail card: the selectable Dawn tile on the left, and its
+  candidate values plus a short non-spoiling reminder on the right.
+
+Important implementation nuance: the Dawn tile is not an "any value anywhere"
+wild. The solver and UI should treat it as a bounded special entry that can
+resolve only where the generated solution says it belongs. This keeps the
+strategic feeling of saving or placing a special tile while preserving a
+single intended solution.
 
 ## Set Types
 
@@ -130,6 +201,7 @@ Difficulty is driven by:
 - Reserve pressure.
 - Whether copy-count reasoning matters.
 - Motif count and motif arrangement.
+- Dawn tile presence and candidate count on Hard/Expert.
 - Solver branching and uniqueness.
 
 The game should remain logically provable. Reject puzzles that are ambiguous,
@@ -169,15 +241,73 @@ Important exported concepts:
 - `formatDawnCabinetShareText`
 
 Daily puzzles are seeded by date and difficulty. Standard, Hard, and Expert
-should all be playable on the same day. The generator uses modular motifs and a
-shape signature to reduce pattern memorization over time.
+should all be playable on the same day. The generator uses modular motifs,
+seeded macro-layout recipes, shape signatures, and composite signatures to
+reduce pattern memorization over time.
 
 Motif and shape variety matters. Do not collapse the generator back to one fixed
 board per difficulty.
 
+### Composite 90
+
+The freshness target is **Composite 90**: no exact repeat of the combined layout
+and rail profile within a 90-day window per difficulty. This does not promise
+that broad macro-layout families never repeat for 90 days. Instead, the
+fingerprint combines:
+
+- normalized active-cell shape,
+- rail topology,
+- visible versus hidden rail distribution,
+- visible rail-type mix,
+- motif multiset,
+- reserve goal profile,
+- Dawn profile when present.
+
+This is deliberately stricter than "different seed" and looser than "never use
+the same broad family." It gives the game longevity without requiring every day
+to invent a new board species.
+
+### Layout Recipes and Rail Exposure
+
+The generator should vary boards through macro recipes and motif composition.
+Current intended recipe families are:
+
+- Standard: `splitCabinet`, `centerHinge`, `steppedSpine`, `offsetPair`.
+- Hard: `braidedBridge`, `triadKnot`, `offsetReservoir`, `crossedTail`.
+- Expert: `fourDistrict`, `longSpineWeb`, `basinWeb`, `doubleHinge`.
+
+Visible rails should not collapse into mostly Pair clues. Use seeded exposure
+profiles so visible clues teach local board logic without giving away the
+ledger:
+
+- Standard: 2-4 visible set types.
+- Hard: 3-5 visible set types.
+- Expert: 4-6 visible set types.
+
+If visible rail variety increases, preserve hidden-ledger pressure by keeping
+enough hidden rails and overlaps. Richer visible rail types should make the
+board more readable, not simply easier.
+
 ## UX Architecture
 
 Primary screen file: `app/dawn-cabinet.tsx`.
+
+Supporting Dawn art files:
+
+- `src/ui/dawnTileArt.tsx` owns the Dawn asset renderer, the Dawn variant count,
+  and the code-native SVG fallback renderer.
+- `assets/dawn-cabinet/dawn-tiles/` stores the 20 Dawn PNG assets and the prompt
+  manifest used to regenerate or replace them.
+- `scripts/build_dawn_tile_assets.py` generates deterministic local review PNGs
+  for the Mahjong Bonus Panel set.
+- `scripts/generate_dawn_tile_art.py` owns the `gpt-image-2` style-set workflow:
+  prepare prompt JSONL, run the batch through the shared imagegen CLI, and copy
+  an approved direction into the shipped assets.
+- `scripts/extract_dawn_tile_contact_sheet.py` supports built-in imagegen review
+  sheets by cropping the 20 generated panels, removing the panel background, and
+  writing transparent mark-only PNGs into the shipped Dawn names.
+- `scripts/dawn_tile_art_contact_sheet.ts` generates the contact sheet for
+  checking every Dawn asset at filter-chip, compact-board, and Cabinet sizes.
 
 The route owns:
 
@@ -186,6 +316,7 @@ The route owns:
 - Rules modal and tutorial content.
 - Puzzle state, local storage, timer, solved state, and share state.
 - Tile placement interactions.
+- Dawn tile rendering and candidate display.
 - Board rendering.
 - Rail focus behavior.
 - Cabinet tile area.
@@ -226,6 +357,7 @@ Use the word Cabinet in player-facing UI. The Cabinet area should show:
 
 - Available tile stacks.
 - Copy pips/counts.
+- Dawn tile stack when present.
 - Suit filters on mobile.
 - A compact progress panel.
 
@@ -330,6 +462,9 @@ Important coverage includes:
 - Monotonic difficulty rating.
 - Daily generation through future dates.
 - Shape variety.
+- Composite 90 anti-repeat behavior.
+- Visible rail-type variety targets.
+- Dawn tile presence, candidate bounds, and non-reserve behavior.
 - Unique solvability via `countCabinetSolutions(puzzle, 2) === 1`.
 
 Run before shipping Dawn Cabinet changes:
@@ -345,10 +480,17 @@ For UI changes, also smoke test `/dawn-cabinet` in the browser:
 - How to Play opens.
 - Easy Demo starts.
 - Standard, Hard, and Expert start.
+- Hard and Expert show one Dawn tile in the Cabinet.
+- The Dawn tile face shows only the day mark; candidate values appear beside it
+  in the Dawn filtered Cabinet view.
+- The mobile tray includes a final-position Dawn filter when the Dawn tile is
+  present.
+- The Dawn filtered Cabinet view includes the short Dawn explanation.
 - Board fits on mobile width around 390px.
 - Expert remains usable on mobile.
 - Cabinet tray does not cover board controls.
 - Rail labels are readable and non-blocking.
+- Tile ranks, suit icons, suit labels, and Cabinet copy pips are not clipped.
 - Hidden `?` rails stay non-spoiling.
 - No fresh console errors.
 
@@ -358,6 +500,8 @@ For UI changes, also smoke test `/dawn-cabinet` in the browser:
 - Do not hide board rail labels and rely only on Attached rails.
 - Do not make hidden rails turn green before the puzzle is solved.
 - Do not simplify difficulty by removing ledger or reserve pressure.
+- Do not turn the Dawn tile into an unlimited wild card.
+- Do not add Dawn to Standard or Easy Demo without a separate design pass.
 - Do not collapse Standard, Hard, and Expert into similar boards.
 - Do not make the pre-game cards reveal exact spoiler-heavy stats.
 - Do not make Easy a normal daily difficulty.
@@ -398,4 +542,11 @@ Before changing Dawn Cabinet:
 7. Preserve hidden rail non-spoiling behavior.
 8. Test dense Expert boards and mobile width.
 9. Run the Dawn Cabinet tests and web build.
-10. Keep changes scoped unless intentionally doing a broader redesign.
+10. For Dawn art changes, use `npm run prepare:dawn-art` to write the
+    `gpt-image-2` prompt matrix, `npm run generate:dawn-art -- --dry-run` to
+    inspect the exact batch, and only run the live batch when `OPENAI_API_KEY`
+    is intentionally set.
+11. Before shipping generated Dawn assets, run `npm run preview:dawn-art` against
+    the accepted or review folder and inspect the contact sheet at all three
+    gameplay sizes.
+12. Keep changes scoped unless intentionally doing a broader redesign.

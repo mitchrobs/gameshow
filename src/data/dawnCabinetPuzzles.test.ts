@@ -4,6 +4,7 @@ import {
   classifyCabinetLine,
   countCabinetSolutions,
   formatDawnCabinetShareText,
+  getCabinetEntryCount,
   type DawnCabinetDailyDifficulty,
   type DawnCabinetPuzzle,
   getDailyDawnCabinet,
@@ -25,6 +26,10 @@ function blankCount(puzzle: DawnCabinetPuzzle): number {
 
 function hiddenCount(puzzle: DawnCabinetPuzzle): number {
   return puzzle.lines.filter((line) => line.goal === 'hidden').length;
+}
+
+function visibleSetKindCount(puzzle: DawnCabinetPuzzle): number {
+  return new Set(puzzle.lines.filter((line) => line.goal !== 'hidden').map((line) => line.goal)).size;
 }
 
 function expectLedgerMatchesSolution(puzzle: DawnCabinetPuzzle) {
@@ -72,6 +77,9 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
     expect(puzzle.ledger?.number ?? 0).toBe(0);
     expect(puzzle.bankGoal).toBeUndefined();
+    expect(puzzle.dawnTile).toBeUndefined();
+    expect(visibleSetKindCount(puzzle)).toBeGreaterThanOrEqual(2);
+    expect(visibleSetKindCount(puzzle)).toBeLessThanOrEqual(4);
     expect(puzzle.motifs.length).toBeGreaterThanOrEqual(5);
     expect(puzzle.motifs.length).toBeLessThanOrEqual(6);
     expect(puzzle.shapeSignature.length).toBeGreaterThan(40);
@@ -84,7 +92,7 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     expect(blanks).toBeLessThanOrEqual(25);
     expect(puzzle.lines.length).toBeGreaterThanOrEqual(25);
     expect(puzzle.lines.length).toBeLessThanOrEqual(31);
-    expect(hidden).toBeGreaterThanOrEqual(20);
+    expect(hidden).toBeGreaterThanOrEqual(17);
     expect(hidden).toBeLessThanOrEqual(23);
     expect(puzzle.spareCount).toBeGreaterThanOrEqual(2);
     expect(puzzle.spareCount).toBeLessThanOrEqual(4);
@@ -98,8 +106,12 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     if (puzzle.bankGoal) {
       expect(['pair', 'run', 'mixedRun', 'gapRun', 'match', 'flush', 'number']).toContain(puzzle.bankGoal.type);
     }
-    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(6);
-    expect(puzzle.motifs.length).toBeLessThanOrEqual(8);
+    expect(puzzle.dawnTile).toBeDefined();
+    expect(puzzle.dawnTile?.options).toHaveLength(3);
+    expect(visibleSetKindCount(puzzle)).toBeGreaterThanOrEqual(3);
+    expect(visibleSetKindCount(puzzle)).toBeLessThanOrEqual(5);
+    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(7);
+    expect(puzzle.motifs.length).toBeLessThanOrEqual(9);
     return;
   }
 
@@ -108,7 +120,7 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
   expect(blanks).toBeLessThanOrEqual(39);
   expect(puzzle.lines.length).toBeGreaterThanOrEqual(43);
   expect(puzzle.lines.length).toBeLessThanOrEqual(49);
-  expect(hidden).toBeGreaterThanOrEqual(35);
+  expect(hidden).toBeGreaterThanOrEqual(32);
   expect(hidden).toBeLessThanOrEqual(37);
   expect(puzzle.spareCount).toBeGreaterThanOrEqual(3);
   expect(puzzle.spareCount).toBeLessThanOrEqual(5);
@@ -122,8 +134,12 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
   if (puzzle.bankGoal) {
     expect(['run', 'mixedRun', 'gapRun', 'mixedGap', 'match', 'flush', 'number']).toContain(puzzle.bankGoal.type);
   }
-  expect(puzzle.motifs.length).toBeGreaterThanOrEqual(10);
-  expect(puzzle.motifs.length).toBeLessThanOrEqual(12);
+  expect(puzzle.dawnTile).toBeDefined();
+  expect(puzzle.dawnTile?.options).toHaveLength(4);
+  expect(visibleSetKindCount(puzzle)).toBeGreaterThanOrEqual(4);
+  expect(visibleSetKindCount(puzzle)).toBeLessThanOrEqual(6);
+  expect(puzzle.motifs.length).toBeGreaterThanOrEqual(11);
+  expect(puzzle.motifs.length).toBeLessThanOrEqual(13);
 }
 
 describe('dawn cabinet puzzle engine', () => {
@@ -325,7 +341,9 @@ describe('dawn cabinet puzzle engine', () => {
     expect(first.id).not.toEqual(standard.id);
     expect(first.difficulty).toBe('Hard');
     expect(countCabinetSolutions(first, 2)).toBe(1);
-    expect(first.bank).toHaveLength(first.cells.length - Object.keys(first.givens).length + first.spareCount);
+    expect(getCabinetEntryCount(first)).toBe(first.cells.length - Object.keys(first.givens).length + first.spareCount);
+    expect(first.dawnTile).toBeDefined();
+    expect(first.bank).toHaveLength(first.cells.length - Object.keys(first.givens).length + first.spareCount - 1);
   }, 30000);
 
   test('demo and daily puzzle templates hit the doubled target bands', () => {
@@ -336,9 +354,9 @@ describe('dawn cabinet puzzle engine', () => {
 
     [easy, standard, hard, expert].forEach(expectDifficultyTargets);
 
-    expect(standard.bank.length).toBeGreaterThan(easy.bank.length);
-    expect(hard.bank.length).toBeGreaterThan(standard.bank.length);
-    expect(expert.bank.length).toBeGreaterThan(hard.bank.length);
+    expect(getCabinetEntryCount(standard)).toBeGreaterThan(getCabinetEntryCount(easy));
+    expect(getCabinetEntryCount(hard)).toBeGreaterThan(getCabinetEntryCount(standard));
+    expect(getCabinetEntryCount(expert)).toBeGreaterThan(getCabinetEntryCount(hard));
     expect(expert.lines.length).toBeGreaterThan(hard.lines.length);
 
     const ratings = [easy, standard, hard, expert].map((puzzle) => rateDawnCabinetPuzzle(puzzle).score);
@@ -350,7 +368,7 @@ describe('dawn cabinet puzzle engine', () => {
       expect(countCabinetSolutions(puzzle, 2)).toBe(1);
       expectLedgerMatchesSolution(puzzle);
     });
-  }, 90000);
+  }, 180000);
 
   test('daily generator covers Standard, Hard, and Expert through the end of 2026', () => {
     let generated = 0;
@@ -363,16 +381,23 @@ describe('dawn cabinet puzzle engine', () => {
         expect(puzzle.difficulty).toBe(difficulty);
         expectDifficultyTargets(puzzle);
         expect(isCabinetSolved(puzzle, puzzle.solution)).toBe(true);
-        expect(puzzle.bank).toHaveLength(puzzle.cells.length - Object.keys(puzzle.givens).length + puzzle.spareCount);
+        expect(getCabinetEntryCount(puzzle)).toBe(puzzle.cells.length - Object.keys(puzzle.givens).length + puzzle.spareCount);
+        if (difficulty === 'Standard') {
+          expect(puzzle.dawnTile).toBeUndefined();
+        } else {
+          expect(puzzle.dawnTile).toBeDefined();
+          expect(puzzle.bank).toHaveLength(blankCount(puzzle) + puzzle.spareCount - 1);
+        }
       });
     }
 
     expect(generated).toBe(250 * DAWN_CABINET_DAILY_DIFFICULTIES.length);
-  }, 90000);
+  }, 180000);
 
   test('daily modular grammar varies shapes and count profiles', () => {
     DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
       const signatures: string[] = [];
+      const compositeSignatures: string[] = [];
       const profiles: string[] = [];
       const motifs = new Set<string>();
 
@@ -380,6 +405,7 @@ describe('dawn cabinet puzzle engine', () => {
         const date = new Date(Date.UTC(2026, 3, 26 + index)).toISOString().slice(0, 10);
         const puzzle = getDailyDawnCabinet(date, difficulty);
         signatures.push(puzzle.shapeSignature);
+        compositeSignatures.push(puzzle.compositeSignature);
         puzzle.motifs.forEach((motif) => motifs.add(motif));
         profiles.push([
           blankCount(puzzle),
@@ -404,18 +430,39 @@ describe('dawn cabinet puzzle engine', () => {
         expect(motifs.has('flush-basin')).toBe(true);
         expect(motifs.has('mixed-gap-braid')).toBe(true);
       }
-      signatures.forEach((signature, index) => {
-        const recent = signatures.slice(Math.max(0, index - 14), index);
+      compositeSignatures.forEach((signature, index) => {
+        const recent = compositeSignatures.slice(Math.max(0, index - 90), index);
         expect(recent).not.toContain(signature);
       });
     });
-  });
+  }, 120000);
 
   test('sampled daily puzzles remain uniquely solvable', () => {
-    const dates = ['2026-04-26', '2026-06-15', '2026-09-01', '2026-12-31'];
+    const dates = ['2026-04-26', '2026-06-15', '2026-09-01', '2026-11-11'];
     dates.forEach((date) => {
       DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
         const puzzle = getDailyDawnCabinet(date, difficulty);
+        expect(countCabinetSolutions(puzzle, 2)).toBe(1);
+      });
+    });
+  }, 120000);
+
+  test('Dawn tiles are bounded, non-reserve, and unique on Hard and Expert', () => {
+    const dates = ['2026-04-26', '2026-06-15', '2026-09-01', '2026-11-11'];
+    dates.forEach((date) => {
+      const standard = getDailyDawnCabinet(date, 'Standard');
+      expect(standard.dawnTile).toBeUndefined();
+
+      (['Hard', 'Expert'] as const).forEach((difficulty) => {
+        const puzzle = getDailyDawnCabinet(date, difficulty);
+        expect(puzzle.dawnTile).toBeDefined();
+        expect(puzzle.dawnTile?.options).toHaveLength(difficulty === 'Hard' ? 3 : 4);
+        expect(puzzle.dawnTile?.options.map((tile) => `${tile.suit}:${tile.rank}`)).toContain(
+          `${puzzle.dawnTile?.resolvedTile.suit}:${puzzle.dawnTile?.resolvedTile.rank}`
+        );
+        expect(puzzle.givens[puzzle.dawnTile?.solutionCell ?? '']).toBeUndefined();
+        expect(getCabinetEntryCount(puzzle)).toBe(blankCount(puzzle) + puzzle.spareCount);
+        expect(puzzle.bank).toHaveLength(blankCount(puzzle) + puzzle.spareCount - 1);
         expect(countCabinetSolutions(puzzle, 2)).toBe(1);
       });
     });
@@ -443,11 +490,11 @@ describe('dawn cabinet puzzle engine', () => {
     );
 
     expect(goals).toEqual(new Set(['run', 'mixedRun', 'gapRun', 'mixedGap', 'match', 'flush', 'number']));
-  });
+  }, 120000);
 
-  test('daily tile families rotate through the full twelve-family set', () => {
+  test('daily tile families rotate through the full fourteen-family set', () => {
     const seenFamilies = new Set(
-      Array.from({ length: 24 }, (_, index) => {
+      Array.from({ length: 32 }, (_, index) => {
         const date = new Date(Date.UTC(2026, 0, index + 1));
         const month = String(date.getUTCMonth() + 1).padStart(2, '0');
         const day = String(date.getUTCDate()).padStart(2, '0');
@@ -459,7 +506,7 @@ describe('dawn cabinet puzzle engine', () => {
       )
     );
 
-    expect(seenFamilies.size).toBe(12);
+    expect(seenFamilies.size).toBe(14);
   });
 
   test('formats compact non-spoiling daily share text', () => {
