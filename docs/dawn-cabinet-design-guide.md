@@ -134,8 +134,11 @@ freshness and allocation tension without becoming an unbounded wild card.
 - The Dawn tile face itself should show only the day's Dawn mark. Do not print
   candidate values, suit icons, or extra explanation on the tile face; those
   belong beside the tile in the filtered Cabinet detail card.
+- The `Dawn` label belongs below the mark, in the same identity lane as normal
+  tile suit labels.
 - The Dawn filtered Cabinet card copy should stay short and product-native:
-  `Today's Dawn Tile`, candidate chips, then `Must be placed on the board.`
+  `Today's Dawn Tile`, `Can be used as any of these tiles:`, candidate chips,
+  then `Must be placed on the board.`
 - When Cabinet filters are shown, the Dawn filter appears only if a Dawn tile is
   present and should be the final filter after all suit filters.
 - The Dawn filtered view should replace the normal tile scroller with one
@@ -330,11 +333,13 @@ The route owns:
 The start screen is intentionally separate from active play. It should include:
 
 - Date.
+- A compact "How this works" summary before level choice.
 - Standard, Hard, Expert choices in one row when possible.
 - Qualitative difficulty summaries, not exact spoilers.
+- Standard marked as the recommended first daily.
 - Start button.
 - How to Play.
-- Try Easy Demo.
+- Practice a Small Cabinet.
 
 Do not put the daily difficulty picker back on the active puzzle surface.
 

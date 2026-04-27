@@ -386,35 +386,29 @@ function getCabinetReserveText(puzzle: DawnCabinetPuzzle): string {
 }
 
 function getDifficultyCardSummary(puzzle: DawnCabinetPuzzle): string {
-  const blanks = puzzle.cells.length - Object.keys(puzzle.givens).length;
-  const hidden = puzzle.lines.filter((line) => line.goal === 'hidden').length;
-  const density =
-    puzzle.lines.length >= 34 ? 'Sprawling cabinet' :
-    puzzle.lines.length >= 22 ? 'Dense cabinet' :
-    'Compact cabinet';
-  const secrecy =
-    hidden / Math.max(1, puzzle.lines.length) >= 0.72 ? 'Hidden-heavy rails' :
-    'Mixed rail clues';
-  const reserve =
-    puzzle.spareCount >= 4 ? 'Strict reserve' :
-    puzzle.spareCount >= 2 ? 'Reserve pressure' :
-    puzzle.spareCount === 1 ? 'Light reserve' :
-    'Use every tile';
-  const tempo =
-    blanks >= 28 ? 'Long solve' :
-    blanks >= 17 ? 'Deep solve' :
-    'Quick solve';
-  return `${density}\n${secrecy}\n${reserve} · ${tempo}`;
+  switch (puzzle.difficulty) {
+    case 'Standard':
+      return 'Core cabinet\nNo Dawn Tile\nBest first daily';
+    case 'Hard':
+      return 'Adds Dawn Tile\nStricter reserve\nDenser rails';
+    case 'Expert':
+      return 'Largest cabinet\nFull rail set\nHardest Dawn placement';
+    default:
+      return 'Small cabinet\nPractice rails\nGentle solve';
+  }
 }
 
 function getStartGoalPreview(puzzle: DawnCabinetPuzzle): string {
-  const kinds = getLedgerKinds(puzzle).map(lineGoalLabel);
-  const sets = kinds.length > 0 ? kinds.join(' / ') : 'Open rails';
-  const reserve =
-    puzzle.spareCount === 0 ? 'Use every tile' :
-    puzzle.bankGoal ? `${lineGoalLabel(puzzle.bankGoal.type)} reserve` :
-    'Loose reserve';
-  return `${sets} · ${reserve}`;
+  switch (puzzle.difficulty) {
+    case 'Standard':
+      return 'Start here for the daily rhythm: read rails, place Cabinet tiles, and balance the hidden counts.';
+    case 'Hard':
+      return 'Hard adds the Dawn Tile, tighter reserve choices, and more crossing rail pressure.';
+    case 'Expert':
+      return 'Expert is the longest cabinet, with every rail family and the most demanding Dawn Tile placement.';
+    default:
+      return 'A short practice cabinet for learning the rail language.';
+  }
 }
 
 function getShareUrl(): string {
@@ -1182,6 +1176,11 @@ function StartScreen({
     selectedStatus === 'complete' ? 'View Results' :
     selectedStatus === 'in-progress' ? 'Resume' :
     'Start';
+  const quickStartSteps = [
+    'Place Cabinet tiles onto the board.',
+    'Every rail must form its set.',
+    'Harder cabinets may leave reserve tiles or include a Dawn Tile.',
+  ];
 
   return (
     <View style={styles.startPage}>
@@ -1213,11 +1212,24 @@ function StartScreen({
         </View>
       </View>
 
+      <View style={styles.startHowCard}>
+        <Text style={styles.startHowTitle}>How this works</Text>
+        {quickStartSteps.map((step, index) => (
+          <View key={step} style={styles.startHowStep}>
+            <View style={styles.startHowNumber}>
+              <Text style={styles.startHowNumberText}>{index + 1}</Text>
+            </View>
+            <Text style={styles.startHowText}>{step}</Text>
+          </View>
+        ))}
+      </View>
+
       <View style={styles.difficultyCardRow}>
         {DAILY_DIFFICULTIES.map((difficulty) => {
           const isSelected = difficulty === selectedDifficulty;
           const optionPuzzle = getDailyDawnCabinet(puzzle.date, difficulty);
           const status = getDailyPlayStatus(optionPuzzle);
+          const isRecommended = difficulty === 'Standard';
           return (
             <Pressable
               key={difficulty}
@@ -1231,14 +1243,21 @@ function StartScreen({
               ]}
               onPress={() => onSelectDifficulty(difficulty)}
             >
-              <Text
-                style={[
-                  styles.difficultyCardTitle,
-                  isSelected && styles.difficultyCardTitleSelected,
-                ]}
-              >
-                {difficulty}
-              </Text>
+              <View style={styles.difficultyCardHeader}>
+                <Text
+                  style={[
+                    styles.difficultyCardTitle,
+                    isSelected && styles.difficultyCardTitleSelected,
+                  ]}
+                >
+                  {difficulty}
+                </Text>
+                {isRecommended ? (
+                  <View style={styles.difficultyRecommendedBadge}>
+                    <Text style={styles.difficultyRecommendedText}>Recommended</Text>
+                  </View>
+                ) : null}
+              </View>
               <Text style={styles.difficultyCardText}>{getDifficultyCardSummary(optionPuzzle)}</Text>
             </Pressable>
           );
@@ -1274,12 +1293,12 @@ function StartScreen({
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Try Easy demo"
+        accessibilityLabel="Practice a small Dawn Cabinet"
         testID="dawn-cabinet.practice-easy"
         style={({ pressed }) => [styles.practiceButton, pressed && styles.buttonPressed]}
         onPress={onPractice}
       >
-        <Text style={styles.practiceButtonText}>Try Easy Demo</Text>
+        <Text style={styles.practiceButtonText}>Practice a Small Cabinet</Text>
       </Pressable>
     </View>
   );
@@ -2083,11 +2102,11 @@ function DawnTile({
         selected && styles.mahjongTileSelected,
       ]}
     >
-      <View style={[styles.dawnTitleSlot, isSmall && styles.dawnTitleSlotSmall]}>
-        <Text style={[styles.dawnTileTitle, isSmall && styles.dawnTileTitleSmall]}>Dawn</Text>
-      </View>
       <View style={[styles.dawnIconSlot, isSmall && styles.dawnIconSlotSmall]}>
         <DawnVariantMark variant={variant} styles={styles} size={size} />
+      </View>
+      <View style={[styles.dawnTitleSlot, isSmall && styles.dawnTitleSlotSmall]}>
+        <Text style={[styles.dawnTileTitle, isSmall && styles.dawnTileTitleSmall]}>Dawn</Text>
       </View>
     </View>
   );
@@ -2127,6 +2146,7 @@ function DawnFilterNote({
     <View style={styles.dawnFilterNote}>
       <View style={styles.dawnFilterNoteCopy}>
         <Text style={styles.dawnFilterNoteTitle}>Today's Dawn Tile</Text>
+        <Text style={styles.dawnFilterNoteText}>Can be used as any of these tiles:</Text>
         <DawnCandidateChips dawnTile={dawnTile} styles={styles} leftAligned />
         <Text style={styles.dawnFilterNoteText}>Must be placed on the board.</Text>
       </View>
@@ -2319,17 +2339,27 @@ function TutorialModal({
     { suit: 'dots', rank: 5 },
     { suit: 'characters', rank: 5 },
   ] satisfies DawnCabinetTile[];
-  const railRules = [
+  const dawnLessonTile = {
+    id: 'rules-dawn-tile',
+    solutionCell: cellKey(0, 0),
+    resolvedTile: { suit: 'dots', rank: 8 },
+    options: [
+      { suit: 'dots', rank: 8 },
+      { suit: 'sparks', rank: 5 },
+      { suit: 'sparks', rank: 9 },
+    ],
+  } satisfies DawnCabinetDawnTile;
+  const quickStartRules = [
+    'The Cabinet is your tile supply. Place tiles from it onto the board.',
     'Only tiles joined by a rail belong to the same set.',
-    'Tiles may touch on the board and still be unrelated.',
-    'Tap a cell to spotlight every rail that uses it.',
-    'R, X, G, Z, M, P, F, and N rails name their required set.',
-    '? rails are hidden rails: the ledger tells how many of each set they become.',
-    'The Attached rails info button opens the set-type legend for the current cabinet.',
     'A crossing tile must satisfy every rail that passes through it.',
-    'Cabinet progress tracks visible rails, hidden set counts, and any reserve goal.',
-    'Copy pips show how many identical Cabinet tiles remain.',
-    'Harder cabinets include reserve tiles that must form the listed leftover set.',
+    '? rails are mystery rails. Cabinet progress tells you how many hidden sets of each type you still need.',
+  ];
+  const cabinetRules = [
+    'Copy tiles show how many identical Cabinet tiles remain.',
+    'Reserve tells you which tiles, if any, should be left after the board is complete.',
+    'The Dawn Tile can be used as one of its shown values, but it must be placed on the board.',
+    'Tap a cell to spotlight every rail that uses it.',
   ];
 
   return (
@@ -2348,7 +2378,68 @@ function TutorialModal({
               hidden rail counts balance, and only the listed reserve remains.
             </Text>
           </View>
-          <Text style={styles.modalTitle}>Read the rails</Text>
+          <Text style={styles.modalTitle}>Quick Start</Text>
+
+          <View style={styles.rulesList}>
+            <Text style={styles.ruleListTitle}>Cabinet Basics</Text>
+            {quickStartRules.map((rule) => (
+              <View key={rule} style={styles.ruleItem}>
+                <View style={styles.ruleBullet} />
+                <Text style={styles.ruleText}>{rule}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.tutorialGrid}>
+            <View style={styles.tutorialGridStage}>
+              <Svg width={172} height={208} style={styles.tutorialRailSvg} pointerEvents="none">
+                <Line
+                  x1={27}
+                  y1={33}
+                  x2={145}
+                  y2={33}
+                  stroke="#c87820"
+                  strokeWidth={9}
+                  strokeOpacity={0.82}
+                  strokeLinecap="round"
+                />
+                {[27, 86, 145].map((x) => (
+                  <Circle key={`tutorial-rail-dot-${x}`} cx={x} cy={33} r={4} fill="#c87820" />
+                ))}
+                <Circle cx={86} cy={33} r={13} fill="#c87820" />
+                <SvgText
+                  x={86}
+                  y={37}
+                  fill="#fffaf0"
+                  fontSize={11}
+                  fontWeight="900"
+                  textAnchor="middle"
+                >
+                  R
+                </SvgText>
+              </Svg>
+              {Array.from({ length: tutorial.rows }, (_, row) => (
+                <View key={`tutorial-row-${row}`} style={styles.tutorialGridRow}>
+                  {Array.from({ length: tutorial.columns }, (_, col) => {
+                    const key = cellKey(row, col);
+                    const tile = tutorial.givens[key];
+                    return (
+                      <View key={key} style={styles.tutorialCell}>
+                        {tile ? (
+                          <MahjongTile tile={tile} styles={styles} size="small" given />
+                        ) : (
+                          <Text style={styles.tutorialBlank}>+</Text>
+                        )}
+                      </View>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
+            <Text style={styles.tutorialRailCaption}>The rail marks one set across the cabinet.</Text>
+          </View>
+
+          <Text style={styles.modalTitle}>Rail Types</Text>
 
           <View style={styles.lessonRow}>
             <View style={styles.lessonTiles}>
@@ -2486,63 +2577,31 @@ function TutorialModal({
             </View>
           </View>
 
+          <View style={styles.lessonRow}>
+            <View style={styles.lessonTiles}>
+              <DawnTile dawnTile={dawnLessonTile} styles={styles} size="small" />
+            </View>
+            <View style={styles.lessonCopy}>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>Dawn Tile</Text>
+                <View style={styles.lessonDifficultyBadge}>
+                  <Text style={styles.lessonDifficultyText}>Hard+</Text>
+                </View>
+              </View>
+              <DawnCandidateChips dawnTile={dawnLessonTile} styles={styles} leftAligned />
+              <Text style={styles.lessonText}>Can be used as one of its shown values, but must be placed on the board.</Text>
+            </View>
+          </View>
+
+          <Text style={styles.modalTitle}>Cabinet Details</Text>
           <View style={styles.rulesList}>
-            <Text style={styles.ruleListTitle}>Rail Rules</Text>
-            {railRules.map((rule) => (
+            <Text style={styles.ruleListTitle}>During Play</Text>
+            {cabinetRules.map((rule) => (
               <View key={rule} style={styles.ruleItem}>
                 <View style={styles.ruleBullet} />
                 <Text style={styles.ruleText}>{rule}</Text>
               </View>
             ))}
-          </View>
-
-          <View style={styles.tutorialGrid}>
-            <View style={styles.tutorialGridStage}>
-              <Svg width={172} height={208} style={styles.tutorialRailSvg} pointerEvents="none">
-                <Line
-                  x1={27}
-                  y1={33}
-                  x2={145}
-                  y2={33}
-                  stroke="#c87820"
-                  strokeWidth={9}
-                  strokeOpacity={0.82}
-                  strokeLinecap="round"
-                />
-                {[27, 86, 145].map((x) => (
-                  <Circle key={`tutorial-rail-dot-${x}`} cx={x} cy={33} r={4} fill="#c87820" />
-                ))}
-                <Circle cx={86} cy={33} r={13} fill="#c87820" />
-                <SvgText
-                  x={86}
-                  y={37}
-                  fill="#fffaf0"
-                  fontSize={11}
-                  fontWeight="900"
-                  textAnchor="middle"
-                >
-                  R
-                </SvgText>
-              </Svg>
-              {Array.from({ length: tutorial.rows }, (_, row) => (
-                <View key={`tutorial-row-${row}`} style={styles.tutorialGridRow}>
-                  {Array.from({ length: tutorial.columns }, (_, col) => {
-                    const key = cellKey(row, col);
-                    const tile = tutorial.givens[key];
-                    return (
-                      <View key={key} style={styles.tutorialCell}>
-                        {tile ? (
-                          <MahjongTile tile={tile} styles={styles} size="small" given />
-                        ) : (
-                          <Text style={styles.tutorialBlank}>+</Text>
-                        )}
-                      </View>
-                    );
-                  })}
-                </View>
-              ))}
-            </View>
-            <Text style={styles.tutorialRailCaption}>The rail marks one set across the cabinet.</Text>
           </View>
           <Text style={styles.lessonText}>
             The best moves resolve more than one rail at once.
@@ -2567,12 +2626,12 @@ function TutorialModal({
           </Pressable>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Try Easy demo"
+            accessibilityLabel="Practice a small Dawn Cabinet"
             testID="dawn-cabinet.practice-easy"
             style={({ pressed }) => [styles.modalSecondaryButton, pressed && styles.buttonPressed]}
             onPress={onPracticeEasy}
           >
-            <Text style={styles.modalSecondaryButtonText}>Try Easy Demo</Text>
+            <Text style={styles.modalSecondaryButtonText}>Practice a Small Cabinet</Text>
           </Pressable>
         </ScrollView>
       </View>
@@ -2636,6 +2695,50 @@ const createStyles = (
     startAccentTileRaised: {
       transform: [{ translateY: -5 }, { rotate: '3deg' }],
     },
+    startHowCard: {
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surface,
+      padding: Spacing.md,
+      gap: Spacing.xs,
+    },
+    startHowTitle: {
+      color: Colors.text,
+      fontSize: FontSize.sm,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      marginBottom: 2,
+    },
+    startHowStep: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.sm,
+    },
+    startHowNumber: {
+      width: 22,
+      height: 22,
+      borderRadius: 999,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: screenAccent.soft,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+    },
+    startHowNumberText: {
+      color: screenAccent.main,
+      fontSize: 11,
+      fontWeight: '900',
+      lineHeight: 13,
+    },
+    startHowText: {
+      flex: 1,
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 19,
+      fontWeight: '800',
+    },
     difficultyCardRow: {
       flexDirection: 'row',
       gap: Spacing.sm,
@@ -2653,6 +2756,10 @@ const createStyles = (
       justifyContent: 'space-between',
       ...WEB_NO_SELECT,
     },
+    difficultyCardHeader: {
+      gap: Spacing.xs,
+      alignItems: 'flex-start',
+    },
     difficultyCardSelected: {
       borderColor: screenAccent.main,
       backgroundColor: screenAccent.soft,
@@ -2664,6 +2771,21 @@ const createStyles = (
     },
     difficultyCardTitleSelected: {
       color: screenAccent.main,
+    },
+    difficultyRecommendedBadge: {
+      paddingHorizontal: 7,
+      paddingVertical: 2,
+      borderRadius: BorderRadius.full,
+      backgroundColor: screenAccent.main,
+      maxWidth: '100%',
+    },
+    difficultyRecommendedText: {
+      color: Colors.white,
+      fontSize: 9,
+      lineHeight: 11,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
     },
     difficultyCardText: {
       color: Colors.textMuted,
@@ -3349,16 +3471,16 @@ const createStyles = (
     },
     dawnFilterDetailCard: {
       marginBottom: Spacing.xs,
-      minHeight: 92,
-      paddingVertical: 8,
-      paddingHorizontal: 10,
+      minHeight: 98,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
       borderRadius: BorderRadius.md,
-      backgroundColor: theme.mode === 'dark' ? '#1c2734' : '#fff7eb',
+      backgroundColor: Colors.surfaceLight,
       borderWidth: 1,
-      borderColor: theme.mode === 'dark' ? 'rgba(200,120,32,0.42)' : 'rgba(122,69,17,0.2)',
+      borderColor: Colors.line,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
+      gap: Spacing.md,
       ...WEB_NO_SELECT,
     },
     dawnFilterDetailTile: {
@@ -3366,8 +3488,8 @@ const createStyles = (
       height: 76,
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: theme.mode === 'dark' ? 'rgba(255,248,223,0.2)' : 'rgba(122,69,17,0.18)',
-      backgroundColor: theme.mode === 'dark' ? 'rgba(255,248,223,0.07)' : 'rgba(255,248,223,0.78)',
+      borderColor: Colors.border,
+      backgroundColor: Colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
       padding: 5,
@@ -3381,19 +3503,19 @@ const createStyles = (
     dawnFilterNoteCopy: {
       flex: 1,
       minWidth: 0,
-      gap: 5,
+      gap: 4,
     },
     dawnFilterNoteTitle: {
-      color: screenAccent.main,
-      fontSize: 12,
-      lineHeight: 15,
+      color: Colors.text,
+      fontSize: 13,
+      lineHeight: 16,
       fontWeight: '900',
       letterSpacing: 0,
     },
     dawnFilterNoteText: {
       color: Colors.textSecondary,
-      fontSize: 10,
-      lineHeight: 13,
+      fontSize: 11,
+      lineHeight: 14,
       fontWeight: '800',
     },
     mobileCabinetProgressScroller: {
@@ -3561,12 +3683,12 @@ const createStyles = (
       width: '100%',
       flexShrink: 1,
       minHeight: 34,
-      paddingBottom: 4,
+      paddingTop: 5,
     },
     dawnIconSlotSmall: {
       height: 42,
       minHeight: 34,
-      paddingBottom: 5,
+      paddingTop: 5,
     },
     dawnTileMark: {
       width: 38,
