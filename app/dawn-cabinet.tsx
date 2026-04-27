@@ -1213,7 +1213,7 @@ function StartScreen({
       </View>
 
       <View style={styles.startHowCard}>
-        <Text style={styles.startHowTitle}>How this works</Text>
+        <Text style={styles.startHowTitle}>The Basics</Text>
         {quickStartSteps.map((step, index) => (
           <View key={step} style={styles.startHowStep}>
             <View style={styles.startHowNumber}>

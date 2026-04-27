@@ -333,7 +333,7 @@ The route owns:
 The start screen is intentionally separate from active play. It should include:
 
 - Date.
-- A compact "How this works" summary before level choice.
+- A compact "The Basics" summary before level choice.
 - Standard, Hard, Expert choices in one row when possible.
 - Qualitative difficulty summaries, not exact spoilers.
 - Standard marked as the recommended first daily.
