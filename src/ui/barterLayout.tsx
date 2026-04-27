@@ -71,7 +71,15 @@ export function BarterPhaseTabs({
   };
 
   return (
-    <View style={styles.tabs}>
+    <View
+      style={[
+        styles.tabs,
+        {
+          backgroundColor: colors.surfaceMuted,
+          borderColor: colors.border,
+        },
+      ]}
+    >
       {renderTab('day', 'Day Market', lateWindowOpen ? 'Done' : dayLabel, lateWindowOpen)}
       {renderTab('night', 'Night Market', nightLabel)}
     </View>
@@ -186,7 +194,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 12,
     padding: 3,
-    backgroundColor: '#0a0a0c',
+    borderWidth: 1,
   },
   tab: {
     flex: 1,
@@ -259,11 +267,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 3,
     flexShrink: 1,
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
   },
   actionDot: {
-    width: 7,
-    height: 7,
+    width: 6,
+    height: 6,
     borderRadius: 4,
     borderWidth: 1,
   },

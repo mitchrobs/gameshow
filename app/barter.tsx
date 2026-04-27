@@ -504,21 +504,29 @@ export default function BarterScreen() {
   const lateWindowTrigger = earlyWindowTrades;
   const barterUxColors = useMemo(
     () => ({
-      day: '#FFA41F',
-      night: '#9C88FF',
-      text: theme.mode === 'dark' ? '#F0EDE6' : Colors.text,
-      muted: '#888888',
-      border: theme.mode === 'dark' ? '#1F2024' : Colors.border,
-      surface: theme.mode === 'dark' ? '#111214' : Colors.surfaceElevated,
-      surfaceMuted: theme.mode === 'dark' ? '#1A1A1A' : Colors.surfaceLight,
+      day: theme.mode === 'dark' ? '#FFA41F' : '#B75F00',
+      night: theme.mode === 'dark' ? '#9C88FF' : '#6656CC',
+      text: theme.mode === 'dark' ? '#F0EDE6' : '#1f1b16',
+      muted: theme.mode === 'dark' ? '#888888' : '#5f584f',
+      border: theme.mode === 'dark' ? '#1F2024' : '#d8d0c4',
+      surface: theme.mode === 'dark' ? '#111214' : '#fffdf8',
+      surfaceMuted: theme.mode === 'dark' ? '#1A1A1A' : '#f0ede8',
       button: theme.mode === 'dark' ? '#263244' : '#1f1b16',
       buttonPressed: theme.mode === 'dark' ? '#34435a' : '#3a342d',
       buttonText: '#ffffff',
-      disabledBg: Colors.surfaceLight,
-      disabledText: Colors.textMuted,
+      disabledBg: theme.mode === 'dark' ? Colors.surfaceLight : '#eee9e3',
+      disabledText: theme.mode === 'dark' ? Colors.textMuted : '#8a8174',
     }),
     [Colors, theme.mode]
   );
+  const activePhaseAccent = lateWindowOpen ? barterUxColors.night : barterUxColors.day;
+  const filledGoalPipBackground = lateWindowOpen
+    ? theme.mode === 'dark'
+      ? '#242044'
+      : '#f0ecff'
+    : theme.mode === 'dark'
+      ? '#2a2111'
+      : '#fff4de';
 
   const tradeWaves = useMemo(() => {
     const wave1 = puzzle.trades.filter((trade) => trade.window !== 'late');
@@ -1023,11 +1031,8 @@ export default function BarterScreen() {
           <View style={styles.goalBar}>
             <View style={styles.goalTextBlock}>
               <Text style={styles.goalKicker}>Goal</Text>
-              <Text style={styles.goalLine}>
-                Collect{' '}
-                <Text style={{ color: lateWindowOpen ? barterUxColors.night : barterUxColors.day }}>
-                  {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
-                </Text>
+              <Text style={[styles.goalLine, { color: activePhaseAccent }]} numberOfLines={1}>
+                {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
               </Text>
             </View>
             <View style={styles.goalPips}>
@@ -1039,8 +1044,8 @@ export default function BarterScreen() {
                     style={[
                       styles.goalPip,
                       filled && {
-                        borderColor: lateWindowOpen ? barterUxColors.night : barterUxColors.day,
-                        backgroundColor: lateWindowOpen ? '#242044' : '#2a2111',
+                        borderColor: activePhaseAccent,
+                        backgroundColor: filledGoalPipBackground,
                       },
                     ]}
                   >
@@ -1143,6 +1148,7 @@ export default function BarterScreen() {
                         onPress={() => handleSelectGood(good.id)}
                         style={({ pressed }) => [
                           styles.inventoryPressable,
+                          isCompact && styles.inventoryPressableCompact,
                           pressed && styles.inventoryCardPressed,
                         ]}
                       >
@@ -1465,6 +1471,9 @@ const createStyles = (
   const darkButtonPressed = theme.mode === 'dark' ? Colors.primaryLight : '#3a342d';
   const disabledBg = theme.mode === 'dark' ? Colors.surfaceLight : '#eee9e3';
   const disabledText = theme.mode === 'dark' ? Colors.textMuted : '#9a9082';
+  const dayAccent = theme.mode === 'dark' ? '#FFA41F' : '#B75F00';
+  const pipEmptyBg = theme.mode === 'dark' ? '#1A1A2A' : '#f4efe8';
+  const pipEmptyBorder = theme.mode === 'dark' ? '#2A2A3A' : '#d8d0c4';
 
   return StyleSheet.create({
   container: {
@@ -1587,23 +1596,24 @@ const createStyles = (
   },
   goalPips: {
     flexDirection: 'row',
-    gap: 4,
-    flexWrap: 'wrap',
+    gap: 3,
+    flexWrap: 'nowrap',
     justifyContent: 'flex-end',
-    maxWidth: 190,
+    flexShrink: 0,
+    maxWidth: 180,
   },
   goalPip: {
-    width: 26,
-    height: 26,
+    width: 23,
+    height: 23,
     borderRadius: 7,
-    backgroundColor: theme.mode === 'dark' ? '#1A1A2A' : '#E8E4F0',
+    backgroundColor: pipEmptyBg,
     borderWidth: 1.5,
-    borderColor: theme.mode === 'dark' ? '#2A2A3A' : '#C8C4D8',
+    borderColor: pipEmptyBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
   goalPipEmoji: {
-    fontSize: 13,
+    fontSize: 12,
   },
   stickyHeader: {
     backgroundColor: canvas,
@@ -2201,36 +2211,44 @@ const createStyles = (
   },
   inventoryRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    justifyContent: 'flex-start',
+    flexWrap: 'nowrap',
+    gap: 4,
+    justifyContent: 'space-between',
+    width: '100%',
   },
   inventoryRowCompact: {
-    gap: 4,
+    gap: 2,
   },
   inventoryCard: {
+    flex: 1,
+    flexBasis: 0,
+    minWidth: 0,
     backgroundColor: paper,
-    borderRadius: 14,
+    borderRadius: 11,
     borderWidth: 1.5,
     borderColor: borderSoft,
-    paddingVertical: 7,
-    paddingHorizontal: 4,
-    width: 64,
-    minHeight: 64,
+    paddingVertical: 6,
+    paddingHorizontal: 2,
+    minHeight: 58,
     alignItems: 'center',
   },
   inventoryCardCompact: {
+    borderRadius: 9,
     paddingVertical: 4,
-    paddingHorizontal: 3,
+    paddingHorizontal: 1,
+    minHeight: 50,
   },
   inventoryPressable: {
     width: '100%',
     alignItems: 'center',
-    minHeight: 48,
+    minHeight: 46,
     justifyContent: 'center',
   },
+  inventoryPressableCompact: {
+    minHeight: 42,
+  },
   inventoryCardSelected: {
-    borderColor: '#FFA41F',
+    borderColor: dayAccent,
     borderWidth: 2,
     backgroundColor: theme.mode === 'dark' ? '#2a2111' : '#fff7e6',
   },
@@ -2241,31 +2259,31 @@ const createStyles = (
     opacity: 0.35,
   },
   inventoryCardChanged: {
-    borderColor: '#FFA41F',
+    borderColor: dayAccent,
     backgroundColor: theme.mode === 'dark' ? '#2a2111' : '#fff7df',
   },
   inventoryEmoji: {
-    fontSize: 22,
+    fontSize: 18,
   },
   inventoryEmojiCompact: {
-    fontSize: 15,
+    fontSize: 14,
   },
   inventoryCount: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '800',
     color: inkStrong,
     marginTop: 0,
   },
   inventoryCountCompact: {
-    fontSize: 12,
+    fontSize: 11,
   },
   inventoryLabel: {
     marginTop: 2,
-    maxWidth: 54,
+    maxWidth: '100%',
     color: inkSoft,
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: '700',
-    letterSpacing: 0.3,
+    letterSpacing: 0,
   },
   stallSection: {
     marginBottom: 12,
@@ -2319,10 +2337,10 @@ const createStyles = (
   },
   tradeCardUnavailable: {
     borderColor: borderSoft,
-    opacity: 0.65,
+    opacity: theme.mode === 'dark' ? 0.65 : 0.78,
   },
   tradeCardSelected: {
-    borderColor: '#FFA41F',
+    borderColor: dayAccent,
     borderWidth: 1.5,
     backgroundColor: theme.mode === 'dark' ? '#131313' : '#fffaf0',
   },
