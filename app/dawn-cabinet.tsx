@@ -388,9 +388,9 @@ function getCabinetReserveText(puzzle: DawnCabinetPuzzle): string {
 function getDifficultyCardSummary(puzzle: DawnCabinetPuzzle): string {
   switch (puzzle.difficulty) {
     case 'Standard':
-      return 'Core cabinet\nNo Dawn Tile\nBest first daily';
+      return 'Core cabinet\nDawn Tile\nBest first daily';
     case 'Hard':
-      return 'Adds Dawn Tile\nStricter reserve\nDenser rails';
+      return 'Dawn Tile\nStricter reserve\nDenser rails';
     case 'Expert':
       return 'Largest cabinet\nFull rail set\nHardest Dawn placement';
     default:
@@ -401,9 +401,9 @@ function getDifficultyCardSummary(puzzle: DawnCabinetPuzzle): string {
 function getStartGoalPreview(puzzle: DawnCabinetPuzzle): string {
   switch (puzzle.difficulty) {
     case 'Standard':
-      return 'Start here for the daily rhythm: read rails, place Cabinet tiles, and balance the hidden counts.';
+      return 'Start here for the daily rhythm: read rails, place Cabinet tiles, and use one bounded Dawn Tile.';
     case 'Hard':
-      return 'Hard adds the Dawn Tile, tighter reserve choices, and more crossing rail pressure.';
+      return 'Hard tightens reserve choices and adds more crossing rail pressure around the Dawn Tile.';
     case 'Expert':
       return 'Expert is the longest cabinet, with every rail family and the most demanding Dawn Tile placement.';
     default:
@@ -1179,7 +1179,7 @@ function StartScreen({
   const quickStartSteps = [
     'Place Cabinet tiles onto the board.',
     'Every rail must form its set.',
-    'Harder cabinets may leave reserve tiles or include a Dawn Tile.',
+    'Daily cabinets include a Dawn Tile; harder cabinets may leave reserve tiles.',
   ];
 
   return (
@@ -2585,7 +2585,7 @@ function TutorialModal({
               <View style={styles.lessonTitleRow}>
                 <Text style={styles.lessonTitle}>Dawn Tile</Text>
                 <View style={styles.lessonDifficultyBadge}>
-                  <Text style={styles.lessonDifficultyText}>Hard+</Text>
+                  <Text style={styles.lessonDifficultyText}>Daily</Text>
                 </View>
               </View>
               <DawnCandidateChips dawnTile={dawnLessonTile} styles={styles} leftAligned />

@@ -77,11 +77,12 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
     expect(puzzle.ledger?.number ?? 0).toBe(0);
     expect(puzzle.bankGoal).toBeUndefined();
-    expect(puzzle.dawnTile).toBeUndefined();
+    expect(puzzle.dawnTile).toBeDefined();
+    expect(puzzle.dawnTile?.options).toHaveLength(3);
     expect(visibleSetKindCount(puzzle)).toBeGreaterThanOrEqual(2);
     expect(visibleSetKindCount(puzzle)).toBeLessThanOrEqual(4);
-    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(5);
-    expect(puzzle.motifs.length).toBeLessThanOrEqual(6);
+    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(6);
+    expect(puzzle.motifs.length).toBeLessThanOrEqual(7);
     expect(puzzle.shapeSignature.length).toBeGreaterThan(40);
     return;
   }
@@ -382,12 +383,8 @@ describe('dawn cabinet puzzle engine', () => {
         expectDifficultyTargets(puzzle);
         expect(isCabinetSolved(puzzle, puzzle.solution)).toBe(true);
         expect(getCabinetEntryCount(puzzle)).toBe(puzzle.cells.length - Object.keys(puzzle.givens).length + puzzle.spareCount);
-        if (difficulty === 'Standard') {
-          expect(puzzle.dawnTile).toBeUndefined();
-        } else {
-          expect(puzzle.dawnTile).toBeDefined();
-          expect(puzzle.bank).toHaveLength(blankCount(puzzle) + puzzle.spareCount - 1);
-        }
+        expect(puzzle.dawnTile).toBeDefined();
+        expect(puzzle.bank).toHaveLength(blankCount(puzzle) + puzzle.spareCount - 1);
       });
     }
 
@@ -447,16 +444,13 @@ describe('dawn cabinet puzzle engine', () => {
     });
   }, 120000);
 
-  test('Dawn tiles are bounded, non-reserve, and unique on Hard and Expert', () => {
+  test('Dawn tiles are bounded, non-reserve, and unique on daily difficulties', () => {
     const dates = ['2026-04-26', '2026-06-15', '2026-09-01', '2026-11-11'];
     dates.forEach((date) => {
-      const standard = getDailyDawnCabinet(date, 'Standard');
-      expect(standard.dawnTile).toBeUndefined();
-
-      (['Hard', 'Expert'] as const).forEach((difficulty) => {
+      DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
         const puzzle = getDailyDawnCabinet(date, difficulty);
         expect(puzzle.dawnTile).toBeDefined();
-        expect(puzzle.dawnTile?.options).toHaveLength(difficulty === 'Hard' ? 3 : 4);
+        expect(puzzle.dawnTile?.options).toHaveLength(difficulty === 'Expert' ? 4 : 3);
         expect(puzzle.dawnTile?.options.map((tile) => `${tile.suit}:${tile.rank}`)).toContain(
           `${puzzle.dawnTile?.resolvedTile.suit}:${puzzle.dawnTile?.resolvedTile.rank}`
         );

@@ -58,7 +58,7 @@ Avoid:
   types, but the board should not reveal which type early.
 - **Ledger**: Counts of hidden rail set types that must be satisfied exactly.
 - **Reserve**: Required leftover Cabinet tiles after the board is complete.
-- **Dawn tile**: A special bounded wild tile used on Hard and Expert. It has
+- **Dawn tile**: A special bounded wild tile used on daily difficulties. It has
   visible candidate values, but resolves only at its generator-chosen solution
   cell.
 - **Easy Demo**: Tutorial/practice mode. It is not a daily difficulty.
@@ -84,14 +84,14 @@ Dawn Cabinet uses modern Mahjong-inspired numbered suits.
   clipped.
 - Copy pips on Cabinet tiles show how many identical Cabinet tiles remain.
 - The Cabinet supply is finite. Every placed tile comes from this supply.
-- Hard and Expert include exactly one Dawn tile. Standard and Easy Demo do not.
+- Standard, Hard, and Expert include exactly one Dawn tile. Easy Demo does not.
 
 ## Dawn Tile Rules
 
 The Dawn tile is Dawn Cabinet's flower/season-inspired special tile. It adds
 freshness and allocation tension without becoming an unbounded wild card.
 
-- Hard has one Dawn tile with three visible candidate values.
+- Standard and Hard each have one Dawn tile with three visible candidate values.
 - Expert has one Dawn tile with four visible candidate values.
 - The Dawn tile is placed from the Cabinet like any other Cabinet tile.
 - The Dawn tile cannot be left as reserve.
@@ -110,6 +110,8 @@ freshness and allocation tension without becoming an unbounded wild card.
   - Accepted shipped PNGs live in `assets/dawn-cabinet/dawn-tiles/`.
   - The prompt manifest lives at
     `assets/dawn-cabinet/dawn-tiles/dawn-tile-prompts.json`.
+  - `DawnTileMark` renders the accepted PNG first, then automatically falls
+    back to the code-native vector mark if an image asset fails to load.
   - `scripts/build_dawn_tile_assets.py` creates deterministic local review
     assets when no external image-generation key or artist exports are present.
   - `scripts/generate_dawn_tile_art.py` prepares the `gpt-image-2` prompt
@@ -149,7 +151,11 @@ Important implementation nuance: the Dawn tile is not an "any value anywhere"
 wild. The solver and UI should treat it as a bounded special entry that can
 resolve only where the generated solution says it belongs. This keeps the
 strategic feeling of saving or placing a special tile while preserving a
-single intended solution.
+single intended solution. The generator prefers a Dawn cell whose resolved
+tile appears only once in the Cabinet supply. Standard may fall back to a
+duplicated resolved tile when needed to guarantee a Dawn tile, but the solver
+still requires the Dawn entry itself to be placed at its generated solution
+cell.
 
 ## Set Types
 
@@ -204,7 +210,7 @@ Difficulty is driven by:
 - Reserve pressure.
 - Whether copy-count reasoning matters.
 - Motif count and motif arrangement.
-- Dawn tile presence and candidate count on Hard/Expert.
+- Dawn tile presence and candidate count on daily difficulties.
 - Solver branching and uniqueness.
 
 The game should remain logically provable. Reject puzzles that are ambiguous,
@@ -485,7 +491,7 @@ For UI changes, also smoke test `/dawn-cabinet` in the browser:
 - How to Play opens.
 - Easy Demo starts.
 - Standard, Hard, and Expert start.
-- Hard and Expert show one Dawn tile in the Cabinet.
+- Standard, Hard, and Expert show one Dawn tile in the Cabinet.
 - The Dawn tile face shows only the day mark; candidate values appear beside it
   in the Dawn filtered Cabinet view.
 - The mobile tray includes a final-position Dawn filter when the Dawn tile is
@@ -506,7 +512,9 @@ For UI changes, also smoke test `/dawn-cabinet` in the browser:
 - Do not make hidden rails turn green before the puzzle is solved.
 - Do not simplify difficulty by removing ledger or reserve pressure.
 - Do not turn the Dawn tile into an unlimited wild card.
-- Do not add Dawn to Standard or Easy Demo without a separate design pass.
+- Do not add Dawn to Easy Demo without a separate design pass.
+- Do not add multiple Dawn tiles without first designing the `dawnTiles[]`
+  schema, solver, rating, Cabinet UI, and uniqueness rules together.
 - Do not collapse Standard, Hard, and Expert into similar boards.
 - Do not make the pre-game cards reveal exact spoiler-heavy stats.
 - Do not make Easy a normal daily difficulty.

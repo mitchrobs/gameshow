@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Image, StyleSheet, type ImageSourcePropType } from 'react-native';
 import Svg, { Circle, Ellipse, G, Line, Path, Rect } from 'react-native-svg';
 
@@ -62,14 +63,23 @@ const DAWN_VARIANT_MOTIFS = [
 ] as const;
 
 export function DawnTileMark({ variant, useFallback }: { variant: number; useFallback?: boolean }) {
-  const asset = DAWN_TILE_ASSETS[variant % DAWN_TILE_ASSETS.length];
-  if (!asset || useFallback) {
-    return <DawnTileFallbackMark variant={variant} />;
+  const normalizedVariant = normalizeDawnVariant(variant);
+  const [assetFailed, setAssetFailed] = useState(false);
+  const asset = DAWN_TILE_ASSETS[normalizedVariant];
+
+  useEffect(() => {
+    setAssetFailed(false);
+  }, [normalizedVariant, useFallback]);
+
+  if (!asset || useFallback || assetFailed) {
+    return <DawnTileFallbackMark variant={normalizedVariant} />;
   }
+
   return (
     <Image
       accessibilityIgnoresInvertColors
       source={asset.source}
+      onError={() => setAssetFailed(true)}
       resizeMode="contain"
       style={styles.dawnTileAsset}
     />
@@ -77,9 +87,9 @@ export function DawnTileMark({ variant, useFallback }: { variant: number; useFal
 }
 
 export function DawnTileFallbackMark({ variant }: { variant: number }) {
-  const palette = DAWN_VARIANT_PALETTES[variant % DAWN_VARIANT_PALETTES.length];
-  const motif = DAWN_VARIANT_MOTIFS[variant % DAWN_VARIANT_MOTIFS.length];
-  const motifIndex = variant % DAWN_VARIANT_COUNT;
+  const motifIndex = normalizeDawnVariant(variant);
+  const palette = DAWN_VARIANT_PALETTES[motifIndex % DAWN_VARIANT_PALETTES.length];
+  const motif = DAWN_VARIANT_MOTIFS[motifIndex % DAWN_VARIANT_MOTIFS.length];
   const insetTint = motifIndex % 2 === 0 ? '#fff8df' : '#fff1ce';
   return (
     <Svg width="100%" height="100%" viewBox="0 0 64 64">
@@ -99,6 +109,10 @@ export function DawnTileFallbackMark({ variant }: { variant: number }) {
       {renderCurrentDawnMotif(motif, palette, motifIndex)}
     </Svg>
   );
+}
+
+function normalizeDawnVariant(variant: number): number {
+  return ((Math.trunc(variant) % DAWN_VARIANT_COUNT) + DAWN_VARIANT_COUNT) % DAWN_VARIANT_COUNT;
 }
 
 const styles = StyleSheet.create({

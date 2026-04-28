@@ -1038,7 +1038,7 @@ function makeStandardPuzzle(config: {
   const reserveCount = config.variant % 5 === 0 ? 2 : 1;
   const spares = makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant);
 
-  return makePuzzle({
+  return addDawnTileToPuzzle(makePuzzle({
     id: config.id,
     date: config.date,
     title: 'Dawn Cabinet',
@@ -1048,7 +1048,7 @@ function makeStandardPuzzle(config: {
     spares,
     motifs,
     ...draft,
-  });
+  }), 3, config.variant, true);
 }
 
 function makeHardPuzzle(config: {
@@ -1897,14 +1897,15 @@ function addCopyBlock(
 function addDawnTileToPuzzle(
   puzzle: DawnCabinetPuzzle,
   optionCount: 3 | 4,
-  variant: number
+  variant: number,
+  allowDuplicateResolvedTile = false
 ): DawnCabinetPuzzle {
   const linesByCell = getLinesByCell(puzzle);
   const bankCounts = countTiles(puzzle.bank);
   const blankCells = puzzle.cells
     .map((cell) => cellKey(cell.row, cell.col))
     .filter((cell) => !puzzle.givens[cell]);
-  const candidates = blankCells
+  const baseCandidates = blankCells
     .map((cell) => {
       const lines = linesByCell[cell] ?? [];
       const hiddenCount = lines.filter((line) => line.goal === 'hidden').length;
@@ -1912,8 +1913,10 @@ function addDawnTileToPuzzle(
       return { cell, tile, lineCount: lines.length, hiddenCount };
     })
     .filter(({ tile, lineCount, hiddenCount }) => {
-      return tile && bankCounts[tileKey(tile)] === 1 && lineCount >= 2 && hiddenCount >= 1;
-    })
+      return tile && lineCount >= 2 && hiddenCount >= 1;
+    });
+  const uniqueCandidates = baseCandidates.filter(({ tile }) => tile && bankCounts[tileKey(tile)] === 1);
+  const candidates = (uniqueCandidates.length > 0 || !allowDuplicateResolvedTile ? uniqueCandidates : baseCandidates)
     .sort((left, right) =>
       right.hiddenCount - left.hiddenCount ||
       right.lineCount - left.lineCount ||
