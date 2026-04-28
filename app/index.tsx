@@ -14,6 +14,7 @@ import { BUILD_ID } from '../src/constants/build';
 import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 import { getDailyWordie } from '../src/data/wordiePuzzles';
+import { getDailyThreadline } from '../src/data/threadlinePuzzles';
 import { getTriviaFeedSummary } from '../src/data/trivia';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
 import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
@@ -34,6 +35,16 @@ const WEB_NO_SELECT =
         touchAction: 'manipulation',
       }
     : {};
+
+type HomeGameCategory = 'all' | 'word' | 'logic' | 'trivia';
+type FilterableGameCategory = Exclude<HomeGameCategory, 'all'>;
+
+const HOME_GAME_FILTERS: { label: string; value: HomeGameCategory }[] = [
+  { label: 'All', value: 'all' },
+  { label: 'Word', value: 'word' },
+  { label: 'Logic', value: 'logic' },
+  { label: 'Trivia', value: 'trivia' },
+];
 
 function coerceThemeMode(value: string | null | undefined): ThemeMode | null {
   return value === 'dark' || value === 'light' ? value : null;
@@ -135,6 +146,7 @@ export default function HomeScreen() {
   const puzzle = getDailyPuzzle();
   const whodunit = getDailyWhodunit();
   const wordie = getDailyWordie();
+  const threadline = getDailyThreadline();
   const triviaFeeds = useMemo(
     () => [getTriviaFeedSummary('mix'), getTriviaFeedSummary('sports')],
     []
@@ -168,6 +180,7 @@ export default function HomeScreen() {
   );
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
+  const [activeCategory, setActiveCategory] = useState<HomeGameCategory>('all');
   const dateLabel = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -182,30 +195,47 @@ export default function HomeScreen() {
   }, []);
   const quickLinks = useMemo(() => {
     const baseLinks = [
-      { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash' },
-      { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie' },
+      { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash', category: 'word' },
+      { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie', category: 'word' },
+      {
+        label: 'Threadline',
+        route: '/threadline',
+        emoji: 'Aa',
+        countKey: 'threadline',
+        category: 'word',
+        isNew: true,
+      },
       {
         label: 'Mini Crossword',
         route: '/mini-crossword',
         emoji: '✍️',
         countKey: 'crossword',
+        category: 'word',
         isNew: true,
       },
-      { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku' },
+      { label: 'Mini Sudoku', route: '/sudoku', emoji: '🧠', countKey: 'sudoku', category: 'logic' },
       {
         label: 'Dawn Cabinet',
         route: '/dawn-cabinet',
         emoji: '🀄',
         countKey: 'dawn-cabinet',
+        category: 'logic',
         isNew: true,
       },
-      { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges' },
-      { label: 'Museum', route: '/museum', emoji: '🖼️', countKey: 'museum', isNew: true },
-      { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit' },
-      { label: 'Ballpark', route: '/ballpark', emoji: '🎯', countKey: 'ballpark', isNew: true },
-      { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia' },
-      { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', isNew: true },
-    ];
+      { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges', category: 'logic' },
+      { label: 'Museum', route: '/museum', emoji: '🖼️', countKey: 'museum', category: 'trivia', isNew: true },
+      { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit', category: 'logic' },
+      { label: 'Ballpark', route: '/ballpark', emoji: '🎯', countKey: 'ballpark', category: 'trivia', isNew: true },
+      { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia', category: 'trivia' },
+      { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', category: 'logic', isNew: true },
+    ] satisfies {
+      label: string;
+      route: string;
+      emoji: string;
+      countKey: string;
+      category: FilterableGameCategory;
+      isNew?: boolean;
+    }[];
 
     const entries = baseLinks.map((link, index) => ({
       ...link,
@@ -229,6 +259,13 @@ export default function HomeScreen() {
         return a.baseIndex - b.baseIndex;
       });
   }, [playCounts]);
+  const filteredQuickLinks = useMemo(
+    () =>
+      quickLinks.filter((item) => activeCategory === 'all' || item.category === activeCategory),
+    [activeCategory, quickLinks]
+  );
+  const shouldShowGame = (category: FilterableGameCategory) =>
+    activeCategory === 'all' || activeCategory === category;
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -256,6 +293,7 @@ export default function HomeScreen() {
       return (
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
+        storage.getItem(`threadline:daily:${key}`) === '1' ||
         storage.getItem(`crossword:daily:${key}`) === '1' ||
         storage.getItem(`museum:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
@@ -290,6 +328,7 @@ export default function HomeScreen() {
     getGlobalPlayCounts([
       'mojimash',
       'wordie',
+      'threadline',
       'crossword',
       'sudoku',
       'dawn-cabinet',
@@ -334,6 +373,10 @@ export default function HomeScreen() {
         <View style={styles.topbarSticky}>
           <View style={styles.topbar}>
             <View style={styles.topbarLeft}>
+              <View style={styles.logoMark}>
+                <View style={styles.logoSun} />
+                <View style={styles.logoHorizon} />
+              </View>
               <Text style={styles.wordmark}>Daybreak</Text>
             </View>
             {streak > 0 && (
@@ -350,6 +393,37 @@ export default function HomeScreen() {
             <Text style={styles.dateSubtitle}>{dateLabel}</Text>
           </View>
 
+          <View style={styles.filterSection}>
+            <Text style={styles.filterLabel}>Browse games</Text>
+            <View style={styles.filterTabs}>
+              {HOME_GAME_FILTERS.map((filter) => {
+                const selected = activeCategory === filter.value;
+                return (
+                  <Pressable
+                    key={filter.value}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    style={({ pressed }) => [
+                      styles.filterTab,
+                      selected && styles.filterTabActive,
+                      pressed && styles.filterTabPressed,
+                    ]}
+                    onPress={() => setActiveCategory(filter.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.filterTabText,
+                        selected && styles.filterTabTextActive,
+                      ]}
+                    >
+                      {filter.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
           <View style={styles.quickLinksSection}>
             <View style={styles.quickLinksHeader}>
               <Text style={styles.quickLinksTitle}>Quick links</Text>
@@ -360,7 +434,7 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.quickLinksRow}
             >
-              {quickLinks.map((item) => (
+              {filteredQuickLinks.map((item) => (
                 <Pressable
                   key={item.route}
                   style={({ pressed }) => [
@@ -390,7 +464,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Museum card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('trivia') && styles.gameSectionHidden]}>
             <View style={styles.gameLabelRow}>
               <View style={styles.gameLabel}>
                 <Text style={styles.museumKicker}>Learn</Text>
@@ -435,7 +509,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Moji Mash card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('word') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
               <Text style={styles.kicker}>Word Puzzle</Text>
               <Text style={styles.gameTitle}>Moji Mash</Text>
@@ -465,7 +539,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Wordie card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('word') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
               <Text style={styles.kicker}>Word Guess</Text>
               <Text style={styles.gameTitle}>Wordie</Text>
@@ -510,8 +584,63 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Threadline card */}
+          <View style={[styles.gameSection, !shouldShowGame('word') && styles.gameSectionHidden]}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.threadlineKicker}>Daily Word Puzzle</Text>
+                <Text style={styles.gameTitle}>Threadline</Text>
+              </View>
+              <View style={styles.newBadge}>
+                <Text style={styles.newBadgeText}>Beta</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              Fill the blanks by drawing each missing word in the grid.
+            </Text>
+            {(playCounts['threadline'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['threadline']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.threadlinePreview}>
+                <Text style={styles.threadlinePreviewTitle}>{threadline.title}</Text>
+                <Text style={styles.threadlinePreviewCopy}>
+                  {threadline.words.length} hidden words - {threadline.threads.length} hidden themes.
+                </Text>
+                <View style={styles.threadlinePreviewGrid}>
+                  {threadline.grid.slice(0, 4).map((row, rowIndex) => (
+                    <View key={`threadline-preview-row-${rowIndex}`} style={styles.threadlinePreviewRow}>
+                      {row.slice(0, 4).split('').map((letter, colIndex) => (
+                        <View
+                          key={`threadline-preview-${rowIndex}-${colIndex}`}
+                          style={[
+                            styles.threadlinePreviewCell,
+                            rowIndex === colIndex && styles.threadlinePreviewCellActive,
+                          ]}
+                        >
+                          <Text style={styles.threadlinePreviewCellText}>{letter}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ))}
+                </View>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/threadline')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
           {/* Mini Crossword card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('word') && styles.gameSectionHidden]}>
             <View style={styles.gameLabelRow}>
               <View style={styles.gameLabel}>
                 <Text style={styles.crosswordKicker}>Word Grid</Text>
@@ -565,7 +694,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Mini Sudoku card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('logic') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
               <Text style={styles.kicker}>Logic Grid</Text>
               <Text style={styles.gameTitle}>Mini Sudoku</Text>
@@ -641,7 +770,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Dawn Cabinet card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('logic') && styles.gameSectionHidden]}>
             <View style={styles.gameLabelRow}>
               <View style={styles.gameLabel}>
                 <Text style={styles.cabinetKicker}>Tile Logic</Text>
@@ -698,7 +827,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Bridges card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('logic') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
               <Text style={styles.bridgesKicker}>Logic Puzzle</Text>
               <Text style={styles.gameTitle}>Bridges</Text>
@@ -741,7 +870,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Ballpark card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('trivia') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
               <Text style={styles.ballparkKicker}>Estimation Trivia</Text>
               <Text style={styles.gameTitle}>Ballpark</Text>
@@ -788,7 +917,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Trivia card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('trivia') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
               <Text style={styles.kicker}>Quickfire</Text>
               <Text style={styles.gameTitle}>Daily Trivia</Text>
@@ -832,7 +961,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Barter card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('logic') && styles.gameSectionHidden]}>
             <View style={styles.gameLabelRow}>
               <View style={styles.gameLabel}>
                 <Text style={styles.barterKicker}>Resource Exchange</Text>
@@ -883,7 +1012,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Whodunit card */}
-          <View style={styles.gameSection}>
+          <View style={[styles.gameSection, !shouldShowGame('logic') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
               <Text style={styles.kicker}>Logic Deduction</Text>
               <Text style={styles.gameTitle}>Whodunit</Text>
@@ -943,6 +1072,7 @@ const createStyles = (
   const bridgesAccent = resolveScreenAccent('bridges', theme);
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
+  const threadlineAccent = resolveScreenAccent('threadline', theme);
   const museumAccent = resolveScreenAccent('museum', theme);
   const ballparkAccent = resolveScreenAccent('trivia', theme);
   const cabinetAccent = resolveScreenAccent('dawn-cabinet', theme);
@@ -999,6 +1129,32 @@ const createStyles = (
   topbarLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  logoMark: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: screenAccent.badgeBorder,
+    backgroundColor: theme.mode === 'dark' ? '#1d2730' : '#fff3df',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    paddingBottom: 7,
+  },
+  logoSun: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#f08a24',
+    marginBottom: -2,
+  },
+  logoHorizon: {
+    width: 22,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: theme.mode === 'dark' ? '#f8d9a5' : '#9b4f16',
   },
   topbarStreak: {
     ...ui.pill,
@@ -1025,6 +1181,48 @@ const createStyles = (
   dateSubtitle: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
+  },
+  filterSection: {
+    marginBottom: Spacing.lg,
+  },
+  filterLabel: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: Spacing.sm,
+  },
+  filterTabs: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  filterTab: {
+    ...WEB_NO_SELECT,
+    minHeight: 38,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surfaceGlass,
+    paddingHorizontal: Spacing.md,
+    justifyContent: 'center',
+  },
+  filterTabActive: {
+    borderColor: screenAccent.badgeBorder,
+    backgroundColor: screenAccent.badgeBg,
+  },
+  filterTabPressed: {
+    opacity: 0.82,
+    transform: [{ scale: 0.98 }],
+  },
+  filterTabText: {
+    fontSize: FontSize.sm,
+    fontWeight: '800',
+    color: Colors.textSecondary,
+  },
+  filterTabTextActive: {
+    color: screenAccent.badgeText,
   },
   quickLinksSection: {
     marginBottom: Spacing.xl,
@@ -1109,6 +1307,9 @@ const createStyles = (
   gameSection: {
     marginBottom: Spacing.xl,
   },
+  gameSectionHidden: {
+    display: 'none',
+  },
   gameLabelRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -1155,6 +1356,14 @@ const createStyles = (
   },
   crosswordKicker: {
     color: crosswordAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
+  threadlineKicker: {
+    color: threadlineAccent.main,
     fontSize: FontSize.sm,
     fontWeight: '700',
     letterSpacing: 1.2,
@@ -1259,6 +1468,52 @@ const createStyles = (
     fontSize: FontSize.lg,
     fontWeight: '800',
     color: Colors.text,
+  },
+  threadlinePreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+  },
+  threadlinePreviewTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '800',
+    color: Colors.text,
+  },
+  threadlinePreviewCopy: {
+    fontSize: 12,
+    color: Colors.textMuted,
+    textAlign: 'center',
+  },
+  threadlinePreviewGrid: {
+    marginTop: Spacing.xs,
+    gap: 4,
+  },
+  threadlinePreviewRow: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  threadlinePreviewCell: {
+    width: 28,
+    height: 28,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  threadlinePreviewCellActive: {
+    backgroundColor: threadlineAccent.badgeBg,
+    borderColor: threadlineAccent.badgeBorder,
+  },
+  threadlinePreviewCellText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: Colors.textSecondary,
   },
   crosswordPreview: {
     alignItems: 'center',
