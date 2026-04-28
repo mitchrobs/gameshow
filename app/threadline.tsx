@@ -104,6 +104,31 @@ function getPuzzleNumber(dateKey: string): string {
   return dateKey.replaceAll('-', '').slice(-3);
 }
 
+type WebBoardTouch = {
+  clientX?: number;
+  clientY?: number;
+};
+
+type WebBoardEvent = {
+  preventDefault?: () => void;
+  stopPropagation?: () => void;
+  currentTarget?: {
+    getBoundingClientRect?: () => { left: number; top: number };
+    setPointerCapture?: (pointerId: number) => void;
+    releasePointerCapture?: (pointerId: number) => void;
+  };
+  nativeEvent?: {
+    buttons?: number;
+    clientX?: number;
+    clientY?: number;
+    locationX?: number;
+    locationY?: number;
+    pointerId?: number;
+    touches?: ArrayLike<WebBoardTouch>;
+    changedTouches?: ArrayLike<WebBoardTouch>;
+  };
+};
+
 export default function ThreadlineScreen() {
   const theme = useDaybreakTheme();
   const screenAccent = useMemo(() => resolveScreenAccent('threadline', theme), [theme]);
@@ -401,6 +426,96 @@ export default function ThreadlineScreen() {
     setIsBoardGestureActive(false);
   }, []);
 
+  const pointFromWebBoardEvent = useCallback((event: WebBoardEvent) => {
+    const nativeEvent = event.nativeEvent ?? {};
+    const touch = nativeEvent.touches?.[0] ?? nativeEvent.changedTouches?.[0] ?? null;
+    const clientX = touch?.clientX ?? nativeEvent.clientX;
+    const clientY = touch?.clientY ?? nativeEvent.clientY;
+    const rect = event.currentTarget?.getBoundingClientRect?.();
+
+    if (typeof clientX === 'number' && typeof clientY === 'number' && rect) {
+      return {
+        locationX: clientX - rect.left,
+        locationY: clientY - rect.top,
+      };
+    }
+
+    if (
+      typeof nativeEvent.locationX === 'number' &&
+      typeof nativeEvent.locationY === 'number'
+    ) {
+      return {
+        locationX: nativeEvent.locationX,
+        locationY: nativeEvent.locationY,
+      };
+    }
+
+    return null;
+  }, []);
+
+  const handleWebBoardStart = useCallback(
+    (event: WebBoardEvent) => {
+      if (gameState !== 'playing') return;
+      event.preventDefault?.();
+      event.stopPropagation?.();
+      const pointerId = event.nativeEvent?.pointerId;
+      if (typeof pointerId === 'number') {
+        event.currentTarget?.setPointerCapture?.(pointerId);
+      }
+      const point = pointFromWebBoardEvent(event);
+      if (!point) return;
+      isPointerDownRef.current = true;
+      setIsBoardGestureActive(true);
+      handleBoardPoint(point.locationX, point.locationY, true);
+    },
+    [gameState, handleBoardPoint, pointFromWebBoardEvent]
+  );
+
+  const handleWebBoardMove = useCallback(
+    (event: WebBoardEvent) => {
+      if (gameState !== 'playing' || !isPointerDownRef.current) return;
+      const buttons = event.nativeEvent?.buttons;
+      if (typeof buttons === 'number' && buttons === 0) {
+        isPointerDownRef.current = false;
+        setIsBoardGestureActive(false);
+        return;
+      }
+      event.preventDefault?.();
+      event.stopPropagation?.();
+      const point = pointFromWebBoardEvent(event);
+      if (!point) return;
+      handleBoardPoint(point.locationX, point.locationY);
+    },
+    [gameState, handleBoardPoint, pointFromWebBoardEvent]
+  );
+
+  const handleWebBoardEnd = useCallback((event?: WebBoardEvent) => {
+    const pointerId = event?.nativeEvent?.pointerId;
+    if (typeof pointerId === 'number') {
+      event?.currentTarget?.releasePointerCapture?.(pointerId);
+    }
+    isPointerDownRef.current = false;
+    setIsBoardGestureActive(false);
+  }, []);
+
+  const webBoardHandlers = useMemo(
+    () =>
+      Platform.OS === 'web'
+        ? {
+            onPointerDown: handleWebBoardStart,
+            onPointerMove: handleWebBoardMove,
+            onPointerUp: handleWebBoardEnd,
+            onPointerCancel: handleWebBoardEnd,
+            onPointerLeave: handleWebBoardEnd,
+            onTouchStart: handleWebBoardStart,
+            onTouchMove: handleWebBoardMove,
+            onTouchEnd: handleWebBoardEnd,
+            onTouchCancel: handleWebBoardEnd,
+          }
+        : {},
+    [handleWebBoardEnd, handleWebBoardMove, handleWebBoardStart]
+  );
+
   const shareText = useMemo(() => {
     const threadLine = threadStats
       .map((thread) => `${thread.name} ${thread.foundCount}/${thread.totalCount}`)
@@ -571,6 +686,7 @@ export default function ThreadlineScreen() {
               onResponderRelease={handleBoardResponderEnd}
               onResponderTerminate={handleBoardResponderEnd}
               onResponderTerminationRequest={() => false}
+              {...webBoardHandlers}
             >
               {puzzle.grid.map((row, rowIndex) => (
                 <View
