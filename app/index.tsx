@@ -200,7 +200,7 @@ export default function HomeScreen() {
       {
         label: 'Threadline',
         route: '/threadline',
-        emoji: 'Aa',
+        emoji: '🧵',
         countKey: 'threadline',
         category: 'word',
         isNew: true,
