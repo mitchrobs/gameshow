@@ -147,10 +147,8 @@ export default function HomeScreen() {
   const whodunit = getDailyWhodunit();
   const wordie = getDailyWordie();
   const threadline = getDailyThreadline();
-  const triviaFeeds = useMemo(
-    () => [getTriviaFeedSummary('mix'), getTriviaFeedSummary('sports')],
-    []
-  );
+  const mixTriviaSummary = useMemo(() => getTriviaFeedSummary('mix', 'hard'), []);
+  const sportsTriviaSummary = useMemo(() => getTriviaFeedSummary('sports', 'hard'), []);
   const sudokuEntry = getDailySudoku();
   const sudoku = sudokuEntry.puzzle;
   const barterPuzzle = getDailyBarter();
@@ -226,7 +224,8 @@ export default function HomeScreen() {
       { label: 'Museum', route: '/museum', emoji: '🖼️', countKey: 'museum', category: 'trivia', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit', category: 'logic' },
       { label: 'Ballpark', route: '/ballpark', emoji: '🎯', countKey: 'ballpark', category: 'trivia', isNew: true },
-      { label: 'Trivia', route: '/trivia', emoji: '⚡', countKey: 'trivia', category: 'trivia' },
+      { label: 'Daily Mix', route: '/daily-mix', emoji: '⚡', countKey: 'trivia-mix', category: 'trivia' },
+      { label: 'Daily Sports', route: '/daily-sports', emoji: '🏅', countKey: 'trivia-sports', category: 'trivia' },
       { label: 'Barter', route: '/barter', emoji: '↔️', countKey: 'barter', category: 'logic', isNew: true },
     ] satisfies {
       label: string;
@@ -298,7 +297,8 @@ export default function HomeScreen() {
         storage.getItem(`museum:daily:${key}`) === '1' ||
         storage.getItem(`whodunit:daily:${key}`) === '1' ||
         storage.getItem(`ballpark:daily:${key}`) === '1' ||
-        storage.getItem(`trivia:daily:${key}`) === '1' ||
+        storage.getItem(`trivia:mix:daily:${key}`) === '1' ||
+        storage.getItem(`trivia:sports:daily:${key}`) === '1' ||
         storage.getItem(`barter:daily:${key}`) === '1' ||
         storage.getItem(`dawn-cabinet:daily:${key}`) === '1' ||
         storage.getItem(`dawn-cabinet:daily:${utcKey}`) === '1' ||
@@ -336,7 +336,8 @@ export default function HomeScreen() {
       'museum',
       'whodunit',
       'ballpark',
-      'trivia',
+      'trivia-mix',
+      'trivia-sports',
       'barter',
     ])
       .then((counts) => {
@@ -899,36 +900,38 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Trivia card */}
+          {/* Daily Mix card */}
           <View style={[styles.gameSection, !shouldShowGame('trivia') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
               <Text style={styles.kicker}>Quickfire</Text>
-              <Text style={styles.gameTitle}>Daily Trivia</Text>
+              <Text style={styles.gameTitle}>Daily Mix</Text>
             </View>
             <Text style={styles.blurb}>
-              Daily Mix and Daily Sports, both built for quick reads, one shield, and a clean
-              share at the end.
+              Broad daily trivia with Easy and Hard variants, one shield, and a clean share at the
+              end.
             </Text>
-            {(playCounts['trivia'] ?? 0) > 0 && (
+            {(playCounts['trivia-mix'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
-                <Text style={styles.streakText}>{playCounts['trivia']} plays today</Text>
+                <Text style={styles.streakText}>{playCounts['trivia-mix']} plays today</Text>
               </View>
             )}
             <View style={styles.dailyCard}>
               <View style={styles.triviaPreview}>
-                <Text style={styles.triviaPreviewTitle}>Today's feeds</Text>
+                <Text style={styles.triviaPreviewTitle}>Today's game</Text>
                 <View style={styles.triviaFeedGrid}>
-                  {triviaFeeds.map((feed) => (
-                    <View key={feed.feed} style={styles.triviaFeedCard}>
-                      <Text style={styles.triviaFeedName}>{feed.title}</Text>
-                      <Text style={styles.triviaFeedMeta}>
-                        {feed.questionCount} questions · {feed.timerSeconds}s timer
-                      </Text>
-                    </View>
-                  ))}
+                  <View style={styles.triviaFeedCard}>
+                    <Text style={styles.triviaFeedName}>{mixTriviaSummary.title}</Text>
+                    <Text style={styles.triviaFeedMeta}>
+                      {mixTriviaSummary.questionCount} questions · {mixTriviaSummary.timerSeconds}s timer
+                    </Text>
+                  </View>
+                  <View style={styles.triviaFeedCard}>
+                    <Text style={styles.triviaFeedName}>Easy / Hard</Text>
+                    <Text style={styles.triviaFeedMeta}>Choose your version before the run starts</Text>
+                  </View>
                 </View>
                 <Text style={styles.triviaPreviewNote}>
-                  Three choices each, one shield per feed, and a steady 12-second pace.
+                  Three choices each, one shield, and a steady 15-second pace.
                 </Text>
               </View>
               <Pressable
@@ -936,7 +939,53 @@ export default function HomeScreen() {
                   styles.playButton,
                   pressed && styles.playButtonPressed,
                 ]}
-                onPress={() => router.push('/trivia')}
+                onPress={() => router.push('/daily-mix')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Daily Sports card */}
+          <View style={[styles.gameSection, !shouldShowGame('trivia') && styles.gameSectionHidden]}>
+            <View style={styles.gameLabel}>
+              <Text style={styles.kicker}>Quickfire</Text>
+              <Text style={styles.gameTitle}>Daily Sports</Text>
+            </View>
+            <Text style={styles.blurb}>
+              Sports-only daily trivia with Easy and Hard variants, a sharper curve, and the same
+              quick share at the end.
+            </Text>
+            {(playCounts['trivia-sports'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['trivia-sports']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.triviaPreview}>
+                <Text style={styles.triviaPreviewTitle}>Today's game</Text>
+                <View style={styles.triviaFeedGrid}>
+                  <View style={styles.triviaFeedCard}>
+                    <Text style={styles.triviaFeedName}>{sportsTriviaSummary.title}</Text>
+                    <Text style={styles.triviaFeedMeta}>
+                      {sportsTriviaSummary.questionCount} questions · {sportsTriviaSummary.timerSeconds}s timer
+                    </Text>
+                  </View>
+                  <View style={styles.triviaFeedCard}>
+                    <Text style={styles.triviaFeedName}>Easy / Hard</Text>
+                    <Text style={styles.triviaFeedMeta}>Choose your version before the run starts</Text>
+                  </View>
+                </View>
+                <Text style={styles.triviaPreviewNote}>
+                  Hard stays the tougher daily. Easy is a full parallel schedule.
+                </Text>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/daily-sports')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>

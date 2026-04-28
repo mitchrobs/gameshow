@@ -102,6 +102,7 @@ export function validateQuestionRecord(question: TriviaQuestionRecord): string[]
 export function validateEpisodeDefinition(episode: TriviaEpisodeDefinition): string[] {
   const issues: string[] = [];
   if (!episode.date) issues.push('episode missing date');
+  if (!episode.difficulty) issues.push('episode missing difficulty');
   if (episode.questionIds.length !== episode.difficultyTargets.length) {
     issues.push('episode questionIds and difficultyTargets length mismatch');
   }
@@ -113,6 +114,7 @@ export function validateEpisodeDefinition(episode: TriviaEpisodeDefinition): str
 
 export function validateRunResult(result: TriviaRunResult): string[] {
   const issues: string[] = [];
+  if (!result.difficulty) issues.push('run result missing difficulty');
   if (result.answerMarks.length !== result.totalQuestions) {
     issues.push('run result marks length mismatch');
   }

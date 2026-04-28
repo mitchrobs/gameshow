@@ -5,6 +5,7 @@ import type { TriviaEpisode, TriviaRunResult } from './types';
 const EPISODE: TriviaEpisode = {
   date: '2026-04-26',
   feed: 'mix',
+  difficulty: 'hard',
   title: 'Daily Mix',
   subtitle: 'Culture, history, science, and sharp little reveals.',
   questionCount: 12,
@@ -17,6 +18,7 @@ const EPISODE: TriviaEpisode = {
 
 const RESULT: TriviaRunResult = {
   feed: 'mix',
+  difficulty: 'hard',
   dateKey: '2026-04-26',
   timerSeconds: 12,
   score: 1040,
@@ -44,7 +46,7 @@ describe('trivia share text', () => {
   it('formats the Daybreak-style sharecode with the right row symbols', () => {
     expect(formatTriviaShareText(RESULT, EPISODE, 'Apr 26, 2026')).toBe(
       [
-        'Daily Mix Apr 26, 2026',
+        'Daily Mix Hard Apr 26, 2026',
         '9/12 · 1040 pts · Shield used',
         '🟩🟩🟦🟨🟩⬛🟩🟩🟨🟩🟩🟩',
         'https://mitchrobs.github.io/gameshow/',

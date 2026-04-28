@@ -4,6 +4,10 @@ function getFeedLabel(feed: TriviaEpisode['feed']): string {
   return feed === 'mix' ? 'Daily Mix' : 'Daily Sports';
 }
 
+function getDifficultyLabel(difficulty: TriviaEpisode['difficulty']): string {
+  return difficulty === 'easy' ? 'Easy' : 'Hard';
+}
+
 function getShieldSummary(result: TriviaRunResult): string {
   if (result.cleanRun) return 'Clean run';
   return result.shieldUsed ? 'Shield used' : 'No shield';
@@ -24,7 +28,7 @@ export function formatTriviaShareText(
     .join('');
 
   return [
-    `${getFeedLabel(episode.feed)} ${dateLabel}`,
+    `${getFeedLabel(episode.feed)} ${getDifficultyLabel(episode.difficulty)} ${dateLabel}`,
     `${result.correctCount}/${result.totalQuestions} · ${result.score} pts · ${getShieldSummary(
       result
     )}`,

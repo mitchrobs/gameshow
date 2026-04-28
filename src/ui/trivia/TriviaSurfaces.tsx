@@ -2,6 +2,7 @@ import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-nat
 import type { ScreenAccentTokens, ThemeTokens } from '../../constants/theme';
 import type {
   TriviaAnswerMark,
+  TriviaDifficulty,
   TriviaEpisode,
   TriviaFeed,
   TriviaFeedSummary,
@@ -13,8 +14,16 @@ import {
 } from '../../data/trivia/gameplay';
 import { createDaybreakPrimitives } from '../daybreakPrimitives';
 
-const FEEDS: TriviaFeed[] = ['mix', 'sports'];
+const DIFFICULTIES: TriviaDifficulty[] = ['easy', 'hard'];
 const ANSWER_LETTERS = ['A', 'B', 'C'];
+
+function getFeedTitle(feed: TriviaFeed): string {
+  return feed === 'mix' ? 'Daily Mix' : 'Daily Sports';
+}
+
+function getDifficultyLabel(difficulty: TriviaDifficulty): string {
+  return difficulty === 'easy' ? 'Easy' : 'Hard';
+}
 
 function getChoiceLetter(index: number): string {
   return ANSWER_LETTERS[index] ?? String.fromCharCode(65 + index);
@@ -825,22 +834,26 @@ type TriviaStyles = ReturnType<typeof createTriviaStyles>;
 
 interface TriviaPageHeaderProps {
   dateLabel: string;
+  difficulty: TriviaDifficulty;
   questionCount: number;
+  title: string;
   styles: TriviaStyles;
 }
 
 export function TriviaPageHeader({
   dateLabel,
+  difficulty,
   questionCount,
+  title,
   styles,
 }: TriviaPageHeaderProps) {
   return (
     <View style={styles.headerShell}>
       <View style={styles.headerRow}>
         <View style={styles.headerDot} />
-        <Text style={styles.headerTitle}>Trivia</Text>
+        <Text style={styles.headerTitle}>{title}</Text>
         <Text style={styles.headerMeta}>
-          {questionCount} questions · daily
+          {questionCount} questions · {getDifficultyLabel(difficulty)} · daily
         </Text>
       </View>
       <Text style={styles.headerDate}>{dateLabel}</Text>
@@ -850,21 +863,23 @@ export function TriviaPageHeader({
 
 interface TriviaIntroSurfaceProps {
   dateLabel: string;
-  onSelectFeed: (feed: TriviaFeed) => void;
+  feed: TriviaFeed;
+  onSelectDifficulty: (difficulty: TriviaDifficulty) => void;
   onStart: () => void;
   previewEpisode: TriviaEpisode;
   previewSummary: TriviaFeedSummary;
-  selectedFeed: TriviaFeed;
+  selectedDifficulty: TriviaDifficulty;
   styles: TriviaStyles;
 }
 
 export function TriviaIntroSurface({
   dateLabel,
-  onSelectFeed,
+  feed,
+  onSelectDifficulty,
   onStart,
   previewEpisode,
   previewSummary,
-  selectedFeed,
+  selectedDifficulty,
   styles,
 }: TriviaIntroSurfaceProps) {
   return (
@@ -879,20 +894,20 @@ export function TriviaIntroSurface({
         </View>
 
         <View style={styles.feedToggleRow}>
-          {FEEDS.map((feed) => {
-            const active = selectedFeed === feed;
+          {DIFFICULTIES.map((difficulty) => {
+            const active = selectedDifficulty === difficulty;
             return (
               <Pressable
-                key={feed}
+                key={difficulty}
                 style={({ pressed }) => [
                   styles.feedToggle,
                   active && styles.feedToggleActive,
                   pressed && styles.feedTogglePressed,
                 ]}
-                onPress={() => onSelectFeed(feed)}
+                onPress={() => onSelectDifficulty(difficulty)}
               >
                 <Text style={[styles.feedToggleText, active && styles.feedToggleTextActive]}>
-                  {feed === 'mix' ? 'Daily Mix' : 'Daily Sports'}
+                  {getDifficultyLabel(difficulty)}
                 </Text>
               </Pressable>
             );
@@ -901,7 +916,7 @@ export function TriviaIntroSurface({
 
         <View style={styles.introTitleBlock}>
           <Text style={styles.introTitle}>{previewSummary.title}</Text>
-          <Text style={styles.introSubtitle}>{getFeedSubtitle(selectedFeed)}</Text>
+          <Text style={styles.introSubtitle}>{getFeedSubtitle(feed)}</Text>
         </View>
 
         <View style={styles.introStatsRow}>
@@ -925,9 +940,7 @@ export function TriviaIntroSurface({
           style={({ pressed }) => [styles.introCta, pressed && styles.introCtaPressed]}
           onPress={onStart}
         >
-          <Text style={styles.introCtaText}>
-            {selectedFeed === 'mix' ? 'Play Daily Mix' : 'Play Daily Sports'}
-          </Text>
+          <Text style={styles.introCtaText}>Play {getFeedTitle(feed)}</Text>
         </Pressable>
       </View>
     </View>
@@ -992,7 +1005,7 @@ export function TriviaQuestionSurface({
         <View style={styles.questionTopRow}>
           <View style={styles.questionMetaBlock}>
             <Text style={styles.questionKicker}>
-              {activeEpisode.feed === 'mix' ? 'Daily Mix' : 'Daily Sports'}
+              {getFeedTitle(activeEpisode.feed)} · {getDifficultyLabel(activeEpisode.difficulty)}
             </Text>
             <Text style={styles.questionCounter}>
               Question {questionIndex + 1} of {activeEpisode.questionCount}
@@ -1151,7 +1164,7 @@ export function TriviaFinalStretchOverlay({
         <View style={styles.surfaceAccent} />
         <View style={styles.overlayCardBody}>
           <Text style={styles.overlayKicker}>
-            {activeEpisode.feed === 'mix' ? 'Daily Mix' : 'Daily Sports'}
+            {getFeedTitle(activeEpisode.feed)} · {getDifficultyLabel(activeEpisode.difficulty)}
           </Text>
           <Text style={styles.overlayTitle}>Final 3</Text>
           <Text style={styles.overlayBody}>Three left. Stay sharp.</Text>
@@ -1199,7 +1212,7 @@ export function TriviaResultsSurface({
         <View style={styles.resultsTop}>
           <Text style={styles.resultsEyebrow}>Daybreak</Text>
           <Text style={styles.resultsTitle}>
-            {activeEpisode.feed === 'mix' ? 'Daily Mix' : 'Daily Sports'}
+            {getFeedTitle(activeEpisode.feed)} {getDifficultyLabel(activeEpisode.difficulty)}
           </Text>
           <Text style={styles.resultsDate}>{dateLabel}</Text>
         </View>

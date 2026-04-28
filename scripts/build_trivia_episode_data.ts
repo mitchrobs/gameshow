@@ -12,6 +12,7 @@ import type {
   TriviaAuditReport,
   TriviaCitation,
   TriviaCurveballKind,
+  TriviaDifficulty,
   TriviaDifficultyTarget,
   TriviaEditorialBucket,
   TriviaEpisodeDefinition,
@@ -65,14 +66,27 @@ const SPORTS_VARIANT_COUNTS = {
   mediumFourth: 20,
   hardFourth: 20,
 } as const;
-const TIMER_SECONDS = 12;
+const TRIVIA_DIFFICULTIES: TriviaDifficulty[] = ['easy', 'hard'];
+const TIMER_SECONDS = 15;
 const BASE_POINTS = 100;
 const SPEED_BONUS = 50;
 const SHIELD_POINTS = 50;
-const MIX_SLOT_CONFIDENCE_ADJUSTMENTS = [0.045, 0.05, 0.055, 0.08, 0.09, 0.1, 0.14, 0.16, 0.18, 0.29, 0.31, 0.3];
-const MIX_SLOT_TIMEOUT_ADJUSTMENTS = [0.001, 0.002, 0.004, 0.008, 0.01, 0.012, 0.016, 0.02, 0.024, 0.038, 0.04, 0.038];
-const SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS = [0.055, 0.08, 0.15, 0.18, 0.19, 0.3, 0.42, 0.52, 0.62];
-const SPORTS_SLOT_TIMEOUT_ADJUSTMENTS = [0.002, 0.006, 0.012, 0.017, 0.019, 0.038, 0.052, 0.068, 0.08];
+const MIX_SLOT_CONFIDENCE_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
+  easy: [0.008, 0.012, 0.016, 0.03, 0.04, 0.05, 0.068, 0.082, 0.098, 0.078, 0.084, 0.08],
+  hard: [0.045, 0.05, 0.055, 0.08, 0.09, 0.1, 0.14, 0.16, 0.18, 0.29, 0.31, 0.3],
+};
+const MIX_SLOT_TIMEOUT_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
+  easy: [0, 0.001, 0.002, 0.004, 0.005, 0.006, 0.008, 0.011, 0.013, 0.011, 0.012, 0.011],
+  hard: [0.001, 0.002, 0.004, 0.008, 0.01, 0.012, 0.016, 0.02, 0.024, 0.038, 0.04, 0.038],
+};
+const SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
+  easy: [0.028, 0.05, 0.074, 0.102, 0.136, 0.158, 0.23, 0.3, 0.35],
+  hard: [0.055, 0.08, 0.15, 0.18, 0.19, 0.3, 0.42, 0.52, 0.62],
+};
+const SPORTS_SLOT_TIMEOUT_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
+  easy: [0.001, 0.005, 0.009, 0.012, 0.015, 0.018, 0.026, 0.034, 0.042],
+  hard: [0.002, 0.006, 0.012, 0.017, 0.019, 0.038, 0.052, 0.068, 0.08],
+};
 const FIRST_90_CALIBRATION_DAYS = 90;
 const FULL_YEAR_CALIBRATION_DAYS = TOTAL_DAYS;
 const SPORTS_CURVEBALL_GAP_DAYS = 7;
@@ -1546,7 +1560,7 @@ function getSportsCandidates(): TriviaQuestionRecord[] {
   });
 }
 
-function getMixSlotConfigs(dayIndex: number): MixSlotConfig[] {
+function getMixSlotConfigs(dayIndex: number, difficulty: TriviaDifficulty): MixSlotConfig[] {
   const theme = MIX_WEEKLY_THEMES[dayIndex % MIX_WEEKLY_THEMES.length];
   const heavyTopical = dayIndex % 2 === 1;
   const bucketPattern: TriviaEditorialBucket[] = heavyTopical
@@ -1579,37 +1593,70 @@ function getMixSlotConfigs(dayIndex: number): MixSlotConfig[] {
         'evergreen',
       ];
 
-  const difficulties: TriviaDifficultyTarget[] = [1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3];
-  const targetSalienceScores = [76, 73, 72, 71, 69, 68, 67, 66, 64, 60, 59, 58];
-  const maxSalienceScores = [84, 81, 80, 78, 76, 75, 74, 73, 70, 66, 65, 64];
-  return difficulties.map((difficulty, index) => ({
-    difficulty,
+  const difficulties: TriviaDifficultyTarget[] =
+    difficulty === 'easy' ? [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3] : [1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3];
+  const targetSalienceScores =
+    difficulty === 'easy'
+      ? [80, 79, 78, 78, 77, 76, 72, 70, 69, 74, 74, 74]
+      : [76, 73, 72, 71, 69, 68, 67, 66, 64, 60, 59, 58];
+  const maxSalienceScores =
+    difficulty === 'easy'
+      ? [88, 86, 85, 84, 82, 81, 77, 75, 74, 77, 77, 77]
+      : [84, 81, 80, 78, 76, 75, 74, 73, 70, 66, 65, 64];
+  return difficulties.map((targetDifficulty, index) => ({
+    difficulty: targetDifficulty,
     buckets: [bucketPattern[index], 'evergreen', 'topical', 'experimental'],
     domainOrder: theme.mixDomains ?? ['world', 'science', 'arts', 'history'],
     refreshable: bucketPattern[index] !== 'evergreen',
-    minSalienceScore: index < 1 ? 70 : index < 4 ? 68 : index < 7 ? 66 : index < 9 ? 64 : 61,
+    minSalienceScore:
+      difficulty === 'easy'
+        ? index < 4
+          ? 72
+          : index < 6
+            ? 71
+            : index < 9
+              ? 69
+              : 71
+        : index < 1
+          ? 70
+          : index < 4
+            ? 68
+            : index < 7
+              ? 66
+              : index < 9
+                ? 64
+                : 61,
     maxSalienceScore: maxSalienceScores[index],
     targetSalienceScore: targetSalienceScores[index],
     preferredPromptKinds:
-      index === 0
-        ? ['person', 'place', 'concept', 'event', 'work', 'term']
-        : index < 4
-          ? ['person', 'concept', 'event', 'place', 'term', 'work']
-          : index < 7
-            ? ['concept', 'person', 'event', 'term', 'rule', 'place', 'work']
-            : ['concept', 'event', 'person', 'term', 'rule', 'place', 'work'],
-    preferHigherLookupRisk: index >= 4,
+      difficulty === 'easy'
+        ? index === 8
+          ? ['term', 'concept', 'place', 'work', 'rule']
+          : index >= 9
+            ? ['person', 'place', 'work', 'concept', 'event', 'term']
+            : index >= 7
+              ? ['person', 'concept', 'event', 'term', 'place', 'work']
+              : ['place', 'work', 'person', 'concept', 'term']
+        : index === 0
+          ? ['person', 'place', 'concept', 'event', 'work', 'term']
+          : index < 4
+            ? ['person', 'concept', 'event', 'place', 'term', 'work']
+            : index < 7
+              ? ['concept', 'person', 'event', 'term', 'rule', 'place', 'work']
+              : ['concept', 'event', 'person', 'term', 'rule', 'place', 'work'],
+    preferHigherLookupRisk: difficulty === 'easy' ? index >= 8 : index >= 4,
     blockedObscurityFlags: ['media-tie-in', 'incidental-context', 'vague-stem', 'timer-friction'],
   }));
 }
 
-function getSportsSlotConfigs(dayIndex: number): SportsSlotConfig[] {
+function getSportsSlotConfigs(dayIndex: number, difficulty: TriviaDifficulty): SportsSlotConfig[] {
   const theme = SPORTS_WEEKLY_THEMES[dayIndex % SPORTS_WEEKLY_THEMES.length];
   const eventHeavy = dayIndex % 3 === 2;
   const bucketPattern: TriviaEditorialBucket[] = eventHeavy
     ? ['evergreen', 'evergreen', 'current', 'evergreen', 'current', 'event', 'evergreen', 'event', 'evergreen']
     : ['evergreen', 'evergreen', 'evergreen', 'current', 'evergreen', 'current', 'evergreen', 'event', 'evergreen'];
-  const difficulties: TriviaDifficultyTarget[] = [1, 2, 2, 3, 3, 3, 3, 3, 3];
+  const difficulties: TriviaDifficultyTarget[] =
+    difficulty === 'easy' ? [1, 1, 2, 2, 3, 3, 3, 3, 3] : [1, 2, 2, 3, 3, 3, 3, 3, 3];
   const slotLeadOrders = [
     ['football', 'basketball', 'baseball', 'hockey'],
     ['basketball', 'football', 'baseball', 'hockey'],
@@ -1622,34 +1669,63 @@ function getSportsSlotConfigs(dayIndex: number): SportsSlotConfig[] {
     ['hockey', 'baseball', 'football', 'basketball', 'tennis', 'golf', 'olympics', 'motorsport', 'soccer', 'combat'],
   ] as const;
   const slotMaxStemLength = [92, 100, 104, 116, 122, 128, 148, 164, 172];
-  const slotAllowedLookupRisks: TriviaLookupRisk[][] = [
-    ['medium', 'low'],
-    ['medium', 'low', 'high'],
-    ['medium', 'high', 'low'],
-    ['medium', 'high', 'low'],
-    ['medium', 'high', 'low'],
-    ['high', 'medium', 'low'],
-    ['high', 'medium', 'low'],
-    ['high', 'medium', 'low'],
-    ['high', 'medium', 'low'],
-  ];
-  const slotMinSalience = [78, 74, 70, 68, 67, 63, 61, 59, 58];
-  const slotMaxSalience = [86, 82, 78, 76, 75, 70, 67, 65, 64];
-  const slotTargetSalience = [78, 73, 69, 67, 66, 61, 58, 56, 55];
-  const slotPromptKinds: TriviaPromptKind[][] = [
-    ['player', 'achievement', 'team', 'venue', 'term', 'rule'],
-    ['player', 'event', 'achievement', 'term', 'rule', 'venue'],
-    ['record', 'player', 'event', 'achievement', 'term', 'rule'],
-    ['record', 'player', 'event', 'achievement', 'rule', 'term'],
-    ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
-    ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
-    ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
-    ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
-    ['record', 'player', 'event', 'achievement', 'rule', 'term'],
-    ['record', 'player', 'event', 'achievement', 'rule', 'term'],
-  ];
-  return difficulties.map((difficulty, index) => ({
-    difficulty,
+  const slotAllowedLookupRisks: TriviaLookupRisk[][] =
+    difficulty === 'easy'
+      ? [
+          ['low', 'medium'],
+          ['low', 'medium'],
+          ['low', 'medium'],
+          ['low', 'medium'],
+          ['low', 'medium', 'high'],
+          ['low', 'medium', 'high'],
+          ['low', 'medium', 'high'],
+          ['low', 'medium', 'high'],
+          ['low', 'medium', 'high'],
+        ]
+      : [
+          ['medium', 'low'],
+          ['medium', 'low', 'high'],
+          ['medium', 'high', 'low'],
+          ['medium', 'high', 'low'],
+          ['medium', 'high', 'low'],
+          ['high', 'medium', 'low'],
+          ['high', 'medium', 'low'],
+          ['high', 'medium', 'low'],
+          ['high', 'medium', 'low'],
+        ];
+  const slotMinSalience =
+    difficulty === 'easy' ? [81, 79, 76, 74, 72, 70, 69, 67, 66] : [78, 74, 70, 68, 67, 63, 61, 59, 58];
+  const slotMaxSalience =
+    difficulty === 'easy' ? [90, 88, 84, 82, 78, 76, 74, 72, 71] : [86, 82, 78, 76, 75, 70, 67, 65, 64];
+  const slotTargetSalience =
+    difficulty === 'easy' ? [80, 78, 75, 73, 70, 68, 66, 64, 63] : [78, 73, 69, 67, 66, 61, 58, 56, 55];
+  const slotPromptKinds: TriviaPromptKind[][] =
+    difficulty === 'easy'
+      ? [
+          ['achievement', 'rule', 'term', 'team', 'sport-id', 'player'],
+          ['player', 'achievement', 'term', 'team', 'sport-id', 'rule'],
+          ['player', 'achievement', 'venue', 'term', 'rule', 'team'],
+          ['player', 'achievement', 'event', 'term', 'rule', 'sport-id'],
+          ['player', 'event', 'achievement', 'term', 'rule', 'venue'],
+          ['player', 'record', 'achievement', 'event', 'rule', 'term', 'sport-id'],
+          ['player', 'record', 'event', 'achievement', 'rule', 'term', 'venue'],
+          ['player', 'record', 'event', 'achievement', 'rule', 'term'],
+          ['player', 'record', 'event', 'achievement', 'rule', 'term'],
+        ]
+      : [
+          ['player', 'achievement', 'team', 'venue', 'term', 'rule'],
+          ['player', 'event', 'achievement', 'term', 'rule', 'venue'],
+          ['record', 'player', 'event', 'achievement', 'term', 'rule'],
+          ['record', 'player', 'event', 'achievement', 'rule', 'term'],
+          ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
+          ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
+          ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
+          ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
+          ['record', 'player', 'event', 'achievement', 'rule', 'term'],
+          ['record', 'player', 'event', 'achievement', 'rule', 'term'],
+        ];
+  return difficulties.map((targetDifficulty, index) => ({
+    difficulty: targetDifficulty,
     buckets: [bucketPattern[index], 'evergreen', 'current', 'event'],
     subdomainOrder: dedupe([
       ...(index >= 4 ? (theme.sportsSubdomains ?? []) : slotLeadOrders[index]),
@@ -1673,7 +1749,7 @@ function getSportsSlotConfigs(dayIndex: number): SportsSlotConfig[] {
     maxSalienceScore: slotMaxSalience[index],
     targetSalienceScore: slotTargetSalience[index],
     preferredPromptKinds: slotPromptKinds[index],
-    preferHigherLookupRisk: true,
+    preferHigherLookupRisk: difficulty === 'easy' ? index >= 5 : true,
     blockedObscurityFlags: SPORTS_BLOCKED_FLAGS,
   }));
 }
@@ -2194,8 +2270,12 @@ function pickScheduledSportsCurveball(
 
 function buildEpisodeSchedule(
   feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
   library: TriviaQuestionRecord[]
-): { episodes: TriviaEpisodeDefinition[]; audit: TriviaAuditReport['feeds'][TriviaFeed] } {
+): {
+  episodes: TriviaEpisodeDefinition[];
+  audit: TriviaAuditReport['feeds'][TriviaFeed][TriviaDifficulty];
+} {
   const usedIds = new Set<string>();
   const usedVariantGroups = new Set<string>();
   const trickCountByMonth = new Map<string, number>();
@@ -2214,7 +2294,10 @@ function buildEpisodeSchedule(
     const dateKey = getDateKey(date);
     const monthKey = getMonthKey(date);
     const theme = feed === 'mix' ? MIX_WEEKLY_THEMES[offset % 7] : SPORTS_WEEKLY_THEMES[offset % 7];
-    const slotConfigs = feed === 'mix' ? getMixSlotConfigs(offset) : getSportsSlotConfigs(offset);
+    const slotConfigs =
+      feed === 'mix'
+        ? getMixSlotConfigs(offset, difficulty)
+        : getSportsSlotConfigs(offset, difficulty);
     const questionIds: string[] = [];
     const difficultyTargets: TriviaDifficultyTarget[] = [];
     const refreshableSlotIds: string[] = [];
@@ -2345,6 +2428,7 @@ function buildEpisodeSchedule(
     const episode: TriviaEpisodeDefinition = {
       date: dateKey,
       feed,
+      difficulty,
       questionIds,
       difficultyTargets,
       finalStretchStartsAt: feed === 'mix' ? 9 : 6,
@@ -2364,6 +2448,8 @@ function buildEpisodeSchedule(
   return {
     episodes,
     audit: {
+      feed,
+      difficulty,
       libraryCount: library.length,
       scheduledCount: usedIds.size,
       reserveCount: library.length - usedIds.size,
@@ -2491,6 +2577,7 @@ function buildPlayerDayNote(
 
 function simulateCalibrationFeed(
   feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
   episodes: TriviaEpisodeDefinition[],
   questionMap: Map<string, TriviaQuestionRecord>,
   sampleDays = TRIVIA_PLAYER_CALIBRATION_DAYS
@@ -2539,24 +2626,24 @@ function simulateCalibrationFeed(
         let timeoutRisk = getAgentTimeoutRisk(agent, feed, question, isScheduledCurveball);
         if (feed === 'mix') {
           confidence = clamp(
-            confidence - (MIX_SLOT_CONFIDENCE_ADJUSTMENTS[questionIndex] ?? 0),
+            confidence - (MIX_SLOT_CONFIDENCE_ADJUSTMENTS[difficulty][questionIndex] ?? 0),
             0.08,
             0.96
           );
           timeoutRisk = clamp(
-            timeoutRisk + (MIX_SLOT_TIMEOUT_ADJUSTMENTS[questionIndex] ?? 0),
+            timeoutRisk + (MIX_SLOT_TIMEOUT_ADJUSTMENTS[difficulty][questionIndex] ?? 0),
             0.01,
             0.38
           );
         }
         if (feed === 'sports') {
           confidence = clamp(
-            confidence - (SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS[questionIndex] ?? 0),
+            confidence - (SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS[difficulty][questionIndex] ?? 0),
             0.08,
             0.96
           );
           timeoutRisk = clamp(
-            timeoutRisk + (SPORTS_SLOT_TIMEOUT_ADJUSTMENTS[questionIndex] ?? 0),
+            timeoutRisk + (SPORTS_SLOT_TIMEOUT_ADJUSTMENTS[difficulty][questionIndex] ?? 0),
             0.01,
             0.4
           );
@@ -2714,6 +2801,7 @@ function simulateCalibrationFeed(
 
   return {
     feed,
+    difficulty,
     sampleDays: sampleEpisodes.length,
     agentSummaries,
     daySamples: daySamples.sort((left, right) => left.correctCount - right.correctCount).slice(0, 6),
@@ -2729,41 +2817,60 @@ function simulateCalibrationFeed(
 }
 
 function buildPlayerCalibrationReport(
-  mixEpisodes: TriviaEpisodeDefinition[],
-  sportsEpisodes: TriviaEpisodeDefinition[],
+  schedules: Record<TriviaFeed, Record<TriviaDifficulty, TriviaEpisodeDefinition[]>>,
   mixLibrary: TriviaQuestionRecord[],
   sportsLibrary: TriviaQuestionRecord[]
 ): TriviaPlayerCalibrationReport {
   const mixQuestionMap = buildQuestionMap(mixLibrary);
   const sportsQuestionMap = buildQuestionMap(sportsLibrary);
-  const openingMix = simulateCalibrationFeed('mix', mixEpisodes, mixQuestionMap, TRIVIA_PLAYER_CALIBRATION_DAYS);
-  const openingSports = simulateCalibrationFeed('sports', sportsEpisodes, sportsQuestionMap, TRIVIA_PLAYER_CALIBRATION_DAYS);
-  const first90Mix = simulateCalibrationFeed('mix', mixEpisodes, mixQuestionMap, FIRST_90_CALIBRATION_DAYS);
-  const first90Sports = simulateCalibrationFeed('sports', sportsEpisodes, sportsQuestionMap, FIRST_90_CALIBRATION_DAYS);
-  const fullYearMix = simulateCalibrationFeed('mix', mixEpisodes, mixQuestionMap, FULL_YEAR_CALIBRATION_DAYS);
-  const fullYearSports = simulateCalibrationFeed('sports', sportsEpisodes, sportsQuestionMap, FULL_YEAR_CALIBRATION_DAYS);
+  const questionMaps: Record<TriviaFeed, Map<string, TriviaQuestionRecord>> = {
+    mix: mixQuestionMap,
+    sports: sportsQuestionMap,
+  };
+  const openingFeeds = { mix: {} as Record<TriviaDifficulty, TriviaPlayerCalibrationFeedReport>, sports: {} as Record<TriviaDifficulty, TriviaPlayerCalibrationFeedReport> };
+  const first90Feeds = { mix: {} as Record<TriviaDifficulty, TriviaPlayerCalibrationFeedReport>, sports: {} as Record<TriviaDifficulty, TriviaPlayerCalibrationFeedReport> };
+  const fullYearFeeds = { mix: {} as Record<TriviaDifficulty, TriviaPlayerCalibrationFeedReport>, sports: {} as Record<TriviaDifficulty, TriviaPlayerCalibrationFeedReport> };
+
+  (['mix', 'sports'] as TriviaFeed[]).forEach((feed) => {
+    TRIVIA_DIFFICULTIES.forEach((difficulty) => {
+      const episodes = schedules[feed][difficulty];
+      const questionMap = questionMaps[feed];
+      openingFeeds[feed][difficulty] = simulateCalibrationFeed(
+        feed,
+        difficulty,
+        episodes,
+        questionMap,
+        TRIVIA_PLAYER_CALIBRATION_DAYS
+      );
+      first90Feeds[feed][difficulty] = simulateCalibrationFeed(
+        feed,
+        difficulty,
+        episodes,
+        questionMap,
+        FIRST_90_CALIBRATION_DAYS
+      );
+      fullYearFeeds[feed][difficulty] = simulateCalibrationFeed(
+        feed,
+        difficulty,
+        episodes,
+        questionMap,
+        FULL_YEAR_CALIBRATION_DAYS
+      );
+    });
+  });
 
   return {
     generatedAt: ACCESS_DATE,
     sampleDays: TRIVIA_PLAYER_CALIBRATION_DAYS,
-    feeds: {
-      mix: openingMix,
-      sports: openingSports,
-    },
+    feeds: openingFeeds,
     cohorts: {
       first90: {
         sampleDays: FIRST_90_CALIBRATION_DAYS,
-        feeds: {
-          mix: first90Mix,
-          sports: first90Sports,
-        },
+        feeds: first90Feeds,
       },
       fullYear: {
         sampleDays: FULL_YEAR_CALIBRATION_DAYS,
-        feeds: {
-          mix: fullYearMix,
-          sports: fullYearSports,
-        },
+        feeds: fullYearFeeds,
       },
     },
   };
@@ -2916,7 +3023,7 @@ function countFirst90BlockedPatterns(
 function buildTopRepeatedGroups(
   episodes: TriviaEpisodeDefinition[],
   questionMap: Map<string, TriviaQuestionRecord>
-): TriviaAuditReport['feeds'][TriviaFeed]['topRepeatedGroups'] {
+): TriviaAuditReport['feeds'][TriviaFeed][TriviaDifficulty]['topRepeatedGroups'] {
   const groups = new Map<
     string,
     {
@@ -3013,7 +3120,8 @@ function computeCoreSubdomainShare(
 
 function evaluatePlayerGate(
   feed: TriviaFeed,
-  audit: TriviaAuditReport['feeds'][TriviaFeed],
+  difficulty: TriviaDifficulty,
+  audit: TriviaAuditReport['feeds'][TriviaFeed][TriviaDifficulty],
   _calibrationFeed: TriviaPlayerCalibrationFeedReport,
   first90Feed: TriviaPlayerCalibrationFeedReport,
   fullYearFeed: TriviaPlayerCalibrationFeedReport
@@ -3089,15 +3197,22 @@ function evaluatePlayerGate(
       failures.push(`coreSubdomainShare=${audit.coreSubdomainShare}`);
     }
 
-    expectGroupRange('sports-q1-q2', [1, 2], 0.5, 0.77);
-    expectGroupRange('sports-q3-q5', [3, 4, 5], 0.31, 0.45);
-    expectSlotRange(6, 0.1, 0.33);
-    expectGroupRange('sports-q7-q9', [7, 8, 9], 0.03, 0.13);
+    if (difficulty === 'easy') {
+      expectGroupRange('sports-q1-q2', [1, 2], 0.78, 0.86);
+      expectGroupRange('sports-q3-q5', [3, 4, 5], 0.55, 0.66);
+      expectSlotRange(6, 0.36, 0.46);
+      expectGroupRange('sports-q7-q9', [7, 8, 9], 0.22, 0.32);
+    } else {
+      expectGroupRange('sports-q1-q2', [1, 2], 0.5, 0.77);
+      expectGroupRange('sports-q3-q5', [3, 4, 5], 0.31, 0.45);
+      expectSlotRange(6, 0.1, 0.33);
+      expectGroupRange('sports-q7-q9', [7, 8, 9], 0.03, 0.13);
+    }
 
     const commuter = byAgent.get('commuter-max');
     if (
       !commuter ||
-      commuter.averageCorrect < 2.6 ||
+      commuter.averageCorrect < (difficulty === 'easy' ? 4 : 2.6) ||
       commuter.timeoutRate > 0.16
     ) {
       failures.push(
@@ -3106,15 +3221,15 @@ function evaluatePlayerGate(
     }
 
     const culture = byAgent.get('culture-maya');
-    if (!culture || culture.averageCorrect < 2.8) {
+    if (!culture || culture.averageCorrect < (difficulty === 'easy' ? 3.8 : 2.8)) {
       failures.push(`culture-maya averageCorrect=${culture?.averageCorrect ?? 'missing'}`);
     }
 
     const sportsCore = byAgent.get('sports-ryan');
     if (
       !sportsCore ||
-      sportsCore.averageCorrect < 4.8 ||
-      sportsCore.shieldUseRate >= 0.4
+      sportsCore.averageCorrect < (difficulty === 'easy' ? 5.5 : 4.8) ||
+      sportsCore.shieldUseRate >= (difficulty === 'easy' ? 0.55 : 0.4)
     ) {
       failures.push(`sports-ryan averageCorrect=${sportsCore?.averageCorrect ?? 'missing'}`);
     }
@@ -3122,8 +3237,8 @@ function evaluatePlayerGate(
     const broad = byAgent.get('broad-ava');
     if (
       !broad ||
-      broad.averageCorrect < 3.8 ||
-      broad.shieldUseRate >= 0.45
+      broad.averageCorrect < (difficulty === 'easy' ? 4.8 : 3.8) ||
+      broad.shieldUseRate >= (difficulty === 'easy' ? 0.6 : 0.45)
     ) {
       failures.push(`broad-ava averageCorrect=${broad?.averageCorrect ?? 'missing'}`);
     }
@@ -3154,10 +3269,17 @@ function evaluatePlayerGate(
     if (audit.first90BlockedPatternCount !== 0) {
       failures.push(`first90BlockedPatternCount=${audit.first90BlockedPatternCount}`);
     }
-    expectGroupRange('mix-q1-q3', [1, 2, 3], 0.6, 0.82);
-    expectGroupRange('mix-q4-q6', [4, 5, 6], 0.35, 0.62);
-    expectGroupRange('mix-q7-q9', [7, 8, 9], 0.2, 0.37);
-    expectGroupRange('mix-q10-q12', [10, 11, 12], 0.08, 0.22);
+    if (difficulty === 'easy') {
+      expectGroupRange('mix-q1-q3', [1, 2, 3], 0.85, 0.93);
+      expectGroupRange('mix-q4-q6', [4, 5, 6], 0.72, 0.82);
+      expectGroupRange('mix-q7-q9', [7, 8, 9], 0.47, 0.57);
+      expectGroupRange('mix-q10-q12', [10, 11, 12], 0.42, 0.53);
+    } else {
+      expectGroupRange('mix-q1-q3', [1, 2, 3], 0.6, 0.82);
+      expectGroupRange('mix-q4-q6', [4, 5, 6], 0.35, 0.62);
+      expectGroupRange('mix-q7-q9', [7, 8, 9], 0.2, 0.37);
+      expectGroupRange('mix-q10-q12', [10, 11, 12], 0.08, 0.22);
+    }
     if (timerFrictionAgents.length > 1 || openingTimerFrictionAgents.length > 1) {
       failures.push(
         `timer-friction:${dedupe([
@@ -3171,21 +3293,25 @@ function evaluatePlayerGate(
     }
 
     const commuter = byAgent.get('commuter-max');
-    if (!commuter || commuter.averageCorrect < 4 || commuter.timeoutRate > 0.14) {
+    if (
+      !commuter ||
+      commuter.averageCorrect < (difficulty === 'easy' ? 6 : 4) ||
+      commuter.timeoutRate > 0.14
+    ) {
       failures.push(
         `commuter-max averageCorrect=${commuter?.averageCorrect ?? 'missing'} timeoutRate=${commuter?.timeoutRate ?? 'missing'}`
       );
     }
-    if ((byAgent.get('culture-maya')?.averageCorrect ?? 0) < 5.5) {
+    if ((byAgent.get('culture-maya')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 7 : 5.5)) {
       failures.push(`culture-maya averageCorrect=${byAgent.get('culture-maya')?.averageCorrect ?? 'missing'}`);
     }
-    if ((byAgent.get('broad-ava')?.averageCorrect ?? 0) < 5) {
+    if ((byAgent.get('broad-ava')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 6.4 : 5)) {
       failures.push(`broad-ava averageCorrect=${byAgent.get('broad-ava')?.averageCorrect ?? 'missing'}`);
     }
 
     ['culture-maya', 'broad-ava', 'analyst-eli'].forEach((agentId) => {
       const summary = byAgent.get(agentId);
-      if (!summary || summary.shieldUseRate >= 0.85) {
+      if (!summary || summary.shieldUseRate >= (difficulty === 'easy' ? 0.75 : 0.85)) {
         failures.push(`${agentId} shieldUseRate=${summary?.shieldUseRate ?? 'missing'}`);
       }
     });
@@ -3199,7 +3325,8 @@ function evaluatePlayerGate(
 
 function applyAuditSignals(
   feed: TriviaFeed,
-  audit: TriviaAuditReport['feeds'][TriviaFeed],
+  difficulty: TriviaDifficulty,
+  audit: TriviaAuditReport['feeds'][TriviaFeed][TriviaDifficulty],
   episodes: TriviaEpisodeDefinition[],
   library: TriviaQuestionRecord[],
   calibrationFeed: TriviaPlayerCalibrationFeedReport,
@@ -3217,7 +3344,7 @@ function applyAuditSignals(
   audit.lateSlotLegibilityScore = computeLateSlotLegibilityScore(episodes, questionMap);
   audit.agentFrictionBySlot = first90Feed.slotSummaries;
   audit.coreSubdomainShare = computeCoreSubdomainShare(feed, episodes, questionMap);
-  const gate = evaluatePlayerGate(feed, audit, calibrationFeed, first90Feed, fullYearFeed);
+  const gate = evaluatePlayerGate(feed, difficulty, audit, calibrationFeed, first90Feed, fullYearFeed);
   audit.playerGatePass = gate.playerGatePass;
   audit.playerGateFailures = gate.playerGateFailures;
   audit.launchReady = gate.playerGatePass && audit.first90BlockedPatternCount === 0;
@@ -3243,34 +3370,48 @@ async function main() {
     );
   }
 
-  const mixSchedule = buildEpisodeSchedule('mix', mixLibrary);
-  const sportsSchedule = buildEpisodeSchedule('sports', sportsLibrary);
+  const schedules = {
+    mix: {
+      easy: buildEpisodeSchedule('mix', 'easy', mixLibrary),
+      hard: buildEpisodeSchedule('mix', 'hard', mixLibrary),
+    },
+    sports: {
+      easy: buildEpisodeSchedule('sports', 'easy', sportsLibrary),
+      hard: buildEpisodeSchedule('sports', 'hard', sportsLibrary),
+    },
+  } as const;
   const playerCalibration = buildPlayerCalibrationReport(
-    mixSchedule.episodes,
-    sportsSchedule.episodes,
+    {
+      mix: {
+        easy: schedules.mix.easy.episodes,
+        hard: schedules.mix.hard.episodes,
+      },
+      sports: {
+        easy: schedules.sports.easy.episodes,
+        hard: schedules.sports.hard.episodes,
+      },
+    },
     mixLibrary,
     sportsLibrary
   );
-  mixSchedule.audit.playerAgentSummaries = playerCalibration.feeds.mix.agentSummaries;
-  sportsSchedule.audit.playerAgentSummaries = playerCalibration.feeds.sports.agentSummaries;
-  applyAuditSignals(
-    'mix',
-    mixSchedule.audit,
-    mixSchedule.episodes,
-    mixLibrary,
-    playerCalibration.feeds.mix,
-    playerCalibration.cohorts.first90.feeds.mix,
-    playerCalibration.cohorts.fullYear.feeds.mix
-  );
-  applyAuditSignals(
-    'sports',
-    sportsSchedule.audit,
-    sportsSchedule.episodes,
-    sportsLibrary,
-    playerCalibration.feeds.sports,
-    playerCalibration.cohorts.first90.feeds.sports,
-    playerCalibration.cohorts.fullYear.feeds.sports
-  );
+
+  (['mix', 'sports'] as TriviaFeed[]).forEach((feed) => {
+    const library = feed === 'mix' ? mixLibrary : sportsLibrary;
+    TRIVIA_DIFFICULTIES.forEach((difficulty) => {
+      const schedule = schedules[feed][difficulty];
+      schedule.audit.playerAgentSummaries = playerCalibration.feeds[feed][difficulty].agentSummaries;
+      applyAuditSignals(
+        feed,
+        difficulty,
+        schedule.audit,
+        schedule.episodes,
+        library,
+        playerCalibration.feeds[feed][difficulty],
+        playerCalibration.cohorts.first90.feeds[feed][difficulty],
+        playerCalibration.cohorts.fullYear.feeds[feed][difficulty]
+      );
+    });
+  });
 
   const audit: TriviaAuditReport = {
     version: VERSION,
@@ -3279,15 +3420,23 @@ async function main() {
     scheduleEnd: getDateKey(addDays(getStartDate(), TOTAL_DAYS - 1)),
     calibrationDays: 28,
     feeds: {
-      mix: mixSchedule.audit,
-      sports: sportsSchedule.audit,
+      mix: {
+        easy: schedules.mix.easy.audit,
+        hard: schedules.mix.hard.audit,
+      },
+      sports: {
+        easy: schedules.sports.easy.audit,
+        hard: schedules.sports.hard.audit,
+      },
     },
   };
 
   await writeJson('mixQuestionLibrary.json', mixLibrary);
   await writeJson('sportsQuestionLibrary.json', sportsLibrary);
-  await writeJson('mixEpisodeSchedule.json', mixSchedule.episodes);
-  await writeJson('sportsEpisodeSchedule.json', sportsSchedule.episodes);
+  await writeJson('mixEasyEpisodeSchedule.json', schedules.mix.easy.episodes);
+  await writeJson('mixHardEpisodeSchedule.json', schedules.mix.hard.episodes);
+  await writeJson('sportsEasyEpisodeSchedule.json', schedules.sports.easy.episodes);
+  await writeJson('sportsHardEpisodeSchedule.json', schedules.sports.hard.episodes);
   await writeJson('triviaAudit.json', audit);
   await writeJson('triviaPlayerCalibration.json', playerCalibration);
 
@@ -3296,8 +3445,10 @@ async function main() {
       {
         mixQuestions: mixLibrary.length,
         sportsQuestions: sportsLibrary.length,
-        mixEpisodes: mixSchedule.episodes.length,
-        sportsEpisodes: sportsSchedule.episodes.length,
+        mixEasyEpisodes: schedules.mix.easy.episodes.length,
+        mixHardEpisodes: schedules.mix.hard.episodes.length,
+        sportsEasyEpisodes: schedules.sports.easy.episodes.length,
+        sportsHardEpisodes: schedules.sports.hard.episodes.length,
         playerAgents: TRIVIA_PLAYER_AGENTS.length,
       },
       null,

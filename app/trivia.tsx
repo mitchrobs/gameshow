@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
+import { Redirect, Stack, useRouter } from 'expo-router';
 import { resolveScreenAccent, useDaybreakTheme } from '../src/constants/theme';
 import { BUILD_ID } from '../src/constants/build';
 import {
@@ -17,8 +17,9 @@ import {
   getTodayTriviaEpisode,
   getTriviaFeedSummary,
   getTriviaLocalDateKey,
-  type TriviaFeed,
+  type TriviaDifficulty,
   type TriviaEpisode,
+  type TriviaFeed,
   type TriviaRunAnswer,
   type TriviaRunResult,
 } from '../src/data/trivia';
@@ -52,6 +53,18 @@ function getStorage(): Storage | null {
   return null;
 }
 
+function isTriviaDifficulty(value: string | null): value is TriviaDifficulty {
+  return value === 'easy' || value === 'hard';
+}
+
+function getFeedRouteTitle(feed: TriviaFeed): string {
+  return feed === 'mix' ? 'Daily Mix' : 'Daily Sports';
+}
+
+function getGlobalPlayCountKey(feed: TriviaFeed): string {
+  return feed === 'mix' ? 'trivia-mix' : 'trivia-sports';
+}
+
 function formatLocalDateLabel(dateKey: string): string {
   return new Date(`${dateKey}T12:00:00`).toLocaleDateString('en-US', {
     month: 'short',
@@ -64,17 +77,37 @@ function getTimerSeconds(episode: TriviaEpisode): number {
   return episode.timerSeconds;
 }
 
-function buildRunStorageKey(feed: TriviaFeed, dateKey: string): string {
-  return `${STORAGE_PREFIX}:run:${feed}:${dateKey}`;
+function buildRunStorageKey(feed: TriviaFeed, difficulty: TriviaDifficulty, dateKey: string): string {
+  return `${STORAGE_PREFIX}:run:${feed}:${difficulty}:${dateKey}`;
 }
 
-export default function TriviaScreen() {
+function buildDifficultyChoiceKey(
+  feed: TriviaFeed,
+  dateKey: string
+): string {
+  return `${STORAGE_PREFIX}:${feed}:choice:${dateKey}`;
+}
+
+function buildDifficultyCompletionKey(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
+  dateKey: string
+): string {
+  return `${STORAGE_PREFIX}:${feed}:${difficulty}:daily:${dateKey}`;
+}
+
+function buildGameCompletionKey(feed: TriviaFeed, dateKey: string): string {
+  return `${STORAGE_PREFIX}:${feed}:daily:${dateKey}`;
+}
+
+export function TriviaGameScreen({ feed }: { feed: TriviaFeed }) {
   const theme = useDaybreakTheme();
   const screenAccent = useMemo(() => resolveScreenAccent('trivia', theme), [theme]);
   const styles = useMemo(() => createTriviaStyles(theme, screenAccent), [theme, screenAccent]);
   const router = useRouter();
+  const todayKey = getTriviaLocalDateKey();
 
-  const [selectedFeed, setSelectedFeed] = useState<TriviaFeed>('mix');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<TriviaDifficulty>('hard');
   const [screenMode, setScreenMode] = useState<ScreenMode>('start');
   const [activeEpisode, setActiveEpisode] = useState<TriviaEpisode | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -101,8 +134,30 @@ export default function TriviaScreen() {
   const overlayCardOpacity = useRef(new Animated.Value(0)).current;
   const overlayCardTranslateY = useRef(new Animated.Value(12)).current;
 
-  const previewEpisode = useMemo(() => getTodayTriviaEpisode(selectedFeed), [selectedFeed]);
-  const previewSummary = useMemo(() => getTriviaFeedSummary(selectedFeed), [selectedFeed]);
+  useEffect(() => {
+    const storage = getStorage();
+    if (!storage) {
+      setSelectedDifficulty('hard');
+      return;
+    }
+    const savedDifficulty = storage.getItem(buildDifficultyChoiceKey(feed, todayKey));
+    setSelectedDifficulty(isTriviaDifficulty(savedDifficulty) ? savedDifficulty : 'hard');
+  }, [feed, todayKey]);
+
+  useEffect(() => {
+    const storage = getStorage();
+    if (!storage) return;
+    storage.setItem(buildDifficultyChoiceKey(feed, todayKey), selectedDifficulty);
+  }, [feed, selectedDifficulty, todayKey]);
+
+  const previewEpisode = useMemo(
+    () => getTodayTriviaEpisode(feed, selectedDifficulty),
+    [feed, selectedDifficulty]
+  );
+  const previewSummary = useMemo(
+    () => getTriviaFeedSummary(feed, selectedDifficulty),
+    [feed, selectedDifficulty]
+  );
   const currentEpisode = activeEpisode ?? previewEpisode;
   const currentQuestion = activeEpisode?.questions[questionIndex] ?? null;
   const dateLabel = useMemo(() => formatLocalDateLabel(currentEpisode.date), [currentEpisode.date]);
@@ -126,6 +181,7 @@ export default function TriviaScreen() {
       answers.every((answer) => answer.correct);
     return {
       feed: activeEpisode.feed,
+      difficulty: activeEpisode.difficulty,
       dateKey: activeEpisode.date,
       timerSeconds: activeEpisode.timerSeconds,
       score,
@@ -177,10 +233,10 @@ export default function TriviaScreen() {
   useEffect(() => {
     const storage = getStorage();
     if (!storage) return;
-    const key = `${STORAGE_PREFIX}:playcount:${getTriviaLocalDateKey()}`;
+    const key = `${STORAGE_PREFIX}:playcount:${todayKey}`;
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
-  }, []);
+  }, [todayKey]);
 
   useEffect(() => {
     if (screenMode !== 'start' && screenMode !== 'results') return;
@@ -323,7 +379,7 @@ export default function TriviaScreen() {
   ]);
 
   const startRun = useCallback(() => {
-    const nextEpisode = getTodayTriviaEpisode(selectedFeed);
+    const nextEpisode = getTodayTriviaEpisode(feed, selectedDifficulty);
     resetTimers();
     setActiveEpisode(nextEpisode);
     setQuestionIndex(0);
@@ -337,7 +393,7 @@ export default function TriviaScreen() {
     setCountdown(getTimerSeconds(nextEpisode));
     setScreenMode('question');
     hasCountedRef.current = false;
-  }, [resetTimers, selectedFeed]);
+  }, [feed, resetTimers, selectedDifficulty]);
 
   const advanceToNextQuestion = useCallback(
     (nextIndex: number) => {
@@ -468,10 +524,17 @@ export default function TriviaScreen() {
     if (screenMode !== 'results' || !activeEpisode || !runResult) return;
     const storage = getStorage();
     if (storage) {
-      storage.setItem(`${STORAGE_PREFIX}:${activeEpisode.feed}:daily:${activeEpisode.date}`, '1');
-      storage.setItem(`${STORAGE_PREFIX}:daily:${activeEpisode.date}`, '1');
       storage.setItem(
-        buildRunStorageKey(activeEpisode.feed, activeEpisode.date),
+        buildDifficultyCompletionKey(
+          activeEpisode.feed,
+          activeEpisode.difficulty,
+          activeEpisode.date
+        ),
+        '1'
+      );
+      storage.setItem(buildGameCompletionKey(activeEpisode.feed, activeEpisode.date), '1');
+      storage.setItem(
+        buildRunStorageKey(activeEpisode.feed, activeEpisode.difficulty, activeEpisode.date),
         JSON.stringify(runResult)
       );
     }
@@ -480,9 +543,9 @@ export default function TriviaScreen() {
   useEffect(() => {
     if (screenMode === 'results' && !hasCountedRef.current) {
       hasCountedRef.current = true;
-      incrementGlobalPlayCount('trivia');
+      incrementGlobalPlayCount(getGlobalPlayCountKey(feed));
     }
-  }, [screenMode]);
+  }, [feed, screenMode]);
 
   const handleCopyResults = useCallback(async () => {
     if (!shareText || Platform.OS !== 'web') return;
@@ -535,25 +598,28 @@ export default function TriviaScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Daily Trivia', headerBackTitle: 'Home' }} />
+      <Stack.Screen options={{ title: getFeedRouteTitle(feed), headerBackTitle: 'Home' }} />
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.page}>
             <TriviaPageHeader
               dateLabel={dateLabel}
+              difficulty={currentEpisode.difficulty}
               questionCount={currentEpisode.questionCount}
               styles={styles}
+              title={currentEpisode.title}
             />
 
             {screenMode === 'start' ? (
               <Animated.View style={panelAnimatedStyle}>
                 <TriviaIntroSurface
                   dateLabel={dateLabel}
-                  onSelectFeed={setSelectedFeed}
+                  feed={feed}
+                  onSelectDifficulty={setSelectedDifficulty}
                   onStart={startRun}
                   previewEpisode={previewEpisode}
                   previewSummary={previewSummary}
-                  selectedFeed={selectedFeed}
+                  selectedDifficulty={selectedDifficulty}
                   styles={styles}
                 />
               </Animated.View>
@@ -622,4 +688,8 @@ export default function TriviaScreen() {
       </SafeAreaView>
     </>
   );
+}
+
+export default function TriviaRedirectScreen() {
+  return <Redirect href="/daily-mix" />;
 }

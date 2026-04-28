@@ -1,4 +1,5 @@
 export type TriviaFeed = 'mix' | 'sports';
+export type TriviaDifficulty = 'easy' | 'hard';
 export type TriviaDifficultyTarget = 1 | 2 | 3;
 export type TriviaLookupRisk = 'low' | 'medium' | 'high';
 export type TriviaQuestionStatus = 'reviewed' | 'staged' | 'retired';
@@ -109,6 +110,7 @@ export interface TriviaQuestionRecord {
 export interface TriviaEpisodeDefinition {
   date: string;
   feed: TriviaFeed;
+  difficulty: TriviaDifficulty;
   questionIds: string[];
   difficultyTargets: TriviaDifficultyTarget[];
   finalStretchStartsAt: number;
@@ -126,6 +128,7 @@ export interface TriviaEpisodeQuestion extends TriviaQuestionRecord {
 export interface TriviaEpisode {
   date: string;
   feed: TriviaFeed;
+  difficulty: TriviaDifficulty;
   title: string;
   subtitle: string;
   questionCount: number;
@@ -138,6 +141,7 @@ export interface TriviaEpisode {
 
 export interface TriviaFeedSummary {
   feed: TriviaFeed;
+  difficulty: TriviaDifficulty;
   title: string;
   subtitle: string;
   questionCount: number;
@@ -158,6 +162,7 @@ export interface TriviaRunAnswer {
 
 export interface TriviaRunResult {
   feed: TriviaFeed;
+  difficulty: TriviaDifficulty;
   dateKey: string;
   timerSeconds: number;
   score: number;
@@ -217,6 +222,7 @@ export interface TriviaPlayerSlotSummary {
 
 export interface TriviaPlayerCalibrationFeedReport {
   feed: TriviaFeed;
+  difficulty: TriviaDifficulty;
   sampleDays: number;
   agentSummaries: TriviaPlayerAgentSummary[];
   daySamples: TriviaPlayerDaySample[];
@@ -225,13 +231,13 @@ export interface TriviaPlayerCalibrationFeedReport {
 
 export interface TriviaPlayerCalibrationCohortReport {
   sampleDays: number;
-  feeds: Record<TriviaFeed, TriviaPlayerCalibrationFeedReport>;
+  feeds: Record<TriviaFeed, Record<TriviaDifficulty, TriviaPlayerCalibrationFeedReport>>;
 }
 
 export interface TriviaPlayerCalibrationReport {
   generatedAt: string;
   sampleDays: number;
-  feeds: Record<TriviaFeed, TriviaPlayerCalibrationFeedReport>;
+  feeds: Record<TriviaFeed, Record<TriviaDifficulty, TriviaPlayerCalibrationFeedReport>>;
   cohorts: {
     first90: TriviaPlayerCalibrationCohortReport;
     fullYear: TriviaPlayerCalibrationCohortReport;
@@ -255,6 +261,8 @@ export interface TriviaAuditSlotFrictionSummary {
 }
 
 export interface TriviaAuditFeedSummary {
+  feed: TriviaFeed;
+  difficulty: TriviaDifficulty;
   libraryCount: number;
   scheduledCount: number;
   reserveCount: number;
@@ -287,5 +295,5 @@ export interface TriviaAuditReport {
   scheduleStart: string;
   scheduleEnd: string;
   calibrationDays: number;
-  feeds: Record<TriviaFeed, TriviaAuditFeedSummary>;
+  feeds: Record<TriviaFeed, Record<TriviaDifficulty, TriviaAuditFeedSummary>>;
 }

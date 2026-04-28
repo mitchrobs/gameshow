@@ -1,11 +1,14 @@
 import mixQuestionsData from './mixQuestionLibrary.json';
 import sportsQuestionsData from './sportsQuestionLibrary.json';
-import mixScheduleData from './mixEpisodeSchedule.json';
-import sportsScheduleData from './sportsEpisodeSchedule.json';
+import mixEasyScheduleData from './mixEasyEpisodeSchedule.json';
+import mixHardScheduleData from './mixHardEpisodeSchedule.json';
+import sportsEasyScheduleData from './sportsEasyEpisodeSchedule.json';
+import sportsHardScheduleData from './sportsHardEpisodeSchedule.json';
 import auditData from './triviaAudit.json';
 import playerCalibrationData from './triviaPlayerCalibration.json';
 import type {
   TriviaAuditReport,
+  TriviaDifficulty,
   TriviaEpisode,
   TriviaEpisodeDefinition,
   TriviaFeed,
@@ -18,6 +21,7 @@ export type {
   TriviaAuditFeedSummary,
   TriviaAuditReport,
   TriviaCitation,
+  TriviaDifficulty,
   TriviaEditorialBucket,
   TriviaEpisode,
   TriviaEpisodeDefinition,
@@ -49,23 +53,49 @@ export { formatTriviaShareText } from './results';
 
 const DAY_MS = 1000 * 60 * 60 * 24;
 const OPTION_SEED = 119_731;
+const TRIVIA_DIFFICULTIES: TriviaDifficulty[] = ['easy', 'hard'];
 
-const MIX_SUMMARY: TriviaFeedSummary = {
-  feed: 'mix',
-  title: 'Daily Mix',
-  subtitle: 'Culture, history, science, and sharp little reveals.',
-  questionCount: 12,
-  timerSeconds: 12,
-  finalStretchLabel: 'Final 3',
-};
-
-const SPORTS_SUMMARY: TriviaFeedSummary = {
-  feed: 'sports',
-  title: 'Daily Sports',
-  subtitle: 'Leagues, legends, records, and matchday energy.',
-  questionCount: 9,
-  timerSeconds: 12,
-  finalStretchLabel: 'Final 3',
+const FEED_SUMMARIES: Record<TriviaFeed, Record<TriviaDifficulty, TriviaFeedSummary>> = {
+  mix: {
+    easy: {
+      feed: 'mix',
+      difficulty: 'easy',
+      title: 'Daily Mix',
+      subtitle: 'Culture, history, science, and broad general knowledge.',
+      questionCount: 12,
+      timerSeconds: 15,
+      finalStretchLabel: 'Final 3',
+    },
+    hard: {
+      feed: 'mix',
+      difficulty: 'hard',
+      title: 'Daily Mix',
+      subtitle: 'Culture, history, science, and sharp little reveals.',
+      questionCount: 12,
+      timerSeconds: 15,
+      finalStretchLabel: 'Final 3',
+    },
+  },
+  sports: {
+    easy: {
+      feed: 'sports',
+      difficulty: 'easy',
+      title: 'Daily Sports',
+      subtitle: 'Leagues, legends, and the mainstream sports moments you should know.',
+      questionCount: 9,
+      timerSeconds: 15,
+      finalStretchLabel: 'Final 3',
+    },
+    hard: {
+      feed: 'sports',
+      difficulty: 'hard',
+      title: 'Daily Sports',
+      subtitle: 'Leagues, legends, records, and the details that matter.',
+      questionCount: 9,
+      timerSeconds: 15,
+      finalStretchLabel: 'Final 3',
+    },
+  },
 };
 
 const QUESTIONS_BY_FEED: Record<TriviaFeed, TriviaQuestionRecord[]> = {
@@ -73,9 +103,15 @@ const QUESTIONS_BY_FEED: Record<TriviaFeed, TriviaQuestionRecord[]> = {
   sports: sportsQuestionsData as TriviaQuestionRecord[],
 };
 
-const SCHEDULE_BY_FEED: Record<TriviaFeed, TriviaEpisodeDefinition[]> = {
-  mix: mixScheduleData as TriviaEpisodeDefinition[],
-  sports: sportsScheduleData as TriviaEpisodeDefinition[],
+const SCHEDULE_BY_FEED: Record<TriviaFeed, Record<TriviaDifficulty, TriviaEpisodeDefinition[]>> = {
+  mix: {
+    easy: mixEasyScheduleData as TriviaEpisodeDefinition[],
+    hard: mixHardScheduleData as TriviaEpisodeDefinition[],
+  },
+  sports: {
+    easy: sportsEasyScheduleData as TriviaEpisodeDefinition[],
+    hard: sportsHardScheduleData as TriviaEpisodeDefinition[],
+  },
 };
 
 const QUESTION_MAP_BY_FEED: Record<TriviaFeed, Map<string, TriviaQuestionRecord>> = {
@@ -83,9 +119,18 @@ const QUESTION_MAP_BY_FEED: Record<TriviaFeed, Map<string, TriviaQuestionRecord>
   sports: new Map(QUESTIONS_BY_FEED.sports.map((question) => [question.id, question])),
 };
 
-const EPISODE_MAP_BY_FEED: Record<TriviaFeed, Map<string, TriviaEpisodeDefinition>> = {
-  mix: new Map(SCHEDULE_BY_FEED.mix.map((episode) => [episode.date, episode])),
-  sports: new Map(SCHEDULE_BY_FEED.sports.map((episode) => [episode.date, episode])),
+const EPISODE_MAP_BY_FEED: Record<
+  TriviaFeed,
+  Record<TriviaDifficulty, Map<string, TriviaEpisodeDefinition>>
+> = {
+  mix: {
+    easy: new Map(SCHEDULE_BY_FEED.mix.easy.map((episode) => [episode.date, episode])),
+    hard: new Map(SCHEDULE_BY_FEED.mix.hard.map((episode) => [episode.date, episode])),
+  },
+  sports: {
+    easy: new Map(SCHEDULE_BY_FEED.sports.easy.map((episode) => [episode.date, episode])),
+    hard: new Map(SCHEDULE_BY_FEED.sports.hard.map((episode) => [episode.date, episode])),
+  },
 };
 
 const AUDIT_REPORT = auditData as TriviaAuditReport;
@@ -119,19 +164,20 @@ function seededShuffle<T>(items: T[], seed: number): T[] {
   return next;
 }
 
-function getFeedSummary(feed: TriviaFeed): TriviaFeedSummary {
-  return feed === 'mix' ? MIX_SUMMARY : SPORTS_SUMMARY;
+function getFeedSummary(feed: TriviaFeed, difficulty: TriviaDifficulty = 'hard'): TriviaFeedSummary {
+  return FEED_SUMMARIES[feed][difficulty];
 }
 
 function shuffleQuestionOptions(
   question: TriviaQuestionRecord,
   feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
   dateKey: string
 ): TriviaQuestionRecord {
   const decorated = question.options.map((option, index) => ({
     option,
     originalIndex: index,
-    weight: hashString(`${feed}:${dateKey}:${question.id}:${index}:${OPTION_SEED}`),
+    weight: hashString(`${feed}:${difficulty}:${dateKey}:${question.id}:${index}:${OPTION_SEED}`),
   }));
 
   decorated.sort((left, right) => {
@@ -159,30 +205,40 @@ export function getTriviaScheduleRange() {
   };
 }
 
-export function getTriviaFeedSummary(feed: TriviaFeed, date: Date = new Date()): TriviaFeedSummary {
+export function getTriviaFeedSummary(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty = 'hard',
+  date: Date = new Date()
+): TriviaFeedSummary {
   void date;
-  return getFeedSummary(feed);
+  return getFeedSummary(feed, difficulty);
 }
 
-export function getTriviaEpisode(feed: TriviaFeed, date: Date = new Date()): TriviaEpisode {
+export function getTriviaEpisode(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty = 'hard',
+  date: Date = new Date()
+): TriviaEpisode {
   const dateKey = getTriviaLocalDateKey(date);
-  const episodeDefinition = EPISODE_MAP_BY_FEED[feed].get(dateKey);
+  const episodeDefinition = EPISODE_MAP_BY_FEED[feed][difficulty].get(dateKey);
   if (!episodeDefinition) {
     const { start, end } = getTriviaScheduleRange();
     throw new Error(
-      `No ${feed} trivia episode scheduled for ${dateKey}. Available schedule runs ${start} through ${end}.`
+      `No ${feed}/${difficulty} trivia episode scheduled for ${dateKey}. Available schedule runs ${start} through ${end}.`
     );
   }
 
-  const summary = getFeedSummary(feed);
+  const summary = getFeedSummary(feed, difficulty);
   const questions = episodeDefinition.questionIds.map((questionId, index) => {
     const question = QUESTION_MAP_BY_FEED[feed].get(questionId);
     if (!question) {
-      throw new Error(`Missing trivia question ${questionId} for ${feed} on ${episodeDefinition.date}`);
+      throw new Error(
+        `Missing trivia question ${questionId} for ${feed}/${difficulty} on ${episodeDefinition.date}`
+      );
     }
 
     return {
-      ...shuffleQuestionOptions(question, feed, episodeDefinition.date),
+      ...shuffleQuestionOptions(question, feed, difficulty, episodeDefinition.date),
       questionNumber: index + 1,
       totalQuestions: episodeDefinition.questionIds.length,
     };
@@ -191,6 +247,7 @@ export function getTriviaEpisode(feed: TriviaFeed, date: Date = new Date()): Tri
   return {
     date: episodeDefinition.date,
     feed,
+    difficulty,
     title: summary.title,
     subtitle: summary.subtitle,
     questionCount: episodeDefinition.questionIds.length,
@@ -202,12 +259,18 @@ export function getTriviaEpisode(feed: TriviaFeed, date: Date = new Date()): Tri
   };
 }
 
-export function getTodayTriviaEpisode(feed: TriviaFeed): TriviaEpisode {
-  return getTriviaEpisode(feed, new Date());
+export function getTodayTriviaEpisode(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty = 'hard'
+): TriviaEpisode {
+  return getTriviaEpisode(feed, difficulty, new Date());
 }
 
-export function getTriviaArchive(feed: TriviaFeed): TriviaEpisodeDefinition[] {
-  return [...SCHEDULE_BY_FEED[feed]];
+export function getTriviaArchive(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty = 'hard'
+): TriviaEpisodeDefinition[] {
+  return [...SCHEDULE_BY_FEED[feed][difficulty]];
 }
 
 export function getTriviaAuditReport(): TriviaAuditReport {
@@ -219,9 +282,10 @@ export function getTriviaPlayerCalibration(): TriviaPlayerCalibrationReport {
 }
 
 export function getTriviaPlayerCalibrationFeed(
-  feed: TriviaFeed
-): TriviaPlayerCalibrationReport['feeds'][TriviaFeed] {
-  return PLAYER_CALIBRATION_REPORT.feeds[feed];
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty = 'hard'
+): TriviaPlayerCalibrationReport['feeds'][TriviaFeed][TriviaDifficulty] {
+  return PLAYER_CALIBRATION_REPORT.feeds[feed][difficulty];
 }
 
 export function getTriviaQuestionPool(feed: TriviaFeed): TriviaQuestionRecord[] {
