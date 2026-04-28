@@ -916,7 +916,10 @@ export function TriviaIntroSurface({
           </View>
         </View>
 
-        <Text style={styles.introRules}>Three choices. One shield. Finish the run.</Text>
+        <Text style={styles.introRules}>
+          Three choices. One shield. Arm it on up to two questions, and the first miss or
+          timeout it covers turns into a save.
+        </Text>
 
         <Pressable
           style={({ pressed }) => [styles.introCta, pressed && styles.introCtaPressed]}

@@ -450,11 +450,6 @@ export default function HomeScreen() {
                       <Text style={styles.quickLinkHotText}>Hot</Text>
                     </View>
                   )}
-                  {item.isNew && (
-                    <View style={styles.quickLinkNewBadge}>
-                      <Text style={styles.quickLinkNewText}>Beta</Text>
-                    </View>
-                  )}
                   {(playCounts[item.countKey] ?? 0) > 0 && (
                     <Text style={styles.quickLinkCount}>{playCounts[item.countKey]} plays</Text>
                   )}
@@ -469,9 +464,6 @@ export default function HomeScreen() {
               <View style={styles.gameLabel}>
                 <Text style={styles.museumKicker}>Learn</Text>
                 <Text style={styles.gameTitle}>Museum</Text>
-              </View>
-              <View style={styles.newBadge}>
-                <Text style={styles.newBadgeText}>Beta</Text>
               </View>
             </View>
             <Text style={styles.blurb}>
@@ -591,9 +583,6 @@ export default function HomeScreen() {
                 <Text style={styles.threadlineKicker}>Daily Word Puzzle</Text>
                 <Text style={styles.gameTitle}>Threadline</Text>
               </View>
-              <View style={styles.newBadge}>
-                <Text style={styles.newBadgeText}>Beta</Text>
-              </View>
             </View>
             <Text style={styles.blurb}>
               Fill the blanks by drawing each missing word in the grid.
@@ -645,9 +634,6 @@ export default function HomeScreen() {
               <View style={styles.gameLabel}>
                 <Text style={styles.crosswordKicker}>Word Grid</Text>
                 <Text style={styles.gameTitle}>Mini Crossword</Text>
-              </View>
-              <View style={styles.newBadge}>
-                <Text style={styles.newBadgeText}>Beta</Text>
               </View>
             </View>
             <Text style={styles.blurb}>
@@ -775,9 +761,6 @@ export default function HomeScreen() {
               <View style={styles.gameLabel}>
                 <Text style={styles.cabinetKicker}>Tile Logic</Text>
                 <Text style={styles.gameTitle}>Dawn Cabinet</Text>
-              </View>
-              <View style={styles.newBadge}>
-                <Text style={styles.newBadgeText}>Beta</Text>
               </View>
             </View>
             <Text style={styles.blurb}>
@@ -966,9 +949,6 @@ export default function HomeScreen() {
               <View style={styles.gameLabel}>
                 <Text style={styles.barterKicker}>Resource Exchange</Text>
                 <Text style={styles.gameTitle}>Barter</Text>
-              </View>
-              <View style={styles.newBadge}>
-                <Text style={styles.newBadgeText}>Beta</Text>
               </View>
             </View>
             <Text style={styles.blurb}>
@@ -1288,22 +1268,6 @@ const createStyles = (
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
-  quickLinkNewBadge: {
-    marginTop: Spacing.xs,
-    backgroundColor: barterAccent.badgeBg,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: barterAccent.badgeBorder,
-  },
-  quickLinkNewText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: barterAccent.badgeText,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
   gameSection: {
     marginBottom: Spacing.xl,
   },
@@ -1393,23 +1357,6 @@ const createStyles = (
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
-  },
-  newBadge: {
-    marginTop: Spacing.xs,
-    backgroundColor: barterAccent.badgeBg,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: barterAccent.badgeBorder,
-    alignSelf: 'flex-start',
-  },
-  newBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: barterAccent.badgeText,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
   },
   streakPill: {
     marginTop: Spacing.sm,
