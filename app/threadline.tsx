@@ -8,6 +8,7 @@ import {
   ScrollView,
   Platform,
   useWindowDimensions,
+  type ViewStyle,
   type GestureResponderEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -121,6 +122,7 @@ export default function ThreadlineScreen() {
   const [isHowToOpen, setIsHowToOpen] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isTimerHidden, setIsTimerHidden] = useState(false);
+  const [isBoardGestureActive, setIsBoardGestureActive] = useState(false);
   const [gameState, setGameState] = useState<GameState>('playing');
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const isPointerDownRef = useRef(false);
@@ -207,6 +209,7 @@ export default function ThreadlineScreen() {
     setStatusMessage(null);
     setElapsedSeconds(0);
     setIsTimerHidden(false);
+    setIsBoardGestureActive(false);
     setGameState('playing');
     setShareStatus(null);
     hasCountedRef.current = false;
@@ -379,6 +382,7 @@ export default function ThreadlineScreen() {
   const handleBoardResponderGrant = useCallback(
     (event: GestureResponderEvent) => {
       isPointerDownRef.current = true;
+      setIsBoardGestureActive(true);
       handleBoardPoint(event.nativeEvent.locationX, event.nativeEvent.locationY, true);
     },
     [handleBoardPoint]
@@ -394,6 +398,7 @@ export default function ThreadlineScreen() {
 
   const handleBoardResponderEnd = useCallback(() => {
     isPointerDownRef.current = false;
+    setIsBoardGestureActive(false);
   }, []);
 
   const shareText = useMemo(() => {
@@ -450,7 +455,11 @@ export default function ThreadlineScreen() {
           headerTitleStyle: { fontWeight: '700' },
         }}
       />
-      <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[1]}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        stickyHeaderIndices={[1]}
+        scrollEnabled={Platform.OS === 'web' || !isBoardGestureActive}
+      >
         <View style={styles.page}>
           <View style={styles.pageAccent} />
           <View style={styles.header}>
@@ -553,12 +562,15 @@ export default function ThreadlineScreen() {
                   padding: boardPadding,
                 },
               ]}
+              onStartShouldSetResponderCapture={() => Platform.OS !== 'web' && gameState === 'playing'}
+              onMoveShouldSetResponderCapture={() => Platform.OS !== 'web' && gameState === 'playing'}
               onStartShouldSetResponder={() => Platform.OS !== 'web' && gameState === 'playing'}
               onMoveShouldSetResponder={() => Platform.OS !== 'web' && gameState === 'playing'}
               onResponderGrant={handleBoardResponderGrant}
               onResponderMove={handleBoardResponderMove}
               onResponderRelease={handleBoardResponderEnd}
               onResponderTerminate={handleBoardResponderEnd}
+              onResponderTerminationRequest={() => false}
             >
               {puzzle.grid.map((row, rowIndex) => (
                 <View
@@ -571,15 +583,45 @@ export default function ThreadlineScreen() {
                     const selected = selectedKeys.has(key);
                     const found = foundCellKeys.has(key);
                     const hinted = hintCellKey === key;
+                    const cellStyle = [
+                      styles.cell,
+                      { width: cellSize, height: cellSize, borderRadius: cellRadius },
+                      found && styles.cellFound,
+                      selected && styles.cellSelected,
+                      hinted && styles.cellHinted,
+                    ];
+                    const cellText = (
+                      <Text
+                        style={[
+                          styles.cellText,
+                          { fontSize: cellFontSize },
+                          found && styles.cellTextFound,
+                          selected && styles.cellTextSelected,
+                        ]}
+                      >
+                        {letter}
+                      </Text>
+                    );
+                    if (Platform.OS !== 'web') {
+                      return (
+                        <View
+                          key={key}
+                          style={cellStyle as ViewStyle[]}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Letter ${letter}, row ${rowIndex + 1}, column ${
+                            colIndex + 1
+                          }`}
+                          accessibilityState={{ selected }}
+                        >
+                          {cellText}
+                        </View>
+                      );
+                    }
                     return (
                       <Pressable
                         key={key}
                         style={({ pressed }) => [
-                          styles.cell,
-                          { width: cellSize, height: cellSize, borderRadius: cellRadius },
-                          found && styles.cellFound,
-                          selected && styles.cellSelected,
-                          hinted && styles.cellHinted,
+                          ...cellStyle,
                           pressed && styles.cellPressed,
                         ]}
                         accessibilityRole="button"
@@ -616,16 +658,7 @@ export default function ThreadlineScreen() {
                             }
                           : {})}
                       >
-                        <Text
-                          style={[
-                            styles.cellText,
-                            { fontSize: cellFontSize },
-                            found && styles.cellTextFound,
-                            selected && styles.cellTextSelected,
-                          ]}
-                        >
-                          {letter}
-                        </Text>
+                        {cellText}
                       </Pressable>
                     );
                   })}
@@ -767,7 +800,7 @@ const createStyles = (
     },
     stickyPuzzleDock: {
       backgroundColor: Colors.backgroundSoft,
-      paddingTop: Spacing.xs,
+      paddingTop: 4,
       paddingBottom: Spacing.sm,
       zIndex: 5,
       elevation: 5,
@@ -833,7 +866,7 @@ const createStyles = (
     },
     briefCard: {
       ...ui.card,
-      padding: Spacing.lg,
+      padding: Spacing.md,
     },
     briefMetaRow: {
       flexDirection: 'row',
@@ -843,7 +876,7 @@ const createStyles = (
     },
     briefTitle: {
       flex: 1,
-      fontSize: FontSize.lg,
+      fontSize: FontSize.md,
       fontWeight: '800',
       color: Colors.text,
     },
@@ -853,17 +886,17 @@ const createStyles = (
       borderColor: screenAccent.badgeBorder,
       backgroundColor: screenAccent.badgeBg,
       paddingHorizontal: Spacing.sm,
-      paddingVertical: 4,
+      paddingVertical: 3,
     },
     difficultyText: {
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: '700',
       color: screenAccent.badgeText,
     },
     leadText: {
-      marginTop: Spacing.md,
-      fontSize: 19,
-      lineHeight: 30,
+      marginTop: Spacing.sm,
+      fontSize: 17,
+      lineHeight: 25,
       fontWeight: '700',
       color: Colors.text,
     },
@@ -877,17 +910,17 @@ const createStyles = (
     },
     threadRow: {
       flexDirection: 'row',
-      gap: Spacing.sm,
-      marginTop: Spacing.md,
+      gap: Spacing.xs,
+      marginTop: Spacing.sm,
     },
     threadCard: {
       flex: 1,
-      minHeight: 100,
-      borderRadius: BorderRadius.lg,
+      minHeight: 84,
+      borderRadius: BorderRadius.md,
       borderWidth: 1,
       borderColor: Colors.border,
       backgroundColor: Colors.surfaceGlass,
-      padding: Spacing.md,
+      padding: Spacing.sm,
       justifyContent: 'space-between',
     },
     threadCardComplete: {
@@ -902,30 +935,30 @@ const createStyles = (
     },
     threadName: {
       flex: 1,
-      fontSize: FontSize.sm,
+      fontSize: 13,
       fontWeight: '800',
       color: Colors.text,
     },
     threadCount: {
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: '800',
       color: Colors.textMuted,
     },
     threadClue: {
-      marginTop: Spacing.xs,
-      fontSize: 12,
-      lineHeight: 17,
+      marginTop: 3,
+      fontSize: 11,
+      lineHeight: 15,
       color: Colors.textMuted,
     },
     threadMeter: {
       flexDirection: 'row',
-      gap: 5,
-      marginTop: Spacing.sm,
+      gap: 4,
+      marginTop: Spacing.xs,
     },
     threadDot: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
       backgroundColor: Colors.surface,
       borderWidth: 1,
       borderColor: Colors.border,
