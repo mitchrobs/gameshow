@@ -26,7 +26,6 @@ import {
   findWordForPath,
   getDailyThreadline,
   getLocalThreadlineDateKey,
-  pathToLetters,
 } from '../src/data/threadlinePuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
@@ -121,6 +120,7 @@ export default function ThreadlineScreen() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isHowToOpen, setIsHowToOpen] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [isTimerHidden, setIsTimerHidden] = useState(false);
   const [gameState, setGameState] = useState<GameState>('playing');
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const isPointerDownRef = useRef(false);
@@ -128,7 +128,6 @@ export default function ThreadlineScreen() {
   const selectedPathRef = useRef<ThreadlineCoord[]>([]);
 
   const foundIdSet = useMemo(() => new Set(foundIds), [foundIds]);
-  const hintedIdSet = useMemo(() => new Set(hintedIds), [hintedIds]);
   const selectedKeys = useMemo(
     () => new Set(selectedPath.map(coordKey)),
     [selectedPath]
@@ -189,11 +188,6 @@ export default function ThreadlineScreen() {
     [activeDate]
   );
   const puzzleNumber = useMemo(() => getPuzzleNumber(dateKey), [dateKey]);
-  const activeLetters = useMemo(() => pathToLetters(puzzle, selectedPath), [
-    puzzle,
-    selectedPath,
-  ]);
-
   useEffect(() => {
     const checkDateRollover = () => {
       const nextKey = getLocalThreadlineDateKey();
@@ -212,6 +206,7 @@ export default function ThreadlineScreen() {
     setHintCellKey(null);
     setStatusMessage(null);
     setElapsedSeconds(0);
+    setIsTimerHidden(false);
     setGameState('playing');
     setShareStatus(null);
     hasCountedRef.current = false;
@@ -336,12 +331,6 @@ export default function ThreadlineScreen() {
     setStatusMessage(`${remainingWord.answer.length} letters: ${remainingWord.hint}`);
   }, [gameState, hasUsedHint, remainingWord]);
 
-  const handleClear = useCallback(() => {
-    selectedPathRef.current = [];
-    setSelectedPath([]);
-    setHintCellKey(null);
-  }, []);
-
   const gridSize = puzzle.grid.length;
   const pageWidth = Math.max(0, Math.min(520, width - Spacing.lg * 2));
   const boardSize = Math.max(0, Math.min(430, pageWidth));
@@ -461,7 +450,7 @@ export default function ThreadlineScreen() {
           headerTitleStyle: { fontWeight: '700' },
         }}
       />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[1]}>
         <View style={styles.page}>
           <View style={styles.pageAccent} />
           <View style={styles.header}>
@@ -486,81 +475,74 @@ export default function ThreadlineScreen() {
               </Pressable>
             </View>
           </View>
+        </View>
 
-          <View style={styles.briefCard}>
-            <View style={styles.briefMetaRow}>
-              <Text style={styles.briefTitle}>{puzzle.title}</Text>
-              <View style={styles.difficultyPill}>
-                <Text style={styles.difficultyText}>{puzzle.difficulty}</Text>
-              </View>
-            </View>
-            <Text style={styles.deck}>Fill the blanks by drawing each missing word in the grid.</Text>
-            <Text style={styles.leadText}>
-              {puzzle.lead.map((segment, index) => {
-                if (segment.type === 'text') {
-                  return <Text key={`text-${index}`}>{segment.text}</Text>;
-                }
-                const word = wordById.get(segment.wordId);
-                const found = word ? foundIdSet.has(word.id) : false;
-                return (
-                  <Text
-                    key={`blank-${segment.wordId}-${index}`}
-                    style={found ? styles.leadWordFound : styles.leadWordBlank}
-                  >
-                    {word ? (found ? word.answer : blankFor(word.answer)) : '_____'}
-                  </Text>
-                );
-              })}
-            </Text>
-          </View>
-
-          <View style={styles.statsRow}>
-            <View style={styles.statPill}>
-              <Text style={styles.statText}>{completedCount}/{puzzle.words.length} words</Text>
-            </View>
-            <View style={styles.statPill}>
-              <Text style={styles.statText}>{formatTime(elapsedSeconds)}</Text>
-            </View>
-            <View style={styles.statPill}>
-              <Text style={styles.statText}>{hasUsedHint ? 'Hint used' : 'Hint ready'}</Text>
-            </View>
-          </View>
-
-          <View style={styles.threadRow}>
-            {threadStats.map((thread) => (
-              <View
-                key={thread.id}
-                style={[
-                  styles.threadCard,
-                  thread.isComplete && styles.threadCardComplete,
-                ]}
-              >
-                <View style={styles.threadHeader}>
-                  <Text style={styles.threadName}>
-                    {thread.foundCount > 0 || isSolved ? thread.name : 'Theme hidden'}
-                  </Text>
-                  <Text style={styles.threadCount}>
-                    {thread.foundCount}/{thread.totalCount}
-                  </Text>
-                </View>
-                <Text style={styles.threadClue}>
-                  {thread.foundCount > 0 || isSolved ? thread.clue : 'Find a word to reveal it'}
-                </Text>
-                <View style={styles.threadMeter}>
-                  {Array.from({ length: thread.totalCount }).map((_, index) => (
-                    <View
-                      key={`${thread.id}-${index}`}
-                      style={[
-                        styles.threadDot,
-                        index < thread.foundCount && styles.threadDotFilled,
-                      ]}
-                    />
-                  ))}
+        <View style={styles.stickyPuzzleDock}>
+          <View style={styles.page}>
+            <View style={styles.briefCard}>
+              <View style={styles.briefMetaRow}>
+                <Text style={styles.briefTitle}>{puzzle.title}</Text>
+                <View style={styles.difficultyPill}>
+                  <Text style={styles.difficultyText}>{puzzle.difficulty}</Text>
                 </View>
               </View>
-            ))}
-          </View>
+              <Text style={styles.leadText}>
+                {puzzle.lead.map((segment, index) => {
+                  if (segment.type === 'text') {
+                    return <Text key={`text-${index}`}>{segment.text}</Text>;
+                  }
+                  const word = wordById.get(segment.wordId);
+                  const found = word ? foundIdSet.has(word.id) : false;
+                  return (
+                    <Text
+                      key={`blank-${segment.wordId}-${index}`}
+                      style={found ? styles.leadWordFound : styles.leadWordBlank}
+                    >
+                      {word ? (found ? word.answer : blankFor(word.answer)) : '_____'}
+                    </Text>
+                  );
+                })}
+              </Text>
+            </View>
 
+            <View style={styles.threadRow}>
+              {threadStats.map((thread) => (
+                <View
+                  key={thread.id}
+                  style={[
+                    styles.threadCard,
+                    thread.isComplete && styles.threadCardComplete,
+                  ]}
+                >
+                  <View style={styles.threadHeader}>
+                    <Text style={styles.threadName}>
+                      {thread.foundCount > 0 || isSolved ? thread.name : 'Theme hidden'}
+                    </Text>
+                    <Text style={styles.threadCount}>
+                      {thread.foundCount}/{thread.totalCount}
+                    </Text>
+                  </View>
+                  <Text style={styles.threadClue}>
+                    {thread.foundCount > 0 || isSolved ? thread.clue : 'Find a word to reveal it'}
+                  </Text>
+                  <View style={styles.threadMeter}>
+                    {Array.from({ length: thread.totalCount }).map((_, index) => (
+                      <View
+                        key={`${thread.id}-${index}`}
+                        style={[
+                          styles.threadDot,
+                          index < thread.foundCount && styles.threadDotFilled,
+                        ]}
+                      />
+                    ))}
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.page}>
           <View style={styles.boardWrap}>
             <View
               style={[
@@ -652,46 +634,7 @@ export default function ThreadlineScreen() {
             </View>
           </View>
 
-          <View style={styles.selectionRow}>
-            <Text style={styles.selectionText}>
-              {activeLetters ? activeLetters : remainingWord ? `Draw a ${remainingWord.answer.length}-letter word` : 'Line complete'}
-            </Text>
-            <Pressable
-              style={({ pressed }) => [
-                styles.clearButton,
-                pressed && styles.clearButtonPressed,
-                selectedPath.length === 0 && styles.clearButtonDisabled,
-              ]}
-              onPress={handleClear}
-              disabled={selectedPath.length === 0}
-            >
-              <Text style={styles.clearButtonText}>Clear</Text>
-            </Pressable>
-          </View>
-
           {statusMessage && <Text style={styles.statusText}>{statusMessage}</Text>}
-
-          <View style={styles.wordTray}>
-            {puzzle.words.map((word) => {
-              const found = foundIdSet.has(word.id);
-              const hinted = hintedIdSet.has(word.id);
-              return (
-                <View
-                  key={word.id}
-                  style={[
-                    styles.wordChip,
-                    found && styles.wordChipFound,
-                    hinted && !found && styles.wordChipHinted,
-                  ]}
-                >
-                  <Text style={[styles.wordChipText, found && styles.wordChipTextFound]}>
-                    {found ? word.answer : `${word.answer.length} letters`}
-                  </Text>
-                  {hinted && !found && <Text style={styles.wordHintText}>{word.hint}</Text>}
-                </View>
-              );
-            })}
-          </View>
 
           {gameState === 'won' && (
             <View style={styles.resultCard}>
@@ -733,6 +676,19 @@ export default function ThreadlineScreen() {
                 disabled={hasUsedHint}
               >
                 <Text style={styles.hintButtonText}>{hasUsedHint ? 'Hint used' : 'Hint'}</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={isTimerHidden ? 'Show timer' : 'Hide timer'}
+                style={({ pressed }) => [
+                  styles.timerButton,
+                  pressed && styles.timerButtonPressed,
+                ]}
+                onPress={() => setIsTimerHidden((hidden) => !hidden)}
+              >
+                <Text style={styles.timerButtonText}>
+                  {isTimerHidden ? 'Time hidden' : formatTime(elapsedSeconds)}
+                </Text>
               </Pressable>
             </View>
           )}
@@ -808,6 +764,13 @@ const createStyles = (
     scrollContent: {
       padding: Spacing.lg,
       paddingBottom: Spacing.xxl,
+    },
+    stickyPuzzleDock: {
+      backgroundColor: Colors.backgroundSoft,
+      paddingTop: Spacing.xs,
+      paddingBottom: Spacing.sm,
+      zIndex: 5,
+      elevation: 5,
     },
     page: {
       ...ui.page,
@@ -897,12 +860,6 @@ const createStyles = (
       fontWeight: '700',
       color: screenAccent.badgeText,
     },
-    deck: {
-      marginTop: Spacing.xs,
-      fontSize: FontSize.sm,
-      color: Colors.textMuted,
-      lineHeight: 20,
-    },
     leadText: {
       marginTop: Spacing.md,
       fontSize: 19,
@@ -917,21 +874,6 @@ const createStyles = (
     leadWordFound: {
       color: screenAccent.main,
       fontWeight: '800',
-    },
-    statsRow: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: Spacing.sm,
-      marginTop: Spacing.md,
-    },
-    statPill: {
-      ...ui.pill,
-      paddingVertical: Spacing.xs,
-    },
-    statText: {
-      fontSize: 13,
-      fontWeight: '700',
-      color: Colors.textSecondary,
     },
     threadRow: {
       flexDirection: 'row',
@@ -1044,90 +986,11 @@ const createStyles = (
     cellTextFound: {
       color: theme.mode === 'dark' ? Colors.white : '#16594e',
     },
-    selectionRow: {
-      marginTop: Spacing.md,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: Spacing.sm,
-    },
-    selectionText: {
-      flex: 1,
-      minHeight: 44,
-      borderRadius: BorderRadius.md,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: Colors.surface,
-      color: Colors.textSecondary,
-      fontSize: FontSize.md,
-      fontWeight: '800',
-      letterSpacing: 1,
-      paddingHorizontal: Spacing.md,
-      paddingVertical: 12,
-    },
-    clearButton: {
-      minHeight: 44,
-      borderRadius: BorderRadius.md,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: Colors.surfaceGlass,
-      justifyContent: 'center',
-      paddingHorizontal: Spacing.md,
-    },
-    clearButtonPressed: {
-      backgroundColor: screenAccent.badgeBg,
-    },
-    clearButtonDisabled: {
-      opacity: 0.45,
-    },
-    clearButtonText: {
-      color: Colors.textSecondary,
-      fontWeight: '800',
-      fontSize: FontSize.sm,
-    },
     statusText: {
       marginTop: Spacing.sm,
       color: Colors.textMuted,
       fontSize: FontSize.sm,
       textAlign: 'center',
-    },
-    wordTray: {
-      marginTop: Spacing.md,
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: Spacing.sm,
-    },
-    wordChip: {
-      borderRadius: BorderRadius.md,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: Colors.surfaceGlass,
-      paddingHorizontal: Spacing.md,
-      paddingVertical: Spacing.sm,
-      minHeight: 38,
-      justifyContent: 'center',
-    },
-    wordChipFound: {
-      borderColor: palette.foundBorder,
-      backgroundColor: palette.found,
-    },
-    wordChipHinted: {
-      borderColor: screenAccent.badgeBorder,
-      backgroundColor: screenAccent.badgeBg,
-    },
-    wordChipText: {
-      fontSize: FontSize.sm,
-      fontWeight: '800',
-      color: Colors.textSecondary,
-    },
-    wordChipTextFound: {
-      color: theme.mode === 'dark' ? Colors.white : '#16594e',
-    },
-    wordHintText: {
-      marginTop: 2,
-      maxWidth: 190,
-      fontSize: 12,
-      lineHeight: 16,
-      color: Colors.textMuted,
     },
     resultCard: {
       ...ui.card,
@@ -1196,10 +1059,14 @@ const createStyles = (
     },
     actions: {
       marginTop: Spacing.lg,
+      flexDirection: 'row',
+      gap: Spacing.sm,
+      alignItems: 'stretch',
     },
     hintButton: {
       ...ui.cta,
       borderRadius: BorderRadius.lg,
+      flex: 1,
     },
     hintButtonPressed: {
       ...ui.ctaPressed,
@@ -1209,6 +1076,29 @@ const createStyles = (
     },
     hintButtonText: {
       ...ui.ctaText,
+    },
+    timerButton: {
+      minHeight: 52,
+      minWidth: 116,
+      borderRadius: BorderRadius.lg,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceGlass,
+      paddingHorizontal: Spacing.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...WEB_NO_SELECT,
+    },
+    timerButtonPressed: {
+      backgroundColor: screenAccent.badgeBg,
+      transform: [{ scale: 0.99 }],
+    },
+    timerButtonText: {
+      fontSize: FontSize.sm,
+      fontWeight: '800',
+      color: Colors.textSecondary,
+      letterSpacing: 0.6,
+      textTransform: 'uppercase',
     },
     modalOverlay: {
       flex: 1,
