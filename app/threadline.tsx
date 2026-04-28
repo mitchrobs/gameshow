@@ -100,6 +100,29 @@ function canExtendSelection(path: ThreadlineCoord[], coord: ThreadlineCoord): bo
   );
 }
 
+function coordsBetween(
+  start: ThreadlineCoord,
+  end: ThreadlineCoord
+): ThreadlineCoord[] | null {
+  const rowDelta = end.row - start.row;
+  const colDelta = end.col - start.col;
+  if (rowDelta === 0 && colDelta === 0) return [];
+
+  const rowAbs = Math.abs(rowDelta);
+  const colAbs = Math.abs(colDelta);
+  const isStraightLine = rowDelta === 0 || colDelta === 0 || rowAbs === colAbs;
+  if (!isStraightLine) return null;
+
+  const steps = Math.max(rowAbs, colAbs);
+  const rowStep = Math.sign(rowDelta);
+  const colStep = Math.sign(colDelta);
+
+  return Array.from({ length: steps }, (_, index) => ({
+    row: start.row + rowStep * (index + 1),
+    col: start.col + colStep * (index + 1),
+  }));
+}
+
 function getPuzzleNumber(dateKey: string): string {
   return dateKey.replaceAll('-', '').slice(-3);
 }
@@ -301,15 +324,16 @@ export default function ThreadlineScreen() {
     setStatusMessage(`${word.answer} filled in.`);
   }, []);
 
-  const applySelection = useCallback(
+  const commitPath = useCallback(
     (nextPath: ThreadlineCoord[]) => {
       const matchedWord = findWordForPath(puzzle, nextPath, foundIdSet);
       if (matchedWord) {
         completeWord(matchedWord);
-        return;
+        return true;
       }
       selectedPathRef.current = nextPath;
       setSelectedPath(nextPath);
+      return false;
     },
     [completeWord, foundIdSet, puzzle]
   );
@@ -319,26 +343,44 @@ export default function ThreadlineScreen() {
       if (gameState !== 'playing') return;
       const currentPath = selectedPathRef.current;
       const existingIndex = currentPath.findIndex((item) => sameCoord(item, coord));
-      let nextPath: ThreadlineCoord[];
 
       if (existingIndex >= 0 && existingIndex === currentPath.length - 1) {
         return;
       }
 
       if (existingIndex >= 0) {
-        nextPath = currentPath.slice(0, existingIndex + 1);
-      } else if (canExtendSelection(currentPath, coord)) {
-        nextPath = [...currentPath, coord];
-      } else {
-        nextPath = [coord];
+        commitPath(currentPath.slice(0, existingIndex + 1));
+        return;
       }
 
-      if (nextPath.length > longestWordLength) {
-        nextPath = [coord];
+      if (currentPath.length === 0) {
+        commitPath([coord]);
+        return;
       }
-      applySelection(nextPath);
+
+      const last = currentPath[currentPath.length - 1];
+      const bridge = coordsBetween(last, coord);
+      if (!bridge) return;
+
+      let nextPath = currentPath;
+      for (const stepCoord of bridge) {
+        const loopIndex = nextPath.findIndex((item) => sameCoord(item, stepCoord));
+        if (loopIndex >= 0) {
+          commitPath(nextPath.slice(0, loopIndex + 1));
+          return;
+        }
+
+        if (!canExtendSelection(nextPath, stepCoord)) return;
+
+        const candidatePath = [...nextPath, stepCoord];
+        if (candidatePath.length > longestWordLength) return;
+
+        const didComplete = commitPath(candidatePath);
+        if (didComplete) return;
+        nextPath = candidatePath;
+      }
     },
-    [applySelection, gameState, longestWordLength]
+    [commitPath, gameState, longestWordLength]
   );
 
   const handleHint = useCallback(() => {
@@ -367,15 +409,26 @@ export default function ThreadlineScreen() {
       const localX = locationX - boardPadding;
       const localY = locationY - boardPadding;
       const pitch = cellSize + cellGap;
-      if (localX < 0 || localY < 0) return null;
+      const gridPixelSize = gridSize * cellSize + (gridSize - 1) * cellGap;
+      const edgeTolerance = Math.max(10, Math.min(18, cellSize * 0.45));
 
-      const col = Math.floor(localX / pitch);
-      const row = Math.floor(localY / pitch);
-      if (row < 0 || row >= gridSize || col < 0 || col >= gridSize) return null;
+      if (
+        localX < -edgeTolerance ||
+        localY < -edgeTolerance ||
+        localX > gridPixelSize + edgeTolerance ||
+        localY > gridPixelSize + edgeTolerance
+      ) {
+        return null;
+      }
 
-      const cellX = localX - col * pitch;
-      const cellY = localY - row * pitch;
-      if (cellX > cellSize || cellY > cellSize) return null;
+      const col = Math.max(
+        0,
+        Math.min(gridSize - 1, Math.round((localX - cellSize / 2) / pitch))
+      );
+      const row = Math.max(
+        0,
+        Math.min(gridSize - 1, Math.round((localY - cellSize / 2) / pitch))
+      );
 
       return { row, col };
     },
@@ -497,7 +550,6 @@ export default function ThreadlineScreen() {
             onPointerMove: handleWebBoardMove,
             onPointerUp: handleWebBoardEnd,
             onPointerCancel: handleWebBoardEnd,
-            onPointerLeave: handleWebBoardEnd,
             onTouchStart: handleWebBoardStart,
             onTouchMove: handleWebBoardMove,
             onTouchEnd: handleWebBoardEnd,
