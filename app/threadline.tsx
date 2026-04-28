@@ -242,11 +242,20 @@ export default function ThreadlineScreen() {
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    const handlePointerUp = () => {
+    const handlePointerDone = () => {
       isPointerDownRef.current = false;
+      setIsBoardGestureActive(false);
     };
-    window.addEventListener('pointerup', handlePointerUp);
-    return () => window.removeEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointerup', handlePointerDone);
+    window.addEventListener('pointercancel', handlePointerDone);
+    window.addEventListener('touchend', handlePointerDone);
+    window.addEventListener('touchcancel', handlePointerDone);
+    return () => {
+      window.removeEventListener('pointerup', handlePointerDone);
+      window.removeEventListener('pointercancel', handlePointerDone);
+      window.removeEventListener('touchend', handlePointerDone);
+      window.removeEventListener('touchcancel', handlePointerDone);
+    };
   }, []);
 
   useEffect(() => {
@@ -330,24 +339,6 @@ export default function ThreadlineScreen() {
       applySelection(nextPath);
     },
     [applySelection, gameState, longestWordLength]
-  );
-
-  const handleCellStart = useCallback(
-    (coord: ThreadlineCoord) => {
-      isPointerDownRef.current = true;
-      const currentPath = selectedPathRef.current;
-      const existingIndex = currentPath.findIndex((item) => sameCoord(item, coord));
-      const canContinue =
-        currentPath.length > 0 &&
-        (existingIndex >= 0 || canExtendSelection(currentPath, coord));
-
-      if (!canContinue) {
-        selectedPathRef.current = [];
-        setSelectedPath([]);
-      }
-      handleCellPress(coord);
-    },
-    [handleCellPress]
   );
 
   const handleHint = useCallback(() => {
@@ -701,6 +692,7 @@ export default function ThreadlineScreen() {
                     const hinted = hintCellKey === key;
                     const cellStyle = [
                       styles.cell,
+                      styles.cellPassive,
                       { width: cellSize, height: cellSize, borderRadius: cellRadius },
                       found && styles.cellFound,
                       selected && styles.cellSelected,
@@ -718,64 +710,18 @@ export default function ThreadlineScreen() {
                         {letter}
                       </Text>
                     );
-                    if (Platform.OS !== 'web') {
-                      return (
-                        <View
-                          key={key}
-                          style={cellStyle as ViewStyle[]}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Letter ${letter}, row ${rowIndex + 1}, column ${
-                            colIndex + 1
-                          }`}
-                          accessibilityState={{ selected }}
-                        >
-                          {cellText}
-                        </View>
-                      );
-                    }
                     return (
-                      <Pressable
+                      <View
                         key={key}
-                        style={({ pressed }) => [
-                          ...cellStyle,
-                          pressed && styles.cellPressed,
-                        ]}
+                        style={cellStyle as ViewStyle[]}
                         accessibilityRole="button"
                         accessibilityLabel={`Letter ${letter}, row ${rowIndex + 1}, column ${
                           colIndex + 1
                         }`}
                         accessibilityState={{ selected }}
-                        onPressIn={Platform.OS === 'web' ? undefined : () => handleCellStart(coord)}
-                        onPress={Platform.OS === 'web' ? undefined : () => handleCellPress(coord)}
-                        onHoverIn={
-                          Platform.OS === 'web'
-                            ? undefined
-                            : () => {
-                                if (isPointerDownRef.current) handleCellPress(coord);
-                              }
-                        }
-                        {...(Platform.OS === 'web'
-                          ? {
-                              onMouseDown: () => {
-                                handleCellStart(coord);
-                              },
-                              onMouseEnter: () => {
-                                if (isPointerDownRef.current) handleCellPress(coord);
-                              },
-                              onMouseMove: (event: { buttons?: number }) => {
-                                if (event.buttons !== 1) return;
-                                if (!isPointerDownRef.current) {
-                                  isPointerDownRef.current = true;
-                                  selectedPathRef.current = [];
-                                  setSelectedPath([]);
-                                }
-                                handleCellPress(coord);
-                              },
-                            }
-                          : {})}
                       >
                         {cellText}
-                      </Pressable>
+                      </View>
                     );
                   })}
                 </View>
@@ -1106,8 +1052,8 @@ const createStyles = (
       alignItems: 'center',
       justifyContent: 'center',
     },
-    cellPressed: {
-      transform: [{ scale: 0.97 }],
+    cellPassive: {
+      pointerEvents: 'none',
     },
     cellSelected: {
       backgroundColor: palette.selected,
