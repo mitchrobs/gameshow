@@ -180,6 +180,7 @@ export default function ThreadlineScreen() {
   const [lastFoundPath, setLastFoundPath] = useState<ThreadlineCoord[]>([]);
   const [isCompletionOpen, setIsCompletionOpen] = useState(false);
   const [frameSize, setFrameSize] = useState<FrameSize>({ width: 0, height: 0 });
+  const [playAreaSize, setPlayAreaSize] = useState<FrameSize>({ width: 0, height: 0 });
   const isPointerDownRef = useRef(false);
   const hasCountedRef = useRef(false);
   const selectedPathRef = useRef<ThreadlineCoord[]>([]);
@@ -199,6 +200,19 @@ export default function ThreadlineScreen() {
   const handleFrameLayout = useCallback((event: LayoutChangeEvent) => {
     const next = event.nativeEvent.layout;
     setFrameSize((current) => {
+      if (
+        Math.round(current.width) === Math.round(next.width) &&
+        Math.round(current.height) === Math.round(next.height)
+      ) {
+        return current;
+      }
+      return { width: next.width, height: next.height };
+    });
+  }, []);
+
+  const handlePlayAreaLayout = useCallback((event: LayoutChangeEvent) => {
+    const next = event.nativeEvent.layout;
+    setPlayAreaSize((current) => {
       if (
         Math.round(current.width) === Math.round(next.width) &&
         Math.round(current.height) === Math.round(next.height)
@@ -496,15 +510,21 @@ export default function ThreadlineScreen() {
   }, [gameState, hasUsedHint, remainingWord]);
 
   const gridSize = puzzle.grid.length;
+  const measuredPlayAreaWidth =
+    playAreaSize.width || Math.max(0, frameWidth - mobileHorizontalPadding * 2);
+  const measuredPlayAreaHeight = playAreaSize.height || 0;
   const mobileReservedHeight =
     mobileVerticalPadding * 2 +
     (frameHeight <= 680 ? 34 : 38) +
     (frameHeight <= 680 ? 142 : 156) +
     (frameHeight <= 680 ? 46 : 52) +
     (frameHeight <= 680 ? 18 : 24);
-  const mobileBoardLimit = Math.max(224, frameHeight - mobileReservedHeight);
+  const mobileBoardLimit = Math.max(
+    224,
+    (measuredPlayAreaHeight || frameHeight - mobileReservedHeight) - 8
+  );
   const pageWidth = isPhoneLayout
-    ? Math.max(0, frameWidth - mobileHorizontalPadding * 2)
+    ? Math.max(0, measuredPlayAreaWidth)
     : Math.max(0, Math.min(520, width - Spacing.lg * 2));
   const boardSize = Math.floor(
     Math.max(
@@ -957,7 +977,13 @@ export default function ThreadlineScreen() {
   };
 
   const renderBoard = (compact = false) => (
-    <View style={[styles.boardWrap, compact && styles.mobileBoardWrap]}>
+    <View
+      style={[
+        styles.boardWrap,
+        compact && styles.mobileBoardWrap,
+        compact && { width: boardSize, height: boardSize },
+      ]}
+    >
       <View
         style={[
           styles.board,
@@ -1260,7 +1286,7 @@ export default function ThreadlineScreen() {
         >
           {renderHeader(true)}
           {renderPuzzleDock(true)}
-          <View style={styles.mobilePlayArea}>
+          <View style={styles.mobilePlayArea} onLayout={handlePlayAreaLayout}>
             {renderBoard(true)}
             {renderStatus(true)}
           </View>
@@ -1731,10 +1757,12 @@ const createStyles = (
       marginTop: Spacing.lg,
     },
     mobileBoardWrap: {
-      width: '100%',
+      alignSelf: 'center',
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 0,
+      flexShrink: 0,
+      overflow: 'visible',
     },
     board: {
       backgroundColor: palette.board,
@@ -1742,6 +1770,7 @@ const createStyles = (
       borderWidth: 1,
       borderColor: Colors.border,
       position: 'relative',
+      alignSelf: 'center',
       ...WEB_NO_SELECT,
     },
     pathOverlay: {
