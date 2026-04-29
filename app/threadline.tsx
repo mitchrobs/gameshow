@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
   type ViewStyle,
   type GestureResponderEvent,
+  type LayoutChangeEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
@@ -31,6 +32,7 @@ import {
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 
 type GameState = 'playing' | 'won';
+type FrameSize = { width: number; height: number };
 
 const STORAGE_PREFIX = 'threadline';
 const HOW_TO_STEPS = [
@@ -158,7 +160,7 @@ export default function ThreadlineScreen() {
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
   const Colors = theme.colors;
   const Spacing = theme.spacing;
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [dateKey, setDateKey] = useState(() => getLocalThreadlineDateKey());
   const activeDate = useMemo(() => getDateFromLocalDateKey(dateKey), [dateKey]);
   const puzzle = useMemo(() => getDailyThreadline(activeDate), [activeDate]);
@@ -173,6 +175,7 @@ export default function ThreadlineScreen() {
   const [isBoardGestureActive, setIsBoardGestureActive] = useState(false);
   const [gameState, setGameState] = useState<GameState>('playing');
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [frameSize, setFrameSize] = useState<FrameSize>({ width: 0, height: 0 });
   const isPointerDownRef = useRef(false);
   const hasCountedRef = useRef(false);
   const selectedPathRef = useRef<ThreadlineCoord[]>([]);
@@ -182,6 +185,25 @@ export default function ThreadlineScreen() {
     () => new Set(selectedPath.map(coordKey)),
     [selectedPath]
   );
+
+  const isPhoneLayout = width <= 600;
+  const frameWidth = frameSize.width || width;
+  const frameHeight = frameSize.height || height;
+  const mobileHorizontalPadding = frameWidth <= 380 ? 10 : 12;
+  const mobileVerticalPadding = frameHeight <= 680 ? 8 : 12;
+
+  const handleFrameLayout = useCallback((event: LayoutChangeEvent) => {
+    const next = event.nativeEvent.layout;
+    setFrameSize((current) => {
+      if (
+        Math.round(current.width) === Math.round(next.width) &&
+        Math.round(current.height) === Math.round(next.height)
+      ) {
+        return current;
+      }
+      return { width: next.width, height: next.height };
+    });
+  }, []);
 
   useEffect(() => {
     selectedPathRef.current = selectedPath;
@@ -280,6 +302,61 @@ export default function ThreadlineScreen() {
       window.removeEventListener('touchcancel', handlePointerDone);
     };
   }, []);
+
+  useEffect(() => {
+    if (
+      Platform.OS !== 'web' ||
+      !isPhoneLayout ||
+      typeof document === 'undefined' ||
+      typeof window === 'undefined'
+    ) {
+      return;
+    }
+
+    const html = document.documentElement;
+    const body = document.body;
+    const scrollY = window.scrollY;
+    const previous = {
+      htmlOverflow: html.style.overflow,
+      htmlOverscrollBehavior: html.style.overscrollBehavior,
+      bodyOverflow: body.style.overflow,
+      bodyOverscrollBehavior: body.style.overscrollBehavior,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyLeft: body.style.left,
+      bodyRight: body.style.right,
+      bodyWidth: body.style.width,
+      bodyHeight: body.style.height,
+      bodyTouchAction: body.style.touchAction,
+    };
+
+    html.style.overflow = 'hidden';
+    html.style.overscrollBehavior = 'none';
+    body.style.overflow = 'hidden';
+    body.style.overscrollBehavior = 'none';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
+    body.style.height = '100%';
+    body.style.touchAction = 'none';
+
+    return () => {
+      html.style.overflow = previous.htmlOverflow;
+      html.style.overscrollBehavior = previous.htmlOverscrollBehavior;
+      body.style.overflow = previous.bodyOverflow;
+      body.style.overscrollBehavior = previous.bodyOverscrollBehavior;
+      body.style.position = previous.bodyPosition;
+      body.style.top = previous.bodyTop;
+      body.style.left = previous.bodyLeft;
+      body.style.right = previous.bodyRight;
+      body.style.width = previous.bodyWidth;
+      body.style.height = previous.bodyHeight;
+      body.style.touchAction = previous.bodyTouchAction;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isPhoneLayout]);
 
   useEffect(() => {
     const storage = getStorage();
@@ -393,12 +470,26 @@ export default function ThreadlineScreen() {
   }, [gameState, hasUsedHint, remainingWord]);
 
   const gridSize = puzzle.grid.length;
-  const pageWidth = Math.max(0, Math.min(520, width - Spacing.lg * 2));
-  const boardSize = Math.max(0, Math.min(430, pageWidth));
-  const cellGap = 5;
-  const boardPadding = Spacing.sm;
+  const mobileReservedHeight =
+    mobileVerticalPadding * 2 +
+    (frameHeight <= 680 ? 40 : 46) +
+    (frameHeight <= 680 ? 158 : 176) +
+    (frameHeight <= 680 ? 46 : 52) +
+    (frameHeight <= 680 ? 28 : 38);
+  const mobileBoardLimit = Math.max(224, frameHeight - mobileReservedHeight);
+  const pageWidth = isPhoneLayout
+    ? Math.max(0, frameWidth - mobileHorizontalPadding * 2)
+    : Math.max(0, Math.min(520, width - Spacing.lg * 2));
+  const boardSize = Math.floor(
+    Math.max(
+      0,
+      Math.min(430, pageWidth, isPhoneLayout ? mobileBoardLimit : pageWidth)
+    )
+  );
+  const cellGap = isPhoneLayout ? (boardSize < 310 ? 3 : 4) : 5;
+  const boardPadding = isPhoneLayout ? (boardSize < 310 ? 5 : 6) : Spacing.sm;
   const cellSize = Math.max(
-    22,
+    isPhoneLayout ? 20 : 22,
     (boardSize - boardPadding * 2 - cellGap * (gridSize - 1)) / gridSize
   );
   const cellRadius = Math.max(6, Math.min(10, cellSize * 0.28));
@@ -601,286 +692,378 @@ export default function ThreadlineScreen() {
     }
   }, [shareText]);
 
+  const screenOptions = {
+    title: 'Threadline',
+    headerBackTitle: 'Home',
+    headerStyle: { backgroundColor: Colors.backgroundSoft },
+    headerTintColor: Colors.text,
+    headerShadowVisible: false,
+    headerTitleStyle: { fontWeight: '700' as const },
+  };
+
+  const renderHeader = (compact = false) => (
+    <View style={[styles.page, compact && styles.mobilePage]}>
+      <View style={[styles.pageAccent, compact && styles.mobilePageAccent]} />
+      <View style={[styles.header, compact && styles.mobileHeader]}>
+        <View style={[styles.headerTopRow, compact && styles.mobileHeaderTopRow]}>
+          <View style={[styles.headerTitleBlock, compact && styles.mobileHeaderTitleBlock]}>
+            <Text style={[styles.kicker, compact && styles.mobileKicker]}>
+              Daily Word Puzzle
+            </Text>
+            <Text style={[styles.title, compact && styles.mobileTitle]}>Threadline</Text>
+            <Text style={[styles.subtitle, compact && styles.mobileSubtitle]}>
+              Daily puzzle #{puzzleNumber} - {dateLabel}
+            </Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="How to play Threadline"
+            style={({ pressed }) => [
+              styles.howToButton,
+              compact && styles.mobileHowToButton,
+              pressed && styles.howToButtonPressed,
+            ]}
+            onPress={() => setIsHowToOpen(true)}
+          >
+            <Text style={[styles.howToButtonText, compact && styles.mobileHowToButtonText]}>
+              How to play
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderPuzzleDock = (compact = false) => (
+    <View style={[styles.stickyPuzzleDock, compact && styles.mobilePuzzleDock]}>
+      <View style={[styles.page, compact && styles.mobilePage]}>
+        <View style={[styles.briefCard, compact && styles.mobileBriefCard]}>
+          <View style={styles.briefMetaRow}>
+            <Text style={[styles.briefTitle, compact && styles.mobileBriefTitle]}>
+              {puzzle.title}
+            </Text>
+            <View style={[styles.difficultyPill, compact && styles.mobileDifficultyPill]}>
+              <Text style={[styles.difficultyText, compact && styles.mobileDifficultyText]}>
+                {puzzle.difficulty}
+              </Text>
+            </View>
+          </View>
+          <Text
+            style={[styles.leadText, compact && styles.mobileLeadText]}
+            numberOfLines={compact ? 3 : undefined}
+          >
+            {puzzle.lead.map((segment, index) => {
+              if (segment.type === 'text') {
+                return <Text key={`text-${index}`}>{segment.text}</Text>;
+              }
+              const word = wordById.get(segment.wordId);
+              const found = word ? foundIdSet.has(word.id) : false;
+              return (
+                <Text
+                  key={`blank-${segment.wordId}-${index}`}
+                  style={found ? styles.leadWordFound : styles.leadWordBlank}
+                >
+                  {word ? (found ? word.answer : blankFor(word.answer)) : '_____'}
+                </Text>
+              );
+            })}
+          </Text>
+        </View>
+
+        <View style={[styles.threadRow, compact && styles.mobileThreadRow]}>
+          {threadStats.map((thread) => (
+            <View
+              key={thread.id}
+              style={[
+                styles.threadCard,
+                compact && styles.mobileThreadCard,
+                thread.isComplete && styles.threadCardComplete,
+              ]}
+            >
+              <View style={styles.threadHeader}>
+                <Text
+                  style={[styles.threadName, compact && styles.mobileThreadName]}
+                  numberOfLines={1}
+                >
+                  {thread.foundCount > 0 || isSolved ? thread.name : 'Theme hidden'}
+                </Text>
+                <Text style={[styles.threadCount, compact && styles.mobileThreadCount]}>
+                  {thread.foundCount}/{thread.totalCount}
+                </Text>
+              </View>
+              <Text
+                style={[styles.threadClue, compact && styles.mobileThreadClue]}
+                numberOfLines={compact ? 1 : undefined}
+              >
+                {thread.foundCount > 0 || isSolved ? thread.clue : 'Find a word to reveal it'}
+              </Text>
+              <View style={[styles.threadMeter, compact && styles.mobileThreadMeter]}>
+                {Array.from({ length: thread.totalCount }).map((_, index) => (
+                  <View
+                    key={`${thread.id}-${index}`}
+                    style={[
+                      styles.threadDot,
+                      compact && styles.mobileThreadDot,
+                      index < thread.foundCount && styles.threadDotFilled,
+                    ]}
+                  />
+                ))}
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderBoard = (compact = false) => (
+    <View style={[styles.boardWrap, compact && styles.mobileBoardWrap]}>
+      <View
+        style={[
+          styles.board,
+          {
+            width: boardSize,
+            height: boardSize,
+            gap: cellGap,
+            padding: boardPadding,
+          },
+        ]}
+        onStartShouldSetResponderCapture={() => Platform.OS !== 'web' && gameState === 'playing'}
+        onMoveShouldSetResponderCapture={() => Platform.OS !== 'web' && gameState === 'playing'}
+        onStartShouldSetResponder={() => Platform.OS !== 'web' && gameState === 'playing'}
+        onMoveShouldSetResponder={() => Platform.OS !== 'web' && gameState === 'playing'}
+        onResponderGrant={handleBoardResponderGrant}
+        onResponderMove={handleBoardResponderMove}
+        onResponderRelease={handleBoardResponderEnd}
+        onResponderTerminate={handleBoardResponderEnd}
+        onResponderTerminationRequest={() => false}
+        {...(webBoardHandlers as object)}
+      >
+        {puzzle.grid.map((row, rowIndex) => (
+          <View key={`row-${rowIndex}`} style={[styles.boardRow, { gap: cellGap }]}>
+            {row.split('').map((letter, colIndex) => {
+              const coord = { row: rowIndex, col: colIndex };
+              const key = coordKey(coord);
+              const selected = selectedKeys.has(key);
+              const found = foundCellKeys.has(key);
+              const hinted = hintCellKey === key;
+              const cellStyle = [
+                styles.cell,
+                styles.cellPassive,
+                { width: cellSize, height: cellSize, borderRadius: cellRadius },
+                found && styles.cellFound,
+                selected && styles.cellSelected,
+                hinted && styles.cellHinted,
+              ];
+              return (
+                <View
+                  key={key}
+                  style={cellStyle as ViewStyle[]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Letter ${letter}, row ${rowIndex + 1}, column ${
+                    colIndex + 1
+                  }`}
+                  accessibilityState={{ selected }}
+                >
+                  <Text
+                    style={[
+                      styles.cellText,
+                      { fontSize: cellFontSize },
+                      found && styles.cellTextFound,
+                      selected && styles.cellTextSelected,
+                    ]}
+                  >
+                    {letter}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+
+  const renderStatus = (compact = false) => {
+    if (!statusMessage) return null;
+    if (compact) {
+      return (
+        <View style={styles.mobileStatusToast}>
+          <Text style={styles.mobileStatusText}>{statusMessage}</Text>
+        </View>
+      );
+    }
+    return <Text style={styles.statusText}>{statusMessage}</Text>;
+  };
+
+  const renderActions = (compact = false) => {
+    if (gameState !== 'playing') return null;
+    return (
+      <View style={[styles.actions, compact && styles.mobileActions]}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.hintButton,
+            compact && styles.mobileHintButton,
+            pressed && styles.hintButtonPressed,
+            hasUsedHint && styles.hintButtonDisabled,
+          ]}
+          onPress={handleHint}
+          disabled={hasUsedHint}
+        >
+          <Text style={[styles.hintButtonText, compact && styles.mobileActionText]}>
+            {hasUsedHint ? 'Hint used' : 'Hint'}
+          </Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={isTimerHidden ? 'Show timer' : 'Hide timer'}
+          style={({ pressed }) => [
+            styles.timerButton,
+            compact && styles.mobileTimerButton,
+            pressed && styles.timerButtonPressed,
+          ]}
+          onPress={() => setIsTimerHidden((hidden) => !hidden)}
+        >
+          <Text style={[styles.timerButtonText, compact && styles.mobileTimerButtonText]}>
+            {isTimerHidden ? 'Time hidden' : formatTime(elapsedSeconds)}
+          </Text>
+        </Pressable>
+      </View>
+    );
+  };
+
+  const renderResult = (compact = false) => {
+    if (gameState !== 'won') return null;
+    return (
+      <View style={[styles.resultCard, compact && styles.mobileResultCard]}>
+        <Text style={[styles.resultTitle, compact && styles.mobileResultTitle]}>
+          Threadline complete
+        </Text>
+        <Text style={styles.resultSubtitle}>
+          {formatTime(elapsedSeconds)} - {hasUsedHint ? 'hint used' : 'no hint'}
+        </Text>
+        <Text style={[styles.weaveText, compact && styles.mobileWeaveText]}>
+          {puzzle.weave}
+        </Text>
+        <Text style={[styles.note, compact && styles.mobileNote]}>{puzzle.note}</Text>
+        <View style={[styles.shareBox, compact && styles.mobileShareBox]}>
+          <Text selectable style={[styles.shareText, compact && styles.mobileShareText]}>
+            {shareText}
+          </Text>
+        </View>
+        {Platform.OS === 'web' && (
+          <Pressable
+            style={({ pressed }) => [
+              styles.shareButton,
+              compact && styles.mobileShareButton,
+              pressed && styles.shareButtonPressed,
+            ]}
+            onPress={handleCopyResults}
+          >
+            <Text style={styles.shareButtonText}>Copy results</Text>
+          </Pressable>
+        )}
+        {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
+      </View>
+    );
+  };
+
+  const howToModal = (
+    <Modal
+      visible={isHowToOpen}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setIsHowToOpen(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <Pressable
+          style={styles.modalBackdrop}
+          accessible={false}
+          onPress={() => setIsHowToOpen(false)}
+        />
+        <View style={styles.modalCard}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>How to play Threadline</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close how to play"
+              style={({ pressed }) => [
+                styles.modalCloseButton,
+                pressed && styles.modalCloseButtonPressed,
+              ]}
+              onPress={() => setIsHowToOpen(false)}
+            >
+              <Text style={styles.modalCloseText}>Close</Text>
+            </Pressable>
+          </View>
+          <View style={styles.howToList}>
+            {HOW_TO_STEPS.map((step, index) => (
+              <View key={step} style={styles.howToStep}>
+                <View style={styles.howToStepNumber}>
+                  <Text style={styles.howToStepNumberText}>{index + 1}</Text>
+                </View>
+                <Text style={styles.howToStepText}>{step}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  if (isPhoneLayout) {
+    return (
+      <SafeAreaView
+        style={[styles.container, styles.mobileContainer]}
+        edges={['bottom']}
+        onLayout={handleFrameLayout}
+      >
+        <Stack.Screen options={screenOptions} />
+        <View
+          style={[
+            styles.mobileGameFrame,
+            {
+              paddingHorizontal: mobileHorizontalPadding,
+              paddingTop: mobileVerticalPadding,
+              paddingBottom: mobileVerticalPadding,
+            },
+          ]}
+        >
+          {renderHeader(true)}
+          {renderPuzzleDock(true)}
+          <View style={styles.mobilePlayArea}>
+            {renderBoard(true)}
+            {renderStatus(true)}
+          </View>
+          {renderActions(true)}
+        </View>
+        {gameState === 'won' && (
+          <View style={styles.mobileResultLayer}>{renderResult(true)}</View>
+        )}
+        {howToModal}
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen
-        options={{
-          title: 'Threadline',
-          headerBackTitle: 'Home',
-          headerStyle: { backgroundColor: Colors.backgroundSoft },
-          headerTintColor: Colors.text,
-          headerShadowVisible: false,
-          headerTitleStyle: { fontWeight: '700' },
-        }}
-      />
+    <SafeAreaView style={styles.container} edges={['bottom']} onLayout={handleFrameLayout}>
+      <Stack.Screen options={screenOptions} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         stickyHeaderIndices={[1]}
         scrollEnabled={Platform.OS === 'web' || !isBoardGestureActive}
       >
-        <View style={styles.page}>
-          <View style={styles.pageAccent} />
-          <View style={styles.header}>
-            <View style={styles.headerTopRow}>
-              <View style={styles.headerTitleBlock}>
-                <Text style={styles.kicker}>Daily Word Puzzle</Text>
-                <Text style={styles.title}>Threadline</Text>
-                <Text style={styles.subtitle}>
-                  Daily puzzle #{puzzleNumber} - {dateLabel}
-                </Text>
-              </View>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="How to play Threadline"
-                style={({ pressed }) => [
-                  styles.howToButton,
-                  pressed && styles.howToButtonPressed,
-                ]}
-                onPress={() => setIsHowToOpen(true)}
-              >
-                <Text style={styles.howToButtonText}>How to play</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.stickyPuzzleDock}>
-          <View style={styles.page}>
-            <View style={styles.briefCard}>
-              <View style={styles.briefMetaRow}>
-                <Text style={styles.briefTitle}>{puzzle.title}</Text>
-                <View style={styles.difficultyPill}>
-                  <Text style={styles.difficultyText}>{puzzle.difficulty}</Text>
-                </View>
-              </View>
-              <Text style={styles.leadText}>
-                {puzzle.lead.map((segment, index) => {
-                  if (segment.type === 'text') {
-                    return <Text key={`text-${index}`}>{segment.text}</Text>;
-                  }
-                  const word = wordById.get(segment.wordId);
-                  const found = word ? foundIdSet.has(word.id) : false;
-                  return (
-                    <Text
-                      key={`blank-${segment.wordId}-${index}`}
-                      style={found ? styles.leadWordFound : styles.leadWordBlank}
-                    >
-                      {word ? (found ? word.answer : blankFor(word.answer)) : '_____'}
-                    </Text>
-                  );
-                })}
-              </Text>
-            </View>
-
-            <View style={styles.threadRow}>
-              {threadStats.map((thread) => (
-                <View
-                  key={thread.id}
-                  style={[
-                    styles.threadCard,
-                    thread.isComplete && styles.threadCardComplete,
-                  ]}
-                >
-                  <View style={styles.threadHeader}>
-                    <Text style={styles.threadName}>
-                      {thread.foundCount > 0 || isSolved ? thread.name : 'Theme hidden'}
-                    </Text>
-                    <Text style={styles.threadCount}>
-                      {thread.foundCount}/{thread.totalCount}
-                    </Text>
-                  </View>
-                  <Text style={styles.threadClue}>
-                    {thread.foundCount > 0 || isSolved ? thread.clue : 'Find a word to reveal it'}
-                  </Text>
-                  <View style={styles.threadMeter}>
-                    {Array.from({ length: thread.totalCount }).map((_, index) => (
-                      <View
-                        key={`${thread.id}-${index}`}
-                        style={[
-                          styles.threadDot,
-                          index < thread.foundCount && styles.threadDotFilled,
-                        ]}
-                      />
-                    ))}
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
+        {renderHeader()}
+        {renderPuzzleDock()}
 
         <View style={styles.page}>
-          <View style={styles.boardWrap}>
-            <View
-              style={[
-                styles.board,
-                {
-                  width: boardSize,
-                  gap: cellGap,
-                  padding: boardPadding,
-                },
-              ]}
-              onStartShouldSetResponderCapture={() => Platform.OS !== 'web' && gameState === 'playing'}
-              onMoveShouldSetResponderCapture={() => Platform.OS !== 'web' && gameState === 'playing'}
-              onStartShouldSetResponder={() => Platform.OS !== 'web' && gameState === 'playing'}
-              onMoveShouldSetResponder={() => Platform.OS !== 'web' && gameState === 'playing'}
-              onResponderGrant={handleBoardResponderGrant}
-              onResponderMove={handleBoardResponderMove}
-              onResponderRelease={handleBoardResponderEnd}
-              onResponderTerminate={handleBoardResponderEnd}
-              onResponderTerminationRequest={() => false}
-              {...webBoardHandlers}
-            >
-              {puzzle.grid.map((row, rowIndex) => (
-                <View
-                  key={`row-${rowIndex}`}
-                  style={[styles.boardRow, { gap: cellGap }]}
-                >
-                  {row.split('').map((letter, colIndex) => {
-                    const coord = { row: rowIndex, col: colIndex };
-                    const key = coordKey(coord);
-                    const selected = selectedKeys.has(key);
-                    const found = foundCellKeys.has(key);
-                    const hinted = hintCellKey === key;
-                    const cellStyle = [
-                      styles.cell,
-                      styles.cellPassive,
-                      { width: cellSize, height: cellSize, borderRadius: cellRadius },
-                      found && styles.cellFound,
-                      selected && styles.cellSelected,
-                      hinted && styles.cellHinted,
-                    ];
-                    const cellText = (
-                      <Text
-                        style={[
-                          styles.cellText,
-                          { fontSize: cellFontSize },
-                          found && styles.cellTextFound,
-                          selected && styles.cellTextSelected,
-                        ]}
-                      >
-                        {letter}
-                      </Text>
-                    );
-                    return (
-                      <View
-                        key={key}
-                        style={cellStyle as ViewStyle[]}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Letter ${letter}, row ${rowIndex + 1}, column ${
-                          colIndex + 1
-                        }`}
-                        accessibilityState={{ selected }}
-                      >
-                        {cellText}
-                      </View>
-                    );
-                  })}
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {statusMessage && <Text style={styles.statusText}>{statusMessage}</Text>}
-
-          {gameState === 'won' && (
-            <View style={styles.resultCard}>
-              <Text style={styles.resultTitle}>Threadline complete</Text>
-              <Text style={styles.resultSubtitle}>
-                {formatTime(elapsedSeconds)} - {hasUsedHint ? 'hint used' : 'no hint'}
-              </Text>
-              <Text style={styles.weaveText}>{puzzle.weave}</Text>
-              <Text style={styles.note}>{puzzle.note}</Text>
-              <View style={styles.shareBox}>
-                <Text selectable style={styles.shareText}>
-                  {shareText}
-                </Text>
-              </View>
-              {Platform.OS === 'web' && (
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.shareButton,
-                    pressed && styles.shareButtonPressed,
-                  ]}
-                  onPress={handleCopyResults}
-                >
-                  <Text style={styles.shareButtonText}>Copy results</Text>
-                </Pressable>
-              )}
-              {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
-            </View>
-          )}
-
-          {gameState === 'playing' && (
-            <View style={styles.actions}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.hintButton,
-                  pressed && styles.hintButtonPressed,
-                  hasUsedHint && styles.hintButtonDisabled,
-                ]}
-                onPress={handleHint}
-                disabled={hasUsedHint}
-              >
-                <Text style={styles.hintButtonText}>{hasUsedHint ? 'Hint used' : 'Hint'}</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={isTimerHidden ? 'Show timer' : 'Hide timer'}
-                style={({ pressed }) => [
-                  styles.timerButton,
-                  pressed && styles.timerButtonPressed,
-                ]}
-                onPress={() => setIsTimerHidden((hidden) => !hidden)}
-              >
-                <Text style={styles.timerButtonText}>
-                  {isTimerHidden ? 'Time hidden' : formatTime(elapsedSeconds)}
-                </Text>
-              </Pressable>
-            </View>
-          )}
+          {renderBoard()}
+          {renderStatus()}
+          {renderResult()}
+          {renderActions()}
         </View>
       </ScrollView>
-      <Modal
-        visible={isHowToOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsHowToOpen(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Pressable
-            style={styles.modalBackdrop}
-            accessible={false}
-            onPress={() => setIsHowToOpen(false)}
-          />
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>How to play Threadline</Text>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Close how to play"
-                style={({ pressed }) => [
-                  styles.modalCloseButton,
-                  pressed && styles.modalCloseButtonPressed,
-                ]}
-                onPress={() => setIsHowToOpen(false)}
-              >
-                <Text style={styles.modalCloseText}>Close</Text>
-              </Pressable>
-            </View>
-            <View style={styles.howToList}>
-              {HOW_TO_STEPS.map((step, index) => (
-                <View key={step} style={styles.howToStep}>
-                  <View style={styles.howToStepNumber}>
-                    <Text style={styles.howToStepNumberText}>{index + 1}</Text>
-                  </View>
-                  <Text style={styles.howToStepText}>{step}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {howToModal}
     </SafeAreaView>
   );
 }
@@ -908,6 +1091,25 @@ const createStyles = (
       flex: 1,
       backgroundColor: Colors.backgroundSoft,
     },
+    mobileContainer: {
+      overflow: 'hidden',
+    },
+    mobileGameFrame: {
+      flex: 1,
+      width: '100%',
+      maxWidth: 520,
+      alignSelf: 'center',
+      overflow: 'hidden',
+      justifyContent: 'space-between',
+    },
+    mobilePlayArea: {
+      flex: 1,
+      minHeight: 0,
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+    },
     scrollContent: {
       padding: Spacing.lg,
       paddingBottom: Spacing.xxl,
@@ -922,13 +1124,25 @@ const createStyles = (
     page: {
       ...ui.page,
     },
+    mobilePage: {
+      maxWidth: '100%',
+      alignSelf: 'stretch',
+    },
     pageAccent: {
       ...ui.accentBar,
       width: 90,
       marginBottom: Spacing.md,
     },
+    mobilePageAccent: {
+      width: 52,
+      height: 4,
+      marginBottom: 6,
+    },
     header: {
       marginBottom: Spacing.md,
+    },
+    mobileHeader: {
+      marginBottom: 0,
     },
     headerTopRow: {
       flexDirection: 'row',
@@ -937,9 +1151,17 @@ const createStyles = (
       gap: Spacing.md,
       flexWrap: 'wrap',
     },
+    mobileHeaderTopRow: {
+      alignItems: 'center',
+      gap: Spacing.sm,
+      flexWrap: 'nowrap',
+    },
     headerTitleBlock: {
       flex: 1,
       minWidth: 220,
+    },
+    mobileHeaderTitleBlock: {
+      minWidth: 0,
     },
     kicker: {
       fontSize: 12,
@@ -949,15 +1171,28 @@ const createStyles = (
       textTransform: 'uppercase',
       marginBottom: Spacing.xs,
     },
+    mobileKicker: {
+      fontSize: 9,
+      letterSpacing: 0.8,
+      marginBottom: 1,
+    },
     title: {
       fontSize: FontSize.xxl,
       fontWeight: '800',
       color: Colors.text,
     },
+    mobileTitle: {
+      fontSize: 22,
+      lineHeight: 25,
+    },
     subtitle: {
       fontSize: FontSize.sm,
       color: Colors.textMuted,
       marginTop: Spacing.xs,
+    },
+    mobileSubtitle: {
+      fontSize: 11,
+      marginTop: 1,
     },
     howToButton: {
       minHeight: 38,
@@ -969,6 +1204,11 @@ const createStyles = (
       justifyContent: 'center',
       ...WEB_NO_SELECT,
     },
+    mobileHowToButton: {
+      minHeight: 30,
+      borderRadius: BorderRadius.sm,
+      paddingHorizontal: Spacing.sm,
+    },
     howToButtonPressed: {
       opacity: 0.82,
       transform: [{ scale: 0.98 }],
@@ -978,9 +1218,22 @@ const createStyles = (
       fontWeight: '800',
       color: screenAccent.badgeText,
     },
+    mobileHowToButtonText: {
+      fontSize: 11,
+    },
     briefCard: {
       ...ui.card,
       padding: Spacing.md,
+    },
+    mobilePuzzleDock: {
+      paddingTop: 0,
+      paddingBottom: 0,
+      zIndex: 1,
+      elevation: 0,
+    },
+    mobileBriefCard: {
+      borderRadius: BorderRadius.md,
+      padding: Spacing.sm,
     },
     briefMetaRow: {
       flexDirection: 'row',
@@ -994,6 +1247,10 @@ const createStyles = (
       fontWeight: '800',
       color: Colors.text,
     },
+    mobileBriefTitle: {
+      fontSize: 13,
+      lineHeight: 16,
+    },
     difficultyPill: {
       borderRadius: BorderRadius.full,
       borderWidth: 1,
@@ -1002,10 +1259,17 @@ const createStyles = (
       paddingHorizontal: Spacing.sm,
       paddingVertical: 3,
     },
+    mobileDifficultyPill: {
+      paddingHorizontal: 7,
+      paddingVertical: 2,
+    },
     difficultyText: {
       fontSize: 11,
       fontWeight: '700',
       color: screenAccent.badgeText,
+    },
+    mobileDifficultyText: {
+      fontSize: 9,
     },
     leadText: {
       marginTop: Spacing.sm,
@@ -1013,6 +1277,11 @@ const createStyles = (
       lineHeight: 25,
       fontWeight: '700',
       color: Colors.text,
+    },
+    mobileLeadText: {
+      marginTop: 4,
+      fontSize: 12,
+      lineHeight: 16,
     },
     leadWordBlank: {
       color: Colors.textMuted,
@@ -1027,6 +1296,10 @@ const createStyles = (
       gap: Spacing.xs,
       marginTop: Spacing.sm,
     },
+    mobileThreadRow: {
+      gap: 6,
+      marginTop: 6,
+    },
     threadCard: {
       flex: 1,
       minHeight: 84,
@@ -1036,6 +1309,11 @@ const createStyles = (
       backgroundColor: Colors.surfaceGlass,
       padding: Spacing.sm,
       justifyContent: 'space-between',
+    },
+    mobileThreadCard: {
+      minHeight: 54,
+      borderRadius: BorderRadius.sm,
+      padding: 6,
     },
     threadCardComplete: {
       borderColor: screenAccent.badgeBorder,
@@ -1053,10 +1331,17 @@ const createStyles = (
       fontWeight: '800',
       color: Colors.text,
     },
+    mobileThreadName: {
+      fontSize: 11,
+      lineHeight: 13,
+    },
     threadCount: {
       fontSize: 11,
       fontWeight: '800',
       color: Colors.textMuted,
+    },
+    mobileThreadCount: {
+      fontSize: 9,
     },
     threadClue: {
       marginTop: 3,
@@ -1064,10 +1349,19 @@ const createStyles = (
       lineHeight: 15,
       color: Colors.textMuted,
     },
+    mobileThreadClue: {
+      marginTop: 2,
+      fontSize: 9,
+      lineHeight: 11,
+    },
     threadMeter: {
       flexDirection: 'row',
       gap: 4,
       marginTop: Spacing.xs,
+    },
+    mobileThreadMeter: {
+      gap: 3,
+      marginTop: 3,
     },
     threadDot: {
       width: 8,
@@ -1077,6 +1371,11 @@ const createStyles = (
       borderWidth: 1,
       borderColor: Colors.border,
     },
+    mobileThreadDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+    },
     threadDotFilled: {
       backgroundColor: screenAccent.main,
       borderColor: screenAccent.main,
@@ -1084,6 +1383,12 @@ const createStyles = (
     boardWrap: {
       alignItems: 'center',
       marginTop: Spacing.lg,
+    },
+    mobileBoardWrap: {
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 0,
     },
     board: {
       backgroundColor: palette.board,
@@ -1139,15 +1444,50 @@ const createStyles = (
       fontSize: FontSize.sm,
       textAlign: 'center',
     },
+    mobileStatusToast: {
+      position: 'absolute',
+      bottom: 4,
+      alignSelf: 'center',
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: Colors.surfaceElevated,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 5,
+      ...theme.shadows.card,
+    },
+    mobileStatusText: {
+      color: Colors.textSecondary,
+      fontSize: 11,
+      fontWeight: '800',
+    },
     resultCard: {
       ...ui.card,
       marginTop: Spacing.lg,
       padding: Spacing.lg,
     },
+    mobileResultLayer: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(10, 16, 24, 0.52)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: Spacing.md,
+    },
+    mobileResultCard: {
+      width: '100%',
+      maxWidth: 360,
+      maxHeight: '92%',
+      marginTop: 0,
+      padding: Spacing.md,
+      borderRadius: BorderRadius.lg,
+    },
     resultTitle: {
       fontSize: FontSize.lg,
       fontWeight: '800',
       color: Colors.text,
+    },
+    mobileResultTitle: {
+      fontSize: FontSize.md,
     },
     resultSubtitle: {
       marginTop: 4,
@@ -1165,11 +1505,21 @@ const createStyles = (
       fontWeight: '800',
       lineHeight: 22,
     },
+    mobileWeaveText: {
+      marginTop: Spacing.sm,
+      padding: Spacing.sm,
+      fontSize: 13,
+      lineHeight: 18,
+    },
     note: {
       marginTop: Spacing.sm,
       fontSize: FontSize.sm,
       color: Colors.textMuted,
       lineHeight: 20,
+    },
+    mobileNote: {
+      fontSize: 12,
+      lineHeight: 16,
     },
     shareBox: {
       marginTop: Spacing.md,
@@ -1179,16 +1529,28 @@ const createStyles = (
       borderColor: Colors.border,
       padding: Spacing.md,
     },
+    mobileShareBox: {
+      marginTop: Spacing.sm,
+      padding: Spacing.sm,
+    },
     shareText: {
       fontSize: 12,
       color: Colors.textSecondary,
       lineHeight: 18,
+    },
+    mobileShareText: {
+      fontSize: 10,
+      lineHeight: 14,
     },
     shareButton: {
       ...ui.cta,
       marginTop: Spacing.sm,
       borderRadius: BorderRadius.md,
       paddingVertical: Spacing.sm,
+    },
+    mobileShareButton: {
+      minHeight: 38,
+      paddingVertical: 8,
     },
     shareButtonPressed: {
       backgroundColor: screenAccent.main,
@@ -1210,10 +1572,21 @@ const createStyles = (
       gap: Spacing.sm,
       alignItems: 'stretch',
     },
+    mobileActions: {
+      marginTop: 0,
+      gap: Spacing.sm,
+      flexShrink: 0,
+    },
     hintButton: {
       ...ui.cta,
       borderRadius: BorderRadius.lg,
       flex: 1,
+    },
+    mobileHintButton: {
+      minHeight: 42,
+      borderRadius: BorderRadius.md,
+      paddingVertical: 9,
+      paddingHorizontal: Spacing.md,
     },
     hintButtonPressed: {
       ...ui.ctaPressed,
@@ -1223,6 +1596,10 @@ const createStyles = (
     },
     hintButtonText: {
       ...ui.ctaText,
+    },
+    mobileActionText: {
+      fontSize: 12,
+      letterSpacing: 0.9,
     },
     timerButton: {
       minHeight: 52,
@@ -1236,6 +1613,12 @@ const createStyles = (
       justifyContent: 'center',
       ...WEB_NO_SELECT,
     },
+    mobileTimerButton: {
+      minHeight: 42,
+      minWidth: 96,
+      borderRadius: BorderRadius.md,
+      paddingHorizontal: Spacing.sm,
+    },
     timerButtonPressed: {
       backgroundColor: screenAccent.badgeBg,
       transform: [{ scale: 0.99 }],
@@ -1246,6 +1629,10 @@ const createStyles = (
       color: Colors.textSecondary,
       letterSpacing: 0.6,
       textTransform: 'uppercase',
+    },
+    mobileTimerButtonText: {
+      fontSize: 12,
+      letterSpacing: 0.3,
     },
     modalOverlay: {
       flex: 1,
