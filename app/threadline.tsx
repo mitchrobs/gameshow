@@ -13,7 +13,8 @@ import {
   type LayoutChangeEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
+import Svg, { Line } from 'react-native-svg';
 import {
   type ThemeTokens,
   resolveScreenAccent,
@@ -155,6 +156,7 @@ type WebBoardEvent = {
 };
 
 export default function ThreadlineScreen() {
+  const router = useRouter();
   const theme = useDaybreakTheme();
   const screenAccent = useMemo(() => resolveScreenAccent('threadline', theme), [theme]);
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
@@ -175,6 +177,8 @@ export default function ThreadlineScreen() {
   const [isBoardGestureActive, setIsBoardGestureActive] = useState(false);
   const [gameState, setGameState] = useState<GameState>('playing');
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [lastFoundPath, setLastFoundPath] = useState<ThreadlineCoord[]>([]);
+  const [isCompletionOpen, setIsCompletionOpen] = useState(false);
   const [frameSize, setFrameSize] = useState<FrameSize>({ width: 0, height: 0 });
   const isPointerDownRef = useRef(false);
   const hasCountedRef = useRef(false);
@@ -186,7 +190,7 @@ export default function ThreadlineScreen() {
     [selectedPath]
   );
 
-  const isPhoneLayout = width <= 600;
+  const isPhoneLayout = width <= 900 || (width <= 960 && height <= 600);
   const frameWidth = frameSize.width || width;
   const frameHeight = frameSize.height || height;
   const mobileHorizontalPadding = frameWidth <= 380 ? 10 : 12;
@@ -214,6 +218,17 @@ export default function ThreadlineScreen() {
     puzzle.words.forEach((word) => map.set(word.id, word));
     return map;
   }, [puzzle.words]);
+
+  const completedLeadText = useMemo(
+    () =>
+      puzzle.lead
+        .map((segment) => {
+          if (segment.type === 'text') return segment.text;
+          return wordById.get(segment.wordId)?.answer ?? '';
+        })
+        .join(''),
+    [puzzle.lead, wordById]
+  );
 
   const foundCellKeys = useMemo(() => {
     const keys = new Set<string>();
@@ -282,6 +297,8 @@ export default function ThreadlineScreen() {
     setIsBoardGestureActive(false);
     setGameState('playing');
     setShareStatus(null);
+    setLastFoundPath([]);
+    setIsCompletionOpen(false);
     hasCountedRef.current = false;
   }, [dateKey]);
 
@@ -377,6 +394,8 @@ export default function ThreadlineScreen() {
   useEffect(() => {
     if (!isSolved || gameState === 'won') return;
     setGameState('won');
+    setIsCompletionOpen(true);
+    setStatusMessage(null);
     getStorage()?.setItem(`${STORAGE_PREFIX}:daily:${dateKey}`, '1');
   }, [dateKey, gameState, isSolved]);
 
@@ -392,13 +411,20 @@ export default function ThreadlineScreen() {
     return () => clearTimeout(timeout);
   }, [statusMessage]);
 
+  useEffect(() => {
+    if (lastFoundPath.length === 0) return;
+    const timeout = setTimeout(() => setLastFoundPath([]), 620);
+    return () => clearTimeout(timeout);
+  }, [lastFoundPath]);
+
   const completeWord = useCallback((word: ThreadlineWord) => {
     setFoundIds((prev) => (prev.includes(word.id) ? prev : [...prev, word.id]));
     setHintCellKey(null);
+    setLastFoundPath(word.path);
     isPointerDownRef.current = false;
     selectedPathRef.current = [];
     setSelectedPath([]);
-    setStatusMessage(`${word.answer} filled in.`);
+    setStatusMessage(`Found ${word.answer}`);
   }, []);
 
   const commitPath = useCallback(
@@ -472,10 +498,10 @@ export default function ThreadlineScreen() {
   const gridSize = puzzle.grid.length;
   const mobileReservedHeight =
     mobileVerticalPadding * 2 +
-    (frameHeight <= 680 ? 40 : 46) +
-    (frameHeight <= 680 ? 158 : 176) +
+    (frameHeight <= 680 ? 34 : 38) +
+    (frameHeight <= 680 ? 142 : 156) +
     (frameHeight <= 680 ? 46 : 52) +
-    (frameHeight <= 680 ? 28 : 38);
+    (frameHeight <= 680 ? 18 : 24);
   const mobileBoardLimit = Math.max(224, frameHeight - mobileReservedHeight);
   const pageWidth = isPhoneLayout
     ? Math.max(0, frameWidth - mobileHorizontalPadding * 2)
@@ -681,19 +707,28 @@ export default function ThreadlineScreen() {
       navigator?: { clipboard?: { writeText?: (text: string) => Promise<void> } };
     }).navigator?.clipboard;
     if (!clipboard?.writeText) {
-      setShareStatus('Copy not supported');
+      setShareStatus('Copy unavailable');
       return;
     }
     try {
       await clipboard.writeText(shareText);
-      setShareStatus('Copied to clipboard');
+      setShareStatus('Copied');
     } catch {
-      setShareStatus('Copy failed');
+      setShareStatus('Could not copy');
     }
   }, [shareText]);
 
+  const handleMoreGames = useCallback(() => {
+    router.push('/');
+  }, [router]);
+
+  const handleBackToPuzzle = useCallback(() => {
+    setIsCompletionOpen(false);
+  }, []);
+
   const screenOptions = {
     title: 'Threadline',
+    headerShown: !isPhoneLayout,
     headerBackTitle: 'Home',
     headerStyle: { backgroundColor: Colors.backgroundSoft },
     headerTintColor: Colors.text,
@@ -702,17 +737,15 @@ export default function ThreadlineScreen() {
   };
 
   const renderHeader = (compact = false) => (
-    <View style={[styles.page, compact && styles.mobilePage]}>
-      <View style={[styles.pageAccent, compact && styles.mobilePageAccent]} />
+    <View style={[styles.page, compact && styles.mobilePage, compact && styles.mobileHeaderPage]}>
+      {!compact && <View style={styles.pageAccent} />}
       <View style={[styles.header, compact && styles.mobileHeader]}>
         <View style={[styles.headerTopRow, compact && styles.mobileHeaderTopRow]}>
           <View style={[styles.headerTitleBlock, compact && styles.mobileHeaderTitleBlock]}>
-            <Text style={[styles.kicker, compact && styles.mobileKicker]}>
-              Daily Word Puzzle
-            </Text>
+            {!compact && <Text style={styles.kicker}>Daily Word Puzzle</Text>}
             <Text style={[styles.title, compact && styles.mobileTitle]}>Threadline</Text>
             <Text style={[styles.subtitle, compact && styles.mobileSubtitle]}>
-              Daily puzzle #{puzzleNumber} - {dateLabel}
+              Puzzle #{puzzleNumber} · {dateLabel}
             </Text>
           </View>
           <Pressable
@@ -734,8 +767,87 @@ export default function ThreadlineScreen() {
     </View>
   );
 
-  const renderPuzzleDock = (compact = false) => (
-    <View style={[styles.stickyPuzzleDock, compact && styles.mobilePuzzleDock]}>
+  const renderLeadSegments = () =>
+    puzzle.lead.map((segment, index) => {
+      if (segment.type === 'text') {
+        return <Text key={`text-${index}`}>{segment.text}</Text>;
+      }
+      const word = wordById.get(segment.wordId);
+      const found = word ? foundIdSet.has(word.id) : false;
+      return (
+        <Text
+          key={`blank-${segment.wordId}-${index}`}
+          style={found ? styles.leadWordFound : styles.leadWordBlank}
+        >
+          {word ? (found ? word.answer : blankFor(word.answer)) : '_____'}
+        </Text>
+      );
+    });
+
+  const renderPuzzleDock = (compact = false) => {
+    if (compact) {
+      return (
+        <View style={styles.mobilePuzzleDock}>
+          <View style={styles.mobilePuzzleDockCard}>
+            <View style={styles.mobileDockMetaRow}>
+              <Text style={styles.mobileDockTitle} numberOfLines={1}>
+                {puzzle.title}
+              </Text>
+              <View style={styles.mobileDockProgressPill}>
+                <Text style={styles.mobileDockProgressText}>
+                  {completedCount}/{puzzle.words.length}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.mobileDockLead}>
+              {renderLeadSegments()}
+            </Text>
+            <View style={styles.mobileThemeMiniRow}>
+              {threadStats.map((thread) => {
+                const isRevealed = thread.foundCount > 0 || isSolved;
+                const themeName = isRevealed ? thread.name : 'Theme hidden';
+                return (
+                  <View
+                    key={thread.id}
+                    style={[
+                      styles.mobileThemeMiniCard,
+                      isRevealed && styles.mobileThemeMiniCardRevealed,
+                      thread.isComplete && styles.mobileThemeMiniCardComplete,
+                    ]}
+                  >
+                    <View style={styles.mobileThemeMiniHeader}>
+                      <Text style={styles.mobileThemeMiniName} numberOfLines={1}>
+                        {themeName}
+                      </Text>
+                      <Text style={styles.mobileThemeMiniCount}>
+                        {thread.foundCount}/{thread.totalCount}
+                      </Text>
+                    </View>
+                    <Text style={styles.mobileThemeMiniClue} numberOfLines={2}>
+                      {isRevealed ? thread.clue : 'Find one to reveal theme'}
+                    </Text>
+                    <View style={styles.mobileThemeMiniMeter}>
+                      {Array.from({ length: thread.totalCount }).map((_, index) => (
+                        <View
+                          key={`${thread.id}-mobile-${index}`}
+                          style={[
+                            styles.mobileThemeMiniDot,
+                            index < thread.foundCount && styles.mobileThemeMiniDotFilled,
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.stickyPuzzleDock}>
       <View style={[styles.page, compact && styles.mobilePage]}>
         <View style={[styles.briefCard, compact && styles.mobileBriefCard]}>
           <View style={styles.briefMetaRow}>
@@ -752,21 +864,7 @@ export default function ThreadlineScreen() {
             style={[styles.leadText, compact && styles.mobileLeadText]}
             numberOfLines={compact ? 3 : undefined}
           >
-            {puzzle.lead.map((segment, index) => {
-              if (segment.type === 'text') {
-                return <Text key={`text-${index}`}>{segment.text}</Text>;
-              }
-              const word = wordById.get(segment.wordId);
-              const found = word ? foundIdSet.has(word.id) : false;
-              return (
-                <Text
-                  key={`blank-${segment.wordId}-${index}`}
-                  style={found ? styles.leadWordFound : styles.leadWordBlank}
-                >
-                  {word ? (found ? word.answer : blankFor(word.answer)) : '_____'}
-                </Text>
-              );
-            })}
+            {renderLeadSegments()}
           </Text>
         </View>
 
@@ -795,7 +893,7 @@ export default function ThreadlineScreen() {
                 style={[styles.threadClue, compact && styles.mobileThreadClue]}
                 numberOfLines={compact ? 1 : undefined}
               >
-                {thread.foundCount > 0 || isSolved ? thread.clue : 'Find a word to reveal it'}
+                {thread.foundCount > 0 || isSolved ? thread.clue : 'Find one to reveal theme'}
               </Text>
               <View style={[styles.threadMeter, compact && styles.mobileThreadMeter]}>
                 {Array.from({ length: thread.totalCount }).map((_, index) => (
@@ -814,7 +912,49 @@ export default function ThreadlineScreen() {
         </View>
       </View>
     </View>
-  );
+    );
+  };
+
+  const renderThreadPath = (
+    path: ThreadlineCoord[],
+    color: string,
+    opacity: number
+  ) => {
+    if (path.length < 2 || boardSize <= 0) return null;
+
+    const center = (coord: ThreadlineCoord) => ({
+      x: boardPadding + coord.col * (cellSize + cellGap) + cellSize / 2,
+      y: boardPadding + coord.row * (cellSize + cellGap) + cellSize / 2,
+    });
+    const strokeWidth = Math.max(9, Math.min(22, cellSize * 0.42));
+
+    return (
+      <Svg
+        width={boardSize}
+        height={boardSize}
+        style={styles.pathOverlay}
+        pointerEvents="none"
+      >
+        {path.slice(1).map((coord, index) => {
+          const from = center(path[index]);
+          const to = center(coord);
+          return (
+            <Line
+              key={`${coordKey(path[index])}-${coordKey(coord)}-${index}`}
+              x1={from.x}
+              y1={from.y}
+              x2={to.x}
+              y2={to.y}
+              stroke={color}
+              strokeOpacity={opacity}
+              strokeWidth={strokeWidth}
+              strokeLinecap="round"
+            />
+          );
+        })}
+      </Svg>
+    );
+  };
 
   const renderBoard = (compact = false) => (
     <View style={[styles.boardWrap, compact && styles.mobileBoardWrap]}>
@@ -839,6 +979,8 @@ export default function ThreadlineScreen() {
         onResponderTerminationRequest={() => false}
         {...(webBoardHandlers as object)}
       >
+        {renderThreadPath(lastFoundPath, Colors.success, theme.mode === 'dark' ? 0.72 : 0.58)}
+        {renderThreadPath(selectedPath, screenAccent.main, theme.mode === 'dark' ? 0.76 : 0.62)}
         {puzzle.grid.map((row, rowIndex) => (
           <View key={`row-${rowIndex}`} style={[styles.boardRow, { gap: cellGap }]}>
             {row.split('').map((letter, colIndex) => {
@@ -897,7 +1039,39 @@ export default function ThreadlineScreen() {
   };
 
   const renderActions = (compact = false) => {
-    if (gameState !== 'playing') return null;
+    if (gameState !== 'playing') {
+      if (!compact || isCompletionOpen) return null;
+      return (
+        <View style={[styles.actions, styles.mobileActions]}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Show Threadline results"
+            style={({ pressed }) => [
+              styles.hintButton,
+              styles.mobileHintButton,
+              pressed && styles.hintButtonPressed,
+            ]}
+            onPress={() => setIsCompletionOpen(true)}
+          >
+            <Text style={[styles.hintButtonText, styles.mobileActionText]}>Results</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Go to more Daybreak games"
+            style={({ pressed }) => [
+              styles.timerButton,
+              styles.mobileTimerButton,
+              pressed && styles.timerButtonPressed,
+            ]}
+            onPress={handleMoreGames}
+          >
+            <Text style={[styles.timerButtonText, styles.mobileTimerButtonText]}>
+              More games
+            </Text>
+          </Pressable>
+        </View>
+      );
+    }
     return (
       <View style={[styles.actions, compact && styles.mobileActions]}>
         <Pressable
@@ -925,7 +1099,7 @@ export default function ThreadlineScreen() {
           onPress={() => setIsTimerHidden((hidden) => !hidden)}
         >
           <Text style={[styles.timerButtonText, compact && styles.mobileTimerButtonText]}>
-            {isTimerHidden ? 'Time hidden' : formatTime(elapsedSeconds)}
+            {isTimerHidden ? 'Timer hidden' : formatTime(elapsedSeconds)}
           </Text>
         </Pressable>
       </View>
@@ -940,33 +1114,88 @@ export default function ThreadlineScreen() {
           Threadline complete
         </Text>
         <Text style={styles.resultSubtitle}>
-          {formatTime(elapsedSeconds)} - {hasUsedHint ? 'hint used' : 'no hint'}
+          Solved in {formatTime(elapsedSeconds)} · {hasUsedHint ? 'Hint used' : 'No hint'}
+        </Text>
+        <Text style={[styles.resultSectionLabel, compact && styles.mobileResultSectionLabel]}>
+          The line
+        </Text>
+        <Text style={[styles.completedLineText, compact && styles.mobileCompletedLineText]}>
+          {completedLeadText}
         </Text>
         <Text style={[styles.weaveText, compact && styles.mobileWeaveText]}>
           {puzzle.weave}
         </Text>
         <Text style={[styles.note, compact && styles.mobileNote]}>{puzzle.note}</Text>
-        <View style={[styles.shareBox, compact && styles.mobileShareBox]}>
-          <Text selectable style={[styles.shareText, compact && styles.mobileShareText]}>
-            {shareText}
-          </Text>
-        </View>
-        {Platform.OS === 'web' && (
-          <Pressable
-            style={({ pressed }) => [
-              styles.shareButton,
-              compact && styles.mobileShareButton,
-              pressed && styles.shareButtonPressed,
-            ]}
-            onPress={handleCopyResults}
-          >
-            <Text style={styles.shareButtonText}>Copy results</Text>
-          </Pressable>
+        {!compact && (
+          <View style={styles.shareBox}>
+            <Text selectable style={styles.shareText}>
+              {shareText}
+            </Text>
+          </View>
         )}
+        <View style={[styles.resultActions, compact && styles.mobileResultActions]}>
+          {Platform.OS === 'web' && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.shareButton,
+                compact && styles.mobileShareButton,
+                pressed && styles.shareButtonPressed,
+              ]}
+              onPress={handleCopyResults}
+            >
+              <Text style={styles.shareButtonText}>Copy results</Text>
+            </Pressable>
+          )}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Go to more Daybreak games"
+            style={({ pressed }) => [
+              styles.moreGamesButton,
+              compact && styles.mobileMoreGamesButton,
+              pressed && styles.moreGamesButtonPressed,
+            ]}
+            onPress={handleMoreGames}
+          >
+            <Text style={[styles.moreGamesButtonText, compact && styles.mobileMoreGamesText]}>
+              More games
+            </Text>
+          </Pressable>
+          {compact && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Return to the completed puzzle"
+              style={({ pressed }) => [
+                styles.backToPuzzleButton,
+                pressed && styles.backToPuzzleButtonPressed,
+              ]}
+              onPress={handleBackToPuzzle}
+            >
+              <Text style={styles.backToPuzzleButtonText}>Back to puzzle</Text>
+            </Pressable>
+          )}
+        </View>
         {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
       </View>
     );
   };
+
+  const completionModal = (
+    <Modal
+      visible={isPhoneLayout && gameState === 'won' && isCompletionOpen}
+      transparent
+      animationType="fade"
+      onRequestClose={handleBackToPuzzle}
+    >
+      <View style={styles.mobileResultLayer}>
+        <Pressable
+          style={styles.modalBackdrop}
+          accessible={false}
+          onPress={handleBackToPuzzle}
+        />
+        {renderResult(true)}
+      </View>
+    </Modal>
+  );
 
   const howToModal = (
     <Modal
@@ -1037,9 +1266,7 @@ export default function ThreadlineScreen() {
           </View>
           {renderActions(true)}
         </View>
-        {gameState === 'won' && (
-          <View style={styles.mobileResultLayer}>{renderResult(true)}</View>
-        )}
+        {completionModal}
         {howToModal}
       </SafeAreaView>
     );
@@ -1100,15 +1327,17 @@ const createStyles = (
       maxWidth: 520,
       alignSelf: 'center',
       overflow: 'hidden',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-start',
+      gap: 8,
     },
     mobilePlayArea: {
       flex: 1,
       minHeight: 0,
       width: '100%',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       position: 'relative',
+      paddingTop: 8,
     },
     scrollContent: {
       padding: Spacing.lg,
@@ -1127,6 +1356,9 @@ const createStyles = (
     mobilePage: {
       maxWidth: '100%',
       alignSelf: 'stretch',
+    },
+    mobileHeaderPage: {
+      flexShrink: 0,
     },
     pageAccent: {
       ...ui.accentBar,
@@ -1182,8 +1414,8 @@ const createStyles = (
       color: Colors.text,
     },
     mobileTitle: {
-      fontSize: 22,
-      lineHeight: 25,
+      fontSize: 24,
+      lineHeight: 27,
     },
     subtitle: {
       fontSize: FontSize.sm,
@@ -1191,7 +1423,7 @@ const createStyles = (
       marginTop: Spacing.xs,
     },
     mobileSubtitle: {
-      fontSize: 11,
+      fontSize: 12,
       marginTop: 1,
     },
     howToButton: {
@@ -1226,10 +1458,124 @@ const createStyles = (
       padding: Spacing.md,
     },
     mobilePuzzleDock: {
+      width: '100%',
       paddingTop: 0,
       paddingBottom: 0,
       zIndex: 1,
       elevation: 0,
+      flexShrink: 0,
+    },
+    mobilePuzzleDockCard: {
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceGlass,
+      paddingHorizontal: 14,
+      paddingVertical: 11,
+      gap: 9,
+    },
+    mobileDockMetaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.sm,
+    },
+    mobileDockTitle: {
+      flex: 1,
+      fontSize: 18,
+      lineHeight: 21,
+      fontWeight: '800',
+      color: Colors.text,
+    },
+    mobileDockProgressPill: {
+      minWidth: 44,
+      minHeight: 28,
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceLight,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 9,
+    },
+    mobileDockProgressText: {
+      fontSize: 12,
+      fontWeight: '800',
+      color: Colors.textMuted,
+    },
+    mobileDockLead: {
+      fontSize: 16,
+      lineHeight: 22,
+      fontWeight: '700',
+      color: Colors.text,
+    },
+    mobileThemeMiniRow: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    mobileThemeMiniCard: {
+      flex: 1,
+      minHeight: 74,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceLight,
+      padding: 8,
+      justifyContent: 'space-between',
+    },
+    mobileThemeMiniCardRevealed: {
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+    },
+    mobileThemeMiniCardComplete: {
+      backgroundColor: theme.mode === 'dark' ? '#173b34' : '#e2f7ef',
+      borderColor: theme.mode === 'dark' ? '#48c5ad' : '#77bea8',
+    },
+    mobileThemeMiniHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 6,
+    },
+    mobileThemeMiniName: {
+      flex: 1,
+      minWidth: 0,
+      fontSize: 12,
+      lineHeight: 14,
+      fontWeight: '800',
+      color: Colors.text,
+    },
+    mobileThemeMiniCount: {
+      fontSize: 11,
+      lineHeight: 13,
+      fontWeight: '800',
+      color: Colors.textMuted,
+    },
+    mobileThemeMiniClue: {
+      marginTop: 4,
+      fontSize: 10,
+      lineHeight: 12,
+      fontWeight: '600',
+      color: Colors.textMuted,
+    },
+    mobileThemeMiniMeter: {
+      flexDirection: 'row',
+      gap: 3,
+      marginTop: 5,
+    },
+    mobileThemeMiniDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: theme.mode === 'dark' ? Colors.white : Colors.surface,
+      borderWidth: 1,
+      borderColor: theme.mode === 'dark' ? Colors.white : Colors.border,
+      opacity: theme.mode === 'dark' ? 0.82 : 1,
+    },
+    mobileThemeMiniDotFilled: {
+      backgroundColor: screenAccent.main,
+      borderColor: screenAccent.main,
+      opacity: 1,
     },
     mobileBriefCard: {
       borderRadius: BorderRadius.md,
@@ -1398,8 +1744,13 @@ const createStyles = (
       position: 'relative',
       ...WEB_NO_SELECT,
     },
+    pathOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      zIndex: 2,
+    },
     boardRow: {
       flexDirection: 'row',
+      zIndex: 1,
     },
     cell: {
       borderRadius: 10,
@@ -1408,6 +1759,7 @@ const createStyles = (
       backgroundColor: Colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
+      zIndex: 1,
     },
     cellPassive: {
       pointerEvents: 'none',
@@ -1416,9 +1768,9 @@ const createStyles = (
       backgroundColor: palette.selected,
       borderColor: palette.selected,
       shadowColor: palette.selected,
-      shadowOpacity: theme.mode === 'dark' ? 0.38 : 0.24,
-      shadowRadius: 8,
-      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: theme.mode === 'dark' ? 0.18 : 0.12,
+      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 2 },
     },
     cellFound: {
       backgroundColor: palette.found,
@@ -1494,6 +1846,35 @@ const createStyles = (
       fontSize: FontSize.sm,
       color: Colors.textSecondary,
     },
+    resultSectionLabel: {
+      marginTop: Spacing.md,
+      fontSize: 11,
+      fontWeight: '800',
+      letterSpacing: 0.8,
+      textTransform: 'uppercase',
+      color: Colors.textMuted,
+    },
+    mobileResultSectionLabel: {
+      marginTop: Spacing.sm,
+      fontSize: 10,
+    },
+    completedLineText: {
+      marginTop: 6,
+      padding: Spacing.md,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceLight,
+      color: Colors.text,
+      fontSize: FontSize.sm,
+      lineHeight: 21,
+      fontWeight: '700',
+    },
+    mobileCompletedLineText: {
+      padding: Spacing.sm,
+      fontSize: 12,
+      lineHeight: 17,
+    },
     weaveText: {
       marginTop: Spacing.md,
       padding: Spacing.md,
@@ -1544,7 +1925,7 @@ const createStyles = (
     },
     shareButton: {
       ...ui.cta,
-      marginTop: Spacing.sm,
+      flex: 1,
       borderRadius: BorderRadius.md,
       paddingVertical: Spacing.sm,
     },
@@ -1564,6 +1945,60 @@ const createStyles = (
     shareStatus: {
       marginTop: Spacing.xs,
       fontSize: 12,
+      color: Colors.textMuted,
+    },
+    resultActions: {
+      marginTop: Spacing.md,
+      flexDirection: 'row',
+      gap: Spacing.sm,
+      alignItems: 'stretch',
+    },
+    mobileResultActions: {
+      marginTop: Spacing.sm,
+      flexDirection: 'column',
+      gap: 8,
+    },
+    moreGamesButton: {
+      flex: 1,
+      minHeight: 42,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      ...WEB_NO_SELECT,
+    },
+    mobileMoreGamesButton: {
+      minHeight: 38,
+    },
+    moreGamesButtonPressed: {
+      opacity: 0.84,
+      transform: [{ scale: 0.99 }],
+    },
+    moreGamesButtonText: {
+      fontSize: FontSize.sm,
+      fontWeight: '800',
+      color: screenAccent.badgeText,
+    },
+    mobileMoreGamesText: {
+      fontSize: 12,
+    },
+    backToPuzzleButton: {
+      minHeight: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 4,
+      ...WEB_NO_SELECT,
+    },
+    backToPuzzleButtonPressed: {
+      opacity: 0.72,
+    },
+    backToPuzzleButtonText: {
+      fontSize: 12,
+      fontWeight: '800',
       color: Colors.textMuted,
     },
     actions: {
