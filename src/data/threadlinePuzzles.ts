@@ -36,6 +36,12 @@ export interface ThreadlinePuzzle {
   note: string;
 }
 
+import {
+  THREADLINE_PUZZLE_BANK,
+  getThreadlineOutOfWindowFallback,
+  getThreadlineShippedPuzzleByDateKey,
+} from './threadlineShippedPack.ts';
+
 const THREADLINE_PUZZLES: ThreadlinePuzzle[] = [
   {
     id: 'threadline-corner-cafe-001',
@@ -361,19 +367,13 @@ export function getLocalThreadlineDateKey(date: Date = new Date()): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-function getDailySeed(date: Date = new Date()): number {
-  const y = date.getFullYear();
-  const m = date.getMonth() + 1;
-  const d = date.getDate();
-  return y * 10000 + m * 100 + d;
-}
-
 export function getDailyThreadline(date: Date = new Date()): ThreadlinePuzzle {
-  return THREADLINE_PUZZLES[getDailySeed(date) % THREADLINE_PUZZLES.length];
+  const dateKey = getLocalThreadlineDateKey(date);
+  return getThreadlineShippedPuzzleByDateKey(dateKey) ?? getThreadlineOutOfWindowFallback(dateKey);
 }
 
 export function getThreadlinePuzzles(): ThreadlinePuzzle[] {
-  return THREADLINE_PUZZLES;
+  return THREADLINE_PUZZLE_BANK;
 }
 
 export function coordKey(coord: ThreadlineCoord): string {
@@ -484,9 +484,19 @@ export function validateThreadlinePuzzle(puzzle: ThreadlinePuzzle): string[] {
     }
   });
 
+  const blankCounts = new Map<string, number>();
   puzzle.lead.forEach((segment) => {
     if (segment.type === 'blank' && !wordIds.has(segment.wordId)) {
       errors.push(`${puzzle.id}: lead references missing word ${segment.wordId}`);
+    }
+    if (segment.type === 'blank') {
+      blankCounts.set(segment.wordId, (blankCounts.get(segment.wordId) ?? 0) + 1);
+    }
+  });
+  wordIds.forEach((wordId) => {
+    const count = blankCounts.get(wordId) ?? 0;
+    if (count !== 1) {
+      errors.push(`${puzzle.id}: expected word ${wordId} to appear in exactly one lead blank, saw ${count}`);
     }
   });
 

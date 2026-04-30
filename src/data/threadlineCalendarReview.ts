@@ -8,7 +8,7 @@ import {
 } from './threadlinePuzzles.ts';
 
 export const THREADLINE_REVIEW_DAYS = 365;
-export const THREADLINE_RESERVE_DAYS = 90;
+export const THREADLINE_RESERVE_DAYS = 35;
 export const THREADLINE_ANSWER_COOLDOWN_DAYS = 60;
 export const THREADLINE_ROOT_FAMILY_REVIEW_DAYS = 90;
 export const THREADLINE_WORDS_PER_DAY = 6;
@@ -886,9 +886,9 @@ export function formatThreadlineReviewMarkdown(review: ThreadlineCalendarReview)
     .join('\n');
 
   return [
-    '# Threadline 365+90 Review',
+    '# Threadline 365+35 Review',
     '',
-    'Generated with `npm run threadline:review` for 365 scheduled puzzles plus 90 reserves.',
+    'Generated with `npm run threadline:review` for 365 scheduled puzzles plus 35 reserves.',
     '',
     `Generated candidates: ${review.candidates.length}`,
     `Validation errors: ${review.errors.length}`,
