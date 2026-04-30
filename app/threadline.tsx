@@ -753,6 +753,19 @@ export default function ThreadlineScreen() {
       {!compact && <View style={styles.pageAccent} />}
       <View style={[styles.header, compact && styles.mobileHeader]}>
         <View style={[styles.headerTopRow, compact && styles.mobileHeaderTopRow]}>
+          {compact && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Back to games"
+              style={({ pressed }) => [
+                styles.mobileBackButton,
+                pressed && styles.mobileBackButtonPressed,
+              ]}
+              onPress={handleMoreGames}
+            >
+              <Text style={styles.mobileBackButtonText}>Back</Text>
+            </Pressable>
+          )}
           <View style={[styles.headerTitleBlock, compact && styles.mobileHeaderTitleBlock]}>
             {!compact && <Text style={styles.kicker}>Daily Word Puzzle</Text>}
             <Text style={[styles.title, compact && styles.mobileTitle]}>Threadline</Text>
@@ -1370,6 +1383,25 @@ const createStyles = (
     },
     mobileHeaderTitleBlock: {
       minWidth: 0,
+    },
+    mobileBackButton: {
+      minHeight: 30,
+      borderRadius: BorderRadius.sm,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceGlass,
+      paddingHorizontal: 9,
+      justifyContent: 'center',
+      ...WEB_NO_SELECT,
+    },
+    mobileBackButtonPressed: {
+      backgroundColor: screenAccent.badgeBg,
+      transform: [{ scale: 0.98 }],
+    },
+    mobileBackButtonText: {
+      fontSize: 11,
+      fontWeight: '800',
+      color: Colors.textSecondary,
     },
     kicker: {
       fontSize: 12,
