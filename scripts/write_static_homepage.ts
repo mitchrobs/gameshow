@@ -1,26 +1,5 @@
-import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join } from 'node:path';
-
-const assetRequire = require as NodeRequire & {
-  extensions: Record<string, (module: { exports: unknown }, filename: string) => void>;
-};
-
-assetRequire.extensions['.png'] = (module, filename) => {
-  module.exports = filename;
-};
-
-const { getDailyPuzzle } = assetRequire('../src/data/mojiMashPuzzles') as typeof import('../src/data/mojiMashPuzzles');
-const { getDailyWhodunit } = assetRequire('../src/data/whodunitPuzzles') as typeof import('../src/data/whodunitPuzzles');
-const { getDailyWordie } = assetRequire('../src/data/wordiePuzzles') as typeof import('../src/data/wordiePuzzles');
-const { getDailyThreadline } = assetRequire('../src/data/threadlinePuzzles') as typeof import('../src/data/threadlinePuzzles');
-const { getTriviaFeedSummary } = assetRequire('../src/data/trivia') as typeof import('../src/data/trivia');
-const { getDailySudoku } = assetRequire('../src/data/sudokuPuzzles') as typeof import('../src/data/sudokuPuzzles');
-const { getDailyBarter, getGoodById } = assetRequire('../src/data/barterPuzzles') as typeof import('../src/data/barterPuzzles');
-const { getDailyBridges } = assetRequire('../src/data/bridgesPuzzles') as typeof import('../src/data/bridgesPuzzles');
-const { getDailyMiniCrossword } = assetRequire('../src/data/miniCrosswordPuzzles') as typeof import('../src/data/miniCrosswordPuzzles');
-const { getDailyMuseumArtwork } = assetRequire('../src/data/museumArtworks') as typeof import('../src/data/museumArtworks');
-const { getDailyDawnCabinet } = assetRequire('../src/data/dawnCabinetPuzzles') as typeof import('../src/data/dawnCabinetPuzzles');
-const { formatUtcDateLabel } = assetRequire('../src/utils/dailyUtc') as typeof import('../src/utils/dailyUtc');
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 type GameLink = {
   title: string;
@@ -176,28 +155,6 @@ const gameSections: GameSection[] = [
   },
 ];
 
-const puzzle = getDailyPuzzle();
-const whodunit = getDailyWhodunit();
-const wordie = getDailyWordie();
-const threadline = getDailyThreadline();
-const mixTriviaSummary = getTriviaFeedSummary('mix', 'hard');
-const sportsTriviaSummary = getTriviaFeedSummary('sports', 'hard');
-const sudokuEntry = getDailySudoku();
-const sudoku = sudokuEntry.puzzle;
-const barterPuzzle = getDailyBarter();
-const bridgesPuzzle = getDailyBridges();
-const miniCrossword = getDailyMiniCrossword();
-const museumArtwork = getDailyMuseumArtwork();
-const dawnCabinet = getDailyDawnCabinet();
-const mojiImageSrc = resolveExportedAssetPath(puzzle.image);
-const barterGoal = getGoodById(barterPuzzle.goal.good);
-const miniCrosswordPreview = Array.from({ length: miniCrossword.size }, (_, row) =>
-  Array.from({ length: miniCrossword.size }, (_, col) =>
-    miniCrossword.cells.find((cell) => cell.row === row && cell.col === col)
-  )
-);
-const bridgesPreviewValues = bridgesPuzzle.islands.slice(0, 3).map((island) => island.requiredBridges);
-
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -205,18 +162,6 @@ function escapeHtml(value: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-}
-
-function resolveExportedAssetPath(source: unknown): string {
-  if (typeof source !== 'string') return '';
-
-  const stem = basename(source).replace(/\.[^.]+$/, '');
-  const assetDir = join(process.cwd(), 'dist', 'assets', 'assets', 'genmoji');
-  const exportedFile = readdirSync(assetDir).find((filename) =>
-    filename.startsWith(`${stem}.`) && filename.endsWith('.png')
-  );
-
-  return exportedFile ? `./assets/assets/genmoji/${encodeURIComponent(exportedFile)}` : '';
 }
 
 function renderQuickLink(link: GameLink): string {
@@ -227,166 +172,95 @@ function renderQuickLink(link: GameLink): string {
             </a>`;
 }
 
-function renderWordiePreview(): string {
-  const firstLetter = wordie.word[0] ?? '';
-  return `              <div class="wordie-preview preview-panel" aria-hidden="true">
-                ${Array.from({ length: 2 }, (_, row) => {
-                  const cells = Array.from({ length: wordie.length }, (_, col) => {
-                    const filled = row === 0 && col === 0;
-                    return `<span class="wordie-tile${wordie.length === 6 ? ' wordie-tile-compact' : ''}${filled ? ' wordie-tile-filled' : ''}">${filled ? escapeHtml(firstLetter) : ''}</span>`;
-                  }).join('');
-                  return `<div class="wordie-row">${cells}</div>`;
-                }).join('\n                ')}
-              </div>`;
-}
-
-function renderThreadlinePreview(): string {
-  const gridRows = threadline.grid.slice(0, 4).map((row, rowIndex) => {
-    const cells = row
-      .slice(0, 4)
-      .split('')
-      .map((letter, colIndex) => {
-        const active = rowIndex === colIndex;
-        return `<span class="threadline-cell${active ? ' threadline-cell-active' : ''}">${escapeHtml(letter)}</span>`;
-      })
-      .join('');
-    return `<div class="threadline-row">${cells}</div>`;
-  });
-
-  return `              <div class="threadline-preview preview-panel" aria-hidden="true">
-                <span class="threadline-preview-title">${escapeHtml(threadline.title)}</span>
-                <span class="threadline-preview-copy">${threadline.words.length} hidden words - ${threadline.threads.length} hidden themes.</span>
-                <div class="threadline-grid">
-                  ${gridRows.join('\n                  ')}
-                </div>
-              </div>`;
-}
-
-function renderCrosswordPreview(): string {
-  const rows = miniCrosswordPreview.map((row) => {
-    const cells = row.map((cell) => {
-      if (!cell || cell.isBlock) return '<span class="crossword-cell crossword-block"></span>';
-      return `<span class="crossword-cell">${cell.number ? `<small>${cell.number}</small>` : ''}</span>`;
-    });
-    return `<div class="crossword-row">${cells.join('')}</div>`;
-  });
-
-  return `              <div class="crossword-preview preview-panel" aria-hidden="true">
-                ${rows.join('\n                ')}
-                <span class="preview-caption">${miniCrossword.across.length} across - ${miniCrossword.down.length} down</span>
-              </div>`;
-}
-
-function renderSudokuPreview(): string {
-  const rows = sudoku.grid.map((row, rowIndex) => {
-    const cells = row
-      .map((value, colIndex) => {
-        const blockRight = colIndex % sudoku.boxCols === sudoku.boxCols - 1 && colIndex !== sudoku.size - 1;
-        const classes = ['sudoku-cell'];
-        if (value !== 0) classes.push('sudoku-filled');
-        if (blockRight) classes.push('sudoku-block-right');
-        return `<span class="${classes.join(' ')}">${value !== 0 ? value : ''}</span>`;
-      })
-      .join('');
-    const blockBottom = rowIndex % sudoku.boxRows === sudoku.boxRows - 1 && rowIndex !== sudoku.size - 1;
-    return `<div class="sudoku-row${blockBottom ? ' sudoku-block-bottom' : ''}">${cells}</div>`;
-  });
-
-  return `              <div class="sudoku-preview preview-panel sudoku-size-${sudoku.size}" aria-hidden="true">
-                <span class="sudoku-preview-date">${escapeHtml(formatUtcDateLabel(sudokuEntry.date))} UTC</span>
-                <span class="sudoku-preview-meta">${escapeHtml(sudokuEntry.difficulty)} - ${sudoku.size}x${sudoku.size}</span>
-                <div class="sudoku-grid">
-                  ${rows.join('\n                  ')}
-                </div>
-              </div>`;
-}
-
-function renderCabinetPreview(): string {
-  const rows = Array.from({ length: Math.min(dawnCabinet.rows, 3) }, (_, rowIndex) => {
-    const cells = Array.from({ length: Math.min(dawnCabinet.columns, 5) }, (_, colIndex) => {
-      const tile = dawnCabinet.givens[`${rowIndex}:${colIndex}`];
-      return `<span class="cabinet-tile${tile ? ' cabinet-tile-filled' : ''}">${tile ? tile.rank : ''}</span>`;
-    });
-    return `<div class="cabinet-row">${cells.join('')}</div>`;
-  });
-
-  return `              <div class="cabinet-preview preview-panel" aria-hidden="true">
-                <span class="cabinet-preview-meta">Choose Standard, Hard, or Expert - ${dawnCabinet.lines.length} rails</span>
-                ${rows.join('\n                ')}
-              </div>`;
-}
-
-function renderBridgesPreview(): string {
-  const values = bridgesPreviewValues.length === 3 ? bridgesPreviewValues : [2, 3, 1];
-  const islands = values
-    .map((value, index) => {
-      const connector = index < values.length - 1 ? '<span class="bridge-connector"></span>' : '';
-      return `<span class="bridge-island">${value}</span>${connector}`;
-    })
-    .join('');
-
-  return `              <div class="bridges-preview preview-panel" aria-hidden="true">
-                <span class="bridges-preview-emoji">🏝️</span>
-                <div class="bridges-row">${islands}</div>
-                <span class="preview-caption">Tap islands to add bridges.</span>
-              </div>`;
-}
-
-function renderTriviaPreview(feed: 'mix' | 'sports'): string {
-  const summary = feed === 'mix' ? mixTriviaSummary : sportsTriviaSummary;
-  const note = feed === 'mix'
-    ? 'Three choices each, one shield, and a steady 15-second pace.'
-    : 'Hard stays the tougher daily. Easy is a full parallel schedule.';
-
-  return `              <div class="trivia-preview preview-panel" aria-hidden="true">
-                <span class="panel-label">Today's game</span>
-                <div class="trivia-feed-grid">
-                  <span class="trivia-feed-card"><strong>${escapeHtml(summary.title)}</strong><small>${summary.questionCount} questions - ${summary.timerSeconds}s timer</small></span>
-                  <span class="trivia-feed-card"><strong>Easy / Hard</strong><small>Choose your version before the run starts</small></span>
-                </div>
-                <span class="preview-caption">${escapeHtml(note)}</span>
-              </div>`;
-}
-
-function renderWhodunitPreview(): string {
-  const suspects = whodunit.suspects
-    .map((suspect) => `<span class="suspect-chip">${escapeHtml(`${suspect.emoji} ${suspect.name}`)}</span>`)
-    .join('');
-
-  return `              <div class="whodunit-preview preview-panel" aria-hidden="true">
-                <span class="whodunit-preview-emoji">🔍</span>
-                <span class="panel-label">Case #${String(whodunit.caseNumber).padStart(3, '0')} - ${escapeHtml(whodunit.caseName)}</span>
-                <div class="suspect-row">${suspects}</div>
-              </div>`;
-}
-
 function renderPreview(kind: PreviewKind): string {
   switch (kind) {
     case 'museum':
       return `              <div class="museum-preview preview-panel" aria-hidden="true">
-                <img class="museum-preview-image" src="${escapeHtml(museumArtwork.images.thumbnailUrl)}" alt="" loading="lazy" />
+                <div class="museum-preview-art">
+                  <div class="museum-preview-sky"></div>
+                  <div class="museum-preview-sun"></div>
+                  <div class="museum-preview-floor"></div>
+                  <div class="museum-preview-figure"></div>
+                </div>
                 <div class="museum-preview-text">
-                  <span class="museum-preview-title">${escapeHtml(museumArtwork.title)}</span>
-                  <span class="museum-preview-meta">${escapeHtml(`${museumArtwork.artist} - ${museumArtwork.objectDate}`)}</span>
-                  <span class="museum-preview-tag">${escapeHtml(museumArtwork.periodTag)}</span>
+                  <span class="museum-preview-title">Gallery visit</span>
+                  <span class="museum-preview-meta">Artist - date - collection</span>
+                  <span class="museum-preview-tag">Museum</span>
                 </div>
               </div>`;
     case 'moji':
       return `              <div class="moji-preview preview-panel" aria-hidden="true">
-                <img class="preview-image" src="${escapeHtml(mojiImageSrc)}" alt="" loading="lazy" />
+                <div class="moji-preview-image">
+                  <span class="moji-preview-orb moji-preview-orb-a">🧩</span>
+                  <span class="moji-preview-orb moji-preview-orb-b">✨</span>
+                  <span class="moji-preview-orb moji-preview-orb-c">🔤</span>
+                </div>
               </div>`;
     case 'wordie':
-      return renderWordiePreview();
+      return `              <div class="wordie-preview preview-panel" aria-hidden="true">
+                <div class="wordie-row">
+                  <span class="wordie-tile wordie-tile-filled">D</span>
+                  <span class="wordie-tile"></span>
+                  <span class="wordie-tile"></span>
+                  <span class="wordie-tile"></span>
+                  <span class="wordie-tile"></span>
+                </div>
+                <div class="wordie-row">
+                  <span class="wordie-tile"></span>
+                  <span class="wordie-tile"></span>
+                  <span class="wordie-tile"></span>
+                  <span class="wordie-tile"></span>
+                  <span class="wordie-tile"></span>
+                </div>
+              </div>`;
     case 'threadline':
-      return renderThreadlinePreview();
+      return `              <div class="threadline-preview preview-panel" aria-hidden="true">
+                <span class="threadline-preview-title">Hidden paths</span>
+                <span class="threadline-preview-copy">6 hidden words - 2 hidden themes.</span>
+                <div class="threadline-grid">
+                  <div class="threadline-row"><span class="threadline-cell threadline-cell-active">S</span><span class="threadline-cell">T</span><span class="threadline-cell">O</span><span class="threadline-cell">N</span></div>
+                  <div class="threadline-row"><span class="threadline-cell">L</span><span class="threadline-cell threadline-cell-active">I</span><span class="threadline-cell">N</span><span class="threadline-cell">E</span></div>
+                  <div class="threadline-row"><span class="threadline-cell">A</span><span class="threadline-cell">R</span><span class="threadline-cell threadline-cell-active">C</span><span class="threadline-cell">H</span></div>
+                  <div class="threadline-row"><span class="threadline-cell">D</span><span class="threadline-cell">A</span><span class="threadline-cell">W</span><span class="threadline-cell threadline-cell-active">N</span></div>
+                </div>
+              </div>`;
     case 'crossword':
-      return renderCrosswordPreview();
+      return `              <div class="crossword-preview preview-panel" aria-hidden="true">
+                <div class="crossword-row"><span class="crossword-cell"><small>1</small></span><span class="crossword-cell"><small>2</small></span><span class="crossword-cell crossword-block"></span><span class="crossword-cell"><small>3</small></span><span class="crossword-cell"></span></div>
+                <div class="crossword-row"><span class="crossword-cell"></span><span class="crossword-cell"></span><span class="crossword-cell"><small>4</small></span><span class="crossword-cell"></span><span class="crossword-cell"></span></div>
+                <div class="crossword-row"><span class="crossword-cell crossword-block"></span><span class="crossword-cell"><small>5</small></span><span class="crossword-cell"></span><span class="crossword-cell"></span><span class="crossword-cell crossword-block"></span></div>
+                <div class="crossword-row"><span class="crossword-cell"><small>6</small></span><span class="crossword-cell"></span><span class="crossword-cell"></span><span class="crossword-cell"></span><span class="crossword-cell"><small>7</small></span></div>
+                <div class="crossword-row"><span class="crossword-cell"></span><span class="crossword-cell"></span><span class="crossword-cell crossword-block"></span><span class="crossword-cell"></span><span class="crossword-cell"></span></div>
+                <span class="preview-caption">Across + down</span>
+              </div>`;
     case 'sudoku':
-      return renderSudokuPreview();
+      return `              <div class="sudoku-preview preview-panel" aria-hidden="true">
+                <span class="sudoku-preview-date">Daily UTC</span>
+                <span class="sudoku-preview-meta">Medium - 6x6</span>
+                <div class="sudoku-grid">
+                  <div class="sudoku-row"><span class="sudoku-cell sudoku-filled">4</span><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">2</span><span class="sudoku-cell"></span><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">6</span></div>
+                  <div class="sudoku-row"><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">6</span><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">1</span><span class="sudoku-cell"></span><span class="sudoku-cell"></span></div>
+                  <div class="sudoku-row"><span class="sudoku-cell sudoku-filled">1</span><span class="sudoku-cell"></span><span class="sudoku-cell"></span><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">5</span><span class="sudoku-cell"></span></div>
+                  <div class="sudoku-row"><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">3</span><span class="sudoku-cell"></span><span class="sudoku-cell"></span><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">2</span></div>
+                  <div class="sudoku-row"><span class="sudoku-cell"></span><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">5</span><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">1</span><span class="sudoku-cell"></span></div>
+                  <div class="sudoku-row"><span class="sudoku-cell sudoku-filled">6</span><span class="sudoku-cell"></span><span class="sudoku-cell"></span><span class="sudoku-cell sudoku-filled">4</span><span class="sudoku-cell"></span><span class="sudoku-cell"></span></div>
+                </div>
+              </div>`;
     case 'cabinet':
-      return renderCabinetPreview();
+      return `              <div class="cabinet-preview preview-panel" aria-hidden="true">
+                <span class="cabinet-preview-meta">Standard, Hard, or Expert - rails</span>
+                <div class="cabinet-row"><span class="cabinet-tile cabinet-tile-filled">2</span><span class="cabinet-tile"></span><span class="cabinet-tile cabinet-tile-filled">7</span><span class="cabinet-tile"></span><span class="cabinet-tile cabinet-tile-filled">D</span></div>
+                <div class="cabinet-row"><span class="cabinet-tile"></span><span class="cabinet-tile cabinet-tile-filled">4</span><span class="cabinet-tile"></span><span class="cabinet-tile cabinet-tile-filled">9</span><span class="cabinet-tile"></span></div>
+                <div class="cabinet-row"><span class="cabinet-tile cabinet-tile-filled">1</span><span class="cabinet-tile"></span><span class="cabinet-tile"></span><span class="cabinet-tile cabinet-tile-filled">6</span><span class="cabinet-tile"></span></div>
+              </div>`;
     case 'bridges':
-      return renderBridgesPreview();
+      return `              <div class="bridges-preview preview-panel" aria-hidden="true">
+                <span class="bridges-preview-emoji">🏝️</span>
+                <div class="bridges-row">
+                  <span class="bridge-island">2</span><span class="bridge-connector"></span><span class="bridge-island">3</span><span class="bridge-connector"></span><span class="bridge-island">1</span>
+                </div>
+                <span class="preview-caption">Tap islands to add bridges.</span>
+              </div>`;
     case 'ballpark':
       return `              <div class="ballpark-preview preview-panel" aria-hidden="true">
                 <span class="panel-label">Today's format</span>
@@ -398,17 +272,39 @@ function renderPreview(kind: PreviewKind): string {
                 <span class="preview-caption">Good guesses beat good memory.</span>
               </div>`;
     case 'daily-mix':
-      return renderTriviaPreview('mix');
+      return `              <div class="trivia-preview preview-panel" aria-hidden="true">
+                <span class="panel-label">Today's game</span>
+                <div class="trivia-feed-grid">
+                  <span class="trivia-feed-card"><strong>Daily Mix</strong><small>12 questions - 15s timer</small></span>
+                  <span class="trivia-feed-card"><strong>Easy / Hard</strong><small>Choose before the run starts</small></span>
+                </div>
+                <span class="preview-caption">Three choices each, one shield.</span>
+              </div>`;
     case 'daily-sports':
-      return renderTriviaPreview('sports');
+      return `              <div class="trivia-preview preview-panel" aria-hidden="true">
+                <span class="panel-label">Today's game</span>
+                <div class="trivia-feed-grid">
+                  <span class="trivia-feed-card"><strong>Daily Sports</strong><small>12 questions - 15s timer</small></span>
+                  <span class="trivia-feed-card"><strong>Easy / Hard</strong><small>Sharper sports curve</small></span>
+                </div>
+                <span class="preview-caption">Hard stays the tougher daily.</span>
+              </div>`;
     case 'barter':
       return `              <div class="barter-preview preview-panel" aria-hidden="true">
                 <span class="panel-label">Today's goal</span>
-                <span class="barter-goal"><span class="barter-emoji">${barterGoal.emoji}</span><strong>${barterPuzzle.goal.qty} ${escapeHtml(barterGoal.name)}</strong></span>
-                <span class="barter-meta">Par ${barterPuzzle.par} trades - ${barterPuzzle.goods.length} goods</span>
+                <span class="barter-goal"><span class="barter-emoji">🌾</span><strong>12 Grain</strong></span>
+                <span class="barter-meta">Par 5 trades - 8 goods</span>
               </div>`;
     case 'whodunit':
-      return renderWhodunitPreview();
+      return `              <div class="whodunit-preview preview-panel" aria-hidden="true">
+                <span class="whodunit-preview-emoji">🔍</span>
+                <span class="panel-label">Case #042 - The Missing Key</span>
+                <div class="suspect-row">
+                  <span class="suspect-chip">🎩 Vale</span>
+                  <span class="suspect-chip">🧤 Noor</span>
+                  <span class="suspect-chip">📚 Finch</span>
+                </div>
+              </div>`;
   }
 }
 
@@ -543,7 +439,40 @@ const html = `<!doctype html>
       .topbar-left {
         display: flex;
         align-items: center;
+        gap: 12px;
         min-width: 0;
+      }
+
+      .logo-mark {
+        position: relative;
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--surface-light);
+        overflow: hidden;
+      }
+
+      .logo-sun {
+        position: absolute;
+        left: 8px;
+        top: 7px;
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--home-accent);
+      }
+
+      .logo-horizon {
+        position: absolute;
+        left: 5px;
+        right: 5px;
+        bottom: 9px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
 
       .wordmark {
@@ -744,12 +673,46 @@ const html = `<!doctype html>
         padding: 0;
       }
 
-      .museum-preview-image {
-        display: block;
-        width: 100%;
-        height: 190px;
-        background: var(--surface);
-        object-fit: cover;
+      .museum-preview-art {
+        position: relative;
+        height: 176px;
+        background: linear-gradient(135deg, #d7c4a8 0%, #8da1a5 48%, #2c3b42 100%);
+        overflow: hidden;
+      }
+
+      .museum-preview-sky {
+        position: absolute;
+        inset: 14px 18px 54px;
+        border-radius: 50% 50% 18px 18px;
+        background: linear-gradient(160deg, rgba(255, 245, 218, 0.88), rgba(108, 131, 136, 0.58));
+      }
+
+      .museum-preview-sun {
+        position: absolute;
+        right: 72px;
+        top: 34px;
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        background: #f08a24;
+        box-shadow: 0 0 0 12px rgba(240, 138, 36, 0.12);
+      }
+
+      .museum-preview-floor {
+        position: absolute;
+        inset: auto 0 0;
+        height: 64px;
+        background: linear-gradient(90deg, rgba(45, 38, 28, 0.62), rgba(236, 202, 146, 0.46));
+      }
+
+      .museum-preview-figure {
+        position: absolute;
+        left: 70px;
+        bottom: 34px;
+        width: 54px;
+        height: 82px;
+        border-radius: 28px 28px 10px 10px;
+        background: rgba(36, 28, 20, 0.72);
       }
 
       .museum-preview-text {
@@ -789,11 +752,47 @@ const html = `<!doctype html>
         text-transform: uppercase;
       }
 
-      .preview-image {
-        display: block;
-        width: 160px;
-        height: 160px;
-        object-fit: contain;
+      .moji-preview-image {
+        position: relative;
+        width: min(100%, 220px);
+        height: 164px;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background:
+          radial-gradient(circle at 24% 26%, rgba(255, 90, 81, 0.18), transparent 34%),
+          radial-gradient(circle at 74% 38%, rgba(8, 127, 140, 0.18), transparent 34%),
+          linear-gradient(145deg, var(--surface), var(--surface-light));
+      }
+
+      .moji-preview-orb {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        width: 64px;
+        height: 64px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: var(--surface);
+        box-shadow: 0 8px 12px var(--shadow);
+        font-size: 30px;
+      }
+
+      .moji-preview-orb-a {
+        left: 28px;
+        top: 30px;
+        rotate: -8deg;
+      }
+
+      .moji-preview-orb-b {
+        left: 80px;
+        top: 64px;
+        z-index: 1;
+      }
+
+      .moji-preview-orb-c {
+        right: 28px;
+        top: 28px;
+        rotate: 9deg;
       }
 
       .wordie-preview,
@@ -835,11 +834,6 @@ const html = `<!doctype html>
         color: var(--text);
         font-size: 18px;
         font-weight: 800;
-      }
-
-      .wordie-tile-compact {
-        width: 38px;
-        height: 38px;
       }
 
       .wordie-tile-filled {
@@ -920,25 +914,6 @@ const html = `<!doctype html>
         height: 24px;
         border-radius: 6px;
         font-size: 11px;
-      }
-
-      .sudoku-grid .sudoku-row {
-        gap: 3px;
-      }
-
-      .sudoku-block-right {
-        margin-right: 4px;
-      }
-
-      .sudoku-block-bottom {
-        margin-bottom: 4px;
-      }
-
-      .sudoku-size-9 .sudoku-cell {
-        width: 16px;
-        height: 16px;
-        border-radius: 4px;
-        font-size: 10px;
       }
 
       .sudoku-filled {
@@ -1121,6 +1096,10 @@ const html = `<!doctype html>
         <div class="topbar-sticky">
           <header class="topbar">
             <div class="topbar-left">
+              <div class="logo-mark" aria-hidden="true">
+                <div class="logo-sun"></div>
+                <div class="logo-horizon"></div>
+              </div>
               <p class="wordmark">Daybreak</p>
             </div>
           </header>
