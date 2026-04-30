@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
-import Svg, { Line } from 'react-native-svg';
 import {
   type ThemeTokens,
   resolveScreenAccent,
@@ -177,7 +176,6 @@ export default function ThreadlineScreen() {
   const [isBoardGestureActive, setIsBoardGestureActive] = useState(false);
   const [gameState, setGameState] = useState<GameState>('playing');
   const [shareStatus, setShareStatus] = useState<string | null>(null);
-  const [lastFoundPath, setLastFoundPath] = useState<ThreadlineCoord[]>([]);
   const [isCompletionOpen, setIsCompletionOpen] = useState(false);
   const [frameSize, setFrameSize] = useState<FrameSize>({ width: 0, height: 0 });
   const [playAreaSize, setPlayAreaSize] = useState<FrameSize>({ width: 0, height: 0 });
@@ -311,7 +309,6 @@ export default function ThreadlineScreen() {
     setIsBoardGestureActive(false);
     setGameState('playing');
     setShareStatus(null);
-    setLastFoundPath([]);
     setIsCompletionOpen(false);
     hasCountedRef.current = false;
   }, [dateKey]);
@@ -425,16 +422,9 @@ export default function ThreadlineScreen() {
     return () => clearTimeout(timeout);
   }, [statusMessage]);
 
-  useEffect(() => {
-    if (lastFoundPath.length === 0) return;
-    const timeout = setTimeout(() => setLastFoundPath([]), 620);
-    return () => clearTimeout(timeout);
-  }, [lastFoundPath]);
-
   const completeWord = useCallback((word: ThreadlineWord) => {
     setFoundIds((prev) => (prev.includes(word.id) ? prev : [...prev, word.id]));
     setHintCellKey(null);
-    setLastFoundPath(word.path);
     isPointerDownRef.current = false;
     selectedPathRef.current = [];
     setSelectedPath([]);
@@ -519,10 +509,11 @@ export default function ThreadlineScreen() {
     (frameHeight <= 680 ? 142 : 156) +
     (frameHeight <= 680 ? 46 : 52) +
     (frameHeight <= 680 ? 18 : 24);
-  const mobileBoardLimit = Math.max(
-    224,
-    (measuredPlayAreaHeight || frameHeight - mobileReservedHeight) - 8
-  );
+  const mobileBoardFallback = Math.max(160, frameHeight - mobileReservedHeight);
+  const mobileBoardLimit =
+    measuredPlayAreaHeight > 0
+      ? Math.max(0, measuredPlayAreaHeight - 8)
+      : mobileBoardFallback;
   const pageWidth = isPhoneLayout
     ? Math.max(0, measuredPlayAreaWidth)
     : Math.max(0, Math.min(520, width - Spacing.lg * 2));
@@ -534,10 +525,11 @@ export default function ThreadlineScreen() {
   );
   const cellGap = isPhoneLayout ? (boardSize < 310 ? 3 : 4) : 5;
   const boardPadding = isPhoneLayout ? (boardSize < 310 ? 5 : 6) : Spacing.sm;
-  const cellSize = Math.max(
-    isPhoneLayout ? 20 : 22,
-    (boardSize - boardPadding * 2 - cellGap * (gridSize - 1)) / gridSize
-  );
+  const fittedCellSize =
+    (boardSize - boardPadding * 2 - cellGap * (gridSize - 1)) / gridSize;
+  const cellSize = isPhoneLayout
+    ? Math.max(14, fittedCellSize)
+    : Math.max(22, fittedCellSize);
   const cellRadius = Math.max(6, Math.min(10, cellSize * 0.28));
   const cellFontSize = Math.max(12, Math.min(16, cellSize * 0.46));
 
@@ -935,47 +927,6 @@ export default function ThreadlineScreen() {
     );
   };
 
-  const renderThreadPath = (
-    path: ThreadlineCoord[],
-    color: string,
-    opacity: number
-  ) => {
-    if (path.length < 2 || boardSize <= 0) return null;
-
-    const center = (coord: ThreadlineCoord) => ({
-      x: boardPadding + coord.col * (cellSize + cellGap) + cellSize / 2,
-      y: boardPadding + coord.row * (cellSize + cellGap) + cellSize / 2,
-    });
-    const strokeWidth = Math.max(9, Math.min(22, cellSize * 0.42));
-
-    return (
-      <Svg
-        width={boardSize}
-        height={boardSize}
-        style={styles.pathOverlay}
-        pointerEvents="none"
-      >
-        {path.slice(1).map((coord, index) => {
-          const from = center(path[index]);
-          const to = center(coord);
-          return (
-            <Line
-              key={`${coordKey(path[index])}-${coordKey(coord)}-${index}`}
-              x1={from.x}
-              y1={from.y}
-              x2={to.x}
-              y2={to.y}
-              stroke={color}
-              strokeOpacity={opacity}
-              strokeWidth={strokeWidth}
-              strokeLinecap="round"
-            />
-          );
-        })}
-      </Svg>
-    );
-  };
-
   const renderBoard = (compact = false) => (
     <View
       style={[
@@ -1005,8 +956,6 @@ export default function ThreadlineScreen() {
         onResponderTerminationRequest={() => false}
         {...(webBoardHandlers as object)}
       >
-        {renderThreadPath(lastFoundPath, Colors.success, theme.mode === 'dark' ? 0.72 : 0.58)}
-        {renderThreadPath(selectedPath, screenAccent.main, theme.mode === 'dark' ? 0.76 : 0.62)}
         {puzzle.grid.map((row, rowIndex) => (
           <View key={`row-${rowIndex}`} style={[styles.boardRow, { gap: cellGap }]}>
             {row.split('').map((letter, colIndex) => {
@@ -1364,6 +1313,7 @@ const createStyles = (
       justifyContent: 'flex-start',
       position: 'relative',
       paddingTop: 8,
+      overflow: 'hidden',
     },
     scrollContent: {
       padding: Spacing.lg,
@@ -1773,10 +1723,6 @@ const createStyles = (
       alignSelf: 'center',
       ...WEB_NO_SELECT,
     },
-    pathOverlay: {
-      ...StyleSheet.absoluteFillObject,
-      zIndex: 2,
-    },
     boardRow: {
       flexDirection: 'row',
       zIndex: 1,
@@ -1797,9 +1743,9 @@ const createStyles = (
       backgroundColor: palette.selected,
       borderColor: palette.selected,
       shadowColor: palette.selected,
-      shadowOpacity: theme.mode === 'dark' ? 0.18 : 0.12,
-      shadowRadius: 4,
-      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: theme.mode === 'dark' ? 0.38 : 0.24,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 3 },
     },
     cellFound: {
       backgroundColor: palette.found,
