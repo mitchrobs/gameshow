@@ -8,6 +8,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build:web": "expo export --platform web",
+    "build:barter-precomputed": "tsx scripts/build_barter_precomputed.ts",
     "build:bridges-pack": "tsx scripts/build_bridges_pack.ts",
     "build:wordie-schedule": "python3 scripts/build_wordie_schedule.py",
     "build:mini-crossword-bank": "python3 scripts/build_mini_crossword_bank.py",

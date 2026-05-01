@@ -1,6 +1,7 @@
 import { GOODS, createEmptyInventory, orderGoods } from './goods.ts';
 import { canonicalizeTrade, tradeKey } from './engine.ts';
 import { getMarketThemeBySeed, skinGoodsForMarket } from './markets.ts';
+import { PRECOMPUTED_BARTER_PUZZLES } from './precomputedDaily.ts';
 import { mulberry32, seededPick, seededShuffle } from './random.ts';
 import { validateBarterQuality } from './quality.ts';
 import type {
@@ -1346,7 +1347,8 @@ export function getDailyBarter(date: Date = new Date()): BarterPuzzle {
   const key = getDateKey(date);
   const cached = DAILY_CACHE.get(key);
   if (cached) return cached;
-  const puzzle = generateBarterPuzzle(getDailySeed(date), date);
+  const precomputed = PRECOMPUTED_BARTER_PUZZLES[key];
+  const puzzle = precomputed ?? generateBarterPuzzle(getDailySeed(date), date);
   DAILY_CACHE.set(key, puzzle);
   return puzzle;
 }

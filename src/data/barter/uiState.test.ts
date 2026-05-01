@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   canAfford,
@@ -154,7 +155,7 @@ describe('Barter UI market state', () => {
 
   it('keeps retired teaching copy off the gameplay board', () => {
     const source = readFileSync(
-      new URL('../../../app/barter.tsx', import.meta.url),
+      fileURLToPath(new URL('../../../app/barter.tsx', import.meta.url).toString()),
       'utf8'
     );
 
