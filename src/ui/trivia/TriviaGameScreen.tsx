@@ -23,6 +23,7 @@ import type {
 } from '../../data/trivia/types';
 import type { TriviaFeedRuntime } from '../../data/trivia/feedRuntime';
 import { canArmShield, resolveShieldAfterQuestion } from '../../data/trivia/gameplay';
+import { recordTriviaRunTelemetry } from '../../data/trivia/telemetry';
 import { incrementGlobalPlayCount } from '../../globalPlayCount';
 import {
   createTriviaStyles,
@@ -123,6 +124,8 @@ export function TriviaGameScreen({ runtime }: { runtime: TriviaFeedRuntime }) {
   const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasCountedRef = useRef(false);
+  const hasRecordedTelemetryRef = useRef(false);
+  const questionStartedAtRef = useRef(Date.now());
 
   const surfaceOpacity = useRef(new Animated.Value(1)).current;
   const surfaceTranslateY = useRef(new Animated.Value(0)).current;
@@ -301,6 +304,11 @@ export function TriviaGameScreen({ runtime }: { runtime: TriviaFeedRuntime }) {
   ]);
 
   useEffect(() => {
+    if (screenMode !== 'question' || !currentQuestion) return;
+    questionStartedAtRef.current = Date.now();
+  }, [currentQuestion, screenMode]);
+
+  useEffect(() => {
     if (screenMode !== 'reveal') {
       revealOpacity.setValue(0);
       revealTranslateY.setValue(8);
@@ -393,6 +401,7 @@ export function TriviaGameScreen({ runtime }: { runtime: TriviaFeedRuntime }) {
     setCountdown(getTimerSeconds(nextEpisode));
     setScreenMode('question');
     hasCountedRef.current = false;
+    hasRecordedTelemetryRef.current = false;
   }, [resetTimers, runtime, selectedDifficulty]);
 
   const advanceToNextQuestion = useCallback(
@@ -424,6 +433,13 @@ export function TriviaGameScreen({ runtime }: { runtime: TriviaFeedRuntime }) {
       if (selectedOption !== null) return;
 
       const actualCorrect = !timedOut && optionIndex === currentQuestion.answerIndex;
+      const answerMilliseconds = timedOut
+        ? currentTimerSeconds * 1000
+        : Math.max(
+            0,
+            Math.min(currentTimerSeconds * 1000, Date.now() - questionStartedAtRef.current)
+          );
+      const wasShieldArmed = shieldArmed;
       const shieldResolution = resolveShieldAfterQuestion({
         shieldArmed,
         shieldAvailable,
@@ -450,8 +466,10 @@ export function TriviaGameScreen({ runtime }: { runtime: TriviaFeedRuntime }) {
           correct: actualCorrect,
           timedOut,
           shielded: savedByShield,
+          shieldArmed: wasShieldArmed,
           points,
           timeRemaining: countdown,
+          answerMilliseconds,
           correctAnswerIndex: currentQuestion.answerIndex,
         },
       ]);
@@ -546,6 +564,15 @@ export function TriviaGameScreen({ runtime }: { runtime: TriviaFeedRuntime }) {
       incrementGlobalPlayCount(getGlobalPlayCountKey(feed));
     }
   }, [feed, screenMode]);
+
+  useEffect(() => {
+    if (screenMode !== 'results' || !activeEpisode || answers.length !== activeEpisode.questionCount) {
+      return;
+    }
+    if (hasRecordedTelemetryRef.current) return;
+    hasRecordedTelemetryRef.current = true;
+    recordTriviaRunTelemetry(activeEpisode, answers);
+  }, [activeEpisode, answers, screenMode]);
 
   const handleCopyResults = useCallback(async () => {
     if (!shareText || Platform.OS !== 'web') return;

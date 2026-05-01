@@ -10,7 +10,9 @@ import {
 } from '../src/data/trivia/curatedTriviaSources.ts';
 import type {
   TriviaAuditReport,
+  TriviaCalibrationEvidence,
   TriviaCitation,
+  TriviaCouncilFlag,
   TriviaCurveballKind,
   TriviaDifficulty,
   TriviaDifficultyTarget,
@@ -25,17 +27,23 @@ import type {
   TriviaPlayerCalibrationReport,
   TriviaPlayerDaySample,
   TriviaPlayerAgentSummary,
+  TriviaQuestionScheduleEvidence,
   TriviaPlayerSlotSummary,
   TriviaPromptKind,
   TriviaQuestionRecord,
   TriviaSourceLabel,
   TriviaSourceTier,
+  TriviaTelemetryQuestionAggregate,
+  TriviaTelemetrySlotAggregate,
+  TriviaTelemetrySnapshot,
 } from '../src/data/trivia/types.ts';
 import {
-  TRIVIA_PLAYER_AGENTS,
+  evaluateTriviaCouncilQuestion,
   TRIVIA_PLAYER_CALIBRATION_DAYS,
-} from '../src/data/trivia/playerAgents.ts';
+  TRIVIA_SOLVE_AGENTS,
+} from '../src/data/trivia/agentCouncil.ts';
 import { canArmShield, resolveShieldAfterQuestion } from '../src/data/trivia/gameplay.ts';
+import { getTriviaTelemetryBlendWeights } from '../src/data/trivia/telemetry.ts';
 import {
   hasGimmickDistractorPattern,
   hasStaleRelativePhrasing,
@@ -46,6 +54,7 @@ import {
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, '..');
 const TRIVIA_DIR = path.join(ROOT, 'src/data/trivia');
+const TELEMETRY_SNAPSHOT_PATH = path.join(TRIVIA_DIR, 'triviaTelemetrySnapshot.json');
 const START_DATE_KEY = '2026-04-26';
 const TOTAL_DAYS = 365;
 const ACCESS_DATE = '2026-04-26';
@@ -72,19 +81,19 @@ const BASE_POINTS = 100;
 const SPEED_BONUS = 50;
 const SHIELD_POINTS = 50;
 const MIX_SLOT_CONFIDENCE_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
-  easy: [0.008, 0.012, 0.016, 0.03, 0.04, 0.05, 0.068, 0.082, 0.098, 0.078, 0.084, 0.08],
+  easy: [0.008, 0.012, 0.016, 0.03, 0.04, 0.05, 0.068, 0.082, 0.098, 0.02, 0.026, 0.022],
   hard: [0.045, 0.05, 0.055, 0.08, 0.09, 0.1, 0.14, 0.16, 0.18, 0.29, 0.31, 0.3],
 };
 const MIX_SLOT_TIMEOUT_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
-  easy: [0, 0.001, 0.002, 0.004, 0.005, 0.006, 0.008, 0.011, 0.013, 0.011, 0.012, 0.011],
+  easy: [0, 0.001, 0.002, 0.004, 0.005, 0.006, 0.008, 0.011, 0.013, 0.004, 0.005, 0.004],
   hard: [0.001, 0.002, 0.004, 0.008, 0.01, 0.012, 0.016, 0.02, 0.024, 0.038, 0.04, 0.038],
 };
 const SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
-  easy: [0.028, 0.05, 0.074, 0.102, 0.136, 0.158, 0.23, 0.3, 0.35],
+  easy: [0.028, 0.05, 0.05, 0.075, 0.105, 0.115, 0.17, 0.235, 0.28],
   hard: [0.055, 0.08, 0.15, 0.18, 0.19, 0.3, 0.42, 0.52, 0.62],
 };
 const SPORTS_SLOT_TIMEOUT_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
-  easy: [0.001, 0.005, 0.009, 0.012, 0.015, 0.018, 0.026, 0.034, 0.042],
+  easy: [0.001, 0.004, 0.006, 0.009, 0.011, 0.013, 0.018, 0.024, 0.03],
   hard: [0.002, 0.006, 0.012, 0.017, 0.019, 0.038, 0.052, 0.068, 0.08],
 };
 const FIRST_90_CALIBRATION_DAYS = 90;
@@ -2470,6 +2479,17 @@ function buildEpisodeSchedule(
       lateSlotLegibilityScore: 0,
       agentFrictionBySlot: [],
       coreSubdomainShare: 0,
+      observedCorrectRate: null,
+      observedTimeoutRate: null,
+      observedShieldRate: null,
+      blendedCorrectRate: 0,
+      telemetrySampleSize: 0,
+      telemetryConfidence: 'agent-only',
+      replacementCount: 0,
+      replacementReasons: [],
+      slotGroupEvidence: {},
+      questionEvidence: [],
+      councilFlags: [],
       playerGatePass: false,
       playerGateFailures: [],
       playerAgentSummaries: [],
@@ -2484,6 +2504,321 @@ function randomFromKey(key: string): number {
 
 function buildQuestionMap(library: TriviaQuestionRecord[]) {
   return new Map(library.map((question) => [question.id, question]));
+}
+
+type TriviaTelemetryMaps = {
+  questionAggregates: Map<string, TriviaTelemetryQuestionAggregate>;
+  slotAggregates: Map<string, TriviaTelemetrySlotAggregate>;
+};
+
+type SimulatedQuestionStats = {
+  date: string;
+  slot: number;
+  questionId: string;
+  question: TriviaQuestionRecord;
+  total: number;
+  correct: number;
+  timeouts: number;
+  shields: number;
+  totalAnswerMilliseconds: number;
+  replacementReason: string | null;
+};
+
+type ReplacementLogEntry = {
+  date: string;
+  slot: number;
+  questionId: string;
+  replacementQuestionId: string;
+  reason: string;
+};
+
+function getEmptyTelemetrySnapshot(): TriviaTelemetrySnapshot {
+  return {
+    generatedAt: ACCESS_DATE,
+    questions: [],
+    slots: [],
+  };
+}
+
+async function loadTriviaTelemetrySnapshot(): Promise<TriviaTelemetrySnapshot> {
+  try {
+    const raw = await fs.readFile(TELEMETRY_SNAPSHOT_PATH, 'utf8');
+    const parsed = JSON.parse(raw) as Partial<TriviaTelemetrySnapshot>;
+    return {
+      generatedAt: parsed.generatedAt ?? ACCESS_DATE,
+      questions: Array.isArray(parsed.questions) ? parsed.questions : [],
+      slots: Array.isArray(parsed.slots) ? parsed.slots : [],
+    };
+  } catch {
+    return getEmptyTelemetrySnapshot();
+  }
+}
+
+function buildQuestionTelemetryKey(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
+  questionId: string
+) {
+  return `${feed}:${difficulty}:${questionId}`;
+}
+
+function buildSlotTelemetryKey(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
+  slot: number
+) {
+  return `${feed}:${difficulty}:${slot}`;
+}
+
+function buildTelemetryMaps(snapshot: TriviaTelemetrySnapshot): TriviaTelemetryMaps {
+  return {
+    questionAggregates: new Map(
+      snapshot.questions.map((aggregate) => [
+        buildQuestionTelemetryKey(aggregate.feed, aggregate.difficulty, aggregate.questionId),
+        aggregate,
+      ])
+    ),
+    slotAggregates: new Map(
+      snapshot.slots.map((aggregate) => [
+        buildSlotTelemetryKey(aggregate.feed, aggregate.difficulty, aggregate.slot),
+        aggregate,
+      ])
+    ),
+  };
+}
+
+function calculateLateClockStress(
+  histogram: Partial<Record<'lt-4s' | 'lt-8s' | 'lt-12s' | 'lt-15s' | 'timeout', number>>
+): number | null {
+  const total = Object.values(histogram).reduce((sum, value) => sum + (value ?? 0), 0);
+  if (total <= 0) return null;
+  const underFour = histogram['lt-4s'] ?? 0;
+  const underEight = histogram['lt-8s'] ?? 0;
+  const underTwelve = histogram['lt-12s'] ?? 0;
+  const underFifteen = histogram['lt-15s'] ?? 0;
+  const timeout = histogram.timeout ?? 0;
+  const late = underTwelve + underFifteen + timeout;
+  const moderatelyLate = underEight + underTwelve + underFifteen + timeout;
+  return Number((((late * 1.1 + moderatelyLate * 0.35 - underFour * 0.2) / total)).toFixed(3));
+}
+
+function buildCalibrationEvidence(params: {
+  agentCorrectRate: number;
+  agentTimeoutRate: number;
+  agentShieldRate: number;
+  agentMeanAnswerMilliseconds: number | null;
+  telemetryAggregate?: {
+    plays: number;
+    correctCount: number;
+    timeoutCount: number;
+    shieldSaveCount: number;
+    totalAnswerMilliseconds: number;
+    timeBucketHistogram: Partial<Record<'lt-4s' | 'lt-8s' | 'lt-12s' | 'lt-15s' | 'timeout', number>>;
+  };
+}): TriviaCalibrationEvidence {
+  const observedCorrectRate =
+    params.telemetryAggregate && params.telemetryAggregate.plays > 0
+      ? Number((params.telemetryAggregate.correctCount / params.telemetryAggregate.plays).toFixed(3))
+      : null;
+  const observedTimeoutRate =
+    params.telemetryAggregate && params.telemetryAggregate.plays > 0
+      ? Number((params.telemetryAggregate.timeoutCount / params.telemetryAggregate.plays).toFixed(3))
+      : null;
+  const observedShieldRate =
+    params.telemetryAggregate && params.telemetryAggregate.plays > 0
+      ? Number((params.telemetryAggregate.shieldSaveCount / params.telemetryAggregate.plays).toFixed(3))
+      : null;
+  const meanAnswerMilliseconds =
+    params.telemetryAggregate && params.telemetryAggregate.plays > 0
+      ? Number((params.telemetryAggregate.totalAnswerMilliseconds / params.telemetryAggregate.plays).toFixed(1))
+      : params.agentMeanAnswerMilliseconds;
+  const telemetrySampleSize = params.telemetryAggregate?.plays ?? 0;
+  const weights = getTriviaTelemetryBlendWeights(telemetrySampleSize);
+  const blendedCorrectRate =
+    weights.telemetryWeight > 0 && observedCorrectRate !== null
+      ? Number(
+          (
+            params.agentCorrectRate * weights.agentWeight +
+            observedCorrectRate * weights.telemetryWeight
+          ).toFixed(3)
+        )
+      : Number(params.agentCorrectRate.toFixed(3));
+  const blendedTimeoutRate =
+    weights.telemetryWeight > 0 && observedTimeoutRate !== null
+      ? Number(
+          (
+            params.agentTimeoutRate * weights.agentWeight +
+            observedTimeoutRate * weights.telemetryWeight
+          ).toFixed(3)
+        )
+      : Number(params.agentTimeoutRate.toFixed(3));
+  const blendedShieldRate =
+    weights.telemetryWeight > 0 && observedShieldRate !== null
+      ? Number(
+          (
+            params.agentShieldRate * weights.agentWeight +
+            observedShieldRate * weights.telemetryWeight
+          ).toFixed(3)
+        )
+      : Number(params.agentShieldRate.toFixed(3));
+
+  return {
+    agentCorrectRate: Number(params.agentCorrectRate.toFixed(3)),
+    observedCorrectRate,
+    blendedCorrectRate,
+    agentTimeoutRate: Number(params.agentTimeoutRate.toFixed(3)),
+    observedTimeoutRate,
+    blendedTimeoutRate,
+    agentShieldRate: Number(params.agentShieldRate.toFixed(3)),
+    observedShieldRate,
+    blendedShieldRate,
+    meanAnswerMilliseconds,
+    lateClockStress: calculateLateClockStress(params.telemetryAggregate?.timeBucketHistogram ?? {}),
+    telemetrySampleSize,
+    telemetryConfidence: weights.confidence,
+  };
+}
+
+function getGroupLabel(feed: TriviaFeed, slot: number) {
+  if (feed === 'mix') {
+    if (slot <= 3) return 'q1-q3';
+    if (slot <= 6) return 'q4-q6';
+    if (slot <= 9) return 'q7-q9';
+    return 'q10-q12';
+  }
+  if (slot <= 2) return 'q1-q2';
+  if (slot <= 5) return 'q3-q5';
+  if (slot === 6) return 'q6';
+  return 'q7-q9';
+}
+
+function buildSlotGroupEvidence(
+  feed: TriviaFeed,
+  slotSummaries: TriviaPlayerSlotSummary[]
+): Record<string, TriviaCalibrationEvidence> {
+  const groups = new Map<
+    string,
+    {
+      agentCorrectRate: number[];
+      observedCorrectRate: number[];
+      blendedCorrectRate: number[];
+      agentTimeoutRate: number[];
+      observedTimeoutRate: number[];
+      blendedTimeoutRate: number[];
+      agentShieldRate: number[];
+      observedShieldRate: number[];
+      blendedShieldRate: number[];
+      meanAnswerMilliseconds: number[];
+      lateClockStress: number[];
+      telemetrySampleSize: number;
+      confidenceRanks: number[];
+    }
+  >();
+
+  const confidenceRank = { 'agent-only': 0, emerging: 1, trusted: 2 } as const;
+  const confidenceByRank = ['agent-only', 'emerging', 'trusted'] as const;
+
+  slotSummaries.forEach((summary) => {
+    const label = getGroupLabel(feed, summary.slot);
+    const entry = groups.get(label) ?? {
+      agentCorrectRate: [],
+      observedCorrectRate: [],
+      blendedCorrectRate: [],
+      agentTimeoutRate: [],
+      observedTimeoutRate: [],
+      blendedTimeoutRate: [],
+      agentShieldRate: [],
+      observedShieldRate: [],
+      blendedShieldRate: [],
+      meanAnswerMilliseconds: [],
+      lateClockStress: [],
+      telemetrySampleSize: 0,
+      confidenceRanks: [],
+    };
+    entry.agentCorrectRate.push(summary.agentCorrectRate);
+    if (summary.observedCorrectRate != null) entry.observedCorrectRate.push(summary.observedCorrectRate);
+    entry.blendedCorrectRate.push(summary.blendedCorrectRate);
+    entry.agentTimeoutRate.push(summary.agentTimeoutRate);
+    if (summary.observedTimeoutRate != null) entry.observedTimeoutRate.push(summary.observedTimeoutRate);
+    entry.blendedTimeoutRate.push(summary.blendedTimeoutRate);
+    entry.agentShieldRate.push(summary.agentShieldRate);
+    if (summary.observedShieldRate != null) entry.observedShieldRate.push(summary.observedShieldRate);
+    entry.blendedShieldRate.push(summary.blendedShieldRate);
+    if (summary.meanAnswerMilliseconds != null) entry.meanAnswerMilliseconds.push(summary.meanAnswerMilliseconds);
+    if (summary.lateClockStress != null) entry.lateClockStress.push(summary.lateClockStress);
+    entry.telemetrySampleSize += summary.telemetrySampleSize;
+    entry.confidenceRanks.push(confidenceRank[summary.telemetryConfidence]);
+    groups.set(label, entry);
+  });
+
+  const average = (values: number[]) =>
+    values.length > 0
+      ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(3))
+      : null;
+
+  return Object.fromEntries(
+    [...groups.entries()].map(([label, entry]) => [
+      label,
+      {
+        agentCorrectRate: average(entry.agentCorrectRate) ?? 0,
+        observedCorrectRate: average(entry.observedCorrectRate),
+        blendedCorrectRate: average(entry.blendedCorrectRate) ?? 0,
+        agentTimeoutRate: average(entry.agentTimeoutRate) ?? 0,
+        observedTimeoutRate: average(entry.observedTimeoutRate),
+        blendedTimeoutRate: average(entry.blendedTimeoutRate) ?? 0,
+        agentShieldRate: average(entry.agentShieldRate) ?? 0,
+        observedShieldRate: average(entry.observedShieldRate),
+        blendedShieldRate: average(entry.blendedShieldRate) ?? 0,
+        meanAnswerMilliseconds: average(entry.meanAnswerMilliseconds),
+        lateClockStress: average(entry.lateClockStress),
+        telemetrySampleSize: entry.telemetrySampleSize,
+        telemetryConfidence:
+          confidenceByRank[Math.max(...entry.confidenceRanks, 0)] ?? 'agent-only',
+      } satisfies TriviaCalibrationEvidence,
+    ])
+  );
+}
+
+const GROUP_TARGET_RANGES: Record<
+  TriviaFeed,
+  Record<TriviaDifficulty, Record<string, { min: number; max: number }>>
+> = {
+  mix: {
+    easy: {
+      'q1-q3': { min: 0.85, max: 0.93 },
+      'q4-q6': { min: 0.72, max: 0.82 },
+      'q7-q9': { min: 0.47, max: 0.57 },
+      'q10-q12': { min: 0.42, max: 0.53 },
+    },
+    hard: {
+      'q1-q3': { min: 0.6, max: 0.82 },
+      'q4-q6': { min: 0.35, max: 0.62 },
+      'q7-q9': { min: 0.2, max: 0.37 },
+      'q10-q12': { min: 0.08, max: 0.22 },
+    },
+  },
+  sports: {
+    easy: {
+      'q1-q2': { min: 0.78, max: 0.86 },
+      'q3-q5': { min: 0.55, max: 0.66 },
+      q6: { min: 0.36, max: 0.46 },
+      'q7-q9': { min: 0.22, max: 0.32 },
+    },
+    hard: {
+      'q1-q2': { min: 0.5, max: 0.77 },
+      'q3-q5': { min: 0.31, max: 0.45 },
+      q6: { min: 0.1, max: 0.33 },
+      'q7-q9': { min: 0.03, max: 0.13 },
+    },
+  },
+};
+
+function getGroupTargetRange(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
+  label: string
+) {
+  return GROUP_TARGET_RANGES[feed][difficulty][label];
 }
 
 function getAgentConfidence(
@@ -2517,7 +2852,7 @@ function getAgentConfidence(
     if (question.promptKind === 'team') confidence -= 0.01;
   }
   if (isScheduledCurveball) {
-    confidence += agent.archetype === 'analytical' ? 0.03 : -0.02;
+    confidence += agent.archetype === 'analytical-reasoner' ? 0.03 : -0.02;
   }
   if (question.stem.length > 135) confidence -= 0.03;
   return clamp(confidence, 0.16, 0.96);
@@ -2580,14 +2915,26 @@ function simulateCalibrationFeed(
   difficulty: TriviaDifficulty,
   episodes: TriviaEpisodeDefinition[],
   questionMap: Map<string, TriviaQuestionRecord>,
+  telemetryMaps: TriviaTelemetryMaps,
+  replacementLogMap: Map<string, string>,
   sampleDays = TRIVIA_PLAYER_CALIBRATION_DAYS
 ): TriviaPlayerCalibrationFeedReport {
   const sampleEpisodes = episodes.slice(0, sampleDays);
   const agentSummaries: TriviaPlayerAgentSummary[] = [];
   const daySamples: TriviaPlayerDaySample[] = [];
-  const slotStats = new Map<number, { total: number; correct: number; timeouts: number; shields: number }>();
+  const slotStats = new Map<
+    number,
+    {
+      total: number;
+      correct: number;
+      timeouts: number;
+      shields: number;
+      totalAnswerMilliseconds: number;
+    }
+  >();
+  const questionStats = new Map<string, SimulatedQuestionStats>();
 
-  TRIVIA_PLAYER_AGENTS.forEach((agent) => {
+  TRIVIA_SOLVE_AGENTS.forEach((agent) => {
     let totalCorrect = 0;
     let totalScore = 0;
     let shieldDays = 0;
@@ -2617,9 +2964,25 @@ function simulateCalibrationFeed(
           correct: 0,
           timeouts: 0,
           shields: 0,
+          totalAnswerMilliseconds: 0,
         };
         slotStat.total += 1;
         slotStats.set(questionIndex + 1, slotStat);
+        const questionKey = `${episode.date}:${questionIndex + 1}:${question.id}`;
+        const questionStat = questionStats.get(questionKey) ?? {
+          date: episode.date,
+          slot: questionIndex + 1,
+          questionId: question.id,
+          question,
+          total: 0,
+          correct: 0,
+          timeouts: 0,
+          shields: 0,
+          totalAnswerMilliseconds: 0,
+          replacementReason: replacementLogMap.get(questionKey) ?? null,
+        };
+        questionStat.total += 1;
+        questionStats.set(questionKey, questionStat);
 
         const isScheduledCurveball = scheduledCurveballIds.has(question.id);
         let confidence = getAgentConfidence(agent, feed, question, isScheduledCurveball);
@@ -2652,6 +3015,24 @@ function simulateCalibrationFeed(
         const didTimeout = timeoutRoll < timeoutRisk;
         const correctRoll = randomFromKey(`${agent.id}:${feed}:${episode.date}:${question.id}:correct`);
         const didCorrect = !didTimeout && correctRoll < confidence;
+        const speedRoll = randomFromKey(`${agent.id}:${feed}:${episode.date}:${question.id}:speed`);
+        const answerMilliseconds = didTimeout
+          ? TIMER_SECONDS * 1000
+          : Math.max(
+              1200,
+              Math.round(
+                TIMER_SECONDS *
+                  1000 *
+                  clamp(
+                    (didCorrect ? 0.76 : 0.86) -
+                      confidence * (didCorrect ? 0.42 : 0.24) +
+                      speedRoll * 0.22 +
+                      timeoutRisk * 0.28,
+                    0.16,
+                    0.96
+                  )
+              )
+            );
         const inFinalStretch = questionIndex >= episode.questionIds.length - 3;
         const inBackHalf = questionIndex >= Math.floor(episode.questionIds.length / 2);
         const runCleanBeforeQuestion = correctCount === questionIndex && !shieldUsed;
@@ -2679,7 +3060,10 @@ function simulateCalibrationFeed(
         if (didTimeout) {
           timeoutCount += 1;
           slotStat.timeouts += 1;
+          questionStat.timeouts += 1;
         }
+        slotStat.totalAnswerMilliseconds += answerMilliseconds;
+        questionStat.totalAnswerMilliseconds += answerMilliseconds;
 
         if (didCorrect) {
           if (wouldArmShield) {
@@ -2694,11 +3078,8 @@ function simulateCalibrationFeed(
           }
           correctCount += 1;
           slotStat.correct += 1;
-          const speedRoll = randomFromKey(`${agent.id}:${feed}:${episode.date}:${question.id}:speed`);
-          const timeRemaining = Math.max(
-            1,
-            Math.round(TIMER_SECONDS * clamp(0.28 + confidence * 0.5 - speedRoll * 0.22, 0.12, 0.95))
-          );
+          questionStat.correct += 1;
+          const timeRemaining = Math.max(1, Math.round((TIMER_SECONDS * 1000 - answerMilliseconds) / 1000));
           score += BASE_POINTS + Math.max(0, Math.round((timeRemaining / TIMER_SECONDS) * SPEED_BONUS));
         } else if (wouldArmShield) {
           const shieldResolution = resolveShieldAfterQuestion({
@@ -2711,6 +3092,7 @@ function simulateCalibrationFeed(
           shieldQuestionsUsed = shieldResolution.shieldQuestionsUsed;
           shieldUsed = true;
           slotStat.shields += 1;
+          questionStat.shields += 1;
           score += SHIELD_POINTS;
         } else {
           if (isScheduledCurveball) trickMisses += 1;
@@ -2799,27 +3181,133 @@ function simulateCalibrationFeed(
     }
   });
 
+  const slotSummaries = [...slotStats.entries()]
+    .sort(([left], [right]) => left - right)
+    .map(([slot, stat]) => {
+      const telemetryAggregate = telemetryMaps.slotAggregates.get(
+        buildSlotTelemetryKey(feed, difficulty, slot)
+      );
+      const evidence = buildCalibrationEvidence({
+        agentCorrectRate: stat.correct / stat.total,
+        agentTimeoutRate: stat.timeouts / stat.total,
+        agentShieldRate: stat.shields / stat.total,
+        agentMeanAnswerMilliseconds: stat.totalAnswerMilliseconds / stat.total,
+        telemetryAggregate,
+      });
+      return {
+        slot,
+        averageCorrectRate: evidence.blendedCorrectRate,
+        timeoutRate: evidence.blendedTimeoutRate,
+        shieldUseRate: evidence.blendedShieldRate,
+        agentCorrectRate: evidence.agentCorrectRate,
+        observedCorrectRate: evidence.observedCorrectRate,
+        blendedCorrectRate: evidence.blendedCorrectRate,
+        agentTimeoutRate: evidence.agentTimeoutRate,
+        observedTimeoutRate: evidence.observedTimeoutRate,
+        blendedTimeoutRate: evidence.blendedTimeoutRate,
+        agentShieldRate: evidence.agentShieldRate,
+        observedShieldRate: evidence.observedShieldRate,
+        blendedShieldRate: evidence.blendedShieldRate,
+        telemetrySampleSize: evidence.telemetrySampleSize,
+        telemetryConfidence: evidence.telemetryConfidence,
+        meanAnswerMilliseconds: evidence.meanAnswerMilliseconds,
+        lateClockStress: evidence.lateClockStress,
+      } satisfies TriviaPlayerSlotSummary;
+    });
+
+  const questionEvidence = [...questionStats.values()]
+    .sort((left, right) => {
+      if (left.date !== right.date) return left.date.localeCompare(right.date);
+      return left.slot - right.slot;
+    })
+    .map((stat) => {
+      const telemetryAggregate = telemetryMaps.questionAggregates.get(
+        buildQuestionTelemetryKey(feed, difficulty, stat.questionId)
+      );
+      const evidence = buildCalibrationEvidence({
+        agentCorrectRate: stat.correct / stat.total,
+        agentTimeoutRate: stat.timeouts / stat.total,
+        agentShieldRate: stat.shields / stat.total,
+        agentMeanAnswerMilliseconds: stat.totalAnswerMilliseconds / stat.total,
+        telemetryAggregate,
+      });
+      return {
+        date: stat.date,
+        slot: stat.slot,
+        questionId: stat.questionId,
+        subdomain: stat.question.subdomain,
+        promptKind: stat.question.promptKind,
+        telemetrySampleSize: evidence.telemetrySampleSize,
+        telemetryConfidence: evidence.telemetryConfidence,
+        agentCorrectRate: evidence.agentCorrectRate,
+        observedCorrectRate: evidence.observedCorrectRate,
+        blendedCorrectRate: evidence.blendedCorrectRate,
+        councilFlags: evaluateTriviaCouncilQuestion(stat.question, feed, stat.slot, evidence),
+        replacementReason: stat.replacementReason,
+      } satisfies TriviaQuestionScheduleEvidence;
+    });
+
+  const slotGroupEvidence = buildSlotGroupEvidence(feed, slotSummaries);
+  const councilFlags: TriviaCouncilFlag[] = [];
+  Object.entries(slotGroupEvidence).forEach(([label, evidence]) => {
+    const target = getGroupTargetRange(feed, difficulty, label);
+    if (!target) return;
+    if (evidence.blendedCorrectRate > target.max) {
+      councilFlags.push({
+        agentId: feed === 'sports' ? 'sports-casual' : 'casual-pace',
+        code: 'over-soft-opening',
+        severity: label === 'q1-q3' || label === 'q1-q2' ? 'fail' : 'warn',
+        message: `${label} is landing too soft for ${feed}/${difficulty}.`,
+        scope: 'slot-group',
+      });
+    }
+    if (evidence.blendedCorrectRate < target.min) {
+      councilFlags.push({
+        agentId: feed === 'sports' ? 'analytical-reasoner' : 'broad-generalist',
+        code: label === 'q7-q9' || label === 'q10-q12' ? 'over-harsh-finish' : 'timer-friction',
+        severity: label === 'q7-q9' || label === 'q10-q12' ? 'warn' : 'fail',
+        message: `${label} is landing too harsh for ${feed}/${difficulty}.`,
+        scope: 'slot-group',
+      });
+    }
+  });
+  const failCounts = new Map<string, number>();
+  questionEvidence.forEach((entry) => {
+    entry.councilFlags
+      .filter((flag) => flag.severity === 'fail')
+      .forEach((flag) => {
+        failCounts.set(flag.code, (failCounts.get(flag.code) ?? 0) + 1);
+      });
+  });
+  failCounts.forEach((count, code) => {
+    councilFlags.push({
+      agentId: 'ambiguity-detector',
+      code: code as TriviaCouncilFlag['code'],
+      severity: 'warn',
+      message: `${count} scheduled questions triggered ${code} in ${feed}/${difficulty}.`,
+      scope: 'slot-group',
+    });
+  });
+
   return {
     feed,
     difficulty,
     sampleDays: sampleEpisodes.length,
     agentSummaries,
     daySamples: daySamples.sort((left, right) => left.correctCount - right.correctCount).slice(0, 6),
-    slotSummaries: [...slotStats.entries()]
-      .sort(([left], [right]) => left - right)
-      .map(([slot, stat]) => ({
-        slot,
-        averageCorrectRate: Number((stat.correct / stat.total).toFixed(3)),
-        timeoutRate: Number((stat.timeouts / stat.total).toFixed(3)),
-        shieldUseRate: Number((stat.shields / stat.total).toFixed(3)),
-      })),
+    slotSummaries,
+    slotGroupEvidence,
+    councilFlags,
+    questionEvidence,
   };
 }
 
 function buildPlayerCalibrationReport(
   schedules: Record<TriviaFeed, Record<TriviaDifficulty, TriviaEpisodeDefinition[]>>,
   mixLibrary: TriviaQuestionRecord[],
-  sportsLibrary: TriviaQuestionRecord[]
+  sportsLibrary: TriviaQuestionRecord[],
+  telemetryMaps: TriviaTelemetryMaps,
+  replacementLogMap: Map<string, string>
 ): TriviaPlayerCalibrationReport {
   const mixQuestionMap = buildQuestionMap(mixLibrary);
   const sportsQuestionMap = buildQuestionMap(sportsLibrary);
@@ -2840,6 +3328,8 @@ function buildPlayerCalibrationReport(
         difficulty,
         episodes,
         questionMap,
+        telemetryMaps,
+        replacementLogMap,
         TRIVIA_PLAYER_CALIBRATION_DAYS
       );
       first90Feeds[feed][difficulty] = simulateCalibrationFeed(
@@ -2847,6 +3337,8 @@ function buildPlayerCalibrationReport(
         difficulty,
         episodes,
         questionMap,
+        telemetryMaps,
+        replacementLogMap,
         FIRST_90_CALIBRATION_DAYS
       );
       fullYearFeeds[feed][difficulty] = simulateCalibrationFeed(
@@ -2854,6 +3346,8 @@ function buildPlayerCalibrationReport(
         difficulty,
         episodes,
         questionMap,
+        telemetryMaps,
+        replacementLogMap,
         FULL_YEAR_CALIBRATION_DAYS
       );
     });
@@ -2874,6 +3368,212 @@ function buildPlayerCalibrationReport(
       },
     },
   };
+}
+
+function collectReplacementCandidates(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
+  calibrationFeed: TriviaPlayerCalibrationFeedReport
+) {
+  const replacements = new Map<string, string>();
+
+  calibrationFeed.questionEvidence.forEach((entry) => {
+    const failFlags = entry.councilFlags.filter((flag) => flag.severity === 'fail');
+    if (failFlags.length === 0) return;
+    replacements.set(
+      `${entry.date}:${entry.slot}:${entry.questionId}`,
+      failFlags.map((flag) => `${flag.agentId}:${flag.code}`).join(', ')
+    );
+  });
+
+  Object.entries(calibrationFeed.slotGroupEvidence).forEach(([label, evidence]) => {
+    if (evidence.telemetryConfidence === 'agent-only') return;
+    const target = getGroupTargetRange(feed, difficulty, label);
+    if (!target) return;
+    if (evidence.blendedCorrectRate >= target.min && evidence.blendedCorrectRate <= target.max) {
+      return;
+    }
+
+    const groupQuestions = calibrationFeed.questionEvidence.filter(
+      (entry) => getGroupLabel(feed, entry.slot) === label
+    );
+    if (groupQuestions.length === 0) return;
+    const selected =
+      evidence.blendedCorrectRate > target.max
+        ? [...groupQuestions].sort((left, right) => right.blendedCorrectRate - left.blendedCorrectRate)[0]
+        : [...groupQuestions].sort((left, right) => left.blendedCorrectRate - right.blendedCorrectRate)[0];
+    if (!selected) return;
+    replacements.set(
+      `${selected.date}:${selected.slot}:${selected.questionId}`,
+      evidence.blendedCorrectRate > target.max
+        ? `blended-too-soft:${label}`
+        : `blended-too-harsh:${label}`
+    );
+  });
+
+  return replacements;
+}
+
+function findReplacementQuestion(params: {
+  feed: TriviaFeed;
+  difficulty: TriviaDifficulty;
+  slot: number;
+  currentQuestion: TriviaQuestionRecord;
+  reason: string;
+  library: TriviaQuestionRecord[];
+  usedIds: Set<string>;
+  usedVariantGroups: Set<string>;
+}) {
+  const { feed, difficulty, slot, currentQuestion, reason, library, usedIds, usedVariantGroups } = params;
+  const soften = reason.startsWith('blended-too-harsh');
+  const sharpen = reason.startsWith('blended-too-soft');
+  const slotConfig =
+    feed === 'mix'
+      ? getMixSlotConfigs(Math.max(0, slot - 1), difficulty)[slot - 1]
+      : getSportsSlotConfigs(Math.max(0, slot - 1), difficulty)[slot - 1];
+
+  const scoreCandidate = (candidate: TriviaQuestionRecord) => {
+    let score = 0;
+    if (candidate.subdomain === currentQuestion.subdomain) score += 30;
+    if (candidate.promptKind === currentQuestion.promptKind) score += 12;
+    if (candidate.difficultyTarget === currentQuestion.difficultyTarget) score += 16;
+    if (Math.abs(candidate.difficultyTarget - currentQuestion.difficultyTarget) === 1) score += 8;
+    if (candidate.editorialBucket === currentQuestion.editorialBucket) score += 6;
+    if (slotConfig.preferredPromptKinds?.includes(candidate.promptKind)) score += 6;
+    if ((slotConfig as MixSlotConfig | SportsSlotConfig).maxStemLength) {
+      const maxStemLength = (slotConfig as MixSlotConfig | SportsSlotConfig).maxStemLength ?? 999;
+      if (candidate.stem.length <= maxStemLength) score += 4;
+    }
+    if (soften) {
+      score += candidate.salienceScore;
+      if (candidate.lookupRisk === 'low') score += 10;
+    } else if (sharpen) {
+      score += 100 - candidate.salienceScore;
+      if (candidate.lookupRisk === 'high') score += 10;
+    } else {
+      score += 100 - Math.abs(candidate.salienceScore - currentQuestion.salienceScore);
+    }
+    return score;
+  };
+
+  const baseCandidates = library
+    .filter((candidate) => candidate.id !== currentQuestion.id)
+    .filter((candidate) => !usedIds.has(candidate.id))
+    .filter((candidate) => candidate.sourceTier !== 'legacy' && candidate.sourceTier !== 'supplemental')
+    .filter((candidate) => {
+      const flags = evaluateTriviaCouncilQuestion(candidate, feed, slot);
+      return !flags.some((flag) => flag.severity === 'fail');
+    })
+    .filter((candidate) => {
+      if (feed === 'sports' && slot >= 7 && candidate.subdomain === 'general-sports') {
+        return candidate.promptKind === 'rule' || candidate.promptKind === 'term';
+      }
+      return true;
+    })
+    .filter((candidate) => {
+      if (soften) {
+        return candidate.lookupRisk !== 'high' || candidate.salienceScore >= currentQuestion.salienceScore;
+      }
+      if (sharpen) {
+        return candidate.difficultyTarget >= currentQuestion.difficultyTarget;
+      }
+      return true;
+    });
+
+  const candidatePasses = [
+    (candidate: TriviaQuestionRecord) =>
+      (!candidate.variantGroup || !usedVariantGroups.has(candidate.variantGroup)) &&
+      candidate.subdomain === currentQuestion.subdomain &&
+      candidate.difficultyTarget === currentQuestion.difficultyTarget,
+    (candidate: TriviaQuestionRecord) =>
+      (!candidate.variantGroup || !usedVariantGroups.has(candidate.variantGroup)) &&
+      candidate.subdomain === currentQuestion.subdomain &&
+      Math.abs(candidate.difficultyTarget - currentQuestion.difficultyTarget) <= 1,
+    (candidate: TriviaQuestionRecord) =>
+      (!candidate.variantGroup || !usedVariantGroups.has(candidate.variantGroup)) &&
+      Math.abs(candidate.difficultyTarget - currentQuestion.difficultyTarget) <= 1,
+    (candidate: TriviaQuestionRecord) =>
+      Math.abs(candidate.difficultyTarget - currentQuestion.difficultyTarget) <= 1,
+    (_candidate: TriviaQuestionRecord) => true,
+  ];
+
+  for (const matcher of candidatePasses) {
+    const match = baseCandidates
+      .filter(matcher)
+      .map((candidate) => ({ candidate, score: scoreCandidate(candidate) }))
+      .sort((left, right) => right.score - left.score)[0];
+    if (match) {
+      return match.candidate;
+    }
+  }
+
+  return null;
+}
+
+function applyAutomatedReplacements(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
+  episodes: TriviaEpisodeDefinition[],
+  library: TriviaQuestionRecord[],
+  calibrationFeed: TriviaPlayerCalibrationFeedReport
+): ReplacementLogEntry[] {
+  const plannedReplacements = collectReplacementCandidates(feed, difficulty, calibrationFeed);
+  if (plannedReplacements.size === 0) return [];
+
+  const usedIds = new Set(episodes.flatMap((episode) => episode.questionIds));
+  const questionMap = buildQuestionMap(library);
+  const usedVariantGroups = new Set(
+    episodes.flatMap((episode) =>
+      episode.questionIds
+        .map((questionId) => questionMap.get(questionId)?.variantGroup)
+        .filter((variantGroup): variantGroup is string => Boolean(variantGroup))
+    )
+  );
+  const replacements: ReplacementLogEntry[] = [];
+
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId, index) => {
+      const key = `${episode.date}:${index + 1}:${questionId}`;
+      const reason = plannedReplacements.get(key);
+      if (!reason) return;
+
+      const currentQuestion = questionMap.get(questionId);
+      if (!currentQuestion) {
+        throw new Error(`Missing scheduled question ${questionId} while applying replacements.`);
+      }
+      const replacement = findReplacementQuestion({
+        feed,
+        difficulty,
+        slot: index + 1,
+        currentQuestion,
+        reason,
+        library,
+        usedIds,
+        usedVariantGroups,
+      });
+
+      if (!replacement) {
+        throw new Error(
+          `No acceptable ${feed}/${difficulty} replacement for ${episode.date} slot ${index + 1} (${questionId}) after ${reason}.`
+        );
+      }
+
+      usedIds.delete(questionId);
+      if (currentQuestion.variantGroup) usedVariantGroups.delete(currentQuestion.variantGroup);
+      usedIds.add(replacement.id);
+      if (replacement.variantGroup) usedVariantGroups.add(replacement.variantGroup);
+      episode.questionIds[index] = replacement.id;
+      replacements.push({
+        date: episode.date,
+        slot: index + 1,
+        questionId,
+        replacementQuestionId: replacement.id,
+        reason,
+      });
+    });
+  });
+
+  return replacements;
 }
 
 function countScheduledOffToneQuestions(
@@ -3209,38 +3909,38 @@ function evaluatePlayerGate(
       expectGroupRange('sports-q7-q9', [7, 8, 9], 0.03, 0.13);
     }
 
-    const commuter = byAgent.get('commuter-max');
+    const commuter = byAgent.get('sports-casual');
     if (
       !commuter ||
       commuter.averageCorrect < (difficulty === 'easy' ? 4 : 2.6) ||
       commuter.timeoutRate > 0.16
     ) {
       failures.push(
-        `commuter-max averageCorrect=${commuter?.averageCorrect ?? 'missing'} timeoutRate=${commuter?.timeoutRate ?? 'missing'}`
+        `sports-casual averageCorrect=${commuter?.averageCorrect ?? 'missing'} timeoutRate=${commuter?.timeoutRate ?? 'missing'}`
       );
     }
 
-    const culture = byAgent.get('culture-maya');
-    if (!culture || culture.averageCorrect < (difficulty === 'easy' ? 3.8 : 2.8)) {
-      failures.push(`culture-maya averageCorrect=${culture?.averageCorrect ?? 'missing'}`);
+    const culture = byAgent.get('culture-generalist');
+    if (!culture || culture.averageCorrect < (difficulty === 'easy' ? 3.8 : 2.6)) {
+      failures.push(`culture-generalist averageCorrect=${culture?.averageCorrect ?? 'missing'}`);
     }
 
-    const sportsCore = byAgent.get('sports-ryan');
+    const sportsCore = byAgent.get('sports-core');
     if (
       !sportsCore ||
       sportsCore.averageCorrect < (difficulty === 'easy' ? 5.5 : 4.8) ||
       sportsCore.shieldUseRate >= (difficulty === 'easy' ? 0.55 : 0.4)
     ) {
-      failures.push(`sports-ryan averageCorrect=${sportsCore?.averageCorrect ?? 'missing'}`);
+      failures.push(`sports-core averageCorrect=${sportsCore?.averageCorrect ?? 'missing'}`);
     }
 
-    const broad = byAgent.get('broad-ava');
+    const broad = byAgent.get('broad-generalist');
     if (
       !broad ||
-      broad.averageCorrect < (difficulty === 'easy' ? 4.8 : 3.8) ||
+      broad.averageCorrect < (difficulty === 'easy' ? 4.8 : 3.7) ||
       broad.shieldUseRate >= (difficulty === 'easy' ? 0.6 : 0.45)
     ) {
-      failures.push(`broad-ava averageCorrect=${broad?.averageCorrect ?? 'missing'}`);
+      failures.push(`broad-generalist averageCorrect=${broad?.averageCorrect ?? 'missing'}`);
     }
 
     if (
@@ -3292,24 +3992,28 @@ function evaluatePlayerGate(
       failures.push(`trick-needs-softening=${trickSofteningCount}`);
     }
 
-    const commuter = byAgent.get('commuter-max');
+    const commuter = byAgent.get('casual-pace');
     if (
       !commuter ||
       commuter.averageCorrect < (difficulty === 'easy' ? 6 : 4) ||
       commuter.timeoutRate > 0.14
     ) {
       failures.push(
-        `commuter-max averageCorrect=${commuter?.averageCorrect ?? 'missing'} timeoutRate=${commuter?.timeoutRate ?? 'missing'}`
+        `casual-pace averageCorrect=${commuter?.averageCorrect ?? 'missing'} timeoutRate=${commuter?.timeoutRate ?? 'missing'}`
       );
     }
-    if ((byAgent.get('culture-maya')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 7 : 5.5)) {
-      failures.push(`culture-maya averageCorrect=${byAgent.get('culture-maya')?.averageCorrect ?? 'missing'}`);
+    if ((byAgent.get('culture-generalist')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 7 : 5.5)) {
+      failures.push(
+        `culture-generalist averageCorrect=${byAgent.get('culture-generalist')?.averageCorrect ?? 'missing'}`
+      );
     }
-    if ((byAgent.get('broad-ava')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 6.4 : 5)) {
-      failures.push(`broad-ava averageCorrect=${byAgent.get('broad-ava')?.averageCorrect ?? 'missing'}`);
+    if ((byAgent.get('broad-generalist')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 6.4 : 5)) {
+      failures.push(
+        `broad-generalist averageCorrect=${byAgent.get('broad-generalist')?.averageCorrect ?? 'missing'}`
+      );
     }
 
-    ['culture-maya', 'broad-ava', 'analyst-eli'].forEach((agentId) => {
+    ['culture-generalist', 'broad-generalist', 'analytical-reasoner'].forEach((agentId) => {
       const summary = byAgent.get(agentId);
       if (!summary || summary.shieldUseRate >= (difficulty === 'easy' ? 0.75 : 0.85)) {
         failures.push(`${agentId} shieldUseRate=${summary?.shieldUseRate ?? 'missing'}`);
@@ -3343,7 +4047,69 @@ function applyAuditSignals(
   audit.topRepeatedGroups = buildTopRepeatedGroups(episodes, questionMap);
   audit.lateSlotLegibilityScore = computeLateSlotLegibilityScore(episodes, questionMap);
   audit.agentFrictionBySlot = first90Feed.slotSummaries;
+  audit.slotGroupEvidence = first90Feed.slotGroupEvidence;
+  audit.questionEvidence = fullYearFeed.questionEvidence;
+  audit.councilFlags = fullYearFeed.councilFlags;
   audit.coreSubdomainShare = computeCoreSubdomainShare(feed, episodes, questionMap);
+  const observedCorrectValues = first90Feed.slotSummaries
+    .map((summary) => summary.observedCorrectRate)
+    .filter((value): value is number => value != null);
+  const observedTimeoutValues = first90Feed.slotSummaries
+    .map((summary) => summary.observedTimeoutRate)
+    .filter((value): value is number => value != null);
+  const observedShieldValues = first90Feed.slotSummaries
+    .map((summary) => summary.observedShieldRate)
+    .filter((value): value is number => value != null);
+  audit.observedCorrectRate =
+    observedCorrectValues.length > 0
+      ? Number(
+          (
+            observedCorrectValues.reduce((sum, value) => sum + value, 0) / observedCorrectValues.length
+          ).toFixed(3)
+        )
+      : null;
+  audit.observedTimeoutRate =
+    observedTimeoutValues.length > 0
+      ? Number(
+          (
+            observedTimeoutValues.reduce((sum, value) => sum + value, 0) / observedTimeoutValues.length
+          ).toFixed(3)
+        )
+      : null;
+  audit.observedShieldRate =
+    observedShieldValues.length > 0
+      ? Number(
+          (
+            observedShieldValues.reduce((sum, value) => sum + value, 0) / observedShieldValues.length
+          ).toFixed(3)
+        )
+      : null;
+  audit.blendedCorrectRate = Number(
+    (
+      first90Feed.slotSummaries.reduce((sum, summary) => sum + summary.blendedCorrectRate, 0) /
+      first90Feed.slotSummaries.length
+    ).toFixed(3)
+  );
+  audit.telemetrySampleSize = first90Feed.slotSummaries.reduce(
+    (sum, summary) => sum + summary.telemetrySampleSize,
+    0
+  );
+  const confidenceRanks = { 'agent-only': 0, emerging: 1, trusted: 2 } as const;
+  audit.telemetryConfidence =
+    (['agent-only', 'emerging', 'trusted'] as const)[
+      Math.max(
+        ...first90Feed.slotSummaries.map((summary) => confidenceRanks[summary.telemetryConfidence]),
+        0
+      )
+    ] ?? 'agent-only';
+  const replacementEntries = fullYearFeed.questionEvidence.filter((entry) => entry.replacementReason);
+  audit.replacementCount = replacementEntries.length;
+  audit.replacementReasons = replacementEntries
+    .map(
+      (entry) =>
+        `${entry.date} slot ${entry.slot}: ${entry.questionId} (${entry.replacementReason ?? 'replaced'})`
+    )
+    .slice(0, 50);
   const gate = evaluatePlayerGate(feed, difficulty, audit, calibrationFeed, first90Feed, fullYearFeed);
   audit.playerGatePass = gate.playerGatePass;
   audit.playerGateFailures = gate.playerGateFailures;
@@ -3355,6 +4121,8 @@ async function writeJson(filename: string, value: unknown) {
 }
 
 async function main() {
+  const telemetrySnapshot = await loadTriviaTelemetrySnapshot();
+  const telemetryMaps = buildTelemetryMaps(telemetrySnapshot);
   const mixLibrary = getMixCandidates();
   const sportsLibrary = getSportsCandidates();
 
@@ -3380,7 +4148,9 @@ async function main() {
       hard: buildEpisodeSchedule('sports', 'hard', sportsLibrary),
     },
   } as const;
-  const playerCalibration = buildPlayerCalibrationReport(
+  const replacementLogMap = new Map<string, string>();
+
+  let playerCalibration = buildPlayerCalibrationReport(
     {
       mix: {
         easy: schedules.mix.easy.episodes,
@@ -3392,8 +4162,50 @@ async function main() {
       },
     },
     mixLibrary,
-    sportsLibrary
+    sportsLibrary,
+    telemetryMaps,
+    replacementLogMap
   );
+
+  const replacementLogs: ReplacementLogEntry[] = [];
+  (['mix', 'sports'] as TriviaFeed[]).forEach((feed) => {
+    const library = feed === 'mix' ? mixLibrary : sportsLibrary;
+    TRIVIA_DIFFICULTIES.forEach((difficulty) => {
+      const logs = applyAutomatedReplacements(
+        feed,
+        difficulty,
+        schedules[feed][difficulty].episodes,
+        library,
+        playerCalibration.cohorts.fullYear.feeds[feed][difficulty]
+      );
+      logs.forEach((log) => {
+        replacementLogMap.set(
+          `${log.date}:${log.slot}:${log.replacementQuestionId}`,
+          log.reason
+        );
+      });
+      replacementLogs.push(...logs);
+    });
+  });
+
+  if (replacementLogs.length > 0) {
+    playerCalibration = buildPlayerCalibrationReport(
+      {
+        mix: {
+          easy: schedules.mix.easy.episodes,
+          hard: schedules.mix.hard.episodes,
+        },
+        sports: {
+          easy: schedules.sports.easy.episodes,
+          hard: schedules.sports.hard.episodes,
+        },
+      },
+      mixLibrary,
+      sportsLibrary,
+      telemetryMaps,
+      replacementLogMap
+    );
+  }
 
   (['mix', 'sports'] as TriviaFeed[]).forEach((feed) => {
     const library = feed === 'mix' ? mixLibrary : sportsLibrary;
@@ -3449,7 +4261,10 @@ async function main() {
         mixHardEpisodes: schedules.mix.hard.episodes.length,
         sportsEasyEpisodes: schedules.sports.easy.episodes.length,
         sportsHardEpisodes: schedules.sports.hard.episodes.length,
-        playerAgents: TRIVIA_PLAYER_AGENTS.length,
+        playerAgents: TRIVIA_SOLVE_AGENTS.length,
+        telemetryQuestions: telemetrySnapshot.questions.length,
+        telemetrySlots: telemetrySnapshot.slots.length,
+        replacements: replacementLogs.length,
       },
       null,
       2

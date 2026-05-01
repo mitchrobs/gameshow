@@ -61,12 +61,30 @@ export type TriviaObscurityFlag =
   | 'edge-case'
   | 'timer-friction';
 export type TriviaPlayerArchetype =
-  | 'casual'
-  | 'streak-hunter'
-  | 'culture-first'
+  | 'casual-pace'
+  | 'broad-generalist'
+  | 'culture-generalist'
   | 'sports-core'
-  | 'analytical'
-  | 'broad-fan';
+  | 'sports-casual'
+  | 'analytical-reasoner';
+export type TriviaTelemetryConfidenceTier = 'agent-only' | 'emerging' | 'trusted';
+export type TriviaTelemetryTimeBucket =
+  | 'lt-4s'
+  | 'lt-8s'
+  | 'lt-12s'
+  | 'lt-15s'
+  | 'timeout';
+export type TriviaCouncilFlagCode =
+  | 'ambiguity'
+  | 'timer-friction'
+  | 'weak-distractors'
+  | 'low-reveal-value'
+  | 'obscurity-mismatch'
+  | 'off-feed-fit'
+  | 'dirty-curveball'
+  | 'over-soft-opening'
+  | 'over-harsh-finish';
+export type TriviaCouncilFlagSeverity = 'info' | 'warn' | 'fail';
 
 export interface TriviaCitation {
   title: string;
@@ -155,9 +173,69 @@ export interface TriviaRunAnswer {
   correct: boolean;
   timedOut: boolean;
   shielded: boolean;
+  shieldArmed: boolean;
   points: number;
   timeRemaining: number;
+  answerMilliseconds: number;
   correctAnswerIndex: number;
+}
+
+export interface TriviaTelemetryQuestionAggregate {
+  feed: TriviaFeed;
+  difficulty: TriviaDifficulty;
+  questionId: string;
+  plays: number;
+  correctCount: number;
+  wrongCount: number;
+  timeoutCount: number;
+  shieldArmedCount: number;
+  shieldSaveCount: number;
+  totalAnswerMilliseconds: number;
+  timeBucketHistogram: Partial<Record<TriviaTelemetryTimeBucket, number>>;
+}
+
+export interface TriviaTelemetrySlotAggregate {
+  feed: TriviaFeed;
+  difficulty: TriviaDifficulty;
+  slot: number;
+  plays: number;
+  correctCount: number;
+  wrongCount: number;
+  timeoutCount: number;
+  shieldArmedCount: number;
+  shieldSaveCount: number;
+  totalAnswerMilliseconds: number;
+  timeBucketHistogram: Partial<Record<TriviaTelemetryTimeBucket, number>>;
+}
+
+export interface TriviaTelemetrySnapshot {
+  generatedAt: string;
+  questions: TriviaTelemetryQuestionAggregate[];
+  slots: TriviaTelemetrySlotAggregate[];
+}
+
+export interface TriviaCalibrationEvidence {
+  agentCorrectRate: number;
+  observedCorrectRate: number | null;
+  blendedCorrectRate: number;
+  agentTimeoutRate: number;
+  observedTimeoutRate: number | null;
+  blendedTimeoutRate: number;
+  agentShieldRate: number;
+  observedShieldRate: number | null;
+  blendedShieldRate: number;
+  meanAnswerMilliseconds: number | null;
+  lateClockStress: number | null;
+  telemetrySampleSize: number;
+  telemetryConfidence: TriviaTelemetryConfidenceTier;
+}
+
+export interface TriviaCouncilFlag {
+  agentId: string;
+  code: TriviaCouncilFlagCode;
+  severity: TriviaCouncilFlagSeverity;
+  message: string;
+  scope: 'question' | 'slot-group';
 }
 
 export interface TriviaRunResult {
@@ -218,6 +296,19 @@ export interface TriviaPlayerSlotSummary {
   averageCorrectRate: number;
   timeoutRate: number;
   shieldUseRate: number;
+  agentCorrectRate: number;
+  observedCorrectRate: number | null;
+  blendedCorrectRate: number;
+  agentTimeoutRate: number;
+  observedTimeoutRate: number | null;
+  blendedTimeoutRate: number;
+  agentShieldRate: number;
+  observedShieldRate: number | null;
+  blendedShieldRate: number;
+  telemetrySampleSize: number;
+  telemetryConfidence: TriviaTelemetryConfidenceTier;
+  meanAnswerMilliseconds: number | null;
+  lateClockStress: number | null;
 }
 
 export interface TriviaPlayerCalibrationFeedReport {
@@ -227,6 +318,9 @@ export interface TriviaPlayerCalibrationFeedReport {
   agentSummaries: TriviaPlayerAgentSummary[];
   daySamples: TriviaPlayerDaySample[];
   slotSummaries: TriviaPlayerSlotSummary[];
+  slotGroupEvidence: Record<string, TriviaCalibrationEvidence>;
+  councilFlags: TriviaCouncilFlag[];
+  questionEvidence: TriviaQuestionScheduleEvidence[];
 }
 
 export interface TriviaPlayerCalibrationCohortReport {
@@ -258,6 +352,34 @@ export interface TriviaAuditSlotFrictionSummary {
   averageCorrectRate: number;
   timeoutRate: number;
   shieldUseRate: number;
+  agentCorrectRate: number;
+  observedCorrectRate: number | null;
+  blendedCorrectRate: number;
+  agentTimeoutRate: number;
+  observedTimeoutRate: number | null;
+  blendedTimeoutRate: number;
+  agentShieldRate: number;
+  observedShieldRate: number | null;
+  blendedShieldRate: number;
+  telemetrySampleSize: number;
+  telemetryConfidence: TriviaTelemetryConfidenceTier;
+  meanAnswerMilliseconds: number | null;
+  lateClockStress: number | null;
+}
+
+export interface TriviaQuestionScheduleEvidence {
+  date: string;
+  slot: number;
+  questionId: string;
+  subdomain: string;
+  promptKind: TriviaPromptKind;
+  telemetrySampleSize: number;
+  telemetryConfidence: TriviaTelemetryConfidenceTier;
+  agentCorrectRate: number;
+  observedCorrectRate: number | null;
+  blendedCorrectRate: number;
+  councilFlags: TriviaCouncilFlag[];
+  replacementReason: string | null;
 }
 
 export interface TriviaAuditFeedSummary {
@@ -283,6 +405,17 @@ export interface TriviaAuditFeedSummary {
   lateSlotLegibilityScore: number;
   agentFrictionBySlot: TriviaAuditSlotFrictionSummary[];
   coreSubdomainShare: number;
+  observedCorrectRate: number | null;
+  observedTimeoutRate: number | null;
+  observedShieldRate: number | null;
+  blendedCorrectRate: number;
+  telemetrySampleSize: number;
+  telemetryConfidence: TriviaTelemetryConfidenceTier;
+  replacementCount: number;
+  replacementReasons: string[];
+  slotGroupEvidence: Record<string, TriviaCalibrationEvidence>;
+  questionEvidence: TriviaQuestionScheduleEvidence[];
+  councilFlags: TriviaCouncilFlag[];
   playerGatePass: boolean;
   playerGateFailures: string[];
   playerAgentSummaries: TriviaPlayerAgentSummary[];

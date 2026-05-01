@@ -19,24 +19,32 @@ If two sources conflict, prefer the higher item in the list.
 
 ## Product Shape
 
-Daily Trivia ships as two first-class feeds:
+Daily Trivia ships as two first-class games:
 
 - `Daily Mix`
 - `Daily Sports`
 
+Each game has its own `Easy` and `Hard` daily variant. `Hard` is the default selection. The four shipped schedules are:
+
+- `mix-easy`
+- `mix-hard`
+- `sports-easy`
+- `sports-hard`
+
 The daily flow is:
 
-1. Choose feed.
-2. Play the daily episode.
-3. See an answer reveal after every question.
-4. Finish with a Daybreak-style sharecode and answer review.
+1. Choose game.
+2. Choose difficulty.
+3. Play the daily episode.
+4. See an answer reveal after every question.
+5. Finish with a Daybreak-style sharecode and answer review.
 
 ## Episode Rules
 
 ### Mix
 
 - `12` questions per episode
-- `12s` timer
+- `15s` timer
 - Hidden difficulty cadence:
   - Q1-Q4 approachable
   - Q5-Q8 medium climb
@@ -46,7 +54,7 @@ The daily flow is:
 ### Sports
 
 - `9` questions per episode
-- `12s` timer
+- `15s` timer
 - Hidden difficulty cadence:
   - Q1-Q3 approachable
   - Q4-Q6 medium climb
@@ -56,12 +64,15 @@ The daily flow is:
 
 - Every question uses exactly `3` answer choices.
 - A miss or timeout never ends the run.
-- Each feed grants one daily `Shield`.
+- Each game grants one daily `Shield`.
 - The timer is shown, but not mode-labeled. Daily Trivia has one standard pace.
 - Shield use must:
   - keep the run moving
   - mark the result row as `🟦`
   - disqualify clean-run status
+- The shield is player-controlled and can be armed on at most `2` questions in a run.
+  - If the first armed question is answered correctly, the player gets exactly one final shield try later.
+  - If an armed question is missed or times out, that question is saved and the shield is fully spent.
 - Sharecode row symbols are:
   - `🟩` correct
   - `🟦` shielded save
@@ -373,7 +384,7 @@ If a live question is flawed:
 
 The trivia system is AI-driven, but it must still behave like an editorial operation.
 
-Required pipeline:
+Required automated pipeline:
 
 1. `Research agent`
 2. `Writing agent`
@@ -381,26 +392,39 @@ Required pipeline:
 4. `Fact-check agent`
 5. `Fairness/style agent`
 6. `Scheduler agent`
-7. `Player agents`
+7. `Solve agents`
+8. `Critic agents`
+9. `Telemetry importer`
 
-The publish gate is AI-only after calibration. The first `28` days of `Mix` and the first `28` days of `Sports` are the calibration window used to tune the generator, not a required manual signoff checkpoint.
+The publish gate is AI-only after calibration. No human editorial pass exists in the shipping pipeline.
 
-Player agents should include multiple archetypes, including:
+Player agents should include multiple archetypes. The deterministic solve council currently includes:
 
-- a casual commuter
-- a streak hunter
-- a culture-first player
-- a US-centric sports regular
-- an analytical player
-- a balanced broad-interest fan
+- `casual-pace`
+- `broad-generalist`
+- `culture-generalist`
+- `sports-core`
+- `sports-casual`
+- `analytical-reasoner`
 
-Their job is to play the calibration window, surface timer friction, reveal weak distractors, and flag days that feel too flat, too sharp, or too dirty.
+The deterministic critic council currently includes:
+
+- `distractor-fairness`
+- `ambiguity-detector`
+- `timer-friction`
+- `reveal-value`
+- `curveball-fairness`
+
+Their job is to surface timer friction, reveal weak distractors, flag days that feel too flat or too sharp, and catch dirty curveballs without requiring a human signoff stage.
 
 The audit layer should also emit:
 
 - an opening `90`-day cohort report
 - a full-year cohort report
 - slot-level friction summaries
+- slot-group telemetry confidence tiers
+- per-question telemetry confidence tiers
+- replacement reasons for reserve swaps
 - top repeated groups
 - monthly curveball coverage
 - a final `launchReady` boolean
@@ -411,11 +435,23 @@ Before trusting the year pack:
 
 - generate `28` days of Mix
 - generate `28` days of Sports
-- review cadence
-- review sharecode feel
-- review distractor fairness
-- review reveal quality
+- import the latest aggregate telemetry snapshot
+- compare telemetry against the deterministic council
 - tune heuristics, quotas, and lints
+
+Telemetry is the primary difficulty evidence source once enough plays exist:
+
+- `< 50` plays: `100%` agent evidence
+- `50–199` plays: `60%` agent evidence, `40%` telemetry
+- `200+` plays: `30%` agent evidence, `70%` telemetry
+
+Telemetry is aggregate-only and anonymous. It must never store player identity, raw transcripts, or per-user history.
+
+When a scheduled question fails the council or telemetry-backed calibration gates:
+
+1. try a same-feed reserve replacement with similar slot difficulty and subdomain
+2. if none exists, try a same-feed replacement with adjacent difficulty and high council score
+3. if none exists, fail the build loudly
 
 Calibration targets:
 

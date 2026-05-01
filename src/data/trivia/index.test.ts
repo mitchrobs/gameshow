@@ -164,10 +164,15 @@ describe('daily trivia episodes', () => {
         expect(auditFeed.scheduledCount).toBe(365 * getExpectedQuestionCount(feed));
         expect(auditFeed.libraryCount).toBeGreaterThan(auditFeed.scheduledCount);
         expect(auditFeed.playerAgentSummaries.length).toBeGreaterThanOrEqual(5);
+        expect(auditFeed.telemetryConfidence).toBeDefined();
+        expect(auditFeed.slotGroupEvidence).toBeDefined();
+        expect(auditFeed.questionEvidence.length).toBeGreaterThan(0);
         expect(calibrationFeed.feed).toBe(feed);
         expect(calibrationFeed.difficulty).toBe(difficulty);
         expect(calibrationFeed.agentSummaries.length).toBeGreaterThanOrEqual(5);
         expect(calibrationFeed.daySamples.length).toBeGreaterThan(0);
+        expect(calibrationFeed.slotGroupEvidence).toBeDefined();
+        expect(calibrationFeed.questionEvidence.length).toBeGreaterThan(0);
       });
     });
   });
@@ -258,8 +263,12 @@ describe('daily trivia episodes', () => {
   it('keeps Sports harder than Mix at both easy and hard levels', () => {
     const audit = getTriviaAuditReport();
 
-    const mixEasyAgents = new Map(audit.feeds.mix.easy.playerAgentSummaries.map((summary) => [summary.agentId, summary]));
-    const mixHardAgents = new Map(audit.feeds.mix.hard.playerAgentSummaries.map((summary) => [summary.agentId, summary]));
+    const mixEasyAgents = new Map(
+      audit.feeds.mix.easy.playerAgentSummaries.map((summary) => [summary.agentId, summary])
+    );
+    const mixHardAgents = new Map(
+      audit.feeds.mix.hard.playerAgentSummaries.map((summary) => [summary.agentId, summary])
+    );
     const sportsEasyAgents = new Map(
       audit.feeds.sports.easy.playerAgentSummaries.map((summary) => [summary.agentId, summary])
     );
@@ -267,18 +276,38 @@ describe('daily trivia episodes', () => {
       audit.feeds.sports.hard.playerAgentSummaries.map((summary) => [summary.agentId, summary])
     );
 
-    expect((sportsEasyAgents.get('commuter-max')?.averageCorrect ?? 99)).toBeLessThan(
-      mixEasyAgents.get('commuter-max')?.averageCorrect ?? 0
+    expect((sportsEasyAgents.get('sports-casual')?.averageCorrect ?? 99)).toBeLessThan(
+      mixEasyAgents.get('casual-pace')?.averageCorrect ?? 0
     );
-    expect((sportsEasyAgents.get('broad-ava')?.averageCorrect ?? 99)).toBeLessThan(
-      mixEasyAgents.get('broad-ava')?.averageCorrect ?? 0
+    expect((sportsEasyAgents.get('broad-generalist')?.averageCorrect ?? 99)).toBeLessThan(
+      mixEasyAgents.get('broad-generalist')?.averageCorrect ?? 0
     );
-    expect((sportsHardAgents.get('commuter-max')?.averageCorrect ?? 99)).toBeLessThan(
-      mixHardAgents.get('commuter-max')?.averageCorrect ?? 0
+    expect((sportsHardAgents.get('sports-casual')?.averageCorrect ?? 99)).toBeLessThan(
+      mixHardAgents.get('casual-pace')?.averageCorrect ?? 0
     );
-    expect((sportsHardAgents.get('broad-ava')?.averageCorrect ?? 99)).toBeLessThan(
-      mixHardAgents.get('broad-ava')?.averageCorrect ?? 0
+    expect((sportsHardAgents.get('broad-generalist')?.averageCorrect ?? 99)).toBeLessThan(
+      mixHardAgents.get('broad-generalist')?.averageCorrect ?? 0
     );
+  });
+
+  it('falls back cleanly to agent-only evidence when telemetry is absent', () => {
+    const audit = getTriviaAuditReport();
+
+    FEEDS.forEach((feed) => {
+      DIFFICULTIES.forEach((difficulty) => {
+        const summary = audit.feeds[feed][difficulty];
+        expect(summary.telemetrySampleSize).toBe(0);
+        expect(summary.telemetryConfidence).toBe('agent-only');
+        expect(summary.observedCorrectRate).toBeNull();
+
+        Object.values(summary.slotGroupEvidence).forEach((evidence) => {
+          expect(evidence.telemetrySampleSize).toBe(0);
+          expect(evidence.telemetryConfidence).toBe('agent-only');
+          expect(evidence.observedCorrectRate).toBeNull();
+          expect(evidence.blendedCorrectRate).toBe(evidence.agentCorrectRate);
+        });
+      });
+    });
   });
 
   it('keeps Sports core-heavy in both schedules', () => {

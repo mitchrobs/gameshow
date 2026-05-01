@@ -31,6 +31,8 @@ describe('trivia editorial guide', () => {
     expect(guide).toContain('three fair trick questions per month');
     expect(guide).toContain('Player agents should include multiple archetypes');
     expect(guide).toContain('The publish gate is AI-only after calibration.');
+    expect(guide).toContain('No human editorial pass exists in the shipping pipeline.');
+    expect(guide).toContain('Telemetry is the primary difficulty evidence source once enough plays exist:');
     expect(guide).toContain('Always reject:');
   });
 

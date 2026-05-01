@@ -13,6 +13,7 @@
     "build:wordie-schedule": "python3 scripts/build_wordie_schedule.py",
     "build:mini-crossword-bank": "python3 scripts/build_mini_crossword_bank.py",
     "build:mini-crossword-seeds": "python3 scripts/build_mini_crossword_variants.py",
+    "sync:trivia-telemetry": "tsx scripts/fetch_trivia_telemetry_snapshot.ts",
     "build:museum-candidates": "python3 scripts/build_museum_candidates.py",
     "build:museum-frames": "python3 scripts/build_museum_frames.py",
     "build:museum-schedule": "python3 scripts/build_museum_schedule.py",
