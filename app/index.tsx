@@ -374,10 +374,6 @@ export default function HomeScreen() {
         <View style={styles.topbarSticky}>
           <View style={styles.topbar}>
             <View style={styles.topbarLeft}>
-              <View style={styles.logoMark}>
-                <View style={styles.logoSun} />
-                <View style={styles.logoHorizon} />
-              </View>
               <Text style={styles.wordmark}>Daybreak</Text>
             </View>
             {streak > 0 && (
@@ -1159,31 +1155,6 @@ const createStyles = (
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-  },
-  logoMark: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: screenAccent.badgeBorder,
-    backgroundColor: theme.mode === 'dark' ? '#1d2730' : '#fff3df',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    overflow: 'hidden',
-    paddingBottom: 7,
-  },
-  logoSun: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#f08a24',
-    marginBottom: -2,
-  },
-  logoHorizon: {
-    width: 22,
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: theme.mode === 'dark' ? '#f8d9a5' : '#9b4f16',
   },
   topbarStreak: {
     ...ui.pill,
