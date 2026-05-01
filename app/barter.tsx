@@ -1035,7 +1035,7 @@ export default function BarterScreen() {
                 {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
               </Text>
             </View>
-            <View style={styles.goalPips}>
+            <View style={[styles.goalPips, isCompact && styles.goalPipsCompact]}>
               {Array.from({ length: puzzle.goal.qty }).map((_, index) => {
                 const filled = index < Math.min(inventory[puzzle.goal.good], puzzle.goal.qty);
                 return (
@@ -1043,13 +1043,18 @@ export default function BarterScreen() {
                     key={`goal-pip-${index}`}
                     style={[
                       styles.goalPip,
+                      isCompact && styles.goalPipCompact,
                       filled && {
                         borderColor: activePhaseAccent,
                         backgroundColor: filledGoalPipBackground,
                       },
                     ]}
                   >
-                    {filled && <Text style={styles.goalPipEmoji}>{goalGood.emoji}</Text>}
+                    {filled && (
+                      <Text style={[styles.goalPipEmoji, isCompact && styles.goalPipEmojiCompact]}>
+                        {goalGood.emoji}
+                      </Text>
+                    )}
                   </View>
                 );
               })}
@@ -1077,12 +1082,18 @@ export default function BarterScreen() {
                   <Text style={styles.marketIntroStockTitle}>You start with</Text>
                   <Text style={styles.marketIntroStockText}>{openingStock}</Text>
                 </View>
-                <View style={styles.marketIntroActions}>
+                <View
+                  style={[
+                    styles.marketIntroActions,
+                    isCompact && styles.marketIntroActionsCompact,
+                  ]}
+                >
                   <Pressable
                     accessibilityRole="button"
                     onPress={handleStartDayMarket}
                     style={({ pressed }) => [
                       styles.marketIntroPrimaryButton,
+                      isCompact && styles.marketIntroButtonCompact,
                       pressed && styles.marketIntroPrimaryButtonPressed,
                     ]}
                   >
@@ -1093,6 +1104,7 @@ export default function BarterScreen() {
                     onPress={handleOpenTutorial}
                     style={({ pressed }) => [
                       styles.marketIntroSecondaryButton,
+                      isCompact && styles.marketIntroButtonCompact,
                       pressed && styles.marketIntroSecondaryButtonPressed,
                     ]}
                   >
@@ -1494,6 +1506,7 @@ const createStyles = (
   topNav: {
     width: '100%',
     maxWidth: 520,
+    minWidth: 0,
     paddingHorizontal: Spacing.md,
     paddingTop: 8,
     paddingBottom: 8,
@@ -1568,6 +1581,7 @@ const createStyles = (
   goalBar: {
     width: '100%',
     maxWidth: 520,
+    minWidth: 0,
     paddingHorizontal: Spacing.md,
     paddingVertical: 8,
     backgroundColor: paper,
@@ -1602,6 +1616,10 @@ const createStyles = (
     flexShrink: 0,
     maxWidth: 180,
   },
+  goalPipsCompact: {
+    gap: 2,
+    maxWidth: 174,
+  },
   goalPip: {
     width: 23,
     height: 23,
@@ -1612,8 +1630,16 @@ const createStyles = (
     alignItems: 'center',
     justifyContent: 'center',
   },
+  goalPipCompact: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+  },
   goalPipEmoji: {
     fontSize: 12,
+  },
+  goalPipEmojiCompact: {
+    fontSize: 11,
   },
   stickyHeader: {
     backgroundColor: canvas,
@@ -1640,17 +1666,21 @@ const createStyles = (
   marketIntroPage: {
     width: '100%',
     maxWidth: 520,
+    minWidth: 0,
     alignSelf: 'center',
     paddingHorizontal: Spacing.md,
     paddingTop: Spacing.lg,
   },
   marketIntroCard: {
+    width: '100%',
+    maxWidth: '100%',
     backgroundColor: paper,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: borderSoft,
     padding: Spacing.xl,
     alignItems: 'center',
+    overflow: 'hidden',
   },
   marketIntroEmoji: {
     fontSize: 42,
@@ -1664,6 +1694,9 @@ const createStyles = (
     textTransform: 'uppercase',
   },
   marketIntroTitle: {
+    width: '100%',
+    maxWidth: '100%',
+    flexShrink: 1,
     marginTop: 5,
     color: inkStrong,
     fontSize: 24,
@@ -1671,6 +1704,9 @@ const createStyles = (
     textAlign: 'center',
   },
   marketIntroFlavor: {
+    width: '100%',
+    maxWidth: '100%',
+    flexShrink: 1,
     marginTop: Spacing.sm,
     color: inkMuted,
     fontSize: 13,
@@ -1687,12 +1723,16 @@ const createStyles = (
     padding: Spacing.md,
   },
   marketIntroGoalText: {
+    width: '100%',
+    maxWidth: '100%',
     color: inkStrong,
     fontSize: 16,
     fontWeight: '900',
     textAlign: 'center',
   },
   marketIntroGoalMeta: {
+    width: '100%',
+    maxWidth: '100%',
     marginTop: 4,
     color: inkMuted,
     fontSize: 12,
@@ -1716,6 +1756,9 @@ const createStyles = (
     textTransform: 'uppercase',
   },
   marketIntroStockText: {
+    width: '100%',
+    maxWidth: '100%',
+    flexShrink: 1,
     marginTop: 5,
     color: inkStrong,
     fontSize: 13,
@@ -1728,12 +1771,18 @@ const createStyles = (
     flexDirection: 'row',
     gap: Spacing.sm,
   },
+  marketIntroActionsCompact: {
+    flexDirection: 'column',
+  },
   marketIntroPrimaryButton: {
     flex: 1,
     borderRadius: 14,
     backgroundColor: '#FFA41F',
     paddingVertical: 13,
     alignItems: 'center',
+  },
+  marketIntroButtonCompact: {
+    width: '100%',
   },
   marketIntroPrimaryButtonPressed: {
     backgroundColor: '#e99116',

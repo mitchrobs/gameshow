@@ -162,6 +162,7 @@ export default function ThreadlineScreen() {
   const Colors = theme.colors;
   const Spacing = theme.spacing;
   const { width, height } = useWindowDimensions();
+  const [webViewportSize, setWebViewportSize] = useState<FrameSize | null>(null);
   const [dateKey, setDateKey] = useState(() => getLocalThreadlineDateKey());
   const activeDate = useMemo(() => getDateFromLocalDateKey(dateKey), [dateKey]);
   const puzzle = useMemo(() => getDailyThreadline(activeDate), [activeDate]);
@@ -189,11 +190,36 @@ export default function ThreadlineScreen() {
     [selectedPath]
   );
 
-  const isPhoneLayout = width <= 900 || (width <= 960 && height <= 600);
-  const frameWidth = frameSize.width || width;
-  const frameHeight = frameSize.height || height;
-  const mobileHorizontalPadding = frameWidth <= 380 ? 10 : 12;
-  const mobileVerticalPadding = frameHeight <= 680 ? 8 : 12;
+  const viewportWidth = webViewportSize?.width ?? width;
+  const viewportHeight = webViewportSize?.height ?? height;
+  const isPhoneLayout =
+    viewportWidth <= 900 || (viewportWidth <= 960 && viewportHeight <= 600);
+  const frameWidth = frameSize.width || viewportWidth;
+  const frameHeight = frameSize.height || viewportHeight;
+  const mobileViewportHeight = Math.min(
+    viewportHeight || frameHeight,
+    frameHeight || viewportHeight
+  );
+  const isShortPhoneLayout =
+    isPhoneLayout && (viewportWidth <= 430 || mobileViewportHeight <= 620);
+  const mobileViewportWidth = Math.max(viewportWidth || frameWidth, playAreaSize.width);
+  const mobileHorizontalPadding = mobileViewportWidth <= 380 ? 10 : 12;
+  const mobileVerticalPadding = mobileViewportHeight <= 680 ? 8 : 12;
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return undefined;
+
+    const syncViewportSize = () => {
+      setWebViewportSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    syncViewportSize();
+    window.addEventListener('resize', syncViewportSize);
+    return () => window.removeEventListener('resize', syncViewportSize);
+  }, []);
 
   const handleFrameLayout = useCallback((event: LayoutChangeEvent) => {
     const next = event.nativeEvent.layout;
@@ -500,22 +526,34 @@ export default function ThreadlineScreen() {
   }, [gameState, hasUsedHint, remainingWord]);
 
   const gridSize = puzzle.grid.length;
+  const mobileAvailableWidth = Math.max(
+    0,
+    mobileViewportWidth - mobileHorizontalPadding * 2
+  );
   const measuredPlayAreaWidth =
-    playAreaSize.width || Math.max(0, frameWidth - mobileHorizontalPadding * 2);
+    playAreaSize.width || mobileAvailableWidth;
+  const mobileSafePlayAreaWidth = Math.max(
+    0,
+    isShortPhoneLayout
+      ? mobileAvailableWidth
+      : Math.min(measuredPlayAreaWidth, mobileAvailableWidth)
+  );
   const measuredPlayAreaHeight = playAreaSize.height || 0;
   const mobileReservedHeight =
     mobileVerticalPadding * 2 +
-    (frameHeight <= 680 ? 34 : 38) +
-    (frameHeight <= 680 ? 142 : 156) +
-    (frameHeight <= 680 ? 46 : 52) +
-    (frameHeight <= 680 ? 18 : 24);
-  const mobileBoardFallback = Math.max(160, frameHeight - mobileReservedHeight);
+    (mobileViewportHeight <= 680 ? 34 : 38) +
+    (mobileViewportHeight <= 680 ? 142 : 156) +
+    (mobileViewportHeight <= 680 ? 46 : 52) +
+    (mobileViewportHeight <= 680 ? 18 : 24);
+  const mobileBoardFallback = Math.max(160, mobileViewportHeight - mobileReservedHeight);
   const mobileBoardLimit =
-    measuredPlayAreaHeight > 0
+    isShortPhoneLayout
+      ? mobileSafePlayAreaWidth
+      : measuredPlayAreaHeight > 0
       ? Math.max(0, measuredPlayAreaHeight - 8)
       : mobileBoardFallback;
   const pageWidth = isPhoneLayout
-    ? Math.max(0, measuredPlayAreaWidth)
+    ? mobileSafePlayAreaWidth
     : Math.max(0, Math.min(520, width - Spacing.lg * 2));
   const boardSize = Math.floor(
     Math.max(
@@ -523,10 +561,13 @@ export default function ThreadlineScreen() {
       Math.min(430, pageWidth, isPhoneLayout ? mobileBoardLimit : pageWidth)
     )
   );
-  const cellGap = isPhoneLayout ? (boardSize < 310 ? 3 : 4) : 5;
-  const boardPadding = isPhoneLayout ? (boardSize < 310 ? 5 : 6) : Spacing.sm;
+  const boardLayoutSize = isPhoneLayout
+    ? Math.floor(Math.max(boardSize, Math.min(430, mobileAvailableWidth)))
+    : boardSize;
+  const cellGap = isPhoneLayout ? (boardLayoutSize < 310 ? 3 : 4) : 5;
+  const boardPadding = isPhoneLayout ? (boardLayoutSize < 310 ? 5 : 6) : Spacing.sm;
   const fittedCellSize =
-    (boardSize - boardPadding * 2 - cellGap * (gridSize - 1)) / gridSize;
+    (boardLayoutSize - boardPadding * 2 - cellGap * (gridSize - 1)) / gridSize;
   const cellSize = isPhoneLayout
     ? Math.max(14, fittedCellSize)
     : Math.max(22, fittedCellSize);
@@ -942,18 +983,23 @@ export default function ThreadlineScreen() {
 
   const renderBoard = (compact = false) => (
     <View
+      key={compact ? `mobile-board-wrap-${boardLayoutSize}` : 'board-wrap'}
       style={[
         styles.boardWrap,
         compact && styles.mobileBoardWrap,
-        compact && { width: boardSize, height: boardSize },
+        !compact && { width: boardLayoutSize, height: boardLayoutSize },
       ]}
     >
       <View
+        key={compact ? `mobile-board-${boardLayoutSize}` : 'board'}
         style={[
           styles.board,
+          compact && styles.mobileBoard,
           {
-            width: boardSize,
-            height: boardSize,
+            ...(!compact && {
+              width: boardLayoutSize,
+              height: boardLayoutSize,
+            }),
             gap: cellGap,
             padding: boardPadding,
           },
@@ -970,7 +1016,10 @@ export default function ThreadlineScreen() {
         {...(webBoardHandlers as object)}
       >
         {puzzle.grid.map((row, rowIndex) => (
-          <View key={`row-${rowIndex}`} style={[styles.boardRow, { gap: cellGap }]}>
+          <View
+            key={`row-${rowIndex}`}
+            style={[styles.boardRow, compact && styles.mobileBoardRow, { gap: cellGap }]}
+          >
             {row.split('').map((letter, colIndex) => {
               const coord = { row: rowIndex, col: colIndex };
               const key = coordKey(coord);
@@ -980,7 +1029,9 @@ export default function ThreadlineScreen() {
               const cellStyle = [
                 styles.cell,
                 styles.cellPassive,
-                { width: cellSize, height: cellSize, borderRadius: cellRadius },
+                compact
+                  ? [styles.mobileCell, { borderRadius: cellRadius }]
+                  : { width: cellSize, height: cellSize, borderRadius: cellRadius },
                 found && styles.cellFound,
                 selected && styles.cellSelected,
                 hinted && styles.cellHinted,
@@ -1229,6 +1280,30 @@ export default function ThreadlineScreen() {
   );
 
   if (isPhoneLayout) {
+    const mobileFramePadding = {
+      paddingHorizontal: mobileHorizontalPadding,
+      paddingTop: mobileVerticalPadding,
+      paddingBottom: mobileVerticalPadding,
+    };
+    const mobileGameContent = (
+      <>
+        {renderHeader(true)}
+        {renderPuzzleDock(true)}
+        <View
+          key={isShortPhoneLayout ? `mobile-play-area-${boardLayoutSize}` : 'mobile-play-area'}
+          style={[
+            styles.mobilePlayArea,
+            isShortPhoneLayout && styles.mobilePlayAreaScrollable,
+          ]}
+          onLayout={handlePlayAreaLayout}
+        >
+          {renderBoard(true)}
+          {renderStatus(true)}
+        </View>
+        {renderActions(true)}
+      </>
+    );
+
     return (
       <SafeAreaView
         style={[styles.container, styles.mobileContainer]}
@@ -1236,24 +1311,19 @@ export default function ThreadlineScreen() {
         onLayout={handleFrameLayout}
       >
         <Stack.Screen options={screenOptions} />
-        <View
-          style={[
-            styles.mobileGameFrame,
-            {
-              paddingHorizontal: mobileHorizontalPadding,
-              paddingTop: mobileVerticalPadding,
-              paddingBottom: mobileVerticalPadding,
-            },
-          ]}
-        >
-          {renderHeader(true)}
-          {renderPuzzleDock(true)}
-          <View style={styles.mobilePlayArea} onLayout={handlePlayAreaLayout}>
-            {renderBoard(true)}
-            {renderStatus(true)}
+        {isShortPhoneLayout ? (
+          <ScrollView
+            style={styles.mobileScroll}
+            contentContainerStyle={[styles.mobileScrollContent, mobileFramePadding]}
+            scrollEnabled={Platform.OS === 'web' || !isBoardGestureActive}
+          >
+            <View style={styles.mobileGameFrameScrollable}>{mobileGameContent}</View>
+          </ScrollView>
+        ) : (
+          <View style={[styles.mobileGameFrame, mobileFramePadding]}>
+            {mobileGameContent}
           </View>
-          {renderActions(true)}
-        </View>
+        )}
         {completionModal}
         {howToModal}
       </SafeAreaView>
@@ -1318,6 +1388,23 @@ const createStyles = (
       justifyContent: 'flex-start',
       gap: 8,
     },
+    mobileGameFrameScrollable: {
+      width: '100%',
+      maxWidth: 520,
+      alignSelf: 'center',
+      overflow: 'visible',
+      justifyContent: 'flex-start',
+      gap: 8,
+    },
+    mobileScroll: {
+      flex: 1,
+      width: '100%',
+    },
+    mobileScrollContent: {
+      flexGrow: 1,
+      width: '100%',
+      alignItems: 'center',
+    },
     mobilePlayArea: {
       flex: 1,
       minHeight: 0,
@@ -1327,6 +1414,15 @@ const createStyles = (
       position: 'relative',
       paddingTop: 8,
       overflow: 'hidden',
+    },
+    mobilePlayAreaScrollable: {
+      flexGrow: 0,
+      flexShrink: 0,
+      flexBasis: 'auto',
+      aspectRatio: 0.92,
+      paddingTop: 12,
+      paddingBottom: 12,
+      overflow: 'visible',
     },
     scrollContent: {
       padding: Spacing.lg,
@@ -1467,13 +1563,17 @@ const createStyles = (
     },
     mobilePuzzleDock: {
       width: '100%',
+      maxWidth: '100%',
       paddingTop: 0,
       paddingBottom: 0,
       zIndex: 1,
       elevation: 0,
       flexShrink: 0,
+      overflow: 'hidden',
     },
     mobilePuzzleDockCard: {
+      width: '100%',
+      maxWidth: '100%',
       borderRadius: BorderRadius.md,
       borderWidth: 1,
       borderColor: Colors.border,
@@ -1481,6 +1581,7 @@ const createStyles = (
       paddingHorizontal: 14,
       paddingVertical: 11,
       gap: 9,
+      overflow: 'hidden',
     },
     mobileDockMetaRow: {
       flexDirection: 'row',
@@ -1490,6 +1591,7 @@ const createStyles = (
     },
     mobileDockTitle: {
       flex: 1,
+      minWidth: 0,
       fontSize: 18,
       lineHeight: 21,
       fontWeight: '800',
@@ -1512,17 +1614,24 @@ const createStyles = (
       color: Colors.textMuted,
     },
     mobileDockLead: {
+      width: '100%',
+      maxWidth: '100%',
+      flexShrink: 1,
       fontSize: 16,
       lineHeight: 22,
       fontWeight: '700',
       color: Colors.text,
     },
     mobileThemeMiniRow: {
+      width: '100%',
+      maxWidth: '100%',
       flexDirection: 'row',
       gap: 8,
+      overflow: 'hidden',
     },
     mobileThemeMiniCard: {
       flex: 1,
+      minWidth: 0,
       minHeight: 74,
       borderRadius: BorderRadius.md,
       borderWidth: 1,
@@ -1530,6 +1639,7 @@ const createStyles = (
       backgroundColor: Colors.surfaceLight,
       padding: 8,
       justifyContent: 'space-between',
+      overflow: 'hidden',
     },
     mobileThemeMiniCardRevealed: {
       borderColor: screenAccent.badgeBorder,
@@ -1570,6 +1680,7 @@ const createStyles = (
       flexDirection: 'row',
       gap: 3,
       marginTop: 5,
+      flexWrap: 'wrap',
     },
     mobileThemeMiniDot: {
       width: 6,
@@ -1739,6 +1850,9 @@ const createStyles = (
       marginTop: Spacing.lg,
     },
     mobileBoardWrap: {
+      width: '100%',
+      maxWidth: 430,
+      aspectRatio: 1,
       alignSelf: 'center',
       alignItems: 'center',
       justifyContent: 'center',
@@ -1755,9 +1869,16 @@ const createStyles = (
       alignSelf: 'center',
       ...WEB_NO_SELECT,
     },
+    mobileBoard: {
+      width: '100%',
+      height: '100%',
+    },
     boardRow: {
       flexDirection: 'row',
       zIndex: 1,
+    },
+    mobileBoardRow: {
+      flex: 1,
     },
     cell: {
       borderRadius: 10,
@@ -2054,6 +2175,12 @@ const createStyles = (
       alignItems: 'center',
       justifyContent: 'center',
       ...WEB_NO_SELECT,
+    },
+    mobileCell: {
+      flex: 1,
+      minWidth: 0,
+      minHeight: 0,
+      aspectRatio: 1,
     },
     mobileTimerButton: {
       minHeight: 42,
