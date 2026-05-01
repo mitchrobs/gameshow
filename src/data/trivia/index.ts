@@ -6,13 +6,13 @@ import sportsEasyScheduleData from './sportsEasyEpisodeSchedule.json';
 import sportsHardScheduleData from './sportsHardEpisodeSchedule.json';
 import auditData from './triviaAudit.json';
 import playerCalibrationData from './triviaPlayerCalibration.json';
+import { getTriviaFeedSummary } from './summaries';
 import type {
   TriviaAuditReport,
   TriviaDifficulty,
   TriviaEpisode,
   TriviaEpisodeDefinition,
   TriviaFeed,
-  TriviaFeedSummary,
   TriviaPlayerCalibrationReport,
   TriviaQuestionRecord,
 } from './types';
@@ -41,6 +41,9 @@ export type {
   TriviaRunResult,
 } from './types';
 export {
+  getTriviaFeedSummary,
+} from './summaries';
+export {
   TRIVIA_LINT_RULES,
   TRIVIA_REQUIRED_FIELDS,
   hasGimmickDistractorPattern,
@@ -54,49 +57,6 @@ export { formatTriviaShareText } from './results';
 const DAY_MS = 1000 * 60 * 60 * 24;
 const OPTION_SEED = 119_731;
 const TRIVIA_DIFFICULTIES: TriviaDifficulty[] = ['easy', 'hard'];
-
-const FEED_SUMMARIES: Record<TriviaFeed, Record<TriviaDifficulty, TriviaFeedSummary>> = {
-  mix: {
-    easy: {
-      feed: 'mix',
-      difficulty: 'easy',
-      title: 'Daily Mix',
-      subtitle: 'Culture, history, science, and broad general knowledge.',
-      questionCount: 12,
-      timerSeconds: 15,
-      finalStretchLabel: 'Final 3',
-    },
-    hard: {
-      feed: 'mix',
-      difficulty: 'hard',
-      title: 'Daily Mix',
-      subtitle: 'Culture, history, science, and sharp little reveals.',
-      questionCount: 12,
-      timerSeconds: 15,
-      finalStretchLabel: 'Final 3',
-    },
-  },
-  sports: {
-    easy: {
-      feed: 'sports',
-      difficulty: 'easy',
-      title: 'Daily Sports',
-      subtitle: 'Leagues, legends, and the mainstream sports moments you should know.',
-      questionCount: 9,
-      timerSeconds: 15,
-      finalStretchLabel: 'Final 3',
-    },
-    hard: {
-      feed: 'sports',
-      difficulty: 'hard',
-      title: 'Daily Sports',
-      subtitle: 'Leagues, legends, records, and the details that matter.',
-      questionCount: 9,
-      timerSeconds: 15,
-      finalStretchLabel: 'Final 3',
-    },
-  },
-};
 
 const QUESTIONS_BY_FEED: Record<TriviaFeed, TriviaQuestionRecord[]> = {
   mix: mixQuestionsData as TriviaQuestionRecord[],
@@ -164,10 +124,6 @@ function seededShuffle<T>(items: T[], seed: number): T[] {
   return next;
 }
 
-function getFeedSummary(feed: TriviaFeed, difficulty: TriviaDifficulty = 'hard'): TriviaFeedSummary {
-  return FEED_SUMMARIES[feed][difficulty];
-}
-
 function shuffleQuestionOptions(
   question: TriviaQuestionRecord,
   feed: TriviaFeed,
@@ -205,15 +161,6 @@ export function getTriviaScheduleRange() {
   };
 }
 
-export function getTriviaFeedSummary(
-  feed: TriviaFeed,
-  difficulty: TriviaDifficulty = 'hard',
-  date: Date = new Date()
-): TriviaFeedSummary {
-  void date;
-  return getFeedSummary(feed, difficulty);
-}
-
 export function getTriviaEpisode(
   feed: TriviaFeed,
   difficulty: TriviaDifficulty = 'hard',
@@ -228,7 +175,7 @@ export function getTriviaEpisode(
     );
   }
 
-  const summary = getFeedSummary(feed, difficulty);
+  const summary = getTriviaFeedSummary(feed, difficulty);
   const questions = episodeDefinition.questionIds.map((questionId, index) => {
     const question = QUESTION_MAP_BY_FEED[feed].get(questionId);
     if (!question) {

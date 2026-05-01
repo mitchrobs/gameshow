@@ -15,7 +15,7 @@ import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
 import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
 import { getDailyWordie } from '../src/data/wordiePuzzles';
 import { getDailyThreadline } from '../src/data/threadlinePuzzles';
-import { getTriviaFeedSummary } from '../src/data/trivia';
+import { getTriviaFeedSummary } from '../src/data/trivia/summaries';
 import { getDailySudoku } from '../src/data/sudokuPuzzles';
 import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
 import { getDailyBridges } from '../src/data/bridgesPuzzles';

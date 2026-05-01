@@ -8,7 +8,7 @@ import type {
   TriviaFeedSummary,
   TriviaRunAnswer,
   TriviaRunResult,
-} from '../../data/trivia';
+} from '../../data/trivia/types';
 import {
   canArmShield,
 } from '../../data/trivia/gameplay';

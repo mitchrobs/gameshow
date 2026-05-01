@@ -1,5 +1,6 @@
-import { TriviaGameScreen } from './trivia';
+import { sportsTriviaRuntime } from '../src/data/trivia/sportsRuntime';
+import { TriviaGameScreen } from '../src/ui/trivia/TriviaGameScreen';
 
 export default function DailySportsScreen() {
-  return <TriviaGameScreen feed="sports" />;
+  return <TriviaGameScreen runtime={sportsTriviaRuntime} />;
 }

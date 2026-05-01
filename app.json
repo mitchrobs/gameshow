@@ -30,7 +30,16 @@
       "output": "static",
       "baseUrl": "/gameshow/"
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "asyncRoutes": {
+            "web": "production"
+          }
+        }
+      ]
+    ],
     "experiments": {
       "baseUrl": "/gameshow/"
     }
