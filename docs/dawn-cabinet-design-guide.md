@@ -152,10 +152,9 @@ wild. The solver and UI should treat it as a bounded special entry that can
 resolve only where the generated solution says it belongs. This keeps the
 strategic feeling of saving or placing a special tile while preserving a
 single intended solution. The generator prefers a Dawn cell whose resolved
-tile appears only once in the Cabinet supply. Standard may fall back to a
-duplicated resolved tile when needed to guarantee a Dawn tile, but the solver
-still requires the Dawn entry itself to be placed at its generated solution
-cell.
+tile is not also required in reserve. This matters because reserve tiles are
+real leftover Cabinet supply, not a visual afterthought. The solver still
+requires the Dawn entry itself to be placed at its generated solution cell.
 
 ## Set Types
 
@@ -251,8 +250,21 @@ Important exported concepts:
 
 Daily puzzles are seeded by date and difficulty. Standard, Hard, and Expert
 should all be playable on the same day. The generator uses modular motifs,
-seeded macro-layout recipes, shape signatures, and composite signatures to
-reduce pattern memorization over time.
+seeded macro-layout recipes, rail exposure profiles, play-profile signatures,
+and composite signatures to reduce pattern memorization over time.
+
+The shipped daily pack currently includes 365 scheduled days:
+
+- Start: May 15, 2026.
+- End: May 14, 2027.
+- File: `src/data/dawnCabinetSchedule.json`.
+- Builder: `npm run build:dawn-cabinet-schedule`.
+
+The schedule stores the selected variant and metadata for each date/difficulty.
+Runtime daily loading instantiates that chosen variant directly, so players do
+not pay the candidate-pool cost when opening the game. Rebuild the schedule
+after generator changes that affect puzzle shape, rail exposure, Dawn placement,
+ledger composition, reserve goals, play profiles, or composite signatures.
 
 Motif and shape variety matters. Do not collapse the generator back to one fixed
 board per difficulty.
@@ -276,18 +288,52 @@ This is deliberately stricter than "different seed" and looser than "never use
 the same broad family." It gives the game longevity without requiring every day
 to invent a new board species.
 
+### Play Profiles and Posture 21
+
+Every generated daily candidate also gets a `playProfile`. This is a compact
+description of how the puzzle is likely to be read:
+
+- macro layout family,
+- motif multiset,
+- visible rail-type mix,
+- hidden ledger mix,
+- opening clue style,
+- Dawn pressure,
+- reserve pressure,
+- solve posture,
+- silhouette class,
+- count profile.
+
+Candidate selection uses a soft **Posture 21** rule: avoid repeating the same
+play-profile key within 21 days for the same difficulty. Fairness wins over
+novelty, so a rare fallback is allowed only when the fresher candidates fail
+unique-solution or Dawn-quality checks. The tests protect Composite 90 strictly
+and cap Posture 21 fallbacks.
+
 ### Layout Recipes and Rail Exposure
 
 The generator should vary boards through macro recipes and motif composition.
 Current intended recipe families are:
 
-- Standard: `splitCabinet`, `centerHinge`, `steppedSpine`, `offsetPair`.
-- Hard: `braidedBridge`, `triadKnot`, `offsetReservoir`, `crossedTail`.
-- Expert: `fourDistrict`, `longSpineWeb`, `basinWeb`, `doubleHinge`.
+- Standard: `splitHinge`, `cornerExchange`, `threePocket`, `shortBasin`.
+- Hard: `braidedReservoir`, `mirrorTrap`, `offsetBridge`, `reserveFork`.
+- Expert: `ringCabinet`, `fiveDistrict`, `doubleBasin`, `brokenSpine`,
+  `lanternWeb`.
+
+These names are not just labels for analytics. The generator uses them to add
+different connector rails and motif pressure so the same difficulty does not
+always open with the same visual or logical posture.
 
 Visible rails should not collapse into mostly Pair clues. Use seeded exposure
 profiles so visible clues teach local board logic without giving away the
 ledger:
+
+- `friendlyStart`
+- `ledgerFirst`
+- `reserveFirst`
+- `dawnFork`
+- `copyPressure`
+- `bridgeRead`
 
 - Standard: 2-4 visible set types.
 - Hard: 3-5 visible set types.
@@ -296,6 +342,22 @@ ledger:
 If visible rail variety increases, preserve hidden-ledger pressure by keeping
 enough hidden rails and overlaps. Richer visible rail types should make the
 board more readable, not simply easier.
+
+### Dawn Pressure Targets
+
+Standard, Hard, and Expert each include exactly one Dawn tile.
+
+- Standard: usually touches two rails, sometimes three. It should create a
+  small pause without making Standard feel like a trap.
+- Hard: usually touches at least three rails. It should often remain a real
+  mid-solve question.
+- Expert: usually touches three or four rails and may occasionally touch more
+  on dense crossings. Prefer cells that bridge districts or combine hidden
+  ledger pressure with visible rail pressure.
+
+Dawn cannot be left in reserve and should not steal a tile that the reserve goal
+needs. If a Dawn candidate breaks the reserve proof or creates multiple
+solutions, reject it.
 
 ## UX Architecture
 
@@ -471,11 +533,15 @@ Important coverage includes:
 - Share text.
 - Difficulty target ranges.
 - Monotonic difficulty rating.
-- Daily generation through future dates.
+- The 365-day scheduled pack from May 15, 2026 through May 14, 2027.
 - Shape variety.
 - Composite 90 anti-repeat behavior.
+- Posture 21 play-profile behavior, with uniqueness allowed to win rare
+  fallbacks.
 - Visible rail-type variety targets.
 - Dawn tile presence, candidate bounds, and non-reserve behavior.
+- Dawn/reserve supply integrity when the Dawn tile's resolved value has
+  duplicate copies elsewhere in the Cabinet.
 - Unique solvability via `countCabinetSolutions(puzzle, 2) === 1`.
 
 Run before shipping Dawn Cabinet changes:

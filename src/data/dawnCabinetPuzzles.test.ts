@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'vitest';
+import dawnCabinetSchedule from './dawnCabinetSchedule.json';
 import {
   DAWN_CABINET_DAILY_DIFFICULTIES,
+  DAWN_CABINET_SCHEDULE_DAYS,
+  DAWN_CABINET_SCHEDULE_START,
   classifyCabinetLine,
   countCabinetSolutions,
   formatDawnCabinetShareText,
@@ -65,8 +68,8 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     expect(blanks).toBeGreaterThanOrEqual(13);
     expect(blanks).toBeLessThanOrEqual(18);
     expect(puzzle.lines.length).toBeGreaterThanOrEqual(18);
-    expect(puzzle.lines.length).toBeLessThanOrEqual(21);
-    expect(hidden).toBeGreaterThanOrEqual(13);
+    expect(puzzle.lines.length).toBeLessThanOrEqual(22);
+    expect(hidden).toBeGreaterThanOrEqual(11);
     expect(hidden).toBeLessThanOrEqual(16);
     expect(puzzle.spareCount).toBeGreaterThanOrEqual(1);
     expect(puzzle.spareCount).toBeLessThanOrEqual(2);
@@ -74,15 +77,18 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     expect(puzzle.ledger?.gapRun ?? 0).toBe(0);
     expect(puzzle.ledger?.mixedGap ?? 0).toBe(0);
     expect(puzzle.ledger?.match ?? 0).toBeGreaterThan(0);
-    expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
+    expect((puzzle.ledger?.flush ?? 0) + puzzle.lines.filter((line) => line.goal === 'flush').length).toBeGreaterThan(0);
     expect(puzzle.ledger?.number ?? 0).toBe(0);
     expect(puzzle.bankGoal).toBeUndefined();
     expect(puzzle.dawnTile).toBeDefined();
     expect(puzzle.dawnTile?.options).toHaveLength(3);
     expect(visibleSetKindCount(puzzle)).toBeGreaterThanOrEqual(2);
     expect(visibleSetKindCount(puzzle)).toBeLessThanOrEqual(4);
-    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(6);
-    expect(puzzle.motifs.length).toBeLessThanOrEqual(7);
+    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(8);
+    expect(puzzle.motifs.length).toBeLessThanOrEqual(9);
+    expect(puzzle.macroFamily).toBeDefined();
+    expect(puzzle.exposureProfile).toBeDefined();
+    expect(puzzle.playProfile?.key).toBeTruthy();
     expect(puzzle.shapeSignature.length).toBeGreaterThan(40);
     return;
   }
@@ -92,9 +98,9 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     expect(blanks).toBeGreaterThanOrEqual(21);
     expect(blanks).toBeLessThanOrEqual(25);
     expect(puzzle.lines.length).toBeGreaterThanOrEqual(25);
-    expect(puzzle.lines.length).toBeLessThanOrEqual(31);
+    expect(puzzle.lines.length).toBeLessThanOrEqual(33);
     expect(hidden).toBeGreaterThanOrEqual(17);
-    expect(hidden).toBeLessThanOrEqual(23);
+    expect(hidden).toBeLessThanOrEqual(24);
     expect(puzzle.spareCount).toBeGreaterThanOrEqual(2);
     expect(puzzle.spareCount).toBeLessThanOrEqual(4);
     expect(puzzle.ledger?.run ?? 0).toBeGreaterThan(0);
@@ -111,8 +117,11 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     expect(puzzle.dawnTile?.options).toHaveLength(3);
     expect(visibleSetKindCount(puzzle)).toBeGreaterThanOrEqual(3);
     expect(visibleSetKindCount(puzzle)).toBeLessThanOrEqual(5);
-    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(7);
-    expect(puzzle.motifs.length).toBeLessThanOrEqual(9);
+    expect(puzzle.motifs.length).toBeGreaterThanOrEqual(9);
+    expect(puzzle.motifs.length).toBeLessThanOrEqual(12);
+    expect(puzzle.macroFamily).toBeDefined();
+    expect(puzzle.exposureProfile).toBeDefined();
+    expect(puzzle.playProfile?.key).toBeTruthy();
     return;
   }
 
@@ -120,7 +129,7 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
   expect(blanks).toBeGreaterThanOrEqual(37);
   expect(blanks).toBeLessThanOrEqual(39);
   expect(puzzle.lines.length).toBeGreaterThanOrEqual(43);
-  expect(puzzle.lines.length).toBeLessThanOrEqual(49);
+  expect(puzzle.lines.length).toBeLessThanOrEqual(52);
   expect(hidden).toBeGreaterThanOrEqual(32);
   expect(hidden).toBeLessThanOrEqual(37);
   expect(puzzle.spareCount).toBeGreaterThanOrEqual(3);
@@ -139,8 +148,11 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
   expect(puzzle.dawnTile?.options).toHaveLength(4);
   expect(visibleSetKindCount(puzzle)).toBeGreaterThanOrEqual(4);
   expect(visibleSetKindCount(puzzle)).toBeLessThanOrEqual(6);
-  expect(puzzle.motifs.length).toBeGreaterThanOrEqual(11);
-  expect(puzzle.motifs.length).toBeLessThanOrEqual(13);
+  expect(puzzle.motifs.length).toBeGreaterThanOrEqual(14);
+  expect(puzzle.motifs.length).toBeLessThanOrEqual(17);
+  expect(puzzle.macroFamily).toBeDefined();
+  expect(puzzle.exposureProfile).toBeDefined();
+  expect(puzzle.playProfile?.key).toBeTruthy();
 }
 
 describe('dawn cabinet puzzle engine', () => {
@@ -371,14 +383,20 @@ describe('dawn cabinet puzzle engine', () => {
     });
   }, 180000);
 
-  test('daily generator covers Standard, Hard, and Expert through the end of 2026', () => {
+  test('daily schedule covers Standard, Hard, and Expert for 365 days from May 15', () => {
     let generated = 0;
-    for (let time = Date.UTC(2026, 3, 26); time <= Date.UTC(2026, 11, 31); time += 86_400_000) {
-      const date = new Date(time).toISOString().slice(0, 10);
+    expect(dawnCabinetSchedule.start).toBe(DAWN_CABINET_SCHEDULE_START);
+    expect(dawnCabinetSchedule.days).toBe(DAWN_CABINET_SCHEDULE_DAYS);
+    expect(dawnCabinetSchedule.entries).toHaveLength(DAWN_CABINET_SCHEDULE_DAYS);
+    expect(dawnCabinetSchedule.entries[0]?.date).toBe('2026-05-15');
+    expect(dawnCabinetSchedule.entries.at(-1)?.date).toBe('2027-05-14');
+
+    dawnCabinetSchedule.entries.forEach((entry) => {
       DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
-        const puzzle = getDailyDawnCabinet(date, difficulty);
+        const puzzle = getDailyDawnCabinet(entry.date, difficulty);
         generated += 1;
-        expect(puzzle.id).toContain(date);
+        expect(puzzle.id).toBe(entry.puzzles[difficulty].id);
+        expect(puzzle.id).toContain(entry.date);
         expect(puzzle.difficulty).toBe(difficulty);
         expectDifficultyTargets(puzzle);
         expect(isCabinetSolved(puzzle, puzzle.solution)).toBe(true);
@@ -386,24 +404,30 @@ describe('dawn cabinet puzzle engine', () => {
         expect(puzzle.dawnTile).toBeDefined();
         expect(puzzle.bank).toHaveLength(blankCount(puzzle) + puzzle.spareCount - 1);
       });
-    }
+    });
 
-    expect(generated).toBe(250 * DAWN_CABINET_DAILY_DIFFICULTIES.length);
+    expect(generated).toBe(DAWN_CABINET_SCHEDULE_DAYS * DAWN_CABINET_DAILY_DIFFICULTIES.length);
   }, 180000);
 
-  test('daily modular grammar varies shapes and count profiles', () => {
+  test('scheduled modular grammar varies shapes, profiles, and macro families', () => {
     DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
       const signatures: string[] = [];
       const compositeSignatures: string[] = [];
       const profiles: string[] = [];
       const motifs = new Set<string>();
+      const macroFamilies = new Set<string>();
+      const exposureProfiles = new Set<string>();
+      const motifProfiles = new Set<string>();
 
       for (let index = 0; index < 90; index += 1) {
-        const date = new Date(Date.UTC(2026, 3, 26 + index)).toISOString().slice(0, 10);
+        const date = dawnCabinetSchedule.entries[index].date;
         const puzzle = getDailyDawnCabinet(date, difficulty);
         signatures.push(puzzle.shapeSignature);
         compositeSignatures.push(puzzle.compositeSignature);
         puzzle.motifs.forEach((motif) => motifs.add(motif));
+        if (puzzle.macroFamily) macroFamilies.add(puzzle.macroFamily);
+        if (puzzle.exposureProfile) exposureProfiles.add(puzzle.exposureProfile);
+        if (puzzle.playProfile?.motifProfile) motifProfiles.add(puzzle.playProfile.motifProfile);
         profiles.push([
           blankCount(puzzle),
           puzzle.lines.length,
@@ -415,11 +439,19 @@ describe('dawn cabinet puzzle engine', () => {
 
       expect(new Set(signatures).size).toBeGreaterThanOrEqual(difficulty === 'Standard' ? 45 : 60);
       expect(new Set(profiles).size).toBeGreaterThanOrEqual(difficulty === 'Standard' ? 8 : 14);
+      expect(motifProfiles.size).toBeGreaterThanOrEqual(difficulty === 'Standard' ? 18 : 18);
+      expect(exposureProfiles.size).toBe(6);
       expect(motifs.has('mixed-run-braid')).toBe(true);
       if (difficulty === 'Standard') {
+        expect(macroFamilies).toEqual(new Set(['splitHinge', 'cornerExchange', 'threePocket', 'shortBasin']));
         expect(motifs.has('switchback-ladder')).toBe(true);
         expect(motifs.has('copy-block')).toBe(true);
       } else {
+        expect(macroFamilies).toEqual(
+          difficulty === 'Hard'
+            ? new Set(['braidedReservoir', 'mirrorTrap', 'offsetBridge', 'reserveFork'])
+            : new Set(['ringCabinet', 'fiveDistrict', 'doubleBasin', 'brokenSpine', 'lanternWeb'])
+        );
         expect(motifs.has('knot-cell')).toBe(true);
         expect(motifs.has('gap-run-pocket')).toBe(true);
       }
@@ -434,8 +466,45 @@ describe('dawn cabinet puzzle engine', () => {
     });
   }, 120000);
 
+  test('scheduled pack prevents Composite 90 and Posture 21 repeats', () => {
+    DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
+      const compositeSignatures: string[] = [];
+      const postureKeys: string[] = [];
+      let postureFallbackRepeats = 0;
+      dawnCabinetSchedule.entries.forEach((entry, index) => {
+        const puzzle = getDailyDawnCabinet(entry.date, difficulty);
+        const recentComposite = compositeSignatures.slice(Math.max(0, index - 90), index);
+        const recentPostures = postureKeys.slice(Math.max(0, index - 21), index);
+        expect(recentComposite).not.toContain(puzzle.compositeSignature);
+        if (recentPostures.includes(puzzle.playProfile?.key ?? 'none')) postureFallbackRepeats += 1;
+        compositeSignatures.push(puzzle.compositeSignature);
+        postureKeys.push(puzzle.playProfile?.key ?? 'none');
+      });
+      expect(postureFallbackRepeats).toBeLessThanOrEqual(difficulty === 'Expert' ? 2 : 0);
+    });
+  });
+
+  test('scheduled Dawn pressure meets difficulty posture targets', () => {
+    DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
+      const touchCounts = dawnCabinetSchedule.entries.map((entry) => {
+        const puzzle = getDailyDawnCabinet(entry.date, difficulty);
+        return rateDawnCabinetPuzzle(puzzle).dawnRailTouchCount;
+      });
+      if (difficulty === 'Standard') {
+        expect(touchCounts.every((count) => count >= 2 && count <= 3)).toBe(true);
+        expect(touchCounts.filter((count) => count === 3).length).toBeGreaterThan(90);
+      } else if (difficulty === 'Hard') {
+        expect(touchCounts.every((count) => count >= 3)).toBe(true);
+        expect(touchCounts.filter((count) => count >= 4).length).toBeGreaterThan(100);
+      } else {
+        expect(touchCounts.filter((count) => count >= 3).length).toBeGreaterThan(350);
+        expect(touchCounts.filter((count) => count >= 4).length).toBeGreaterThan(150);
+      }
+    });
+  });
+
   test('sampled daily puzzles remain uniquely solvable', () => {
-    const dates = ['2026-04-26', '2026-06-15', '2026-09-01', '2026-11-11'];
+    const dates = ['2026-05-15', '2026-06-15', '2026-09-01', '2027-05-14'];
     dates.forEach((date) => {
       DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
         const puzzle = getDailyDawnCabinet(date, difficulty);
@@ -445,7 +514,7 @@ describe('dawn cabinet puzzle engine', () => {
   }, 120000);
 
   test('Dawn tiles are bounded, non-reserve, and unique on daily difficulties', () => {
-    const dates = ['2026-04-26', '2026-06-15', '2026-09-01', '2026-11-11'];
+    const dates = ['2026-05-15', '2026-06-15', '2026-09-01', '2027-05-14'];
     dates.forEach((date) => {
       DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
         const puzzle = getDailyDawnCabinet(date, difficulty);
@@ -477,10 +546,10 @@ describe('dawn cabinet puzzle engine', () => {
 
   test('expert reserve goals rotate through all three-tile set types', () => {
     const goals = new Set(
-      Array.from({ length: 120 }, (_, index) => {
-        const date = new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10);
-        return getDailyDawnCabinet(date, 'Expert').bankGoal?.type;
-      }).filter(Boolean)
+      dawnCabinetSchedule.entries
+        .slice(0, 160)
+        .map((entry) => getDailyDawnCabinet(entry.date, 'Expert').bankGoal?.type)
+        .filter(Boolean)
     );
 
     expect(goals).toEqual(new Set(['run', 'mixedRun', 'gapRun', 'mixedGap', 'match', 'flush', 'number']));
@@ -488,12 +557,9 @@ describe('dawn cabinet puzzle engine', () => {
 
   test('daily tile families rotate through the full fourteen-family set', () => {
     const seenFamilies = new Set(
-      Array.from({ length: 32 }, (_, index) => {
-        const date = new Date(Date.UTC(2026, 0, index + 1));
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
+      dawnCabinetSchedule.entries.slice(0, 32).map((entry) => {
         return DAWN_CABINET_DAILY_DIFFICULTIES.map((difficulty) =>
-          getDailyDawnCabinet(`2026-${month}-${day}`, difficulty as DawnCabinetDailyDifficulty)
+          getDailyDawnCabinet(entry.date, difficulty as DawnCabinetDailyDifficulty)
         );
       }).flatMap((puzzles) =>
         puzzles.flatMap((puzzle) => Object.values(puzzle.solution).map((tile) => tile.suit))

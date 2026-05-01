@@ -1,4 +1,5 @@
 import { getUtcDateKey } from '../utils/dailyUtc';
+import dawnCabinetSchedule from './dawnCabinetSchedule.json';
 
 export type DawnCabinetSuit =
   | 'bamboo'
@@ -28,6 +29,45 @@ export type DawnCabinetSetKind =
   | 'flush'
   | 'number';
 export type DawnCabinetLineGoal = DawnCabinetSetKind | 'hidden';
+export type DawnCabinetMacroFamily =
+  | 'easyPractice'
+  | 'splitHinge'
+  | 'cornerExchange'
+  | 'threePocket'
+  | 'shortBasin'
+  | 'braidedReservoir'
+  | 'mirrorTrap'
+  | 'offsetBridge'
+  | 'reserveFork'
+  | 'ringCabinet'
+  | 'fiveDistrict'
+  | 'doubleBasin'
+  | 'brokenSpine'
+  | 'lanternWeb';
+export type DawnCabinetExposureProfile =
+  | 'friendlyStart'
+  | 'ledgerFirst'
+  | 'reserveFirst'
+  | 'dawnFork'
+  | 'copyPressure'
+  | 'bridgeRead';
+export type DawnCabinetOpeningClueStyle =
+  | 'friendlyStart'
+  | 'ledgerFirst'
+  | 'reserveFirst'
+  | 'dawnFork'
+  | 'copyPressure'
+  | 'bridgeRead';
+export type DawnCabinetDawnPressure = 'none' | 'gentle' | 'fork' | 'hinge' | 'crossroad';
+export type DawnCabinetReservePressure = 'none' | 'light' | 'strict' | 'setGoal' | 'wideReserve';
+export type DawnCabinetSolvePosture =
+  | 'lineReading'
+  | 'ledgerCounting'
+  | 'reserveAccounting'
+  | 'dawnPivot'
+  | 'copyCounting'
+  | 'bridgeMapping';
+export type DawnCabinetSilhouetteClass = 'compact' | 'split' | 'stepped' | 'basin' | 'spine' | 'web';
 
 export interface DawnCabinetTile {
   suit: DawnCabinetSuit;
@@ -75,7 +115,25 @@ export interface DawnCabinetDifficultyRating {
   dawnRailTouchCount: number;
   dawnHiddenRailTouchCount: number;
   dawnAmbiguityScore: number;
+  dawnQualityScore: number;
+  visibleRailSpreadScore: number;
+  playProfileKey?: string;
   score: number;
+}
+
+export interface DawnCabinetPlayProfile {
+  key: string;
+  macroFamily: DawnCabinetMacroFamily;
+  exposureProfile: DawnCabinetExposureProfile;
+  motifProfile: string;
+  visibleRailTypeMix: string;
+  hiddenLedgerMix: string;
+  openingClueStyle: DawnCabinetOpeningClueStyle;
+  dawnPressure: DawnCabinetDawnPressure;
+  reservePressure: DawnCabinetReservePressure;
+  solvePosture: DawnCabinetSolvePosture;
+  silhouetteClass: DawnCabinetSilhouetteClass;
+  countProfile: string;
 }
 
 export interface DawnCabinetShareTextOptions {
@@ -113,9 +171,14 @@ export interface DawnCabinetPuzzle {
   bankGoal?: DawnCabinetBankGoal;
   solution: Record<string, DawnCabinetTile>;
   bank: DawnCabinetTile[];
+  reserveTiles: DawnCabinetTile[];
   spareCount: number;
   dawnTile?: DawnCabinetDawnTile;
   motifs: string[];
+  macroFamily?: DawnCabinetMacroFamily;
+  exposureProfile?: DawnCabinetExposureProfile;
+  playProfile?: DawnCabinetPlayProfile;
+  qualityFlags?: string[];
   shapeSignature: string;
   compositeSignature: string;
 }
@@ -213,11 +276,61 @@ const THREE_TILE_SET_KINDS: DawnCabinetSetKind[] = [
 const CANDIDATE_CACHE = new Map<string, DawnCabinetPuzzle[]>();
 const SELECTED_CANDIDATE_CACHE = new Map<string, DawnCabinetPuzzle>();
 const MAX_CANDIDATE_CACHE_SIZE = 360;
+const STANDARD_MACRO_FAMILIES: DawnCabinetMacroFamily[] = [
+  'splitHinge',
+  'cornerExchange',
+  'threePocket',
+  'shortBasin',
+];
+const HARD_MACRO_FAMILIES: DawnCabinetMacroFamily[] = [
+  'braidedReservoir',
+  'mirrorTrap',
+  'offsetBridge',
+  'reserveFork',
+];
+const EXPERT_MACRO_FAMILIES: DawnCabinetMacroFamily[] = [
+  'ringCabinet',
+  'fiveDistrict',
+  'doubleBasin',
+  'brokenSpine',
+  'lanternWeb',
+];
+const EXPOSURE_PROFILES: DawnCabinetExposureProfile[] = [
+  'friendlyStart',
+  'ledgerFirst',
+  'reserveFirst',
+  'dawnFork',
+  'copyPressure',
+  'bridgeRead',
+];
 export const DAWN_CABINET_DAILY_DIFFICULTIES: DawnCabinetDailyDifficulty[] = [
   'Standard',
   'Hard',
   'Expert',
 ];
+export const DAWN_CABINET_SCHEDULE_START = '2026-05-15';
+export const DAWN_CABINET_SCHEDULE_DAYS = 365;
+
+type DawnCabinetSchedulePuzzleEntry = {
+  id: string;
+  variant: number;
+};
+
+type DawnCabinetScheduleEntry = {
+  date: string;
+  puzzles: Record<DawnCabinetDailyDifficulty, DawnCabinetSchedulePuzzleEntry>;
+};
+
+type DawnCabinetSchedule = {
+  start: string;
+  days: number;
+  entries: DawnCabinetScheduleEntry[];
+};
+
+const DAWN_CABINET_SCHEDULE = dawnCabinetSchedule as DawnCabinetSchedule;
+const DAWN_CABINET_SCHEDULE_BY_DATE = new Map(
+  DAWN_CABINET_SCHEDULE.entries.map((entry) => [entry.date, entry])
+);
 
 export function cellKey(row: number, col: number): string {
   return `${row}:${col}`;
@@ -489,6 +602,8 @@ export function rateDawnCabinetPuzzle(puzzle: DawnCabinetPuzzle): DawnCabinetDif
   const dawnHiddenRailTouchCount = getDawnHiddenRailTouchCount(puzzle);
   const dawnOptionCount = puzzle.dawnTile?.options.length ?? 0;
   const dawnAmbiguityScore = Math.max(0, dawnOptionCount - 1) + Math.max(0, dawnRailTouchCount - 1);
+  const dawnQualityScore = getDawnQualityScore(puzzle);
+  const visibleRailSpreadScore = getVisibleRailSpreadScore(puzzle);
   const score =
     blanks * 10 +
     hiddenRails * 7 +
@@ -499,7 +614,9 @@ export function rateDawnCabinetPuzzle(puzzle: DawnCabinetPuzzle): DawnCabinetDif
     branchCount * 2 +
     puzzle.motifs.length * 4 +
     dawnOptionCount * 12 +
-    dawnRailTouchCount * 6;
+    dawnRailTouchCount * 6 +
+    dawnQualityScore * 4 +
+    visibleRailSpreadScore * 3;
 
   return {
     blanks,
@@ -518,6 +635,9 @@ export function rateDawnCabinetPuzzle(puzzle: DawnCabinetPuzzle): DawnCabinetDif
     dawnRailTouchCount,
     dawnHiddenRailTouchCount,
     dawnAmbiguityScore,
+    dawnQualityScore,
+    visibleRailSpreadScore,
+    playProfileKey: puzzle.playProfile?.key,
     score,
   };
 }
@@ -557,6 +677,43 @@ function getDawnHiddenRailTouchCount(puzzle: DawnCabinetPuzzle): number {
   if (!puzzle.dawnTile) return 0;
   return (getLinesByCell(puzzle)[puzzle.dawnTile.solutionCell] ?? [])
     .filter((line) => line.goal === 'hidden').length;
+}
+
+function getDawnQualityScore(puzzle: DawnCabinetPuzzle): number {
+  if (!puzzle.dawnTile) return 0;
+  const touchCount = getDawnRailTouchCount(puzzle);
+  const hiddenTouchCount = getDawnHiddenRailTouchCount(puzzle);
+  const linesByCell = getLinesByCell(puzzle);
+  const dawnLines = linesByCell[puzzle.dawnTile.solutionCell] ?? [];
+  const visibleKinds = new Set(
+    dawnLines
+      .filter((line) => line.goal !== 'hidden')
+      .map((line) => line.goal)
+  );
+  const hiddenBonus = Math.min(2, hiddenTouchCount) * 2;
+  const visibilityBonus = visibleKinds.size;
+  const optionBonus = Math.max(0, puzzle.dawnTile.options.length - 2);
+  const reserveBonus = puzzle.spareCount > 1 ? 1 : 0;
+  return touchCount * 2 + hiddenBonus + visibilityBonus + optionBonus + reserveBonus;
+}
+
+function getVisibleRailSpreadScore(puzzle: DawnCabinetPuzzle): number {
+  const visibleLines = puzzle.lines.filter((line) => line.goal !== 'hidden');
+  if (visibleLines.length === 0) return 0;
+  const visibleKinds = new Set(visibleLines.map((line) => line.goal)).size;
+  const rows = new Set<number>();
+  const cols = new Set<number>();
+  visibleLines.forEach((line) => {
+    line.cells.forEach((cell) => {
+      const [row, col] = cell.split(':').map(Number);
+      rows.add(row);
+      cols.add(col);
+    });
+  });
+  const rowSpread = Math.min(4, rows.size);
+  const colSpread = Math.min(4, cols.size);
+  const bunchPenalty = visibleLines.length > 0 && rowSpread <= 2 && colSpread <= 2 ? 2 : 0;
+  return visibleKinds * 2 + rowSpread + colSpread - bunchPenalty;
 }
 
 function estimateBranchCount(puzzle: DawnCabinetPuzzle): number {
@@ -607,6 +764,16 @@ export function getDailyDawnCabinet(
   difficulty: DawnCabinetDailyDifficulty = 'Standard'
 ): DawnCabinetPuzzle {
   const seed = stableSeed(`${date}:${difficulty}:daily`);
+  const scheduled = getScheduledDawnCabinet(date, difficulty, seed);
+  if (scheduled) return scheduled;
+  return getDawnCabinetByDifficulty(date, difficulty, seed);
+}
+
+export function getGeneratedDailyDawnCabinet(
+  date = getUtcDateKey(new Date()),
+  difficulty: DawnCabinetDailyDifficulty = 'Standard'
+): DawnCabinetPuzzle {
+  const seed = stableSeed(`${date}:${difficulty}:daily`);
   return getDawnCabinetByDifficulty(date, difficulty, seed);
 }
 
@@ -617,21 +784,31 @@ export function getDemoDawnCabinet(
   return getDawnCabinetByDifficulty(date, difficulty, stableSeed(`${date}:${difficulty}:demo`));
 }
 
+function getScheduledDawnCabinet(
+  date: string,
+  difficulty: DawnCabinetDailyDifficulty,
+  seed: bigint
+): DawnCabinetPuzzle | undefined {
+  const entry = DAWN_CABINET_SCHEDULE_BY_DATE.get(date)?.puzzles[difficulty];
+  if (!entry) return undefined;
+  return makePuzzleVariant(date, difficulty, seed, entry.variant);
+}
+
 function getDawnCabinetByDifficulty(
   date: string,
   difficulty: DawnCabinetDifficulty,
   seed: bigint
 ): DawnCabinetPuzzle {
-  const candidates = getCandidateSet(date, difficulty, seed);
-  if (difficulty === 'Easy') return candidates[0];
-  return selectAntiFingerprintCandidate(date, difficulty, seed, candidates);
+  const variants = makeVariantNumbers(difficulty, seed);
+  if (difficulty === 'Easy') return makePuzzleVariant(date, difficulty, seed, variants[0]);
+  return selectAntiFingerprintVariant(date, difficulty, seed, variants);
 }
 
-function selectAntiFingerprintCandidate(
+function selectAntiFingerprintVariant(
   date: string,
   difficulty: DawnCabinetDifficulty,
   seed: bigint,
-  candidates: DawnCabinetPuzzle[]
+  variants: number[]
 ): DawnCabinetPuzzle {
   const cacheKey = selectedCandidateCacheKey(date, difficulty, seed);
   const cached = SELECTED_CANDIDATE_CACHE.get(cacheKey);
@@ -640,15 +817,61 @@ function selectAntiFingerprintCandidate(
   const dayIndex = getUtcDayIndex(date);
   const dateOffset = Number.isNaN(dayIndex) ? 0 : dayIndex;
   const recent = getCachedRecentCompositeSignatures(date, difficulty);
-  const offset = Number((seed + BigInt(dateOffset)) % BigInt(candidates.length));
-  const ordered = [...candidates.slice(offset), ...candidates.slice(0, offset)];
+  const recentProfiles = getCachedRecentPlayProfileKeys(date, difficulty);
+  const offset = Number((seed + BigInt(dateOffset)) % BigInt(variants.length));
+  const ordered = [...variants.slice(offset), ...variants.slice(0, offset)];
+  let best: { candidate: DawnCabinetPuzzle; score: number } | undefined;
+  let bestFreshComposite: DawnCabinetPuzzle | undefined;
+  let bestSelectable: DawnCabinetPuzzle | undefined;
+
+  for (const [index, variant] of ordered.entries()) {
+    const candidate = makePuzzleVariant(date, difficulty, seed, variant);
+    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles);
+    const selectable = isSelectableDawnCandidate(candidate);
+    if (!best || score > best.score) best = { candidate, score };
+    if (!bestFreshComposite && !recent.has(candidate.compositeSignature)) bestFreshComposite = candidate;
+    if (!bestSelectable && selectable) bestSelectable = candidate;
+
+    const strongFreshCandidate =
+      !recent.has(candidate.compositeSignature) &&
+      !recentProfiles.has(candidate.playProfile?.key ?? '') &&
+      selectable &&
+      meetsDawnQualityTarget(candidate);
+    const acceptableFreshCandidate =
+      !recent.has(candidate.compositeSignature) &&
+      selectable &&
+      meetsDawnQualityTarget(candidate);
+    if (
+      strongFreshCandidate &&
+      countCabinetSolutions(candidate, 2) === 1
+    ) {
+      SELECTED_CANDIDATE_CACHE.set(cacheKey, candidate);
+      return candidate;
+    }
+
+    if (
+      index >= getMinimumCandidateScanCount(difficulty) &&
+      acceptableFreshCandidate &&
+      countCabinetSolutions(candidate, 2) === 1
+    ) {
+      SELECTED_CANDIDATE_CACHE.set(cacheKey, candidate);
+      return candidate;
+    }
+  }
+
   const selected =
-    ordered.find((candidate) => !recent.has(candidate.compositeSignature) && isSelectableDawnCandidate(candidate)) ??
-    ordered.find(isSelectableDawnCandidate) ??
-    ordered.find((candidate) => !recent.has(candidate.compositeSignature)) ??
-    ordered[0];
+    bestSelectable ??
+    bestFreshComposite ??
+    best?.candidate ??
+    makePuzzleVariant(date, difficulty, seed, ordered[0]);
   SELECTED_CANDIDATE_CACHE.set(cacheKey, selected);
   return selected;
+}
+
+function getMinimumCandidateScanCount(difficulty: DawnCabinetDifficulty): number {
+  if (difficulty === 'Expert') return 40;
+  if (difficulty === 'Hard') return 28;
+  return 18;
 }
 
 function selectedCandidateCacheKey(
@@ -672,12 +895,52 @@ function getCachedRecentCompositeSignatures(date: string, difficulty: DawnCabine
   return recent;
 }
 
+function getCachedRecentPlayProfileKeys(date: string, difficulty: DawnCabinetDifficulty): Set<string> {
+  const recent = new Set<string>();
+  const dateIndex = getUtcDayIndex(date);
+  if (Number.isNaN(dateIndex)) return recent;
+  for (let dayIndex = dateIndex - 21; dayIndex < dateIndex; dayIndex += 1) {
+    const currentDate = utcDateFromDayIndex(dayIndex);
+    const currentSeed = stableSeed(`${currentDate}:${difficulty}:daily`);
+    const selected = SELECTED_CANDIDATE_CACHE.get(selectedCandidateCacheKey(currentDate, difficulty, currentSeed));
+    if (selected?.playProfile?.key) recent.add(selected.playProfile.key);
+  }
+  return recent;
+}
+
+function getCandidateFreshnessScore(
+  candidate: DawnCabinetPuzzle,
+  recentCompositeSignatures: Set<string>,
+  recentPlayProfileKeys: Set<string>
+): number {
+  const compositeFresh = recentCompositeSignatures.has(candidate.compositeSignature) ? -1_000 : 200;
+  const postureFresh = recentPlayProfileKeys.has(candidate.playProfile?.key ?? '') ? -250 : 120;
+  const dawnQuality = getDawnQualityScore(candidate) * 12;
+  const visibleSpread = getVisibleRailSpreadScore(candidate) * 8;
+  const connectedBonus = isBoardConnected(candidate) ? 50 : -500;
+  const widthBonus = candidate.columns <= 7 ? 30 : -500;
+  const motifBonus = new Set(candidate.motifs).size * 3;
+  return compositeFresh + postureFresh + dawnQuality + visibleSpread + connectedBonus + widthBonus + motifBonus;
+}
+
 function isSelectableDawnCandidate(candidate: DawnCabinetPuzzle): boolean {
   const dawnTile = candidate.dawnTile;
   if (!dawnTile) return true;
   return dawnTile.options.some((tile) => tileKey(tile) === tileKey(dawnTile.resolvedTile)) &&
     getDawnRailTouchCount(candidate) >= 2 &&
     getDawnHiddenRailTouchCount(candidate) >= 1;
+}
+
+function meetsDawnQualityTarget(candidate: DawnCabinetPuzzle): boolean {
+  if (!candidate.dawnTile) return true;
+  return getDawnQualityScore(candidate) >= getDawnQualityTarget(candidate.difficulty);
+}
+
+function getDawnQualityTarget(difficulty: DawnCabinetDifficulty): number {
+  if (difficulty === 'Expert') return 10;
+  if (difficulty === 'Hard') return 8;
+  if (difficulty === 'Standard') return 6;
+  return 0;
 }
 
 function getCandidateSet(
@@ -806,62 +1069,84 @@ function makeCandidates(
   difficulty: DawnCabinetDifficulty,
   seed: bigint
 ): DawnCabinetPuzzle[] {
+  return makeVariantNumbers(difficulty, seed).map((variant) => makePuzzleVariant(date, difficulty, seed, variant));
+}
+
+function makeVariantNumbers(difficulty: DawnCabinetDifficulty, seed: bigint): number[] {
+  const variantCount = difficulty === 'Expert' ? 180 : difficulty === 'Hard' ? 120 : difficulty === 'Standard' ? 96 : 1;
+  return Array.from({ length: variantCount }, (_, index) =>
+    Number((seed + BigInt(index) * 104_729n) % 10_000n)
+  );
+}
+
+function makePuzzleVariant(
+  date: string,
+  difficulty: DawnCabinetDifficulty,
+  seed: bigint,
+  variant: number
+): DawnCabinetPuzzle {
   const twoSuits = pickSuits(seed, 2);
   const threeSuits = pickSuits(seed, 3);
   const fourSuits = pickSuits(seed, 4);
   const fiveSuits = pickSuits(seed, 5);
   const baseRank = 1 + Number((seed >> 5n) % 3n);
-  const variantCount = difficulty === 'Expert' ? 120 : 72;
-  const variants = Array.from({ length: variantCount }, (_, index) =>
-    Number((seed + BigInt(index) * 104_729n) % 10_000n)
-  );
-
   switch (difficulty) {
     case 'Easy':
-      return [
-        makeEasyPuzzle({
-          id: `dawn-cabinet-${date}-easy-a`,
-          date,
-          difficulty,
-          suits: twoSuits,
-          baseRank,
-          variant: variants[0],
-        }),
-      ];
+      return makeEasyPuzzle({
+        id: `dawn-cabinet-${date}-easy-a`,
+        date,
+        difficulty,
+        suits: twoSuits,
+        baseRank,
+        variant,
+      });
     case 'Standard':
-      return variants.map((variant) =>
-        makeStandardPuzzle({
-          id: `dawn-cabinet-${date}-standard-${variant}`,
-          date,
-          difficulty,
-          suits: threeSuits,
-          baseRank,
-          variant,
-        })
-      );
+      return makeStandardPuzzle({
+        id: `dawn-cabinet-${date}-standard-${variant}`,
+        date,
+        difficulty,
+        suits: threeSuits,
+        baseRank,
+        variant,
+      });
     case 'Hard':
-      return variants.map((variant) =>
-        makeHardPuzzle({
-          id: `dawn-cabinet-${date}-hard-${variant}`,
-          date,
-          difficulty,
-          suits: fourSuits,
-          baseRank,
-          variant,
-        })
-      );
+      return makeHardPuzzle({
+        id: `dawn-cabinet-${date}-hard-${variant}`,
+        date,
+        difficulty,
+        suits: fourSuits,
+        baseRank,
+        variant,
+      });
     case 'Expert':
-      return variants.map((variant) =>
-        makeExpertPuzzle({
-          id: `dawn-cabinet-${date}-expert-${variant}`,
-          date,
-          difficulty,
-          suits: fiveSuits,
-          baseRank,
-          variant,
-        })
-      );
+      return makeExpertPuzzle({
+        id: `dawn-cabinet-${date}-expert-${variant}`,
+        date,
+        difficulty,
+        suits: fiveSuits,
+        baseRank,
+        variant,
+      });
   }
+}
+
+function getMacroFamily(
+  difficulty: DawnCabinetDifficulty,
+  variant: number
+): DawnCabinetMacroFamily {
+  if (difficulty === 'Easy') return 'easyPractice';
+  const families =
+    difficulty === 'Standard'
+      ? STANDARD_MACRO_FAMILIES
+      : difficulty === 'Hard'
+        ? HARD_MACRO_FAMILIES
+        : EXPERT_MACRO_FAMILIES;
+  const index = Math.abs(variant + Math.floor(variant / 7)) % families.length;
+  return families[index];
+}
+
+function getExposureProfile(variant: number): DawnCabinetExposureProfile {
+  return EXPOSURE_PROFILES[Math.abs(variant + Math.floor(variant / 13)) % EXPOSURE_PROFILES.length];
 }
 
 function makeEasyPuzzle(config: {
@@ -913,6 +1198,9 @@ function makeEasyPuzzle(config: {
     columns: 5,
     spares: [],
     ledger: { run: 2, match: 1 },
+    motifs: ['easy-practice'],
+    macroFamily: 'easyPractice',
+    exposureProfile: 'friendlyStart',
     ...draft,
   });
 }
@@ -928,7 +1216,9 @@ function makeStandardPuzzle(config: {
   const [a, b, c] = config.suits;
   const r = config.baseRank;
   const draft = createDraft();
-  const motifs = ['weave', 'weave'];
+  const macroFamily = getMacroFamily(config.difficulty, config.variant);
+  const exposureProfile = getExposureProfile(config.variant);
+  const motifs = ['weave', 'weave', macroFamily];
   const columnLayouts = [[0, 4], [0, 3], [1, 4]] as const;
   const [leftCol, rightCol] = columnLayouts[config.variant % columnLayouts.length];
   const leftRow = Math.floor(config.variant / 3) % 4;
@@ -1034,7 +1324,8 @@ function makeStandardPuzzle(config: {
       col: config.variant % 4 === 0 ? 0 : 2,
     });
   }
-  applyRailExposureProfile(draft, config.difficulty, config.variant);
+  applyMacroFamilyVariation(draft, config.difficulty, macroFamily, config.variant, motifs);
+  applyRailExposureProfile(draft, config.difficulty, config.variant, exposureProfile);
   const reserveCount = config.variant % 5 === 0 ? 2 : 1;
   const spares = makeArbitraryReserveTiles(config.suits, r, reserveCount, config.variant);
 
@@ -1047,8 +1338,16 @@ function makeStandardPuzzle(config: {
     columns: 7,
     spares,
     motifs,
+    macroFamily,
+    exposureProfile,
     ...draft,
-  }), 3, config.variant, true);
+  }), {
+    optionCount: 3,
+    variant: config.variant,
+    allowDuplicateResolvedTile: true,
+    preferredLineCount: config.variant % 4 === 0 ? 3 : 2,
+    minLineCount: 2,
+  });
 }
 
 function makeHardPuzzle(config: {
@@ -1062,7 +1361,9 @@ function makeHardPuzzle(config: {
   const [a, b, c, d] = config.suits;
   const r = config.baseRank;
   const draft = createDraft();
-  const motifs = ['weave', 'weave', 'number-bridge', 'flush-pocket'];
+  const macroFamily = getMacroFamily(config.difficulty, config.variant);
+  const exposureProfile = getExposureProfile(config.variant);
+  const motifs = ['weave', 'weave', 'number-bridge', 'flush-pocket', macroFamily];
   const columnLayouts = [[0, 4], [0, 3], [1, 4]] as const;
   const [leftCol, rightCol] = columnLayouts[config.variant % columnLayouts.length];
   const leftRow = Math.floor(config.variant / 3) % 4;
@@ -1147,7 +1448,8 @@ function makeHardPuzzle(config: {
       col: config.variant % 2 === 0 ? 0 : 2,
     });
   }
-  applyRailExposureProfile(draft, config.difficulty, config.variant);
+  applyMacroFamilyVariation(draft, config.difficulty, macroFamily, config.variant, motifs);
+  applyRailExposureProfile(draft, config.difficulty, config.variant, exposureProfile);
 
   const reserveCount = 2 + (config.variant % 3);
   const bankGoalType = reserveCount === 2 ? 'pair' : getThreeTileBankGoal(config.id, r, a, false);
@@ -1165,8 +1467,15 @@ function makeHardPuzzle(config: {
     spares,
     bankGoal: reserveCount === 4 ? undefined : { type: bankGoalType },
     motifs,
+    macroFamily,
+    exposureProfile,
     ...draft,
-  }), 3, config.variant);
+  }), {
+    optionCount: 3,
+    variant: config.variant,
+    preferredLineCount: 3,
+    minLineCount: 3,
+  });
 }
 
 function makeExpertPuzzle(config: {
@@ -1180,7 +1489,9 @@ function makeExpertPuzzle(config: {
   const [a, b, c, d, e] = config.suits;
   const r = config.baseRank;
   const draft = createDraft();
-  const motifs = ['weave', 'weave', 'weave', 'weave', 'number-bridge', 'flush-pocket'];
+  const macroFamily = getMacroFamily(config.difficulty, config.variant);
+  const exposureProfile = getExposureProfile(config.variant);
+  const motifs = ['weave', 'weave', 'weave', 'weave', 'number-bridge', 'flush-pocket', macroFamily];
   const columnLayouts = [[0, 4], [0, 3], [1, 4]] as const;
   const [leftCol, rightCol] = columnLayouts[config.variant % columnLayouts.length];
   const topStagger = config.variant % 3;
@@ -1305,7 +1616,8 @@ function makeExpertPuzzle(config: {
       col: 0,
     });
   }
-  applyRailExposureProfile(draft, config.difficulty, config.variant);
+  applyMacroFamilyVariation(draft, config.difficulty, macroFamily, config.variant, motifs);
+  applyRailExposureProfile(draft, config.difficulty, config.variant, exposureProfile);
 
   const reserveCount = 3;
   const bankGoalType = reserveCount === 3 ? getThreeTileBankGoal(config.date, r, a, true) : undefined;
@@ -1323,8 +1635,15 @@ function makeExpertPuzzle(config: {
     spares,
     bankGoal: bankGoalType ? { type: bankGoalType } : undefined,
     motifs,
+    macroFamily,
+    exposureProfile,
     ...draft,
-  }), 4, config.variant);
+  }), {
+    optionCount: 4,
+    variant: config.variant,
+    preferredLineCount: config.variant % 5 === 0 ? 4 : 3,
+    minLineCount: 3,
+  });
 }
 
 function getStandardWeaveMask(variant: number): WeaveCellName[] {
@@ -1896,12 +2215,20 @@ function addCopyBlock(
 
 function addDawnTileToPuzzle(
   puzzle: DawnCabinetPuzzle,
-  optionCount: 3 | 4,
-  variant: number,
-  allowDuplicateResolvedTile = false
+  config: {
+    optionCount: 3 | 4;
+    variant: number;
+    allowDuplicateResolvedTile?: boolean;
+    preferredLineCount?: number;
+    minLineCount?: number;
+  }
 ): DawnCabinetPuzzle {
   const linesByCell = getLinesByCell(puzzle);
   const bankCounts = countTiles(puzzle.bank);
+  const reserveCounts = countTiles(puzzle.reserveTiles);
+  const minLineCount = config.minLineCount ?? 2;
+  const preferredLineCount = config.preferredLineCount ?? minLineCount;
+  const allowDuplicateResolvedTile = config.allowDuplicateResolvedTile ?? false;
   const blankCells = puzzle.cells
     .map((cell) => cellKey(cell.row, cell.col))
     .filter((cell) => !puzzle.givens[cell]);
@@ -1913,11 +2240,24 @@ function addDawnTileToPuzzle(
       return { cell, tile, lineCount: lines.length, hiddenCount };
     })
     .filter(({ tile, lineCount, hiddenCount }) => {
-      return tile && lineCount >= 2 && hiddenCount >= 1;
+      return tile && lineCount >= minLineCount && hiddenCount >= 1 && !reserveCounts[tileKey(tile)];
     });
-  const uniqueCandidates = baseCandidates.filter(({ tile }) => tile && bankCounts[tileKey(tile)] === 1);
-  const candidates = (uniqueCandidates.length > 0 || !allowDuplicateResolvedTile ? uniqueCandidates : baseCandidates)
+  const relaxedCandidates = minLineCount > 2 && baseCandidates.length === 0
+    ? blankCells
+      .map((cell) => {
+        const lines = linesByCell[cell] ?? [];
+        const hiddenCount = lines.filter((line) => line.goal === 'hidden').length;
+        const tile = puzzle.solution[cell];
+        return { cell, tile, lineCount: lines.length, hiddenCount };
+      })
+      .filter(({ tile, lineCount, hiddenCount }) =>
+        tile && lineCount >= 2 && hiddenCount >= 1 && !reserveCounts[tileKey(tile)]
+      )
+    : baseCandidates;
+  const uniqueCandidates = relaxedCandidates.filter(({ tile }) => tile && bankCounts[tileKey(tile)] === 1);
+  const candidates = (uniqueCandidates.length > 0 ? uniqueCandidates : allowDuplicateResolvedTile ? relaxedCandidates : relaxedCandidates)
     .sort((left, right) =>
+      Math.abs(preferredLineCount - left.lineCount) - Math.abs(preferredLineCount - right.lineCount) ||
       right.hiddenCount - left.hiddenCount ||
       right.lineCount - left.lineCount ||
       tileKey(left.tile).localeCompare(tileKey(right.tile)) ||
@@ -1926,27 +2266,32 @@ function addDawnTileToPuzzle(
 
   if (candidates.length === 0) return puzzle;
 
-  const offset = Math.abs(variant) % candidates.length;
-  const ordered = [...candidates.slice(offset), ...candidates.slice(0, offset)];
+  const dawnChoicePool = candidates.slice(0, Math.min(candidates.length, 8));
+  const offset = Math.abs(config.variant) % dawnChoicePool.length;
+  const ordered = [...dawnChoicePool.slice(offset), ...dawnChoicePool.slice(0, offset)];
   const chosen = ordered[0];
-  const options = makeDawnOptions(puzzle, chosen.cell, chosen.tile, optionCount, variant);
+  const options = makeDawnOptions(puzzle, chosen.cell, chosen.tile, config.optionCount, config.variant);
   const dawnTile: DawnCabinetDawnTile = {
     id: `${puzzle.id}-dawn`,
     solutionCell: chosen.cell,
     resolvedTile: chosen.tile,
     options,
   };
-  const bank = removeOneTile(puzzle.bank, chosen.tile).sort(compareTiles);
+  const reserveTiles = puzzle.reserveTiles;
+  const bank = [
+    ...puzzle.cells
+      .map((cell) => cellKey(cell.row, cell.col))
+      .filter((cell) => cell !== chosen.cell && !puzzle.givens[cell])
+      .map((cell) => puzzle.solution[cell]),
+    ...reserveTiles,
+  ].sort(compareTiles);
   const next = {
     ...puzzle,
     bank,
     dawnTile,
     motifs: [...puzzle.motifs, 'dawn-tile'],
   };
-  return {
-    ...next,
-    compositeSignature: makeCompositeSignature(next),
-  };
+  return finalizePuzzleMetadata(next);
 }
 
 function makeDawnOptions(
@@ -2054,6 +2399,9 @@ function makePuzzle(config: {
   ledger?: DawnCabinetLedger;
   bankGoal?: DawnCabinetBankGoal;
   motifs?: string[];
+  macroFamily?: DawnCabinetMacroFamily;
+  exposureProfile?: DawnCabinetExposureProfile;
+  qualityFlags?: string[];
   shapeSignature?: string;
   compositeSignature?: string;
 }): DawnCabinetPuzzle {
@@ -2091,15 +2439,202 @@ function makePuzzle(config: {
     bankGoal: config.bankGoal,
     solution: config.solution,
     bank,
+    reserveTiles: [...config.spares].sort(compareTiles),
     spareCount: config.spares.length,
     motifs: config.motifs ?? [],
+    macroFamily: config.macroFamily,
+    exposureProfile: config.exposureProfile,
+    qualityFlags: config.qualityFlags ?? [],
     shapeSignature,
+    compositeSignature: config.compositeSignature ?? '',
   };
 
-  return {
-    ...basePuzzle,
-    compositeSignature: config.compositeSignature ?? makeCompositeSignature(basePuzzle),
+  return finalizePuzzleMetadata(basePuzzle);
+}
+
+function finalizePuzzleMetadata(puzzle: DawnCabinetPuzzle): DawnCabinetPuzzle {
+  const qualityFlags = makeQualityFlags(puzzle);
+  const playProfile = makePlayProfile({ ...puzzle, qualityFlags });
+  const next = {
+    ...puzzle,
+    playProfile,
+    qualityFlags,
   };
+  return {
+    ...next,
+    compositeSignature: makeCompositeSignature(next),
+  };
+}
+
+function makeQualityFlags(puzzle: DawnCabinetPuzzle): string[] {
+  const flags: string[] = [];
+  if (puzzle.columns <= 7) flags.push('mobile-safe-width');
+  if (isBoardConnected(puzzle)) flags.push('connected-board');
+  if (getVisibleRailSpreadScore(puzzle) >= 8) flags.push('spread-visible-rails');
+  if (getDawnQualityScore(puzzle) >= getDawnQualityTarget(puzzle.difficulty)) flags.push('strong-dawn');
+  if ((puzzle.playProfile?.reservePressure ?? getReservePressure(puzzle)) !== 'none') flags.push('reserve-pressure');
+  return flags;
+}
+
+function makePlayProfile(puzzle: DawnCabinetPuzzle): DawnCabinetPlayProfile {
+  const macroFamily = puzzle.macroFamily ?? (puzzle.difficulty === 'Easy' ? 'easyPractice' : getMacroFamily(puzzle.difficulty, 0));
+  const exposureProfile = puzzle.exposureProfile ?? 'friendlyStart';
+  const visibleRailTypeMix = summarizeCounts(
+    puzzle.lines
+      .filter((line) => line.goal !== 'hidden')
+      .map((line) => line.goal)
+  );
+  const hiddenLedgerMix = summarizeLedger(puzzle.ledger);
+  const motifProfile = summarizeCounts(puzzle.motifs);
+  const openingClueStyle = getOpeningClueStyle(puzzle, exposureProfile);
+  const dawnPressure = getDawnPressure(puzzle);
+  const reservePressure = getReservePressure(puzzle);
+  const solvePosture = getSolvePosture(puzzle, exposureProfile, dawnPressure, reservePressure);
+  const silhouetteClass = getSilhouetteClass(puzzle, macroFamily);
+  const blanks = puzzle.cells.length - Object.keys(puzzle.givens).length;
+  const hidden = puzzle.lines.filter((line) => line.goal === 'hidden').length;
+  const visibleKinds = new Set(puzzle.lines.filter((line) => line.goal !== 'hidden').map((line) => line.goal)).size;
+  const countProfile = `${blanks}b/${puzzle.lines.length}r/${hidden}h/${puzzle.spareCount}s/${visibleKinds}v`;
+  const key = [
+    macroFamily,
+    exposureProfile,
+    solvePosture,
+    openingClueStyle,
+    dawnPressure,
+    reservePressure,
+    silhouetteClass,
+    countProfile,
+    visibleRailTypeMix,
+    hiddenLedgerMix,
+  ].join('|');
+
+  return {
+    key,
+    macroFamily,
+    exposureProfile,
+    motifProfile,
+    visibleRailTypeMix,
+    hiddenLedgerMix,
+    openingClueStyle,
+    dawnPressure,
+    reservePressure,
+    solvePosture,
+    silhouetteClass,
+    countProfile,
+  };
+}
+
+function summarizeCounts(values: string[]): string {
+  const counts = values.reduce<Record<string, number>>((result, value) => {
+    result[value] = (result[value] ?? 0) + 1;
+    return result;
+  }, {});
+  return Object.entries(counts)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([value, count]) => `${value}:${count}`)
+    .join('.') || 'none';
+}
+
+function summarizeLedger(ledger?: DawnCabinetLedger): string {
+  return Object.entries(ledger ?? {})
+    .filter(([, count]) => (count ?? 0) > 0)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([kind, count]) => `${kind}:${count}`)
+    .join('.') || 'none';
+}
+
+function getOpeningClueStyle(
+  puzzle: DawnCabinetPuzzle,
+  exposureProfile: DawnCabinetExposureProfile
+): DawnCabinetOpeningClueStyle {
+  if (exposureProfile === 'dawnFork' && puzzle.dawnTile) return 'dawnFork';
+  if (exposureProfile === 'reserveFirst' && puzzle.spareCount > 1) return 'reserveFirst';
+  if (exposureProfile === 'copyPressure' && ((puzzle.ledger?.match ?? 0) + visibleLineCount(puzzle, 'match')) >= 2) {
+    return 'copyPressure';
+  }
+  if (exposureProfile === 'bridgeRead' && hasBridgeKind(puzzle)) return 'bridgeRead';
+  if (exposureProfile === 'ledgerFirst' || (puzzle.ledger && Object.keys(puzzle.ledger).length >= 4)) return 'ledgerFirst';
+  return 'friendlyStart';
+}
+
+function getDawnPressure(puzzle: DawnCabinetPuzzle): DawnCabinetDawnPressure {
+  if (!puzzle.dawnTile) return 'none';
+  const touchCount = getDawnRailTouchCount(puzzle);
+  const hiddenTouchCount = getDawnHiddenRailTouchCount(puzzle);
+  if (touchCount >= 4 && hiddenTouchCount >= 2) return 'crossroad';
+  if (touchCount >= 3 && hiddenTouchCount >= 1) return 'hinge';
+  if (touchCount >= 3) return 'fork';
+  return 'gentle';
+}
+
+function getReservePressure(puzzle: DawnCabinetPuzzle): DawnCabinetReservePressure {
+  if (puzzle.spareCount === 0) return 'none';
+  if (puzzle.bankGoal) return puzzle.spareCount >= 3 ? 'setGoal' : 'strict';
+  if (puzzle.spareCount >= 3) return 'wideReserve';
+  return 'light';
+}
+
+function getSolvePosture(
+  puzzle: DawnCabinetPuzzle,
+  exposureProfile: DawnCabinetExposureProfile,
+  dawnPressure: DawnCabinetDawnPressure,
+  reservePressure: DawnCabinetReservePressure
+): DawnCabinetSolvePosture {
+  if (exposureProfile === 'dawnFork' || dawnPressure === 'hinge' || dawnPressure === 'crossroad') return 'dawnPivot';
+  if (exposureProfile === 'reserveFirst' || reservePressure === 'strict' || reservePressure === 'setGoal') return 'reserveAccounting';
+  if (exposureProfile === 'copyPressure' || ((puzzle.ledger?.match ?? 0) + visibleLineCount(puzzle, 'match')) >= 3) return 'copyCounting';
+  if (exposureProfile === 'bridgeRead' || hasBridgeKind(puzzle)) return 'bridgeMapping';
+  if (exposureProfile === 'ledgerFirst' || Object.keys(puzzle.ledger ?? {}).length >= 4) return 'ledgerCounting';
+  return 'lineReading';
+}
+
+function getSilhouetteClass(
+  puzzle: DawnCabinetPuzzle,
+  macroFamily: DawnCabinetMacroFamily
+): DawnCabinetSilhouetteClass {
+  if (macroFamily === 'shortBasin' || macroFamily === 'doubleBasin') return 'basin';
+  if (macroFamily === 'brokenSpine') return 'spine';
+  if (macroFamily === 'ringCabinet' || macroFamily === 'lanternWeb') return 'web';
+  if (macroFamily === 'splitHinge' || macroFamily === 'fiveDistrict') return 'split';
+  if (puzzle.rows >= 16) return 'spine';
+  if (puzzle.rows >= 10) return 'stepped';
+  return 'compact';
+}
+
+function visibleLineCount(puzzle: DawnCabinetPuzzle, kind: DawnCabinetSetKind): number {
+  return puzzle.lines.filter((line) => line.goal === kind).length;
+}
+
+function hasBridgeKind(puzzle: DawnCabinetPuzzle): boolean {
+  return puzzle.lines.some((line) => ['mixedRun', 'gapRun', 'mixedGap', 'number'].includes(line.goal));
+}
+
+function isBoardConnected(puzzle: DawnCabinetPuzzle): boolean {
+  if (puzzle.cells.length <= 1) return true;
+  const allCells = new Set(puzzle.cells.map((cell) => cellKey(cell.row, cell.col)));
+  const adjacency = new Map<string, Set<string>>();
+  allCells.forEach((cell) => adjacency.set(cell, new Set()));
+  puzzle.lines.forEach((line) => {
+    line.cells.forEach((cell) => {
+      line.cells.forEach((other) => {
+        if (cell !== other && allCells.has(cell) && allCells.has(other)) {
+          adjacency.get(cell)?.add(other);
+        }
+      });
+    });
+  });
+  const [start] = allCells;
+  const stack = [start];
+  const seen = new Set<string>();
+  while (stack.length > 0) {
+    const cell = stack.pop();
+    if (!cell || seen.has(cell)) continue;
+    seen.add(cell);
+    adjacency.get(cell)?.forEach((next) => {
+      if (!seen.has(next)) stack.push(next);
+    });
+  }
+  return seen.size === allCells.size;
 }
 
 function makeLedgerForLines(
@@ -2164,6 +2699,9 @@ function makeCompositeSignature(puzzle: {
   spareCount: number;
   bankGoal?: DawnCabinetBankGoal;
   dawnTile?: DawnCabinetDawnTile;
+  macroFamily?: DawnCabinetMacroFamily;
+  exposureProfile?: DawnCabinetExposureProfile;
+  playProfile?: DawnCabinetPlayProfile;
 }): string {
   const shape = makeShapeSignature(puzzle.cells, puzzle.lines);
   const visibleGoals = puzzle.lines
@@ -2183,6 +2721,9 @@ function makeCompositeSignature(puzzle: {
     `hidden=${puzzle.lines.filter((line) => line.goal === 'hidden').length}`,
     `ledger=${Object.entries(hiddenKinds ?? {}).sort().map(([kind, count]) => `${kind}:${count}`).join('.')}`,
     `motifs=${motifProfile}`,
+    `macro=${puzzle.macroFamily ?? 'none'}`,
+    `exposure=${puzzle.exposureProfile ?? 'none'}`,
+    `posture=${puzzle.playProfile?.key ?? 'none'}`,
     `reserve=${reserveProfile}`,
     `dawn=${dawnProfile}`,
   ].join('|');
@@ -2236,21 +2777,184 @@ function setLineGoal(draft: PuzzleDraft, id: string, goal: DawnCabinetLineGoal) 
   draft.lines = draft.lines.map((line) => (line.id === id ? { ...line, goal } : line));
 }
 
-function applyRailExposureProfile(
+function applyMacroFamilyVariation(
   draft: PuzzleDraft,
   difficulty: DawnCabinetDifficulty,
-  variant: number
+  macroFamily: DawnCabinetMacroFamily,
+  variant: number,
+  motifs: string[]
 ) {
   if (difficulty === 'Easy') return;
 
-  const targetKindCount = difficulty === 'Standard' ? 2 : difficulty === 'Hard' ? 3 : 4;
-  const maxReveals = difficulty === 'Standard' ? 2 : difficulty === 'Hard' ? 3 : 4;
-  const priority: DawnCabinetSetKind[] =
-    difficulty === 'Standard'
-      ? ['run', 'flush', 'mixedRun', 'match']
-      : difficulty === 'Hard'
-        ? ['number', 'gapRun', 'mixedRun', 'flush', 'match', 'run']
-        : ['mixedGap', 'number', 'gapRun', 'mixedRun', 'flush', 'match', 'run'];
+  const addConnectors = (
+    idPrefix: string,
+    desiredKinds: DawnCabinetSetKind[],
+    count: number,
+    seedOffset = 0
+  ) => {
+    for (let index = 0; index < count; index += 1) {
+      const added = addGeneratedConnectorRail(draft, {
+        id: `${idPrefix}-${index}`,
+        desiredKinds,
+        difficulty,
+        variant: variant + seedOffset + index * 37,
+      });
+      if (added) motifs.push(`${idPrefix}-rail`);
+    }
+  };
+
+  switch (macroFamily) {
+    case 'splitHinge':
+      addConnectors('split-hinge', ['run', 'mixedRun', 'flush'], 1);
+      break;
+    case 'cornerExchange':
+      addConnectors('corner-exchange', ['match', 'flush', 'mixedRun'], 1, 11);
+      break;
+    case 'threePocket':
+      addConnectors('three-pocket', ['run', 'match', 'flush'], 1, 23);
+      break;
+    case 'shortBasin':
+      addConnectors('short-basin', ['flush', 'mixedRun', 'run'], 1, 31);
+      break;
+    case 'braidedReservoir':
+      addConnectors('braided-reservoir', ['number', 'mixedRun', 'flush', 'gapRun'], 2);
+      break;
+    case 'mirrorTrap':
+      addConnectors('mirror-trap', ['match', 'number', 'flush', 'gapRun'], 2, 17);
+      break;
+    case 'offsetBridge':
+      addConnectors('offset-bridge', ['mixedRun', 'number', 'gapRun', 'run'], 2, 29);
+      break;
+    case 'reserveFork':
+      addConnectors('reserve-fork', ['flush', 'number', 'match', 'mixedRun'], 1, 41);
+      break;
+    case 'ringCabinet':
+      addConnectors('ring-cabinet', ['mixedGap', 'number', 'mixedRun', 'gapRun'], 3);
+      break;
+    case 'fiveDistrict':
+      addConnectors('five-district', ['number', 'mixedRun', 'mixedGap', 'flush'], 2, 19);
+      break;
+    case 'doubleBasin':
+      addConnectors('double-basin', ['flush', 'gapRun', 'number', 'mixedGap'], 3, 43);
+      break;
+    case 'brokenSpine':
+      addConnectors('broken-spine', ['gapRun', 'mixedGap', 'mixedRun', 'number'], 2, 53);
+      break;
+    case 'lanternWeb':
+      addConnectors('lantern-web', ['mixedGap', 'number', 'gapRun', 'mixedRun'], 3, 61);
+      break;
+    case 'easyPractice':
+      break;
+  }
+}
+
+function addGeneratedConnectorRail(
+  draft: PuzzleDraft,
+  config: {
+    id: string;
+    desiredKinds: DawnCabinetSetKind[];
+    difficulty: DawnCabinetDifficulty;
+    variant: number;
+  }
+): boolean {
+  const allCells = Object.keys(draft.solution).sort(compareCellKeys);
+  const existingSets = new Set(
+    draft.lines.map((line) => normalizeRailCellSet(line.cells))
+  );
+  const lineCounts = draft.lines.reduce<Record<string, number>>((counts, line) => {
+    line.cells.forEach((cell) => {
+      counts[cell] = (counts[cell] ?? 0) + 1;
+    });
+    return counts;
+  }, {});
+  const cellLimit = config.difficulty === 'Expert' ? 12 : config.difficulty === 'Hard' ? 11 : 10;
+  const cells = allCells
+    .map((cell) => ({
+      cell,
+      score: (lineCounts[cell] ?? 0) * 10,
+      hash: stableSeed(`${config.id}:${config.variant}:${cell}`),
+    }))
+    .sort((left, right) =>
+      right.score - left.score ||
+      (left.hash < right.hash ? -1 : left.hash > right.hash ? 1 : compareCellKeys(left.cell, right.cell))
+    )
+    .slice(0, cellLimit)
+    .map((item) => item.cell)
+    .sort(compareCellKeys);
+  const maxRowSpan = config.difficulty === 'Expert' ? 9 : config.difficulty === 'Hard' ? 7 : 5;
+  const candidates: Array<{
+    cells: string[];
+    kind: DawnCabinetSetKind;
+    score: number;
+    hash: bigint;
+  }> = [];
+
+  for (let a = 0; a < cells.length - 2; a += 1) {
+    for (let b = a + 1; b < cells.length - 1; b += 1) {
+      for (let c = b + 1; c < cells.length; c += 1) {
+        const railCells = [cells[a], cells[b], cells[c]].sort(compareCellKeys);
+        const railSet = normalizeRailCellSet(railCells);
+        if (existingSets.has(railSet)) continue;
+
+        const coords = railCells.map(parseCellKey);
+        const rowSpan = Math.max(...coords.map((cell) => cell.row)) - Math.min(...coords.map((cell) => cell.row));
+        const colSpan = Math.max(...coords.map((cell) => cell.col)) - Math.min(...coords.map((cell) => cell.col));
+        if (rowSpan > maxRowSpan || colSpan > 6) continue;
+        if (rowSpan === 0 && colSpan <= 2) continue;
+        if (colSpan === 0 && rowSpan <= 2) continue;
+
+        const kind = classifyCabinetLine(railCells.map((cell) => draft.solution[cell]));
+        if (!kind || kind === 'pair' || !config.desiredKinds.includes(kind)) continue;
+
+        const overlapScore = railCells.reduce((sum, cell) => sum + Math.min(3, lineCounts[cell] ?? 0), 0);
+        const spreadScore = rowSpan + colSpan + new Set(coords.map((cell) => cell.row)).size + new Set(coords.map((cell) => cell.col)).size;
+        const hash = stableSeed(`${config.id}:${config.variant}:${railSet}:${kind}`);
+        candidates.push({
+          cells: railCells,
+          kind,
+          score: overlapScore * 4 + spreadScore * 2 + config.desiredKinds.indexOf(kind),
+          hash,
+        });
+      }
+    }
+  }
+
+  const selected = candidates.sort((left, right) =>
+    right.score - left.score ||
+    (left.hash < right.hash ? -1 : left.hash > right.hash ? 1 : 0)
+  )[Math.abs(config.variant) % Math.max(1, Math.min(7, candidates.length))];
+  if (!selected) return false;
+
+  addLine(draft, config.id, selected.cells, 'hidden');
+  return true;
+}
+
+function normalizeRailCellSet(cells: string[]): string {
+  return [...cells].sort(compareCellKeys).join('/');
+}
+
+function compareCellKeys(left: string, right: string): number {
+  const a = parseCellKey(left);
+  const b = parseCellKey(right);
+  return a.row - b.row || a.col - b.col;
+}
+
+function parseCellKey(cell: string): DawnCabinetCell {
+  const [row, col] = cell.split(':').map(Number);
+  return { row, col };
+}
+
+function applyRailExposureProfile(
+  draft: PuzzleDraft,
+  difficulty: DawnCabinetDifficulty,
+  variant: number,
+  exposureProfile: DawnCabinetExposureProfile = 'friendlyStart'
+) {
+  if (difficulty === 'Easy') return;
+
+  const targetKindCount = getVisibleKindTarget(difficulty, exposureProfile, variant);
+  const maxReveals = difficulty === 'Standard' ? 3 : difficulty === 'Hard' ? 5 : 6;
+  const priority = getExposurePriority(difficulty, exposureProfile);
 
   const visibleKinds = () =>
     new Set(draft.lines.filter((line) => line.goal !== 'hidden').map((line) => line.goal as DawnCabinetSetKind));
@@ -2279,6 +2983,53 @@ function applyRailExposureProfile(
     draft.lines[candidate.index] = { ...candidate.line, goal: kind };
     revealCount += 1;
   });
+}
+
+function getVisibleKindTarget(
+  difficulty: DawnCabinetDifficulty,
+  exposureProfile: DawnCabinetExposureProfile,
+  variant: number
+): number {
+  if (difficulty === 'Standard') {
+    return exposureProfile === 'friendlyStart' || exposureProfile === 'copyPressure'
+      ? 2
+      : 2 + (Math.abs(variant) % 2);
+  }
+  if (difficulty === 'Hard') {
+    return 3 + (['bridgeRead', 'dawnFork'].includes(exposureProfile) ? 1 : Math.abs(variant) % 2);
+  }
+  return 4 + (['bridgeRead', 'dawnFork'].includes(exposureProfile) ? 1 : Math.abs(variant) % 3 === 0 ? 2 : 0);
+}
+
+function getExposurePriority(
+  difficulty: DawnCabinetDifficulty,
+  exposureProfile: DawnCabinetExposureProfile
+): DawnCabinetSetKind[] {
+  const standard: Record<DawnCabinetExposureProfile, DawnCabinetSetKind[]> = {
+    friendlyStart: ['run', 'match', 'flush', 'mixedRun'],
+    ledgerFirst: ['flush', 'mixedRun', 'run', 'match'],
+    reserveFirst: ['match', 'flush', 'run', 'mixedRun'],
+    dawnFork: ['mixedRun', 'run', 'flush', 'match'],
+    copyPressure: ['match', 'run', 'flush', 'mixedRun'],
+    bridgeRead: ['mixedRun', 'flush', 'run', 'match'],
+  };
+  const hard: Record<DawnCabinetExposureProfile, DawnCabinetSetKind[]> = {
+    friendlyStart: ['run', 'mixedRun', 'flush', 'number', 'gapRun', 'match'],
+    ledgerFirst: ['number', 'gapRun', 'flush', 'mixedRun', 'match', 'run'],
+    reserveFirst: ['flush', 'number', 'match', 'gapRun', 'mixedRun', 'run'],
+    dawnFork: ['mixedRun', 'number', 'gapRun', 'run', 'flush', 'match'],
+    copyPressure: ['match', 'number', 'run', 'flush', 'mixedRun', 'gapRun'],
+    bridgeRead: ['number', 'mixedRun', 'gapRun', 'flush', 'match', 'run'],
+  };
+  const expert: Record<DawnCabinetExposureProfile, DawnCabinetSetKind[]> = {
+    friendlyStart: ['run', 'mixedRun', 'flush', 'number', 'gapRun', 'mixedGap', 'match'],
+    ledgerFirst: ['mixedGap', 'number', 'gapRun', 'mixedRun', 'flush', 'match', 'run'],
+    reserveFirst: ['number', 'flush', 'mixedGap', 'gapRun', 'match', 'mixedRun', 'run'],
+    dawnFork: ['mixedGap', 'mixedRun', 'number', 'gapRun', 'flush', 'run', 'match'],
+    copyPressure: ['match', 'number', 'mixedGap', 'gapRun', 'flush', 'mixedRun', 'run'],
+    bridgeRead: ['mixedGap', 'number', 'gapRun', 'mixedRun', 'flush', 'match', 'run'],
+  };
+  return difficulty === 'Standard' ? standard[exposureProfile] : difficulty === 'Hard' ? hard[exposureProfile] : expert[exposureProfile];
 }
 
 function pickSuits(seed: bigint, count: number): DawnCabinetSuit[] {
