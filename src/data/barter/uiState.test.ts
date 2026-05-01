@@ -17,7 +17,7 @@ import {
   splitMarketTrades,
 } from './uiState.ts';
 
-const puzzle = getDailyBarter(new Date('2026-04-16T12:00:00'));
+const puzzle = getDailyBarter(new Date('2026-05-01T12:00:00'));
 
 function selectableGood(): GoodId {
   const dayEntries = getMarketTradeEntries(puzzle, 'day', false, null);

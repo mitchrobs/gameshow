@@ -15,6 +15,7 @@ import type {
   HiddenVendorPurpose,
   Inventory,
   NightVendorRole,
+  PlayerSolveFeel,
   StartEconomy,
   StrategyLineId,
   Trade,
@@ -24,7 +25,8 @@ import type {
 import { BarterGenerationError } from './types.ts';
 
 const DAILY_CACHE = new Map<string, BarterPuzzle>();
-const PORTFOLIO_START_UTC = Date.UTC(2026, 3, 16);
+const PORTFOLIO_START_UTC = Date.UTC(2026, 4, 1);
+const PORTFOLIO_DAYS = 365;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 type PortfolioPar = 8 | 9 | 10 | 11;
@@ -43,6 +45,7 @@ interface QualityTargets {
   texture: BarterTexture;
   intendedPar: PortfolioPar;
   feltThesis: FeltMarketThesis;
+  playerSolveFeel: PlayerSolveFeel;
   startEconomy: StartEconomy;
   economicThesis: EconomicThesis;
   sourceAQty: number;
@@ -89,6 +92,7 @@ interface MarketPlan {
   thesis: string;
   hiddenVendorPurpose: HiddenVendorPurpose;
   feltThesis: FeltMarketThesis;
+  playerSolveFeel: PlayerSolveFeel;
   startEconomy: StartEconomy;
   economicThesis: EconomicThesis;
   goods: GoodId[];
@@ -210,6 +214,18 @@ const FELT_THESIS_CYCLE: FeltMarketThesis[] = [
   'hidden_is_mercy',
 ];
 
+const PLAYER_SOLVE_FEEL_CYCLE: PlayerSolveFeel[] = [
+  'liquefy_heap',
+  'protect_coupon',
+  'carry_pair',
+  'ugly_liquidity',
+  'stop_production',
+  'visible_night_target',
+  'hidden_recovery',
+  'split_lanes',
+  'compression_bundle',
+];
+
 const TOPOLOGY_TEMPLATES: Record<BarterTopology, TopologyTemplate> = {
   balanced_pair: {
     id: 'balanced_pair',
@@ -281,7 +297,7 @@ function positiveModulo(value: number, modulo: number): number {
 
 function portfolioIndex(date: Date): number {
   const utc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-  return positiveModulo(Math.floor((utc - PORTFOLIO_START_UTC) / DAY_MS), 56);
+  return positiveModulo(Math.floor((utc - PORTFOLIO_START_UTC) / DAY_MS), PORTFOLIO_DAYS);
 }
 
 function pickPlanGoods(rand: () => number): PlanGoods {
@@ -369,6 +385,79 @@ function feltThesisForIndex(index: number): FeltMarketThesis {
   return FELT_THESIS_CYCLE[index % FELT_THESIS_CYCLE.length];
 }
 
+function playerSolveFeelForIndex(index: number): PlayerSolveFeel {
+  return PLAYER_SOLVE_FEEL_CYCLE[index % PLAYER_SOLVE_FEEL_CYCLE.length];
+}
+
+function feltThesisForSolveFeel(feel: PlayerSolveFeel, index: number): FeltMarketThesis {
+  switch (feel) {
+    case 'liquefy_heap':
+      return 'spend_the_heap';
+    case 'protect_coupon':
+      return 'protect_key_good';
+    case 'carry_pair':
+      return 'carry_the_pair';
+    case 'ugly_liquidity':
+      return 'use_the_ugly_trade';
+    case 'stop_production':
+      return 'stop_early';
+    case 'visible_night_target':
+      return 'night_told_you';
+    case 'hidden_recovery':
+      return 'hidden_is_mercy';
+    case 'split_lanes':
+      return index % 2 === 0 ? 'protect_key_good' : 'spend_the_heap';
+    case 'compression_bundle':
+      return index % 2 === 0 ? 'carry_the_pair' : 'night_told_you';
+  }
+}
+
+function startEconomyForSolveFeel(feel: PlayerSolveFeel, index: number): StartEconomy {
+  switch (feel) {
+    case 'liquefy_heap':
+      return 'bulk_heap';
+    case 'protect_coupon':
+      return index % 3 === 0 ? 'prepared_piece' : 'scarce_coupon';
+    case 'carry_pair':
+      return index % 2 === 0 ? 'balanced_pair' : 'prepared_piece';
+    case 'ugly_liquidity':
+      return index % 2 === 0 ? 'prepared_piece' : 'split_capital';
+    case 'stop_production':
+      return 'messy_pantry';
+    case 'visible_night_target':
+      return index % 2 === 0 ? 'messy_pantry' : 'bulk_heap';
+    case 'hidden_recovery':
+      return index % 2 === 0 ? 'prepared_piece' : 'balanced_pair';
+    case 'split_lanes':
+      return index % 3 === 0 ? 'messy_pantry' : 'split_capital';
+    case 'compression_bundle':
+      return index % 3 === 0 ? 'balanced_pair' : index % 3 === 1 ? 'split_capital' : 'messy_pantry';
+  }
+}
+
+function topologyForSolveFeel(feel: PlayerSolveFeel): BarterTopology {
+  switch (feel) {
+    case 'liquefy_heap':
+      return 'balanced_pair';
+    case 'protect_coupon':
+      return 'catalyst_debt';
+    case 'carry_pair':
+      return 'scarce_bridge';
+    case 'ugly_liquidity':
+      return 'tempo_discount';
+    case 'stop_production':
+      return 'overproduction_trap';
+    case 'visible_night_target':
+      return 'delayed_multiplier';
+    case 'hidden_recovery':
+      return 'night_pivot';
+    case 'split_lanes':
+      return 'split_pipeline';
+    case 'compression_bundle':
+      return 'compression_route';
+  }
+}
+
 function economicThesisForFelt(thesis: FeltMarketThesis, topology: BarterTopology): EconomicThesis {
   if (topology === 'catalyst_debt') return 'rebuild_the_catalyst';
   if (topology === 'compression_route') return 'prepare_the_bundle';
@@ -393,16 +482,17 @@ function economicThesisForFelt(thesis: FeltMarketThesis, topology: BarterTopolog
 
 function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirectorChoice {
   const index = portfolioIndex(date);
-  const topology = TOPOLOGY_ORDER[index % TOPOLOGY_ORDER.length];
+  const playerSolveFeel = playerSolveFeelForIndex(index);
+  const topology = topologyForSolveFeel(playerSolveFeel);
   const cycle = PAR_TEXTURE_CYCLE[index % PAR_TEXTURE_CYCLE.length];
-  const startEconomy = startEconomyForIndex(index);
-  const feltThesis = feltThesisForIndex(index);
+  const startEconomy = startEconomyForSolveFeel(playerSolveFeel, index);
+  const feltThesis = feltThesisForSolveFeel(playerSolveFeel, index);
   const economicThesis = economicThesisForFelt(feltThesis, topology);
   const par = cycle.par;
-  const includeCommitmentSetup =
+  let includeCommitmentSetup =
     par === 11 ||
     (par >= 10 && startEconomy === 'prepared_piece' && feltThesis === 'use_the_ugly_trade');
-  const signatureValue =
+  let signatureValue =
     feltThesis === 'carry_the_pair' ||
     feltThesis === 'night_told_you' ||
     (feltThesis === 'protect_key_good' && par >= 10) ||
@@ -410,6 +500,7 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
     topology === 'compression_route'
       ? 3
       : 2;
+  const variance = positiveModulo(seed + index * 17, 37);
   let engineCost = cycle.texture === 'trap' ? 6 : 5;
   let balanceCost = includeCommitmentSetup || cycle.texture === 'heavy' ? 7 : 6;
   let sourceAQty = engineCost * 2 + balanceCost;
@@ -427,53 +518,79 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
   switch (startEconomy) {
     case 'bulk_heap':
       engineCost = cycle.texture === 'trap' ? 6 : 5;
-      balanceCost = 6;
-      sourceAQty = 19 + (index % 3);
-      sourceBQty = 3;
+      balanceCost = 5 + (variance % 3);
+      sourceAQty = 18 + (variance % 15);
+      sourceBQty = 2 + (variance % 3);
       catalystQty = 1;
       break;
     case 'balanced_pair':
       engineCost = 3;
       balanceCost = 3;
-      sourceAQty = 9;
-      sourceBQty = 8;
-      catalystQty = 1;
+      sourceAQty = 9 + (variance % 2);
+      sourceBQty = Math.max(7, sourceAQty - (Math.floor(variance / 3) % 3));
+      catalystQty = 1 + (Math.floor(variance / 9) % 3);
+      if (variance % 2 === 0) initialTempoPartQty = 1 + (Math.floor(variance / 18) % 2);
       includeEngineDiscount = false;
       break;
     case 'split_capital':
       engineCost = 3;
       balanceCost = 3;
-      sourceAQty = 9;
-      sourceBQty = 5;
-      catalystQty = 3;
+      sourceAQty = 9 + (variance % 2);
+      sourceBQty = 5 + (Math.floor(variance / 3) % 4);
+      catalystQty = 3 + (Math.floor(variance / 15) % 4);
+      if (variance % 2 === 1) initialEnginePartQty = 1 + (Math.floor(variance / 21) % 2);
       includeEngineDiscount = false;
       break;
     case 'prepared_piece':
       engineCost = 3;
-      balanceCost = 4;
-      sourceAQty = 10;
-      sourceBQty = 6;
-      catalystQty = 1;
-      initialEnginePartQty = index % 2 === 0 ? 1 : 0;
-      initialTempoPartQty = index % 2 === 0 ? 0 : 1;
+      balanceCost = 3 + (variance % 2);
+      sourceAQty = 9 + (variance % 4);
+      sourceBQty = 5 + (Math.floor(variance / 5) % 4);
+      catalystQty = 1 + (Math.floor(variance / 11) % 4);
+      initialEnginePartQty = index % 2 === 0 ? 1 + (Math.floor(variance / 17) % 3) : 0;
+      initialTempoPartQty = index % 2 === 0 ? 0 : 1 + (Math.floor(variance / 17) % 3);
       includeEngineDiscount = false;
       break;
     case 'scarce_coupon':
       engineCost = 3;
       balanceCost = 3;
-      sourceAQty = 9;
-      sourceBQty = 7;
+      sourceAQty = 9 + (variance % 2);
+      sourceBQty = 7 + (Math.floor(variance / 3) % 3);
       catalystQty = 1;
       break;
     case 'messy_pantry':
       engineCost = 3;
       balanceCost = 3;
-      sourceAQty = 9;
-      sourceBQty = 5;
-      catalystQty = 2;
-      initialTempoPartQty = 1;
+      sourceAQty = 9 + (variance % 2);
+      sourceBQty = 5 + (Math.floor(variance / 3) % 3);
+      catalystQty = 2 + (Math.floor(variance / 15) % 4);
+      initialTempoPartQty = 1 + (Math.floor(variance / 21) % 3);
       includeEngineDiscount = false;
       break;
+  }
+  if (playerSolveFeel === 'liquefy_heap') {
+    includeExtraNightTrade = true;
+    extraNightGoalQty = variance % 2 === 0 ? 1 : 0;
+  }
+  if (playerSolveFeel === 'compression_bundle') {
+    signatureValue = 3;
+    includeEngineDiscount = false;
+  }
+  if (playerSolveFeel === 'hidden_recovery') {
+    includeExtraNightTrade = true;
+    includeEngineDiscount = false;
+    extraNightGoalQty = 0;
+  }
+  if (playerSolveFeel === 'visible_night_target') {
+    signatureValue = 3;
+    includeCommitmentSetup = false;
+  }
+  if (playerSolveFeel === 'stop_production') {
+    includeEngineDiscount = false;
+  }
+  if (playerSolveFeel === 'ugly_liquidity') {
+    includeExtraNightTrade = true;
+    extraNightGoalQty = Math.max(1, extraNightGoalQty);
   }
   const signatureGoalBump =
     signatureValue >= 3 &&
@@ -484,6 +601,7 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
     texture: cycle.texture,
     intendedPar: par,
     feltThesis,
+    playerSolveFeel,
     startEconomy,
     economicThesis,
     sourceAQty,
@@ -526,6 +644,7 @@ function targetKey(target: QualityTargets): string {
     target.texture,
     target.intendedPar,
     target.feltThesis,
+    target.playerSolveFeel,
     target.startEconomy,
     target.economicThesis,
     target.sourceAQty,
@@ -618,6 +737,19 @@ function portfolioTargetVariants(choice: PortfolioDirectorChoice): QualityTarget
     balanceReceiveEngineQty: 1,
     balanceReceiveTempoQty: 0,
     falseFriendEngineQty: 1,
+  });
+  add({
+    ...base,
+    sourceAQty: Math.max(1, base.sourceAQty - 1),
+  });
+  add({
+    ...base,
+    sourceBQty: Math.max(1, base.sourceBQty - 1),
+  });
+  add({
+    ...base,
+    sourceAQty: Math.max(1, base.sourceAQty - 1),
+    sourceBQty: Math.max(1, base.sourceBQty - 1),
   });
   add({
     ...base,
@@ -732,8 +864,30 @@ function portfolioTargetVariants(choice: PortfolioDirectorChoice): QualityTarget
       falseFriendEngineQty: 3,
       includeEngineDiscount: false,
     });
+    add({
+      ...base,
+      falseFriendEngineQty: 2,
+      includeEngineDiscount: true,
+      includeExtraNightTrade: true,
+      extraNightGoalQty: 1,
+      signatureValue: 3,
+      goalQty: base.goalQty + 1,
+    });
+    add({
+      ...base,
+      falseFriendEngineQty: 1,
+      includeEngineDiscount: true,
+      includeExtraNightTrade: true,
+      extraNightGoalQty: 1,
+    });
   }
   if (base.feltThesis === 'use_the_ugly_trade') {
+    add({
+      ...base,
+      includeCommitmentSetup: true,
+      earlyWindowTrades: 5,
+      goalQty: base.goalQty + 1,
+    });
     add({
       ...base,
       includeCommitmentSetup: false,
@@ -1085,11 +1239,76 @@ function buildCoreRecipeTrades(
   };
 }
 
+function buildSolveFeelRecipe(
+  ctx: MarketPlanContext,
+  topologyConfig: CoreRecipeConfig = {}
+): RecipeTradeSet {
+  const { picks, target } = ctx;
+  const feelConfig: CoreRecipeConfig = (() => {
+    switch (target.playerSolveFeel) {
+      case 'liquefy_heap':
+        return {
+          earlyBalanceRole: 'variant',
+          earlyBalanceLine: 'shared',
+          falseFriendReceive: () => [tradeSide(picks.enginePart, 2)],
+          hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
+        };
+      case 'protect_coupon':
+        return {
+          compoundGateGive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
+          engineDiscountGive: () => [tradeSide(picks.catalyst, 1)],
+          hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 2)],
+        };
+      case 'carry_pair':
+        return {
+          earlyBalanceRole: 'tempo',
+          earlyBalanceLine: 'tempo',
+          signatureGateReceiveQty: Math.max(3, target.signatureValue),
+        };
+      case 'ugly_liquidity':
+        return {
+          earlyBalanceRole: 'variant',
+          earlyBalanceLine: 'tempo',
+          falseFriendReceive: () => [tradeSide(picks.sourceB, 1)],
+          enginePayoffReceiveQty: target.payoffQty + 1,
+        };
+      case 'stop_production':
+        return {
+          falseFriendReceiveEngineQty: 3,
+          hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 1)],
+        };
+      case 'visible_night_target':
+        return {
+          enginePayoffReceiveQty: target.payoffQty + 1,
+          signatureGateReceiveQty: Math.max(3, target.signatureValue),
+        };
+      case 'hidden_recovery':
+        return {
+          hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 2), tradeSide(picks.tempoPart, 1)],
+          engineDiscountGive: () => [tradeSide(picks.catalyst, 1)],
+        };
+      case 'split_lanes':
+        return {
+          earlyBalanceRole: 'variant',
+          earlyBalanceLine: 'shared',
+          commitmentReceiveEngineQty: 3,
+        };
+      case 'compression_bundle':
+        return {
+          signatureGateReceiveQty: Math.max(3, target.signatureValue),
+          hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
+        };
+    }
+  })();
+
+  return buildCoreRecipeTrades(ctx, { ...topologyConfig, ...feelConfig });
+}
+
 const TOPOLOGY_RECIPES: Record<BarterTopology, TopologyRecipe> = {
   balanced_pair: {
     id: 'balanced_pair',
     build: (ctx) =>
-      buildCoreRecipeTrades(ctx, {
+      buildSolveFeelRecipe(ctx, {
         earlyBalanceRole: 'tempo',
         earlyBalanceLine: 'tempo',
         earlyBalanceVariant: false,
@@ -1098,7 +1317,7 @@ const TOPOLOGY_RECIPES: Record<BarterTopology, TopologyRecipe> = {
   catalyst_debt: {
     id: 'catalyst_debt',
     build: (ctx) =>
-      buildCoreRecipeTrades(ctx, {
+      buildSolveFeelRecipe(ctx, {
         hiddenBailoutReceive: ({ picks, target }) => [
           tradeSide(picks.catalyst, target.falseFriendEngineQty <= 1 ? 1 : 3),
         ],
@@ -1107,7 +1326,7 @@ const TOPOLOGY_RECIPES: Record<BarterTopology, TopologyRecipe> = {
   scarce_bridge: {
     id: 'scarce_bridge',
     build: (ctx) =>
-      buildCoreRecipeTrades(ctx, {
+      buildSolveFeelRecipe(ctx, {
         hiddenBailoutReceive: ({ picks, target }) =>
           target.falseFriendEngineQty <= 1
             ? [tradeSide(picks.catalyst, 1)]
@@ -1117,7 +1336,7 @@ const TOPOLOGY_RECIPES: Record<BarterTopology, TopologyRecipe> = {
   tempo_discount: {
     id: 'tempo_discount',
     build: (ctx) =>
-      buildCoreRecipeTrades(ctx, {
+      buildSolveFeelRecipe(ctx, {
         earlyBalanceRole: 'tempo',
         earlyBalanceLine: 'tempo',
         earlyBalanceVariant: true,
@@ -1126,7 +1345,7 @@ const TOPOLOGY_RECIPES: Record<BarterTopology, TopologyRecipe> = {
   night_pivot: {
     id: 'night_pivot',
     build: (ctx) =>
-      buildCoreRecipeTrades(ctx, {
+      buildSolveFeelRecipe(ctx, {
         hiddenBailoutReceive: ({ picks, target }) =>
           target.falseFriendEngineQty <= 1
             ? [tradeSide(picks.catalyst, 1)]
@@ -1136,14 +1355,14 @@ const TOPOLOGY_RECIPES: Record<BarterTopology, TopologyRecipe> = {
   delayed_multiplier: {
     id: 'delayed_multiplier',
     build: (ctx) =>
-      buildCoreRecipeTrades(ctx, {
+      buildSolveFeelRecipe(ctx, {
         enginePayoffReceiveQty: ctx.target.payoffQty + 1,
       }),
   },
   split_pipeline: {
     id: 'split_pipeline',
     build: (ctx) =>
-      buildCoreRecipeTrades(ctx, {
+      buildSolveFeelRecipe(ctx, {
         earlyBalanceLine: 'shared',
         earlyBalanceVariant: true,
         commitmentReceiveEngineQty: 3,
@@ -1152,14 +1371,14 @@ const TOPOLOGY_RECIPES: Record<BarterTopology, TopologyRecipe> = {
   compression_route: {
     id: 'compression_route',
     build: (ctx) =>
-      buildCoreRecipeTrades(ctx, {
+      buildSolveFeelRecipe(ctx, {
         signatureGateReceiveQty: ctx.target.signatureValue,
       }),
   },
   overproduction_trap: {
     id: 'overproduction_trap',
     build: (ctx) =>
-      buildCoreRecipeTrades(ctx, {
+      buildSolveFeelRecipe(ctx, {
         falseFriendReceiveEngineQty: 3,
       }),
   },
@@ -1180,6 +1399,7 @@ function buildMarketPlan(seed: number, choice: PortfolioDirectorChoice): MarketP
       template.hiddenVendorPurpose
     ),
     feltThesis: choice.target.feltThesis,
+    playerSolveFeel: choice.target.playerSolveFeel,
     startEconomy: choice.target.startEconomy,
     economicThesis: choice.target.economicThesis,
     goods: ctx.picks.goods,
@@ -1214,6 +1434,7 @@ function buildPuzzleFromPlan(seed: number, date: Date, plan: MarketPlan): Barter
     texture: plan.texture,
     thesis: plan.thesis,
     feltThesis: plan.feltThesis,
+    playerSolveFeel: plan.playerSolveFeel,
     startEconomy: plan.startEconomy,
     economicThesis: plan.economicThesis,
     hiddenVendorPurpose: plan.hiddenVendorPurpose,

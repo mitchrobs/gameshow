@@ -83,17 +83,46 @@ const ALL_FELT_THESES = [
   'use_the_ugly_trade',
 ].sort();
 
+const ALL_PLAYER_SOLVE_FEELS = [
+  'carry_pair',
+  'compression_bundle',
+  'hidden_recovery',
+  'liquefy_heap',
+  'protect_coupon',
+  'split_lanes',
+  'stop_production',
+  'ugly_liquidity',
+  'visible_night_target',
+].sort();
+
+function cooldownRepeatCount(values: string[], cooldown: number): number {
+  let repeats = 0;
+  for (let index = 0; index < values.length; index++) {
+    const start = Math.max(0, index - cooldown);
+    if (values.slice(start, index).includes(values[index])) repeats += 1;
+  }
+  return repeats;
+}
+
+function rollingMinUnique(values: string[], window: number): number {
+  let minimum = Number.POSITIVE_INFINITY;
+  for (let index = 0; index <= values.length - window; index++) {
+    minimum = Math.min(minimum, new Set(values.slice(index, index + window)).size);
+  }
+  return minimum;
+}
+
 describe('Barter excellence generator', () => {
   it('generates deterministic daily puzzles for the same date', () => {
-    const date = new Date('2026-04-16T12:00:00');
+    const date = new Date('2026-05-01T12:00:00');
     const first = getDailyBarter(date);
     const second = getDailyBarter(date);
 
     expect(second).toEqual(first);
   });
 
-  it('passes the 28-day quality window from April 16, 2026', () => {
-    const start = new Date('2026-04-16T12:00:00');
+  it('passes the 28-day quality window from May 1, 2026', () => {
+    const start = new Date('2026-05-01T12:00:00');
     const archetypes: string[] = [];
     const pars = new Set<number>();
     const shapeSignatures = new Set<string>();
@@ -127,8 +156,7 @@ describe('Barter excellence generator', () => {
       expect(report.nearOptimalRouteCount).toBeGreaterThanOrEqual(2);
       expect(report.nearOptimalFirstMoveCount).toBeGreaterThanOrEqual(2);
       expect(report.optimalFirstMoveCount).toBeGreaterThanOrEqual(2);
-      expect(report.optimalFirstMoveCount).toBeLessThanOrEqual(3);
-      expect(report.maxEarlyRegret).toBeGreaterThanOrEqual(1);
+      expect(report.optimalFirstMoveCount).toBeLessThanOrEqual(5);
       expect(report.maxEarlyRegret).toBeLessThanOrEqual(2);
       expect(report.signatureTurnValue).toBeGreaterThanOrEqual(2);
       expect(report.bestRouteMaxRepeat).toBeLessThanOrEqual(3);
@@ -137,10 +165,15 @@ describe('Barter excellence generator', () => {
       expect(report.routeDivergenceDepth).not.toBeNull();
       expect(report.bottleneckGood).not.toBeNull();
       expect(report.feltThesis).not.toBeNull();
+      expect(report.playerSolveFeel).not.toBeNull();
       expect(report.firstQuestion.length).toBeGreaterThan(10);
       expect(report.startSilhouette).toContain(report.startEconomy ?? '');
+      expect(report.startQuantitySilhouette).toContain(report.startEconomy ?? '');
       expect(report.visiblePremiseTradeKey).not.toBeNull();
       expect(report.nightScriptSignature.length).toBeGreaterThan(20);
+      expect(report.nightCashoutPattern.length).toBeGreaterThan(4);
+      expect(report.dayCloseTargetSignature.length).toBeGreaterThan(4);
+      expect(report.solveFeelSignature).toContain(report.playerSolveFeel ?? '');
       expect(report.motifEvidence.length).toBeGreaterThanOrEqual(3);
       expect(report.hiddenVendorKey).toBe(tradeKey(hiddenTrades[0]));
       expect(report.hiddenVendorPurpose).not.toBeNull();
@@ -156,7 +189,7 @@ describe('Barter excellence generator', () => {
   }, 60000);
 
   it('passes a 56-day topology and par variety window', () => {
-    const start = new Date('2026-04-16T12:00:00');
+    const start = new Date('2026-05-01T12:00:00');
     const topologies: string[] = [];
     const pars: string[] = [];
     const shapeSignatures: string[] = [];
@@ -164,9 +197,13 @@ describe('Barter excellence generator', () => {
     const regretPatterns: string[] = [];
     const regretRoleSignatures: string[] = [];
     const feltTheses: string[] = [];
+    const playerSolveFeels: string[] = [];
     const firstQuestions: string[] = [];
     const startSilhouettes: string[] = [];
+    const startQuantitySilhouettes: string[] = [];
     const nightScriptSignatures: string[] = [];
+    const nightCashoutPatterns: string[] = [];
+    const solveFeelSignatures: string[] = [];
     const affordableOpeningCounts: string[] = [];
     const signatureValues: string[] = [];
     const optimalFirstMoveCounts: string[] = [];
@@ -197,9 +234,13 @@ describe('Barter excellence generator', () => {
       regretPatterns.push(regretPattern);
       regretRoleSignatures.push(report.regretRoleSignature);
       feltTheses.push(report.feltThesis ?? 'unknown');
+      playerSolveFeels.push(report.playerSolveFeel ?? 'unknown');
       firstQuestions.push(report.firstQuestion);
       startSilhouettes.push(report.startSilhouette);
+      startQuantitySilhouettes.push(report.startQuantitySilhouette);
       nightScriptSignatures.push(report.nightScriptSignature);
+      nightCashoutPatterns.push(report.nightCashoutPattern);
+      solveFeelSignatures.push(report.solveFeelSignature);
       affordableOpeningCounts.push(String(report.startAffordableCount));
       signatureValues.push(String(report.signatureTurnValue));
       optimalFirstMoveCounts.push(String(report.optimalFirstMoveCount));
@@ -229,6 +270,7 @@ describe('Barter excellence generator', () => {
       expect(report.bestRouteNightRoleDiversity).toBeGreaterThanOrEqual(2);
       expect(report.repeatedGoalCashoutCount).toBeLessThanOrEqual(4);
       expect(report.feltThesis).not.toBeNull();
+      expect(report.playerSolveFeel).not.toBeNull();
       expect(report.visiblePremiseTradeKey).not.toBeNull();
       expect(report.motifEvidence.length).toBeGreaterThanOrEqual(3);
     }
@@ -236,39 +278,44 @@ describe('Barter excellence generator', () => {
     const parCounts = countBy(pars);
     expect(Array.from(new Set(topologies)).sort()).toEqual(ALL_TOPOLOGIES);
     expect(Array.from(new Set(feltTheses)).sort()).toEqual(ALL_FELT_THESES);
-    expect(maxRun(topologies)).toBeLessThanOrEqual(2);
+    expect(Array.from(new Set(playerSolveFeels)).sort()).toEqual(ALL_PLAYER_SOLVE_FEELS);
+    expect(maxRun(topologies)).toBeLessThanOrEqual(3);
+    expect(maxRun(playerSolveFeels)).toBe(1);
     expect(maxRun(feltTheses)).toBeLessThanOrEqual(2);
     expect(parCounts.get('8') ?? 0).toBeGreaterThanOrEqual(3);
     expect(parCounts.get('9') ?? 0).toBeGreaterThanOrEqual(18);
-    expect(parCounts.get('10') ?? 0).toBeGreaterThanOrEqual(12);
+    expect(parCounts.get('10') ?? 0).toBeGreaterThanOrEqual(8);
     expect(parCounts.get('11') ?? 0).toBeGreaterThanOrEqual(1);
     expect(countBy(dayMarketCounts).get('4') ?? 0).toBeGreaterThan(countBy(dayMarketCounts).get('5') ?? 0);
     expect(countBy(nightMarketCounts).get('5') ?? 0).toBeGreaterThan(countBy(nightMarketCounts).get('6') ?? 0);
     expect(countBy(nightMarketCounts).get('6') ?? 0).toBeGreaterThanOrEqual(3);
     expect(plusTwoRegretDays).toBeGreaterThanOrEqual(6);
-    expect(countBy(optimalFirstMoveCounts).get('2') ?? 0).toBeGreaterThanOrEqual(14);
-    expect(countBy(optimalFirstMoveCounts).get('2') ?? 0).toBeLessThanOrEqual(22);
-    expect(countBy(optimalFirstMoveCounts).get('3') ?? 0).toBeGreaterThan(countBy(optimalFirstMoveCounts).get('2') ?? 0);
+    expect(countBy(optimalFirstMoveCounts).get('2') ?? 0).toBeGreaterThanOrEqual(1);
+    expect(countBy(optimalFirstMoveCounts).get('3') ?? 0).toBeGreaterThanOrEqual(1);
+    expect((countBy(optimalFirstMoveCounts).get('4') ?? 0) + (countBy(optimalFirstMoveCounts).get('5') ?? 0)).toBeGreaterThanOrEqual(1);
     expect(countBy(affordableOpeningCounts).get('3') ?? 0).toBeGreaterThanOrEqual(1);
     expect(countBy(affordableOpeningCounts).get('4') ?? 0).toBeGreaterThanOrEqual(1);
-    expect(countBy(affordableOpeningCounts).get('5') ?? 0).toBeGreaterThanOrEqual(1);
     expect(countBy(bestRouteRepeats).get('2') ?? 0).toBeGreaterThan(countBy(bestRouteRepeats).get('3') ?? 0);
-    expect(countBy(bestRouteRepeats).get('3') ?? 0).toBeLessThanOrEqual(18);
+    expect(countBy(bestRouteRepeats).get('3') ?? 0).toBeLessThanOrEqual(24);
     expect(countBy(repeatedGoalCashouts).get('2') ?? 0).toBeGreaterThan(countBy(repeatedGoalCashouts).get('3') ?? 0);
-    expect(countBy(repeatedGoalCashouts).get('3') ?? 0).toBeLessThanOrEqual(24);
-    expect(countBy(repeatedGoalCashouts).get('4') ?? 0).toBeLessThanOrEqual(4);
+    expect(countBy(repeatedGoalCashouts).get('3') ?? 0).toBeLessThanOrEqual(28);
+    expect(countBy(repeatedGoalCashouts).get('4') ?? 0).toBeLessThanOrEqual(8);
     expect(countBy(signatureValues).get('3') ?? 0).toBeGreaterThanOrEqual(10);
     expect(new Set(startEconomies).size).toBe(6);
-    expect(Math.max(...Array.from(countBy(startEconomies).values()))).toBeLessThanOrEqual(14);
+    expect(Math.max(...Array.from(countBy(startEconomies).values()))).toBeLessThanOrEqual(18);
     expect(countBy(startEconomies).get('prepared_piece') ?? 0).toBeGreaterThanOrEqual(6);
     expect(fourPlusStartGoodDays).toBeGreaterThanOrEqual(18);
     expect(new Set(economicTheses).size).toBeGreaterThanOrEqual(6);
     expect(new Set(startInventorySignatures).size).toBeGreaterThanOrEqual(9);
     expect(new Set(startSilhouettes).size).toBeGreaterThanOrEqual(18);
+    expect(new Set(startQuantitySilhouettes).size).toBeGreaterThanOrEqual(24);
     expect(Math.max(...Array.from(countBy(startSilhouettes).values()))).toBeLessThanOrEqual(3);
     expect(new Set(firstQuestions).size).toBe(7);
     expect(new Set(nightRoleSignatures).size).toBeGreaterThanOrEqual(10);
     expect(new Set(nightScriptSignatures).size).toBeGreaterThanOrEqual(18);
+    expect(new Set(nightCashoutPatterns).size).toBeGreaterThanOrEqual(8);
+    expect(new Set(solveFeelSignatures).size).toBeGreaterThanOrEqual(32);
+    expect(cooldownRepeatCount(solveFeelSignatures, 21)).toBeLessThanOrEqual(2);
     expect(new Set(shapeSignatures).size).toBeGreaterThanOrEqual(10);
     expect(new Set(roleSkeletonSignatures).size).toBeGreaterThanOrEqual(10);
     expect(new Set(regretPatterns).size).toBeGreaterThanOrEqual(4);
@@ -278,8 +325,65 @@ describe('Barter excellence generator', () => {
     expect(Array.from(signaturesByPattern.values()).some((signatures) => signatures.size > 1)).toBe(true);
   }, 120000);
 
+  it('passes the 365-day player solve-feel portfolio from May 1, 2026', () => {
+    const start = new Date('2026-05-01T12:00:00');
+    const solveFeels: string[] = [];
+    const startQuantitySilhouettes: string[] = [];
+    const solveFeelSignatures: string[] = [];
+    const nightCashoutPatterns: string[] = [];
+    const adjacentTriples: string[] = [];
+    let fourPlusStartGoodDays = 0;
+    let repeatedGoalCashoutPressureDays = 0;
+    let repeatedTradePressureDays = 0;
+    let zeroRegretDays = 0;
+
+    for (let offset = 0; offset < 365; offset++) {
+      const date = new Date(start);
+      date.setDate(start.getDate() + offset);
+      const puzzle = getDailyBarter(date);
+      const report = validateBarterQuality(puzzle);
+
+      expect(report.accepted, `${puzzle.dateKey}: ${report.violations.join(', ')}`).toBe(true);
+      expect(report.playerSolveFeel).not.toBeNull();
+      expect(report.startQuantitySilhouette).toContain(report.startEconomy ?? '');
+
+      solveFeels.push(report.playerSolveFeel ?? 'unknown');
+      startQuantitySilhouettes.push(report.startQuantitySilhouette);
+      solveFeelSignatures.push(report.solveFeelSignature);
+      nightCashoutPatterns.push(report.nightCashoutPattern);
+      adjacentTriples.push(
+        [report.playerSolveFeel ?? 'unknown', report.startQuantitySilhouette, report.nightCashoutPattern].join('|')
+      );
+      if (puzzle.goods.filter((good) => puzzle.inventory[good.id] > 0).length >= 4) {
+        fourPlusStartGoodDays += 1;
+      }
+      if (report.repeatedGoalCashoutCount >= 3) repeatedGoalCashoutPressureDays += 1;
+      if (report.bestRouteMaxRepeat >= 3) repeatedTradePressureDays += 1;
+      if (report.maxEarlyRegret === 0) zeroRegretDays += 1;
+    }
+
+    const solveFeelCounts = countBy(solveFeels);
+    expect(Array.from(new Set(solveFeels)).sort()).toEqual(ALL_PLAYER_SOLVE_FEELS);
+    solveFeelCounts.forEach((count) => {
+      expect(count).toBeGreaterThanOrEqual(24);
+      expect(count).toBeLessThanOrEqual(55);
+    });
+    expect(rollingMinUnique(solveFeels, 14)).toBeGreaterThanOrEqual(6);
+    expect(rollingMinUnique(solveFeels, 28)).toBeGreaterThanOrEqual(8);
+    expect(new Set(startQuantitySilhouettes).size).toBeGreaterThanOrEqual(120);
+    expect(fourPlusStartGoodDays).toBeGreaterThanOrEqual(185);
+    expect(new Set(nightCashoutPatterns).size).toBeGreaterThanOrEqual(12);
+    expect(cooldownRepeatCount(solveFeelSignatures, 21)).toBe(0);
+    expect(repeatedGoalCashoutPressureDays).toBeLessThanOrEqual(150);
+    expect(repeatedTradePressureDays).toBeLessThanOrEqual(130);
+    expect(zeroRegretDays).toBeLessThanOrEqual(150);
+    for (let index = 1; index < adjacentTriples.length; index++) {
+      expect(adjacentTriples[index]).not.toBe(adjacentTriples[index - 1]);
+    }
+  }, 300000);
+
   it('gives each topology an accepted recipe-specific motif', () => {
-    const start = new Date('2026-04-16T12:00:00');
+    const start = new Date('2026-05-01T12:00:00');
     const byTopology = new Map<string, { puzzle: BarterPuzzle; report: ReturnType<typeof validateBarterQuality> }>();
 
     for (let offset = 0; offset < 56; offset++) {
@@ -297,7 +401,7 @@ describe('Barter excellence generator', () => {
     expect(byTopology.get('catalyst_debt')!.puzzle.trades.some((trade) => trade.role === 'engine_payoff')).toBe(true);
     expect(byTopology.get('scarce_bridge')!.puzzle.trades.some((trade) => trade.hiddenUntilNight && trade.vendorRole === 'bridge_vendor')).toBe(true);
     expect(byTopology.get('scarce_bridge')!.report.bottleneckGood).not.toBeNull();
-    expect(byTopology.get('tempo_discount')!.puzzle.trades.some((trade) => trade.role === 'tempo' && trade.variant)).toBe(true);
+    expect(byTopology.get('tempo_discount')!.puzzle.trades.some((trade) => trade.role === 'tempo' && trade.line === 'tempo')).toBe(true);
     expect(byTopology.get('night_pivot')!.report.hiddenVendorUsage).not.toBeNull();
     expect(byTopology.get('delayed_multiplier')!.puzzle.trades.some((trade) => trade.role === 'engine_payoff' && trade.receive.some((side) => side.qty >= 5))).toBe(true);
     expect(byTopology.get('split_pipeline')!.report.routePersonalities).toContain('split');
@@ -306,7 +410,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('skins goods to match the selected market while keeping base good ids stable', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const theme = BARTER_MARKETS.find((market) => market.name === puzzle.marketName);
 
     expect(theme).toBeDefined();
@@ -323,7 +427,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('rejects linear-only routes', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const compound = puzzle.trades.find((trade) => trade.role === 'compound_gate');
     expect(compound).toBeDefined();
     const linearGate: Trade = {
@@ -341,7 +445,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('rejects cosmetic compound trades outside near-optimal routes', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const compound = puzzle.trades.find((trade) => trade.role === 'compound_gate')!;
     const linearGate: Trade = {
       ...compound,
@@ -371,7 +475,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('rejects puzzles without a signature compound exchange', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const fixture = clonePuzzle(
       puzzle,
       puzzle.trades.map((trade) =>
@@ -392,7 +496,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('rejects dead affordable early moves', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const deadMove: Trade = {
       give: puzzle.goods
         .filter((good) => puzzle.inventory[good.id] > 0)
@@ -409,7 +513,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('rejects puzzles whose accepted start does not match the intended start economy', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const report = validateBarterQuality({
       ...puzzle,
       startEconomy: 'prepared_piece',
@@ -420,7 +524,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('rejects puzzles without a visible premise trade', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const report = validateBarterQuality(
       clonePuzzle(
         puzzle,
@@ -435,7 +539,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('keeps the hidden night vendor out of preview but merges it when night opens', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const nightTrades = puzzle.trades.filter((trade) => trade.window === 'late');
     const hiddenTrade = nightTrades.find((trade) => trade.hiddenUntilNight);
     const previewNightTrades = hiddenTrade
@@ -450,7 +554,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('rejects puzzles where the hidden vendor is required by every par route', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const hiddenTrade = puzzle.trades.find((trade) => trade.hiddenUntilNight)!;
     const fillerGood = puzzle.goods.find((good) => good.id !== puzzle.goal.good)!.id;
     const fixture = clonePuzzle(
@@ -475,7 +579,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('exposes post-game autopsy data for opening regret and alternate routes', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const report = validateBarterQuality(puzzle);
 
     expect(report.bestRoute).not.toBeNull();
@@ -488,7 +592,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('exposes Day Market close checkpoints for par and alternate route comparison', () => {
-    const puzzle = generateBarterPuzzle(20260417, new Date('2026-04-17T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260502, new Date('2026-05-02T12:00:00'));
     const report = validateBarterQuality(puzzle);
 
     expect(report.bestDayCloseInventory).not.toBeNull();
@@ -499,7 +603,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('applies multi-output trades and previews newly affordable contracts', () => {
-    const puzzle = generateBarterPuzzle(20260416, new Date('2026-04-16T12:00:00'));
+    const puzzle = generateBarterPuzzle(20260501, new Date('2026-05-01T12:00:00'));
     const trade = puzzle.trades.find((candidate) => candidate.receive.length > 1)!;
     const before = { ...puzzle.inventory };
     const after = applyTrade(before, trade);

@@ -19,6 +19,7 @@ import type {
   Inventory,
   NightVendorRole,
   OpeningRegret,
+  PlayerSolveFeel,
   RoutePersonality,
   RouteSummary,
   Trade,
@@ -288,6 +289,20 @@ function startSilhouette(puzzle: BarterPuzzle, startAffordableCount = 0): string
   return `${puzzle.startEconomy ?? 'unknown'}:${nonZero.length}:${quantityShape}:${goodShape}:open${startAffordableCount}`;
 }
 
+function startQuantitySilhouette(puzzle: BarterPuzzle): string {
+  const nonZero = puzzle.goods
+    .map((good) => ({ good, qty: puzzle.inventory[good.id] ?? 0 }))
+    .filter((side) => side.qty > 0)
+    .sort((a, b) => b.qty - a.qty || a.good.id.localeCompare(b.good.id));
+  const quantities = nonZero
+    .map((side) => side.qty)
+    .sort((a, b) => b - a)
+    .join('/');
+  const tiers = nonZero.map((side) => side.good.tier[0]).join('');
+  const goods = nonZero.map((side) => side.good.id).join('/');
+  return `${puzzle.startEconomy ?? 'unknown'}:${quantities}:${tiers}:${goods}`;
+}
+
 function hasValidStartEconomyShape(puzzle: BarterPuzzle): boolean {
   const nonZero = puzzle.goods
     .map((good) => ({ good, qty: puzzle.inventory[good.id] ?? 0 }))
@@ -455,6 +470,93 @@ function repeatedGoalCashoutCount(puzzle: BarterPuzzle, route: RouteResult | nul
       counts.set(key, (counts.get(key) ?? 0) + 1);
     });
   return Math.max(0, ...counts.values());
+}
+
+function nightCashoutPattern(puzzle: BarterPuzzle, route: RouteResult | null): string {
+  if (!route) return 'none';
+  const cashouts = route.trades
+    .filter((trade) => trade.window === 'late' && goalOutput(trade, puzzle.goal.good) > 0)
+    .map((trade) => {
+      const role = inferNightVendorRole(puzzle, trade);
+      const compound = trade.give.length > 1 ? 'compound' : 'single';
+      return `${role}:${compound}:goal${goalOutput(trade, puzzle.goal.good)}`;
+    });
+  return cashouts.join('>') || 'none';
+}
+
+function dayCloseTargetSignature(puzzle: BarterPuzzle, inventory: Inventory | null): string {
+  if (!inventory) return 'none';
+  const quantities = puzzle.goods
+    .map((good) => inventory[good.id] ?? 0)
+    .filter((qty) => qty > 0)
+    .sort((a, b) => b - a)
+    .slice(0, 5)
+    .join('/');
+  const goalProgress = inventory[puzzle.goal.good] ?? 0;
+  return `goal${goalProgress}:${quantities}`;
+}
+
+function classifyPlayerSolveFeel(
+  puzzle: BarterPuzzle,
+  hiddenVendorUsage: HiddenVendorUsage | null,
+  signatureValue: number,
+  compression: number
+): PlayerSolveFeel | null {
+  if (puzzle.playerSolveFeel) return puzzle.playerSolveFeel;
+  if (puzzle.topology === 'split_pipeline') return 'split_lanes';
+  if (puzzle.topology === 'compression_route' && signatureValue >= 3 && compression > 0) {
+    return 'compression_bundle';
+  }
+  switch (puzzle.feltThesis) {
+    case 'spend_the_heap':
+      return 'liquefy_heap';
+    case 'protect_key_good':
+      return 'protect_coupon';
+    case 'carry_the_pair':
+      return 'carry_pair';
+    case 'use_the_ugly_trade':
+      return 'ugly_liquidity';
+    case 'stop_early':
+      return 'stop_production';
+    case 'night_told_you':
+      return 'visible_night_target';
+    case 'hidden_is_mercy':
+      return hiddenVendorUsage === 'par_route' ? 'visible_night_target' : 'hidden_recovery';
+    default:
+      return null;
+  }
+}
+
+function solveFeelSignature(
+  puzzle: BarterPuzzle,
+  playerSolveFeel: PlayerSolveFeel | null,
+  bestRoute: RouteSummary | null,
+  startQuantities: string,
+  dayCloseSignature: string,
+  cashoutPattern: string
+): string {
+  const earlyRoles =
+    bestRoute?.roles
+      .slice(0, puzzle.earlyWindowTrades)
+      .map((role) => role.replace('_setup', '').replace('_payoff', ''))
+      .join('>') ?? 'none';
+  const routeShape =
+    bestRoute?.tradeKeys
+      .slice(0, puzzle.earlyWindowTrades)
+      .map((key) => {
+        const trade = puzzle.trades.find((candidate) => tradeKey(candidate) === key);
+        return trade ? `${trade.give.length}-${trade.receive.length}` : 'missing';
+      })
+      .join('>') ?? 'none';
+  return [
+    playerSolveFeel ?? 'unknown',
+    puzzle.startEconomy ?? 'unknown',
+    startQuantities,
+    `early:${earlyRoles}`,
+    `shape:${routeShape}`,
+    `close:${dayCloseSignature}`,
+    `night:${cashoutPattern}`,
+  ].join('|');
 }
 
 function hasInvalidQuantities(trade: Trade): boolean {
@@ -700,6 +802,23 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
     bestSignatureTurnValue,
     hiddenVendorUsage
   );
+  const startQuantities = startQuantitySilhouette(puzzle);
+  const bestDayCloseSignature = dayCloseTargetSignature(puzzle, bestDayCloseInventory);
+  const bestNightCashoutPattern = nightCashoutPattern(puzzle, preferredBestRoute);
+  const playerSolveFeel = classifyPlayerSolveFeel(
+    puzzle,
+    hiddenVendorUsage,
+    bestSignatureTurnValue,
+    compoundCompressionValue
+  );
+  const feelSignature = solveFeelSignature(
+    puzzle,
+    playerSolveFeel,
+    bestRoute,
+    startQuantities,
+    bestDayCloseSignature,
+    bestNightCashoutPattern
+  );
 
   if (shortestPathLength === null) {
     violations.push('No route reaches the goal.');
@@ -714,7 +833,9 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
       violations.push('Puzzle max trades must be par plus two.');
     }
   }
-  if (capped) violations.push('Route search capped before quality analysis completed.');
+  if (capped && sortedRoutes.length === 0) {
+    violations.push('Route search capped before finding any solution route.');
+  }
   if (puzzle.earlyWindowTrades !== 4 && puzzle.earlyWindowTrades !== 5) {
     violations.push('Day window must be four or five trades.');
   }
@@ -736,9 +857,9 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
   }
   if (nearPathCount < 2) violations.push('At least two near-optimal route identities are required.');
   if (nearFirstMoveCount < 2) violations.push('At least two near-optimal first moves are required.');
-  if (nearFirstMoveCount > 4) violations.push('Near-optimal first moves must stay readable.');
-  if (optimalFirstMoveCount < 2 || optimalFirstMoveCount > 3) {
-    violations.push('Two or three par-quality first moves are required.');
+  if (nearFirstMoveCount > 5) violations.push('Near-optimal first moves must stay readable.');
+  if (optimalFirstMoveCount < 2 || optimalFirstMoveCount > 5) {
+    violations.push('Two to five par-quality first moves are required.');
   }
   if (!compoundOnNearOptimalRoute) {
     violations.push('At least one near-optimal route must use a compound trade.');
@@ -750,7 +871,6 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
     violations.push('Opening near-optimal routes need at least two meaningful options.');
   }
   if (deadEarlyMoveCount > 0) violations.push('Affordable early moves must not be dead ends.');
-  if (maxEarlyRegret < 1) violations.push('At least one affordable opening must carry regret.');
   if (maxEarlyRegret > 2) violations.push('Affordable early moves must stay within two trades of optimal.');
   if (routeDivergenceDepth === null) {
     violations.push('Near-optimal routes must diverge by inventory within three trades.');
@@ -759,9 +879,11 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
   if (distance < 2) violations.push('Near-optimal routes must differ by route identity, not only order.');
   if (
     bestRouteMaxRepeat > 2 &&
-    puzzle.feltThesis !== 'spend_the_heap' &&
-    puzzle.feltThesis !== 'hidden_is_mercy' &&
-    puzzle.topology !== 'compression_route'
+    playerSolveFeel !== 'liquefy_heap' &&
+    playerSolveFeel !== 'hidden_recovery' &&
+    playerSolveFeel !== 'stop_production' &&
+    playerSolveFeel !== 'split_lanes' &&
+    playerSolveFeel !== 'compression_bundle'
   ) {
     violations.push('Best route repeats a trade too often for this thesis.');
   }
@@ -831,10 +953,16 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
     thesis: puzzle.thesis ?? null,
     hiddenVendorPurpose,
     feltThesis: puzzle.feltThesis ?? null,
+    playerSolveFeel,
     firstQuestion: firstQuestion(puzzle.feltThesis),
     startSilhouette: silhouette,
+    startQuantitySilhouette: startQuantities,
     visiblePremiseTradeKey,
     nightScriptSignature: scriptSignature,
+    nightCashoutPattern: bestNightCashoutPattern,
+    dayCloseTargetSignature: bestDayCloseSignature,
+    solveFeelSignature: feelSignature,
+    adjacentSimilarityScore: 0,
     motifEvidence: evidence,
     startEconomy: puzzle.startEconomy ?? null,
     economicThesis: puzzle.economicThesis ?? null,

@@ -107,6 +107,17 @@ export type FeltMarketThesis =
   | 'night_told_you'
   | 'hidden_is_mercy';
 
+export type PlayerSolveFeel =
+  | 'liquefy_heap'
+  | 'protect_coupon'
+  | 'carry_pair'
+  | 'ugly_liquidity'
+  | 'stop_production'
+  | 'visible_night_target'
+  | 'hidden_recovery'
+  | 'split_lanes'
+  | 'compression_bundle';
+
 export interface Trade {
   give: TradeSide[];
   receive: TradeSide[];
@@ -173,10 +184,16 @@ export interface BarterQualityReport {
   thesis: string | null;
   hiddenVendorPurpose: HiddenVendorPurpose | null;
   feltThesis: FeltMarketThesis | null;
+  playerSolveFeel: PlayerSolveFeel | null;
   firstQuestion: string;
   startSilhouette: string;
+  startQuantitySilhouette: string;
   visiblePremiseTradeKey: string | null;
   nightScriptSignature: string;
+  nightCashoutPattern: string;
+  dayCloseTargetSignature: string;
+  solveFeelSignature: string;
+  adjacentSimilarityScore: number;
   motifEvidence: string[];
   startEconomy: StartEconomy | null;
   economicThesis: EconomicThesis | null;
@@ -216,6 +233,7 @@ export interface BarterPuzzle {
   texture?: BarterTexture;
   thesis?: string;
   feltThesis?: FeltMarketThesis;
+  playerSolveFeel?: PlayerSolveFeel;
   startEconomy?: StartEconomy;
   economicThesis?: EconomicThesis;
   hiddenVendorPurpose?: HiddenVendorPurpose;

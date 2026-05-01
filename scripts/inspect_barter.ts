@@ -70,23 +70,55 @@ const dayMarketCounts: string[] = [];
 const nightMarketCounts: string[] = [];
 const hiddenVendorUsages: string[] = [];
 const feltTheses: string[] = [];
+const playerSolveFeels: string[] = [];
 const firstQuestions: string[] = [];
 const startEconomies: string[] = [];
 const economicTheses: string[] = [];
 const startInventorySignatures: string[] = [];
 const startSilhouettes: string[] = [];
+const startQuantitySilhouettes: string[] = [];
 const nightRoleSignatures: string[] = [];
 const nightScriptSignatures: string[] = [];
+const nightCashoutPatterns: string[] = [];
+const dayCloseTargetSignatures: string[] = [];
+const solveFeelSignatures: string[] = [];
 const nightRoleDiversity: string[] = [];
 const repeatedGoalCashouts: string[] = [];
 const signatureValues: string[] = [];
 const optimalFirstMoveCounts: string[] = [];
 const bestRouteRepeats: string[] = [];
+const adjacentSimilarityScores: number[] = [];
 let plusTwoRegretDays = 0;
+let previousReport: ReturnType<typeof validateBarterQuality> | null = null;
+
+function adjacentSimilarityScore(
+  previous: ReturnType<typeof validateBarterQuality> | null,
+  current: ReturnType<typeof validateBarterQuality>
+): number {
+  if (!previous) return 0;
+  let score = 0;
+  if (previous.playerSolveFeel === current.playerSolveFeel) score += 4;
+  if (previous.startQuantitySilhouette === current.startQuantitySilhouette) score += 3;
+  if (previous.nightCashoutPattern === current.nightCashoutPattern) score += 3;
+  if (previous.dayCloseTargetSignature === current.dayCloseTargetSignature) score += 2;
+  if (previous.firstQuestion === current.firstQuestion) score += 1;
+  if (previous.startEconomy === current.startEconomy) score += 1;
+  return score;
+}
+
+function cooldownRepeatCount(values: string[], cooldown: number): number {
+  let repeats = 0;
+  for (let index = 0; index < values.length; index++) {
+    const start = Math.max(0, index - cooldown);
+    if (values.slice(start, index).includes(values[index])) repeats += 1;
+  }
+  return repeats;
+}
 
 for (let day = 0; day < days; day++) {
   const puzzle = getDailyBarter(dateAt(start, day));
   const report = validateBarterQuality(puzzle);
+  const adjacentScore = adjacentSimilarityScore(previousReport, report);
   const dayTrades = puzzle.trades.filter((trade) => trade.window !== 'late');
   const nightTrades = puzzle.trades.filter((trade) => trade.window === 'late');
   archetypes.push(puzzle.archetype ?? 'unknown');
@@ -101,13 +133,19 @@ for (let day = 0; day < days; day++) {
   nightMarketCounts.push(String(nightTrades.length));
   hiddenVendorUsages.push(report.hiddenVendorUsage ?? 'none');
   feltTheses.push(report.feltThesis ?? 'unknown');
+  playerSolveFeels.push(report.playerSolveFeel ?? 'unknown');
   firstQuestions.push(report.firstQuestion);
   startEconomies.push(report.startEconomy ?? 'unknown');
   economicTheses.push(report.economicThesis ?? 'unknown');
   startInventorySignatures.push(report.startInventorySignature);
   startSilhouettes.push(report.startSilhouette);
+  startQuantitySilhouettes.push(report.startQuantitySilhouette);
   nightRoleSignatures.push(report.nightRoleSignature);
   nightScriptSignatures.push(report.nightScriptSignature);
+  nightCashoutPatterns.push(report.nightCashoutPattern);
+  dayCloseTargetSignatures.push(report.dayCloseTargetSignature);
+  solveFeelSignatures.push(report.solveFeelSignature);
+  adjacentSimilarityScores.push(adjacentScore);
   nightRoleDiversity.push(String(report.bestRouteNightRoleDiversity));
   repeatedGoalCashouts.push(String(report.repeatedGoalCashoutCount));
   signatureValues.push(String(report.signatureTurnValue));
@@ -122,12 +160,13 @@ for (let day = 0; day < days; day++) {
   );
   console.log(`Thesis: ${puzzle.thesis ?? 'n/a'}`);
   console.log(
-    `Felt thesis: ${report.feltThesis ?? 'n/a'} | First question: ${report.firstQuestion} | Visible premise: ${report.visiblePremiseTradeKey ?? 'n/a'}`
+    `Felt thesis: ${report.feltThesis ?? 'n/a'} | Solve feel: ${report.playerSolveFeel ?? 'n/a'} | First question: ${report.firstQuestion} | Visible premise: ${report.visiblePremiseTradeKey ?? 'n/a'}`
   );
   console.log(
     `Start economy: ${report.startEconomy ?? 'n/a'} | Economic thesis: ${report.economicThesis ?? 'n/a'} | Start signature: ${report.startInventorySignature}`
   );
   console.log(`Start silhouette: ${report.startSilhouette}`);
+  console.log(`Player feel: start=${report.startQuantitySilhouette} | day-close=${report.dayCloseTargetSignature} | night=${report.nightCashoutPattern} | adjacent=${adjacentScore}`);
   console.log(
     `Quality: ${report.accepted ? 'PASS' : 'FAIL'} | shortest=${report.shortestPathLength} routeIds=${report.nearOptimalRouteCount} firstMoves=${report.nearOptimalFirstMoveCount} regret=${report.maxEarlyRegret} signature=${report.signatureTurnValue} repeat=${report.bestRouteMaxRepeat}`
   );
@@ -164,6 +203,7 @@ for (let day = 0; day < days; day++) {
   if (report.alternateRoute) {
     console.log(`Alternate: ${report.alternateRoute.tradeKeys.join(' / ')}`);
   }
+  previousReport = report;
 }
 
 console.log('\nRolling summary');
@@ -178,15 +218,22 @@ console.log(`Signature values: ${Array.from(countBy(signatureValues).entries()).
 console.log(`Best route max repeat: ${Array.from(countBy(bestRouteRepeats).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`Hidden vendor usage: ${Array.from(countBy(hiddenVendorUsages).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`Felt theses: ${Array.from(countBy(feltTheses).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
+console.log(`Player solve feels: ${Array.from(countBy(playerSolveFeels).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`First questions: ${Array.from(countBy(firstQuestions).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`Start economies: ${Array.from(countBy(startEconomies).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`Economic theses: ${Array.from(countBy(economicTheses).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`Start inventory signatures: ${countBy(startInventorySignatures).size}`);
 console.log(`Start silhouettes: ${countBy(startSilhouettes).size}`);
+console.log(`Start quantity silhouettes: ${countBy(startQuantitySilhouettes).size}`);
 console.log(`Night role diversity: ${Array.from(countBy(nightRoleDiversity).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`Repeated goal cashouts: ${Array.from(countBy(repeatedGoalCashouts).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`Night role signatures: ${countBy(nightRoleSignatures).size}`);
 console.log(`Night script signatures: ${countBy(nightScriptSignatures).size}`);
+console.log(`Night cashout patterns: ${countBy(nightCashoutPatterns).size}`);
+console.log(`Day-close target signatures: ${countBy(dayCloseTargetSignatures).size}`);
+console.log(`Solve feel signatures: ${countBy(solveFeelSignatures).size}`);
+console.log(`Solve feel repeats inside 21 days: ${cooldownRepeatCount(solveFeelSignatures, 21)}`);
+console.log(`Max adjacent similarity: ${Math.max(0, ...adjacentSimilarityScores)}`);
 console.log(`Max archetype run: ${maxRun(archetypes)}`);
 console.log(`Shape signatures: ${countBy(shapeSignatures).size}`);
 console.log(`Role skeleton signatures: ${countBy(roleSkeletonSignatures).size}`);

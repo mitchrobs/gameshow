@@ -7,8 +7,15 @@ import type { BarterPuzzle } from '../src/data/barter/types.ts';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..');
 const outputPath = resolve(repoRoot, 'src/data/barter/precomputedDaily.ts');
-const startDate = '2026-04-16';
-const days = 56;
+
+function readArg(name: string, fallback: string): string {
+  const index = process.argv.indexOf(`--${name}`);
+  if (index === -1) return fallback;
+  return process.argv[index + 1] ?? fallback;
+}
+
+const startDate = readArg('start', '2026-05-01');
+const days = Number.parseInt(readArg('days', '365'), 10);
 
 function dateAt(offset: number): Date {
   const date = new Date(`${startDate}T12:00:00`);
