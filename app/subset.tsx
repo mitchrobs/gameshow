@@ -62,8 +62,9 @@ type FeedbackTone = "correct" | "wrong" | "invalid";
 
 const SHUFFLE_DURATION_MS = 900;
 const SHUFFLE_TICK_MS = 90;
-const GRID_GAP = 8;
+const GRID_GAP = 6;
 const CATEGORY_RAIL_THICKNESS = 42;
+const MAX_RESHUFFLES = 2;
 const STORAGE_PREFIX = "subset";
 const WEB_NO_SELECT =
   Platform.OS === "web"
@@ -344,6 +345,7 @@ export default function SubsetScreen() {
     null,
   );
   const [wrongGuesses, setWrongGuesses] = useState(0);
+  const [reshufflesUsed, setReshufflesUsed] = useState(0);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const shuffleIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
     null,
@@ -355,7 +357,8 @@ export default function SubsetScreen() {
   const hasCountedRef = useRef(false);
 
   const shellWidth = Math.min(width - theme.spacing.md * 2, 520);
-  const boardMaxWidth = Math.min(shellWidth, 472);
+  const cardContentWidth = Math.max(shellWidth - theme.spacing.md * 2, 0);
+  const boardMaxWidth = Math.min(cardContentWidth, 456);
   const cellSize = clamp(
     Math.floor((boardMaxWidth - GRID_GAP * SUBSET_GRID_SIZE) / 4),
     52,
@@ -364,6 +367,8 @@ export default function SubsetScreen() {
   const headerSize = cellSize;
   const cellSpan = cellSize + GRID_GAP;
   const tileFontSize = cellSize < 70 ? 12 : 14;
+  const reshufflesRemaining = Math.max(0, MAX_RESHUFFLES - reshufflesUsed);
+  const canShuffleAgain = phase !== "shuffling" && reshufflesRemaining > 0;
 
   const clearShuffleTimers = useCallback(() => {
     if (shuffleIntervalRef.current) {
@@ -409,13 +414,16 @@ export default function SubsetScreen() {
     [feedbackAnim],
   );
 
-  const startRound = useCallback(() => {
+  const startRound = useCallback((options?: { resetReshuffles?: boolean }) => {
     clearShuffleTimers();
     const finalBoard = createRandomUnsolvedSubsetBoard(
       Math.random,
       200,
       activePuzzle,
     );
+    if (options?.resetReshuffles) {
+      setReshufflesUsed(0);
+    }
     setRoundPuzzle(activePuzzle);
     setSolvedLines(createEmptySubsetSolvedLines());
     setOrientation(null);
@@ -452,6 +460,12 @@ export default function SubsetScreen() {
 
     return clearShuffleTimers;
   }, [activePuzzle, clearShuffleTimers, pulsePillar, reduceMotion, tileIds]);
+
+  const handleShuffleAgain = useCallback(() => {
+    if (!canShuffleAgain) return;
+    setReshufflesUsed((current) => Math.min(current + 1, MAX_RESHUFFLES));
+    startRound();
+  }, [canShuffleAgain, startRound]);
 
   useEffect(() => {
     let mounted = true;
@@ -794,6 +808,9 @@ export default function SubsetScreen() {
                   <View style={styles.introStatPill}>
                     <Text style={styles.introStatText}>4 misses</Text>
                   </View>
+                  <View style={styles.introStatPill}>
+                    <Text style={styles.introStatText}>2 shuffles</Text>
+                  </View>
                 </View>
 
                 <View style={styles.instructionsCard}>
@@ -822,7 +839,7 @@ export default function SubsetScreen() {
 
                 <Pressable
                   disabled={!motionReady}
-                  onPress={() => startRound()}
+                  onPress={() => startRound({ resetReshuffles: true })}
                   style={({ pressed }) => [
                     primitives.cta,
                     styles.introCta,
@@ -1130,43 +1147,19 @@ export default function SubsetScreen() {
 
                   <View style={styles.footerActions}>
                     <Pressable
-                      onPress={() => startRound()}
+                      disabled={!canShuffleAgain}
+                      onPress={handleShuffleAgain}
                       style={({ pressed }) => [
                         styles.secondaryButton,
+                        !canShuffleAgain && styles.secondaryButtonDisabled,
                         pressed && styles.secondaryButtonPressed,
                       ]}
                     >
                       <Text style={styles.secondaryButtonText}>
-                        Shuffle again
+                        {reshufflesRemaining > 0
+                          ? `Shuffle again (${reshufflesRemaining})`
+                          : "No shuffles left"}
                       </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => {
-                        setBoard(
-                          createRandomUnsolvedSubsetBoard(
-                            Math.random,
-                            200,
-                            activePuzzle,
-                          ),
-                        );
-                        setRoundPuzzle(activePuzzle);
-                        setSolvedLines(createEmptySubsetSolvedLines());
-                        setOrientation(null);
-                        setWrongGuesses(0);
-                        setPreviewLine(null);
-                        setFeedbackLine(null);
-                        setFeedbackTone(null);
-                        setDragTargetIndex(null);
-                        setPhase("playing");
-                        setMessage("Find a hidden row or column.");
-                        pulsePillar();
-                      }}
-                      style={({ pressed }) => [
-                        styles.secondaryButton,
-                        pressed && styles.secondaryButtonPressed,
-                      ]}
-                    >
-                      <Text style={styles.secondaryButtonText}>Reset</Text>
                     </Pressable>
                   </View>
 
@@ -1330,7 +1323,7 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
     },
     boardCard: {
       padding: theme.spacing.md,
-      gap: theme.spacing.md,
+      gap: theme.spacing.sm,
     },
     statusRow: {
       minHeight: 34,
@@ -1618,9 +1611,9 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
       textAlign: "center",
     },
     secondaryButton: {
-      minHeight: 38,
+      minHeight: 36,
       borderRadius: theme.borderRadius.full,
-      paddingHorizontal: theme.spacing.lg,
+      paddingHorizontal: theme.spacing.md,
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: theme.colors.surfaceLight,
@@ -1630,6 +1623,9 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
     secondaryButtonPressed: {
       backgroundColor: theme.colors.surface,
       transform: [{ scale: 0.98 }],
+    },
+    secondaryButtonDisabled: {
+      opacity: 0.52,
     },
     secondaryButtonText: {
       color: theme.colors.text,
