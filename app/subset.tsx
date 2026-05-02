@@ -39,10 +39,11 @@ import {
   getCellFromIndex,
   getOrientedSolvedLineCategory,
   getSubsetLineMatch,
+  getSubsetMisplacedLineMatch,
   getSubsetTile,
   isBoardComplete,
   isLineSolved,
-  isTilePinned,
+  isTileInSolvedLine,
   markLineSolved,
   shuffleSubsetTiles,
   swapBoardTiles,
@@ -539,15 +540,25 @@ export default function SubsetScreen() {
         activePuzzle,
       );
       if (!lineMatch) {
+        const misplacedLineMatch = getSubsetMisplacedLineMatch(
+          board,
+          axis,
+          index,
+          orientation,
+          activePuzzle,
+        );
+        const missMessage = misplacedLineMatch
+          ? `${misplacedLineMatch.category.label}: wrong places.`
+          : "No link there.";
         triggerLineFeedback({ axis, index }, "wrong");
         setWrongGuesses((current) => {
           const next = current + 1;
           if (next >= MAX_INCORRECT_GUESSES) {
             setPhase("lost");
             setPreviewLine(null);
-            setMessage("Out of guesses. Shuffle again or reset.");
+            setMessage(`Game over. ${missMessage}`);
           } else {
-            setMessage("Not quite.");
+            setMessage(missMessage);
           }
           return next;
         });
@@ -758,7 +769,7 @@ export default function SubsetScreen() {
                     <Text style={styles.introStatText}>6 links</Text>
                   </View>
                   <View style={styles.introStatPill}>
-                    <Text style={styles.introStatText}>3 misses</Text>
+                    <Text style={styles.introStatText}>4 misses</Text>
                   </View>
                 </View>
 
@@ -781,7 +792,7 @@ export default function SubsetScreen() {
                     <Text style={styles.instructionNumber}>3</Text>
                     <Text style={styles.instructionsText}>
                       Tap a ? to check a row or column. Correct lines reveal
-                      and lock; three misses end the round.
+                      and lock; four misses end the round.
                     </Text>
                   </View>
                 </View>
@@ -1047,7 +1058,7 @@ export default function SubsetScreen() {
                               activePuzzle.fixedCell.index === index &&
                               activePuzzle.fixedCell.tileId === tileId;
                             const pinned =
-                              fixed || isTilePinned(solvedLines, index);
+                              fixed || isTileInSolvedLine(solvedLines, index);
                             return (
                               <View
                                 key={`cell-${row}-${column}`}

@@ -19,8 +19,10 @@ import {
   getOrientedSolvedLineCategory,
   getSolvedLineCategory,
   getSubsetLineMatch,
+  getSubsetMisplacedLineMatch,
   hasAnySolvedLine,
   isBoardComplete,
+  isTileInSolvedLine,
   isTilePinned,
   markLineSolved,
   preservesSolvedLines,
@@ -139,6 +141,31 @@ describe("Subset prototype data", () => {
     ).toBe("animals");
   });
 
+  it("treats a right group in the wrong crossing positions as misplaced", () => {
+    const misplacedMusicColumn = swapBoardTiles(
+      TRANSPOSED_SOLUTION_BOARD,
+      boardIndex(0, 1),
+      boardIndex(2, 1),
+    );
+
+    expect(
+      getSubsetLineMatch(
+        misplacedMusicColumn,
+        "column",
+        1,
+        "transposed",
+      ),
+    ).toBeNull();
+    expect(
+      getSubsetMisplacedLineMatch(
+        misplacedMusicColumn,
+        "column",
+        1,
+        "transposed",
+      )?.category.id,
+    ).toBe("music-terms");
+  });
+
   it("supports completing the board under transposed orientation", () => {
     let solvedLines = createEmptySubsetSolvedLines();
 
@@ -177,7 +204,7 @@ describe("Subset prototype data", () => {
     }
   });
 
-  it("blocks swaps that break a revealed line and allows swaps inside its membership", () => {
+  it("blocks swaps that break a revealed line's exact order", () => {
     const solvedLines = markLineSolved(
       createEmptySubsetSolvedLines(),
       "row",
@@ -192,6 +219,11 @@ describe("Subset prototype data", () => {
       SUBSET_SOLUTION_BOARD,
       boardIndex(0, 0),
       boardIndex(0, 2),
+    );
+    const awayFromSolvedLineSwap = swapBoardTiles(
+      SUBSET_SOLUTION_BOARD,
+      boardIndex(1, 0),
+      boardIndex(2, 0),
     );
 
     expect(
@@ -207,7 +239,7 @@ describe("Subset prototype data", () => {
     ).toBe(false);
     expect(
       preservesSolvedLines(SUBSET_SOLUTION_BOARD, safeSwap, solvedLines),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       canSwapSubsetTiles(
         SUBSET_SOLUTION_BOARD,
@@ -215,10 +247,25 @@ describe("Subset prototype data", () => {
         boardIndex(0, 2),
         solvedLines,
       ),
+    ).toBe(false);
+    expect(
+      preservesSolvedLines(
+        SUBSET_SOLUTION_BOARD,
+        awayFromSolvedLineSwap,
+        solvedLines,
+      ),
+    ).toBe(true);
+    expect(
+      canSwapSubsetTiles(
+        SUBSET_SOLUTION_BOARD,
+        boardIndex(1, 0),
+        boardIndex(2, 0),
+        solvedLines,
+      ),
     ).toBe(true);
   });
 
-  it("preserves solved-line membership under transposed orientation", () => {
+  it("preserves solved-line exact order under transposed orientation", () => {
     const solvedLines = markLineSolved(
       createEmptySubsetSolvedLines(),
       "row",
@@ -233,6 +280,11 @@ describe("Subset prototype data", () => {
       TRANSPOSED_SOLUTION_BOARD,
       boardIndex(0, 0),
       boardIndex(0, 2),
+    );
+    const awayFromSolvedLineSwap = swapBoardTiles(
+      TRANSPOSED_SOLUTION_BOARD,
+      boardIndex(1, 0),
+      boardIndex(2, 0),
     );
 
     expect(
@@ -262,12 +314,31 @@ describe("Subset prototype data", () => {
         undefined,
         "transposed",
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       canSwapSubsetTiles(
         TRANSPOSED_SOLUTION_BOARD,
         boardIndex(0, 0),
         boardIndex(0, 2),
+        solvedLines,
+        undefined,
+        "transposed",
+      ),
+    ).toBe(false);
+    expect(
+      preservesSolvedLines(
+        TRANSPOSED_SOLUTION_BOARD,
+        awayFromSolvedLineSwap,
+        solvedLines,
+        undefined,
+        "transposed",
+      ),
+    ).toBe(true);
+    expect(
+      canSwapSubsetTiles(
+        TRANSPOSED_SOLUTION_BOARD,
+        boardIndex(1, 0),
+        boardIndex(2, 0),
         solvedLines,
         undefined,
         "transposed",
@@ -285,6 +356,7 @@ describe("Subset prototype data", () => {
 
     expect(isTilePinned(rowSolved, boardIndex(0, 0))).toBe(false);
     expect(isTilePinned(rowAndColumnSolved, boardIndex(0, 0))).toBe(true);
+    expect(isTileInSolvedLine(rowSolved, boardIndex(0, 0))).toBe(true);
     expect(
       canSwapSubsetTiles(
         SUBSET_SOLUTION_BOARD,
@@ -338,14 +410,14 @@ describe("Subset prototype data", () => {
     ]);
   });
 
-  it("formats a compact non-spoiling share code with three misses", () => {
+  it("formats a compact non-spoiling share code with four misses", () => {
     const solvedLines = markLineSolved(
       markLineSolved(createEmptySubsetSolvedLines(), "row", 0),
       "column",
       1,
     );
 
-    expect(SUBSET_MAX_INCORRECT_GUESSES).toBe(3);
+    expect(SUBSET_MAX_INCORRECT_GUESSES).toBe(4);
     expect(
       formatSubsetShareText({
         dateLabel: "May 2, 2026",
@@ -357,7 +429,7 @@ describe("Subset prototype data", () => {
     ).toBe(
       [
         "Subset May 2, 2026",
-        "Stumped | 3/3 misses",
+        "Stumped | 4/4 misses",
         "Rows 🟦⬜️⬜️ | Cols ⬜️🟦⬜️",
         "https://example.com/subset",
       ].join("\n"),

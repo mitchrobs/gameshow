@@ -197,7 +197,7 @@ export default function HomeScreen() {
     const baseLinks = [
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash', category: 'word' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie', category: 'word' },
-      { label: 'Subset', route: '/subset', emoji: '▦', countKey: 'subset', category: 'word', isNew: true },
+      { label: 'Subset', route: '/subset', emoji: '🟦', countKey: 'subset', category: 'word', isNew: true },
       {
         label: 'Threadline',
         route: '/threadline',
@@ -620,7 +620,7 @@ export default function HomeScreen() {
                     })}
                   </View>
                 ))}
-                <Text style={styles.subsetPreviewMeta}>6 hidden links · 3 misses</Text>
+                <Text style={styles.subsetPreviewMeta}>6 hidden links · 4 misses</Text>
               </View>
               <Pressable
                 style={({ pressed }) => [

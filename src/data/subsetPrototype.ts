@@ -58,7 +58,7 @@ export interface SubsetPuzzleDefinition {
   categories: SubsetCategory[];
 }
 
-export const SUBSET_MAX_INCORRECT_GUESSES = 3;
+export const SUBSET_MAX_INCORRECT_GUESSES = 4;
 export const SUBSET_SHARE_URL = "https://mitchrobs.github.io/gameshow/subset";
 
 export const SUBSET_TILES: SubsetTile[] = [
@@ -171,6 +171,13 @@ function sameMembers(left: SubsetTileId[], right: SubsetTileId[]): boolean {
   if (left.length !== right.length) return false;
   const rightSet = new Set(right);
   return left.every((id) => rightSet.has(id));
+}
+
+function sameOrder(left: SubsetTileId[], right: SubsetTileId[]): boolean {
+  return (
+    left.length === right.length &&
+    left.every((tileId, index) => tileId === right[index])
+  );
 }
 
 function oppositeAxis(axis: SubsetAxis): SubsetAxis {
@@ -296,7 +303,69 @@ export function getOrientedSolvedLineCategory(
   );
 }
 
+export function getOrientedSolutionLineTileIds(
+  axis: SubsetAxis,
+  index: number,
+  orientation: SubsetOrientation,
+  puzzle: SubsetPuzzleDefinition = SUBSET_DEMO_PUZZLE,
+): SubsetTileId[] {
+  if (axis === "row") {
+    return Array.from({ length: SUBSET_GRID_SIZE }, (_, column) => {
+      const row = orientation === "canonical" ? index : column;
+      const orientedColumn = orientation === "canonical" ? column : index;
+      return puzzle.solutionBoard[boardIndex(row, orientedColumn)];
+    });
+  }
+
+  return Array.from({ length: SUBSET_GRID_SIZE }, (_, row) => {
+    const orientedRow = orientation === "canonical" ? row : index;
+    const column = orientation === "canonical" ? index : row;
+    return puzzle.solutionBoard[boardIndex(orientedRow, column)];
+  });
+}
+
 export function getSubsetLineMatch(
+  board: SubsetBoard,
+  axis: SubsetAxis,
+  index: number,
+  orientation: SubsetOrientation | null,
+  puzzle: SubsetPuzzleDefinition = SUBSET_DEMO_PUZZLE,
+): SubsetLineMatch | null {
+  const tileIds = getLineTileIds(board, axis, index);
+  const orientations: SubsetOrientation[] = orientation
+    ? [orientation]
+    : ["canonical", "transposed"];
+
+  for (const candidateOrientation of orientations) {
+    if (
+      !sameOrder(
+        tileIds,
+        getOrientedSolutionLineTileIds(
+          axis,
+          index,
+          candidateOrientation,
+          puzzle,
+        ),
+      )
+    ) {
+      continue;
+    }
+
+    const category = getMatchingCategoryForOrientation(
+      axis,
+      tileIds,
+      candidateOrientation,
+      puzzle,
+    );
+    if (category) {
+      return { category, orientation: candidateOrientation };
+    }
+  }
+
+  return null;
+}
+
+export function getSubsetMisplacedLineMatch(
   board: SubsetBoard,
   axis: SubsetAxis,
   index: number,
@@ -315,7 +384,19 @@ export function getSubsetLineMatch(
       candidateOrientation,
       puzzle,
     );
-    if (category) {
+    if (!category) continue;
+
+    if (
+      !sameOrder(
+        tileIds,
+        getOrientedSolutionLineTileIds(
+          axis,
+          index,
+          candidateOrientation,
+          puzzle,
+        ),
+      )
+    ) {
       return { category, orientation: candidateOrientation };
     }
   }
@@ -431,6 +512,14 @@ export function isTilePinned(
   return solvedLines.rows[row] && solvedLines.columns[column];
 }
 
+export function isTileInSolvedLine(
+  solvedLines: SubsetSolvedLines,
+  index: number,
+): boolean {
+  const { row, column } = getCellFromIndex(index);
+  return solvedLines.rows[row] || solvedLines.columns[column];
+}
+
 export function preservesSolvedLines(
   previousBoard: SubsetBoard,
   nextBoard: SubsetBoard,
@@ -440,41 +529,41 @@ export function preservesSolvedLines(
 ): boolean {
   for (let row = 0; row < SUBSET_GRID_SIZE; row += 1) {
     if (!solvedLines.rows[row]) continue;
-    const previousCategory = getOrientedSolvedLineCategory(
+    const previousMatch = getSubsetLineMatch(
       previousBoard,
       "row",
       row,
       orientation,
       puzzle,
     );
-    const nextCategory = getOrientedSolvedLineCategory(
+    const nextMatch = getSubsetLineMatch(
       nextBoard,
       "row",
       row,
       orientation,
       puzzle,
     );
-    if (!previousCategory || previousCategory.id !== nextCategory?.id)
+    if (!previousMatch || previousMatch.category.id !== nextMatch?.category.id)
       return false;
   }
 
   for (let column = 0; column < SUBSET_GRID_SIZE; column += 1) {
     if (!solvedLines.columns[column]) continue;
-    const previousCategory = getOrientedSolvedLineCategory(
+    const previousMatch = getSubsetLineMatch(
       previousBoard,
       "column",
       column,
       orientation,
       puzzle,
     );
-    const nextCategory = getOrientedSolvedLineCategory(
+    const nextMatch = getSubsetLineMatch(
       nextBoard,
       "column",
       column,
       orientation,
       puzzle,
     );
-    if (!previousCategory || previousCategory.id !== nextCategory?.id)
+    if (!previousMatch || previousMatch.category.id !== nextMatch?.category.id)
       return false;
   }
 
@@ -496,8 +585,8 @@ export function canSwapSubsetTiles(
   )
     return false;
   if (
-    isTilePinned(solvedLines, fromIndex) ||
-    isTilePinned(solvedLines, toIndex)
+    isTileInSolvedLine(solvedLines, fromIndex) ||
+    isTileInSolvedLine(solvedLines, toIndex)
   )
     return false;
   return preservesSolvedLines(
