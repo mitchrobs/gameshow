@@ -36,6 +36,12 @@ const WEB_NO_SELECT =
       }
     : {};
 
+const STRADDLE_HOME_PREVIEW = [
+  ['MOUSE', 'COOKIE', 'BOOT'],
+  ['BASS', 'JAM', 'BAND'],
+  ['BAT', 'BATTER', 'CAP'],
+] as const;
+
 type HomeGameCategory = 'all' | 'word' | 'logic' | 'trivia';
 type FilterableGameCategory = Exclude<HomeGameCategory, 'all'>;
 
@@ -195,6 +201,7 @@ export default function HomeScreen() {
     const baseLinks = [
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash', category: 'word' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie', category: 'word' },
+      { label: 'Straddle', route: '/straddle', emoji: '▦', countKey: 'straddle', category: 'word', isNew: true },
       {
         label: 'Threadline',
         route: '/threadline',
@@ -292,6 +299,7 @@ export default function HomeScreen() {
       return (
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
+        storage.getItem(`straddle:daily:${key}`) === '1' ||
         storage.getItem(`threadline:daily:${key}`) === '1' ||
         storage.getItem(`crossword:daily:${key}`) === '1' ||
         storage.getItem(`museum:daily:${key}`) === '1' ||
@@ -328,6 +336,7 @@ export default function HomeScreen() {
     getGlobalPlayCounts([
       'mojimash',
       'wordie',
+      'straddle',
       'threadline',
       'crossword',
       'sudoku',
@@ -567,6 +576,62 @@ export default function HomeScreen() {
                   pressed && styles.playButtonPressed,
                 ]}
                 onPress={() => router.push('/wordie')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Straddle card */}
+          <View style={[styles.gameSection, !shouldShowGame('word') && styles.gameSectionHidden]}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.straddleKicker}>Word Grid</Text>
+                <Text style={styles.gameTitle}>Straddle</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              Arrange nine words so every row and column reveals a hidden category.
+            </Text>
+            {(playCounts['straddle'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['straddle']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.straddlePreview}>
+                {STRADDLE_HOME_PREVIEW.map((row, rowIndex) => (
+                  <View key={`straddle-row-${rowIndex}`} style={styles.straddlePreviewRow}>
+                    {row.map((word, columnIndex) => {
+                      const isPillar = rowIndex === 1 && columnIndex === 1;
+                      return (
+                        <View
+                          key={word}
+                          style={[
+                            styles.straddlePreviewTile,
+                            isPillar && styles.straddlePreviewTilePillar,
+                          ]}
+                        >
+                          <Text
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                            style={styles.straddlePreviewText}
+                          >
+                            {word}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                ))}
+                <Text style={styles.straddlePreviewMeta}>6 hidden links · 4 misses</Text>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/straddle')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
@@ -1097,6 +1162,7 @@ const createStyles = (
   const bridgesAccent = resolveScreenAccent('bridges', theme);
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
+  const straddleAccent = resolveScreenAccent('wordie', theme);
   const threadlineAccent = resolveScreenAccent('threadline', theme);
   const museumAccent = resolveScreenAccent('museum', theme);
   const ballparkAccent = resolveScreenAccent('trivia', theme);
@@ -1346,6 +1412,14 @@ const createStyles = (
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
   },
+  straddleKicker: {
+    color: straddleAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
   threadlineKicker: {
     color: threadlineAccent.main,
     fontSize: FontSize.sm,
@@ -1435,6 +1509,45 @@ const createStyles = (
     fontSize: FontSize.lg,
     fontWeight: '800',
     color: Colors.text,
+  },
+  straddlePreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    gap: 6,
+  },
+  straddlePreviewRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  straddlePreviewTile: {
+    width: 76,
+    height: 38,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+  },
+  straddlePreviewTilePillar: {
+    backgroundColor: straddleAccent.soft,
+    borderColor: straddleAccent.main,
+  },
+  straddlePreviewText: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: Colors.text,
+  },
+  straddlePreviewMeta: {
+    marginTop: Spacing.xs,
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '700',
   },
   threadlinePreview: {
     alignItems: 'center',

@@ -50,6 +50,7 @@ import {
   createStraddlePuzzleDefinitionFromScheduledPuzzle,
   getStraddlePackPuzzleForDate,
 } from "../src/data/straddleSchedule";
+import { incrementGlobalPlayCount } from "../src/globalPlayCount";
 
 type GamePhase = "intro" | "shuffling" | "playing" | "won" | "lost";
 type PreviewLine = { axis: StraddleAxis; index: number } | null;
@@ -58,6 +59,7 @@ const SHUFFLE_DURATION_MS = 900;
 const SHUFFLE_TICK_MS = 90;
 const GRID_GAP = 8;
 const CATEGORY_RAIL_THICKNESS = 42;
+const STORAGE_PREFIX = "straddle";
 const WEB_NO_SELECT =
   Platform.OS === "web"
     ? {
@@ -68,6 +70,13 @@ const WEB_NO_SELECT =
         touchAction: "none",
       }
     : {};
+
+function getStorage(): Storage | null {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    return window.localStorage;
+  }
+  return null;
+}
 
 function formatDateLabel(date = new Date()): string {
   return date.toLocaleDateString("en-US", {
@@ -93,7 +102,7 @@ function getShareUrl(): string {
       return `${window.location.origin}/straddle`;
     }
   }
-  return "https://mitchrobs.github.io/gameshow/";
+  return "https://mitchrobs.github.io/gameshow/straddle";
 }
 
 function formatGuessesLeft(guessesLeft: number): string {
@@ -260,6 +269,7 @@ export default function StraddleScreen() {
   );
   const { width } = useWindowDimensions();
   const todayKey = useMemo(() => formatLocalDateKey(), []);
+  const dailyKey = useMemo(() => `${STORAGE_PREFIX}:daily:${todayKey}`, [todayKey]);
   const dateLabel = useMemo(() => formatDateLabel(), []);
   const shareUrl = useMemo(() => getShareUrl(), []);
   const scheduledPuzzle = useMemo(() => {
@@ -295,6 +305,7 @@ export default function StraddleScreen() {
     null,
   );
   const shuffleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasCountedRef = useRef(false);
 
   const railWidth = CATEGORY_RAIL_THICKNESS;
   const shellWidth = Math.min(width - theme.spacing.md * 2, 520);
@@ -373,6 +384,14 @@ export default function StraddleScreen() {
   useEffect(() => {
     return clearShuffleTimers;
   }, [clearShuffleTimers]);
+
+  useEffect(() => {
+    if (phase !== "won" && phase !== "lost") return;
+    getStorage()?.setItem(dailyKey, "1");
+    if (hasCountedRef.current) return;
+    hasCountedRef.current = true;
+    incrementGlobalPlayCount("straddle");
+  }, [dailyKey, phase]);
 
   const shareText = useMemo(
     () =>
@@ -531,8 +550,8 @@ export default function StraddleScreen() {
                   <Text style={styles.introTitle}>Straddle</Text>
                   <Text style={styles.introSubtitle}>
                     {isDemoPuzzle
-                      ? `Try the daily demo. The first pack puzzle arrives ${packStartLabel}.`
-                      : "Place all nine words so every row and column shares a category."}
+                      ? `Arrange the words so every row and column makes a clean group. The daily pack begins ${packStartLabel}.`
+                      : "Arrange the words so every row and column makes a clean group."}
                   </Text>
                 </View>
 
@@ -556,13 +575,13 @@ export default function StraddleScreen() {
                 <View style={styles.instructionsCard}>
                   <Text style={styles.instructionsTitle}>How to play</Text>
                   <Text style={styles.instructionsText}>
-                    Drag words to swap them. Tap a ? above the grid to check a
-                    column, or a ? beside the grid to check a row.
+                    Drag words to swap them into the 3x3 grid. Each word must
+                    work across its row and down its column.
                   </Text>
                   <Text style={styles.instructionsText}>
-                    Correct checks reveal the category and keep those words
-                    together. The center word starts locked. Four misses end the
-                    round.
+                    Tap a ? to check that row or column. Correct lines reveal
+                    their category and stay together. The center word starts
+                    locked; four misses end the round.
                   </Text>
                 </View>
 
