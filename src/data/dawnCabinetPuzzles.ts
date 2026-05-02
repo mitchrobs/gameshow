@@ -295,6 +295,21 @@ const EXPERT_MACRO_FAMILIES: DawnCabinetMacroFamily[] = [
   'brokenSpine',
   'lanternWeb',
 ];
+const GENERATED_CONNECTOR_RAIL_PREFIXES = [
+  'split-hinge',
+  'corner-exchange',
+  'three-pocket',
+  'short-basin',
+  'braided-reservoir',
+  'mirror-trap',
+  'offset-bridge',
+  'reserve-fork',
+  'ring-cabinet',
+  'five-district',
+  'double-basin',
+  'broken-spine',
+  'lantern-web',
+] as const;
 const EXPOSURE_PROFILES: DawnCabinetExposureProfile[] = [
   'friendlyStart',
   'ledgerFirst',
@@ -308,7 +323,7 @@ export const DAWN_CABINET_DAILY_DIFFICULTIES: DawnCabinetDailyDifficulty[] = [
   'Hard',
   'Expert',
 ];
-export const DAWN_CABINET_SCHEDULE_START = '2026-05-15';
+export const DAWN_CABINET_SCHEDULE_START = '2026-05-02';
 export const DAWN_CABINET_SCHEDULE_DAYS = 365;
 
 type DawnCabinetSchedulePuzzleEntry = {
@@ -820,30 +835,54 @@ function selectAntiFingerprintVariant(
   const recentProfiles = getCachedRecentPlayProfileKeys(date, difficulty);
   const offset = Number((seed + BigInt(dateOffset)) % BigInt(variants.length));
   const ordered = [...variants.slice(offset), ...variants.slice(0, offset)];
+  const candidateByVariant = new Map<number, DawnCabinetPuzzle>();
+  const solutionCountById = new Map<string, number>();
+  const getCandidate = (variant: number) => {
+    const cachedCandidate = candidateByVariant.get(variant);
+    if (cachedCandidate) return cachedCandidate;
+    const candidate = makePuzzleVariant(date, difficulty, seed, variant);
+    candidateByVariant.set(variant, candidate);
+    return candidate;
+  };
+  const getSolutionCount = (candidate: DawnCabinetPuzzle) => {
+    const cachedCount = solutionCountById.get(candidate.id);
+    if (cachedCount !== undefined) return cachedCount;
+    const count = countCabinetSolutions(candidate, 2);
+    solutionCountById.set(candidate.id, count);
+    return count;
+  };
   let best: { candidate: DawnCabinetPuzzle; score: number } | undefined;
+  let bestVisible: { candidate: DawnCabinetPuzzle; score: number } | undefined;
   let bestFreshComposite: DawnCabinetPuzzle | undefined;
+  let bestVisibleFreshComposite: DawnCabinetPuzzle | undefined;
   let bestSelectable: DawnCabinetPuzzle | undefined;
+  let bestVisibleSelectable: DawnCabinetPuzzle | undefined;
 
   for (const [index, variant] of ordered.entries()) {
-    const candidate = makePuzzleVariant(date, difficulty, seed, variant);
+    const candidate = getCandidate(variant);
     const score = getCandidateFreshnessScore(candidate, recent, recentProfiles);
     const selectable = isSelectableDawnCandidate(candidate);
+    const visibleConnectors = hasVisibleGeneratedConnectorRails(candidate);
+    const qualityTarget = meetsSelectionQualityTarget(candidate);
     if (!best || score > best.score) best = { candidate, score };
+    if (visibleConnectors && (!bestVisible || score > bestVisible.score)) bestVisible = { candidate, score };
     if (!bestFreshComposite && !recent.has(candidate.compositeSignature)) bestFreshComposite = candidate;
+    if (visibleConnectors && !bestVisibleFreshComposite && !recent.has(candidate.compositeSignature)) bestVisibleFreshComposite = candidate;
     if (!bestSelectable && selectable) bestSelectable = candidate;
+    if (visibleConnectors && !bestVisibleSelectable && selectable) bestVisibleSelectable = candidate;
 
     const strongFreshCandidate =
+      qualityTarget &&
       !recent.has(candidate.compositeSignature) &&
       !recentProfiles.has(candidate.playProfile?.key ?? '') &&
-      selectable &&
-      meetsDawnQualityTarget(candidate);
+      selectable;
     const acceptableFreshCandidate =
+      qualityTarget &&
       !recent.has(candidate.compositeSignature) &&
-      selectable &&
-      meetsDawnQualityTarget(candidate);
+      selectable;
     if (
       strongFreshCandidate &&
-      countCabinetSolutions(candidate, 2) === 1
+      getSolutionCount(candidate) === 1
     ) {
       SELECTED_CANDIDATE_CACHE.set(cacheKey, candidate);
       return candidate;
@@ -852,14 +891,43 @@ function selectAntiFingerprintVariant(
     if (
       index >= getMinimumCandidateScanCount(difficulty) &&
       acceptableFreshCandidate &&
-      countCabinetSolutions(candidate, 2) === 1
+      getSolutionCount(candidate) === 1
     ) {
       SELECTED_CANDIDATE_CACHE.set(cacheKey, candidate);
       return candidate;
     }
   }
 
+  let bestUniqueFallback: { candidate: DawnCabinetPuzzle; score: number } | undefined;
+  for (const variant of ordered) {
+    const candidate = getCandidate(variant);
+    if (!meetsSelectionQualityTarget(candidate)) continue;
+    if (getSolutionCount(candidate) !== 1) continue;
+    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles);
+    if (!bestUniqueFallback || score > bestUniqueFallback.score) bestUniqueFallback = { candidate, score };
+  }
+  if (bestUniqueFallback) {
+    SELECTED_CANDIDATE_CACHE.set(cacheKey, bestUniqueFallback.candidate);
+    return bestUniqueFallback.candidate;
+  }
+
+  for (const variant of ordered) {
+    const candidate = getCandidate(variant);
+    if (!hasVisibleGeneratedConnectorRails(candidate)) continue;
+    if (!isSelectableDawnCandidate(candidate)) continue;
+    if (getSolutionCount(candidate) !== 1) continue;
+    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles);
+    if (!bestUniqueFallback || score > bestUniqueFallback.score) bestUniqueFallback = { candidate, score };
+  }
+  if (bestUniqueFallback) {
+    SELECTED_CANDIDATE_CACHE.set(cacheKey, bestUniqueFallback.candidate);
+    return bestUniqueFallback.candidate;
+  }
+
   const selected =
+    bestVisibleSelectable ??
+    bestVisibleFreshComposite ??
+    bestVisible?.candidate ??
     bestSelectable ??
     bestFreshComposite ??
     best?.candidate ??
@@ -869,9 +937,49 @@ function selectAntiFingerprintVariant(
 }
 
 function getMinimumCandidateScanCount(difficulty: DawnCabinetDifficulty): number {
-  if (difficulty === 'Expert') return 40;
-  if (difficulty === 'Hard') return 28;
-  return 18;
+  if (difficulty === 'Expert') return 80;
+  if (difficulty === 'Hard') return 48;
+  return 28;
+}
+
+function meetsSelectionQualityTarget(candidate: DawnCabinetPuzzle): boolean {
+  if (!hasVisibleGeneratedConnectorRails(candidate)) return false;
+  if (!isSelectableDawnCandidate(candidate)) return false;
+  if (!meetsDawnQualityTarget(candidate)) return false;
+
+  const hiddenRails = candidate.lines.filter((line) => line.goal === 'hidden').length;
+  const visibleKinds = new Set(candidate.lines.filter((line) => line.goal !== 'hidden').map((line) => line.goal)).size;
+  const dawnTouchCount = getDawnRailTouchCount(candidate);
+
+  if (candidate.difficulty === 'Standard') {
+    return hiddenRails >= 11 &&
+      hiddenRails <= 16 &&
+      visibleKinds >= 2 &&
+      visibleKinds <= 4 &&
+      dawnTouchCount >= 2 &&
+      dawnTouchCount <= 3 &&
+      candidate.motifs.length >= 8 &&
+      candidate.motifs.length <= 9;
+  }
+  if (candidate.difficulty === 'Hard') {
+    return hiddenRails >= 17 &&
+      hiddenRails <= 24 &&
+      visibleKinds >= 3 &&
+      visibleKinds <= 5 &&
+      dawnTouchCount >= 3 &&
+      candidate.motifs.length >= 9 &&
+      candidate.motifs.length <= 12;
+  }
+  if (candidate.difficulty === 'Expert') {
+    return hiddenRails >= 32 &&
+      hiddenRails <= 37 &&
+      visibleKinds >= 4 &&
+      visibleKinds <= 6 &&
+      dawnTouchCount >= 3 &&
+      candidate.motifs.length >= 14 &&
+      candidate.motifs.length <= 17;
+  }
+  return true;
 }
 
 function selectedCandidateCacheKey(
@@ -913,14 +1021,21 @@ function getCandidateFreshnessScore(
   recentCompositeSignatures: Set<string>,
   recentPlayProfileKeys: Set<string>
 ): number {
+  const connectorVisibility = hasVisibleGeneratedConnectorRails(candidate) ? 160 : -10_000;
   const compositeFresh = recentCompositeSignatures.has(candidate.compositeSignature) ? -1_000 : 200;
   const postureFresh = recentPlayProfileKeys.has(candidate.playProfile?.key ?? '') ? -250 : 120;
   const dawnQuality = getDawnQualityScore(candidate) * 12;
+  const dawnPressureBonus =
+    candidate.difficulty === 'Expert' && getDawnRailTouchCount(candidate) >= 4
+      ? 320
+      : candidate.difficulty === 'Hard' && getDawnRailTouchCount(candidate) >= 4
+        ? 80
+        : 0;
   const visibleSpread = getVisibleRailSpreadScore(candidate) * 8;
   const connectedBonus = isBoardConnected(candidate) ? 50 : -500;
   const widthBonus = candidate.columns <= 7 ? 30 : -500;
   const motifBonus = new Set(candidate.motifs).size * 3;
-  return compositeFresh + postureFresh + dawnQuality + visibleSpread + connectedBonus + widthBonus + motifBonus;
+  return connectorVisibility + compositeFresh + postureFresh + dawnQuality + dawnPressureBonus + visibleSpread + connectedBonus + widthBonus + motifBonus;
 }
 
 function isSelectableDawnCandidate(candidate: DawnCabinetPuzzle): boolean {
@@ -1073,7 +1188,7 @@ function makeCandidates(
 }
 
 function makeVariantNumbers(difficulty: DawnCabinetDifficulty, seed: bigint): number[] {
-  const variantCount = difficulty === 'Expert' ? 180 : difficulty === 'Hard' ? 120 : difficulty === 'Standard' ? 96 : 1;
+  const variantCount = difficulty === 'Expert' ? 960 : difficulty === 'Hard' ? 320 : difficulty === 'Standard' ? 224 : 1;
   return Array.from({ length: variantCount }, (_, index) =>
     Number((seed + BigInt(index) * 104_729n) % 10_000n)
   );
@@ -1641,7 +1756,7 @@ function makeExpertPuzzle(config: {
   }), {
     optionCount: 4,
     variant: config.variant,
-    preferredLineCount: config.variant % 5 === 0 ? 4 : 3,
+    preferredLineCount: 4,
     minLineCount: 3,
   });
 }
@@ -2858,6 +2973,7 @@ function addGeneratedConnectorRail(
   }
 ): boolean {
   const allCells = Object.keys(draft.solution).sort(compareCellKeys);
+  const activeCells = new Set(allCells);
   const existingSets = new Set(
     draft.lines.map((line) => normalizeRailCellSet(line.cells))
   );
@@ -2867,7 +2983,7 @@ function addGeneratedConnectorRail(
     });
     return counts;
   }, {});
-  const cellLimit = config.difficulty === 'Expert' ? 12 : config.difficulty === 'Hard' ? 11 : 10;
+  const cellLimit = config.difficulty === 'Expert' ? 32 : config.difficulty === 'Hard' ? 24 : 18;
   const cells = allCells
     .map((cell) => ({
       cell,
@@ -2881,38 +2997,54 @@ function addGeneratedConnectorRail(
     .slice(0, cellLimit)
     .map((item) => item.cell)
     .sort(compareCellKeys);
-  const maxRowSpan = config.difficulty === 'Expert' ? 9 : config.difficulty === 'Hard' ? 7 : 5;
   const candidates: Array<{
     cells: string[];
     kind: DawnCabinetSetKind;
     score: number;
     hash: bigint;
   }> = [];
+  const seenCandidateSets = new Set<string>();
 
-  for (let a = 0; a < cells.length - 2; a += 1) {
-    for (let b = a + 1; b < cells.length - 1; b += 1) {
-      for (let c = b + 1; c < cells.length; c += 1) {
-        const railCells = [cells[a], cells[b], cells[c]].sort(compareCellKeys);
+  for (const middle of cells) {
+    for (const start of cells) {
+      if (start === middle) continue;
+      const firstSegment = [start, middle];
+      if (!isLegibleRailCellPath(firstSegment, activeCells, config.difficulty)) continue;
+
+      for (const end of cells) {
+        if (end === start || end === middle) continue;
+        const railCells = [start, middle, end];
         const railSet = normalizeRailCellSet(railCells);
         if (existingSets.has(railSet)) continue;
+        if (seenCandidateSets.has(railSet)) continue;
+        if (!isLegibleRailCellPath(railCells, activeCells, config.difficulty)) continue;
+        seenCandidateSets.add(railSet);
 
         const coords = railCells.map(parseCellKey);
         const rowSpan = Math.max(...coords.map((cell) => cell.row)) - Math.min(...coords.map((cell) => cell.row));
         const colSpan = Math.max(...coords.map((cell) => cell.col)) - Math.min(...coords.map((cell) => cell.col));
-        if (rowSpan > maxRowSpan || colSpan > 6) continue;
-        if (rowSpan === 0 && colSpan <= 2) continue;
-        if (colSpan === 0 && rowSpan <= 2) continue;
 
         const kind = classifyCabinetLine(railCells.map((cell) => draft.solution[cell]));
         if (!kind || kind === 'pair' || !config.desiredKinds.includes(kind)) continue;
 
         const overlapScore = railCells.reduce((sum, cell) => sum + Math.min(3, lineCounts[cell] ?? 0), 0);
-        const spreadScore = rowSpan + colSpan + new Set(coords.map((cell) => cell.row)).size + new Set(coords.map((cell) => cell.col)).size;
+        const segmentSpans = [
+          getCellDistance(start, middle),
+          getCellDistance(middle, end),
+        ];
+        const segmentDirections = new Set([
+          getSegmentDirection(start, middle),
+          getSegmentDirection(middle, end),
+        ]);
+        const diagonalScore = segmentDirections.has('diagonal') ? 5 : 0;
+        const hingeScore = segmentDirections.size > 1 ? 4 : 1;
+        const spanScore = Math.min(8, rowSpan + colSpan + segmentSpans.reduce((sum, value) => sum + value, 0));
+        const kindScore = (config.desiredKinds.length - config.desiredKinds.indexOf(kind)) * 2;
         const hash = stableSeed(`${config.id}:${config.variant}:${railSet}:${kind}`);
         candidates.push({
           cells: railCells,
           kind,
-          score: overlapScore * 4 + spreadScore * 2 + config.desiredKinds.indexOf(kind),
+          score: overlapScore * 5 + spanScore * 2 + hingeScore + diagonalScore + kindScore,
           hash,
         });
       }
@@ -2927,6 +3059,84 @@ function addGeneratedConnectorRail(
 
   addLine(draft, config.id, selected.cells, 'hidden');
   return true;
+}
+
+export function isGeneratedConnectorRail(line: DawnCabinetLine): boolean {
+  return GENERATED_CONNECTOR_RAIL_PREFIXES.some((prefix) => line.id.startsWith(`${prefix}-`));
+}
+
+function hasVisibleGeneratedConnectorRails(puzzle: DawnCabinetPuzzle): boolean {
+  return puzzle.lines.every((line) => !isGeneratedConnectorRail(line) || isLegibleRailPath(puzzle, line));
+}
+
+export function isLegibleRailPath(puzzle: DawnCabinetPuzzle, line: DawnCabinetLine): boolean {
+  const activeCells = new Set(puzzle.cells.map((cell) => cellKey(cell.row, cell.col)));
+  return isLegibleRailCellPath(line.cells, activeCells, puzzle.difficulty);
+}
+
+function isLegibleRailCellPath(
+  cells: string[],
+  activeCells: ReadonlySet<string>,
+  difficulty: DawnCabinetDifficulty
+): boolean {
+  if (cells.length < 2) return false;
+  if (new Set(cells).size !== cells.length) return false;
+  if (!cells.every((cell) => activeCells.has(cell))) return false;
+  const railCells = new Set(cells);
+  return cells.slice(0, -1).every((cell, index) => {
+    const next = cells[index + 1];
+    if (!isCleanGridSegment(cell, next)) return false;
+    if (getCellDistance(cell, next) > getRailSegmentSpanLimit(difficulty)) return false;
+    return !segmentCrossesUnrelatedActiveCell(cell, next, activeCells, railCells);
+  });
+}
+
+function getRailSegmentSpanLimit(difficulty: DawnCabinetDifficulty): number {
+  if (difficulty === 'Expert') return 6;
+  if (difficulty === 'Hard') return 5;
+  return 4;
+}
+
+function isCleanGridSegment(start: string, end: string): boolean {
+  const a = parseCellKey(start);
+  const b = parseCellKey(end);
+  const rowDelta = b.row - a.row;
+  const colDelta = b.col - a.col;
+  if (rowDelta === 0 && colDelta === 0) return false;
+  return rowDelta === 0 || colDelta === 0 || Math.abs(rowDelta) === Math.abs(colDelta);
+}
+
+function getCellDistance(start: string, end: string): number {
+  const a = parseCellKey(start);
+  const b = parseCellKey(end);
+  return Math.max(Math.abs(b.row - a.row), Math.abs(b.col - a.col));
+}
+
+function getSegmentDirection(start: string, end: string): 'horizontal' | 'vertical' | 'diagonal' {
+  const a = parseCellKey(start);
+  const b = parseCellKey(end);
+  if (a.row === b.row) return 'horizontal';
+  if (a.col === b.col) return 'vertical';
+  return 'diagonal';
+}
+
+export function segmentCrossesUnrelatedActiveCell(
+  start: string,
+  end: string,
+  activeCells: ReadonlySet<string>,
+  railCells: ReadonlySet<string>
+): boolean {
+  if (!isCleanGridSegment(start, end)) return true;
+  const a = parseCellKey(start);
+  const b = parseCellKey(end);
+  const steps = getCellDistance(start, end);
+  const rowStep = Math.sign(b.row - a.row);
+  const colStep = Math.sign(b.col - a.col);
+  for (let offset = 1; offset < steps; offset += 1) {
+    const key = cellKey(a.row + rowStep * offset, a.col + colStep * offset);
+    if (activeCells.has(key) && !railCells.has(key)) return true;
+  }
+  return false;
 }
 
 function normalizeRailCellSet(cells: string[]): string {

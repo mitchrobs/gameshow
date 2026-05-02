@@ -4,7 +4,13 @@ import {
   DAWN_CABINET_DAILY_DIFFICULTIES,
   DAWN_CABINET_SCHEDULE_DAYS,
   DAWN_CABINET_SCHEDULE_START,
+  countCabinetSolutions,
+  getCabinetEntryCount,
   getGeneratedDailyDawnCabinet,
+  isCabinetSolved,
+  isGeneratedConnectorRail,
+  isLegibleRailPath,
+  tileKey,
   type DawnCabinetDailyDifficulty,
   type DawnCabinetPuzzle,
 } from '../src/data/dawnCabinetPuzzles';
@@ -37,6 +43,47 @@ function makePuzzleEntry(puzzle: DawnCabinetPuzzle): SchedulePuzzleEntry {
   };
 }
 
+function assertPuzzleReadyForSchedule(
+  date: string,
+  difficulty: DawnCabinetDailyDifficulty,
+  puzzle: DawnCabinetPuzzle
+) {
+  const context = `${date} ${difficulty} ${puzzle.id}`;
+  if (!isCabinetSolved(puzzle, puzzle.solution)) {
+    throw new Error(`Dawn Cabinet schedule rejected ${context}: solution state does not satisfy rails, ledger, or reserve goal`);
+  }
+
+  const solutionCount = countCabinetSolutions(puzzle, 2);
+  if (solutionCount !== 1) {
+    throw new Error(`Dawn Cabinet schedule rejected ${context}: expected 1 solution, found ${solutionCount}`);
+  }
+
+  const badGeneratedRail = puzzle.lines.find((line) => {
+    return isGeneratedConnectorRail(line) && !isLegibleRailPath(puzzle, line);
+  });
+  if (badGeneratedRail) {
+    throw new Error(
+      `Dawn Cabinet schedule rejected ${context}: generated rail ${badGeneratedRail.id} is not player-visible (${badGeneratedRail.cells.join(' -> ')})`
+    );
+  }
+
+  const blankCount = puzzle.cells.length - Object.keys(puzzle.givens).length;
+  if (getCabinetEntryCount(puzzle) !== blankCount + puzzle.spareCount) {
+    throw new Error(`Dawn Cabinet schedule rejected ${context}: Cabinet entry count does not match blanks plus reserve`);
+  }
+
+  if (!puzzle.dawnTile) {
+    throw new Error(`Dawn Cabinet schedule rejected ${context}: daily puzzle is missing a Dawn Tile`);
+  }
+  if (puzzle.givens[puzzle.dawnTile.solutionCell]) {
+    throw new Error(`Dawn Cabinet schedule rejected ${context}: Dawn Tile is placed on a given cell`);
+  }
+  const dawnResolvedKey = tileKey(puzzle.dawnTile.resolvedTile);
+  if (puzzle.reserveTiles.some((tile) => tileKey(tile) === dawnResolvedKey)) {
+    throw new Error(`Dawn Cabinet schedule rejected ${context}: Dawn Tile can be left in reserve`);
+  }
+}
+
 const entries: ScheduleEntry[] = [];
 
 for (let index = 0; index < DAWN_CABINET_SCHEDULE_DAYS; index += 1) {
@@ -44,6 +91,7 @@ for (let index = 0; index < DAWN_CABINET_SCHEDULE_DAYS; index += 1) {
   const puzzles = Object.fromEntries(
     DAWN_CABINET_DAILY_DIFFICULTIES.map((difficulty) => {
       const puzzle = getGeneratedDailyDawnCabinet(date, difficulty);
+      assertPuzzleReadyForSchedule(date, difficulty, puzzle);
       return [difficulty, makePuzzleEntry(puzzle)];
     })
   ) as Record<DawnCabinetDailyDifficulty, SchedulePuzzleEntry>;

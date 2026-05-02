@@ -255,8 +255,8 @@ and composite signatures to reduce pattern memorization over time.
 
 The shipped daily pack currently includes 365 scheduled days:
 
-- Start: May 15, 2026.
-- End: May 14, 2027.
+- Start: May 2, 2026.
+- End: May 1, 2027.
 - File: `src/data/dawnCabinetSchedule.json`.
 - Builder: `npm run build:dawn-cabinet-schedule`.
 
@@ -268,6 +268,29 @@ ledger composition, reserve goals, play profiles, or composite signatures.
 
 Motif and shape variety matters. Do not collapse the generator back to one fixed
 board per difficulty.
+
+### Player-Visible Rail Integrity
+
+Generated macro connector rails are constraints the player must be able to read
+directly from the board. They are not just solver metadata.
+
+Every generated connector rail must pass the rail-visibility validator before a
+candidate can be selected or written into the schedule:
+
+- Every listed rail cell must exist in the active board.
+- The rail path must be horizontal, vertical, or a clean 45-degree diagonal
+  between consecutive listed cells.
+- Connector segments must not pass through unrelated active tile centers.
+- Connector spans must stay short enough for the difficulty: Standard shortest,
+  Hard moderate, Expert widest but still readable.
+- A generated connector should use legible pressure, such as a local bridge,
+  edge hinge, diagonal stitch, reserve fork, or Dawn hinge, rather than an
+  arbitrary long jump.
+
+If a macro family cannot create a visible connector, prefer another visible
+connector candidate or a different selected variant. Do not solve invisibility
+by deleting connector pressure; the schedule builder should fail rather than
+write a puzzle with a generated rail the player cannot see.
 
 ### Composite 90
 
@@ -351,9 +374,10 @@ Standard, Hard, and Expert each include exactly one Dawn tile.
   small pause without making Standard feel like a trap.
 - Hard: usually touches at least three rails. It should often remain a real
   mid-solve question.
-- Expert: usually touches three or four rails and may occasionally touch more
-  on dense crossings. Prefer cells that bridge districts or combine hidden
-  ledger pressure with visible rail pressure.
+- Expert: must touch at least three rails, with a meaningful subset of days at
+  four or more rails. Prefer cells that bridge districts or combine hidden
+  ledger pressure with visible rail pressure, but do not force four-rail Dawn
+  placement when it would make generation brittle or ambiguous.
 
 Dawn cannot be left in reserve and should not steal a tile that the reserve goal
 needs. If a Dawn candidate breaks the reserve proof or creates multiple
@@ -533,11 +557,12 @@ Important coverage includes:
 - Share text.
 - Difficulty target ranges.
 - Monotonic difficulty rating.
-- The 365-day scheduled pack from May 15, 2026 through May 14, 2027.
+- The 365-day scheduled pack from May 2, 2026 through May 1, 2027.
 - Shape variety.
 - Composite 90 anti-repeat behavior.
 - Posture 21 play-profile behavior, with uniqueness allowed to win rare
   fallbacks.
+- Player-visible generated connector rails.
 - Visible rail-type variety targets.
 - Dawn tile presence, candidate bounds, and non-reserve behavior.
 - Dawn/reserve supply integrity when the Dawn tile's resolved value has
