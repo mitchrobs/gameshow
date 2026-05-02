@@ -36,11 +36,7 @@ const WEB_NO_SELECT =
       }
     : {};
 
-const STRADDLE_HOME_PREVIEW = [
-  ['MOUSE', 'COOKIE', 'BOOT'],
-  ['BASS', 'JAM', 'BAND'],
-  ['BAT', 'BATTER', 'CAP'],
-] as const;
+const STRADDLE_HOME_PILLAR_WORD = 'JAM';
 
 type HomeGameCategory = 'all' | 'word' | 'logic' | 'trivia';
 type FilterableGameCategory = Exclude<HomeGameCategory, 'all'>;
@@ -201,7 +197,7 @@ export default function HomeScreen() {
     const baseLinks = [
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash', category: 'word' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie', category: 'word' },
-      { label: 'Straddle', route: '/straddle', emoji: '▦', countKey: 'straddle', category: 'word', isNew: true },
+      { label: 'Straddle', route: '/straddle', emoji: '🔗', countKey: 'straddle', category: 'word', isNew: true },
       {
         label: 'Threadline',
         route: '/threadline',
@@ -600,13 +596,13 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.straddlePreview}>
-                {STRADDLE_HOME_PREVIEW.map((row, rowIndex) => (
+                {Array.from({ length: 3 }, (_, rowIndex) => (
                   <View key={`straddle-row-${rowIndex}`} style={styles.straddlePreviewRow}>
-                    {row.map((word, columnIndex) => {
+                    {Array.from({ length: 3 }, (_, columnIndex) => {
                       const isPillar = rowIndex === 1 && columnIndex === 1;
                       return (
                         <View
-                          key={word}
+                          key={`straddle-preview-${rowIndex}-${columnIndex}`}
                           style={[
                             styles.straddlePreviewTile,
                             isPillar && styles.straddlePreviewTilePillar,
@@ -617,7 +613,7 @@ export default function HomeScreen() {
                             adjustsFontSizeToFit
                             style={styles.straddlePreviewText}
                           >
-                            {word}
+                            {isPillar ? STRADDLE_HOME_PILLAR_WORD : ''}
                           </Text>
                         </View>
                       );
