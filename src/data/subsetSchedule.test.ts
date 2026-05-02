@@ -13,6 +13,12 @@ import {
   getSubsetScheduleEditorialAudit,
 } from "./subsetSchedule";
 
+const LABEL_HARD_MAX_LENGTH = 20;
+const LABEL_SOFT_MAX_LENGTH = 16;
+const LABEL_LENGTH_ALLOWLIST = new Set(["St. Patrick's Day"]);
+const LABEL_REUSE_CAP = 36;
+const CENTER_REUSE_COOLDOWN_DAYS = 60;
+
 function addUtcDays(dateKey: string, days: number): string {
   const date = new Date(`${dateKey}T00:00:00.000Z`);
   date.setUTCDate(date.getUTCDate() + days);
@@ -130,21 +136,76 @@ describe("Subset V1 schedule", () => {
     expect(audit.wordReuse.maxUse).toBeLessThanOrEqual(
       SUBSET_MAX_WORD_REUSE_TARGET,
     );
-    expect(audit.wordReuse.uniqueWords).toBeGreaterThanOrEqual(300);
-    expect(audit.wordReuse.underSoftCooldownCount).toBeLessThan(450);
+    expect(audit.wordReuse.uniqueWords).toBeGreaterThanOrEqual(450);
+    expect(audit.wordReuse.underSoftCooldownCount).toBeLessThan(260);
 
     expect(audit.difficultyCounts.easy).toBeGreaterThanOrEqual(90);
     expect(audit.difficultyCounts.medium).toBeGreaterThanOrEqual(130);
     expect(audit.difficultyCounts.hard).toBeGreaterThanOrEqual(80);
 
-    expect(audit.laneCounts["word-form"]).toBeLessThanOrEqual(225);
+    expect(audit.laneCounts.concrete).toBeGreaterThanOrEqual(200);
+    expect(audit.laneCounts.concrete).toBeLessThanOrEqual(240);
+    expect(audit.laneCounts["word-form"]).toBeGreaterThanOrEqual(35);
+    expect(audit.laneCounts["word-form"]).toBeLessThanOrEqual(55);
     expect(
       audit.laneCounts.modern +
         audit.laneCounts.phrase +
         audit.laneCounts.hybrid,
-    ).toBeGreaterThanOrEqual(140);
+    ).toBeGreaterThanOrEqual(95);
 
-    expect(audit.satisfaction.averageScore).toBeGreaterThanOrEqual(78);
-    expect(audit.satisfaction.minimumScore).toBeGreaterThanOrEqual(75);
+    expect(audit.satisfaction.averageScore).toBeGreaterThanOrEqual(84);
+    expect(audit.satisfaction.minimumScore).toBeGreaterThanOrEqual(78);
+  });
+
+  it("keeps category labels short, legible, and not overused", () => {
+    const labelCounts = new Map<string, number>();
+
+    SUBSET_SCHEDULE.forEach((puzzle) => {
+      [...puzzle.rows, ...puzzle.columns].forEach(({ label }) => {
+        labelCounts.set(label, (labelCounts.get(label) ?? 0) + 1);
+        expect(label.length).toBeLessThanOrEqual(LABEL_HARD_MAX_LENGTH);
+        if (!LABEL_LENGTH_ALLOWLIST.has(label)) {
+          expect(label.length).toBeLessThanOrEqual(LABEL_SOFT_MAX_LENGTH);
+        }
+        expect(label.trim().split(/\s+/).length).toBeLessThanOrEqual(3);
+        expect(
+          Math.max(...label.split(/\s+/).map((word) => word.length)),
+        ).toBeLessThanOrEqual(13);
+      });
+    });
+
+    expect(Math.max(...labelCounts.values())).toBeLessThanOrEqual(
+      LABEL_REUSE_CAP,
+    );
+  });
+
+  it("spreads memorable center words across the year", () => {
+    const centerCounts = new Map<string, number>();
+    const centerLastSeen = new Map<string, number>();
+
+    SUBSET_SCHEDULE.forEach((puzzle) => {
+      centerCounts.set(
+        puzzle.centerWord,
+        (centerCounts.get(puzzle.centerWord) ?? 0) + 1,
+      );
+      const lastSeen = centerLastSeen.get(puzzle.centerWord);
+      if (lastSeen !== undefined) {
+        expect(puzzle.dayIndex - lastSeen).toBeGreaterThanOrEqual(
+          CENTER_REUSE_COOLDOWN_DAYS,
+        );
+      }
+      centerLastSeen.set(puzzle.centerWord, puzzle.dayIndex);
+    });
+
+    expect(Math.max(...centerCounts.values())).toBeLessThanOrEqual(5);
+  });
+
+  it("does not run formal word-format puzzles back to back", () => {
+    for (let index = 1; index < SUBSET_SCHEDULE.length; index += 1) {
+      expect(
+        SUBSET_SCHEDULE[index - 1].editorialLane === "word-form" &&
+          SUBSET_SCHEDULE[index].editorialLane === "word-form",
+      ).toBe(false);
+    }
   });
 });

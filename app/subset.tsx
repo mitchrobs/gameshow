@@ -31,6 +31,7 @@ import {
   type SubsetPuzzleDefinition,
   type SubsetSolvedLines,
   type SubsetTileId,
+  adaptSubsetPuzzleToFirstLinePlacement,
   boardIndex,
   canSwapSubsetTiles,
   createEmptySubsetSolvedLines,
@@ -139,17 +140,6 @@ function getTargetIndex(
     SUBSET_GRID_SIZE - 1,
   );
   return boardIndex(targetRow, targetColumn);
-}
-
-function formatRowRailLabel(label: string): string {
-  if (label === "?") return label;
-  return label.split(" ")[0] ?? label;
-}
-
-function formatVerticalRowRailLabel(label: string): string {
-  const compact = formatRowRailLabel(label);
-  if (compact === "?") return compact;
-  return compact.toUpperCase().split("").join("\n");
 }
 
 function isCellOnLine(
@@ -334,6 +324,8 @@ export default function SubsetScreen() {
   const isDemoPuzzle = !scheduledPuzzle;
   const packStartLabel = useMemo(() => formatPackStartLabel(), []);
   const [phase, setPhase] = useState<GamePhase>("intro");
+  const [roundPuzzle, setRoundPuzzle] =
+    useState<SubsetPuzzleDefinition>(activePuzzle);
   const [board, setBoard] = useState<SubsetBoard>(() =>
     shuffleSubsetTiles(tileIds),
   );
@@ -362,13 +354,14 @@ export default function SubsetScreen() {
   const winAnim = useRef(new Animated.Value(0)).current;
   const hasCountedRef = useRef(false);
 
-  const railWidth = CATEGORY_RAIL_THICKNESS;
   const shellWidth = Math.min(width - theme.spacing.md * 2, 520);
-  const maxGridWidth = Math.min(shellWidth - railWidth - theme.spacing.sm, 360);
-  const cellSize = Math.max(
-    58,
-    Math.floor((maxGridWidth - GRID_GAP * 2) / SUBSET_GRID_SIZE),
+  const boardMaxWidth = Math.min(shellWidth, 472);
+  const cellSize = clamp(
+    Math.floor((boardMaxWidth - GRID_GAP * SUBSET_GRID_SIZE) / 4),
+    52,
+    112,
   );
+  const headerSize = cellSize;
   const cellSpan = cellSize + GRID_GAP;
   const tileFontSize = cellSize < 70 ? 12 : 14;
 
@@ -423,6 +416,7 @@ export default function SubsetScreen() {
       200,
       activePuzzle,
     );
+    setRoundPuzzle(activePuzzle);
     setSolvedLines(createEmptySubsetSolvedLines());
     setOrientation(null);
     setWrongGuesses(0);
@@ -537,15 +531,44 @@ export default function SubsetScreen() {
         axis,
         index,
         orientation,
-        activePuzzle,
+        roundPuzzle,
       );
       if (!lineMatch) {
+        const hasLockedLine =
+          solvedLines.rows.some(Boolean) || solvedLines.columns.some(Boolean);
+        const placementAdaptation = hasLockedLine
+          ? null
+          : adaptSubsetPuzzleToFirstLinePlacement(
+              board,
+              axis,
+              index,
+              orientation,
+              roundPuzzle,
+        );
+        if (placementAdaptation) {
+          setRoundPuzzle(placementAdaptation.puzzle);
+          setBoard(placementAdaptation.board);
+          if (!orientation) {
+            setOrientation(placementAdaptation.match.orientation);
+          }
+          triggerLineFeedback({ axis, index }, "correct");
+          const nextSolvedLines = markLineSolved(solvedLines, axis, index);
+          setSolvedLines(nextSolvedLines);
+          if (isBoardComplete(nextSolvedLines)) {
+            setPhase("won");
+            setMessage("Solved. Every word fits two categories.");
+          } else {
+            setMessage(`${placementAdaptation.match.category.label} revealed.`);
+          }
+          return;
+        }
+
         const misplacedLineMatch = getSubsetMisplacedLineMatch(
           board,
           axis,
           index,
           orientation,
-          activePuzzle,
+          roundPuzzle,
         );
         const missMessage = misplacedLineMatch
           ? `${misplacedLineMatch.category.label}: wrong places.`
@@ -579,10 +602,10 @@ export default function SubsetScreen() {
       }
     },
     [
-      activePuzzle,
       board,
       orientation,
       phase,
+      roundPuzzle,
       solvedLines,
       triggerLineFeedback,
     ],
@@ -604,15 +627,15 @@ export default function SubsetScreen() {
       if (phase !== "playing") return;
       if (fromIndex === targetIndex) return;
       const fixedCellTouched =
-        fromIndex === activePuzzle.fixedCell.index ||
-        targetIndex === activePuzzle.fixedCell.index;
+        fromIndex === roundPuzzle.fixedCell.index ||
+        targetIndex === roundPuzzle.fixedCell.index;
       if (
         !canSwapSubsetTiles(
           board,
           fromIndex,
           targetIndex,
           solvedLines,
-          activePuzzle,
+          roundPuzzle,
           orientation ?? "canonical",
         )
       ) {
@@ -635,10 +658,10 @@ export default function SubsetScreen() {
       setMessage("Keep looking.");
     },
     [
-      activePuzzle,
       board,
       orientation,
       phase,
+      roundPuzzle,
       solvedLines,
       triggerLineFeedback,
     ],
@@ -657,11 +680,11 @@ export default function SubsetScreen() {
               "row",
               row,
               orientation ?? "canonical",
-              activePuzzle,
+              roundPuzzle,
             )?.label ?? "?")
           : "?",
       ),
-    [activePuzzle, board, orientation, solvedLines.rows],
+    [board, orientation, roundPuzzle, solvedLines.rows],
   );
 
   const columnLabels = useMemo(
@@ -673,11 +696,11 @@ export default function SubsetScreen() {
               "column",
               column,
               orientation ?? "canonical",
-              activePuzzle,
+              roundPuzzle,
             )?.label ?? "?")
           : "?",
       ),
-    [activePuzzle, board, orientation, solvedLines.columns],
+    [board, orientation, roundPuzzle, solvedLines.columns],
   );
 
   const hasRevealedLine =
@@ -867,7 +890,7 @@ export default function SubsetScreen() {
                     ]}
                   >
                     <View style={styles.columnHeaderRow}>
-                      <View style={{ width: railWidth }} />
+                      <View style={{ width: headerSize, height: headerSize }} />
                       {columnLabels.map((label, column) => {
                         const solved = solvedLines.columns[column];
                         const isPreviewed =
@@ -876,7 +899,10 @@ export default function SubsetScreen() {
                         return (
                           <View
                             key={`column-${column}`}
-                            style={[styles.columnHeader, { width: cellSize }]}
+                            style={[
+                              styles.columnHeader,
+                              { width: headerSize, height: headerSize },
+                            ]}
                           >
                             <Animated.View
                               style={getRailFeedbackStyle("column", column)}
@@ -901,6 +927,7 @@ export default function SubsetScreen() {
                                 style={({ pressed }) => [
                                   styles.categoryRail,
                                   styles.columnRail,
+                                  { height: headerSize },
                                   solved && styles.categoryRailSolved,
                                   isPreviewed && styles.categoryRailPreviewed,
                                   feedbackLine?.axis === "column" &&
@@ -932,7 +959,11 @@ export default function SubsetScreen() {
                                 <Text
                                   numberOfLines={2}
                                   adjustsFontSizeToFit
-                                  style={styles.categoryLabel}
+                                  minimumFontScale={0.72}
+                                  style={[
+                                    styles.categoryLabel,
+                                    styles.columnCategoryLabel,
+                                  ]}
                                 >
                                   {label}
                                 </Text>
@@ -948,7 +979,7 @@ export default function SubsetScreen() {
                         <View
                           style={[
                             styles.rowHeader,
-                            { width: railWidth, height: cellSize },
+                            { width: headerSize, height: cellSize },
                           ]}
                         >
                           {(() => {
@@ -1009,19 +1040,15 @@ export default function SubsetScreen() {
                                   }
                                 >
                                   <Text
-                                    numberOfLines={solved ? 12 : 2}
+                                    numberOfLines={2}
                                     adjustsFontSizeToFit
+                                    minimumFontScale={0.68}
                                     style={[
                                       styles.categoryLabel,
-                                      solved &&
-                                        styles.rowCategoryLabelRevealed,
+                                      styles.rowCategoryLabel,
                                     ]}
                                   >
-                                    {solved
-                                      ? formatVerticalRowRailLabel(
-                                          rowLabels[row],
-                                        )
-                                      : rowLabels[row]}
+                                    {rowLabels[row]}
                                   </Text>
                                 </Pressable>
                               </Animated.View>
@@ -1055,8 +1082,8 @@ export default function SubsetScreen() {
                               feedbackActive ||
                               phase === "won";
                             const fixed =
-                              activePuzzle.fixedCell.index === index &&
-                              activePuzzle.fixedCell.tileId === tileId;
+                              roundPuzzle.fixedCell.index === index &&
+                              roundPuzzle.fixedCell.tileId === tileId;
                             const pinned =
                               fixed || isTileInSolvedLine(solvedLines, index);
                             return (
@@ -1075,7 +1102,7 @@ export default function SubsetScreen() {
                                 <SubsetTileView
                                   key={tileId}
                                   tileId={tileId}
-                                  puzzle={activePuzzle}
+                                  puzzle={roundPuzzle}
                                   index={index}
                                   cellSize={cellSize}
                                   cellSpan={cellSpan}
@@ -1122,6 +1149,7 @@ export default function SubsetScreen() {
                             activePuzzle,
                           ),
                         );
+                        setRoundPuzzle(activePuzzle);
                         setSolvedLines(createEmptySubsetSolvedLines());
                         setOrientation(null);
                         setWrongGuesses(0);
@@ -1372,8 +1400,7 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
       gap: GRID_GAP,
     },
     columnHeader: {
-      minHeight: 52,
-      justifyContent: "flex-end",
+      justifyContent: "center",
     },
     rowHeader: {
       marginRight: GRID_GAP,
@@ -1392,10 +1419,10 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
     },
     columnRail: {
       width: "100%",
+      height: "100%",
     },
     rowRail: {
       width: "100%",
-      minHeight: 42,
     },
     categoryRailPreviewed: {
       borderColor: screenAccent.main,
@@ -1432,15 +1459,21 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
     categoryLabel: {
       color: theme.colors.text,
       fontSize: 12,
+      lineHeight: 14,
       fontWeight: "800",
       textAlign: "center",
-      minHeight: 18,
-    },
-    rowCategoryLabelRevealed: {
-      fontSize: 9,
-      lineHeight: 10,
       minHeight: 0,
       letterSpacing: 0,
+      includeFontPadding: false,
+    },
+    columnCategoryLabel: {
+      fontSize: 11,
+      lineHeight: 13,
+    },
+    rowCategoryLabel: {
+      fontSize: 11,
+      lineHeight: 13,
+      maxWidth: "100%",
     },
     gridRow: {
       flexDirection: "row",

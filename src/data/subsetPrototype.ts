@@ -30,6 +30,13 @@ export interface SubsetLineMatch {
   orientation: SubsetOrientation;
 }
 
+export interface SubsetPlacementAdaptation {
+  adjusted: boolean;
+  board: SubsetBoard;
+  match: SubsetLineMatch;
+  puzzle: SubsetPuzzleDefinition;
+}
+
 export interface SubsetFixedCell {
   index: number;
   tileId: SubsetTileId;
@@ -187,6 +194,11 @@ function oppositeAxis(axis: SubsetAxis): SubsetAxis {
 function getPuzzleTileIds(puzzle: SubsetPuzzleDefinition): SubsetTileId[] {
   return puzzle.tiles.map((tile) => tile.id);
 }
+
+const CENTER_PRESERVING_PERMUTATIONS: [number, number, number][] = [
+  [0, 1, 2],
+  [2, 1, 0],
+];
 
 function clampShareCount(value: number, max: number): number {
   return Math.max(0, Math.min(value, max));
@@ -402,6 +414,146 @@ export function getSubsetMisplacedLineMatch(
   }
 
   return null;
+}
+
+function createPuzzleWithSolutionGrid(
+  puzzle: SubsetPuzzleDefinition,
+  solutionGrid: SubsetTileId[][],
+): SubsetPuzzleDefinition {
+  return {
+    ...puzzle,
+    solutionGrid,
+    solutionBoard: solutionGrid.flat(),
+  };
+}
+
+function permuteSubsetSolutionGrid(
+  puzzle: SubsetPuzzleDefinition,
+  rowPermutation: [number, number, number],
+  columnPermutation: [number, number, number],
+): SubsetTileId[][] {
+  return Array.from({ length: SUBSET_GRID_SIZE }, (_, row) =>
+    Array.from(
+      { length: SUBSET_GRID_SIZE },
+      (_, column) => puzzle.solutionGrid[rowPermutation[row]][
+        columnPermutation[column]
+      ],
+    ),
+  );
+}
+
+function getBoardWithLineTileIds(
+  board: SubsetBoard,
+  axis: SubsetAxis,
+  index: number,
+  tileIds: SubsetTileId[],
+): SubsetBoard {
+  const nextBoard = [...board];
+  tileIds.forEach((tileId, lineOffset) => {
+    const boardOffset =
+      axis === "row"
+        ? boardIndex(index, lineOffset)
+        : boardIndex(lineOffset, index);
+    nextBoard[boardOffset] = tileId;
+  });
+  return nextBoard;
+}
+
+function countLinePlacementDifferences(
+  left: SubsetTileId[],
+  right: SubsetTileId[],
+): number {
+  return left.reduce(
+    (count, tileId, index) => count + (tileId === right[index] ? 0 : 1),
+    0,
+  );
+}
+
+export function adaptSubsetPuzzleToFirstLinePlacement(
+  board: SubsetBoard,
+  axis: SubsetAxis,
+  index: number,
+  orientation: SubsetOrientation | null,
+  puzzle: SubsetPuzzleDefinition = SUBSET_DEMO_PUZZLE,
+): SubsetPlacementAdaptation | null {
+  const tileIds = getLineTileIds(board, axis, index);
+  const orientations: SubsetOrientation[] = orientation
+    ? [orientation]
+    : ["canonical", "transposed"];
+  let nearestAdaptation: SubsetPlacementAdaptation | null = null;
+  let nearestDifferenceCount = Number.POSITIVE_INFINITY;
+
+  for (const candidateOrientation of orientations) {
+    const category = getMatchingCategoryForOrientation(
+      axis,
+      tileIds,
+      candidateOrientation,
+      puzzle,
+    );
+    if (!category) continue;
+
+    for (const rowPermutation of CENTER_PRESERVING_PERMUTATIONS) {
+      for (const columnPermutation of CENTER_PRESERVING_PERMUTATIONS) {
+        const candidatePuzzle = createPuzzleWithSolutionGrid(
+          puzzle,
+          permuteSubsetSolutionGrid(puzzle, rowPermutation, columnPermutation),
+        );
+        if (
+          candidatePuzzle.solutionBoard[candidatePuzzle.fixedCell.index] !==
+          candidatePuzzle.fixedCell.tileId
+        ) {
+          continue;
+        }
+
+        const match = getSubsetLineMatch(
+          board,
+          axis,
+          index,
+          candidateOrientation,
+          candidatePuzzle,
+        );
+        if (match?.category.id === category.id) {
+          return {
+            adjusted: false,
+            board,
+            match,
+            puzzle: candidatePuzzle,
+          };
+        }
+
+        const solutionLine = getOrientedSolutionLineTileIds(
+          axis,
+          index,
+          candidateOrientation,
+          candidatePuzzle,
+        );
+        if (!sameMembers(tileIds, solutionLine)) continue;
+        const solutionCategory = getMatchingCategoryForOrientation(
+          axis,
+          solutionLine,
+          candidateOrientation,
+          candidatePuzzle,
+        );
+        if (solutionCategory?.id !== category.id) continue;
+
+        const differenceCount = countLinePlacementDifferences(
+          tileIds,
+          solutionLine,
+        );
+        if (differenceCount < nearestDifferenceCount) {
+          nearestDifferenceCount = differenceCount;
+          nearestAdaptation = {
+            adjusted: true,
+            board: getBoardWithLineTileIds(board, axis, index, solutionLine),
+            match: { category, orientation: candidateOrientation },
+            puzzle: candidatePuzzle,
+          };
+        }
+      }
+    }
+  }
+
+  return nearestAdaptation;
 }
 
 export function getSolvedLineCategory(

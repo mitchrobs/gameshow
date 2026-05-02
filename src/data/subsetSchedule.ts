@@ -103,10 +103,12 @@ interface SubsetSpecialSeed {
 }
 
 interface SubsetScheduleBuildState {
-  rowLabelCounts: Map<string, number>;
+  categoryLabelCounts: Map<string, number>;
   signatures: Set<string>;
   wordCounts: Map<string, number>;
   wordLastSeen: Map<string, number>;
+  centerWordCounts: Map<string, number>;
+  centerWordLastSeen: Map<string, number>;
 }
 
 const DIFFICULTY_CADENCE: SubsetScheduleDifficulty[] = [
@@ -121,123 +123,129 @@ const DIFFICULTY_CADENCE: SubsetScheduleDifficulty[] = [
 
 export const SUBSET_SCHEDULE_FAMILIES: SubsetScheduleFamily[] = [
   {
+    id: "outings",
+    theme: "Places people go together",
+    editorialLane: "concrete",
+    columns: ["Beach", "Theater", "Stadium"],
+    rows: [
+      { label: "Seats", words: ["TOWEL", "BALCONY", "BLEACHERS"] },
+      { label: "Snacks", words: ["PRETZEL", "POPCORN", "NACHOS"] },
+      { label: "Sounds", words: ["WAVES", "APPLAUSE", "CHEERS"] },
+      { label: "On Duty", words: ["LIFEGUARD", "USHER", "UMPIRE"] },
+      { label: "Passes", words: ["WRISTBAND", "TICKET", "PASS"] },
+      { label: "Gear", words: ["UMBRELLA", "COSTUME", "JERSEY"] },
+    ],
+  },
+  {
+    id: "rooms",
+    theme: "Rooms and the objects that define them",
+    editorialLane: "concrete",
+    columns: ["Kitchen", "Bath", "Bedroom"],
+    rows: [
+      { label: "Fixtures", words: ["OVEN", "SHOWER", "BED"] },
+      { label: "Storage", words: ["PANTRY", "CABINET", "CLOSET"] },
+      { label: "Linens", words: ["NAPKIN", "TOWEL", "SHEET"] },
+      { label: "Morning", words: ["COFFEE", "RAZOR", "ALARM"] },
+      { label: "Floor Items", words: ["MAT", "SCALE", "RUG"] },
+      { label: "Lights", words: ["PENDANT", "SCONCE", "LAMP"] },
+    ],
+  },
+  {
+    id: "opened-locked-shared",
+    theme: "Everyday things by interaction",
+    editorialLane: "hybrid",
+    columns: ["Can Be Opened", "Can Be Locked", "Can Be Shared"],
+    rows: [
+      { label: "Digital", words: ["FILE", "PHONE", "LINK"] },
+      { label: "Home", words: ["WINDOW", "DOOR", "ROOM"] },
+      { label: "Work", words: ["CALENDAR", "ACCOUNT", "NOTE"] },
+      { label: "Travel", words: ["GATE", "LUGGAGE", "RIDE"] },
+      { label: "Kitchen", words: ["JAR", "PANTRY", "RECIPE"] },
+      { label: "School", words: ["BOOK", "LOCKER", "PROJECT"] },
+    ],
+  },
+  {
+    id: "workspaces",
+    theme: "Creative and focused work spaces",
+    editorialLane: "concrete",
+    columns: ["Studio", "Office", "Classroom"],
+    rows: [
+      { label: "Writing", words: ["SKETCH", "MEMO", "ESSAY"] },
+      { label: "Furniture", words: ["EASEL", "DESK", "CHAIR"] },
+      { label: "Supplies", words: ["BRUSH", "STAPLER", "RULER"] },
+      { label: "Deadlines", words: ["COMMISSION", "REPORT", "HOMEWORK"] },
+      { label: "Displays", words: ["CANVAS", "MONITOR", "PROJECTOR"] },
+      { label: "Feedback", words: ["CRITIQUE", "REVIEW", "GRADE"] },
+    ],
+  },
+  {
+    id: "travel-stops",
+    theme: "Travel stops and what they ask of you",
+    editorialLane: "concrete",
+    columns: ["Airport", "Hotel", "Camp"],
+    rows: [
+      { label: "Sleep", words: ["LOUNGE", "SUITE", "TENT"] },
+      { label: "Bags", words: ["CARRYON", "LUGGAGE", "BACKPACK"] },
+      { label: "Check-In", words: ["GATE", "LOBBY", "PERMIT"] },
+      { label: "Comfort", words: ["PILLOW", "ROBE", "BLANKET"] },
+      { label: "Food", words: ["PRETZEL", "BUFFET", "GRANOLA"] },
+      { label: "Lights", words: ["BEACON", "LAMP", "LANTERN"] },
+    ],
+  },
+  {
     id: "starts-bcs",
-    theme: "Everyday categories by first letter",
+    theme: "A light first-letter grid",
     editorialLane: "word-form",
     columns: ["Starts with B", "Starts with C", "Starts with S"],
     rows: [
       { label: "Animals", words: ["BEAR", "COYOTE", "SEAL"] },
       { label: "Foods", words: ["BAGEL", "CURRY", "SALSA"] },
       { label: "Music", words: ["BEAT", "CHORD", "SOLO"] },
-      { label: "Sports", words: ["BOXING", "CRICKET", "SOCCER"] },
-      { label: "Clothing", words: ["BOOT", "COAT", "SCARF"] },
+      { label: "Clothes", words: ["BOOT", "COAT", "SCARF"] },
       { label: "Office", words: ["BINDER", "CALENDAR", "STAPLER"] },
-      { label: "Weather", words: ["BLIZZARD", "CLOUD", "SNOW"] },
-      { label: "Travel", words: ["BUS", "CRUISE", "SUBWAY"] },
       { label: "Plants", words: ["BASIL", "CACTUS", "SAGE"] },
-      { label: "Games", words: ["BINGO", "CHESS", "SCRABBLE"] },
-      { label: "Home", words: ["BOWL", "CHAIR", "SOFA"] },
-      { label: "Digital", words: ["BROWSER", "COOKIE", "SERVER"] },
     ],
   },
   {
-    id: "starts-mpt",
-    theme: "Modern mix by first letter",
-    editorialLane: "word-form",
-    columns: ["Starts with M", "Starts with P", "Starts with T"],
+    id: "park-days",
+    theme: "Green spaces and the things inside them",
+    editorialLane: "concrete",
+    columns: ["Garden", "Playground", "Trail"],
     rows: [
-      { label: "Animals", words: ["MOUSE", "PANDA", "TIGER"] },
-      { label: "Foods", words: ["MUFFIN", "PASTA", "TACO"] },
-      { label: "Music", words: ["MELODY", "PIANO", "TRUMPET"] },
-      { label: "Sports", words: ["MARATHON", "POLO", "TENNIS"] },
-      { label: "Clothing", words: ["MITTEN", "PANTS", "TIE"] },
-      { label: "Office", words: ["MEMO", "PAPER", "TASK"] },
-      { label: "Weather", words: ["MIST", "PRESSURE", "TEMPEST"] },
-      { label: "Travel", words: ["METRO", "PASSPORT", "TICKET"] },
-      { label: "Plants", words: ["MOSS", "POPPY", "TULIP"] },
-      { label: "Games", words: ["MAHJONG", "POKER", "TAG"] },
-      { label: "Home", words: ["MIRROR", "PILLOW", "TRUNK"] },
-      { label: "Digital", words: ["MODEM", "PIXEL", "TAB"] },
+      { label: "Ground", words: ["MULCH", "SAND", "GRAVEL"] },
+      { label: "Seats", words: ["BENCH", "SWING", "LOG"] },
+      { label: "Signs", words: ["LABEL", "RULES", "MARKER"] },
+      { label: "Water", words: ["HOSE", "FOUNTAIN", "STREAM"] },
+      { label: "Tools", words: ["RAKE", "SHOVEL", "COMPASS"] },
+      { label: "Wildlife", words: ["BEE", "SQUIRREL", "DEER"] },
     ],
   },
   {
-    id: "ends-try",
-    theme: "Concrete categories by final letter",
-    editorialLane: "word-form",
-    columns: ["Ends in T", "Ends in R", "Ends in Y"],
+    id: "food-stops",
+    theme: "Places to get something good",
+    editorialLane: "concrete",
+    columns: ["Bakery", "Diner", "Market"],
     rows: [
-      { label: "Animals", words: ["BAT", "BEAVER", "PONY"] },
-      { label: "Foods", words: ["TOAST", "BURGER", "HONEY"] },
-      { label: "Tech", words: ["BOT", "ROUTER", "PROXY"] },
-      { label: "Clothing", words: ["HAT", "BLAZER", "JERSEY"] },
-      { label: "Music", words: ["CHANT", "GUITAR", "HARMONY"] },
-      { label: "Sports", words: ["COURT", "RACER", "HOCKEY"] },
-      { label: "Weather", words: ["SLEET", "THUNDER", "CLOUDY"] },
-      { label: "Home", words: ["MAT", "MIRROR", "ENTRY"] },
-      { label: "Office", words: ["DRAFT", "FOLDER", "COPY"] },
-      { label: "Travel", words: ["TICKET", "DRIVER", "FERRY"] },
-      { label: "Plants", words: ["ROOT", "FLOWER", "IVY"] },
-      { label: "Games", words: ["QUEST", "PLAYER", "STRATEGY"] },
+      { label: "Crew", words: ["BAKER", "SERVER", "CASHIER"] },
+      { label: "Counters", words: ["CASE", "COUNTER", "STALL"] },
+      { label: "Breakfast", words: ["MUFFIN", "OMELET", "BERRIES"] },
+      { label: "Paper", words: ["BAG", "MENU", "LIST"] },
+      { label: "Sweet", words: ["ICING", "SYRUP", "HONEY"] },
+      { label: "Tools", words: ["OVEN", "GRIDDLE", "SCALE"] },
     ],
   },
   {
-    id: "ends-ens",
-    theme: "Daily-life categories by final letter",
-    editorialLane: "word-form",
-    columns: ["Ends in E", "Ends in N", "Ends in S"],
-    rows: [
-      { label: "Animals", words: ["MOOSE", "LION", "FOXES"] },
-      { label: "Foods", words: ["PIE", "BACON", "FRIES"] },
-      { label: "Music", words: ["NOTE", "HYMN", "DRUMS"] },
-      { label: "Sports", words: ["RACE", "RUN", "SKIS"] },
-      { label: "Clothing", words: ["SHOE", "APRON", "GLASSES"] },
-      { label: "Office", words: ["CASE", "PEN", "NOTES"] },
-      { label: "Weather", words: ["BREEZE", "RAIN", "CLOUDS"] },
-      { label: "Travel", words: ["PLANE", "TRAIN", "TICKETS"] },
-      { label: "Plants", words: ["VINE", "ACORN", "ROSES"] },
-      { label: "Games", words: ["DICE", "TOKEN", "CARDS"] },
-      { label: "Home", words: ["HOUSE", "SCREEN", "CURTAINS"] },
-      { label: "Digital", words: ["QUEUE", "LOGIN", "SETTINGS"] },
-    ],
-  },
-  {
-    id: "length-357",
-    theme: "Concrete categories by word length",
-    editorialLane: "word-form",
-    columns: ["3 Letters", "5 Letters", "7 Letters"],
-    rows: [
-      { label: "Animals", words: ["CAT", "HORSE", "GIRAFFE"] },
-      { label: "Foods", words: ["TEA", "SALAD", "LASAGNA"] },
-      { label: "Music", words: ["RAP", "OPERA", "CONCERT"] },
-      { label: "Sports", words: ["SKI", "RUGBY", "CYCLING"] },
-      { label: "Home", words: ["RUG", "SHELF", "CABINET"] },
-      { label: "Weather", words: ["FOG", "STORM", "DRIZZLE"] },
-      { label: "Travel", words: ["BUS", "TRAIN", "AIRPORT"] },
-      { label: "Plants", words: ["OAK", "FERNS", "ORCHARD"] },
-      { label: "Clothing", words: ["HAT", "SCARF", "SWEATER"] },
-      { label: "Office", words: ["PAD", "EMAIL", "MEETING"] },
-      { label: "Digital", words: ["APP", "CLOUD", "WEBSITE"] },
-      { label: "Games", words: ["UNO", "CARDS", "MAHJONG"] },
-    ],
-  },
-  {
-    id: "opened-locked-shared",
-    theme: "Objects by interaction",
+    id: "media-modes",
+    theme: "Modern media in three formats",
     editorialLane: "modern",
-    columns: ["Can Be Opened", "Can Be Locked", "Can Be Shared"],
+    columns: ["Podcast", "Movie", "Newsletter"],
     rows: [
-      { label: "Digital", words: ["FILE", "PHONE", "LINK"] },
-      { label: "Home", words: ["WINDOW", "DOOR", "ROOM"] },
-      { label: "Work", words: ["CALENDAR", "DESK", "NOTE"] },
-      { label: "Travel", words: ["GATE", "LUGGAGE", "RIDE"] },
-      { label: "Food", words: ["JAR", "PANTRY", "RECIPE"] },
-      { label: "School", words: ["BOOK", "LOCKER", "PROJECT"] },
-      { label: "Finance", words: ["ACCOUNT", "CARD", "BILL"] },
-      { label: "Gaming", words: ["CHEST", "LEVEL", "SCREEN"] },
-      { label: "Social", words: ["THREAD", "ACCOUNT", "POST"] },
-      { label: "Media", words: ["VIDEO", "ARCHIVE", "PLAYLIST"] },
-      { label: "Community", words: ["GARDEN", "SHED", "TOOL"] },
-      { label: "Personal", words: ["JOURNAL", "DIARY", "STORY"] },
+      { label: "Openers", words: ["INTRO", "SCENE", "HEADLINE"] },
+      { label: "People", words: ["HOST", "ACTOR", "EDITOR"] },
+      { label: "Timing", words: ["EPISODE", "TRAILER", "ISSUE"] },
+      { label: "Sound", words: ["MIC", "SCORE", "TONE"] },
+      { label: "Following", words: ["SUBSCRIBE", "WATCHLIST", "INBOX"] },
+      { label: "Opinion", words: ["RATING", "REVIEW", "COMMENT"] },
     ],
   },
   {
@@ -250,34 +258,204 @@ export const SUBSET_SCHEDULE_FAMILIES: SubsetScheduleFamily[] = [
       { label: "Food", words: ["CAKE", "TORTILLA", "PANCAKE"] },
       { label: "Clothing", words: ["SHIRT", "JEANS", "SWEATER"] },
       { label: "Camping", words: ["ROPE", "TENT", "FIREWOOD"] },
-      { label: "Office", words: ["FILE", "FOLDER", "TRAYS"] },
-      { label: "Home", words: ["CURTAIN", "BLANKET", "TOWELS"] },
-      { label: "Crafts", words: ["RIBBON", "ORIGAMI", "BEADS"] },
-      { label: "Garden", words: ["HEDGE", "HOSE", "POTS"] },
-      { label: "Games", words: ["DECK", "BOARD", "TOKENS"] },
-      { label: "Building", words: ["TILE", "LADDER", "BRICKS"] },
-      { label: "Mail", words: ["LABEL", "ENVELOPE", "BOXES"] },
+      { label: "Office", words: ["PAPER", "FOLDER", "TRAYS"] },
       { label: "Picnic", words: ["BREAD", "NAPKIN", "PLATES"] },
     ],
   },
   {
-    id: "played-recorded-streamed",
-    theme: "Media and activity formats",
-    editorialLane: "modern",
-    columns: ["Can Be Played", "Can Be Recorded", "Can Be Streamed"],
+    id: "sports-fields",
+    theme: "Sports through their objects and rhythms",
+    editorialLane: "concrete",
+    columns: ["Baseball", "Tennis", "Soccer"],
     rows: [
-      { label: "Music", words: ["SONG", "DEMO", "ALBUM"] },
-      { label: "Games", words: ["GAME", "MATCH", "SPEEDRUN"] },
-      { label: "Video", words: ["MOVIE", "CLIP", "SERIES"] },
-      { label: "Audio", words: ["PODCAST", "INTERVIEW", "RADIO"] },
-      { label: "Sports", words: ["MATCH", "HIGHLIGHT", "TOURNAMENT"] },
-      { label: "Theater", words: ["PLAY", "REHEARSAL", "SHOW"] },
-      { label: "Learning", words: ["LESSON", "LECTURE", "COURSE"] },
-      { label: "Fitness", words: ["ROUTINE", "SESSION", "CLASS"] },
-      { label: "News", words: ["SEGMENT", "REPORT", "BROADCAST"] },
-      { label: "Comedy", words: ["SET", "SPECIAL", "CHANNEL"] },
-      { label: "Dance", words: ["ROUTINE", "RECITAL", "PERFORMANCE"] },
-      { label: "Esports", words: ["ROUND", "REPLAY", "TOURNAMENT"] },
+      { label: "Gear", words: ["BAT", "RACKET", "CLEATS"] },
+      { label: "Scoring", words: ["RUN", "SET", "GOAL"] },
+      { label: "Places", words: ["DUGOUT", "COURT", "FIELD"] },
+      { label: "Officials", words: ["UMPIRE", "REFEREE", "REF"] },
+      { label: "Actions", words: ["PITCH", "SERVE", "PASS"] },
+      { label: "Fans", words: ["CAP", "VISOR", "SCARF"] },
+    ],
+  },
+  {
+    id: "music-groups",
+    theme: "Three ways people make music together",
+    editorialLane: "concrete",
+    columns: ["Band", "Orchestra", "Choir"],
+    rows: [
+      { label: "Players", words: ["DRUMMER", "VIOLINIST", "SINGER"] },
+      { label: "Practice", words: ["GARAGE", "REHEARSAL", "WARMUP"] },
+      { label: "Parts", words: ["SOLO", "MOVEMENT", "VERSE"] },
+      { label: "Sheets", words: ["SETLIST", "SCORE", "HYMNAL"] },
+      { label: "Signals", words: ["COUNT", "BATON", "CUE"] },
+      { label: "Sounds", words: ["RIFF", "CRESCENDO", "HARMONY"] },
+    ],
+  },
+  {
+    id: "ends-try",
+    theme: "A light final-letter grid",
+    editorialLane: "word-form",
+    columns: ["Ends in T", "Ends in R", "Ends in Y"],
+    rows: [
+      { label: "Animals", words: ["BAT", "BEAVER", "PONY"] },
+      { label: "Foods", words: ["TOAST", "BURGER", "HONEY"] },
+      { label: "Tech", words: ["BOT", "ROUTER", "PROXY"] },
+      { label: "Clothes", words: ["VEST", "BLAZER", "JERSEY"] },
+      { label: "Music", words: ["CHANT", "GUITAR", "HARMONY"] },
+      { label: "Sports", words: ["COURT", "RACER", "HOCKEY"] },
+    ],
+  },
+  {
+    id: "nature-zones",
+    theme: "Nature by habitat and texture",
+    editorialLane: "concrete",
+    columns: ["Forest", "Ocean", "Sky"],
+    rows: [
+      { label: "Animals", words: ["FOX", "SEAL", "EAGLE"] },
+      { label: "Motion", words: ["RUSTLE", "CURRENT", "BREEZE"] },
+      { label: "Colors", words: ["MOSS", "CORAL", "AZURE"] },
+      { label: "Weather", words: ["FOG", "TIDE", "CLOUD"] },
+      { label: "Curves", words: ["RING", "WAVE", "ARC"] },
+      { label: "Treasures", words: ["ACORN", "PEARL", "STAR"] },
+    ],
+  },
+  {
+    id: "city-outings",
+    theme: "A day moving through the city",
+    editorialLane: "concrete",
+    columns: ["Subway", "Museum", "Restaurant"],
+    rows: [
+      { label: "Tickets", words: ["FARE", "ADMISSION", "RESERVATION"] },
+      { label: "Maps", words: ["ROUTE", "GALLERY", "MENU"] },
+      { label: "Workers", words: ["CONDUCTOR", "DOCENT", "WAITER"] },
+      { label: "Seats", words: ["SEAT", "BENCH", "BOOTH"] },
+      { label: "Waiting", words: ["PLATFORM", "LINE", "TABLE"] },
+      { label: "Objects", words: ["TOKEN", "FRAME", "FORK"] },
+    ],
+  },
+  {
+    id: "worn-thrown-drawn",
+    theme: "Words that change by use",
+    editorialLane: "phrase",
+    columns: ["Can Be Worn", "Can Be Thrown", "Can Be Drawn"],
+    rows: [
+      { label: "Sports", words: ["JERSEY", "BALL", "PLAY"] },
+      { label: "Party", words: ["HAT", "CONFETTI", "NAME"] },
+      { label: "Magic", words: ["CLOAK", "SPELL", "CIRCLE"] },
+      { label: "Theater", words: ["COSTUME", "ROSE", "CURTAIN"] },
+      { label: "Games", words: ["CROWN", "DICE", "MAP"] },
+      { label: "Studio", words: ["APRON", "CLAY", "SKETCH"] },
+    ],
+  },
+  {
+    id: "errands",
+    theme: "Small errands with their own rituals",
+    editorialLane: "concrete",
+    columns: ["Bank", "Pharmacy", "Post Office"],
+    rows: [
+      { label: "Staff", words: ["TELLER", "PHARMACIST", "CLERK"] },
+      { label: "Papers", words: ["CHECK", "PRESCRIPTION", "STAMP"] },
+      { label: "Cards", words: ["DEBIT", "INSURANCE", "POSTCARD"] },
+      { label: "Storage", words: ["VAULT", "DRAWER", "BOX"] },
+      { label: "Numbers", words: ["PIN", "DOSE", "ZIP"] },
+      { label: "Receipts", words: ["RECEIPT", "LABEL", "TRACKING"] },
+    ],
+  },
+  {
+    id: "school-life",
+    theme: "A school building after the bell",
+    editorialLane: "concrete",
+    columns: ["Library", "Gym", "Lab"],
+    rows: [
+      { label: "Adults", words: ["LIBRARIAN", "COACH", "SCIENTIST"] },
+      { label: "Equipment", words: ["SHELF", "WHISTLE", "MICROSCOPE"] },
+      { label: "Rules", words: ["QUIET", "DRILLS", "SAFETY"] },
+      { label: "Sounds", words: ["PAGE", "BUZZER", "BEEP"] },
+      { label: "Work", words: ["READING", "LAPS", "EXPERIMENT"] },
+      { label: "Storage", words: ["STACK", "LOCKER", "FREEZER"] },
+    ],
+  },
+  {
+    id: "length-357",
+    theme: "A light word-length grid",
+    editorialLane: "word-form",
+    columns: ["3 Letters", "5 Letters", "7 Letters"],
+    rows: [
+      { label: "Animals", words: ["CAT", "HORSE", "GIRAFFE"] },
+      { label: "Foods", words: ["TEA", "SALAD", "LASAGNA"] },
+      { label: "Music", words: ["RAP", "OPERA", "CONCERT"] },
+      { label: "Sports", words: ["SKI", "RUGBY", "CYCLING"] },
+      { label: "Home", words: ["RUG", "SHELF", "CABINET"] },
+      { label: "Weather", words: ["FOG", "STORM", "DRIZZLE"] },
+    ],
+  },
+  {
+    id: "celebrations",
+    theme: "Milestones and the things they gather",
+    editorialLane: "concrete",
+    columns: ["Birthday", "Wedding", "Graduation"],
+    rows: [
+      { label: "Keepsakes", words: ["CARD", "RING", "DIPLOMA"] },
+      { label: "Guests", words: ["FRIEND", "BRIDE", "CLASSMATE"] },
+      { label: "Clothes", words: ["HAT", "VEIL", "GOWN"] },
+      { label: "Spoken", words: ["WISH", "VOW", "SPEECH"] },
+      { label: "Treats", words: ["CAKE", "CHAMPAGNE", "CUPCAKE"] },
+      { label: "Symbols", words: ["CANDLE", "BOUQUET", "TASSEL"] },
+    ],
+  },
+  {
+    id: "commute",
+    theme: "Getting across town",
+    editorialLane: "concrete",
+    columns: ["Bike", "Bus", "Train"],
+    rows: [
+      { label: "Operators", words: ["RIDER", "DRIVER", "CONDUCTOR"] },
+      { label: "Routes", words: ["LANE", "ROUTE", "TRACK"] },
+      { label: "Stops", words: ["RACK", "SHELTER", "STATION"] },
+      { label: "Signals", words: ["BELL", "SIGN", "WHISTLE"] },
+      { label: "Passes", words: ["LOCK", "PASS", "TICKET"] },
+      { label: "Motion", words: ["PEDAL", "RIDE", "RAIL"] },
+    ],
+  },
+  {
+    id: "pets",
+    theme: "Pets by care, sound, and play",
+    editorialLane: "concrete",
+    columns: ["Dog", "Cat", "Fish"],
+    rows: [
+      { label: "Homes", words: ["KENNEL", "CONDO", "TANK"] },
+      { label: "Food", words: ["KIBBLE", "TUNA", "FLAKES"] },
+      { label: "Care", words: ["LEASH", "LITTER", "FILTER"] },
+      { label: "Sounds", words: ["BARK", "MEOW", "BUBBLES"] },
+      { label: "Toys", words: ["BALL", "YARN", "CASTLE"] },
+      { label: "Motion", words: ["FETCH", "POUNCE", "SWIM"] },
+    ],
+  },
+  {
+    id: "daily-tech",
+    theme: "Personal tech by use and parts",
+    editorialLane: "modern",
+    columns: ["Phone", "Laptop", "Camera"],
+    rows: [
+      { label: "Parts", words: ["SCREEN", "KEYBOARD", "LENS"] },
+      { label: "Power", words: ["CHARGER", "CABLE", "BATTERY"] },
+      { label: "Actions", words: ["CALL", "TYPE", "SNAP"] },
+      { label: "Storage", words: ["CONTACTS", "FILES", "ALBUM"] },
+      { label: "Warnings", words: ["ALERT", "CRASH", "BLUR"] },
+      { label: "Accessories", words: ["CASE", "MOUSE", "TRIPOD"] },
+    ],
+  },
+  {
+    id: "saved-sent-printed",
+    theme: "Useful things by what happens to them",
+    editorialLane: "hybrid",
+    columns: ["Can Be Saved", "Can Be Sent", "Can Be Printed"],
+    rows: [
+      { label: "Work", words: ["FILE", "EMAIL", "REPORT"] },
+      { label: "Money", words: ["RECEIPT", "INVOICE", "COUPON"] },
+      { label: "School", words: ["PROJECT", "NOTE", "HANDOUT"] },
+      { label: "Photo", words: ["IMAGE", "SNAP", "POSTER"] },
+      { label: "Kitchen", words: ["RECIPE", "INVITE", "MENU"] },
+      { label: "Travel", words: ["MAP", "TEXT", "TICKET"] },
     ],
   },
 ];
@@ -287,223 +465,223 @@ const SUBSET_HOLIDAY_SEEDS: SubsetHolidaySeed[] = [
     date: "2027-05-09",
     name: "Mother's Day",
     difficulty: "easy",
-    columns: ["Starts with C", "Starts with F", "Starts with M"],
+    columns: ["Gifts", "Flowers", "Family"],
     rows: [
-      { label: "Mother's Day", words: ["CARD", "FLOWERS", "MOM"] },
-      { label: "Animals", words: ["CAT", "FOX", "MOOSE"] },
-      { label: "Foods", words: ["CURRY", "FRIES", "MUFFIN"] },
+      { label: "Mother's Day", words: ["CARD", "ROSES", "MOM"] },
+      { label: "Wedding", words: ["RING", "BOUQUET", "BRIDE"] },
+      { label: "Childhood", words: ["TOY", "DAISY", "CHILD"] },
     ],
   },
   {
     date: "2026-05-25",
     name: "Memorial Day",
     difficulty: "medium",
-    columns: ["Starts with F", "Starts with P", "Starts with S"],
+    columns: ["Symbols", "Events", "Promises"],
     rows: [
-      { label: "Memorial Day", words: ["FLAG", "PARADE", "SERVICE"] },
-      { label: "Animals", words: ["FOX", "PANDA", "SEAL"] },
-      { label: "Foods", words: ["FRIES", "PASTA", "SALSA"] },
+      { label: "Memorial Day", words: ["FLAG", "PARADE", "HONOR"] },
+      { label: "School", words: ["BADGE", "ASSEMBLY", "PLEDGE"] },
+      { label: "Wedding", words: ["RING", "CEREMONY", "VOW"] },
     ],
   },
   {
     date: "2026-06-19",
     name: "Juneteenth",
     difficulty: "medium",
-    columns: ["Starts with B", "Starts with F", "Starts with J"],
+    columns: ["Food", "Values", "Gatherings"],
     rows: [
       { label: "Juneteenth", words: ["BARBECUE", "FREEDOM", "JUBILEE"] },
-      { label: "Music", words: ["BEAT", "FOLK", "JAZZ"] },
-      { label: "Foods", words: ["BREAD", "FRIES", "JAM"] },
+      { label: "School", words: ["LUNCH", "FAIRNESS", "ASSEMBLY"] },
+      { label: "Wedding", words: ["DINNER", "TRUST", "RECEPTION"] },
     ],
   },
   {
     date: "2026-06-21",
     name: "Father's Day",
     difficulty: "easy",
-    columns: ["Starts with D", "Starts with G", "Starts with T"],
+    columns: ["Family", "Food", "Gifts"],
     rows: [
       { label: "Father's Day", words: ["DAD", "GRILL", "TIE"] },
-      { label: "Animals", words: ["DEER", "GOAT", "TIGER"] },
-      { label: "Games", words: ["DICE", "GO", "TAG"] },
+      { label: "Wedding", words: ["BRIDE", "DINNER", "RING"] },
+      { label: "Childhood", words: ["CHILD", "SNACK", "TOY"] },
     ],
   },
   {
     date: "2026-07-04",
     name: "Independence Day",
     difficulty: "easy",
-    columns: ["Starts with F", "Starts with P", "Starts with S"],
+    columns: ["Lights", "Gatherings", "Symbols"],
     rows: [
       {
         label: "Independence Day",
-        words: ["FIREWORKS", "PARADE", "SPARKLERS"],
+        words: ["FIREWORKS", "PARADE", "FLAG"],
       },
-      { label: "Music", words: ["FOLK", "PIANO", "SONG"] },
-      { label: "Travel", words: ["FERRY", "PLANE", "SUBWAY"] },
+      { label: "Theater", words: ["SPOTLIGHT", "AUDIENCE", "CURTAIN"] },
+      { label: "School", words: ["LAMP", "ASSEMBLY", "BADGE"] },
     ],
   },
   {
     date: "2026-09-07",
     name: "Labor Day",
     difficulty: "medium",
-    columns: ["Starts with W", "Starts with P", "Starts with S"],
+    columns: ["Work", "Outdoors", "Deals"],
     rows: [
       { label: "Labor Day", words: ["WORKERS", "PICNIC", "SALE"] },
-      { label: "Digital", words: ["WEBSITE", "PIXEL", "SERVER"] },
-      { label: "Home", words: ["WINDOW", "PILLOW", "SOFA"] },
+      { label: "Store", words: ["CLERK", "PATIO", "COUPON"] },
+      { label: "School", words: ["HOMEWORK", "RECESS", "FUNDRAISER"] },
     ],
   },
   {
     date: "2026-10-31",
     name: "Halloween",
     difficulty: "easy",
-    columns: ["Starts with C", "Starts with G", "Starts with T"],
+    columns: ["Sweets", "Outfits", "Spooky"],
     rows: [
-      { label: "Halloween", words: ["CANDY", "GHOST", "TREAT"] },
-      { label: "Animals", words: ["CAT", "GOAT", "TIGER"] },
-      { label: "Colors", words: ["CYAN", "GREEN", "TAN"] },
+      { label: "Halloween", words: ["CANDY", "COSTUME", "GHOST"] },
+      { label: "Monster", words: ["COOKIE", "MASK", "VAMPIRE"] },
+      { label: "Party", words: ["CAKE", "HAT", "SHADOW"] },
     ],
   },
   {
     date: "2026-11-11",
     name: "Veterans Day",
     difficulty: "medium",
-    columns: ["Starts with F", "Starts with M", "Starts with S"],
+    columns: ["Symbols", "Honors", "Service"],
     rows: [
       { label: "Veterans Day", words: ["FLAG", "MEDAL", "SERVICE"] },
-      { label: "Weather", words: ["FOG", "MIST", "STORM"] },
-      { label: "Music", words: ["FOLK", "MELODY", "SOLO"] },
+      { label: "School", words: ["BADGE", "GRADE", "DUTY"] },
+      { label: "Wedding", words: ["RING", "TOAST", "VOW"] },
     ],
   },
   {
     date: "2026-11-26",
     name: "Thanksgiving",
     difficulty: "easy",
-    columns: ["Starts with F", "Starts with P", "Starts with T"],
+    columns: ["Food", "Events", "Gratitude"],
     rows: [
-      { label: "Thanksgiving", words: ["FEAST", "PARADE", "TURKEY"] },
-      { label: "Music", words: ["FOLK", "PIANO", "TRUMPET"] },
-      { label: "Travel", words: ["FERRY", "PASSPORT", "TRAIN"] },
+      { label: "Thanksgiving", words: ["TURKEY", "PARADE", "THANKS"] },
+      { label: "School", words: ["LUNCH", "ASSEMBLY", "PRAISE"] },
+      { label: "Wedding", words: ["DINNER", "RECEPTION", "TOAST"] },
     ],
   },
   {
     date: "2026-12-24",
     name: "Christmas Eve",
     difficulty: "easy",
-    columns: ["Starts with C", "Starts with G", "Starts with T"],
+    columns: ["Music", "Gifts", "Decor"],
     rows: [
       { label: "Christmas Eve", words: ["CAROL", "GIFT", "TREE"] },
-      { label: "Animals", words: ["CAT", "GOAT", "TIGER"] },
-      { label: "Games", words: ["CHESS", "GO", "TAG"] },
+      { label: "Birthday", words: ["SONG", "SURPRISE", "BALLOON"] },
+      { label: "Service", words: ["HYMN", "CARD", "WREATH"] },
     ],
   },
   {
     date: "2026-12-25",
     name: "Christmas",
     difficulty: "easy",
-    columns: ["Starts with C", "Starts with G", "Starts with S"],
+    columns: ["Sweets", "Gifts", "Visitors"],
     rows: [
-      { label: "Christmas", words: ["CAROL", "GIFT", "SANTA"] },
-      { label: "Foods", words: ["COOKIE", "GRAVY", "SOUP"] },
-      { label: "Home", words: ["CHAIR", "GARAGE", "SOFA"] },
+      { label: "Christmas", words: ["COOKIE", "GIFT", "SANTA"] },
+      { label: "Birthday", words: ["CAKE", "PRESENT", "GUEST"] },
+      { label: "Housewarming", words: ["PIE", "PLANT", "NEIGHBOR"] },
     ],
   },
   {
     date: "2026-12-31",
     name: "New Year's Eve",
     difficulty: "medium",
-    columns: ["Starts with C", "Starts with R", "Starts with T"],
+    columns: ["Moments", "Drinks", "Promises"],
     rows: [
-      { label: "New Year's Eve", words: ["COUNTDOWN", "RESOLUTION", "TOAST"] },
-      { label: "Sports", words: ["COURT", "RACER", "TENNIS"] },
-      { label: "Office", words: ["CALENDAR", "REPORT", "TASK"] },
+      { label: "New Year's Eve", words: ["COUNTDOWN", "TOAST", "RESOLUTION"] },
+      { label: "Wedding", words: ["CEREMONY", "CHAMPAGNE", "VOW"] },
+      { label: "School", words: ["DEADLINE", "JUICE", "GOAL"] },
     ],
   },
   {
     date: "2027-01-01",
     name: "New Year's Day",
     difficulty: "easy",
-    columns: ["Starts with F", "Starts with R", "Starts with S"],
+    columns: ["Fresh", "Plans", "Beginnings"],
     rows: [
       { label: "New Year's Day", words: ["FRESH", "RESOLUTION", "START"] },
-      { label: "Weather", words: ["FOG", "RAIN", "SNOW"] },
-      { label: "Music", words: ["FOLK", "RAP", "SONG"] },
+      { label: "Garden", words: ["SEED", "PLAN", "SPROUT"] },
+      { label: "School", words: ["NOTEBOOK", "SCHEDULE", "CLASS"] },
     ],
   },
   {
     date: "2027-01-18",
     name: "MLK Day",
     difficulty: "medium",
-    columns: ["Starts with D", "Starts with E", "Starts with J"],
+    columns: ["Values", "Speech", "Action"],
     rows: [
-      { label: "MLK Day", words: ["DREAM", "EQUALITY", "JUSTICE"] },
-      { label: "Animals", words: ["DEER", "EAGLE", "JAGUAR"] },
-      { label: "Foods", words: ["DUMPLING", "EGG", "JAM"] },
+      { label: "MLK Day", words: ["DREAM", "SPEECH", "MARCH"] },
+      { label: "School", words: ["FAIRNESS", "ESSAY", "PROJECT"] },
+      { label: "Court", words: ["JUSTICE", "ARGUMENT", "VERDICT"] },
     ],
   },
   {
     date: "2027-02-14",
     name: "Valentine's Day",
     difficulty: "easy",
-    columns: ["Starts with C", "Starts with F", "Starts with H"],
+    columns: ["Gifts", "Flowers", "Affection"],
     rows: [
-      { label: "Valentine's Day", words: ["CARD", "FLOWERS", "HEART"] },
-      { label: "Animals", words: ["CAT", "FOX", "HORSE"] },
-      { label: "Foods", words: ["CAKE", "FRIES", "HONEY"] },
+      { label: "Valentine's Day", words: ["CARD", "ROSES", "HEART"] },
+      { label: "Wedding", words: ["RING", "BOUQUET", "VOW"] },
+      { label: "Friendship", words: ["NOTE", "DAISY", "HUG"] },
     ],
   },
   {
     date: "2027-02-15",
     name: "Presidents' Day",
     difficulty: "hard",
-    columns: ["Starts with B", "Starts with L", "Starts with W"],
+    columns: ["Voting", "Leaders", "Places"],
     rows: [
       { label: "Presidents' Day", words: ["BALLOT", "LINCOLN", "WASHINGTON"] },
-      { label: "Animals", words: ["BEAR", "LION", "WOLF"] },
-      { label: "Home", words: ["BOWL", "LAMP", "WINDOW"] },
+      { label: "School", words: ["ELECTION", "PRINCIPAL", "CLASSROOM"] },
+      { label: "City", words: ["POLL", "MAYOR", "CAPITOL"] },
     ],
   },
   {
     date: "2027-03-17",
     name: "St. Patrick's Day",
     difficulty: "easy",
-    columns: ["Starts with C", "Starts with G", "Starts with S"],
+    columns: ["Green", "Symbols", "Plants"],
     rows: [
-      { label: "St. Patrick's Day", words: ["CLOVER", "GREEN", "SHAMROCK"] },
-      { label: "Music", words: ["CHORD", "GUITAR", "SOLO"] },
-      { label: "Foods", words: ["CURRY", "GRAPES", "SALSA"] },
+      { label: "St. Patrick's Day", words: ["GREEN", "CLOVER", "SHAMROCK"] },
+      { label: "Garden", words: ["MOSS", "MARKER", "FERN"] },
+      { label: "Traffic", words: ["GO", "SIGN", "HEDGE"] },
     ],
   },
   {
     date: "2027-03-28",
     name: "Easter",
     difficulty: "easy",
-    columns: ["Starts with B", "Starts with E", "Starts with R"],
+    columns: ["Treats", "Animals", "Flowers"],
     rows: [
-      { label: "Easter", words: ["BUNNY", "EGG", "RABBIT"] },
-      { label: "Office", words: ["BINDER", "EMAIL", "REPORT"] },
-      { label: "Foods", words: ["BREAD", "EDAMAME", "RICE"] },
+      { label: "Easter", words: ["CHOCOLATE", "BUNNY", "LILY"] },
+      { label: "Picnic", words: ["COOKIE", "ANT", "DAISY"] },
+      { label: "Garden", words: ["HONEY", "BEE", "ROSE"] },
     ],
   },
   {
     date: "2027-04-22",
     name: "Earth Day",
     difficulty: "medium",
-    columns: ["Starts with C", "Starts with P", "Starts with R"],
+    columns: ["Nature", "Planet", "Care"],
     rows: [
       { label: "Earth Day", words: ["CLIMATE", "PLANET", "RECYCLE"] },
-      { label: "Animals", words: ["CAT", "PANDA", "RABBIT"] },
-      { label: "Foods", words: ["CURRY", "PASTA", "RICE"] },
+      { label: "Garden", words: ["SOIL", "EARTH", "COMPOST"] },
+      { label: "Ocean", words: ["TIDE", "REEF", "CLEANUP"] },
     ],
   },
   {
     date: "2027-05-05",
     name: "Cinco de Mayo",
     difficulty: "medium",
-    columns: ["Starts with D", "Starts with M", "Starts with T"],
+    columns: ["Food", "Music", "Movement"],
     rows: [
-      { label: "Cinco de Mayo", words: ["DANCE", "MARIACHI", "TACOS"] },
-      { label: "Animals", words: ["DEER", "MOOSE", "TIGER"] },
-      { label: "Office", words: ["DRAFT", "MEMO", "TASK"] },
+      { label: "Cinco de Mayo", words: ["TACOS", "MARIACHI", "DANCE"] },
+      { label: "Wedding", words: ["DINNER", "BAND", "WALTZ"] },
+      { label: "Parade", words: ["CANDY", "DRUM", "MARCH"] },
     ],
   },
 ];
@@ -520,11 +698,11 @@ const SUBSET_PILLAR_SEEDS: SubsetSpecialSeed[] = [
     theme: "A hopeful Election Day center",
     editorialLane: "hybrid",
     difficulty: "medium",
-    columns: ["Starts with F", "Starts with H", "Starts with T"],
+    columns: ["Actions", "Feelings", "Outcomes"],
     rows: [
-      { label: "Animals", words: ["FOX", "HORSE", "TIGER"] },
-      { label: "Abstract Nouns", words: ["FAITH", "HOPE", "TRUST"] },
-      { label: "Foods", words: ["FRIES", "HONEY", "TACO"] },
+      { label: "Morning", words: ["BREW", "CALM", "SUNRISE"] },
+      { label: "Election Day", words: ["VOTE", "HOPE", "COUNT"] },
+      { label: "Garden", words: ["PLANT", "PATIENCE", "HARVEST"] },
     ],
     pillarWord: "HOPE",
   },
@@ -699,16 +877,21 @@ function registerPuzzle(
   puzzle: SubsetScheduledPuzzle,
 ): void {
   state.signatures.add(getGridSignature(puzzle.grid));
-  puzzle.rows.forEach((row) => {
-    state.rowLabelCounts.set(
-      row.label,
-      (state.rowLabelCounts.get(row.label) ?? 0) + 1,
+  [...puzzle.rows, ...puzzle.columns].forEach((category) => {
+    state.categoryLabelCounts.set(
+      category.label,
+      (state.categoryLabelCounts.get(category.label) ?? 0) + 1,
     );
   });
   puzzle.grid.flat().forEach((word) => {
     state.wordCounts.set(word, (state.wordCounts.get(word) ?? 0) + 1);
     state.wordLastSeen.set(word, puzzle.dayIndex);
   });
+  state.centerWordCounts.set(
+    puzzle.centerWord,
+    (state.centerWordCounts.get(puzzle.centerWord) ?? 0) + 1,
+  );
+  state.centerWordLastSeen.set(puzzle.centerWord, puzzle.dayIndex);
 }
 
 function scoreRowsForSchedule(
@@ -734,11 +917,18 @@ function scoreRowsForSchedule(
   });
 
   rows.forEach((row) => {
-    score += (state.rowLabelCounts.get(row.label) ?? 0) * 18;
+    score += (state.categoryLabelCounts.get(row.label) ?? 0) * 18;
   });
 
   const centerWord = rows[1].words[1];
-  score += (state.wordCounts.get(centerWord) ?? 0) * 35;
+  score += (state.centerWordCounts.get(centerWord) ?? 0) ** 2 * 130;
+  const centerLastSeen = state.centerWordLastSeen.get(centerWord);
+  if (centerLastSeen !== undefined) {
+    const centerGap = dayIndex - centerLastSeen;
+    if (centerGap < 60) {
+      score += (60 - centerGap) * 100_000;
+    }
+  }
   return score;
 }
 
@@ -777,10 +967,12 @@ function buildGenericPuzzleForDay(
 
 function buildSubsetSchedule(): SubsetScheduledPuzzle[] {
   const state: SubsetScheduleBuildState = {
-    rowLabelCounts: new Map(),
+    categoryLabelCounts: new Map(),
     signatures: new Set(),
     wordCounts: new Map(),
     wordLastSeen: new Map(),
+    centerWordCounts: new Map(),
+    centerWordLastSeen: new Map(),
   };
   const schedule: SubsetScheduledPuzzle[] = [];
 
@@ -815,15 +1007,17 @@ export function scoreSubsetPuzzleSatisfaction(
   puzzle: SubsetScheduledPuzzle,
 ): number {
   const words = puzzle.grid.flat();
-  let score = 74;
-  if (puzzle.holiday) score += 8;
-  if (puzzle.pillarWord) score += 7;
-  if (puzzle.editorialLane === "modern" || puzzle.editorialLane === "phrase")
+  let score = 76;
+  if (puzzle.holiday) score += 6;
+  if (puzzle.pillarWord) score += 6;
+  if (puzzle.editorialLane === "concrete") score += 6;
+  if (puzzle.editorialLane === "modern") score += 5;
+  if (puzzle.editorialLane === "phrase" || puzzle.editorialLane === "hybrid")
     score += 4;
-  if (puzzle.editorialLane === "hybrid") score += 3;
-  if (puzzle.difficulty === "easy") score += 3;
-  if (puzzle.difficulty === "hard") score -= 2;
-  if (words.some((word) => word.length > 10)) score -= 3;
+  if (puzzle.editorialLane === "word-form") score -= 2;
+  if (puzzle.difficulty === "easy") score += 2;
+  if (puzzle.difficulty === "hard") score -= 1;
+  if (words.some((word) => word.length > 11)) score -= 1;
   if (new Set(puzzle.rows.map((row) => row.label)).size === 3) score += 3;
   if (new Set(puzzle.columns.map((column) => column.label)).size === 3)
     score += 3;

@@ -9,6 +9,7 @@ import {
   SUBSET_SOLUTION_BOARD,
   SUBSET_TILES,
   type SubsetTileId,
+  adaptSubsetPuzzleToFirstLinePlacement,
   boardIndex,
   canSwapSubsetTiles,
   createEmptySubsetSolvedLines,
@@ -164,6 +165,91 @@ describe("Subset prototype data", () => {
         "transposed",
       )?.category.id,
     ).toBe("music-terms");
+  });
+
+  it("adapts the first right group in a compatible wrong order", () => {
+    const mirroredBoard = [
+      "boot",
+      "cookie",
+      "mouse",
+      "band",
+      "jam",
+      "bass",
+      "cap",
+      "batter",
+      "bat",
+    ];
+
+    expect(getSubsetLineMatch(mirroredBoard, "row", 0, null)).toBeNull();
+    expect(
+      getSubsetMisplacedLineMatch(mirroredBoard, "row", 0, null)?.category.id,
+    ).toBe("computer-terms");
+
+    const adaptation = adaptSubsetPuzzleToFirstLinePlacement(
+      mirroredBoard,
+      "row",
+      0,
+      null,
+    );
+
+    expect(adaptation?.adjusted).toBe(false);
+    expect(adaptation?.board).toEqual(mirroredBoard);
+    expect(adaptation?.match.orientation).toBe("canonical");
+    expect(adaptation?.match.category.id).toBe("computer-terms");
+    expect(adaptation?.puzzle.solutionBoard[SUBSET_FIXED_CELL.index]).toBe(
+      SUBSET_FIXED_CELL.tileId,
+    );
+    expect(
+      getSubsetLineMatch(
+        mirroredBoard,
+        "row",
+        0,
+        adaptation!.match.orientation,
+        adaptation!.puzzle,
+      )?.category.id,
+    ).toBe("computer-terms");
+  });
+
+  it("snaps the first right group to a compatible order when needed", () => {
+    const pillarBreakingBoard = [
+      "cookie",
+      "mouse",
+      "boot",
+      "bass",
+      "jam",
+      "band",
+      "bat",
+      "batter",
+      "cap",
+    ];
+
+    expect(
+      getSubsetMisplacedLineMatch(pillarBreakingBoard, "row", 0, null)
+        ?.category.id,
+    ).toBe("computer-terms");
+
+    const adaptation = adaptSubsetPuzzleToFirstLinePlacement(
+      pillarBreakingBoard,
+      "row",
+      0,
+      null,
+    );
+
+    expect(adaptation?.adjusted).toBe(true);
+    expect(getLineTileIds(adaptation!.board, "row", 0)).toEqual([
+      "mouse",
+      "cookie",
+      "boot",
+    ]);
+    expect(
+      getSubsetLineMatch(
+        adaptation!.board,
+        "row",
+        0,
+        adaptation!.match.orientation,
+        adaptation!.puzzle,
+      )?.category.id,
+    ).toBe("computer-terms");
   });
 
   it("supports completing the board under transposed orientation", () => {
