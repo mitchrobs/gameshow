@@ -143,6 +143,20 @@ function getTargetIndex(
   return boardIndex(targetRow, targetColumn);
 }
 
+function getTileTextFontSize(
+  word: string,
+  cellSize: number,
+  preferredFontSize: number,
+): number {
+  const innerWidth = Math.max(cellSize - 12, 36);
+  const estimatedFontSize = Math.floor(innerWidth / (word.length * 0.55));
+  return clamp(
+    Math.min(preferredFontSize, estimatedFontSize),
+    8,
+    preferredFontSize,
+  );
+}
+
 function isCellOnLine(
   axis: SubsetAxis,
   lineIndex: number,
@@ -207,6 +221,7 @@ function SubsetTileView({
   const drag = useMemo(() => new Animated.ValueXY({ x: 0, y: 0 }), []);
   const [dragging, setDragging] = useState(false);
   const tile = getSubsetTile(tileId, puzzle);
+  const tileTextFontSize = getTileTextFontSize(tile.word, cellSize, fontSize);
 
   const panResponder = useMemo(
     () =>
@@ -281,7 +296,14 @@ function SubsetTileView({
       <Text
         numberOfLines={1}
         adjustsFontSizeToFit
-        style={[styles.tileText, { fontSize }]}
+        minimumFontScale={0.52}
+        style={[
+          styles.tileText,
+          {
+            fontSize: tileTextFontSize,
+            lineHeight: Math.ceil(tileTextFontSize * 1.12),
+          },
+        ]}
       >
         {tile.word}
       </Text>
@@ -1543,6 +1565,11 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
       color: theme.colors.text,
       fontWeight: "900",
       textAlign: "center",
+      width: "100%",
+      maxWidth: "100%",
+      flexShrink: 1,
+      letterSpacing: 0,
+      includeFontPadding: false,
     },
     footerActions: {
       flexDirection: "row",
