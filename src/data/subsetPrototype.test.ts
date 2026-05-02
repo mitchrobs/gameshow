@@ -88,13 +88,13 @@ describe("Subset prototype data", () => {
   });
 
   it("does not let row submits match column-only categories or vice versa", () => {
-    const animals = SUBSET_COLUMN_CATEGORIES[0].tileIds;
-    const computers = SUBSET_ROW_CATEGORIES[0].tileIds;
+    const cafe = SUBSET_COLUMN_CATEGORIES[0].tileIds;
+    const workers = SUBSET_ROW_CATEGORIES[0].tileIds;
 
-    expect(getMatchingCategory("column", animals)?.id).toBe("animals");
-    expect(getMatchingCategory("row", animals)).toBeNull();
-    expect(getMatchingCategory("row", computers)?.id).toBe("computer-terms");
-    expect(getMatchingCategory("column", computers)).toBeNull();
+    expect(getMatchingCategory("column", cafe)?.id).toBe("cafe");
+    expect(getMatchingCategory("row", cafe)).toBeNull();
+    expect(getMatchingCategory("row", workers)?.id).toBe("workers");
+    expect(getMatchingCategory("column", workers)).toBeNull();
   });
 
   it("lets the first correct line silently choose canonical or transposed orientation", () => {
@@ -112,9 +112,9 @@ describe("Subset prototype data", () => {
     );
 
     expect(canonicalMatch?.orientation).toBe("canonical");
-    expect(canonicalMatch?.category.id).toBe("computer-terms");
+    expect(canonicalMatch?.category.id).toBe("workers");
     expect(transposedMatch?.orientation).toBe("transposed");
-    expect(transposedMatch?.category.id).toBe("animals");
+    expect(transposedMatch?.category.id).toBe("cafe");
     expect(
       getOrientedSolvedLineCategory(
         TRANSPOSED_SOLUTION_BOARD,
@@ -122,7 +122,7 @@ describe("Subset prototype data", () => {
         0,
         "transposed",
       )?.id,
-    ).toBe("animals");
+    ).toBe("cafe");
   });
 
   it("uses only the locked orientation after the first correct line", () => {
@@ -139,7 +139,7 @@ describe("Subset prototype data", () => {
         0,
         "transposed",
       )?.category.id,
-    ).toBe("animals");
+    ).toBe("cafe");
   });
 
   it("treats a right group in the wrong crossing positions as misplaced", () => {
@@ -164,26 +164,26 @@ describe("Subset prototype data", () => {
         1,
         "transposed",
       )?.category.id,
-    ).toBe("music-terms");
+    ).toBe("handhelds");
   });
 
   it("adapts the first right group in a compatible wrong order", () => {
     const mirroredBoard = [
-      "boot",
-      "cookie",
-      "mouse",
-      "band",
-      "jam",
-      "bass",
-      "cap",
-      "batter",
-      "bat",
+      "gardener",
+      "librarian",
+      "barista",
+      "trowel",
+      "book",
+      "mug",
+      "rustle",
+      "whisper",
+      "clink",
     ];
 
     expect(getSubsetLineMatch(mirroredBoard, "row", 0, null)).toBeNull();
     expect(
       getSubsetMisplacedLineMatch(mirroredBoard, "row", 0, null)?.category.id,
-    ).toBe("computer-terms");
+    ).toBe("workers");
 
     const adaptation = adaptSubsetPuzzleToFirstLinePlacement(
       mirroredBoard,
@@ -195,7 +195,7 @@ describe("Subset prototype data", () => {
     expect(adaptation?.adjusted).toBe(false);
     expect(adaptation?.board).toEqual(mirroredBoard);
     expect(adaptation?.match.orientation).toBe("canonical");
-    expect(adaptation?.match.category.id).toBe("computer-terms");
+    expect(adaptation?.match.category.id).toBe("workers");
     expect(adaptation?.puzzle.solutionBoard[SUBSET_FIXED_CELL.index]).toBe(
       SUBSET_FIXED_CELL.tileId,
     );
@@ -207,26 +207,26 @@ describe("Subset prototype data", () => {
         adaptation!.match.orientation,
         adaptation!.puzzle,
       )?.category.id,
-    ).toBe("computer-terms");
+    ).toBe("workers");
   });
 
   it("snaps the first right group to a compatible order when needed", () => {
     const pillarBreakingBoard = [
-      "cookie",
-      "mouse",
-      "boot",
-      "bass",
-      "jam",
-      "band",
-      "bat",
-      "batter",
-      "cap",
+      "librarian",
+      "barista",
+      "gardener",
+      "mug",
+      "book",
+      "trowel",
+      "clink",
+      "whisper",
+      "rustle",
     ];
 
     expect(
       getSubsetMisplacedLineMatch(pillarBreakingBoard, "row", 0, null)
         ?.category.id,
-    ).toBe("computer-terms");
+    ).toBe("workers");
 
     const adaptation = adaptSubsetPuzzleToFirstLinePlacement(
       pillarBreakingBoard,
@@ -237,9 +237,9 @@ describe("Subset prototype data", () => {
 
     expect(adaptation?.adjusted).toBe(true);
     expect(getLineTileIds(adaptation!.board, "row", 0)).toEqual([
-      "mouse",
-      "cookie",
-      "boot",
+      "barista",
+      "librarian",
+      "gardener",
     ]);
     expect(
       getSubsetLineMatch(
@@ -249,7 +249,7 @@ describe("Subset prototype data", () => {
         adaptation!.match.orientation,
         adaptation!.puzzle,
       )?.category.id,
-    ).toBe("computer-terms");
+    ).toBe("workers");
   });
 
   it("supports completing the board under transposed orientation", () => {
@@ -490,9 +490,9 @@ describe("Subset prototype data", () => {
 
     expect(isBoardComplete(solvedLines)).toBe(true);
     expect(getLineTileIds(SUBSET_SOLUTION_BOARD, "row", 0)).toEqual([
-      "mouse",
-      "cookie",
-      "boot",
+      "barista",
+      "librarian",
+      "gardener",
     ]);
   });
 

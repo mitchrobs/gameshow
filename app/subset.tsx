@@ -367,8 +367,8 @@ export default function SubsetScreen() {
   const headerSize = cellSize;
   const cellSpan = cellSize + GRID_GAP;
   const tileFontSize = cellSize < 70 ? 12 : 14;
-  const reshufflesRemaining = Math.max(0, MAX_RESHUFFLES - reshufflesUsed);
-  const canShuffleAgain = phase !== "shuffling" && reshufflesRemaining > 0;
+  const hasShufflesRemaining = reshufflesUsed < MAX_RESHUFFLES;
+  const canShuffleAgain = phase !== "shuffling" && hasShufflesRemaining;
 
   const clearShuffleTimers = useCallback(() => {
     if (shuffleIntervalRef.current) {
@@ -808,9 +808,6 @@ export default function SubsetScreen() {
                   <View style={styles.introStatPill}>
                     <Text style={styles.introStatText}>4 misses</Text>
                   </View>
-                  <View style={styles.introStatPill}>
-                    <Text style={styles.introStatText}>2 shuffles</Text>
-                  </View>
                 </View>
 
                 <View style={styles.instructionsCard}>
@@ -1151,14 +1148,15 @@ export default function SubsetScreen() {
                       onPress={handleShuffleAgain}
                       style={({ pressed }) => [
                         styles.secondaryButton,
-                        !canShuffleAgain && styles.secondaryButtonDisabled,
-                        pressed && styles.secondaryButtonPressed,
+                        !hasShufflesRemaining &&
+                          styles.secondaryButtonDisabled,
+                        pressed &&
+                          canShuffleAgain &&
+                          styles.secondaryButtonPressed,
                       ]}
                     >
                       <Text style={styles.secondaryButtonText}>
-                        {reshufflesRemaining > 0
-                          ? `Shuffle again (${reshufflesRemaining})`
-                          : "No shuffles left"}
+                        Shuffle again
                       </Text>
                     </Pressable>
                   </View>

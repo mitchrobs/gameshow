@@ -69,90 +69,90 @@ export const SUBSET_MAX_INCORRECT_GUESSES = 4;
 export const SUBSET_SHARE_URL = "https://mitchrobs.github.io/gameshow/subset";
 
 export const SUBSET_TILES: SubsetTile[] = [
-  { id: "mouse", word: "MOUSE" },
-  { id: "cookie", word: "COOKIE" },
-  { id: "boot", word: "BOOT" },
-  { id: "bass", word: "BASS" },
-  { id: "jam", word: "JAM" },
-  { id: "band", word: "BAND" },
-  { id: "bat", word: "BAT" },
-  { id: "batter", word: "BATTER" },
-  { id: "cap", word: "CAP" },
+  { id: "barista", word: "BARISTA" },
+  { id: "librarian", word: "LIBRARIAN" },
+  { id: "gardener", word: "GARDENER" },
+  { id: "mug", word: "MUG" },
+  { id: "book", word: "BOOK" },
+  { id: "trowel", word: "TROWEL" },
+  { id: "clink", word: "CLINK" },
+  { id: "whisper", word: "WHISPER" },
+  { id: "rustle", word: "RUSTLE" },
 ] as const;
 
 export const SUBSET_TILE_IDS = SUBSET_TILES.map((tile) => tile.id);
 
 export const SUBSET_SOLUTION_GRID: SubsetTileId[][] = [
-  ["mouse", "cookie", "boot"],
-  ["bass", "jam", "band"],
-  ["bat", "batter", "cap"],
+  ["barista", "librarian", "gardener"],
+  ["mug", "book", "trowel"],
+  ["clink", "whisper", "rustle"],
 ];
 
 export const SUBSET_SOLUTION_BOARD: SubsetBoard =
   SUBSET_SOLUTION_GRID.flat();
 
 export const SUBSET_FALLBACK_UNSOLVED_BOARD: SubsetBoard = [
-  "mouse",
-  "cookie",
-  "bass",
-  "boot",
-  "jam",
-  "bat",
-  "band",
-  "cap",
-  "batter",
+  "barista",
+  "librarian",
+  "mug",
+  "gardener",
+  "book",
+  "clink",
+  "trowel",
+  "rustle",
+  "whisper",
 ];
 
 export const SUBSET_FIXED_CELL: SubsetFixedCell = {
   index: 4,
-  tileId: "jam",
+  tileId: "book",
 };
 
 export const SUBSET_ROW_CATEGORIES: SubsetCategory[] = [
   {
-    id: "computer-terms",
+    id: "workers",
     axis: "row",
     index: 0,
-    label: "Computer Terms",
-    tileIds: ["mouse", "cookie", "boot"],
+    label: "Workers",
+    tileIds: ["barista", "librarian", "gardener"],
   },
   {
-    id: "music-terms",
+    id: "handhelds",
     axis: "row",
     index: 1,
-    label: "Music Terms",
-    tileIds: ["bass", "jam", "band"],
+    label: "Handhelds",
+    tileIds: ["mug", "book", "trowel"],
   },
   {
-    id: "baseball-things",
+    id: "sounds",
     axis: "row",
     index: 2,
-    label: "Baseball Things",
-    tileIds: ["bat", "batter", "cap"],
+    label: "Sounds",
+    tileIds: ["clink", "whisper", "rustle"],
   },
 ];
 
 export const SUBSET_COLUMN_CATEGORIES: SubsetCategory[] = [
   {
-    id: "animals",
+    id: "cafe",
     axis: "column",
     index: 0,
-    label: "Animals",
-    tileIds: ["mouse", "bass", "bat"],
+    label: "Cafe",
+    tileIds: ["barista", "mug", "clink"],
   },
   {
-    id: "foods",
+    id: "library",
     axis: "column",
     index: 1,
-    label: "Foods",
-    tileIds: ["cookie", "jam", "batter"],
+    label: "Library",
+    tileIds: ["librarian", "book", "whisper"],
   },
   {
-    id: "things-worn",
+    id: "garden",
     axis: "column",
     index: 2,
-    label: "Things Worn",
-    tileIds: ["boot", "band", "cap"],
+    label: "Garden",
+    tileIds: ["gardener", "trowel", "rustle"],
   },
 ];
 
