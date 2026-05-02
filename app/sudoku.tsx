@@ -16,6 +16,11 @@ import {
   useDaybreakTheme,
 } from '../src/constants/theme';
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
+import {
+  SudokuGlyph,
+  isSudokuDigitDisplayMode,
+  type SudokuDigitDisplayMode,
+} from '../src/ui/sudokuGlyphs';
 import { getDailySudoku, type SudokuPuzzle } from '../src/data/sudokuPuzzles';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 import { formatUtcDateLabel } from '../src/utils/dailyUtc';
@@ -52,6 +57,7 @@ type HintAction =
   | null;
 
 const STORAGE_PREFIX = 'sudoku';
+const DIGIT_DISPLAY_MODE_STORAGE_KEY = `${STORAGE_PREFIX}:digit-display-mode`;
 const MAX_HINTS = 3;
 const PROGRESS_STORAGE_VERSION = 2;
 const ROW_GLOW_BG = 'rgba(79, 180, 119, 0.14)';
@@ -393,6 +399,7 @@ export default function SudokuScreen() {
   const [notes, setNotes] = useState<NotesState>(() => createEmptyNotesState());
   const [selected, setSelected] = useState<SelectedCell>(null);
   const [notesMode, setNotesMode] = useState(false);
+  const [digitDisplayMode, setDigitDisplayMode] = useState<SudokuDigitDisplayMode>('numeric');
   const [gameState, setGameState] = useState<GameState>('playing');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
@@ -441,6 +448,17 @@ export default function SudokuScreen() {
     const current = parseInt(storage.getItem(key) || '0', 10);
     storage.setItem(key, String(current + 1));
   }, [dateKey]);
+
+  useEffect(() => {
+    const storedMode = readStorageItem(DIGIT_DISPLAY_MODE_STORAGE_KEY);
+    if (isSudokuDigitDisplayMode(storedMode)) {
+      setDigitDisplayMode(storedMode);
+    }
+  }, []);
+
+  useEffect(() => {
+    writeStorageItem(DIGIT_DISPLAY_MODE_STORAGE_KEY, digitDisplayMode);
+  }, [digitDisplayMode]);
 
   const hasCountedRef = useRef(false);
   useEffect(() => {
@@ -617,18 +635,46 @@ export default function SudokuScreen() {
   const noteColumns = puzzle.boxCols;
   const noteRows = puzzle.boxRows;
   const noteCellWidth = Math.max(8, Math.floor((cellSize - 8) / noteColumns));
+  const boardGlyphSize = Math.max(
+    16,
+    Math.min(cellSize - (puzzle.size === 9 ? 14 : 12), puzzle.size === 9 ? 24 : 30)
+  );
+  const keypadGlyphSize = Math.max(
+    18,
+    Math.min(keypadButtonWidth - 18, puzzle.size === 9 ? 24 : 28)
+  );
+  const noteGlyphSize = Math.max(
+    5,
+    Math.min(noteCellWidth - 1, puzzle.size === 9 ? 8 : 10)
+  );
   const hintAction = useMemo(
     () => getHintAction(grid, puzzle, selected, hintMarkedCellKeySet),
     [grid, hintMarkedCellKeySet, puzzle, selected]
   );
   const remainingHints = Math.max(0, MAX_HINTS - hintsUsed);
   const hintDisabled = remainingHints === 0 || !hintAction;
+  const useGlyphDigits = digitDisplayMode === 'glyph';
+  const helperCopy = useGlyphDigits
+    ? 'Tap a square, then choose a symbol. Toggle Notes to pencil in possibilities.'
+    : `Tap a square, then choose ${puzzle.digits[0]}-${puzzle.digits[puzzle.digits.length - 1]}. Toggle Notes to pencil in possibilities.`;
+  const modeCopy = useGlyphDigits
+    ? notesMode
+      ? 'Notes mode: tap symbols to add/remove pencil marks.'
+      : 'Entry mode: tap symbols to place a value.'
+    : notesMode
+      ? 'Notes mode: tap digits to add/remove pencil marks.'
+      : 'Entry mode: tap digits to place a value.';
   const selectedStatus = selected
     ? `Selected: Row ${selected.row + 1}, Col ${selected.col + 1}`
     : 'Select a square to start.';
   const handleBackToGames = useCallback(() => {
     router.replace('/');
   }, [router]);
+  const handleDigitDisplayModeToggle = useCallback(() => {
+    setDigitDisplayMode((previous) =>
+      previous === 'glyph' ? 'numeric' : 'glyph'
+    );
+  }, []);
 
   const handleNumberPress = useCallback(
     (value: number) => {
@@ -801,10 +847,7 @@ export default function SudokuScreen() {
                   </Text>
                 </View>
               </View>
-              <Text style={styles.helper}>
-                Tap a square, then choose {puzzle.digits[0]}-{puzzle.digits[puzzle.digits.length - 1]}.
-                Toggle Notes to pencil in possibilities.
-              </Text>
+              <Text style={styles.helper}>{helperCopy}</Text>
               {dailyEntry.source === 'fallback' && (
                 <Text style={styles.fallbackNote}>Using seeded fallback content outside the frozen pack.</Text>
               )}
@@ -855,11 +898,27 @@ export default function SudokuScreen() {
                     const cellNotes = notes[cellKey] ?? [];
                     const givenCell = isGiven(rowIndex, colIndex);
                     const hintMarkedCell = hintMarkedCellKeySet.has(cellKey);
+                    const cellValueColor = hintMarkedCell
+                      ? Colors.error
+                      : givenCell
+                        ? Colors.textSecondary
+                        : Colors.text;
+                    const cellAccessibilityLabel = value !== 0
+                      ? `Row ${rowIndex + 1}, column ${colIndex + 1}, ${givenCell ? 'given ' : ''}${value}`
+                      : cellNotes.length > 0
+                        ? `Row ${rowIndex + 1}, column ${colIndex + 1}, notes ${cellNotes.join(', ')}`
+                        : `Row ${rowIndex + 1}, column ${colIndex + 1}, empty`;
 
                     return (
                       <Pressable
                         key={`cell-${rowIndex}-${colIndex}`}
                         disabled={gameState !== 'playing'}
+                        accessibilityRole="button"
+                        accessibilityLabel={cellAccessibilityLabel}
+                        accessibilityState={{
+                          disabled: gameState !== 'playing',
+                          selected: Boolean(selectedCell),
+                        }}
                         onPress={() => {
                           if (gameState !== 'playing') return;
                           setSelected({ row: rowIndex, col: colIndex });
@@ -879,15 +938,23 @@ export default function SudokuScreen() {
                         ]}
                       >
                         {value !== 0 ? (
-                          <Text
-                            style={[
-                              styles.cellText,
-                              givenCell && styles.givenText,
-                              hintMarkedCell && styles.hintMarkedText,
-                            ]}
-                          >
-                            {value}
-                          </Text>
+                          useGlyphDigits ? (
+                            <SudokuGlyph
+                              digit={value}
+                              size={boardGlyphSize}
+                              color={cellValueColor}
+                            />
+                          ) : (
+                            <Text
+                              style={[
+                                styles.cellText,
+                                givenCell && styles.givenText,
+                                hintMarkedCell && styles.hintMarkedText,
+                              ]}
+                            >
+                              {value}
+                            </Text>
+                          )
                         ) : cellNotes.length > 0 ? (
                           <View style={styles.notesGrid}>
                             {Array.from({ length: noteRows }, (_, noteRow) => (
@@ -905,9 +972,18 @@ export default function SudokuScreen() {
                                         { width: noteCellWidth, height: noteCellWidth },
                                       ]}
                                     >
-                                      <Text style={styles.noteText}>
-                                        {cellNotes.includes(digit) ? digit : ''}
-                                      </Text>
+                                      {cellNotes.includes(digit) ? (
+                                        useGlyphDigits ? (
+                                          <SudokuGlyph
+                                            digit={digit}
+                                            size={noteGlyphSize}
+                                            color={Colors.textMuted}
+                                            variant="micro"
+                                          />
+                                        ) : (
+                                          <Text style={styles.noteText}>{digit}</Text>
+                                        )
+                                      ) : null}
                                     </View>
                                   ))}
                               </View>
@@ -924,33 +1000,36 @@ export default function SudokuScreen() {
             {gameState === 'playing' && (
               <View style={[styles.pad, { width: boardSize }]}>
                 <View style={styles.modeRow}>
-                  <Text style={styles.modeCopy}>
-                    {notesMode ? 'Notes mode: tap digits to add/remove pencil marks.' : 'Entry mode: tap digits to place a value.'}
-                  </Text>
-                  <Pressable
-                    onFocus={() => setFocusedControl('notes-toggle')}
-                    onBlur={() =>
-                      setFocusedControl((current) =>
-                        current === 'notes-toggle' ? null : current
-                      )
-                    }
-                    style={({ pressed }) => [
-                      styles.modeToggle,
-                      focusedControl === 'notes-toggle' && styles.controlFocusRing,
-                      notesMode && styles.modeToggleActive,
-                      pressed && styles.modeTogglePressed,
-                    ]}
-                    onPress={() => setNotesMode((previous) => !previous)}
-                  >
-                    <Text
-                      style={[
-                        styles.modeToggleText,
-                        notesMode && styles.modeToggleTextActive,
+                  <Text style={styles.modeCopy}>{modeCopy}</Text>
+                  <View style={styles.modeToggles}>
+                    <Pressable
+                      onFocus={() => setFocusedControl('notes-toggle')}
+                      onBlur={() =>
+                        setFocusedControl((current) =>
+                          current === 'notes-toggle' ? null : current
+                        )
+                      }
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: notesMode }}
+                      accessibilityLabel={notesMode ? 'Disable notes mode' : 'Enable notes mode'}
+                      style={({ pressed }) => [
+                        styles.modeToggle,
+                        focusedControl === 'notes-toggle' && styles.controlFocusRing,
+                        notesMode && styles.modeToggleActive,
+                        pressed && styles.modeTogglePressed,
                       ]}
+                      onPress={() => setNotesMode((previous) => !previous)}
                     >
-                      Notes
-                    </Text>
-                  </Pressable>
+                      <Text
+                        style={[
+                          styles.modeToggleText,
+                          notesMode && styles.modeToggleTextActive,
+                        ]}
+                      >
+                        Notes
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
                 <View
                   style={[
@@ -963,6 +1042,8 @@ export default function SudokuScreen() {
                   {puzzle.digits.map((digit) => (
                     <Pressable
                       key={digit}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Use ${digit}`}
                       onFocus={() => setFocusedControl(`digit-${digit}`)}
                       onBlur={() =>
                         setFocusedControl((current) =>
@@ -977,7 +1058,15 @@ export default function SudokuScreen() {
                       ]}
                       onPress={() => handleNumberPress(digit)}
                     >
-                      <Text style={styles.padText}>{digit}</Text>
+                      {useGlyphDigits ? (
+                        <SudokuGlyph
+                          digit={digit}
+                          size={keypadGlyphSize}
+                          color={Colors.text}
+                        />
+                      ) : (
+                        <Text style={styles.padText}>{digit}</Text>
+                      )}
                     </Pressable>
                   ))}
                 </View>
@@ -1041,6 +1130,46 @@ export default function SudokuScreen() {
                   <Text style={styles.selectionText}>{selectedStatus}</Text>
                   <Text style={styles.timerText}>⏱ {formatTime(elapsedSeconds)}</Text>
                 </View>
+              </View>
+            )}
+            {gameState === 'playing' && (
+              <View style={[styles.displayToggleRow, { width: boardSize }]}>
+                <View style={styles.displayToggleCopy}>
+                  <Text style={styles.displayToggleLabel}>Glyph mode</Text>
+                  <Text style={styles.displayToggleHint}>
+                    Show Egyptian-style symbols instead of numbers.
+                  </Text>
+                </View>
+                <Pressable
+                  onFocus={() => setFocusedControl('glyph-toggle')}
+                  onBlur={() =>
+                    setFocusedControl((current) =>
+                      current === 'glyph-toggle' ? null : current
+                    )
+                  }
+                  accessibilityRole="switch"
+                  accessibilityState={{ checked: useGlyphDigits }}
+                  accessibilityLabel={
+                    useGlyphDigits
+                      ? 'Disable hieroglyphic symbols'
+                      : 'Enable hieroglyphic symbols'
+                  }
+                  hitSlop={8}
+                  style={({ pressed }) => [
+                    styles.displayToggleSwitch,
+                    focusedControl === 'glyph-toggle' && styles.controlFocusRing,
+                    useGlyphDigits && styles.displayToggleSwitchActive,
+                    pressed && styles.displayToggleSwitchPressed,
+                  ]}
+                  onPress={handleDigitDisplayModeToggle}
+                >
+                  <View
+                    style={[
+                      styles.displayToggleThumb,
+                      useGlyphDigits && styles.displayToggleThumbActive,
+                    ]}
+                  />
+                </Pressable>
               </View>
             )}
 
@@ -1253,7 +1382,7 @@ const createStyles = (
     },
     modeRow: {
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       justifyContent: 'space-between',
       gap: Spacing.sm,
       flexWrap: 'wrap',
@@ -1265,6 +1394,13 @@ const createStyles = (
       color: Colors.textSecondary,
       lineHeight: 18,
       minWidth: 180,
+    },
+    modeToggles: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'flex-end',
+      gap: Spacing.sm,
+      marginLeft: 'auto',
     },
     modeToggle: {
       borderRadius: BorderRadius.full,
@@ -1400,11 +1536,69 @@ const createStyles = (
       fontSize: FontSize.sm,
       color: Colors.textMuted,
       fontWeight: '600',
+      minWidth: 180,
     },
     timerText: {
       fontSize: FontSize.sm,
       color: Colors.textSecondary,
       fontWeight: '600',
+    },
+    displayToggleRow: {
+      width: '100%',
+      marginTop: Spacing.sm,
+      alignSelf: 'center',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.md,
+      paddingHorizontal: Spacing.sm,
+    },
+    displayToggleCopy: {
+      flex: 1,
+      minWidth: 180,
+    },
+    displayToggleLabel: {
+      fontSize: FontSize.sm,
+      fontWeight: '700',
+      color: Colors.text,
+    },
+    displayToggleHint: {
+      marginTop: 2,
+      fontSize: FontSize.xs,
+      lineHeight: 16,
+      color: Colors.textMuted,
+    },
+    displayToggleSwitch: {
+      width: 54,
+      height: 32,
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceLight,
+      padding: 3,
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    displayToggleSwitchActive: {
+      backgroundColor: screenAccent.main,
+      borderColor: screenAccent.main,
+    },
+    displayToggleSwitchPressed: {
+      opacity: 0.92,
+    },
+    displayToggleThumb: {
+      width: 24,
+      height: 24,
+      borderRadius: BorderRadius.full,
+      backgroundColor: Colors.surface,
+      shadowColor: Colors.text,
+      shadowOpacity: 0.12,
+      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 1 },
+      transform: [{ translateX: 0 }],
+    },
+    displayToggleThumbActive: {
+      transform: [{ translateX: 22 }],
     },
     confetti: {
       fontSize: 28,
