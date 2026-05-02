@@ -36,7 +36,7 @@ const WEB_NO_SELECT =
       }
     : {};
 
-const STRADDLE_HOME_PILLAR_WORD = 'JAM';
+const SUBSET_HOME_PILLAR_WORD = 'JAM';
 
 type HomeGameCategory = 'all' | 'word' | 'logic' | 'trivia';
 type FilterableGameCategory = Exclude<HomeGameCategory, 'all'>;
@@ -197,7 +197,7 @@ export default function HomeScreen() {
     const baseLinks = [
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash', category: 'word' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie', category: 'word' },
-      { label: 'Straddle', route: '/straddle', emoji: '🔗', countKey: 'straddle', category: 'word', isNew: true },
+      { label: 'Subset', route: '/subset', emoji: '▦', countKey: 'subset', category: 'word', isNew: true },
       {
         label: 'Threadline',
         route: '/threadline',
@@ -295,7 +295,7 @@ export default function HomeScreen() {
       return (
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
-        storage.getItem(`straddle:daily:${key}`) === '1' ||
+        storage.getItem(`subset:daily:${key}`) === '1' ||
         storage.getItem(`threadline:daily:${key}`) === '1' ||
         storage.getItem(`crossword:daily:${key}`) === '1' ||
         storage.getItem(`museum:daily:${key}`) === '1' ||
@@ -332,7 +332,7 @@ export default function HomeScreen() {
     getGlobalPlayCounts([
       'mojimash',
       'wordie',
-      'straddle',
+      'subset',
       'threadline',
       'crossword',
       'sudoku',
@@ -578,56 +578,56 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Straddle card */}
+          {/* Subset card */}
           <View style={[styles.gameSection, !shouldShowGame('word') && styles.gameSectionHidden]}>
             <View style={styles.gameLabelRow}>
               <View style={styles.gameLabel}>
-                <Text style={styles.straddleKicker}>Word Grid</Text>
-                <Text style={styles.gameTitle}>Straddle</Text>
+                <Text style={styles.subsetKicker}>Word Grid</Text>
+                <Text style={styles.gameTitle}>Subset</Text>
               </View>
             </View>
             <Text style={styles.blurb}>
-              Arrange nine words so every row and column reveals a hidden category.
+              Arrange nine words into hidden groups across every row and column.
             </Text>
-            {(playCounts['straddle'] ?? 0) > 0 && (
+            {(playCounts['subset'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
-                <Text style={styles.streakText}>{playCounts['straddle']} plays today</Text>
+                <Text style={styles.streakText}>{playCounts['subset']} plays today</Text>
               </View>
             )}
             <View style={styles.dailyCard}>
-              <View style={styles.straddlePreview}>
+              <View style={styles.subsetPreview}>
                 {Array.from({ length: 3 }, (_, rowIndex) => (
-                  <View key={`straddle-row-${rowIndex}`} style={styles.straddlePreviewRow}>
+                  <View key={`subset-row-${rowIndex}`} style={styles.subsetPreviewRow}>
                     {Array.from({ length: 3 }, (_, columnIndex) => {
                       const isPillar = rowIndex === 1 && columnIndex === 1;
                       return (
                         <View
-                          key={`straddle-preview-${rowIndex}-${columnIndex}`}
+                          key={`subset-preview-${rowIndex}-${columnIndex}`}
                           style={[
-                            styles.straddlePreviewTile,
-                            isPillar && styles.straddlePreviewTilePillar,
+                            styles.subsetPreviewTile,
+                            isPillar && styles.subsetPreviewTilePillar,
                           ]}
                         >
                           <Text
                             numberOfLines={1}
                             adjustsFontSizeToFit
-                            style={styles.straddlePreviewText}
+                            style={styles.subsetPreviewText}
                           >
-                            {isPillar ? STRADDLE_HOME_PILLAR_WORD : ''}
+                            {isPillar ? SUBSET_HOME_PILLAR_WORD : ''}
                           </Text>
                         </View>
                       );
                     })}
                   </View>
                 ))}
-                <Text style={styles.straddlePreviewMeta}>6 hidden links · 4 misses</Text>
+                <Text style={styles.subsetPreviewMeta}>6 hidden links · 3 misses</Text>
               </View>
               <Pressable
                 style={({ pressed }) => [
                   styles.playButton,
                   pressed && styles.playButtonPressed,
                 ]}
-                onPress={() => router.push('/straddle')}
+                onPress={() => router.push('/subset')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
@@ -1158,7 +1158,7 @@ const createStyles = (
   const bridgesAccent = resolveScreenAccent('bridges', theme);
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
-  const straddleAccent = resolveScreenAccent('wordie', theme);
+  const subsetAccent = resolveScreenAccent('wordie', theme);
   const threadlineAccent = resolveScreenAccent('threadline', theme);
   const museumAccent = resolveScreenAccent('museum', theme);
   const ballparkAccent = resolveScreenAccent('trivia', theme);
@@ -1408,8 +1408,8 @@ const createStyles = (
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
   },
-  straddleKicker: {
-    color: straddleAccent.main,
+  subsetKicker: {
+    color: subsetAccent.main,
     fontSize: FontSize.sm,
     fontWeight: '700',
     letterSpacing: 1.2,
@@ -1506,7 +1506,7 @@ const createStyles = (
     fontWeight: '800',
     color: Colors.text,
   },
-  straddlePreview: {
+  subsetPreview: {
     alignItems: 'center',
     marginVertical: Spacing.md,
     backgroundColor: Colors.surfaceLight,
@@ -1515,11 +1515,11 @@ const createStyles = (
     paddingHorizontal: Spacing.sm,
     gap: 6,
   },
-  straddlePreviewRow: {
+  subsetPreviewRow: {
     flexDirection: 'row',
     gap: 6,
   },
-  straddlePreviewTile: {
+  subsetPreviewTile: {
     width: 76,
     height: 38,
     borderRadius: 7,
@@ -1530,16 +1530,16 @@ const createStyles = (
     justifyContent: 'center',
     paddingHorizontal: 5,
   },
-  straddlePreviewTilePillar: {
-    backgroundColor: straddleAccent.soft,
-    borderColor: straddleAccent.main,
+  subsetPreviewTilePillar: {
+    backgroundColor: subsetAccent.soft,
+    borderColor: subsetAccent.main,
   },
-  straddlePreviewText: {
+  subsetPreviewText: {
     fontSize: 11,
     fontWeight: '900',
     color: Colors.text,
   },
-  straddlePreviewMeta: {
+  subsetPreviewMeta: {
     marginTop: Spacing.xs,
     fontSize: 12,
     color: Colors.textMuted,
