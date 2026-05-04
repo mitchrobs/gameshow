@@ -148,11 +148,11 @@ function getTileTextFontSize(
   cellSize: number,
   preferredFontSize: number,
 ): number {
-  const innerWidth = Math.max(cellSize - 12, 36);
-  const estimatedFontSize = Math.floor(innerWidth / (word.length * 0.55));
+  const innerWidth = Math.max(cellSize - 8, 32);
+  const estimatedFontSize = Math.floor(innerWidth / (word.length * 0.82));
   return clamp(
     Math.min(preferredFontSize, estimatedFontSize),
-    8,
+    4,
     preferredFontSize,
   );
 }
@@ -1510,7 +1510,7 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
       borderColor: theme.colors.border,
       alignItems: "center",
       justifyContent: "center",
-      paddingHorizontal: theme.spacing.xs,
+      paddingHorizontal: 2,
       ...theme.shadows.card,
     },
     tileHighlighted: {
