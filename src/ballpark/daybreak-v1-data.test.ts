@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AUTHORED_BALLPARK_CALENDAR,
   CALENDAR_END_KEY,
   CYCLE_START_KEY,
   DAYBREAK_CYCLE_LENGTH,
   getDailySet,
   getThemePlayabilityForDate,
+  runBallparkContentAudit,
   runAuthoredContentValidationSuite,
   shiftDateKey,
   validateAuthoredLibrary,
@@ -59,7 +61,38 @@ describe('Ballpark 2026 calendar', () => {
         expect(dailySet.extraInning.difficultyScore).toBeGreaterThanOrEqual(
           dailySet.questions[2]?.difficultyScore ?? 0
         );
+        expect(dailySet.extraInning.answer).toBeGreaterThan(dailySet.questions[2]?.answer ?? 0);
       }
+    });
+  });
+
+  it('uses a true date-keyed calendar with unique themes and sourced questions', () => {
+    const summary = runBallparkContentAudit();
+    const calendarDates = Object.keys(AUTHORED_BALLPARK_CALENDAR);
+    const seenPrompts = new Set<string>();
+    const seenThemes = new Set<string>();
+
+    expect(calendarDates).toHaveLength(DAYBREAK_CYCLE_LENGTH);
+    expect(summary.questionsChecked).toBe(795);
+    expect(summary.uniqueThemes).toBe(DAYBREAK_CYCLE_LENGTH);
+
+    summary.authoredSets.forEach((dailySet) => {
+      expect(seenThemes.has(dailySet.theme)).toBe(false);
+      seenThemes.add(dailySet.theme);
+
+      [...dailySet.questions, ...(dailySet.extraInning ? [dailySet.extraInning] : [])].forEach(
+        (question) => {
+          expect(seenPrompts.has(question.prompt)).toBe(false);
+          seenPrompts.add(question.prompt);
+          expect(question.answerType).toMatch(/^(exact|estimate|range)$/);
+          expect(question.sources.length).toBeGreaterThan(0);
+          question.sources.forEach((source) => {
+            expect(source.title.length).toBeGreaterThan(2);
+            expect(source.url).toMatch(/^https?:\/\//);
+            expect(source.accessedDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+          });
+        }
+      );
     });
   });
 
@@ -94,6 +127,26 @@ describe('Ballpark 2026 calendar', () => {
     expect(dailySet.theme).toBe('The Physics of Sports Balls');
     expect(dailySet.theme).not.toBe('Calendar Math');
     expect(getThemePlayabilityForDate('2026-04-25')).toBe('tactile');
+  });
+
+  it('replaces the weak launch-window packs called out by players', async () => {
+    const apr30 = await getDailySet('2026-04-30');
+    const may7 = await getDailySet('2026-05-07');
+    const may8 = await getDailySet('2026-05-08');
+    const apr30Prompts = new Set(apr30.questions.map((question) => question.prompt));
+
+    expect(may7.theme).toBe('Money Museum');
+    expect(may7.theme).not.toBe('Cash Counts');
+    expect(may7.questions.map((question) => question.prompt).join(' ')).not.toMatch(
+      /\$1 bills|pennies.*make|would you need to make/i
+    );
+
+    expect(may8.theme).toBe('Backyard Birds');
+    expect(may8.theme).not.toBe('Ocean Creatures');
+    may8.questions.forEach((question) => {
+      expect(apr30Prompts.has(question.prompt)).toBe(false);
+      expect(question.prompt.toLowerCase()).not.toContain('octopus');
+    });
   });
 
   it('spaces puzzle themes so they stay occasional and never Friday-led', () => {
