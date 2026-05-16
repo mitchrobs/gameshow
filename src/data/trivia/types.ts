@@ -60,6 +60,22 @@ export type TriviaObscurityFlag =
   | 'famous-nickname'
   | 'edge-case'
   | 'timer-friction';
+export type TriviaTasteTag =
+  | 'count-trivia'
+  | 'year-trivia'
+  | 'according-to'
+  | 'line-complete'
+  | 'pilot-episode'
+  | 'actor-director-credit'
+  | 'archive-media'
+  | 'definition-low-payoff'
+  | 'statement-elimination'
+  | 'fragment-stem'
+  | 'nickname-only'
+  | 'team-association'
+  | 'athlete-association'
+  | 'legacy-sports-history'
+  | 'long-setup';
 export type TriviaPlayerArchetype =
   | 'casual-pace'
   | 'broad-generalist'
@@ -96,6 +112,14 @@ export interface TriviaCitation {
 export interface TriviaQuestionRecord {
   id: string;
   feed: TriviaFeed;
+  coreFactId: string;
+  difficultyPool: TriviaDifficulty;
+  reserveOnly: boolean;
+  launchEligible: boolean;
+  launchBlockReasons: TriviaCouncilFlag[];
+  scheduleEligible: boolean;
+  editorialSourceFamily: string;
+  tasteTags: TriviaTasteTag[];
   stem: string;
   options: string[];
   answerIndex: number;
@@ -130,6 +154,7 @@ export interface TriviaEpisodeDefinition {
   feed: TriviaFeed;
   difficulty: TriviaDifficulty;
   questionIds: string[];
+  curveballQuestionId?: string | null;
   difficultyTargets: TriviaDifficultyTarget[];
   finalStretchStartsAt: number;
   themeTag: string;
@@ -386,6 +411,10 @@ export interface TriviaAuditFeedSummary {
   feed: TriviaFeed;
   difficulty: TriviaDifficulty;
   libraryCount: number;
+  poolScheduledCount: number;
+  poolReserveCount: number;
+  reserveHeadroomTarget: number;
+  reserveShortfall: number;
   scheduledCount: number;
   reserveCount: number;
   refreshableCount: number;
@@ -395,11 +424,24 @@ export interface TriviaAuditFeedSummary {
   staleQuestionCount: number;
   repeatedVariantGroups: number;
   variantReuseCount: number;
+  coreFactReuseViolations: number;
+  crossDifficultyCoreFactOverlap: number;
+  crossDifficultyVariantOverlap: number;
   trickQuestionCount: number;
   scheduledOffToneCount: number;
+  scheduledOffToneExamples: string[];
   lateSlotGeneralSportsCount: number;
   curveballSpacingViolations: number;
   first90BlockedPatternCount: number;
+  blockedPatternExamples: string[];
+  blockingTasteTagCount: number;
+  blockingTasteTagExamples: string[];
+  tasteTagCounts: Partial<Record<TriviaTasteTag, number>>;
+  scheduleEligibleShare: number;
+  scheduledBlockedSourceFamilies: Record<string, number>;
+  first28SampleStems: string[];
+  sourceFamilyDistribution: Record<string, number>;
+  authoredFamilyShare: number;
   curveballCoverageByMonth: Record<string, number>;
   topRepeatedGroups: TriviaAuditRepeatedGroupSummary[];
   lateSlotLegibilityScore: number;

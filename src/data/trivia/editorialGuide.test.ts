@@ -28,7 +28,8 @@ describe('trivia editorial guide', () => {
     expect(guide).toContain('/Users/mitchellmacmini/Downloads/deep-research-report.md');
     expect(guide).toContain('docs/moji-mash-style-guide.md');
     expect(guide).toContain('The user-approved Daily Trivia overhaul plan in this thread.');
-    expect(guide).toContain('three fair trick questions per month');
+    expect(guide).toContain('`Daily Sports` should land one fair curveball in each full calendar month.');
+    expect(guide).toContain('`Daily Mix` may use trick questions more sparingly.');
     expect(guide).toContain('Player agents should include multiple archetypes');
     expect(guide).toContain('The publish gate is AI-only after calibration.');
     expect(guide).toContain('No human editorial pass exists in the shipping pipeline.');

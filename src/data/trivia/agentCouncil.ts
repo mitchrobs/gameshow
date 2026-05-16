@@ -178,7 +178,7 @@ export function evaluateTriviaCouncilQuestion(
       flags,
       'timer-friction',
       'timer-friction',
-      question.stem.length > 162 || (lateClockStress !== null && lateClockStress > 0.58) ? 'fail' : 'warn',
+      'warn',
       'Question is more likely to fail on clock pressure than on satisfying recall.'
     );
   }

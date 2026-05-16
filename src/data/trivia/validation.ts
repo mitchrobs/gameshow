@@ -8,6 +8,14 @@ import type {
 export const TRIVIA_REQUIRED_FIELDS = [
   'id',
   'feed',
+  'coreFactId',
+  'difficultyPool',
+  'reserveOnly',
+  'launchEligible',
+  'launchBlockReasons',
+  'scheduleEligible',
+  'editorialSourceFamily',
+  'tasteTags',
   'stem',
   'options',
   'answerIndex',
@@ -88,6 +96,9 @@ export function validateQuestionRecord(question: TriviaQuestionRecord): string[]
   }
   if (!question.promptKind) issues.push('missing promptKind');
   if (!Array.isArray(question.obscurityFlags)) issues.push('obscurityFlags must be an array');
+  if (!Array.isArray(question.launchBlockReasons)) issues.push('launchBlockReasons must be an array');
+  if (!Array.isArray(question.tasteTags)) issues.push('tasteTags must be an array');
+  if (!question.editorialSourceFamily?.trim()) issues.push('missing editorialSourceFamily');
   question.citations.forEach((citation) => {
     issues.push(...validateCitation(citation));
   });

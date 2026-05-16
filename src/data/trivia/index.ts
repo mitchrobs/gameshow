@@ -101,7 +101,7 @@ const EPISODE_MAP_BY_FEED: Record<
   },
 };
 
-const AUDIT_REPORT = auditData as TriviaAuditReport;
+const AUDIT_REPORT = auditData as unknown as TriviaAuditReport;
 const PLAYER_CALIBRATION_REPORT = playerCalibrationData as TriviaPlayerCalibrationReport;
 
 function mulberry32(seed: number) {

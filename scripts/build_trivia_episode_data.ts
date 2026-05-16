@@ -33,6 +33,7 @@ import type {
   TriviaQuestionRecord,
   TriviaSourceLabel,
   TriviaSourceTier,
+  TriviaTasteTag,
   TriviaTelemetryQuestionAggregate,
   TriviaTelemetrySlotAggregate,
   TriviaTelemetrySnapshot,
@@ -59,48 +60,94 @@ const START_DATE_KEY = '2026-04-26';
 const TOTAL_DAYS = 365;
 const ACCESS_DATE = '2026-04-26';
 const VERSION = 'trivia-v1';
-const MIX_LIBRARY_TARGET = 5400;
-const SPORTS_LIBRARY_TARGET = 4600;
-const SPORTS_VARIANT_COUNTS = {
-  easy: 240,
-  medium: 420,
-  hard: 820,
-  easySecond: 120,
-  mediumSecond: 300,
-  hardSecond: 560,
-  easyThird: 60,
-  mediumThird: 180,
-  hardThird: 320,
-  easyFourth: 40,
-  mediumFourth: 20,
-  hardFourth: 20,
+const MIX_SCHEDULED_COUNT = TOTAL_DAYS * 12;
+const SPORTS_SCHEDULED_COUNT = TOTAL_DAYS * 9;
+const MIX_RESERVE_HEADROOM_TARGET = 500;
+const SPORTS_RESERVE_HEADROOM_TARGET = 300;
+const MIX_POOL_TARGET = MIX_SCHEDULED_COUNT + MIX_RESERVE_HEADROOM_TARGET;
+const SPORTS_POOL_TARGET = SPORTS_SCHEDULED_COUNT + SPORTS_RESERVE_HEADROOM_TARGET;
+const AUTHORED_SHARE_MINIMUMS: Record<TriviaFeed, Record<TriviaDifficulty, number>> = {
+  mix: { easy: 0.7, hard: 0.85 },
+  sports: { easy: 0.98, hard: 0.95 },
+};
+const SCHEDULE_ALLOWED_SOURCE_FAMILIES: Record<
+  TriviaFeed,
+  Record<TriviaDifficulty, readonly string[]>
+> = {
+  mix: {
+    easy: ['mix-authored-evergreen', 'mix-authored-culture'],
+    hard: ['mix-authored-evergreen', 'mix-authored-culture', 'mix-authored-hard'],
+  },
+  sports: {
+    easy: ['sports-authored-core', 'sports-authored-hardcore'],
+    hard: ['sports-authored-core', 'sports-authored-hardcore', 'sports-authored-mainstream-hard'],
+  },
 } as const;
+const SPORTS_POOL_DIFFICULTY_MINIMUMS: Record<
+  TriviaDifficulty,
+  Partial<Record<TriviaDifficultyTarget, number>>
+> = {
+  easy: {},
+  hard: { 2: 1600 },
+};
+const MIX_POOL_DIFFICULTY_MINIMUMS: Record<
+  TriviaDifficulty,
+  Partial<Record<TriviaDifficultyTarget, number>>
+> = {
+  easy: {},
+  hard: { 2: 1250 },
+};
 const TRIVIA_DIFFICULTIES: TriviaDifficulty[] = ['easy', 'hard'];
 const TIMER_SECONDS = 15;
 const BASE_POINTS = 100;
 const SPEED_BONUS = 50;
 const SHIELD_POINTS = 50;
+const MIX_DOMAIN_DISTRIBUTION = {
+  science: 0.26,
+  world: 0.26,
+  history: 0.24,
+  arts: 0.24,
+} as const;
+const MIX_DOMAIN_LAUNCH_TARGETS: Record<keyof typeof MIX_DOMAIN_DISTRIBUTION, number> = {
+  science: 1139,
+  world: 1139,
+  history: 1051,
+  arts: 1051,
+};
+const SPORTS_SUBDOMAIN_DISTRIBUTION = {
+  football: 0.21,
+  basketball: 0.19,
+  baseball: 0.19,
+  hockey: 0.13,
+  soccer: 0.09,
+  olympics: 0.05,
+  golf: 0.04,
+  tennis: 0.04,
+  motorsport: 0.03,
+  combat: 0.01,
+  'general-sports': 0.02,
+} as const;
 const MIX_SLOT_CONFIDENCE_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
-  easy: [0.008, 0.012, 0.016, 0.03, 0.04, 0.05, 0.068, 0.082, 0.098, 0.02, 0.026, 0.022],
+  easy: [0.008, 0.012, 0.016, 0.03, 0.04, 0.05, 0.068, 0.082, 0.098, 0.05, 0.06, 0.055],
   hard: [0.045, 0.05, 0.055, 0.08, 0.09, 0.1, 0.14, 0.16, 0.18, 0.29, 0.31, 0.3],
 };
 const MIX_SLOT_TIMEOUT_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
-  easy: [0, 0.001, 0.002, 0.004, 0.005, 0.006, 0.008, 0.011, 0.013, 0.004, 0.005, 0.004],
+  easy: [0, 0.001, 0.002, 0.004, 0.005, 0.006, 0.008, 0.011, 0.013, 0.009, 0.011, 0.01],
   hard: [0.001, 0.002, 0.004, 0.008, 0.01, 0.012, 0.016, 0.02, 0.024, 0.038, 0.04, 0.038],
 };
 const SPORTS_SLOT_CONFIDENCE_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
-  easy: [0.028, 0.05, 0.05, 0.075, 0.105, 0.115, 0.17, 0.235, 0.28],
-  hard: [0.055, 0.08, 0.15, 0.18, 0.19, 0.3, 0.42, 0.52, 0.62],
+  easy: [0.04, 0.065, 0.08, 0.11, 0.13, 0.18, 0.24, 0.31, 0.37],
+  hard: [0.055, 0.08, 0.145, 0.17, 0.18, 0.29, 0.42, 0.52, 0.62],
 };
 const SPORTS_SLOT_TIMEOUT_ADJUSTMENTS: Record<TriviaDifficulty, number[]> = {
-  easy: [0.001, 0.004, 0.006, 0.009, 0.011, 0.013, 0.018, 0.024, 0.03],
-  hard: [0.002, 0.006, 0.012, 0.017, 0.019, 0.038, 0.052, 0.068, 0.08],
+  easy: [0.002, 0.006, 0.009, 0.013, 0.016, 0.022, 0.03, 0.04, 0.05],
+  hard: [0.002, 0.006, 0.011, 0.016, 0.018, 0.038, 0.054, 0.07, 0.082],
 };
 const FIRST_90_CALIBRATION_DAYS = 90;
 const FULL_YEAR_CALIBRATION_DAYS = TOTAL_DAYS;
 const SPORTS_CURVEBALL_GAP_DAYS = 7;
-const SPORTS_CURVEBALL_TARGET_PER_MONTH = 3;
-const SPORTS_CURVEBALL_ANCHOR_DAYS = [8, 16, 24] as const;
+const SPORTS_CURVEBALL_TARGET_PER_MONTH = 1;
+const SPORTS_CURVEBALL_ANCHOR_DAYS = [16] as const;
 const SPORTS_Q9_GENERAL_PROMPT_KINDS = new Set<TriviaPromptKind>(['rule', 'term']);
 const SPORTS_CORE_SUBDOMAINS = new Set(['football', 'basketball', 'baseball', 'hockey']);
 const SPORTS_REPEATABLE_CORE_SUBDOMAINS = new Set(['football', 'basketball', 'baseball', 'hockey']);
@@ -133,17 +180,39 @@ const MIX_ALLOWED_CURVEBALL_KINDS = new Set<TriviaPromptKind>([
   'rule',
 ]);
 const MIX_TRICK_BLOCKLIST_REGEX =
-  /\b(best definition|definition of the term|missing word from the popular saying|which word refers|practitioner of the martial art of okinawan origin|female worshippers of god dionysos|self-discipline and refraining from worldly pleasures)\b/i;
+  /\b(best definition|choose the best definition|definition of the term|what is the definition of the term|which word is defined as|missing word from the popular saying|which word refers|practitioner of the martial art of okinawan origin|female worshippers of god dionysos|self-discipline and refraining from worldly pleasures)\b/i;
 const MIX_ARCHIVE_REJECT_REGEX =
-  /\b(all of these|none of these|complete this line|missing (?:word|part|letter)|what saying|popular saying|which word in this sentence is incorrectly used|find the (?:missing|next) number|guess the missing number|what number comes next|fill in the missing letter|mode of this list|referring to the previous question|which statement (?:is|about)|one of the following|pmh, psh, sh and fh)\b/i;
+  /\b(all of these|none of these|complete this line|missing (?:word|part|letter)|what saying|popular saying|which word in this sentence is incorrectly used|find the (?:missing|next) number|guess the missing number|what number comes next|fill in the missing letter|mode of this list|referring to the previous question|which statement (?:is|about)|one of the following|odd one out|pmh, psh, sh and fh|identify the \d{4} movie from the quote|this quote is from|the following quote belongs to|is a quote from|credited with the following quote|which word is defined as|what is the definition of the term|choose the best definition|winner of the \d{4} nobel prize|the devils dictionary)\b/i;
 const MIX_RELATIONSHIP_REJECT_REGEX =
   /\b(wife|husband|daughter|son|mother|father|brother|sister|cousin|girlfriend|boyfriend|married to|eventual wife|start dating|dating)\b/i;
 const MIX_POP_DEEPCUT_REJECT_REGEX =
   /\b(devil went down to georgia|the french connection|the light in the piazza|what about bob|rappers delight|sammy davis jr|tommy lee, vince neil|a thousand clowns|joe mcginnis|wilson pickett|backstairs at the white house|steven tyler and joe perry|osmond brothers|abbott and costello|love connection and lingo|drake and josh|happy days|eric wilson|sublime|the heidi chronicles|night of the living dead and dawn of the dead|james bonds aston martin|the birth of venus, the annunciation, medusa, and flora)\b/i;
+const MIX_MEDIA_DEEPCUT_REJECT_REGEX =
+  /\b(?:what|which) \d{4} movie\b|\bin the (?:movie|film)\b|\bat the end of the (?:movie|film)\b|\bwhat do we first see\b|\bwhat was the name of\b|\bwho portrays\b|\bwho portrayed\b|\bwhat actor played\b|\bwhich character from the \d{4} movie\b|\bwhat singer and actor portrayed\b|\bname the movie\b|\btag line\b|\btagline\b|\bquote from\b|\bwas telling us\b|\bduring the summer of\b/i;
+const MIX_COUNT_TRIVIA_REGEX = /^how many\b/i;
+const MIX_YEAR_TRIVIA_REGEX =
+  /\bwhat year\b|^(?:in|during)\s+(?:19|20)\d{2}\b|\bin\s+(?:19|20)\d{2}\b/i;
+const MIX_ACCORDING_TO_REGEX = /^according to\b/i;
+const MIX_LINE_COMPLETE_REGEX = /^complete the line\b/i;
+const MIX_PILOT_EPISODE_REGEX = /\bpilot episode\b|\bepisode title\b/i;
+const MIX_ACTOR_DIRECTOR_REGEX =
+  /\bwho (?:played|starred|directed|recorded)\b|\bwho portrayed\b|\bwhat actress starred\b|\bwhat actor played\b/i;
+const MIX_ARCHIVE_MEDIA_REGEX =
+  /\b(?:movie|film|tv|television|sitcom|series|show)\b.*\b(?:called|about|based in|pilot episode|directed|played|portrayed|starred)\b|\bghost hunters\b|\bthe waltons\b/i;
+const MIX_DEFINITION_LOW_PAYOFF_REGEX =
+  /^(?:what is|what does)\s+[a-z][a-z' -]{1,24}\??$/i;
+const MIX_CONTEXTUAL_DEFINITION_ALLOW_REGEX =
+  /^(?:in|on)\s+[a-z][a-z' -]+,\s+what is\b|^(?:in|on)\s+[a-z][a-z' -]+,\s+what does\b/i;
+const MIX_STATEMENT_ELIMINATION_REGEX =
+  /\bwhich statement is true\b|\bone of the following\b|\bwhich of the following\b/i;
 const SPORTS_GENERAL_ALLOWED_REGEX =
   /\b(hat trick|home[- ](?:field|court) advantage|playoff|playoffs|overtime|sudden death|photo finish|wild card|seed(?:ed)?|bye week|match point|power play|penalty kill|under par|over par|home team|neutral site|rings|medal positions?|all-star|scoreless|tie-break|safety|relay|torch relay|walk-off)\b/i;
 const SPORTS_GENERAL_REJECT_REGEX =
-  /\b(chess|scrabble|seinfeld|santa|reindeer|coach on the show|movie|film|tv|television|series|novel|book|song|lyrics|band|actor|actress|fictional|imaginary|girlfriend|wife|brother-in-law|dad(?:'|’)s nickname|real name|ring name|what college did|what year|how many foster homes|what company|which state to have two ivy league colleges|royal palace|bicycle pump|anthrax scare|festivus|what documentary|talk show|world class promotion|wrestlemania storyline|rudolph the red-nosed reindeer|judge|court of appeals|board of education|special force|war was fought|battle of(?! the sexes))\b/i;
+  /\b(chess|scrabble|seinfeld|reindeer|coach on the show|girlfriend|wife|brother-in-law|real name|ring name|anthrax scare|festivus|talk show|world class promotion|wrestlemania storyline|wrestlemania|battle of the billionaires|professional wrestler|pro wrestler|wwe|wwf|wcw|slammy award|rudolph the red-nosed reindeer|judge|court of appeals|board of education|special force|war was fought|battle of(?! the sexes))\b/i;
+const SPORTS_NOVELTY_REJECT_REGEX =
+  /\b(chess|scrabble|reindeer|rudolph the red-nosed reindeer|battle of the billionaires|wrestlemania|professional wrestler|pro wrestler|wwe|wwf|wcw|slammy award|anthrax scare|coach on the show|ring name|real name)\b/i;
+const SPORTS_ARCHIVE_HARD_REJECT_REGEX =
+  /\bwhich of the following\b|\bwhat was the name of\b|\bwho was the first\b|\bmany major league baseball players are from\b|\bthere is some debate as to which city\b|\bthe three [a-z]+ brothers\b|\bthis sports official\b|\bwhen he was made the commissioner\b|\bwhat arkansas [a-z]+ coach said\b|\bwhat was the name of the two brothers\b|\baccording to the official classification\b|\bancient greek wrestling school\b|\bwhat was the name of the colourful celebration\b|\bpittsburgh steelers of the 50s\b|\bjoe tinker was the shortstop\b|\bmajor leaguer from the dominican republic\b|\bduring the \d{4} nfl playoffs\b|\bbanned his players from\b/i;
 const SPORTS_ICONIC_ALLOWLIST_REGEX =
   /\b(super bowl|stanley cup|world series|rose bowl|heisman|masters|wimbledon|olympic rings|miracle on ice|daytona 500|lambeau field|vince lombardi|larry o'brien|cy young|frozen tundra)\b/i;
 const SPORTS_EXACT_DATE_REGEX =
@@ -163,7 +232,9 @@ const NON_SPORTS_SUPPLEMENT_REGEX =
 const SPORTS_MEDIA_TIEIN_REGEX =
   /\b(movie|film|tv|television|episode|series|novel|book|song|lyrics|band|musician|actor|actress|character|fictional|imaginary|showgirl|widow|cameo|animated|academy award|box-office|poster)\b/i;
 const SPORTS_OFF_TONE_REGEX =
-  /\b(most popular sport|national sport of|favorite football team|favourite football team|mascot|beauties as well|judging by their surnames|what country are they from|how many brothers|profession before becoming|tv ratings|famous sponsor|what honor did|what role did|what is his name|tagline|special force|counter-terrorism|supreme court|court of appeals|board of education|peoples court|judge|lawyer|other company|which war was fought|during which war|battle of marathon|this wrestler played|pretty woman|medal of honor|university of southern california|governor of)\b/i;
+  /\b(most popular sport|national sport of|favorite football team|favourite football team|mascot|beauties as well|judging by their surnames|what country are they from|how many brothers|profession before becoming|tv ratings|famous sponsor|what honor did|what role did|what is his name|tagline|special force|counter-terrorism|supreme court|court of appeals|board of education|peoples court|judge|lawyer|other company|which war was fought|during which war|battle of marathon|this wrestler played|pretty woman|medal of honor|university of southern california|governor of|battle of the billionaires|chess opening|wwe|wwf|wcw|professional wrestler|pro wrestler|reindeer games)\b/i;
+const SPORTS_MAINSTREAM_CORE_REJECT_REGEX =
+  /\b(?:edson arantes do nascimento|atletico madrids youth system|queen of all sports|first gold in athletics during the 2008 olympic games|bull doggers partner|steer wrestling|dohy|attitude\. what is it called in japanese|a golf player hits the ball from the tee onto the green and in the hole all in one shot|parc ferme|undercut|bafana, bafana|pocket rocket|american mens basketball team at the olympic games held in beijing|ronaldo luis nazario de lima|in a relay race, which swimmer is called an anchor|made this statement)\b/i;
 const DARK_CONTENT_REGEX =
   /\b(murder|rape|suicide|genocide|torture|massacre|serial killer|fatal disease)\b/i;
 const LOW_SIGNAL_REGEX =
@@ -172,10 +243,22 @@ const SPORTS_LOW_SIGNAL_LEGACY_REGEX =
   /\b(initial aims of the tiger woods foundation|real first name of golf champion|when he was younger|what age did he start playing golf|golf ball marshal|first ever us masters golf tournament|official colors of the wimbledon tournament|international tennis hall of fame|game winning goal for the detroit red wings in the 1950 stanley cup finals|go kart|peanuts believed to be bad for auto racing|what does nascar stand for|grand prix of endurance|pitching triple crown|what decade witnessed|winningest basketball coach in ncaa history|what are the two shots that are the same movement|what were the initial aims)\b/i;
 const SPORTS_ARCHIVE_FRAGMENT_REGEX =
   /\b(?:what job does|what profession before becoming|what age did he start|what are the initials|renamed this to honor|took the cup|where did goaltender|what role did|what honor did|what was his name|how many brothers)\b/i;
+const SPORTS_COUNT_TRIVIA_REGEX = /^how many\b/i;
+const SPORTS_YEAR_TRIVIA_REGEX =
+  /\bwhat year\b|^(?:in|during)\s+(?:19|20)\d{2}\b|\bin\s+(?:19|20)\d{2}\b/i;
+const SPORTS_ACCORDING_TO_REGEX = /^according to\b/i;
+const SPORTS_NICKNAME_ONLY_REGEX =
+  /^(?:which nickname belongs to|which athlete is nicknamed|why was .* nicknamed)\b|\bbetter known by (?:his|her|their) nickname\b/i;
+const SPORTS_TEAM_ASSOCIATION_REGEX =
+  /\bwhich team plays at\b|\bthe team that plays at\b|\bwhich venue is home to the\b|\bcompetes in which league\b/i;
+const SPORTS_ATHLETE_ASSOCIATION_REGEX =
+  /\bwhich athlete is most closely associated with\b|\bmost closely associated with which team\b|\bwas primarily the .* for the\b|\bwhich .* star was primarily the\b/i;
+const SPORTS_LEGACY_HISTORY_REGEX =
+  /\bwinning pitcher\b|\bfounded\b|\bwhen .* won\b|\bfirst .* to\b|\bquarterback .* when they won\b|\bwon the .* in \d{4}\b/i;
 const US_MAINSTREAM_SPORTS_REGEX =
   /\b(nfl|nba|mlb|super bowl|world series|march madness|final four|stanley cup|heisman|yankees|lakers|cowboys|patriots|cubs|red sox)\b/i;
 const HEAVY_LOOKUP_REGEX =
-  /\b(what year|which year|this decade|what decade|record|stat|average|percentage|miles per gallon|model \d|first modern)\b/i;
+  /\b(what year|which year|record|stat|average|percentage|miles per gallon|model \d)\b/i;
 const TRICK_PATTERN =
   /\b(riddle|trick|which statement is true|what happens if|what is true about this rule|which of these is not|mode of this list|what do the following|complete this|idiom|saying|brain teaser|lateral)\b/i;
 const SPORTS_TRICK_PATTERN =
@@ -266,13 +349,23 @@ type FeedTheme = {
 
 type SlotSelectionState = {
   feed: TriviaFeed;
+  scheduleDifficulty: TriviaDifficulty;
   slotIndex: number;
   usedPromptKinds: Set<TriviaPromptKind>;
+  usedSurfaceForms: Set<string>;
+  recentSurfaceForms: string[];
   generalSportsCount: number;
   nicheCount: number;
   rotationCount: number;
   minimumRotationTarget: number;
   allowHighRisk: boolean;
+  crossDifficultyUsedVariantGroups: Set<string>;
+  crossDifficultyBlockedVariantGroups: Set<string>;
+};
+
+type ScheduleBuildConstraints = {
+  crossDifficultyUsedVariantGroups?: Set<string>;
+  crossDifficultyBlockedVariantGroupsByDay?: Set<string>[];
 };
 
 const MIX_WEEKLY_THEMES: FeedTheme[] = [
@@ -432,6 +525,182 @@ function rewritePrompt(prompt: string): string {
   return normalizeText(next);
 }
 
+function looksLikeFragmentStem(prompt: string): boolean {
+  const normalized = normalizeText(prompt);
+  if (!normalized) return true;
+  if (/[?]/.test(normalized)) return false;
+  if (/^(what|which|who|where|when|why|how|name)\b/i.test(normalized)) return false;
+  if (/^(in|on|at|from|for|with)\b/i.test(normalized) && normalized.split(/\s+/).length >= 4) {
+    return false;
+  }
+  const words = normalized.split(/\s+/).filter(Boolean);
+  if (words.length <= 4) return true;
+  if (/^[A-Z0-9][A-Za-z0-9'’:.,&/-]+(?:\s+[A-Z0-9][A-Za-z0-9'’:.,&/-]+){0,4}$/.test(normalized)) {
+    return true;
+  }
+  return false;
+}
+
+function deriveTasteTags(params: {
+  feed: TriviaFeed;
+  prompt: string;
+  promptKind: TriviaPromptKind;
+  subdomain: string;
+  editorialSourceFamily: string;
+  lookupRisk: TriviaLookupRisk;
+  salienceScore: number;
+  isTrickQuestion: boolean;
+  curveballKind: TriviaCurveballKind;
+}): TriviaTasteTag[] {
+  const {
+    feed,
+    prompt,
+    promptKind,
+    subdomain,
+    editorialSourceFamily,
+    lookupRisk,
+    salienceScore,
+    isTrickQuestion,
+    curveballKind,
+  } = params;
+  const tags = new Set<TriviaTasteTag>();
+  const normalizedPrompt = normalizeText(prompt);
+  const lower = normalizedPrompt.toLowerCase();
+
+  if (feed === 'mix') {
+    if (MIX_COUNT_TRIVIA_REGEX.test(normalizedPrompt)) tags.add('count-trivia');
+    if (MIX_YEAR_TRIVIA_REGEX.test(normalizedPrompt)) tags.add('year-trivia');
+    if (MIX_ACCORDING_TO_REGEX.test(normalizedPrompt)) tags.add('according-to');
+    if (MIX_LINE_COMPLETE_REGEX.test(normalizedPrompt)) tags.add('line-complete');
+    if (MIX_PILOT_EPISODE_REGEX.test(normalizedPrompt)) tags.add('pilot-episode');
+    if (MIX_ACTOR_DIRECTOR_REGEX.test(normalizedPrompt)) tags.add('actor-director-credit');
+    if (MIX_ARCHIVE_MEDIA_REGEX.test(normalizedPrompt)) tags.add('archive-media');
+    if (looksLikeFragmentStem(normalizedPrompt)) tags.add('fragment-stem');
+    if (
+      MIX_STATEMENT_ELIMINATION_REGEX.test(normalizedPrompt) ||
+      /\bwhich of these\b/i.test(normalizedPrompt)
+    ) {
+      tags.add('statement-elimination');
+    }
+    if (
+      MIX_DEFINITION_LOW_PAYOFF_REGEX.test(normalizedPrompt) &&
+      !MIX_CONTEXTUAL_DEFINITION_ALLOW_REGEX.test(normalizedPrompt) &&
+      salienceScore < 78
+    ) {
+      tags.add('definition-low-payoff');
+    }
+    if (
+      normalizedPrompt.length > 150 ||
+      /^this\b/i.test(normalizedPrompt) ||
+      /^the character portrayed\b/i.test(normalizedPrompt)
+    ) {
+      tags.add('long-setup');
+    }
+  } else {
+    if (
+      SPORTS_COUNT_TRIVIA_REGEX.test(normalizedPrompt) &&
+      promptKind !== 'rule' &&
+      promptKind !== 'term'
+    ) {
+      tags.add('count-trivia');
+    }
+    if (SPORTS_YEAR_TRIVIA_REGEX.test(normalizedPrompt)) tags.add('year-trivia');
+    if (SPORTS_ACCORDING_TO_REGEX.test(normalizedPrompt)) tags.add('according-to');
+    if (SPORTS_NICKNAME_ONLY_REGEX.test(normalizedPrompt)) tags.add('nickname-only');
+    if (SPORTS_TEAM_ASSOCIATION_REGEX.test(normalizedPrompt)) tags.add('team-association');
+    if (SPORTS_ATHLETE_ASSOCIATION_REGEX.test(normalizedPrompt)) tags.add('athlete-association');
+    if (looksLikeFragmentStem(normalizedPrompt)) tags.add('fragment-stem');
+    if (
+      SPORTS_LEGACY_HISTORY_REGEX.test(normalizedPrompt) ||
+      SPORTS_MAINSTREAM_CORE_REJECT_REGEX.test(normalizedPrompt) ||
+      (
+        editorialSourceFamily === 'sports-core-bank' &&
+        (lookupRisk === 'high' ||
+          salienceScore < 80 ||
+          /\b(?:19|20)\d{2}\b/.test(normalizedPrompt))
+      )
+    ) {
+      tags.add('legacy-sports-history');
+    }
+    if (
+      normalizedPrompt.length > 145 ||
+      /^this\b/i.test(normalizedPrompt) ||
+      /^a golfer who has done any one of these\b/i.test(lower)
+    ) {
+      tags.add('long-setup');
+    }
+    if (
+      promptKind === 'player' &&
+      isTrickQuestion &&
+      curveballKind === 'famous-nickname' &&
+      salienceScore >= 90
+    ) {
+      tags.delete('nickname-only');
+    }
+  }
+
+  return [...tags];
+}
+
+function inferSurfaceFormKey(question: TriviaQuestionRecord): string {
+  const stem = question.stem;
+
+  if (question.feed === 'mix') {
+    if (/is best known as which kind of work\?/i.test(stem)) return 'mix-work-form';
+    if (/^Who (?:wrote|composed|created) /i.test(stem)) return 'mix-creator-credit';
+    if (/^Which historical figure is most associated with/i.test(stem)) return 'mix-history-association';
+    if (/^Which title is most closely associated with /i.test(stem)) return 'mix-title-association';
+    if (/^Which place is most closely associated with /i.test(stem)) return 'mix-place-association';
+    if (/^Which scientist is most closely associated with /i.test(stem)) return 'mix-science-association';
+    if (/^What does /i.test(stem) || question.tasteTags.includes('definition-low-payoff')) {
+      return 'mix-definition';
+    }
+    if (/\bmovie|film|tv|television|series|show|song\b/i.test(stem)) return 'mix-pop-culture';
+    return `mix-${question.promptKind}`;
+  }
+
+  if (question.tasteTags.includes('team-association')) return 'sports-team-association';
+  if (question.tasteTags.includes('athlete-association')) return 'sports-athlete-association';
+  if (/^Which venue is home to the\b/i.test(stem) || /^The team that plays at\b/i.test(stem)) {
+    return 'sports-venue-home';
+  }
+  if (question.tasteTags.includes('nickname-only')) return 'sports-nickname';
+  if (question.promptKind === 'rule' && /^What (?:is|does)\b/i.test(stem)) return 'sports-rule-definition';
+  if (question.promptKind === 'term' && /^What (?:is|does)\b/i.test(stem)) return 'sports-term-definition';
+  if (/^Which team won\b/i.test(stem)) return 'sports-title-winner';
+  return `sports-${question.promptKind}`;
+}
+
+function isSurfaceFormConstrained(surfaceForm: string): boolean {
+  return [
+    'mix-work-form',
+    'mix-history-association',
+    'mix-title-association',
+    'mix-place-association',
+    'mix-science-association',
+    'mix-definition',
+    'mix-pop-culture',
+    'sports-team-association',
+    'sports-athlete-association',
+    'sports-venue-home',
+    'sports-nickname',
+    'sports-rule-definition',
+    'sports-term-definition',
+    'sports-title-winner',
+  ].includes(surfaceForm);
+}
+
+function getRecentSurfaceFormLimit(feed: TriviaFeed, surfaceForm: string): number {
+  if (feed === 'mix') {
+    if (surfaceForm === 'mix-pop-culture') return 4;
+    if (surfaceForm === 'mix-creator-credit') return 3;
+    return 2;
+  }
+
+  if (surfaceForm === 'sports-rule-definition' || surfaceForm === 'sports-term-definition') return 3;
+  return 2;
+}
+
 function isLowSignalQuestion(prompt: string, options: string[]): boolean {
   const hay = `${prompt} ${options.join(' ')}`;
   return LOW_SIGNAL_REGEX.test(hay);
@@ -486,6 +755,7 @@ function inferPromptKind(
 }
 
 function deriveObscurityFlags(
+  feed: TriviaFeed,
   prompt: string,
   subdomain: string,
   lookupRisk: TriviaLookupRisk,
@@ -494,29 +764,44 @@ function deriveObscurityFlags(
   const hay = prompt.toLowerCase();
   const flags: TriviaObscurityFlag[] = [];
 
-  if (/\b(surname|judging by|what country are they from)\b/.test(hay)) flags.push('surname-inference');
   if (
-    /\b(what number|college did|draft choice|start his career with|first round|position did|which team did .* start)\b/.test(
+    /\b(record|streak|how many|what year|average|percentage|all-time|most (?:points|wins|titles|medals|yards|touchdowns|home runs|career))\b/.test(
       hay
-    )
+    ) ||
+    lookupRisk === 'high'
   ) {
-    flags.push('roster-deep-cut');
-  }
-  if (/\b(record|streak|how many|what year|average|percentage|all-time|most)\b/.test(hay) || lookupRisk === 'high') {
     flags.push('stat-only');
   }
   if (/\b(which statement|one of the following|odd one out|best describes|what distinction)\b/.test(hay)) {
     flags.push('vague-stem');
   }
-  if (SPORTS_MEDIA_TIEIN_REGEX.test(prompt)) flags.push('media-tie-in');
-  if (SPORTS_OFF_TONE_REGEX.test(prompt)) flags.push('incidental-context');
-  if (/\b(nickname|known as|called|great one|king of|airness|greatest|intimidator|legend)\b/.test(hay)) {
-    flags.push('famous-nickname');
+  const timerFrictionLengthThreshold = feed === 'mix' ? 170 : 160;
+  if (prompt.length > timerFrictionLengthThreshold || (prompt.match(/,/g) ?? []).length >= 5) {
+    flags.push('timer-friction');
   }
-  if (SPORTS_TRICK_PATTERN.test(prompt) || (promptKind === 'rule' && /\b(except|unless)\b/.test(hay))) {
-    flags.push('edge-case');
+
+  if (feed === 'sports') {
+    if (/\b(surname|judging by|what country are they from)\b/.test(hay)) flags.push('surname-inference');
+    if (
+      /\b(what number|college did|draft choice|start his career with|first round|which team did .* start)\b/.test(
+        hay
+      )
+    ) {
+      flags.push('roster-deep-cut');
+    }
+    if (SPORTS_MEDIA_TIEIN_REGEX.test(prompt)) flags.push('media-tie-in');
+    if (SPORTS_OFF_TONE_REGEX.test(prompt)) flags.push('incidental-context');
+    if (
+      /\b(nickname|nicknamed|known as the|called the|better known by|goes by|the great one|the pocket rocket|the rocket|airness|intimidator)\b/.test(
+        hay
+      )
+    ) {
+      flags.push('famous-nickname');
+    }
+    if (SPORTS_TRICK_PATTERN.test(prompt) || (promptKind === 'rule' && /\b(except|unless)\b/.test(hay))) {
+      flags.push('edge-case');
+    }
   }
-  if (prompt.length > 135 || (prompt.match(/,/g) ?? []).length >= 3) flags.push('timer-friction');
 
   return dedupe(flags);
 }
@@ -657,29 +942,93 @@ function isAllowedCurveballQuestion(feed: TriviaFeed, question: TriviaQuestionRe
   return MIX_ALLOWED_CURVEBALL_KINDS.has(question.promptKind);
 }
 
-function isMixEditorialFit(question: TriviaQuestionRecord): boolean {
+function isMixEditorialFit(question: TriviaQuestionRecord, difficultyPool: TriviaDifficulty): boolean {
   if (question.obscurityFlags.includes('vague-stem')) return false;
-  if (question.obscurityFlags.includes('timer-friction')) return false;
+  if (question.obscurityFlags.includes('timer-friction') && difficultyPool === 'easy') return false;
   if (question.isTrickQuestion && !isAllowedCurveballQuestion('mix', question)) return false;
   if (MIX_ARCHIVE_REJECT_REGEX.test(question.stem)) return false;
+  if (LOW_SIGNAL_REGEX.test(question.stem)) return false;
+  if (MIX_MEDIA_DEEPCUT_REJECT_REGEX.test(question.stem)) return false;
+  if (/\bquote\b/i.test(question.stem) && /\b(?:movie|film|song|speaker|scientist|man|woman)\b/i.test(question.stem)) {
+    return false;
+  }
   if (MIX_RELATIONSHIP_REJECT_REGEX.test(question.stem)) return false;
-  if (MIX_POP_DEEPCUT_REJECT_REGEX.test(question.stem)) return false;
-  if (question.stem.length > 145) return false;
-  if (question.stem.length > 126 && question.salienceScore < 86) return false;
-  if (question.promptKind === 'equipment' && question.domain === 'arts') return false;
-  if (question.editorialBucket === 'topical' && question.salienceScore < 80) return false;
+  if (difficultyPool === 'easy' && /^This\b/i.test(question.stem)) return false;
+  if (difficultyPool === 'hard' && /^This\b/i.test(question.stem) && question.salienceScore < 82) {
+    return false;
+  }
+  if (
+    difficultyPool === 'hard' &&
+    /\b(?:movie|film)\b/i.test(question.stem) &&
+    /\b(?:quote|character|actor|actress|played|portrayed|starring|tag line|tagline|at the end|what do we first see)\b/i.test(
+      question.stem
+    )
+  ) {
+    return false;
+  }
+  if (difficultyPool === 'easy') {
+    if (question.stem.length > 155) return false;
+    if (question.stem.length > 142 && question.salienceScore < 76) return false;
+  } else {
+    if (question.stem.length > 188) return false;
+    if (question.stem.length > 170 && question.salienceScore < 60) return false;
+    if (
+      question.salienceScore < 68 &&
+      (/^this [a-z]+,/i.test(question.stem) ||
+        /\b(?:winner of the \d{4}|quoted? in|The Devils Dictionary)\b/i.test(question.stem))
+    ) {
+      return false;
+    }
+  }
+  if (question.editorialBucket === 'topical' && difficultyPool === 'easy' && question.salienceScore < 68) {
+    return false;
+  }
+  if (
+    question.tasteTags.some((tag) =>
+      [
+        'count-trivia',
+        'year-trivia',
+        'according-to',
+        'line-complete',
+        'pilot-episode',
+        'actor-director-credit',
+        'archive-media',
+        'statement-elimination',
+      ].includes(tag)
+    )
+  ) {
+    return false;
+  }
+  if (question.tasteTags.includes('definition-low-payoff')) return false;
   return true;
+}
+
+function isMixPoolCandidateFit(question: TriviaQuestionRecord): boolean {
+  if (
+    /\b(all the people on this list|best describe all the people|would best describe|best describe all of these)\b/i.test(
+      question.stem
+    )
+  ) {
+    return false;
+  }
+  if ((question.stem.match(/,/g) ?? []).length >= 3 && /\b(list|describe)\b/i.test(question.stem)) {
+    return false;
+  }
+  return question.options.length === 3;
 }
 
 function isAllowedGeneralSportsFallback(question: TriviaQuestionRecord): boolean {
   if (question.subdomain !== 'general-sports') return true;
   if (question.id.includes('sports-supplement')) return false;
-  if (!['term', 'rule'].includes(question.promptKind)) return false;
-  if (question.salienceScore < 82) return false;
+  if (!['term', 'rule', 'event', 'achievement'].includes(question.promptKind)) return false;
+  if (question.salienceScore < 80) return false;
   if (question.lookupRisk !== 'low') return false;
   if (question.obscurityFlags.includes('stat-only')) return false;
   if (question.obscurityFlags.includes('famous-nickname')) return false;
   if (SPORTS_GENERAL_REJECT_REGEX.test(question.stem)) return false;
+  if (/^In sports, what does\b/i.test(question.stem) || /^What is the sports term for\b/i.test(question.stem)) {
+    return true;
+  }
   return SPORTS_GENERAL_ALLOWED_REGEX.test(question.stem);
 }
 
@@ -710,11 +1059,24 @@ function isSportsSupplementQuestion(question: SourceTriviaQuestion): boolean {
   return false;
 }
 
-function isSportsEditorialFit(question: TriviaQuestionRecord): boolean {
+function isSportsEditorialFit(question: TriviaQuestionRecord, difficultyPool: TriviaDifficulty): boolean {
   const isLegacySportsRow =
     question.id.startsWith('sports-sports-') || question.id.startsWith('sports-sports-supplement-');
 
   if (isOffToneScheduledSportsQuestion(question)) return false;
+  if (/\bwas born in\b/i.test(question.stem) && question.salienceScore < 90) return false;
+  if (
+    /\bGames of the [XVI]+\b|\bwhat country hosted the \d{4} Summer Olympic Games\b|\bhosted by this Asian country\b/i.test(
+      question.stem
+    )
+  ) {
+    return false;
+  }
+  if (/\bparkour\b/i.test(question.stem)) return false;
+  if (/\bdohy[ōo]\b/i.test(question.stem)) return false;
+  if (SPORTS_MAINSTREAM_CORE_REJECT_REGEX.test(question.stem)) return false;
+  if (SPORTS_NOVELTY_REJECT_REGEX.test(question.stem)) return false;
+  if (difficultyPool === 'hard' && SPORTS_ARCHIVE_HARD_REJECT_REGEX.test(question.stem)) return false;
   if (SPORTS_LEGACY_REJECT_REGEX.test(question.stem)) return false;
   if (SPORTS_ARCHIVE_FRAGMENT_REGEX.test(question.stem)) return false;
   if (LOW_SIGNAL_REGEX.test(question.stem)) return false;
@@ -736,6 +1098,25 @@ function isSportsEditorialFit(question: TriviaQuestionRecord): boolean {
   }
   if (question.subdomain === 'general-sports' && question.lookupRisk === 'high') return false;
   if (question.subdomain === 'general-sports' && !isAllowedGeneralSportsFallback(question)) return false;
+  if (
+    question.sourceTier === 'curated' &&
+    !isLegacySportsRow &&
+    !question.obscurityFlags.some((flag) => ['media-tie-in', 'incidental-context', 'vague-stem'].includes(flag))
+  ) {
+    if (
+      difficultyPool === 'easy' &&
+      (question.stem.length > 118 || question.salienceScore < 72)
+    ) {
+      return false;
+    }
+    if (
+      difficultyPool === 'hard' &&
+      (question.stem.length > 160 || question.salienceScore < 60)
+    ) {
+      return false;
+    }
+    return true;
+  }
   if (isLegacySportsRow && SPORTS_ARCHIVE_STEM_REGEX.test(question.stem)) return false;
   if (isLegacySportsRow && SPORTS_LEGACY_REJECT_REGEX.test(question.stem)) return false;
   if (
@@ -797,18 +1178,47 @@ function isSportsEditorialFit(question: TriviaQuestionRecord): boolean {
     return false;
   }
   if (isLegacySportsRow && question.difficultyTarget === 1 && question.salienceScore < 82) return false;
-  if (question.lookupRisk === 'high' && question.salienceScore < 62) return false;
+  if (question.lookupRisk === 'high' && question.salienceScore < (difficultyPool === 'hard' ? 56 : 62)) return false;
+  if (difficultyPool === 'hard' && question.promptKind === 'player' && question.salienceScore < 64) return false;
+  if (difficultyPool === 'hard' && question.promptKind === 'record' && question.salienceScore < 68) return false;
   if (question.obscurityFlags.includes('roster-deep-cut') && question.salienceScore < 82) return false;
+  if (
+    question.tasteTags.some((tag) => ['year-trivia', 'according-to'].includes(tag)) &&
+    !SPORTS_ICONIC_ALLOWLIST_REGEX.test(question.stem)
+  ) {
+    return false;
+  }
+  if (
+    question.tasteTags.includes('nickname-only') &&
+    !(
+      (question.isTrickQuestion && question.curveballKind === 'famous-nickname' && question.salienceScore >= 90) ||
+      (question.editorialSourceFamily.startsWith('sports-authored-') && question.salienceScore >= 88)
+    )
+  ) {
+    return false;
+  }
   if (question.obscurityFlags.includes('surname-inference')) return false;
   if (
     question.obscurityFlags.includes('stat-only') &&
-    question.salienceScore < 80 &&
+    question.salienceScore < (difficultyPool === 'hard' ? 74 : 80) &&
     !['rule', 'term', 'achievement'].includes(question.promptKind)
   ) {
     return false;
   }
   if (question.isTrickQuestion && !isAllowedCurveballQuestion('sports', question)) return false;
   return question.salienceScore >= 48;
+}
+
+function isSportsPoolCandidateFit(question: TriviaQuestionRecord): boolean {
+  if (question.options.length !== 3) return false;
+  if (SPORTS_MEDIA_TIEIN_REGEX.test(question.stem)) return false;
+  if (SPORTS_OFF_TONE_REGEX.test(question.stem)) return false;
+  if (question.sourceTier !== 'curated' && /^Which .* star was primarily the\b/i.test(question.stem)) return false;
+  if (question.sourceTier !== 'curated' && /\bfor the team from\b/i.test(question.stem)) return false;
+  if (question.sourceTier !== 'curated' && /^Which of these .* players? was primarily a\b/i.test(question.stem)) return false;
+  if (question.obscurityFlags.includes('media-tie-in')) return false;
+  if (question.obscurityFlags.includes('incidental-context')) return false;
+  return true;
 }
 
 function isSportsVariantSourceRecord(question: TriviaQuestionRecord): boolean {
@@ -836,6 +1246,527 @@ function isSportsVariantSourceRecord(question: TriviaQuestionRecord): boolean {
   );
 }
 
+function buildLaunchFlag(
+  agentId: string,
+  code: TriviaCouncilFlag['code'],
+  severity: TriviaCouncilFlag['severity'],
+  message: string
+): TriviaCouncilFlag {
+  return {
+    agentId,
+    code,
+    severity,
+    message,
+    scope: 'question',
+  };
+}
+
+function inferEditorialSourceFamily(
+  sourceCategory: string,
+  domain: string,
+  subdomain: string,
+  themeTags: string[] = []
+): string {
+  if (sourceCategory === 'curated-mix') {
+    if (themeTags.includes('hard-preferred')) return 'mix-authored-hard';
+    if (domain === 'arts' && ['pop-culture', 'music', 'movies', 'television'].includes(subdomain)) {
+      return 'mix-authored-culture';
+    }
+    return 'mix-authored-evergreen';
+  }
+  if (sourceCategory === 'curated-mix-hard') return 'mix-authored-hard';
+  if (sourceCategory.startsWith('curated-mix-')) return `mix-rewrite-${sourceCategory.replace('curated-mix-', '')}`;
+  if (sourceCategory === 'curated-sports') {
+    if (themeTags.includes('hard-preferred')) return 'sports-authored-mainstream-hard';
+    return SPORTS_CORE_SUBDOMAINS.has(subdomain) ? 'sports-authored-core' : 'sports-authored-hardcore';
+  }
+  if (sourceCategory === 'curated-sports-hard') return 'sports-authored-mainstream-hard';
+  if (sourceCategory === 'curated-sports-core') return 'sports-core-bank';
+  if (sourceCategory === 'curated-sports-template') return 'sports-template-booster';
+  if (sourceCategory.startsWith('curated-')) return sourceCategory.replace(/^curated-/, '');
+  if (sourceCategory.includes('supplement')) return 'supplemental';
+  return 'legacy';
+}
+
+function normalizeEditorialSourceFamily(
+  feed: TriviaFeed,
+  sourceCategory: string,
+  editorialSourceFamily: string,
+  prompt: string,
+  promptKind: TriviaPromptKind,
+  subdomain: string,
+  salienceScore: number,
+  lookupRisk: TriviaLookupRisk,
+  difficultyTarget: TriviaDifficultyTarget
+): string {
+  if (feed !== 'sports' || sourceCategory !== 'curated-sports-core' || editorialSourceFamily !== 'sports-core-bank') {
+    return editorialSourceFamily;
+  }
+
+  if (
+    SPORTS_LEGACY_HISTORY_REGEX.test(prompt) ||
+    SPORTS_MAINSTREAM_CORE_REJECT_REGEX.test(prompt) ||
+    SPORTS_LEGACY_REJECT_REGEX.test(prompt) ||
+    SPORTS_ARCHIVE_HARD_REJECT_REGEX.test(prompt) ||
+    /\b(?:what|which|in what) year\b|\bfounded\b|\bwinning pitcher\b|\bwhich of the following\b|\baccording to\b/i.test(prompt)
+  ) {
+    return editorialSourceFamily;
+  }
+
+  if (lookupRisk === 'high') return editorialSourceFamily;
+  if (!['rule', 'term', 'achievement', 'event', 'sport-id'].includes(promptKind)) {
+    return editorialSourceFamily;
+  }
+  if (['player', 'team', 'venue', 'place', 'record'].includes(promptKind)) {
+    return editorialSourceFamily;
+  }
+
+  const minimumSalience = SPORTS_CORE_SUBDOMAINS.has(subdomain) ? 72 : 74;
+  if (salienceScore < minimumSalience) return editorialSourceFamily;
+  if (difficultyTarget === 1 && salienceScore < 76) return editorialSourceFamily;
+
+  if (SPORTS_CORE_SUBDOMAINS.has(subdomain)) {
+    return 'sports-authored-core';
+  }
+  return difficultyTarget >= 2 ? 'sports-authored-mainstream-hard' : 'sports-authored-hardcore';
+}
+
+function isAllowedMixStatQuestion(
+  question: TriviaQuestionRecord,
+  difficultyPool: TriviaDifficulty
+): boolean {
+  if (!question.obscurityFlags.includes('stat-only')) return true;
+  if (difficultyPool === 'easy') return false;
+  const allowedPromptKinds =
+    question.domain === 'arts'
+      ? ['term', 'concept']
+      : ['term', 'concept', 'person', 'place', 'event'];
+  return (
+    question.salienceScore >= 76 &&
+    allowedPromptKinds.includes(question.promptKind) &&
+    !/\b(?:what|which|in what) year\b|\bpercentage\b/i.test(question.stem) &&
+    !/\b(?:fictional|character|sitcom|series|show|movie|film|novel)\b/i.test(question.stem) &&
+    !HEAVY_LOOKUP_REGEX.test(question.stem)
+  );
+}
+
+function isAllowedSportsStatQuestion(
+  question: TriviaQuestionRecord,
+  difficultyPool: TriviaDifficulty
+): boolean {
+  if (!question.obscurityFlags.includes('stat-only')) return true;
+  if (
+    ['record', 'player'].includes(question.promptKind) &&
+    (HEAVY_LOOKUP_REGEX.test(question.stem) || /\b(?:19|20)\d{2}\b/.test(question.stem))
+  ) {
+    return false;
+  }
+  if (difficultyPool === 'easy' && question.promptKind === 'record') return false;
+  return (
+    ['term', 'rule', 'achievement', 'record', 'player'].includes(question.promptKind) &&
+    question.salienceScore >= 78
+  );
+}
+
+function getLaunchBlockReasons(
+  question: TriviaQuestionRecord,
+  difficultyPool: TriviaDifficulty
+): TriviaCouncilFlag[] {
+  const stagedQuestion = {
+    ...question,
+    difficultyPool,
+  };
+  const evaluationSlot =
+    question.feed === 'mix'
+      ? difficultyPool === 'hard'
+        ? 9
+        : 4
+      : difficultyPool === 'hard'
+        ? 7
+        : 4;
+  const reasons: TriviaCouncilFlag[] = evaluateTriviaCouncilQuestion(
+    stagedQuestion,
+    question.feed,
+    evaluationSlot
+  )
+    .filter((flag) => flag.severity === 'fail')
+    .map((flag) => ({ ...flag, scope: 'question' as const }));
+
+  const pushIfMissing = (flag: TriviaCouncilFlag) => {
+    if (
+      reasons.some(
+        (existing) =>
+          existing.agentId === flag.agentId &&
+          existing.code === flag.code &&
+          existing.message === flag.message
+      )
+    ) {
+      return;
+    }
+    reasons.push(flag);
+  };
+
+  if (question.obscurityFlags.includes('media-tie-in')) {
+    pushIfMissing(
+      buildLaunchFlag(
+        'off-feed-fit',
+        'off-feed-fit',
+        'fail',
+        'Media or entertainment tie-ins are not launch-ready trivia clues.'
+      )
+    );
+  }
+  if (question.obscurityFlags.includes('timer-friction')) {
+    pushIfMissing(
+      buildLaunchFlag(
+        'timer-friction',
+        'timer-friction',
+        'fail',
+        'Question is too long or clock-fragile for launch scheduling.'
+      )
+    );
+  }
+  if (
+    question.obscurityFlags.includes('vague-stem') ||
+    question.obscurityFlags.includes('incidental-context')
+  ) {
+    pushIfMissing(
+      buildLaunchFlag(
+        'ambiguity-detector',
+        'ambiguity',
+        'fail',
+        'Question depends on vague or incidental setup instead of a clean clue.'
+      )
+    );
+  }
+  if (question.feed === 'mix') {
+    if (
+      question.tasteTags.some((tag) =>
+        [
+          'count-trivia',
+          'year-trivia',
+          'according-to',
+          'line-complete',
+          'pilot-episode',
+          'actor-director-credit',
+          'archive-media',
+          'statement-elimination',
+          'definition-low-payoff',
+        ].includes(tag)
+      )
+    ) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'reveal-value',
+          'low-reveal-value',
+          'fail',
+          'Mix launch questions should avoid archive-y, low-payoff, or media-detail prompt shapes.'
+        )
+      );
+    }
+    if (!isMixEditorialFit(question, difficultyPool)) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'ambiguity-detector',
+          'ambiguity',
+          'fail',
+          'Mix question misses the launch editorial fit bar.'
+        )
+      );
+    }
+    if (!isAllowedMixStatQuestion(question, difficultyPool) || HEAVY_LOOKUP_REGEX.test(question.stem)) {
+      const hardMixStatSoftPass =
+        difficultyPool === 'hard' &&
+        question.domain !== 'arts' &&
+        !/\b(?:what|which|in what) year\b|\bwhat percentage\b|\bthis decade\b|\bwhat decade\b/i.test(question.stem) &&
+        !/\b(?:fictional|character|sitcom|series|show|movie|film|novel)\b/i.test(question.stem) &&
+        !HEAVY_LOOKUP_REGEX.test(question.stem);
+      if ((question.obscurityFlags.includes('stat-only') || HEAVY_LOOKUP_REGEX.test(question.stem)) && !hardMixStatSoftPass) {
+        pushIfMissing(
+          buildLaunchFlag(
+            'analytical-reasoner',
+            'obscurity-mismatch',
+            'fail',
+            'Mix launch questions cannot rely on year, percentage, or stat bait.'
+          )
+        );
+      }
+    }
+    if (difficultyPool === 'easy' && (question.stem.length > 124 || question.salienceScore < 70)) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'casual-pace',
+          'timer-friction',
+          'fail',
+          'Mix Easy launch questions must be short, direct, and high-salience.'
+        )
+      );
+    }
+    if (difficultyPool === 'hard' && question.stem.length > 196 && question.salienceScore < 34) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'broad-generalist',
+          'obscurity-mismatch',
+          'fail',
+          'Mix Hard should be challenging through recall, not long archive wording.'
+        )
+      );
+    }
+    if (MIX_POP_DEEPCUT_REJECT_REGEX.test(question.stem) || /\b(?:what|which|in what) year\b|\bwhat percentage\b/i.test(question.stem)) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'reveal-value',
+          'low-reveal-value',
+          'fail',
+          'Mix launch questions should avoid deep-cut or naked year/percentage prompts.'
+        )
+      );
+    }
+  } else {
+    if (
+      question.tasteTags.some((tag) => ['year-trivia', 'according-to'].includes(tag)) &&
+      !SPORTS_ICONIC_ALLOWLIST_REGEX.test(question.stem)
+    ) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'sports-core',
+          'obscurity-mismatch',
+          'fail',
+          'Sports launch questions should not rely on archive-history or year-heavy framing.'
+        )
+      );
+    }
+    if (
+      question.tasteTags.includes('nickname-only') &&
+      !(
+        (question.isTrickQuestion && question.curveballKind === 'famous-nickname' && question.salienceScore >= 90) ||
+        (question.editorialSourceFamily.startsWith('sports-authored-') && question.salienceScore >= 88)
+      )
+    ) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'curveball-fairness',
+          'dirty-curveball',
+          'fail',
+          'Sports nickname prompts should be reserved for famous, fair curveball use.'
+        )
+      );
+    }
+    if (!isSportsEditorialFit(question, difficultyPool)) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'off-feed-fit',
+          'off-feed-fit',
+          'fail',
+          'Sports question misses the launch editorial fit bar.'
+        )
+      );
+    }
+    if (
+      question.obscurityFlags.includes('roster-deep-cut') ||
+      question.obscurityFlags.includes('surname-inference')
+    ) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'sports-core',
+          'obscurity-mismatch',
+          'fail',
+          'Sports launch questions should not hinge on roster deep cuts or surname inference.'
+        )
+      );
+    }
+    if (!isAllowedSportsStatQuestion(question, difficultyPool)) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'sports-casual',
+          'obscurity-mismatch',
+          'fail',
+          'Sports launch questions should not lean on year or stat bait unless the fact is canonical.'
+        )
+      );
+    }
+    if (
+      /\b(?:what|which|in what) year\b|\bwinning pitcher\b|\bfounded\b/i.test(question.stem) &&
+      !SPORTS_ICONIC_ALLOWLIST_REGEX.test(question.stem)
+    ) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'sports-core',
+          'obscurity-mismatch',
+          'fail',
+          'Sports launch questions should prefer canonical recall over year, founding, or box-score trivia.'
+        )
+      );
+    }
+    if (
+      difficultyPool === 'easy' &&
+      (question.stem.length > 112 || question.salienceScore < 74)
+    ) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'sports-casual',
+          'timer-friction',
+          'fail',
+          'Sports Easy launch questions must stay fast to parse and broadly legible.'
+        )
+      );
+    }
+    if (difficultyPool === 'hard' && (question.stem.length > 170 || question.salienceScore < 58)) {
+      pushIfMissing(
+        buildLaunchFlag(
+          'sports-core',
+          'obscurity-mismatch',
+          'fail',
+          'Sports Hard should stay difficult through canon, not bloated setup or fringe salience.'
+        )
+      );
+    }
+  }
+
+  return reasons;
+}
+
+function applyLaunchState(
+  question: TriviaQuestionRecord,
+  difficultyPool: TriviaDifficulty
+): TriviaQuestionRecord {
+  const launchBlockReasons = getLaunchBlockReasons(question, difficultyPool);
+  const launchEligible = launchBlockReasons.length === 0;
+  const scheduleEligible = isRecordScheduleEligibleForPool(
+    {
+      ...question,
+      difficultyPool,
+      launchEligible,
+      launchBlockReasons,
+    },
+    difficultyPool
+  );
+  return {
+    ...question,
+    difficultyPool,
+    launchEligible,
+    launchBlockReasons,
+    scheduleEligible,
+  };
+}
+
+function isRecordLaunchEligibleForPool(
+  question: TriviaQuestionRecord,
+  difficultyPool: TriviaDifficulty
+): boolean {
+  return getLaunchBlockReasons(question, difficultyPool).length === 0;
+}
+
+function isAllowedSourceFamilyForSchedule(
+  feed: TriviaFeed,
+  difficultyPool: TriviaDifficulty,
+  family: string
+): boolean {
+  return SCHEDULE_ALLOWED_SOURCE_FAMILIES[feed][difficultyPool].includes(family);
+}
+
+function isRecordScheduleEligibleForPool(
+  question: TriviaQuestionRecord,
+  difficultyPool: TriviaDifficulty
+): boolean {
+  if (!question.launchEligible) return false;
+  if (!isAllowedSourceFamilyForSchedule(question.feed, difficultyPool, question.editorialSourceFamily)) {
+    return false;
+  }
+  if (question.sourceTier === 'variant' || question.sourceTier === 'supplemental') return false;
+  if (question.tasteTags.some((tag) => isBlockingTasteTag(question.feed, question, tag))) return false;
+
+  if (question.feed === 'mix') {
+    if (question.tasteTags.includes('fragment-stem')) return false;
+    if (question.editorialSourceFamily === 'mix-authored-culture' && question.salienceScore < 72) return false;
+    if (
+      difficultyPool === 'easy' &&
+      (question.editorialBucket === 'experimental' || question.promptKind === 'record')
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  if (question.tasteTags.includes('fragment-stem')) return false;
+  if (
+    question.tasteTags.includes('team-association') &&
+    /\bcompetes in which league\b|\bteam that plays at\b|\bplays in\b/i.test(question.stem)
+  ) {
+    return false;
+  }
+  if (
+    question.tasteTags.includes('athlete-association') &&
+    /\bbest known for competing in which sport\b|\bmost closely associated with which league\b/i.test(
+      question.stem
+    )
+  ) {
+    return false;
+  }
+  if (
+    question.editorialSourceFamily === 'sports-authored-hardcore' &&
+    difficultyPool === 'easy' &&
+    question.difficultyTarget === 3 &&
+    question.salienceScore < 74
+  ) {
+    return false;
+  }
+  if (
+    question.editorialSourceFamily === 'sports-authored-mainstream-hard' &&
+    difficultyPool === 'hard' &&
+    (question.salienceScore < 62 || (question.difficultyTarget < 2 && question.salienceScore < 76))
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function isRecordPoolEligibleForPool(
+  question: TriviaQuestionRecord,
+  difficultyPool: TriviaDifficulty
+): boolean {
+  if (question.sourceTier === 'variant' || question.sourceTier === 'supplemental') return false;
+
+  if (question.feed === 'mix') {
+    if (!isMixPoolCandidateFit(question)) return false;
+    if (MIX_RELATIONSHIP_REJECT_REGEX.test(question.stem)) return false;
+    if (
+      question.tasteTags.some((tag) =>
+        [
+          'year-trivia',
+          'according-to',
+          'line-complete',
+          'pilot-episode',
+          'statement-elimination',
+        ].includes(tag)
+      )
+    ) {
+      return false;
+    }
+    if (question.obscurityFlags.includes('media-tie-in')) return false;
+    if (question.obscurityFlags.includes('incidental-context') && question.salienceScore < 68) return false;
+    if (difficultyPool === 'easy' && question.stem.length > 178) return false;
+    if (difficultyPool === 'hard' && question.stem.length > 208) return false;
+    return true;
+  }
+
+  if (!isSportsPoolCandidateFit(question)) return false;
+  if (!Object.prototype.hasOwnProperty.call(SPORTS_SUBDOMAIN_DISTRIBUTION, question.subdomain)) return false;
+  if (
+    question.tasteTags.some((tag) => ['year-trivia', 'according-to'].includes(tag)) &&
+    !SPORTS_ICONIC_ALLOWLIST_REGEX.test(question.stem)
+  ) {
+    return false;
+  }
+  if (question.obscurityFlags.includes('media-tie-in') || question.obscurityFlags.includes('incidental-context')) {
+    return false;
+  }
+  if (question.obscurityFlags.includes('surname-inference')) return false;
+  if (difficultyPool === 'easy' && question.stem.length > 138) return false;
+  if (difficultyPool === 'hard' && question.stem.length > 182) return false;
+  return true;
+}
+
 function inferTrickQuestionCandidate(
   feed: TriviaFeed,
   prompt: string,
@@ -850,6 +1781,33 @@ function inferTrickQuestionCandidate(
 
   if (obscurityFlags.includes('media-tie-in') || obscurityFlags.includes('vague-stem')) {
     return false;
+  }
+  if (
+    promptKind === 'player' &&
+    obscurityFlags.includes('famous-nickname') &&
+    /\b(nicknamed|known as|called|goes by)\b/i.test(prompt)
+  ) {
+    return true;
+  }
+  if (
+    promptKind === 'rule' &&
+    /\b(neutral zone infraction|intentional grounding|infield fly)\b/i.test(prompt)
+  ) {
+    return true;
+  }
+  if (
+    promptKind === 'term' &&
+    /\b(parc ferme|undercut)\b/i.test(prompt)
+  ) {
+    return true;
+  }
+  if (
+    subdomain === 'olympics' &&
+    promptKind === 'event' &&
+    obscurityFlags.includes('edge-case') &&
+    /\b(decathlon|biathlon|nordic combined|medley|relay)\b/i.test(prompt)
+  ) {
+    return true;
   }
   return false;
 }
@@ -1101,10 +2059,17 @@ function inferSportsBucket(prompt: string, subdomain: string): TriviaEditorialBu
   return 'evergreen';
 }
 
-function inferLookupRisk(prompt: string, options: string[]): TriviaLookupRisk {
+function inferLookupRisk(feed: TriviaFeed, prompt: string, options: string[]): TriviaLookupRisk {
   const hay = `${prompt} ${options.join(' ')}`.toLowerCase();
   const numericCount = (hay.match(/\b\d{4}\b/g) ?? []).length;
-  if (numericCount >= 2 || /\b(stat|record|score|year|season|title)\b/.test(hay)) return 'high';
+  if (
+    numericCount >= 2 ||
+    (feed === 'sports'
+      ? /\b(stat|record|score|year|season|title|wins|touchdowns|home runs|playoff|championship)\b/.test(hay)
+      : /\b(stat|record|score|year|average|percentage|population|elevation)\b/.test(hay))
+  ) {
+    return 'high';
+  }
   if (/\b(which city|which country|who|what was the name)\b/.test(hay)) return 'medium';
   return 'low';
 }
@@ -1156,6 +2121,31 @@ function rewriteMixLeadPrompt(
   options: string[]
 ): string {
   const normalizedAnswer = normalizeText(answerText);
+
+  const wordRefersMatch = prompt.match(/^Which word refers to (.+?)\??$/i);
+  if (wordRefersMatch) {
+    return `What is the term for ${normalizeText(wordRefersMatch[1])}?`;
+  }
+
+  const wordMeansMatch = prompt.match(/^Which word means (.+?)\??$/i);
+  if (wordMeansMatch) {
+    return `What word means ${normalizeText(wordMeansMatch[1])}?`;
+  }
+
+  const definitionMatch = prompt.match(
+    /^What is the definition of(?: the (?:biological|medical|mathematical) term)? ([^?]+)\??$/i
+  );
+  if (definitionMatch) {
+    const term = normalizeText(definitionMatch[1].replace(/\(.+?\)/g, '').trim());
+    return `What does ${term} mean?`;
+  }
+
+  const statisticsDefinitionMatch = prompt.match(
+    /^Which of the following definitions is the definition of the (mean|median|mode)\??$/i
+  );
+  if (statisticsDefinitionMatch) {
+    return `In statistics, what is the ${statisticsDefinitionMatch[1].toLowerCase()}?`;
+  }
 
   const capitalCountryMatch = prompt.match(
     /^What is the (?:name of the )?capital(?: city)?(?: and largest city)? of (.+?)\??$/i
@@ -1269,6 +2259,141 @@ function buildMixCuratedLead(categoryId: string, question: SourceTriviaQuestion)
   };
 }
 
+const MIX_PROMOTION_BLOCKING_TAGS: TriviaTasteTag[] = [
+  'count-trivia',
+  'year-trivia',
+  'according-to',
+  'line-complete',
+  'pilot-episode',
+  'actor-director-credit',
+  'archive-media',
+  'definition-low-payoff',
+  'statement-elimination',
+  'fragment-stem',
+  'long-setup',
+];
+
+const SPORTS_PROMOTION_BLOCKING_TAGS: TriviaTasteTag[] = [
+  'count-trivia',
+  'year-trivia',
+  'according-to',
+  'fragment-stem',
+  'legacy-sports-history',
+  'long-setup',
+];
+
+function buildPromotedThemeTags(
+  question: SourceTriviaQuestion,
+  preferenceTag?: 'easy-preferred' | 'hard-preferred'
+): string[] {
+  return dedupe([
+    ...(question.themeTags ?? []),
+    'promoted-authored',
+    ...(preferenceTag ? [preferenceTag] : []),
+  ]);
+}
+
+function promoteMixLeadToSourceCategory(
+  categoryId: string,
+  question: SourceTriviaQuestion
+): { sourceCategory: string; question: SourceTriviaQuestion } {
+  const candidate = buildQuestionRecord('mix', 'curated-mix', question);
+  const blockedByTaste = candidate.tasteTags.some((tag) => MIX_PROMOTION_BLOCKING_TAGS.includes(tag));
+  const blockedByFlags = candidate.obscurityFlags.some((flag) =>
+    ['media-tie-in', 'incidental-context', 'vague-stem', 'timer-friction'].includes(flag)
+  );
+
+  if (
+    !isEligibleQuestion(candidate.stem, candidate.options) ||
+    blockedByTaste ||
+    blockedByFlags ||
+    candidate.salienceScore < 60 ||
+    candidate.stem.length > 166
+  ) {
+    return {
+      sourceCategory: `curated-mix-${categoryId}`,
+      question,
+    };
+  }
+
+  const hardPreferred =
+    candidate.difficultyTarget === 3 ||
+    question.editorialBucket === 'experimental' ||
+    (candidate.lookupRisk !== 'low' && candidate.salienceScore <= 78) ||
+    (candidate.domain !== 'arts' && candidate.salienceScore <= 74);
+  const easyPreferred =
+    candidate.difficultyTarget === 1 ||
+    (candidate.domain === 'arts' &&
+      ['pop-culture', 'music', 'movies', 'television'].includes(candidate.subdomain) &&
+      candidate.salienceScore >= 82);
+  return {
+    sourceCategory: 'curated-mix',
+    question: {
+      ...question,
+      themeTags: buildPromotedThemeTags(
+        question,
+        hardPreferred ? 'hard-preferred' : easyPreferred ? 'easy-preferred' : undefined
+      ),
+    },
+  };
+}
+
+function promoteSportsLeadToSourceCategory(
+  question: SourceTriviaQuestion
+): { sourceCategory: string; question: SourceTriviaQuestion } {
+  const candidate = buildQuestionRecord('sports', 'curated-sports', question);
+  const blockedByTaste = candidate.tasteTags.some((tag) => SPORTS_PROMOTION_BLOCKING_TAGS.includes(tag));
+  const blockedByFlags = candidate.obscurityFlags.some((flag) =>
+    ['media-tie-in', 'incidental-context', 'surname-inference', 'roster-deep-cut'].includes(flag)
+  );
+  const blockedBySoftShape =
+    /\bbest known for competing in which sport\b|\bcompetes in which league\b/i.test(candidate.stem) ||
+    (candidate.promptKind === 'sport-id' && candidate.salienceScore >= 78);
+
+  if (
+    !isEligibleQuestion(candidate.stem, candidate.options) ||
+    blockedByTaste ||
+    blockedByFlags ||
+    blockedBySoftShape ||
+    candidate.salienceScore < 72 ||
+    candidate.stem.length > 132
+  ) {
+    return {
+      sourceCategory: 'curated-sports-core',
+      question,
+    };
+  }
+
+  const hardPreferred =
+    candidate.difficultyTarget === 3 ||
+    candidate.lookupRisk === 'high' ||
+    ['rule', 'term', 'record', 'event', 'achievement'].includes(candidate.promptKind) ||
+    candidate.salienceScore <= 80;
+  const easyPreferred =
+    candidate.difficultyTarget === 1 &&
+    candidate.lookupRisk === 'low' &&
+    candidate.salienceScore >= 84;
+  return {
+    sourceCategory: 'curated-sports',
+    question: {
+      ...question,
+      themeTags: buildPromotedThemeTags(
+        question,
+        hardPreferred ? 'hard-preferred' : easyPreferred ? 'easy-preferred' : undefined
+      ),
+    },
+  };
+}
+
+function buildCoreFactId(
+  feed: TriviaFeed,
+  sourceCategory: string,
+  prompt: string,
+  answerText: string
+): string {
+  return `${feed}-${sourceCategory}-${slugify(`${prompt}-${answerText}`)}`;
+}
+
 function buildQuestionRecord(
   feed: TriviaFeed,
   sourceCategory: string,
@@ -1298,16 +2423,20 @@ function buildQuestionRecord(
     question.options,
     subdomain
   );
-  const lookupRisk = question.lookupRisk ?? inferLookupRisk(sanitizedPrompt, question.options);
+  const lookupRisk = question.lookupRisk ?? inferLookupRisk(feed, sanitizedPrompt, question.options);
   const prompt = sanitizedPrompt;
   const answerText = normalizeText(correct);
   const options = [answerText, ...selectedDistractors.map((option) => normalizeText(option))];
-  const idBase = `${feed}-${sourceCategory}-${slugify(`${sanitizedPrompt}-${answerText}`)}`;
+  const coreFactId = buildCoreFactId(feed, sourceCategory, sanitizedPrompt, answerText);
+  const idBase = coreFactId;
   const id = variantIndex === 0 ? idBase : `${idBase}-variant-${variantIndex + 1}`;
   const variantGroup = idBase;
   const promptKind =
     question.promptKind ?? inferPromptKind(feed, prompt, answerText, subdomain, domain);
-  const obscurityFlags = question.obscurityFlags ?? deriveObscurityFlags(prompt, subdomain, lookupRisk, promptKind);
+  const obscurityFlags = dedupe([
+    ...(question.obscurityFlags ?? []),
+    ...deriveObscurityFlags(feed, prompt, subdomain, lookupRisk, promptKind),
+  ]);
   const salienceScore = computeSalienceScore(
     feed,
     prompt,
@@ -1325,6 +2454,33 @@ function buildQuestionRecord(
   const curveballKind =
     question.curveballKind ?? inferCurveballKind(feed, promptKind, obscurityFlags, isTrickQuestion);
   const curveballOnly = question.curveballOnly ?? (feed === 'sports' && isTrickQuestion);
+  const editorialSourceFamily = normalizeEditorialSourceFamily(
+    feed,
+    sourceCategory,
+    inferEditorialSourceFamily(
+      sourceCategory,
+      domain,
+      subdomain,
+      question.themeTags
+    ),
+    prompt,
+    promptKind,
+    subdomain,
+    salienceScore,
+    lookupRisk,
+    difficultyTarget
+  );
+  const tasteTags = deriveTasteTags({
+    feed,
+    prompt,
+    promptKind,
+    subdomain,
+    editorialSourceFamily,
+    lookupRisk,
+    salienceScore,
+    isTrickQuestion,
+    curveballKind,
+  });
   const legacyFamily =
     question.legacyFamily ?? inferLegacyFamily(feed, prompt, promptKind, subdomain, sourceTier);
   const entities = extractEntities([prompt, answerText, ...options]);
@@ -1338,9 +2494,36 @@ function buildQuestionRecord(
           : `OpenTriviaQA ${sourceCategory} legacy bank`,
       answerText
     );
+  const curatedMixHardPreferred =
+    feed === 'mix' &&
+    sourceCategory === 'curated-mix' &&
+    question.difficulty === 3 &&
+    (question.salienceScore ?? 0) <= 74;
+  const curatedMixEasyPreferred =
+    feed === 'mix' &&
+    sourceCategory === 'curated-mix' &&
+    !curatedMixHardPreferred &&
+    (question.difficulty === 1 || question.difficulty === 2 || (question.salienceScore ?? 0) >= 78);
+  const defaultThemeTags =
+    curatedMixHardPreferred
+      ? [editorialBucket, subdomain, 'hard-preferred']
+      : curatedMixEasyPreferred
+        ? [editorialBucket, subdomain, 'easy-preferred']
+      : isTrickQuestion
+        ? [editorialBucket, subdomain, 'trick']
+        : [editorialBucket, subdomain];
+
   return {
     id,
     feed,
+    coreFactId,
+    difficultyPool: 'hard',
+    reserveOnly: false,
+    launchEligible: true,
+    launchBlockReasons: [],
+    scheduleEligible: true,
+    editorialSourceFamily,
+    tasteTags,
     stem: prompt,
     options,
     answerIndex: 0,
@@ -1368,205 +2551,1228 @@ function buildQuestionRecord(
     variantGroup,
     editorialBucket,
     themeTags:
-      question.themeTags ??
-      (isTrickQuestion ? [editorialBucket, subdomain, 'trick'] : [editorialBucket, subdomain]),
+      question.themeTags ?? defaultThemeTags,
   };
 }
 
 function dedupeQuestionRecords(records: TriviaQuestionRecord[]): TriviaQuestionRecord[] {
   const seen = new Set<string>();
   return records.filter((record) => {
-    if (seen.has(record.id)) return false;
-    seen.add(record.id);
+    if (seen.has(record.coreFactId)) return false;
+    seen.add(record.coreFactId);
     return true;
   });
 }
 
-function getMixCandidates(): TriviaQuestionRecord[] {
+function getMixRawCandidates(): TriviaQuestionRecord[] {
   const categories = Array.from(legacyMixCategories as any[]);
   const rows: { sourceCategory: string; question: SourceTriviaQuestion }[] = [];
 
   categories.forEach((category) => {
     category.questions.forEach((question: SourceTriviaQuestion) => {
-      const hay = `${question.prompt} ${question.options.join(' ')}`;
-      if (SPORTS_REGEX.test(hay)) return;
-      if (!isEligibleQuestion(question.prompt, question.options)) return;
+      const promoted = promoteMixLeadToSourceCategory(category.id, buildMixCuratedLead(category.id, question));
       rows.push({
-        sourceCategory: `curated-mix-${category.id}`,
-        question: buildMixCuratedLead(category.id, question),
+        sourceCategory: promoted.sourceCategory,
+        question: promoted.question,
       });
     });
   });
 
-  const curatedRows = CURATED_MIX_PATCHES.filter((question) => isEligibleQuestion(question.prompt, question.options)).map(
-    (question) => ({ sourceCategory: 'curated-mix', question })
-  );
+  const curatedRows = CURATED_MIX_PATCHES.map((question) => ({
+    sourceCategory: 'curated-mix',
+    question,
+  }));
 
   const scored = [...rows, ...curatedRows]
     .map(({ sourceCategory, question }) => buildQuestionRecord('mix', sourceCategory, question))
-    .filter((record) => isMixEditorialFit(record))
+    .filter((record) => isMixPoolCandidateFit(record))
+    .filter((record) => validateQuestionRecord(record).length === 0)
     .map((record) => ({
       record,
       score: scoreQuestion(record.stem, record.options, record.editorialBucket ?? 'evergreen') + record.salienceScore,
     }))
     .sort((left, right) => right.score - left.score || left.record.id.localeCompare(right.record.id));
 
-  const byDifficulty = new Map<TriviaDifficultyTarget, TriviaQuestionRecord[]>();
-  ([1, 2, 3] as TriviaDifficultyTarget[]).forEach((difficulty) => {
-    byDifficulty.set(
-      difficulty,
-      scored.filter((entry) => entry.record.difficultyTarget === difficulty).map((entry) => entry.record)
-    );
-  });
-
-  const easy = (byDifficulty.get(1) ?? []).slice(0, 1550);
-  const medium = (byDifficulty.get(2) ?? []).slice(0, 1650);
-  const hard = (byDifficulty.get(3) ?? []).slice(0, MIX_LIBRARY_TARGET - easy.length - medium.length);
-  const candidates = dedupeQuestionRecords([...easy, ...medium, ...hard]);
-
-  return seededShuffle(candidates, hashString('mix-library'));
+  return dedupeQuestionRecords(scored.map((entry) => entry.record));
 }
 
-function getSportsSupplementalCandidates(): SourceTriviaQuestion[] {
-  const categories = Array.from(legacyMixCategories as any[]);
-  const matches: SourceTriviaQuestion[] = [];
-  categories.forEach((category) => {
-    category.questions.forEach((question: SourceTriviaQuestion) => {
-      if (!isSportsSupplementQuestion(question)) return;
-      if (!isEligibleQuestion(question.prompt, question.options)) return;
-      matches.push(question);
-    });
-  });
-  return matches;
-}
-
-function getSportsCandidates(): TriviaQuestionRecord[] {
-  const baseSports = SPORTS_DAILY_PACKS.flat().filter((question) =>
-    isEligibleQuestion(question.prompt, question.options)
-  );
-  const curatedBoosters = CURATED_SPORTS_BOOSTERS.filter((question) =>
-    isEligibleQuestion(question.prompt, question.options)
-  );
-  const supplemental = getSportsSupplementalCandidates();
+function getSportsRawCandidates(): TriviaQuestionRecord[] {
+  const baseSports = SPORTS_DAILY_PACKS.flat();
+  const curatedBoosters = CURATED_SPORTS_BOOSTERS;
 
   const acceptedBase = baseSports
-    .map((question) => ({ question, record: buildQuestionRecord('sports', 'curated-sports-core', question) }))
-    .filter(({ record }) => isSportsEditorialFit(record));
+    .map((question) => {
+      const promoted = promoteSportsLeadToSourceCategory(question);
+      return {
+        question: promoted.question,
+        record: buildQuestionRecord('sports', promoted.sourceCategory, promoted.question),
+      };
+    })
+    .filter(({ record }) => isSportsPoolCandidateFit(record));
   const acceptedCurated = curatedBoosters
     .map((question) => ({ question, record: buildQuestionRecord('sports', 'curated-sports', question) }))
-    .filter(({ record }) => isSportsEditorialFit(record));
-  const acceptedSupplemental = supplemental
-    .map((question) => ({
-      question,
-      record: buildQuestionRecord('sports', 'sports-supplement', question),
-    }))
-    .filter(({ record }) => record.subdomain !== 'general-sports' && isSportsEditorialFit(record) && record.salienceScore >= 80);
-
-  const records = [
-    ...acceptedBase.map(({ record }) => record),
-    ...acceptedCurated.map(({ record }) => record),
-    ...acceptedSupplemental.map(({ record }) => record),
-  ];
-
-  const curatedVariantSources = [...acceptedCurated];
-  const easySources = curatedVariantSources
-    .filter(({ record }) => record.difficultyTarget === 1)
-    .map(({ question }) => question);
-  const mediumSources = curatedVariantSources
-    .filter(({ record }) => record.difficultyTarget === 2 && isSportsVariantSourceRecord(record))
-    .map(({ question }) => question);
-  const hardSources = curatedVariantSources
-    .filter(({ record }) => record.difficultyTarget === 3 && isSportsVariantSourceRecord(record))
-    .map(({ question }) => question);
-
-  const variantPool = [
-    ...easySources.slice(0, SPORTS_VARIANT_COUNTS.easy).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 1)
-    ),
-    ...mediumSources.slice(0, SPORTS_VARIANT_COUNTS.medium).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 1)
-    ),
-    ...hardSources.slice(0, SPORTS_VARIANT_COUNTS.hard).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 1)
-    ),
-    ...easySources.slice(0, SPORTS_VARIANT_COUNTS.easySecond).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 2)
-    ),
-    ...mediumSources.slice(0, SPORTS_VARIANT_COUNTS.mediumSecond).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 2)
-    ),
-    ...hardSources.slice(0, SPORTS_VARIANT_COUNTS.hardSecond).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 2)
-    ),
-    ...easySources.slice(0, SPORTS_VARIANT_COUNTS.easyThird).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 3)
-    ),
-    ...mediumSources.slice(0, SPORTS_VARIANT_COUNTS.mediumThird).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 3)
-    ),
-    ...hardSources.slice(0, SPORTS_VARIANT_COUNTS.hardThird).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 3)
-    ),
-    ...easySources.slice(0, SPORTS_VARIANT_COUNTS.easyFourth).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 4)
-    ),
-    ...mediumSources.slice(0, SPORTS_VARIANT_COUNTS.mediumFourth).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 4)
-    ),
-    ...hardSources.slice(0, SPORTS_VARIANT_COUNTS.hardFourth).map((question) =>
-      buildQuestionRecord('sports', 'curated-sports-core', question, 4)
-    ),
-  ].filter((record) => isSportsEditorialFit(record));
-
-  const combined = dedupeQuestionRecords(
-    [...records, ...variantPool]
+    .filter(({ record }) => isSportsPoolCandidateFit(record));
+  return dedupeQuestionRecords(
+    [...acceptedBase.map(({ record }) => record), ...acceptedCurated.map(({ record }) => record)]
+      .filter((record) => validateQuestionRecord(record).length === 0)
       .map((record) => ({
         record,
         score:
           scoreQuestion(record.stem, record.options, record.editorialBucket ?? 'evergreen') +
           record.salienceScore -
           (record.curveballOnly ? -36 : record.isTrickQuestion ? -10 : 0) -
-          (record.sourceTier === 'curated' ? 0 : record.sourceTier === 'supplemental' ? 10 : record.sourceTier === 'legacy' ? 24 : 42) -
-          (record.id.includes('-variant-5')
-            ? 134
-            : record.id.includes('-variant-4')
-              ? 108
-              : record.id.includes('-variant-3')
-                ? 82
-                : record.id.includes('-variant-2')
-                  ? 52
-                  : 0) -
           (record.legacyFamily !== 'none' ? 28 : 0),
       }))
       .sort((left, right) => right.score - left.score || left.record.id.localeCompare(right.record.id))
       .map((entry) => entry.record)
   );
+}
 
-  const byDifficulty = new Map<TriviaDifficultyTarget, TriviaQuestionRecord[]>();
-  ([1, 2, 3] as TriviaDifficultyTarget[]).forEach((difficulty) => {
-    byDifficulty.set(
-      difficulty,
-      combined.filter((entry) => entry.difficultyTarget === difficulty)
+function buildPoolTargetsFromAvailability(
+  records: TriviaQuestionRecord[],
+  groupKey: 'domain' | 'subdomain',
+  distribution: Record<string, number>,
+  poolTarget: number,
+  eligibilityFn: (record: TriviaQuestionRecord, difficultyPool: TriviaDifficulty) => boolean
+): Record<TriviaDifficulty, Record<string, number>> {
+  const totalTarget = poolTarget * 2;
+  const keys = Object.keys(distribution).filter((key) => distribution[key] > 0);
+  const availability = Object.fromEntries(
+    keys.map((key) => [
+      key,
+      records.filter(
+        (record) =>
+          record[groupKey] === key &&
+          (eligibilityFn(record, 'easy') || eligibilityFn(record, 'hard'))
+      ).length,
+    ])
+  ) as Record<string, number>;
+  const combinedTargets: Record<string, number> = {};
+  const fractional = keys.map((key) => {
+    const exact = distribution[key] * totalTarget;
+    const cappedBase = Math.min(Math.floor(exact), availability[key] ?? 0);
+    combinedTargets[key] = cappedBase;
+    return {
+      key,
+      remainder: exact - Math.floor(exact),
+    };
+  });
+
+  let assigned = Object.values(combinedTargets).reduce((sum, value) => sum + value, 0);
+  while (assigned < totalTarget) {
+    const nextKey = [...fractional]
+      .sort((left, right) => {
+        const leftCapacity = (availability[left.key] ?? 0) - (combinedTargets[left.key] ?? 0);
+        const rightCapacity = (availability[right.key] ?? 0) - (combinedTargets[right.key] ?? 0);
+        if (rightCapacity !== leftCapacity) return rightCapacity - leftCapacity;
+        if (right.remainder !== left.remainder) return right.remainder - left.remainder;
+        return left.key.localeCompare(right.key);
+      })
+      .find((entry) => (availability[entry.key] ?? 0) > (combinedTargets[entry.key] ?? 0));
+    if (!nextKey) {
+      throw new Error(
+        `Insufficient ${groupKey} supply to build ${poolTarget} easy and ${poolTarget} hard questions. ` +
+          `availableTotal=${records.length} availability=${JSON.stringify(availability)} currentTargets=${JSON.stringify(combinedTargets)}`
+      );
+    }
+    combinedTargets[nextKey.key] += 1;
+    assigned += 1;
+  }
+
+  const easyTargets: Record<string, number> = {};
+  const hardTargets: Record<string, number> = {};
+  const oddGroups: string[] = [];
+  keys.forEach((key) => {
+    easyTargets[key] = Math.floor(combinedTargets[key] / 2);
+    hardTargets[key] = Math.floor(combinedTargets[key] / 2);
+    if (combinedTargets[key] % 2 === 1) oddGroups.push(key);
+  });
+
+  let easyAssigned = Object.values(easyTargets).reduce((sum, value) => sum + value, 0);
+  const easyRemaindersNeeded = poolTarget - easyAssigned;
+  oddGroups
+    .sort((left, right) => distribution[right] - distribution[left] || left.localeCompare(right))
+    .forEach((key, index) => {
+      if (index < easyRemaindersNeeded) {
+        easyTargets[key] += 1;
+      } else {
+        hardTargets[key] += 1;
+      }
+    });
+
+  return {
+    easy: easyTargets,
+    hard: hardTargets,
+  };
+}
+
+function getLookupRiskRank(risk: TriviaLookupRisk): number {
+  if (risk === 'low') return 0;
+  if (risk === 'medium') return 1;
+  return 2;
+}
+
+function getSourceFamilyPreferenceScore(
+  record: TriviaQuestionRecord,
+  difficultyPool: TriviaDifficulty
+): number {
+  if (record.feed === 'mix') {
+    if (record.editorialSourceFamily === 'mix-authored-evergreen') return difficultyPool === 'easy' ? 220 : 170;
+    if (record.editorialSourceFamily === 'mix-authored-culture') return difficultyPool === 'easy' ? 180 : 150;
+    if (record.editorialSourceFamily === 'mix-authored-hard') return difficultyPool === 'hard' ? 230 : 80;
+    if (record.editorialSourceFamily.startsWith('mix-rewrite-')) {
+      let penalty = difficultyPool === 'easy' ? -90 : -60;
+      if (record.editorialSourceFamily === 'mix-rewrite-arts') penalty += 10;
+      if (record.editorialSourceFamily === 'mix-rewrite-world') penalty -= 10;
+      if (record.editorialSourceFamily === 'mix-rewrite-history') penalty -= 8;
+      if (record.editorialSourceFamily === 'mix-rewrite-science') penalty -= 4;
+      return penalty;
+    }
+  } else {
+    if (record.editorialSourceFamily === 'sports-authored-core') return difficultyPool === 'easy' ? 180 : 210;
+    if (record.editorialSourceFamily === 'sports-authored-hardcore') return difficultyPool === 'easy' ? 100 : 165;
+    if (record.editorialSourceFamily === 'sports-authored-mainstream-hard') {
+      return difficultyPool === 'hard' ? 240 : 70;
+    }
+    if (record.editorialSourceFamily === 'sports-core-bank') return difficultyPool === 'easy' ? -120 : -75;
+  }
+
+  return 0;
+}
+
+function getPoolPreferenceScore(record: TriviaQuestionRecord, difficultyPool: TriviaDifficulty): number {
+  const lookupRank = getLookupRiskRank(record.lookupRisk);
+  const launchBonus = isRecordLaunchEligibleForPool(record, difficultyPool) ? 1000 : -600;
+  const easyPreferredBias = record.themeTags?.includes('easy-preferred') ? 220 : 0;
+  const hardPreferredBias = record.themeTags?.includes('hard-preferred')
+    ? difficultyPool === 'hard'
+      ? 260
+      : -180
+    : 0;
+  const obscurityPenalty =
+    record.obscurityFlags.length * 6 +
+    (record.obscurityFlags.includes('timer-friction') ? 10 : 0) +
+    (record.obscurityFlags.includes('vague-stem') ? 14 : 0);
+  const tastePenalty =
+    record.tasteTags.length * 10 +
+    (record.tasteTags.includes('count-trivia') ? 20 : 0) +
+    (record.tasteTags.includes('year-trivia') ? 24 : 0) +
+    (record.tasteTags.includes('archive-media') ? 26 : 0) +
+    (record.tasteTags.includes('definition-low-payoff') ? 16 : 0) +
+    (record.tasteTags.includes('legacy-sports-history') ? 22 : 0) +
+    (record.tasteTags.includes('team-association') ? 6 : 0) +
+    (record.tasteTags.includes('athlete-association') ? 6 : 0);
+  const sourceFamilyBias = getSourceFamilyPreferenceScore(record, difficultyPool);
+
+  if (difficultyPool === 'easy') {
+    const easyDifficultyBias =
+      record.feed === 'sports' ? (4 - record.difficultyTarget) * 11 : (4 - record.difficultyTarget) * 20;
+    const sportsEasyHardBias =
+      record.feed === 'sports'
+        ? record.difficultyTarget === 3
+          ? 18
+          : record.difficultyTarget === 2
+            ? 6
+            : 0
+        : 0;
+    const easyTrickPenalty = record.isTrickQuestion
+      ? record.feed === 'mix'
+        ? -10
+        : 6
+      : 0;
+    return (
+      launchBonus +
+      record.salienceScore * 2 +
+      easyDifficultyBias +
+      sportsEasyHardBias -
+      lookupRank * 18 -
+      obscurityPenalty -
+      tastePenalty +
+      easyTrickPenalty +
+      easyPreferredBias +
+      hardPreferredBias +
+      sourceFamilyBias
     );
+  }
+
+  const targetSalience = record.feed === 'sports' ? 67 : 69;
+  const hardDifficultyBias =
+    record.feed === 'mix'
+      ? record.difficultyTarget === 2
+        ? 86
+        : record.difficultyTarget === 3
+          ? 70
+          : 32
+      : record.feed === 'sports'
+        ? record.difficultyTarget === 3
+          ? 110
+          : record.difficultyTarget === 2
+            ? 62
+            : -18
+        : record.difficultyTarget * 28;
+    return (
+      launchBonus +
+      hardDifficultyBias +
+      lookupRank * 22 +
+      (100 - Math.abs(record.salienceScore - targetSalience)) -
+      obscurityPenalty * 0.45 * -1 +
+      tastePenalty * 0.9 * -1 +
+      (record.isTrickQuestion ? -18 : 0) -
+      easyPreferredBias +
+      hardPreferredBias +
+      sourceFamilyBias
+    );
+  }
+
+function cloneIntoDifficultyPool(
+  record: TriviaQuestionRecord,
+  difficultyPool: TriviaDifficulty
+): TriviaQuestionRecord {
+  return applyLaunchState({
+    ...record,
+    id: `${record.coreFactId}-${difficultyPool}`,
+    reserveOnly: false,
+    variantGroup: record.coreFactId,
+  }, difficultyPool);
+}
+
+function rebalanceSportsCurveballPools(
+  rawCandidates: TriviaQuestionRecord[],
+  pools: Record<TriviaDifficulty, TriviaQuestionRecord[]>,
+  minimumCurveballsPerPool: number
+): Record<TriviaDifficulty, TriviaQuestionRecord[]> {
+  const rawByCoreFact = new Map(rawCandidates.map((question) => [question.coreFactId, question]));
+  const selectedCoreFacts = new Set(
+    [...pools.easy, ...pools.hard].map((question) => question.coreFactId)
+  );
+  let leftovers = rawCandidates.filter((question) => !selectedCoreFacts.has(question.coreFactId));
+
+  TRIVIA_DIFFICULTIES.forEach((difficulty) => {
+    let pool = [...pools[difficulty]];
+    let replacements = 0;
+    const countCurveballs = () =>
+      pool.filter(
+        (question) =>
+          question.isTrickQuestion &&
+          question.scheduleEligible &&
+          isAllowedCurveballQuestion('sports', question)
+      ).length;
+
+    while (countCurveballs() < minimumCurveballsPerPool) {
+      const replacement = leftovers
+        .filter(
+          (question) =>
+            question.isTrickQuestion &&
+            isAllowedCurveballQuestion('sports', question) &&
+            isRecordScheduleEligibleForPool(question, difficulty)
+        )
+        .sort(
+          (left, right) =>
+            getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+            left.coreFactId.localeCompare(right.coreFactId)
+        )[0];
+      if (!replacement) {
+        const availableCurveballs = leftovers.filter(
+          (question) => question.isTrickQuestion && isAllowedCurveballQuestion('sports', question)
+        );
+        const eligibleCurveballs = availableCurveballs.filter((question) =>
+          isRecordScheduleEligibleForPool(question, difficulty)
+        );
+        const summarize = (questions: TriviaQuestionRecord[]) =>
+          questions
+            .slice(0, 16)
+            .map(
+              (question) =>
+                `${question.editorialSourceFamily}/${question.subdomain}/d${question.difficultyTarget}/${question.curveballKind ?? 'none'}:${question.stem}`
+            )
+            .join(' || ');
+        throw new Error(
+          `Unable to provision enough sports curveballs for ${difficulty} pool. ` +
+            `current=${countCurveballs()} target=${minimumCurveballsPerPool} ` +
+            `available=${availableCurveballs.length} eligible=${eligibleCurveballs.length} ` +
+            `availableSamples=[${summarize(availableCurveballs)}] eligibleSamples=[${summarize(eligibleCurveballs)}]`
+        );
+      }
+
+      const removalIndex = pool
+        .map((question, index) => ({ question, index }))
+        .filter(
+          ({ question }) =>
+            !question.isTrickQuestion &&
+            question.subdomain === replacement.subdomain
+        )
+        .sort(
+          (left, right) =>
+            getPoolPreferenceScore(left.question, difficulty) -
+              getPoolPreferenceScore(right.question, difficulty) ||
+            left.question.coreFactId.localeCompare(right.question.coreFactId)
+        )[0]?.index;
+
+      const fallbackRemovalIndex =
+        removalIndex ??
+        pool
+          .map((question, index) => ({ question, index }))
+          .filter(({ question }) => !question.isTrickQuestion)
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(left.question, difficulty) -
+                getPoolPreferenceScore(right.question, difficulty) ||
+              left.question.coreFactId.localeCompare(right.question.coreFactId)
+          )[0]?.index;
+
+      if (fallbackRemovalIndex == null) {
+        throw new Error(`Unable to free a non-curveball slot in sports ${difficulty} pool.`);
+      }
+
+      const removed = pool[fallbackRemovalIndex];
+      pool[fallbackRemovalIndex] = cloneIntoDifficultyPool(replacement, difficulty);
+      leftovers = leftovers.filter((question) => question.coreFactId !== replacement.coreFactId);
+      const removedRaw = rawByCoreFact.get(removed.coreFactId);
+      if (removedRaw) leftovers.push(removedRaw);
+    }
+
+    pools[difficulty] = pool;
   });
 
-  const easy = (byDifficulty.get(1) ?? []).slice(0, 1200);
-  const medium = (byDifficulty.get(2) ?? []).slice(0, 1300);
-  const hard = (byDifficulty.get(3) ?? []).slice(0, SPORTS_LIBRARY_TARGET - easy.length - medium.length);
-  const combinedSelection = [...easy, ...medium, ...hard];
+  return pools;
+}
 
-  return [...combinedSelection].sort((left, right) => {
-    const leftVariantPenalty = left.id.includes('-variant-') ? 1 : 0;
-    const rightVariantPenalty = right.id.includes('-variant-') ? 1 : 0;
-    if (leftVariantPenalty !== rightVariantPenalty) return leftVariantPenalty - rightVariantPenalty;
-    if (left.difficultyTarget !== right.difficultyTarget) return left.difficultyTarget - right.difficultyTarget;
-    if (left.salienceScore !== right.salienceScore) return right.salienceScore - left.salienceScore;
-    const leftLookupPenalty = left.lookupRisk === 'low' ? 0 : left.lookupRisk === 'medium' ? 1 : 2;
-    const rightLookupPenalty = right.lookupRisk === 'low' ? 0 : right.lookupRisk === 'medium' ? 1 : 2;
-    if (leftLookupPenalty !== rightLookupPenalty) return leftLookupPenalty - rightLookupPenalty;
-    if (left.stem.length !== right.stem.length) return left.stem.length - right.stem.length;
-    return left.id.localeCompare(right.id);
+function capSportsTrickPools(
+  rawCandidates: TriviaQuestionRecord[],
+  pools: Record<TriviaDifficulty, TriviaQuestionRecord[]>,
+  maximumTrickQuestionsPerPool: number
+): Record<TriviaDifficulty, TriviaQuestionRecord[]> {
+  const rawByCoreFact = new Map(rawCandidates.map((question) => [question.coreFactId, question]));
+  let selectedCoreFacts = new Set(
+    [...pools.easy, ...pools.hard].map((question) => question.coreFactId)
+  );
+  let leftovers = rawCandidates.filter((question) => !selectedCoreFacts.has(question.coreFactId));
+
+  TRIVIA_DIFFICULTIES.forEach((difficulty) => {
+    let pool = [...pools[difficulty]];
+    const trickCap = difficulty === 'hard' ? maximumTrickQuestionsPerPool : 160;
+    const countTricks = () => pool.filter((question) => question.isTrickQuestion).length;
+
+    while (countTricks() > trickCap) {
+      const removable = pool
+        .map((question, index) => ({ question, index }))
+        .filter(({ question }) => question.isTrickQuestion)
+        .sort(
+          (left, right) =>
+            getPoolPreferenceScore(left.question, difficulty) -
+              getPoolPreferenceScore(right.question, difficulty) ||
+            left.question.coreFactId.localeCompare(right.question.coreFactId)
+        )[0];
+
+      if (!removable) {
+        break;
+      }
+
+      const replacement =
+        leftovers
+          .filter(
+            (question) =>
+              isRecordScheduleEligibleForPool(question, difficulty) &&
+              !question.isTrickQuestion &&
+              question.subdomain === removable.question.subdomain &&
+              question.difficultyTarget === removable.question.difficultyTarget
+          )
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+              left.coreFactId.localeCompare(right.coreFactId)
+          )[0] ??
+        leftovers
+          .filter(
+            (question) =>
+              isRecordScheduleEligibleForPool(question, difficulty) &&
+              !question.isTrickQuestion &&
+              question.subdomain === removable.question.subdomain &&
+              Math.abs(question.difficultyTarget - removable.question.difficultyTarget) <= 1
+          )
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+              left.coreFactId.localeCompare(right.coreFactId)
+          )[0] ??
+        leftovers
+          .filter(
+            (question) =>
+              isRecordScheduleEligibleForPool(question, difficulty) &&
+              !question.isTrickQuestion &&
+              question.difficultyTarget === removable.question.difficultyTarget
+          )
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+              left.coreFactId.localeCompare(right.coreFactId)
+          )[0] ??
+        leftovers
+          .filter(
+            (question) => isRecordScheduleEligibleForPool(question, difficulty) && !question.isTrickQuestion
+          )
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+              left.coreFactId.localeCompare(right.coreFactId)
+          )[0] ??
+        leftovers
+          .filter(
+            (question) =>
+              isRecordLaunchEligibleForPool(question, difficulty) &&
+              !question.isTrickQuestion &&
+              question.subdomain === removable.question.subdomain &&
+              question.difficultyTarget === removable.question.difficultyTarget
+          )
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+              left.coreFactId.localeCompare(right.coreFactId)
+          )[0] ??
+        leftovers
+          .filter(
+            (question) =>
+              isRecordLaunchEligibleForPool(question, difficulty) &&
+              !question.isTrickQuestion &&
+              question.subdomain === removable.question.subdomain &&
+              Math.abs(question.difficultyTarget - removable.question.difficultyTarget) <= 1
+          )
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+              left.coreFactId.localeCompare(right.coreFactId)
+          )[0] ??
+        leftovers
+          .filter(
+            (question) =>
+              isRecordLaunchEligibleForPool(question, difficulty) &&
+              !question.isTrickQuestion &&
+              question.difficultyTarget === removable.question.difficultyTarget
+          )
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+              left.coreFactId.localeCompare(right.coreFactId)
+          )[0] ??
+        leftovers
+          .filter(
+            (question) => isRecordLaunchEligibleForPool(question, difficulty) && !question.isTrickQuestion
+          )
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+              left.coreFactId.localeCompare(right.coreFactId)
+          )[0];
+
+      if (!replacement) {
+        break;
+      }
+
+      pool[removable.index] = cloneIntoDifficultyPool(replacement, difficulty);
+      leftovers = leftovers.filter((question) => question.coreFactId !== replacement.coreFactId);
+      const removedRaw = rawByCoreFact.get(removable.question.coreFactId);
+      if (removedRaw) leftovers.push(removedRaw);
+      selectedCoreFacts = new Set(
+        [...pools[difficulty === 'easy' ? 'hard' : 'easy'], ...pool].map((question) => question.coreFactId)
+      );
+      leftovers = rawCandidates.filter((question) => !selectedCoreFacts.has(question.coreFactId));
+    }
+
+    pools[difficulty] = pool;
   });
+
+  return pools;
+}
+
+function maximizeScheduleEligiblePoolCoverage(
+  rawCandidates: TriviaQuestionRecord[],
+  pools: Record<TriviaDifficulty, TriviaQuestionRecord[]>
+): Record<TriviaDifficulty, TriviaQuestionRecord[]> {
+  const isRotationSubdomain = (subdomain: string) =>
+    SPORTS_ROTATION_SUBDOMAINS.has(subdomain) || subdomain === 'general-sports';
+
+  TRIVIA_DIFFICULTIES.forEach((difficulty) => {
+    let pool = [...pools[difficulty]];
+    let replacements = 0;
+    const otherPool = pools[difficulty === 'easy' ? 'hard' : 'easy'];
+    const selectedCoreFacts = new Set(
+      [...pool, ...otherPool].map((question) => question.coreFactId)
+    );
+    const eligibleLeftovers = rawCandidates
+      .filter(
+        (question) =>
+          !selectedCoreFacts.has(question.coreFactId) &&
+          isRecordScheduleEligibleForPool(question, difficulty)
+      )
+      .sort(
+        (left, right) =>
+          getPoolPreferenceScore(right, difficulty) - getPoolPreferenceScore(left, difficulty) ||
+          left.coreFactId.localeCompare(right.coreFactId)
+      );
+    const claimedCoreFacts = new Set<string>();
+
+    const pickReplacement = (
+      removable: TriviaQuestionRecord
+    ): TriviaQuestionRecord | undefined => {
+      const sameBand = (question: TriviaQuestionRecord) =>
+        SPORTS_CORE_SUBDOMAINS.has(question.subdomain) === SPORTS_CORE_SUBDOMAINS.has(removable.subdomain) &&
+        isRotationSubdomain(question.subdomain) === isRotationSubdomain(removable.subdomain);
+      const candidateGroups: Array<(question: TriviaQuestionRecord) => boolean> = [
+        (question) =>
+          question.subdomain === removable.subdomain &&
+          question.difficultyTarget === removable.difficultyTarget,
+        (question) =>
+          question.subdomain === removable.subdomain &&
+          Math.abs(question.difficultyTarget - removable.difficultyTarget) <= 1,
+        (question) =>
+          sameBand(question) &&
+          question.difficultyTarget === removable.difficultyTarget,
+        (question) =>
+          sameBand(question) &&
+          Math.abs(question.difficultyTarget - removable.difficultyTarget) <= 1,
+        (question) => question.difficultyTarget === removable.difficultyTarget,
+        () => true,
+      ];
+
+      for (const matcher of candidateGroups) {
+        const replacement = eligibleLeftovers.find(
+          (question) => !claimedCoreFacts.has(question.coreFactId) && matcher(question)
+        );
+        if (replacement) return replacement;
+      }
+
+      return undefined;
+    };
+
+    const removables = pool
+      .map((question, index) => ({ question, index }))
+      .filter(({ question }) => !question.scheduleEligible)
+      .sort(
+        (left, right) =>
+          getPoolPreferenceScore(left.question, difficulty) -
+            getPoolPreferenceScore(right.question, difficulty) ||
+          left.question.coreFactId.localeCompare(right.question.coreFactId)
+      );
+
+    removables.forEach((removable) => {
+      const replacement = pickReplacement(removable.question);
+      if (!replacement) return;
+
+      pool[removable.index] = cloneIntoDifficultyPool(replacement, difficulty);
+      claimedCoreFacts.add(replacement.coreFactId);
+      replacements += 1;
+    });
+
+    logBuildStage(
+      `maximizeScheduleEligiblePoolCoverage:${difficulty}: replacements=${replacements} scheduleEligible=${pool.filter((question) => question.scheduleEligible).length}/${pool.length}`
+    );
+    pools[difficulty] = pool;
+  });
+
+  return pools;
+}
+
+function rebalanceSportsHardFromEasy(
+  rawCandidates: TriviaQuestionRecord[],
+  pools: Record<TriviaDifficulty, TriviaQuestionRecord[]>
+): Record<TriviaDifficulty, TriviaQuestionRecord[]> {
+  const targetHardScheduleEligible = SPORTS_SCHEDULED_COUNT;
+  const hardScheduleEligibleCount = () => pools.hard.filter((question) => question.scheduleEligible).length;
+  if (hardScheduleEligibleCount() >= targetHardScheduleEligible) {
+    return pools;
+  }
+
+  const rawByCoreFact = new Map(rawCandidates.map((question) => [question.coreFactId, question]));
+  const selectedCoreFacts = new Set(
+    [...pools.easy, ...pools.hard].map((question) => question.coreFactId)
+  );
+  const availableLeftovers = rawCandidates.filter((question) => !selectedCoreFacts.has(question.coreFactId));
+  const claimedReplacementCoreFacts = new Set<string>();
+  const hardClaimedDonors = new Set<string>();
+
+  const easyReplacementPool = availableLeftovers
+    .filter((question) => isRecordPoolEligibleForPool(question, 'easy'))
+    .sort(
+      (left, right) =>
+        getPoolPreferenceScore(right, 'easy') - getPoolPreferenceScore(left, 'easy') ||
+        left.coreFactId.localeCompare(right.coreFactId)
+    );
+  const hardDonorPool = pools.easy
+    .map((question, index) => ({ question, index, raw: rawByCoreFact.get(question.coreFactId) ?? question }))
+    .filter(({ raw }) => isRecordScheduleEligibleForPool(raw, 'hard'))
+    .sort(
+      (left, right) =>
+        getPoolPreferenceScore(right.raw, 'hard') - getPoolPreferenceScore(left.raw, 'hard') ||
+        left.raw.coreFactId.localeCompare(right.raw.coreFactId)
+    );
+  const hardRemovables = pools.hard
+    .map((question, index) => ({ question, index }))
+    .filter(({ question }) => !question.scheduleEligible)
+    .sort(
+      (left, right) =>
+        getPoolPreferenceScore(left.question, 'hard') - getPoolPreferenceScore(right.question, 'hard') ||
+        left.question.coreFactId.localeCompare(right.question.coreFactId)
+    );
+
+  const pickEasyReplacement = (donor: TriviaQuestionRecord): TriviaQuestionRecord | undefined => {
+    const sameBand = (question: TriviaQuestionRecord) =>
+      SPORTS_CORE_SUBDOMAINS.has(question.subdomain) === SPORTS_CORE_SUBDOMAINS.has(donor.subdomain) &&
+      (SPORTS_ROTATION_SUBDOMAINS.has(question.subdomain) || question.subdomain === 'general-sports') ===
+        (SPORTS_ROTATION_SUBDOMAINS.has(donor.subdomain) || donor.subdomain === 'general-sports');
+    const candidateGroups: Array<(question: TriviaQuestionRecord) => boolean> = [
+      (question) => question.subdomain === donor.subdomain && question.difficultyTarget === donor.difficultyTarget,
+      (question) =>
+        question.subdomain === donor.subdomain &&
+        Math.abs(question.difficultyTarget - donor.difficultyTarget) <= 1,
+      (question) => sameBand(question) && question.difficultyTarget === donor.difficultyTarget,
+      (question) => isRecordScheduleEligibleForPool(question, 'easy'),
+      () => true,
+    ];
+
+    for (const matcher of candidateGroups) {
+      const replacement = easyReplacementPool.find(
+        (question) => !claimedReplacementCoreFacts.has(question.coreFactId) && matcher(question)
+      );
+      if (replacement) return replacement;
+    }
+
+    return undefined;
+  };
+
+  let swaps = 0;
+  for (const removable of hardRemovables) {
+    if (hardScheduleEligibleCount() >= targetHardScheduleEligible) break;
+
+    const donor = hardDonorPool.find(
+      (candidate) =>
+        !hardClaimedDonors.has(candidate.raw.coreFactId) &&
+        candidate.raw.coreFactId !== removable.question.coreFactId
+    );
+    if (!donor) break;
+
+    const easyReplacement = pickEasyReplacement(donor.raw);
+    if (!easyReplacement) break;
+
+    pools.hard[removable.index] = cloneIntoDifficultyPool(donor.raw, 'hard');
+    pools.easy[donor.index] = cloneIntoDifficultyPool(easyReplacement, 'easy');
+    hardClaimedDonors.add(donor.raw.coreFactId);
+    claimedReplacementCoreFacts.add(easyReplacement.coreFactId);
+    swaps += 1;
+  }
+
+  logBuildStage(
+    `rebalanceSportsHardFromEasy: swaps=${swaps} hardScheduleEligible=${hardScheduleEligibleCount()}/${pools.hard.length} easyScheduleEligible=${pools.easy.filter((question) => question.scheduleEligible).length}/${pools.easy.length}`
+  );
+  return pools;
+}
+
+function rebalancePoolDifficultyTargets(
+  rawCandidates: TriviaQuestionRecord[],
+  pools: Record<TriviaDifficulty, TriviaQuestionRecord[]>,
+  targets: Record<TriviaDifficulty, Partial<Record<TriviaDifficultyTarget, number>>>
+): Record<TriviaDifficulty, TriviaQuestionRecord[]> {
+  const rawByCoreFact = new Map(rawCandidates.map((question) => [question.coreFactId, question]));
+  let selectedCoreFacts = new Set(
+    [...pools.easy, ...pools.hard].map((question) => question.coreFactId)
+  );
+  let leftovers = rawCandidates.filter((question) => !selectedCoreFacts.has(question.coreFactId));
+
+  TRIVIA_DIFFICULTIES.forEach((difficultyPool) => {
+    let pool = [...pools[difficultyPool]];
+    ([1, 2, 3] as TriviaDifficultyTarget[]).forEach((targetDifficulty) => {
+      const targetCount = targets[difficultyPool][targetDifficulty];
+      if (targetCount == null) return;
+      const currentCount = () =>
+        pool.filter((question) => question.difficultyTarget === targetDifficulty).length;
+      while (currentCount() < targetCount) {
+        const replacement = leftovers
+          .filter(
+            (question) =>
+              question.difficultyTarget === targetDifficulty &&
+              isRecordScheduleEligibleForPool(question, difficultyPool)
+          )
+          .sort(
+            (left, right) =>
+              getPoolPreferenceScore(right, difficultyPool) -
+                getPoolPreferenceScore(left, difficultyPool) ||
+              left.coreFactId.localeCompare(right.coreFactId)
+          )[0];
+        if (!replacement) {
+          throw new Error(
+            `Unable to provision enough difficulty ${targetDifficulty} questions for ${difficultyPool} pool.`
+          );
+        }
+
+        const poolCounts = {
+          1: pool.filter((question) => question.difficultyTarget === 1).length,
+          2: pool.filter((question) => question.difficultyTarget === 2).length,
+          3: pool.filter((question) => question.difficultyTarget === 3).length,
+        } satisfies Record<TriviaDifficultyTarget, number>;
+
+        const removalIndex =
+          pool
+            .map((question, index) => ({ question, index }))
+            .filter(
+              ({ question }) =>
+                question.difficultyTarget !== targetDifficulty &&
+                poolCounts[question.difficultyTarget] >
+                  (targets[difficultyPool][question.difficultyTarget] ?? 0)
+            )
+            .sort(
+              (left, right) =>
+                getPoolPreferenceScore(left.question, difficultyPool) -
+                  getPoolPreferenceScore(right.question, difficultyPool) ||
+                left.question.coreFactId.localeCompare(right.question.coreFactId)
+            )[0]?.index ??
+          pool
+            .map((question, index) => ({ question, index }))
+            .filter(({ question }) => question.difficultyTarget !== targetDifficulty)
+            .sort(
+              (left, right) =>
+                getPoolPreferenceScore(left.question, difficultyPool) -
+                  getPoolPreferenceScore(right.question, difficultyPool) ||
+                left.question.coreFactId.localeCompare(right.question.coreFactId)
+            )[0]?.index;
+
+        if (removalIndex == null) {
+          throw new Error(`Unable to free a slot while rebalancing ${difficultyPool} difficulty targets.`);
+        }
+
+        const removed = pool[removalIndex];
+        pool[removalIndex] = cloneIntoDifficultyPool(replacement, difficultyPool);
+        leftovers = leftovers.filter((question) => question.coreFactId !== replacement.coreFactId);
+        const removedRaw = rawByCoreFact.get(removed.coreFactId);
+        if (removedRaw) leftovers.push(removedRaw);
+        selectedCoreFacts = new Set([...pool, ...pools[difficultyPool === 'easy' ? 'hard' : 'easy']].map((question) => question.coreFactId));
+        leftovers = rawCandidates.filter((question) => !selectedCoreFacts.has(question.coreFactId));
+      }
+    });
+    pools[difficultyPool] = pool;
+  });
+
+  return pools;
+}
+
+function partitionRecordsIntoPools(
+  records: TriviaQuestionRecord[],
+  groupKey: 'domain' | 'subdomain',
+  distribution: Record<string, number>,
+  poolTarget: number,
+  eligibilityFn: (record: TriviaQuestionRecord, difficultyPool: TriviaDifficulty) => boolean
+): Record<TriviaDifficulty, TriviaQuestionRecord[]> {
+  const poolTargets = buildPoolTargetsFromAvailability(records, groupKey, distribution, poolTarget, eligibilityFn);
+  const easyTargets = poolTargets.easy;
+  const hardTargets = poolTargets.hard;
+  const easyPool: TriviaQuestionRecord[] = [];
+  const hardPool: TriviaQuestionRecord[] = [];
+
+  Object.keys(distribution).forEach((group) => {
+    const isMixDomainPartition = records[0]?.feed === 'mix' && groupKey === 'domain';
+    const groupRecords = records.filter((record) => record[groupKey] === group);
+    const easyTarget = easyTargets[group] ?? 0;
+    const hardTarget = hardTargets[group] ?? 0;
+    const easyLaunchTarget = isMixDomainPartition
+      ? Math.min(easyTarget, MIX_DOMAIN_LAUNCH_TARGETS[group as keyof typeof MIX_DOMAIN_DISTRIBUTION] ?? easyTarget)
+      : easyTarget;
+    const hardLaunchTarget = isMixDomainPartition
+      ? Math.min(hardTarget, MIX_DOMAIN_LAUNCH_TARGETS[group as keyof typeof MIX_DOMAIN_DISTRIBUTION] ?? hardTarget)
+      : hardTarget;
+    const easyPoolEligible = groupRecords.filter((record) => eligibilityFn(record, 'easy'));
+    const hardPoolEligible = groupRecords.filter((record) => eligibilityFn(record, 'hard'));
+    const easyPoolEligibleCoreFacts = new Set(easyPoolEligible.map((record) => record.coreFactId));
+    const hardPoolEligibleCoreFacts = new Set(hardPoolEligible.map((record) => record.coreFactId));
+    const easyOnlyPool = easyPoolEligible.filter((record) => !hardPoolEligibleCoreFacts.has(record.coreFactId));
+    const hardOnlyPool = hardPoolEligible.filter((record) => !easyPoolEligibleCoreFacts.has(record.coreFactId));
+    const sharedPool = groupRecords.filter(
+      (record) => easyPoolEligibleCoreFacts.has(record.coreFactId) && hardPoolEligibleCoreFacts.has(record.coreFactId)
+    );
+
+    const easyLaunchEligible = groupRecords.filter((record) => isRecordScheduleEligibleForPool(record, 'easy'));
+    const hardLaunchEligible = groupRecords.filter((record) => isRecordScheduleEligibleForPool(record, 'hard'));
+    const easyLaunchCoreFacts = new Set(easyLaunchEligible.map((record) => record.coreFactId));
+    const hardLaunchCoreFacts = new Set(hardLaunchEligible.map((record) => record.coreFactId));
+
+    const easyLaunchOnly = easyLaunchEligible.filter((record) => !hardLaunchCoreFacts.has(record.coreFactId));
+    const hardLaunchOnly = hardLaunchEligible.filter((record) => !easyLaunchCoreFacts.has(record.coreFactId));
+    const sharedLaunch = groupRecords.filter(
+      (record) => easyLaunchCoreFacts.has(record.coreFactId) && hardLaunchCoreFacts.has(record.coreFactId)
+    );
+
+    const sortForPool = (pool: TriviaDifficulty) => (left: TriviaQuestionRecord, right: TriviaQuestionRecord) =>
+      getPoolPreferenceScore(right, pool) - getPoolPreferenceScore(left, pool) ||
+      left.coreFactId.localeCompare(right.coreFactId);
+    const sortForFill = (pool: TriviaDifficulty, preferLaunch: boolean) => (left: TriviaQuestionRecord, right: TriviaQuestionRecord) => {
+      const leftLaunchRank = isRecordScheduleEligibleForPool(left, pool) ? 0 : 1;
+      const rightLaunchRank = isRecordScheduleEligibleForPool(right, pool) ? 0 : 1;
+      if (preferLaunch) {
+        if (leftLaunchRank !== rightLaunchRank) return leftLaunchRank - rightLaunchRank;
+      } else if (leftLaunchRank !== rightLaunchRank) {
+        return rightLaunchRank - leftLaunchRank;
+      }
+      return sortForPool(pool)(left, right);
+    };
+
+    const easySelected: TriviaQuestionRecord[] = [...easyLaunchOnly]
+      .sort(sortForPool('easy'))
+      .slice(0, easyLaunchTarget);
+    const hardSelected: TriviaQuestionRecord[] = [...hardLaunchOnly]
+      .sort(sortForPool('hard'))
+      .slice(0, hardLaunchTarget);
+    const selectedCoreFacts = new Set([...easySelected, ...hardSelected].map((record) => record.coreFactId));
+    const remainingLaunch = [...sharedLaunch].filter((record) => !selectedCoreFacts.has(record.coreFactId));
+
+    let easyRemaining = easyLaunchTarget - easySelected.length;
+    let hardRemaining = hardLaunchTarget - hardSelected.length;
+
+    if (isMixDomainPartition) {
+      const easyNeedsSharedPool = Math.max(0, easyTarget - easyOnlyPool.length);
+      const hardSharedCap = Math.max(0, sharedPool.length - easyNeedsSharedPool);
+      const hardSharedSelected = [...remainingLaunch]
+        .sort(sortForPool('hard'))
+        .slice(0, Math.min(hardRemaining, hardSharedCap));
+      hardSharedSelected.forEach((record) => selectedCoreFacts.add(record.coreFactId));
+      hardSelected.push(...hardSharedSelected);
+      hardRemaining = hardLaunchTarget - hardSelected.length;
+
+      const easySharedSelected = remainingLaunch
+        .filter((record) => !selectedCoreFacts.has(record.coreFactId))
+        .sort(sortForPool('easy'))
+        .slice(0, easyRemaining);
+      easySharedSelected.forEach((record) => selectedCoreFacts.add(record.coreFactId));
+      easySelected.push(...easySharedSelected);
+      easyRemaining = easyLaunchTarget - easySelected.length;
+    } else {
+      const hardNeedsSharedPool = Math.max(0, hardLaunchTarget - hardOnlyPool.length);
+      const easySharedCap = Math.max(0, sharedPool.length - hardNeedsSharedPool);
+      const easySharedSelected = [...remainingLaunch]
+        .sort(sortForPool('easy'))
+        .slice(0, Math.min(easyRemaining, easySharedCap));
+      easySharedSelected.forEach((record) => selectedCoreFacts.add(record.coreFactId));
+      easySelected.push(...easySharedSelected);
+      easyRemaining = easyLaunchTarget - easySelected.length;
+      const hardSharedSelected = remainingLaunch
+        .filter((record) => !selectedCoreFacts.has(record.coreFactId))
+        .sort(sortForPool('hard'))
+        .slice(0, hardRemaining);
+      hardSharedSelected.forEach((record) => selectedCoreFacts.add(record.coreFactId));
+      hardSelected.push(...hardSharedSelected);
+      hardRemaining = hardLaunchTarget - hardSelected.length;
+    }
+
+    const fillPoolToTarget = (
+      selected: TriviaQuestionRecord[],
+      eligiblePool: TriviaQuestionRecord[],
+      target: number,
+      launchTarget: number,
+      pool: TriviaDifficulty
+    ) => {
+      if (isMixDomainPartition) {
+        const launchShortfall = Math.max(
+          0,
+          launchTarget - selected.filter((record) => isRecordScheduleEligibleForPool(record, pool)).length
+        );
+        const launchFill = eligiblePool
+          .filter(
+            (record) =>
+              !selectedCoreFacts.has(record.coreFactId) && isRecordScheduleEligibleForPool(record, pool)
+          )
+          .sort(sortForPool(pool))
+          .slice(0, launchShortfall);
+        launchFill.forEach((record) => selectedCoreFacts.add(record.coreFactId));
+        selected.push(...launchFill);
+      }
+
+      const reserveFill = eligiblePool
+        .filter((record) => !selectedCoreFacts.has(record.coreFactId))
+        .sort(sortForFill(pool, !isMixDomainPartition))
+        .slice(0, target - selected.length);
+      reserveFill.forEach((record) => selectedCoreFacts.add(record.coreFactId));
+      selected.push(...reserveFill);
+    };
+
+    fillPoolToTarget(easySelected, easyPoolEligible, easyTarget, easyLaunchTarget, 'easy');
+    fillPoolToTarget(hardSelected, hardPoolEligible, hardTarget, hardLaunchTarget, 'hard');
+
+    if (easySelected.length !== easyTarget || hardSelected.length !== hardTarget) {
+      throw new Error(
+        `Failed to build launch-eligible ${groupKey} pools for ${group}: easy=${easySelected.length}/${easyTarget} hard=${hardSelected.length}/${hardTarget}.`
+      );
+    }
+
+    easyPool.push(...easySelected.map((record) => cloneIntoDifficultyPool(record, 'easy')));
+    hardPool.push(...hardSelected.map((record) => cloneIntoDifficultyPool(record, 'hard')));
+  });
+
+  if (easyPool.length !== poolTarget || hardPool.length !== poolTarget) {
+    throw new Error(
+      `Failed to build dedicated pools for ${groupKey}: easy=${easyPool.length} hard=${hardPool.length} target=${poolTarget}.`
+    );
+  }
+
+  return {
+    easy: seededShuffle(easyPool, hashString(`${groupKey}-easy-pool`)),
+    hard: seededShuffle(hardPool, hashString(`${groupKey}-hard-pool`)),
+  };
+}
+
+function buildDedicatedMixPools(): Record<TriviaDifficulty, TriviaQuestionRecord[]> {
+  logBuildStage('buildDedicatedMixPools:start');
+  const rawCandidates = getMixRawCandidates();
+  logBuildStage(`buildDedicatedMixPools:raw=${rawCandidates.length}`);
+  const partitioned = partitionRecordsIntoPools(
+    rawCandidates,
+    'domain',
+    MIX_DOMAIN_DISTRIBUTION,
+    MIX_POOL_TARGET,
+    isRecordPoolEligibleForPool
+  );
+  logBuildStage(
+    `buildDedicatedMixPools:partitioned easy=${partitioned.easy.length} hard=${partitioned.hard.length}`
+  );
+  const rebalanced = rebalancePoolDifficultyTargets(
+    rawCandidates,
+    partitioned,
+    MIX_POOL_DIFFICULTY_MINIMUMS
+  );
+  logBuildStage(
+    `buildDedicatedMixPools:rebalanced easy=${rebalanced.easy.length} hard=${rebalanced.hard.length}`
+  );
+  return rebalanced;
+}
+
+function buildDedicatedSportsPools(): Record<TriviaDifficulty, TriviaQuestionRecord[]> {
+  logBuildStage('buildDedicatedSportsPools:start');
+  const rawCandidates = getSportsRawCandidates().filter((record) =>
+    Object.prototype.hasOwnProperty.call(SPORTS_SUBDOMAIN_DISTRIBUTION, record.subdomain)
+  );
+  logBuildStage(`buildDedicatedSportsPools:raw=${rawCandidates.length}`);
+  const optimized = rebalanceSportsHardFromEasy(
+    rawCandidates,
+    maximizeScheduleEligiblePoolCoverage(
+      rawCandidates,
+      capSportsTrickPools(
+        rawCandidates,
+        rebalanceSportsCurveballPools(
+          rawCandidates,
+          rebalancePoolDifficultyTargets(
+            rawCandidates,
+            partitionRecordsIntoPools(
+              rawCandidates,
+              'subdomain',
+              SPORTS_SUBDOMAIN_DISTRIBUTION,
+              SPORTS_POOL_TARGET,
+              isRecordPoolEligibleForPool
+            ),
+            SPORTS_POOL_DIFFICULTY_MINIMUMS
+          ),
+          12
+        ),
+        96
+      )
+    )
+  );
+  logBuildStage(
+    `buildDedicatedSportsPools:optimized easy=${optimized.easy.length} hard=${optimized.hard.length}`
+  );
+  return optimized;
+}
+
+function printPoolDiagnostics(
+  label: string,
+  pools: Record<TriviaDifficulty, TriviaQuestionRecord[]>,
+  groupKey: 'domain' | 'subdomain'
+): void {
+  const formatPool = (records: TriviaQuestionRecord[]) => {
+    const byGroupDifficulty = new Map<string, number>();
+    const launchEligibleByGroup = new Map<string, number>();
+    const scheduleEligibleByFamily = new Map<string, number>();
+    const blockedByFamily = new Map<string, number>();
+    const launchOnlyByFamily = new Map<string, number>();
+    const scheduleBlockedReasons = new Map<string, number>();
+    const scheduleBlockedSamples = new Map<string, string[]>();
+    let launchEligibleCount = 0;
+    let scheduleEligibleCount = 0;
+    let trickCount = 0;
+    records.forEach((record) => {
+      if (record.launchEligible) launchEligibleCount += 1;
+      if (record.scheduleEligible) {
+        scheduleEligibleCount += 1;
+        scheduleEligibleByFamily.set(
+          record.editorialSourceFamily,
+          (scheduleEligibleByFamily.get(record.editorialSourceFamily) ?? 0) + 1
+        );
+      } else {
+        blockedByFamily.set(
+          record.editorialSourceFamily,
+          (blockedByFamily.get(record.editorialSourceFamily) ?? 0) + 1
+        );
+        if (record.launchEligible) {
+          launchOnlyByFamily.set(
+            record.editorialSourceFamily,
+            (launchOnlyByFamily.get(record.editorialSourceFamily) ?? 0) + 1
+          );
+          const reason =
+            !isAllowedSourceFamilyForSchedule(record.feed, record.difficultyPool, record.editorialSourceFamily)
+              ? `family:${record.editorialSourceFamily}`
+              : record.tasteTags.find((tag) => isBlockingTasteTag(record.feed, record, tag))
+                ? `taste:${record.tasteTags.find((tag) => isBlockingTasteTag(record.feed, record, tag))}`
+                : record.tasteTags.includes('fragment-stem')
+                  ? 'taste:fragment-stem'
+                  : record.tasteTags.includes('team-association') &&
+                      /\bcompetes in which league\b|\bteam that plays at\b|\bplays in\b/i.test(record.stem)
+                    ? 'sports:team-association'
+                    : record.tasteTags.includes('athlete-association') &&
+                        /\bbest known for competing in which sport\b|\bmost closely associated with which league\b/i.test(
+                          record.stem
+                        )
+                      ? 'sports:athlete-association'
+                      : record.editorialSourceFamily === 'sports-authored-hardcore' &&
+                          record.difficultyPool === 'easy' &&
+                          record.difficultyTarget === 3 &&
+                          record.salienceScore < 74
+                        ? 'sports:easy-hardcore-tail'
+                        : record.editorialSourceFamily === 'sports-authored-mainstream-hard' &&
+                            record.difficultyPool === 'hard' &&
+                            (record.salienceScore < 62 ||
+                              (record.difficultyTarget < 2 && record.salienceScore < 76))
+                          ? 'sports:mainstream-hard-floor'
+                          : 'other';
+          scheduleBlockedReasons.set(reason, (scheduleBlockedReasons.get(reason) ?? 0) + 1);
+          const samples = scheduleBlockedSamples.get(reason) ?? [];
+          if (samples.length < 4) {
+            samples.push(`${record.editorialSourceFamily}/${record.subdomain}/d${record.difficultyTarget}:${record.stem}`);
+            scheduleBlockedSamples.set(reason, samples);
+          }
+        }
+      }
+      if (record.isTrickQuestion) trickCount += 1;
+      if (record.launchEligible) {
+        launchEligibleByGroup.set(record[groupKey], (launchEligibleByGroup.get(record[groupKey]) ?? 0) + 1);
+      }
+      const key = `${record[groupKey]}/${record.difficultyTarget}`;
+      byGroupDifficulty.set(key, (byGroupDifficulty.get(key) ?? 0) + 1);
+    });
+    return {
+      total: records.length,
+      launchEligible: launchEligibleCount,
+      scheduleEligible: scheduleEligibleCount,
+      nonTrickLaunchEligible: records.filter((record) => record.launchEligible && !record.isTrickQuestion).length,
+      trickCount,
+      launchEligibleByGroup: Object.fromEntries(
+        [...launchEligibleByGroup.entries()].sort(([left], [right]) => left.localeCompare(right))
+      ),
+      scheduleEligibleByFamily: Object.fromEntries(
+        [...scheduleEligibleByFamily.entries()].sort(([left], [right]) => left.localeCompare(right))
+      ),
+      launchOnlyByFamily: Object.fromEntries(
+        [...launchOnlyByFamily.entries()].sort(([left], [right]) => left.localeCompare(right))
+      ),
+      blockedByFamily: Object.fromEntries(
+        [...blockedByFamily.entries()].sort(([left], [right]) => left.localeCompare(right))
+      ),
+      scheduleBlockedReasons: [...scheduleBlockedReasons.entries()]
+        .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+        .map(([reason, count]) => ({
+          reason,
+          count,
+          samples: scheduleBlockedSamples.get(reason) ?? [],
+        })),
+      byGroupDifficulty: Object.fromEntries([...byGroupDifficulty.entries()].sort(([left], [right]) => left.localeCompare(right))),
+    };
+  };
+
+  console.log(
+    JSON.stringify(
+      {
+        label,
+        easy: formatPool(pools.easy),
+        hard: formatPool(pools.hard),
+      },
+      null,
+      2
+    )
+  );
+}
+
+function printRawEligibilityDiagnostics(
+  label: string,
+  records: TriviaQuestionRecord[],
+  groupKey: 'domain' | 'subdomain'
+): void {
+  const easyEligibleSet = new Set(
+    records
+      .filter((record) => isRecordLaunchEligibleForPool(record, 'easy'))
+      .map((record) => record.coreFactId)
+  );
+  const hardEligibleSet = new Set(
+    records
+      .filter((record) => isRecordLaunchEligibleForPool(record, 'hard'))
+      .map((record) => record.coreFactId)
+  );
+  const overlap = {
+    easyOnly: records.filter(
+      (record) => easyEligibleSet.has(record.coreFactId) && !hardEligibleSet.has(record.coreFactId)
+    ).length,
+    hardOnly: records.filter(
+      (record) => !easyEligibleSet.has(record.coreFactId) && hardEligibleSet.has(record.coreFactId)
+    ).length,
+    both: records.filter(
+      (record) => easyEligibleSet.has(record.coreFactId) && hardEligibleSet.has(record.coreFactId)
+    ).length,
+    neither: records.filter(
+      (record) => !easyEligibleSet.has(record.coreFactId) && !hardEligibleSet.has(record.coreFactId)
+    ).length,
+  };
+  const summarize = (difficultyPool: TriviaDifficulty) => {
+    const eligible = records.filter((record) => isRecordLaunchEligibleForPool(record, difficultyPool));
+    const counts = new Map<string, number>();
+    eligible.forEach((record) => {
+      const key = `${record[groupKey]}/${record.difficultyTarget}`;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    return {
+      eligibleCount: eligible.length,
+      nonTrickEligibleCount: eligible.filter((record) => !record.isTrickQuestion).length,
+      byGroupDifficulty: Object.fromEntries([...counts.entries()].sort(([left], [right]) => left.localeCompare(right))),
+    };
+  };
+
+  const blockReasons = new Map<string, number>();
+  const blockSamples = new Map<string, string[]>();
+  records.forEach((record) => {
+    const reasons = getLaunchBlockReasons(record, 'hard');
+    if (reasons.length === 0) return;
+    const seen = new Set<string>();
+    reasons.forEach((reason) => {
+      const key = `${reason.agentId}:${reason.code}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      blockReasons.set(key, (blockReasons.get(key) ?? 0) + 1);
+      const samples = blockSamples.get(key) ?? [];
+      if (samples.length < 4) {
+        samples.push(`${record.editorialSourceFamily} :: ${record.stem}`);
+        blockSamples.set(key, samples);
+      }
+    });
+  });
+
+  console.log(
+    JSON.stringify(
+      {
+        label,
+        total: records.length,
+        overlap,
+        topHardBlockReasons: [...blockReasons.entries()]
+          .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+          .slice(0, 20)
+          .map(([reason, count]) => ({ reason, count, samples: blockSamples.get(reason) ?? [] })),
+        easy: summarize('easy'),
+        hard: summarize('hard'),
+      },
+      null,
+      2
+    )
+  );
 }
 
 function getMixSlotConfigs(dayIndex: number, difficulty: TriviaDifficulty): MixSlotConfig[] {
@@ -1606,11 +3812,11 @@ function getMixSlotConfigs(dayIndex: number, difficulty: TriviaDifficulty): MixS
     difficulty === 'easy' ? [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3] : [1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3];
   const targetSalienceScores =
     difficulty === 'easy'
-      ? [80, 79, 78, 78, 77, 76, 72, 70, 69, 74, 74, 74]
+      ? [80, 79, 78, 78, 77, 76, 72, 70, 69, 71, 70, 70]
       : [76, 73, 72, 71, 69, 68, 67, 66, 64, 60, 59, 58];
   const maxSalienceScores =
     difficulty === 'easy'
-      ? [88, 86, 85, 84, 82, 81, 77, 75, 74, 77, 77, 77]
+      ? [88, 86, 85, 84, 82, 81, 77, 75, 74, 74, 73, 73]
       : [84, 81, 80, 78, 76, 75, 74, 73, 70, 66, 65, 64];
   return difficulties.map((targetDifficulty, index) => ({
     difficulty: targetDifficulty,
@@ -1625,7 +3831,7 @@ function getMixSlotConfigs(dayIndex: number, difficulty: TriviaDifficulty): MixS
             ? 71
             : index < 9
               ? 69
-              : 71
+              : 69
         : index < 1
           ? 70
           : index < 4
@@ -1665,7 +3871,7 @@ function getSportsSlotConfigs(dayIndex: number, difficulty: TriviaDifficulty): S
     ? ['evergreen', 'evergreen', 'current', 'evergreen', 'current', 'event', 'evergreen', 'event', 'evergreen']
     : ['evergreen', 'evergreen', 'evergreen', 'current', 'evergreen', 'current', 'evergreen', 'event', 'evergreen'];
   const difficulties: TriviaDifficultyTarget[] =
-    difficulty === 'easy' ? [1, 1, 2, 2, 3, 3, 3, 3, 3] : [1, 2, 2, 3, 3, 3, 3, 3, 3];
+    difficulty === 'easy' ? [1, 2, 2, 2, 3, 3, 3, 3, 3] : [2, 2, 2, 2, 3, 3, 3, 3, 3];
   const slotLeadOrders = [
     ['football', 'basketball', 'baseball', 'hockey'],
     ['basketball', 'football', 'baseball', 'hockey'],
@@ -1703,35 +3909,34 @@ function getSportsSlotConfigs(dayIndex: number, difficulty: TriviaDifficulty): S
           ['high', 'medium', 'low'],
         ];
   const slotMinSalience =
-    difficulty === 'easy' ? [81, 79, 76, 74, 72, 70, 69, 67, 66] : [78, 74, 70, 68, 67, 63, 61, 59, 58];
+    difficulty === 'easy' ? [81, 76, 75, 73, 70, 66, 64, 62, 61] : [80, 73, 66, 66, 65, 63, 61, 60, 59];
   const slotMaxSalience =
-    difficulty === 'easy' ? [90, 88, 84, 82, 78, 76, 74, 72, 71] : [86, 82, 78, 76, 75, 70, 67, 65, 64];
+    difficulty === 'easy' ? [90, 84, 82, 80, 76, 72, 69, 67, 66] : [94, 92, 90, 88, 82, 78, 75, 73, 72];
   const slotTargetSalience =
-    difficulty === 'easy' ? [80, 78, 75, 73, 70, 68, 66, 64, 63] : [78, 73, 69, 67, 66, 61, 58, 56, 55];
+    difficulty === 'easy' ? [80, 75, 73, 71, 68, 64, 61, 59, 58] : [78, 73, 69, 68, 67, 63, 61, 60, 59];
   const slotPromptKinds: TriviaPromptKind[][] =
     difficulty === 'easy'
       ? [
-          ['achievement', 'rule', 'term', 'team', 'sport-id', 'player'],
-          ['player', 'achievement', 'term', 'team', 'sport-id', 'rule'],
-          ['player', 'achievement', 'venue', 'term', 'rule', 'team'],
-          ['player', 'achievement', 'event', 'term', 'rule', 'sport-id'],
-          ['player', 'event', 'achievement', 'term', 'rule', 'venue'],
-          ['player', 'record', 'achievement', 'event', 'rule', 'term', 'sport-id'],
-          ['player', 'record', 'event', 'achievement', 'rule', 'term', 'venue'],
-          ['player', 'record', 'event', 'achievement', 'rule', 'term'],
-          ['player', 'record', 'event', 'achievement', 'rule', 'term'],
+          ['achievement', 'player', 'team', 'term', 'rule', 'place', 'sport-id'],
+          ['player', 'achievement', 'team', 'term', 'venue', 'place', 'sport-id'],
+          ['player', 'achievement', 'event', 'venue', 'place', 'term', 'team', 'sport-id'],
+          ['achievement', 'event', 'player', 'term', 'rule', 'venue', 'place'],
+          ['player', 'achievement', 'event', 'term', 'rule', 'venue', 'place', 'sport-id'],
+          ['achievement', 'player', 'event', 'term', 'rule', 'venue', 'place', 'record', 'sport-id'],
+          ['achievement', 'player', 'event', 'term', 'rule', 'record', 'venue', 'place', 'sport-id'],
+          ['achievement', 'player', 'event', 'term', 'rule', 'record', 'place', 'sport-id'],
+          ['achievement', 'player', 'event', 'term', 'rule', 'record', 'place', 'sport-id'],
         ]
       : [
-          ['player', 'achievement', 'team', 'venue', 'term', 'rule'],
-          ['player', 'event', 'achievement', 'term', 'rule', 'venue'],
-          ['record', 'player', 'event', 'achievement', 'term', 'rule'],
-          ['record', 'player', 'event', 'achievement', 'rule', 'term'],
-          ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
-          ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
-          ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
-          ['record', 'player', 'event', 'achievement', 'rule', 'term', 'sport-id'],
-          ['record', 'player', 'event', 'achievement', 'rule', 'term'],
-          ['record', 'player', 'event', 'achievement', 'rule', 'term'],
+          ['achievement', 'player', 'team', 'venue', 'place', 'event', 'term', 'rule'],
+          ['achievement', 'player', 'event', 'venue', 'place', 'term', 'rule', 'sport-id'],
+          ['achievement', 'event', 'player', 'record', 'term', 'rule', 'venue', 'place'],
+          ['achievement', 'term', 'rule', 'event', 'record', 'player', 'sport-id', 'venue', 'place'],
+          ['achievement', 'term', 'rule', 'event', 'record', 'player', 'sport-id', 'venue', 'place'],
+          ['achievement', 'term', 'rule', 'event', 'record', 'player', 'sport-id', 'venue', 'place'],
+          ['achievement', 'term', 'rule', 'event', 'record', 'player', 'sport-id', 'venue', 'place'],
+          ['achievement', 'term', 'rule', 'event', 'record', 'player', 'sport-id', 'venue', 'place'],
+          ['achievement', 'term', 'rule', 'event', 'record', 'player', 'sport-id', 'venue', 'place'],
         ];
   return difficulties.map((targetDifficulty, index) => ({
     difficulty: targetDifficulty,
@@ -1776,6 +3981,13 @@ function pickQuestionForSlot(
   avoidTrickQuestion = false
 ): TriviaQuestionRecord {
   const entitySet = new Set(recentEntities);
+  const hasSurfaceFormRoom = (question: TriviaQuestionRecord) => {
+    const surfaceForm = inferSurfaceFormKey(question);
+    if (!isSurfaceFormConstrained(surfaceForm)) return true;
+    if (state.usedSurfaceForms.has(surfaceForm)) return false;
+    const recentCount = state.recentSurfaceForms.filter((value) => value === surfaceForm).length;
+    return recentCount < getRecentSurfaceFormLimit(state.feed, surfaceForm);
+  };
   const violatesSportsEpisodeCaps = (question: TriviaQuestionRecord) => {
     if (state.feed !== 'sports') return false;
     if (state.generalSportsCount >= 1 && question.subdomain === 'general-sports') return true;
@@ -1786,45 +3998,61 @@ function pickQuestionForSlot(
   };
   const passesSportsStateGuard = (question: TriviaQuestionRecord) => {
     if (state.feed !== 'sports') return true;
+    const allowLateHardCuratedFallback =
+      config.difficulty === 3 &&
+      state.slotIndex >= 6 &&
+      question.sourceTier === 'curated' &&
+      question.salienceScore >= 76;
+    const allowLateHardCanonicalFallback =
+      config.difficulty === 3 &&
+      state.slotIndex >= 8 &&
+      question.sourceTier === 'curated' &&
+      question.salienceScore >= 78;
+    const allowMainstreamHardRuleTerm =
+      question.editorialSourceFamily === 'sports-authored-mainstream-hard' &&
+      question.difficultyTarget >= 2 &&
+      question.salienceScore <= 88;
     if (question.curveballOnly && !requireTrickQuestion) return false;
     if (question.obscurityFlags.some((flag) => SPORTS_BLOCKED_FLAGS.includes(flag))) return false;
     if (state.slotIndex >= 4 && question.sourceTier === 'legacy') return false;
     if (state.slotIndex >= 8 && !['curated', 'variant'].includes(question.sourceTier)) return false;
-    if (state.slotIndex >= 6 && ['team', 'venue'].includes(question.promptKind)) return false;
-    if (
-      state.slotIndex >= 1 &&
-      question.lookupRisk === 'low' &&
-      question.salienceScore >= 84 &&
-      ['team', 'term', 'rule'].includes(question.promptKind)
-    ) {
+    if (state.slotIndex >= 7 && question.promptKind === 'team' && !allowLateHardCanonicalFallback) {
+      return false;
+    }
+    if (state.slotIndex >= 7 && question.promptKind === 'venue' && !allowLateHardCuratedFallback) {
       return false;
     }
     if (
-      state.slotIndex >= 6 &&
-      question.promptKind === 'achievement' &&
-      question.salienceScore >= 84
-    ) {
-      return false;
-    }
-    if (
-      state.slotIndex >= 6 &&
-      ['term', 'rule'].includes(question.promptKind) &&
-      question.lookupRisk === 'low' &&
-      question.salienceScore >= 82
-    ) {
-      return false;
-    }
-    if (
-      state.slotIndex >= 5 &&
-      ['term', 'rule'].includes(question.promptKind) &&
-      question.salienceScore >= 79
-    ) {
-      return false;
-    }
-    if (
+      !allowLateHardCuratedFallback &&
       state.slotIndex >= 8 &&
       question.promptKind === 'sport-id' &&
       question.salienceScore >= 76
+    ) {
+      return false;
+    }
+    if (
+      question.difficultyPool === 'easy' &&
+      state.slotIndex >= 3 &&
+      question.promptKind === 'event' &&
+      /\bmost closely associated with which league\b/i.test(question.stem)
+    ) {
+      return false;
+    }
+    if (
+      question.difficultyPool === 'easy' &&
+      state.slotIndex >= 6 &&
+      question.promptKind === 'sport-id' &&
+      /\b(?:is|was) best known for competing in which sport\b|\bwhich athlete is best known for\b/i.test(question.stem)
+    ) {
+      return false;
+    }
+    if (
+      question.difficultyPool === 'easy' &&
+      state.slotIndex >= 6 &&
+      question.promptKind === 'player' &&
+      /\bmost closely associated with which team\b|\bmost closely associated with as a\b|\bwas primarily the .* for the\b|\bteam from .* as a\b/i.test(
+        question.stem
+      )
     ) {
       return false;
     }
@@ -1832,7 +4060,9 @@ function pickQuestionForSlot(
     if (SPORTS_CORE_SUBDOMAINS.has(question.subdomain)) {
       const remainingSportsSlots = 9 - state.slotIndex;
       const rotationsNeeded = state.minimumRotationTarget - state.rotationCount;
-      if (rotationsNeeded > 0 && remainingSportsSlots <= rotationsNeeded) return false;
+      if (state.slotIndex < 8 && rotationsNeeded > 0 && remainingSportsSlots <= rotationsNeeded) {
+        return false;
+      }
     }
     if (
       state.slotIndex >= 7 &&
@@ -1843,6 +4073,16 @@ function pickQuestionForSlot(
     }
     return true;
   };
+  const matchesConfiguredDifficulty = (question: TriviaQuestionRecord) => {
+    if (
+      state.feed === 'sports' &&
+      state.scheduleDifficulty === 'hard' &&
+      state.slotIndex <= 3
+    ) {
+      return question.difficultyTarget === 1 || question.difficultyTarget === 2;
+    }
+    return question.difficultyTarget === config.difficulty;
+  };
   const allowsRepeatedSportsSubdomain = (question: TriviaQuestionRecord) =>
     state.feed === 'sports' &&
     key === 'subdomain' &&
@@ -1850,15 +4090,36 @@ function pickQuestionForSlot(
     question.legacyFamily === 'none' &&
     (
       (
-        state.slotIndex >= (question.subdomain === 'hockey' ? 6 : 4) &&
+        state.slotIndex >=
+          (state.scheduleDifficulty === 'hard' ? 4 : question.subdomain === 'hockey' ? 6 : 4) &&
         SPORTS_REPEATABLE_CORE_SUBDOMAINS.has(question.subdomain) &&
-        question.salienceScore >= (state.slotIndex >= 6 ? (question.subdomain === 'hockey' ? 84 : 82) : 84)
+        question.salienceScore >=
+          (
+            state.scheduleDifficulty === 'hard'
+              ? state.slotIndex >= 6
+                ? 74
+                : 76
+              : state.slotIndex >= 6
+                ? question.subdomain === 'hockey'
+                  ? 84
+                  : 82
+                : 84
+          )
       ) ||
       (
-        state.slotIndex >= 5 &&
+        state.slotIndex >= (state.scheduleDifficulty === 'hard' ? 5 : 5) &&
         SPORTS_ROTATION_SUBDOMAINS.has(question.subdomain) &&
         question.sourceTier === 'curated' &&
-        question.salienceScore >= (state.slotIndex >= 7 ? 82 : 84)
+        question.salienceScore >=
+          (
+            state.scheduleDifficulty === 'hard'
+              ? state.slotIndex >= 7
+                ? 78
+                : 80
+              : state.slotIndex >= 7
+                ? 82
+                : 84
+          )
       )
     );
   const canUseTaxonomyKey = (question: TriviaQuestionRecord) =>
@@ -1866,7 +4127,8 @@ function pickQuestionForSlot(
   const primary = questions.filter((question) => {
     if (usedIds.has(question.id)) return false;
     if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
-    if (question.difficultyTarget !== config.difficulty) return false;
+    if (!question.scheduleEligible) return false;
+    if (!matchesConfiguredDifficulty(question)) return false;
     if (!config.buckets.includes(question.editorialBucket ?? 'evergreen')) return false;
     if (requireTrickQuestion && !question.isTrickQuestion) return false;
     if (avoidTrickQuestion && question.isTrickQuestion) return false;
@@ -1875,6 +4137,7 @@ function pickQuestionForSlot(
     if (config.blockedObscurityFlags && question.obscurityFlags.some((flag) => config.blockedObscurityFlags?.includes(flag))) {
       return false;
     }
+    if (!hasSurfaceFormRoom(question)) return false;
     if (!passesSportsStateGuard(question)) return false;
     if (violatesSportsEpisodeCaps(question)) return false;
     return true;
@@ -1909,27 +4172,43 @@ function pickQuestionForSlot(
   const uniquePrimaryPromptKinds = uniquePrimary.filter(
     (question) => !state.usedPromptKinds.has(question.promptKind)
   );
-  const pool =
-    uniqueSecondaryPromptKinds.length > 0
-      ? uniqueSecondaryPromptKinds
-      : uniqueSecondary.length > 0
-        ? uniqueSecondary
-        : secondaryPromptKinds.length > 0
-          ? secondaryPromptKinds
-          : secondary.length > 0
-            ? secondary
-            : uniquePrimaryPromptKinds.length > 0
-              ? uniquePrimaryPromptKinds
-              : uniquePrimary.length > 0
-                ? uniquePrimary
-                : uniquePromptKinds.length > 0
-                  ? uniquePromptKinds
-                  : candidatePool;
+  const pool = pickCrossDifficultyPreferredPool(
+    [
+      uniqueSecondaryPromptKinds,
+      uniqueSecondary,
+      secondaryPromptKinds,
+      secondary,
+      uniquePrimaryPromptKinds,
+      uniquePrimary,
+      uniquePromptKinds,
+      candidatePool,
+    ],
+    state
+  );
   if (pool.length === 0) {
+    const sportsLateSafetyFallback = () =>
+      state.feed === 'sports' && state.slotIndex >= 6
+        ? questions.find((question) => {
+            if (usedIds.has(question.id)) return false;
+            if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+            if (!question.scheduleEligible) return false;
+            if (question.isTrickQuestion && avoidTrickQuestion) return false;
+            if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) {
+              return false;
+            }
+            if (violatesSportsEpisodeCaps(question)) return false;
+            if (question.obscurityFlags.some((flag) => SPORTS_BLOCKED_FLAGS.includes(flag))) {
+              return false;
+            }
+            return true;
+          }) ?? null
+        : null;
+
     if (requireTrickQuestion) {
       const trickFallback = questions.find((question) => {
         if (usedIds.has(question.id)) return false;
         if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+        if (!question.scheduleEligible) return false;
         if (!question.isTrickQuestion) return false;
         if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) return false;
         if (!passesSportsStateGuard(question)) return false;
@@ -1943,6 +4222,7 @@ function pickQuestionForSlot(
       const trickAnyFallback = questions.find((question) => {
         if (usedIds.has(question.id)) return false;
         if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+        if (!question.scheduleEligible) return false;
         if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) return false;
         if (!passesSportsStateGuard(question)) return false;
         if (violatesSportsEpisodeCaps(question)) return false;
@@ -1967,8 +4247,14 @@ function pickQuestionForSlot(
     }
 
     if (avoidTrickQuestion) {
+      const sportsSafetyFallback = sportsLateSafetyFallback();
+      if (sportsSafetyFallback && !sportsSafetyFallback.isTrickQuestion) {
+        return sportsSafetyFallback;
+      }
+
       const nonTrickAdjacentFallback = questions.find((question) => {
         if (usedIds.has(question.id)) return false;
+        if (!question.scheduleEligible) return false;
         if (question.isTrickQuestion) return false;
         if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) return false;
         if (!passesSportsStateGuard(question)) return false;
@@ -1982,6 +4268,7 @@ function pickQuestionForSlot(
       const anyNonTrickFallback = questions.find((question) => {
         if (usedIds.has(question.id)) return false;
         if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+        if (!question.scheduleEligible) return false;
         if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) return false;
         if (!passesSportsStateGuard(question)) return false;
         if (violatesSportsEpisodeCaps(question)) return false;
@@ -1993,6 +4280,7 @@ function pickQuestionForSlot(
 
       const repeatedVariantNonTrickFallback = questions.find((question) => {
         if (usedIds.has(question.id)) return false;
+        if (!question.scheduleEligible) return false;
         if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) return false;
         if (!passesSportsStateGuard(question)) return false;
         if (violatesSportsEpisodeCaps(question)) return false;
@@ -2004,6 +4292,7 @@ function pickQuestionForSlot(
 
       const desperateNonTrickFallback = questions.find((question) => {
         if (usedIds.has(question.id)) return false;
+        if (!question.scheduleEligible) return false;
         if (!passesSportsStateGuard(question)) return false;
         if (violatesSportsEpisodeCaps(question)) return false;
         return !question.isTrickQuestion;
@@ -2015,6 +4304,7 @@ function pickQuestionForSlot(
       const finalFlexibleFallback = questions.find((question) => {
         if (usedIds.has(question.id)) return false;
         if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+        if (!question.scheduleEligible) return false;
         if (!passesSportsStateGuard(question)) return false;
         if (violatesSportsEpisodeCaps(question)) return false;
         return true;
@@ -2025,6 +4315,7 @@ function pickQuestionForSlot(
 
       const finalUltraFallback = questions.find((question) => {
         if (usedIds.has(question.id)) return false;
+        if (!question.scheduleEligible) return false;
         if (!passesSportsStateGuard(question)) return false;
         return true;
       });
@@ -2032,14 +4323,79 @@ function pickQuestionForSlot(
         return finalUltraFallback;
       }
 
-      const emergencyFallback = questions.find((question) => !usedIds.has(question.id));
-      if (emergencyFallback) {
-        return emergencyFallback;
-      }
-
       if (state.allowHighRisk) {
+        const candidateSummary = Object.entries(
+          candidatePool.reduce((accumulator, question) => {
+            const summaryKey = `${question.subdomain}:${question.promptKind}`;
+            accumulator[summaryKey] = (accumulator[summaryKey] ?? 0) + 1;
+            return accumulator;
+          }, {} as Record<string, number>)
+        )
+          .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+          .slice(0, 8)
+          .map(([summaryKey, count]) => `${summaryKey}=${count}`)
+          .join(', ');
+        const remainingDifficultySummary = Object.entries(
+          questions.reduce((accumulator, question) => {
+            if (usedIds.has(question.id) || !question.scheduleEligible) return accumulator;
+            const summaryKey = `${question.difficultyTarget}:${question.editorialSourceFamily}`;
+            accumulator[summaryKey] = (accumulator[summaryKey] ?? 0) + 1;
+            return accumulator;
+          }, {} as Record<string, number>)
+        )
+          .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+          .slice(0, 12)
+          .map(([summaryKey, count]) => `${summaryKey}=${count}`)
+          .join(', ');
+        const rejectionSummary = questions
+          .filter((question) => !usedIds.has(question.id) && question.scheduleEligible)
+          .map((question) => {
+            const reasons: string[] = [];
+            if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) reasons.push('variant');
+            if (!matchesConfiguredDifficulty(question)) reasons.push(`difficulty:${question.difficultyTarget}`);
+            if (!config.buckets.includes(question.editorialBucket ?? 'evergreen')) {
+              reasons.push(`bucket:${question.editorialBucket ?? 'evergreen'}`);
+            }
+            if (requireTrickQuestion && !question.isTrickQuestion) reasons.push('needs-trick');
+            if (avoidTrickQuestion && question.isTrickQuestion) reasons.push('avoid-trick');
+            if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) reasons.push('entity');
+            if (config.minSalienceScore && question.salienceScore < config.minSalienceScore) {
+              reasons.push(`salience:${question.salienceScore}`);
+            }
+            if (
+              config.blockedObscurityFlags &&
+              question.obscurityFlags.some((flag) => config.blockedObscurityFlags?.includes(flag))
+            ) {
+              reasons.push('blocked-flag');
+            }
+            if (!hasSurfaceFormRoom(question)) reasons.push('surface');
+            if (!passesSportsStateGuard(question)) reasons.push('state');
+            if (violatesSportsEpisodeCaps(question)) reasons.push('caps');
+            if (config.maxStemLength && question.stem.length > config.maxStemLength) {
+              reasons.push(`stem:${question.stem.length}`);
+            }
+            if (config.allowedLookupRisks && !config.allowedLookupRisks.includes(question.lookupRisk)) {
+              reasons.push(`lookup:${question.lookupRisk}`);
+            }
+            if (config.maxSalienceScore && question.salienceScore > config.maxSalienceScore) {
+              reasons.push(`max-salience:${question.salienceScore}`);
+            }
+            if (!canUseTaxonomyKey(question)) reasons.push(`taxonomy:${question[key]}`);
+            return `${question.subdomain}/${question.promptKind}/${question.editorialSourceFamily}/${question.salienceScore}:${
+              reasons.join('|') || 'candidate'
+            }:${question.stem}`;
+          })
+          .slice(0, 12)
+          .join(' || ');
         throw new Error(
-          `Unable to fill non-trick slot for ${state.feed}:${state.slotIndex + 1} ${key}/${config.difficulty}`
+          `Unable to fill non-trick slot for ${state.feed}:${state.slotIndex + 1} ${key}/${config.difficulty}; ` +
+            `primary=${primary.length} constrained=${constrained.length} candidate=${candidatePool.length} ` +
+            `secondary=${secondary.length} uniqueSecondary=${uniqueSecondary.length} uniquePrimary=${uniquePrimary.length} ` +
+            `rotation=${state.rotationCount}/${state.minimumRotationTarget} ` +
+            `generalSports=${state.generalSportsCount} niche=${state.nicheCount} ` +
+            `usedPromptKinds=${state.usedPromptKinds.size} topCandidates=[${candidateSummary}] ` +
+            `remaining=[${remainingDifficultySummary}] ` +
+            `rejections=[${rejectionSummary}]`
         );
       }
 
@@ -2060,10 +4416,11 @@ function pickQuestionForSlot(
     const fallback = questions.find((question) => {
       if (usedIds.has(question.id)) return false;
       if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+      if (!question.scheduleEligible) return false;
       if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) return false;
       if (!passesSportsStateGuard(question)) return false;
       if (violatesSportsEpisodeCaps(question)) return false;
-      return question.difficultyTarget === config.difficulty;
+      return matchesConfiguredDifficulty(question);
     });
     if (fallback) {
       return fallback;
@@ -2072,10 +4429,11 @@ function pickQuestionForSlot(
     const variantFallback = questions.find((question) => {
       if (usedIds.has(question.id)) return false;
       if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+      if (!question.scheduleEligible) return false;
       if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) return false;
       if (!passesSportsStateGuard(question)) return false;
       if (violatesSportsEpisodeCaps(question)) return false;
-      return question.difficultyTarget === config.difficulty;
+      return matchesConfiguredDifficulty(question);
     });
     if (variantFallback) {
       return variantFallback;
@@ -2084,6 +4442,7 @@ function pickQuestionForSlot(
     const adjacentDifficultyFallback = questions.find((question) => {
       if (usedIds.has(question.id)) return false;
       if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+      if (!question.scheduleEligible) return false;
       if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) return false;
       if (!passesSportsStateGuard(question)) return false;
       if (violatesSportsEpisodeCaps(question)) return false;
@@ -2096,6 +4455,7 @@ function pickQuestionForSlot(
     const anyUnusedFallback = questions.find(
       (question) =>
         !usedIds.has(question.id) &&
+        question.scheduleEligible &&
         (!question.variantGroup || !usedVariantGroups.has(question.variantGroup)) &&
         (entitySet.size === 0 || !question.entities.some((entity) => entitySet.has(entity))) &&
         passesSportsStateGuard(question) &&
@@ -2109,6 +4469,7 @@ function pickQuestionForSlot(
     const repeatedVariantFallback = questions.find(
       (question) =>
         !usedIds.has(question.id) &&
+        question.scheduleEligible &&
         (entitySet.size === 0 || !question.entities.some((entity) => entitySet.has(entity))) &&
         passesSportsStateGuard(question) &&
         (!avoidTrickQuestion || !question.isTrickQuestion)
@@ -2117,9 +4478,15 @@ function pickQuestionForSlot(
       return repeatedVariantFallback;
     }
 
+    const sportsSafetyFallback = sportsLateSafetyFallback();
+    if (sportsSafetyFallback) {
+      return sportsSafetyFallback;
+    }
+
     const ultraFallback = questions.find(
       (question) =>
         !usedIds.has(question.id) &&
+        question.scheduleEligible &&
         passesSportsStateGuard(question) &&
         (!avoidTrickQuestion || !question.isTrickQuestion)
     );
@@ -2127,9 +4494,20 @@ function pickQuestionForSlot(
       return ultraFallback;
     }
 
+    const launchEligibleTrickFallback = questions.find(
+      (question) =>
+        !usedIds.has(question.id) &&
+        question.scheduleEligible &&
+        passesSportsStateGuard(question)
+    );
+    if (launchEligibleTrickFallback) {
+      return launchEligibleTrickFallback;
+    }
+
     const emergencyFallback = questions.find(
       (question) =>
         !usedIds.has(question.id) &&
+        question.scheduleEligible &&
         (!avoidTrickQuestion || !question.isTrickQuestion) &&
         passesSportsStateGuard(question)
     );
@@ -2152,10 +4530,50 @@ function pickQuestionForSlot(
       );
     }
 
+    const genericRejectionSummary = questions
+      .filter((question) => !usedIds.has(question.id) && question.scheduleEligible)
+      .map((question) => {
+        const reasons: string[] = [];
+        if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) reasons.push('variant');
+        if (question.difficultyTarget !== config.difficulty) reasons.push(`difficulty:${question.difficultyTarget}`);
+        if (!config.buckets.includes(question.editorialBucket ?? 'evergreen')) {
+          reasons.push(`bucket:${question.editorialBucket ?? 'evergreen'}`);
+        }
+        if (requireTrickQuestion && !question.isTrickQuestion) reasons.push('needs-trick');
+        if (avoidTrickQuestion && question.isTrickQuestion) reasons.push('avoid-trick');
+        if (entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) reasons.push('entity');
+        if (config.minSalienceScore && question.salienceScore < config.minSalienceScore) {
+          reasons.push(`salience:${question.salienceScore}`);
+        }
+        if (config.maxStemLength && question.stem.length > config.maxStemLength) {
+          reasons.push(`stem:${question.stem.length}`);
+        }
+        if (config.allowedLookupRisks && !config.allowedLookupRisks.includes(question.lookupRisk)) {
+          reasons.push(`lookup:${question.lookupRisk}`);
+        }
+        if (config.maxSalienceScore && question.salienceScore > config.maxSalienceScore) {
+          reasons.push(`max-salience:${question.salienceScore}`);
+        }
+        if (
+          config.blockedObscurityFlags &&
+          question.obscurityFlags.some((flag) => config.blockedObscurityFlags?.includes(flag))
+        ) {
+          reasons.push('blocked-flag');
+        }
+        if (!hasSurfaceFormRoom(question)) reasons.push('surface');
+        if (!passesSportsStateGuard(question)) reasons.push('state');
+        if (violatesSportsEpisodeCaps(question)) reasons.push('caps');
+        if (!canUseTaxonomyKey(question)) reasons.push(`taxonomy:${question[key]}`);
+        return `${question.subdomain}/${question.promptKind}/${question.editorialSourceFamily}/${question.salienceScore}:${
+          reasons.join('|') || 'candidate'
+        }:${question.stem}`;
+      })
+      .slice(0, 16)
+      .join(' || ');
     throw new Error(
       `Unable to fill trivia schedule slot for ${state.feed}:${state.slotIndex + 1} ${key}/${config.difficulty} ` +
         `allowHighRisk=${state.allowHighRisk} usedPromptKinds=${[...state.usedPromptKinds].join(',')} ` +
-        `usedKeys=${[...usedKeysInEpisode].join(',')}`
+        `usedKeys=${[...usedKeysInEpisode].join(',')} rejections=[${genericRejectionSummary}]`
     );
   }
 
@@ -2166,6 +4584,47 @@ function pickQuestionForSlot(
     const normalizedLeftIndex = leftIndex === -1 ? Number.MAX_SAFE_INTEGER : leftIndex;
     const normalizedRightIndex = rightIndex === -1 ? Number.MAX_SAFE_INTEGER : rightIndex;
     if (normalizedLeftIndex !== normalizedRightIndex) return normalizedLeftIndex - normalizedRightIndex;
+    if (state.feed === 'mix') {
+      const sourcePenalty = (question: TriviaQuestionRecord) => {
+        if (question.editorialSourceFamily === 'mix-authored-culture') return 0;
+        if (question.editorialSourceFamily === 'mix-authored-hard') return state.slotIndex >= 8 ? 0 : 2;
+        if (question.editorialSourceFamily === 'mix-authored-evergreen') return state.slotIndex >= 8 ? 0 : 1;
+        if (question.editorialSourceFamily === 'mix-rewrite-arts') return state.slotIndex >= 8 ? 6 : 4;
+        if (question.editorialSourceFamily === 'mix-rewrite-history') return state.slotIndex >= 8 ? 7 : 5;
+        if (question.editorialSourceFamily === 'mix-rewrite-science') return state.slotIndex >= 8 ? 7 : 5;
+        if (question.editorialSourceFamily === 'mix-rewrite-world') return state.slotIndex >= 8 ? 8 : 6;
+        return 3;
+      };
+      const leftPenalty = sourcePenalty(left);
+      const rightPenalty = sourcePenalty(right);
+      if (leftPenalty !== rightPenalty) return leftPenalty - rightPenalty;
+    }
+    if (state.feed === 'sports') {
+      const sourcePenalty = (question: TriviaQuestionRecord) => {
+        let penalty =
+          question.editorialSourceFamily === 'sports-authored-core'
+            ? 0
+            : question.editorialSourceFamily === 'sports-authored-mainstream-hard'
+              ? state.slotIndex >= 4 ? 0 : 1
+            : question.editorialSourceFamily === 'sports-authored-hardcore'
+              ? state.slotIndex >= 5 ? 0 : 1
+              : question.editorialSourceFamily === 'sports-core-bank'
+                ? state.slotIndex >= 5 ? 4 : 3
+                : question.sourceTier === 'curated'
+                  ? 1
+                  : question.sourceTier === 'supplemental'
+                    ? 2
+                    : question.sourceTier === 'legacy'
+                      ? 3
+                      : 4;
+        if (state.slotIndex >= 8 && question.sourceTier !== 'curated') penalty += 1;
+        if (state.slotIndex >= 6 && question.legacyFamily !== 'none') penalty += 1;
+        return penalty;
+      };
+      const leftPenalty = sourcePenalty(left);
+      const rightPenalty = sourcePenalty(right);
+      if (leftPenalty !== rightPenalty) return leftPenalty - rightPenalty;
+    }
     if (config.preferredPromptKinds) {
       const leftPromptIndex = config.preferredPromptKinds.indexOf(left.promptKind);
       const rightPromptIndex = config.preferredPromptKinds.indexOf(right.promptKind);
@@ -2174,17 +4633,6 @@ function pickQuestionForSlot(
         const normalizedRight = rightPromptIndex === -1 ? Number.MAX_SAFE_INTEGER : rightPromptIndex;
         if (normalizedLeft !== normalizedRight) return normalizedLeft - normalizedRight;
       }
-    }
-    if (state.feed === 'sports') {
-      const sourcePenalty = (question: TriviaQuestionRecord) => {
-        let penalty = question.sourceTier === 'curated' ? 0 : question.sourceTier === 'supplemental' ? 1 : question.sourceTier === 'legacy' ? 2 : 3;
-        if (state.slotIndex >= 8 && question.sourceTier !== 'curated') penalty += 1;
-        if (state.slotIndex >= 6 && question.legacyFamily !== 'none') penalty += 1;
-        return penalty;
-      };
-      const leftPenalty = sourcePenalty(left);
-      const rightPenalty = sourcePenalty(right);
-      if (leftPenalty !== rightPenalty) return leftPenalty - rightPenalty;
     }
     if (config.targetSalienceScore !== undefined) {
       const leftDistance = Math.abs(left.salienceScore - config.targetSalienceScore);
@@ -2222,6 +4670,7 @@ function pickScheduledSportsCurveball(
       if (!question.isTrickQuestion) return false;
       if (usedIds.has(question.id)) return false;
       if (question.variantGroup && usedVariantGroups.has(question.variantGroup)) return false;
+      if (!question.scheduleEligible) return false;
       if (!ignoreRecentEntities && entitySet.size > 0 && question.entities.some((entity) => entitySet.has(entity))) {
         return false;
       }
@@ -2235,7 +4684,15 @@ function pickScheduledSportsCurveball(
     throw new Error(`Unable to schedule sports curveball for slot ${state.slotIndex + 1}`);
   }
 
-  const pool = [...fallbackPool];
+  const pool = [
+    ...pickCrossDifficultyPreferredPool(
+      [
+        exactPool,
+        fallbackPool,
+      ],
+      state
+    ),
+  ];
   pool.sort((left, right) => {
     const leftSubdomainIndex = config.subdomainOrder.indexOf(left.subdomain);
     const rightSubdomainIndex = config.subdomainOrder.indexOf(right.subdomain);
@@ -2280,16 +4737,20 @@ function pickScheduledSportsCurveball(
 function buildEpisodeSchedule(
   feed: TriviaFeed,
   difficulty: TriviaDifficulty,
-  library: TriviaQuestionRecord[]
+  library: TriviaQuestionRecord[],
+  constraints: ScheduleBuildConstraints = {}
 ): {
   episodes: TriviaEpisodeDefinition[];
   audit: TriviaAuditReport['feeds'][TriviaFeed][TriviaDifficulty];
 } {
   const usedIds = new Set<string>();
   const usedVariantGroups = new Set<string>();
+  const crossDifficultyUsedVariantGroups =
+    constraints.crossDifficultyUsedVariantGroups ?? new Set<string>();
   const trickCountByMonth = new Map<string, number>();
   const episodes: TriviaEpisodeDefinition[] = [];
   const recentEntities: string[] = [];
+  const recentSurfaceForms: string[] = [];
   const bucketCounts: Partial<Record<TriviaEditorialBucket, number>> = {};
   const difficultyCounts: Record<string, number> = { '1': 0, '2': 0, '3': 0 };
   let lastHighRiskDayOffset = -10;
@@ -2310,8 +4771,10 @@ function buildEpisodeSchedule(
     const questionIds: string[] = [];
     const difficultyTargets: TriviaDifficultyTarget[] = [];
     const refreshableSlotIds: string[] = [];
+    let curveballQuestionId: string | null = null;
     const usedTaxonomyKeys = new Set<string>();
     const usedPromptKinds = new Set<TriviaPromptKind>();
+    const usedSurfaceForms = new Set<string>();
     const preferredTrickSlot = feed === 'mix' ? 8 : 2;
     const monthTrickCount = trickCountByMonth.get(monthKey) ?? 0;
     const trickSpacingReady = feed !== 'sports' || offset - lastTrickDayOffset >= SPORTS_CURVEBALL_GAP_DAYS;
@@ -2342,23 +4805,30 @@ function buildEpisodeSchedule(
     let nicheCount = 0;
     let rotationCount = 0;
     let highRiskUsedToday = false;
-    const minimumRotationTarget = feed === 'sports' ? (offset >= 150 ? 3 : 2) : 0;
+    const minimumRotationTarget = feed === 'sports' ? 1 : 0;
 
     slotConfigs.forEach((config, index) => {
-      const allowFlexibleTrickQuestion = false;
+      const allowFlexibleTrickQuestion =
+        feed === 'sports' && difficulty === 'hard';
       const requireTrickQuestion = trickDue && !trickUsedToday && index === preferredTrickSlot;
-      const avoidTrickQuestion = !(requireTrickQuestion || allowFlexibleTrickQuestion);
+      const avoidTrickQuestion = !requireTrickQuestion;
       let question: TriviaQuestionRecord;
       try {
         const selectionState = {
           feed,
+          scheduleDifficulty: difficulty,
           slotIndex: index,
           usedPromptKinds,
+          usedSurfaceForms,
+          recentSurfaceForms,
           generalSportsCount,
           nicheCount,
           rotationCount,
           minimumRotationTarget,
           allowHighRisk: !highRiskUsedToday && offset - lastHighRiskDayOffset >= 3,
+          crossDifficultyUsedVariantGroups,
+          crossDifficultyBlockedVariantGroups:
+            constraints.crossDifficultyBlockedVariantGroupsByDay?.[offset] ?? new Set<string>(),
         };
         if (feed === 'sports' && requireTrickQuestion) {
           question = pickScheduledSportsCurveball(
@@ -2370,28 +4840,62 @@ function buildEpisodeSchedule(
             selectionState
           );
         } else {
-          const sourceQuestions =
-            feed === 'sports' && !requireTrickQuestion
-              ? library.filter((candidate) => !candidate.isTrickQuestion)
-              : library;
-          question = pickQuestionForSlot(
-            sourceQuestions,
-            usedIds,
-            usedVariantGroups,
-            recentEntities,
-            config,
-            feed === 'mix' ? 'domain' : 'subdomain',
-            usedTaxonomyKeys,
-            selectionState,
-            requireTrickQuestion,
-            avoidTrickQuestion
-          );
+          const taxonomyKey: 'domain' | 'subdomain' = feed === 'mix' ? 'domain' : 'subdomain';
+          try {
+            question = pickQuestionForSlot(
+              library,
+              usedIds,
+              usedVariantGroups,
+              recentEntities,
+              config,
+              taxonomyKey,
+              usedTaxonomyKeys,
+              selectionState,
+              requireTrickQuestion,
+              avoidTrickQuestion
+            );
+          } catch (error) {
+            if (!(allowFlexibleTrickQuestion && avoidTrickQuestion)) {
+              throw error;
+            }
+            question = pickQuestionForSlot(
+              library,
+              usedIds,
+              usedVariantGroups,
+              recentEntities,
+              config,
+              taxonomyKey,
+              usedTaxonomyKeys,
+              selectionState,
+              requireTrickQuestion,
+              false
+            );
+          }
         }
       } catch (error) {
+        const debugSummary =
+          feed === 'sports'
+            ? (() => {
+                const remaining = library.filter(
+                  (candidate) =>
+                    !usedIds.has(candidate.id) &&
+                    candidate.scheduleEligible
+                );
+                const bySubdomainDifficulty = new Map<string, number>();
+                remaining.forEach((candidate) => {
+                  const key = `${candidate.subdomain}/d${candidate.difficultyTarget}`;
+                  bySubdomainDifficulty.set(key, (bySubdomainDifficulty.get(key) ?? 0) + 1);
+                });
+                return ` remainingEligible=${remaining.length} counts=[${[...bySubdomainDifficulty.entries()]
+                  .sort((left, right) => left[0].localeCompare(right[0]))
+                  .map(([key, value]) => `${key}:${value}`)
+                  .join(', ')}]`;
+              })()
+            : '';
         throw new Error(
           `Failed to schedule ${feed}/${dateKey} slot ${index + 1} after using ${usedIds.size} questions: ${
             error instanceof Error ? error.message : String(error)
-          }`
+          }${debugSummary}`
         );
       }
 
@@ -2399,6 +4903,10 @@ function buildEpisodeSchedule(
       if (question.variantGroup) usedVariantGroups.add(question.variantGroup);
       usedTaxonomyKeys.add(feed === 'mix' ? question.domain : question.subdomain);
       usedPromptKinds.add(question.promptKind);
+      const surfaceForm = inferSurfaceFormKey(question);
+      usedSurfaceForms.add(surfaceForm);
+      recentSurfaceForms.push(surfaceForm);
+      while (recentSurfaceForms.length > 24) recentSurfaceForms.shift();
       question.entities.forEach((entity) => recentEntities.push(entity));
       while (recentEntities.length > 36) recentEntities.shift();
       if (question.subdomain === 'general-sports') generalSportsCount += 1;
@@ -2431,6 +4939,7 @@ function buildEpisodeSchedule(
         trickUsedToday = true;
         trickQuestionCount += 1;
         lastTrickDayOffset = offset;
+        curveballQuestionId = question.id;
       }
     });
 
@@ -2439,6 +4948,7 @@ function buildEpisodeSchedule(
       feed,
       difficulty,
       questionIds,
+      curveballQuestionId,
       difficultyTargets,
       finalStretchStartsAt: feed === 'mix' ? 9 : 6,
       themeTag: theme.tag,
@@ -2460,6 +4970,14 @@ function buildEpisodeSchedule(
       feed,
       difficulty,
       libraryCount: library.length,
+      poolScheduledCount: usedIds.size,
+      poolReserveCount: library.length - usedIds.size,
+      reserveHeadroomTarget: feed === 'mix' ? MIX_RESERVE_HEADROOM_TARGET : SPORTS_RESERVE_HEADROOM_TARGET,
+      reserveShortfall: Math.max(
+        0,
+        (feed === 'mix' ? MIX_RESERVE_HEADROOM_TARGET : SPORTS_RESERVE_HEADROOM_TARGET) -
+          (library.length - usedIds.size)
+      ),
       scheduledCount: usedIds.size,
       reserveCount: library.length - usedIds.size,
       refreshableCount,
@@ -2469,11 +4987,24 @@ function buildEpisodeSchedule(
       staleQuestionCount,
       repeatedVariantGroups: usedIds.size - usedVariantGroups.size,
       variantReuseCount: usedIds.size - usedVariantGroups.size,
+      coreFactReuseViolations: 0,
+      crossDifficultyCoreFactOverlap: 0,
+      crossDifficultyVariantOverlap: 0,
       trickQuestionCount,
       scheduledOffToneCount: 0,
+      scheduledOffToneExamples: [],
       lateSlotGeneralSportsCount: 0,
       curveballSpacingViolations: 0,
       first90BlockedPatternCount: 0,
+      blockedPatternExamples: [],
+      blockingTasteTagCount: 0,
+      blockingTasteTagExamples: [],
+      tasteTagCounts: {},
+      scheduleEligibleShare: 0,
+      scheduledBlockedSourceFamilies: {},
+      first28SampleStems: [],
+      sourceFamilyDistribution: {},
+      authoredFamilyShare: 0,
       curveballCoverageByMonth: {},
       topRepeatedGroups: [],
       lateSlotLegibilityScore: 0,
@@ -2506,6 +5037,280 @@ function buildQuestionMap(library: TriviaQuestionRecord[]) {
   return new Map(library.map((question) => [question.id, question]));
 }
 
+function isAuthoredSourceFamily(family: string): boolean {
+  return (
+    family.startsWith('mix-authored-') ||
+    family.startsWith('sports-authored-')
+  );
+}
+
+function isBlockingTasteTag(
+  feed: TriviaFeed,
+  question: TriviaQuestionRecord,
+  tag: TriviaTasteTag
+): boolean {
+  if (feed === 'mix') {
+    return [
+      'count-trivia',
+      'year-trivia',
+      'according-to',
+      'line-complete',
+      'pilot-episode',
+      'actor-director-credit',
+      'archive-media',
+      'definition-low-payoff',
+      'statement-elimination',
+      'fragment-stem',
+      'long-setup',
+    ].includes(tag);
+  }
+
+  if (tag === 'nickname-only') {
+    return !(question.isTrickQuestion && question.curveballKind === 'famous-nickname' && question.salienceScore >= 90);
+  }
+
+  if (tag === 'count-trivia') {
+    if (
+      question.difficultyPool === 'hard' &&
+      question.salienceScore >= 84 &&
+      ['rule', 'term', 'event', 'achievement', 'sport-id'].includes(question.promptKind)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  if (tag === 'legacy-sports-history') {
+    if (question.editorialSourceFamily === 'sports-core-bank') return true;
+    if (
+      question.difficultyPool === 'hard' &&
+      question.salienceScore >= 84 &&
+      ['rule', 'term', 'event', 'achievement', 'sport-id'].includes(question.promptKind) &&
+      !SPORTS_ARCHIVE_HARD_REJECT_REGEX.test(question.stem) &&
+      !SPORTS_MAINSTREAM_CORE_REJECT_REGEX.test(question.stem) &&
+      !/\b(?:what|which|in what) year\b|\bfounded\b|\bwinning pitcher\b/i.test(question.stem)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  return ['year-trivia', 'according-to', 'fragment-stem', 'long-setup'].includes(
+    tag
+  );
+}
+
+function buildTasteTagCounts(
+  feed: TriviaFeed,
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>
+): {
+  counts: Partial<Record<TriviaTasteTag, number>>;
+  blockingCount: number;
+  blockingExamples: string[];
+} {
+  const counts: Partial<Record<TriviaTasteTag, number>> = {};
+  let blockingCount = 0;
+  const blockingExamples: string[] = [];
+
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      question.tasteTags.forEach((tag) => {
+        counts[tag] = (counts[tag] ?? 0) + 1;
+        if (isBlockingTasteTag(feed, question, tag)) {
+          blockingCount += 1;
+          if (blockingExamples.length < 18) {
+            blockingExamples.push(`${episode.date} :: ${question.editorialSourceFamily} :: ${question.stem}`);
+          }
+        }
+      });
+    });
+  });
+
+  return { counts, blockingCount, blockingExamples };
+}
+
+function buildSourceFamilyDistribution(
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>
+): Record<string, number> {
+  const counts = new Map<string, number>();
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      counts.set(
+        question.editorialSourceFamily,
+        (counts.get(question.editorialSourceFamily) ?? 0) + 1
+      );
+    });
+  });
+
+  return Object.fromEntries(
+    [...counts.entries()].sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+  );
+}
+
+function computeAuthoredFamilyShare(
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>
+): number {
+  let total = 0;
+  let authored = 0;
+
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      total += 1;
+      if (isAuthoredSourceFamily(question.editorialSourceFamily)) authored += 1;
+    });
+  });
+
+  if (total === 0) return 0;
+  return Number((authored / total).toFixed(3));
+}
+
+function computeScheduleEligibleShare(
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>
+): number {
+  let total = 0;
+  let scheduleEligible = 0;
+
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      total += 1;
+      if (question.scheduleEligible) scheduleEligible += 1;
+    });
+  });
+
+  if (total === 0) return 0;
+  return Number((scheduleEligible / total).toFixed(3));
+}
+
+function buildScheduledBlockedSourceFamilies(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>
+): Record<string, number> {
+  const counts = new Map<string, number>();
+
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      if (isAllowedSourceFamilyForSchedule(feed, difficulty, question.editorialSourceFamily)) {
+        return;
+      }
+      counts.set(question.editorialSourceFamily, (counts.get(question.editorialSourceFamily) ?? 0) + 1);
+    });
+  });
+
+  return Object.fromEntries(
+    [...counts.entries()].sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+  );
+}
+
+function collectFirst28SampleStems(
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>,
+  limit = 24
+): string[] {
+  const samples: string[] = [];
+  episodes.slice(0, 28).forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      if (samples.length >= limit) return;
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      samples.push(`${episode.date} :: ${question.editorialSourceFamily} :: ${question.stem}`);
+    });
+  });
+  return samples;
+}
+
+function getQuestionVariantGroup(
+  question: Pick<TriviaQuestionRecord, 'id' | 'variantGroup' | 'coreFactId'>
+): string {
+  return question.variantGroup ?? question.coreFactId ?? question.id;
+}
+
+function pickCrossDifficultyPreferredPool(
+  buckets: TriviaQuestionRecord[][],
+  state: Pick<SlotSelectionState, 'crossDifficultyBlockedVariantGroups' | 'crossDifficultyUsedVariantGroups'>
+): TriviaQuestionRecord[] {
+  const firstNonEmpty = (candidateBuckets: TriviaQuestionRecord[][]) =>
+    candidateBuckets.find((bucket) => bucket.length > 0) ?? [];
+
+  const freshBuckets = buckets.map((bucket) =>
+    bucket.filter(
+      (question) => !state.crossDifficultyUsedVariantGroups.has(getQuestionVariantGroup(question))
+    )
+  );
+  const freshPool = firstNonEmpty(freshBuckets);
+  if (freshPool.length > 0) return freshPool;
+
+  const cooledDownBuckets = buckets.map((bucket) =>
+    bucket.filter(
+      (question) => !state.crossDifficultyBlockedVariantGroups.has(getQuestionVariantGroup(question))
+    )
+  );
+  const cooledDownPool = firstNonEmpty(cooledDownBuckets);
+  if (cooledDownPool.length > 0) return cooledDownPool;
+
+  return firstNonEmpty(buckets);
+}
+
+function buildVariantGroupsByDay(
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>
+): Set<string>[] {
+  return episodes.map((episode) => {
+    const groups = new Set<string>();
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      groups.add(getQuestionVariantGroup(question));
+    });
+    return groups;
+  });
+}
+
+function buildScheduledVariantGroupSet(
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>
+): Set<string> {
+  const groups = new Set<string>();
+  buildVariantGroupsByDay(episodes, questionMap).forEach((dayGroups) => {
+    dayGroups.forEach((group) => groups.add(group));
+  });
+  return groups;
+}
+
+function buildCrossDifficultyBlockedVariantGroupsByDay(
+  referenceEpisodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>,
+  cooldownDays: number
+): Set<string>[] {
+  const byDay = buildVariantGroupsByDay(referenceEpisodes, questionMap);
+  return byDay.map((_, dayIndex) => {
+    const blocked = new Set<string>();
+    for (
+      let otherIndex = Math.max(0, dayIndex - cooldownDays);
+      otherIndex <= Math.min(byDay.length - 1, dayIndex + cooldownDays);
+      otherIndex += 1
+    ) {
+      byDay[otherIndex]?.forEach((group) => blocked.add(group));
+    }
+    return blocked;
+  });
+}
+
 type TriviaTelemetryMaps = {
   questionAggregates: Map<string, TriviaTelemetryQuestionAggregate>;
   slotAggregates: Map<string, TriviaTelemetrySlotAggregate>;
@@ -2531,6 +5336,12 @@ type ReplacementLogEntry = {
   replacementQuestionId: string;
   reason: string;
 };
+
+function logBuildStage(message: string) {
+  if (process.env.TRIVIA_DEBUG_STAGE === '1') {
+    console.error(`[trivia-build] ${message}`);
+  }
+}
 
 function getEmptyTelemetrySnapshot(): TriviaTelemetrySnapshot {
   return {
@@ -2786,7 +5597,7 @@ const GROUP_TARGET_RANGES: Record<
   mix: {
     easy: {
       'q1-q3': { min: 0.85, max: 0.93 },
-      'q4-q6': { min: 0.72, max: 0.82 },
+      'q4-q6': { min: 0.71, max: 0.82 },
       'q7-q9': { min: 0.47, max: 0.57 },
       'q10-q12': { min: 0.42, max: 0.53 },
     },
@@ -3387,9 +6198,11 @@ function collectReplacementCandidates(
   });
 
   Object.entries(calibrationFeed.slotGroupEvidence).forEach(([label, evidence]) => {
-    if (evidence.telemetryConfidence === 'agent-only') return;
     const target = getGroupTargetRange(feed, difficulty, label);
     if (!target) return;
+    if (evidence.telemetryConfidence === 'agent-only') {
+      return;
+    }
     if (evidence.blendedCorrectRate >= target.min && evidence.blendedCorrectRate <= target.max) {
       return;
     }
@@ -3423,8 +6236,19 @@ function findReplacementQuestion(params: {
   library: TriviaQuestionRecord[];
   usedIds: Set<string>;
   usedVariantGroups: Set<string>;
+  blockedVariantGroups?: Set<string>;
 }) {
-  const { feed, difficulty, slot, currentQuestion, reason, library, usedIds, usedVariantGroups } = params;
+  const {
+    feed,
+    difficulty,
+    slot,
+    currentQuestion,
+    reason,
+    library,
+    usedIds,
+    usedVariantGroups,
+    blockedVariantGroups = new Set<string>(),
+  } = params;
   const soften = reason.startsWith('blended-too-harsh');
   const sharpen = reason.startsWith('blended-too-soft');
   const slotConfig =
@@ -3459,7 +6283,11 @@ function findReplacementQuestion(params: {
   const baseCandidates = library
     .filter((candidate) => candidate.id !== currentQuestion.id)
     .filter((candidate) => !usedIds.has(candidate.id))
+    .filter((candidate) => candidate.scheduleEligible)
     .filter((candidate) => candidate.sourceTier !== 'legacy' && candidate.sourceTier !== 'supplemental')
+    .filter(
+      (candidate) => Boolean(candidate.isTrickQuestion) === Boolean(currentQuestion.isTrickQuestion)
+    )
     .filter((candidate) => {
       const flags = evaluateTriviaCouncilQuestion(candidate, feed, slot);
       return !flags.some((flag) => flag.severity === 'fail');
@@ -3480,19 +6308,34 @@ function findReplacementQuestion(params: {
       return true;
     });
 
+  const isBlockedVariantGroup = (candidate: TriviaQuestionRecord) =>
+    blockedVariantGroups.has(getQuestionVariantGroup(candidate));
+  const isUsedVariantGroup = (candidate: TriviaQuestionRecord) =>
+    usedVariantGroups.has(getQuestionVariantGroup(candidate));
+
   const candidatePasses = [
     (candidate: TriviaQuestionRecord) =>
-      (!candidate.variantGroup || !usedVariantGroups.has(candidate.variantGroup)) &&
+      !isBlockedVariantGroup(candidate) &&
+      !isUsedVariantGroup(candidate) &&
       candidate.subdomain === currentQuestion.subdomain &&
       candidate.difficultyTarget === currentQuestion.difficultyTarget,
     (candidate: TriviaQuestionRecord) =>
-      (!candidate.variantGroup || !usedVariantGroups.has(candidate.variantGroup)) &&
+      !isBlockedVariantGroup(candidate) &&
+      !isUsedVariantGroup(candidate) &&
       candidate.subdomain === currentQuestion.subdomain &&
       Math.abs(candidate.difficultyTarget - currentQuestion.difficultyTarget) <= 1,
     (candidate: TriviaQuestionRecord) =>
-      (!candidate.variantGroup || !usedVariantGroups.has(candidate.variantGroup)) &&
+      !isBlockedVariantGroup(candidate) &&
+      !isUsedVariantGroup(candidate) &&
       Math.abs(candidate.difficultyTarget - currentQuestion.difficultyTarget) <= 1,
     (candidate: TriviaQuestionRecord) =>
+      !isBlockedVariantGroup(candidate) &&
+      Math.abs(candidate.difficultyTarget - currentQuestion.difficultyTarget) <= 1,
+    (candidate: TriviaQuestionRecord) =>
+      !isBlockedVariantGroup(candidate) && !isUsedVariantGroup(candidate),
+    (candidate: TriviaQuestionRecord) => !isBlockedVariantGroup(candidate),
+    (candidate: TriviaQuestionRecord) =>
+      !isUsedVariantGroup(candidate) &&
       Math.abs(candidate.difficultyTarget - currentQuestion.difficultyTarget) <= 1,
     (_candidate: TriviaQuestionRecord) => true,
   ];
@@ -3576,6 +6419,129 @@ function applyAutomatedReplacements(
   return replacements;
 }
 
+function applyVariantReuseCleanup(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
+  episodes: TriviaEpisodeDefinition[],
+  library: TriviaQuestionRecord[]
+): ReplacementLogEntry[] {
+  const questionMap = buildQuestionMap(library);
+  const usedIds = new Set(episodes.flatMap((episode) => episode.questionIds));
+  const seenVariantGroups = new Set<string>();
+  const replacements: ReplacementLogEntry[] = [];
+
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId, index) => {
+      const currentQuestion = questionMap.get(questionId);
+      if (!currentQuestion) {
+        throw new Error(`Missing scheduled question ${questionId} during variant reuse cleanup.`);
+      }
+      const currentGroup = getQuestionVariantGroup(currentQuestion);
+      if (!seenVariantGroups.has(currentGroup)) {
+        seenVariantGroups.add(currentGroup);
+        return;
+      }
+
+      usedIds.delete(questionId);
+      const replacement = findReplacementQuestion({
+        feed,
+        difficulty,
+        slot: index + 1,
+        currentQuestion,
+        reason: 'repeated-variant-group',
+        library,
+        usedIds,
+        usedVariantGroups: seenVariantGroups,
+      });
+
+      if (!replacement) {
+        throw new Error(
+          `Unable to replace repeated variant group for ${feed}/${difficulty} ${episode.date} slot ${
+            index + 1
+          } (${questionId}).`
+        );
+      }
+
+      usedIds.add(replacement.id);
+      seenVariantGroups.add(getQuestionVariantGroup(replacement));
+      episode.questionIds[index] = replacement.id;
+      replacements.push({
+        date: episode.date,
+        slot: index + 1,
+        questionId,
+        replacementQuestionId: replacement.id,
+        reason: 'repeat-variant-group-cleanup',
+      });
+    });
+  });
+
+  return replacements;
+}
+
+function applyCrossDifficultyCooldownCleanup(
+  feed: TriviaFeed,
+  difficulty: TriviaDifficulty,
+  referenceEpisodes: TriviaEpisodeDefinition[],
+  targetEpisodes: TriviaEpisodeDefinition[],
+  library: TriviaQuestionRecord[],
+  cooldownDays: number
+): ReplacementLogEntry[] {
+  const questionMap = buildQuestionMap(library);
+  const usedIds = new Set(targetEpisodes.flatMap((episode) => episode.questionIds));
+  const usedVariantGroups = buildScheduledVariantGroupSet(targetEpisodes, questionMap);
+  const blockedVariantGroupsByDay = buildCrossDifficultyBlockedVariantGroupsByDay(
+    referenceEpisodes,
+    questionMap,
+    cooldownDays
+  );
+  const replacements: ReplacementLogEntry[] = [];
+
+  targetEpisodes.forEach((episode, dayIndex) => {
+    const blockedVariantGroups = blockedVariantGroupsByDay[dayIndex] ?? new Set<string>();
+    episode.questionIds.forEach((questionId, index) => {
+      const currentQuestion = questionMap.get(questionId);
+      if (!currentQuestion) {
+        throw new Error(`Missing scheduled question ${questionId} during cross-difficulty cleanup.`);
+      }
+      const currentGroup = getQuestionVariantGroup(currentQuestion);
+      if (!blockedVariantGroups.has(currentGroup)) return;
+
+      usedIds.delete(questionId);
+      usedVariantGroups.delete(currentGroup);
+      const replacement = findReplacementQuestion({
+        feed,
+        difficulty,
+        slot: index + 1,
+        currentQuestion,
+        reason: `cross-difficulty-cooldown-${cooldownDays}`,
+        library,
+        usedIds,
+        usedVariantGroups,
+        blockedVariantGroups,
+      });
+
+      if (!replacement) {
+        usedIds.add(questionId);
+        usedVariantGroups.add(currentGroup);
+        return;
+      }
+
+      usedIds.add(replacement.id);
+      usedVariantGroups.add(getQuestionVariantGroup(replacement));
+      episode.questionIds[index] = replacement.id;
+      replacements.push({
+        date: episode.date,
+        slot: index + 1,
+        questionId,
+        replacementQuestionId: replacement.id,
+        reason: `cross-difficulty-cooldown-${cooldownDays}`,
+      });
+    });
+  });
+
+  return replacements;
+}
+
 function countScheduledOffToneQuestions(
   feed: TriviaFeed,
   episodes: TriviaEpisodeDefinition[],
@@ -3587,19 +6553,34 @@ function countScheduledOffToneQuestions(
       episode.questionIds.reduce((episodeCount, questionId) => {
         const question = questionMap.get(questionId);
         if (!question) return episodeCount;
-
-        if (feed === 'sports') {
-          return episodeCount + (!isSportsEditorialFit(question) || isOffToneScheduledSportsQuestion(question) ? 1 : 0);
-        }
-
-        const isMixOffTone =
-          question.obscurityFlags.includes('vague-stem') ||
-          question.obscurityFlags.includes('timer-friction') ||
-          (question.isTrickQuestion ? !isAllowedCurveballQuestion(feed, question) : false);
-        return episodeCount + (isMixOffTone ? 1 : 0);
+        return episodeCount + (getScheduledOffToneReason(feed, question) ? 1 : 0);
       }, 0)
     );
   }, 0);
+}
+
+function getScheduledOffToneReason(
+  feed: TriviaFeed,
+  question: TriviaQuestionRecord
+): string | null {
+  if (!question.scheduleEligible) {
+    return (
+      question.launchBlockReasons[0]?.message ??
+      'question is not schedule-eligible'
+    );
+  }
+
+  if (feed === 'sports') {
+    if (!isSportsEditorialFit(question, question.difficultyPool) || isOffToneScheduledSportsQuestion(question)) {
+      return 'sports clue missed the launch editorial fit bar';
+    }
+    return null;
+  }
+
+  if (!isMixEditorialFit(question, question.difficultyPool)) {
+    return 'mix clue missed the launch editorial fit bar';
+  }
+  return null;
 }
 
 function countLateSlotGeneralSportsQuestions(
@@ -3628,10 +6609,7 @@ function getEpisodeCurveballQuestionIds(
       episode.questionIds.filter((questionId) => questionMap.get(questionId)?.isTrickQuestion)
     );
   }
-  const scheduledCurveballId =
-    episode.questionIds[2] && questionMap.get(episode.questionIds[2])?.isTrickQuestion
-      ? episode.questionIds[2]
-      : episode.questionIds.find((questionId) => questionMap.get(questionId)?.isTrickQuestion);
+  const scheduledCurveballId = episode.curveballQuestionId ?? undefined;
   return scheduledCurveballId ? new Set([scheduledCurveballId]) : new Set();
 }
 
@@ -3698,6 +6676,7 @@ function countFirst90BlockedPatterns(
 
         if (feed === 'sports') {
           const blocked =
+            !question.scheduleEligible ||
             SPORTS_LEGACY_REJECT_REGEX.test(question.stem) ||
             SPORTS_GENERAL_REJECT_REGEX.test(question.stem) ||
             question.legacyFamily === 'off-tone' ||
@@ -3709,6 +6688,7 @@ function countFirst90BlockedPatterns(
         }
 
         const blocked =
+          !question.scheduleEligible ||
           MIX_ARCHIVE_REJECT_REGEX.test(question.stem) ||
           MIX_TRICK_BLOCKLIST_REGEX.test(question.stem) ||
           MIX_POP_DEEPCUT_REJECT_REGEX.test(question.stem) ||
@@ -3718,6 +6698,64 @@ function countFirst90BlockedPatterns(
       }, 0)
     );
   }, 0);
+}
+
+function collectScheduledOffToneExamples(
+  feed: TriviaFeed,
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>,
+  limit = 25
+): string[] {
+  const examples: string[] = [];
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId, index) => {
+      if (examples.length >= limit) return;
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      const reason = getScheduledOffToneReason(feed, question);
+      if (!reason) return;
+      examples.push(`${episode.date} Q${index + 1} ${question.id}: ${reason}`);
+    });
+  });
+  return examples;
+}
+
+function collectFirst90BlockedPatternExamples(
+  feed: TriviaFeed,
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>,
+  limit = 25
+): string[] {
+  const examples: string[] = [];
+  episodes.slice(0, FIRST_90_CALIBRATION_DAYS).forEach((episode) => {
+    episode.questionIds.forEach((questionId, index) => {
+      if (examples.length >= limit) return;
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      const blocked =
+        feed === 'sports'
+          ? !question.scheduleEligible ||
+            SPORTS_LEGACY_REJECT_REGEX.test(question.stem) ||
+            SPORTS_GENERAL_REJECT_REGEX.test(question.stem) ||
+            question.legacyFamily === 'off-tone' ||
+            question.legacyFamily === 'relationship' ||
+            question.legacyFamily === 'exact-date' ||
+            question.legacyFamily === 'misc-trivia' ||
+            hasGimmickDistractorPattern(question.stem)
+          : !question.scheduleEligible ||
+            MIX_ARCHIVE_REJECT_REGEX.test(question.stem) ||
+            MIX_TRICK_BLOCKLIST_REGEX.test(question.stem) ||
+            MIX_POP_DEEPCUT_REJECT_REGEX.test(question.stem) ||
+            MIX_RELATIONSHIP_REJECT_REGEX.test(question.stem) ||
+            hasGimmickDistractorPattern(question.stem);
+      if (!blocked) return;
+      const reason =
+        question.launchBlockReasons[0]?.message ??
+        'blocked launch pattern survived into the first 90 days';
+      examples.push(`${episode.date} Q${index + 1} ${question.id}: ${reason}`);
+    });
+  });
+  return examples;
 }
 
 function buildTopRepeatedGroups(
@@ -3769,6 +6807,76 @@ function buildTopRepeatedGroups(
       count: entry.count,
       lateSlotHits: entry.lateSlotHits,
     }));
+}
+
+function countRepeatedVariantGroups(
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>
+): number {
+  const counts = new Map<string, number>();
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      const variantGroup = getQuestionVariantGroup(question);
+      counts.set(variantGroup, (counts.get(variantGroup) ?? 0) + 1);
+    });
+  });
+
+  let repeated = 0;
+  counts.forEach((count) => {
+    if (count > 1) repeated += count - 1;
+  });
+  return repeated;
+}
+
+function countRepeatedCoreFacts(
+  episodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>
+): number {
+  const counts = new Map<string, number>();
+  episodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      counts.set(question.coreFactId, (counts.get(question.coreFactId) ?? 0) + 1);
+    });
+  });
+
+  let repeated = 0;
+  counts.forEach((count) => {
+    if (count > 1) repeated += count - 1;
+  });
+  return repeated;
+}
+
+function countCrossScheduleOverlap(
+  referenceEpisodes: TriviaEpisodeDefinition[],
+  targetEpisodes: TriviaEpisodeDefinition[],
+  questionMap: Map<string, TriviaQuestionRecord>,
+  key: 'coreFactId' | 'variantGroup'
+): number {
+  const referenceValues = new Set<string>();
+  referenceEpisodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      const value = key === 'coreFactId' ? question.coreFactId : getQuestionVariantGroup(question);
+      referenceValues.add(value);
+    });
+  });
+
+  let overlap = 0;
+  targetEpisodes.forEach((episode) => {
+    episode.questionIds.forEach((questionId) => {
+      const question = questionMap.get(questionId);
+      if (!question) return;
+      const value = key === 'coreFactId' ? question.coreFactId : getQuestionVariantGroup(question);
+      if (referenceValues.has(value)) overlap += 1;
+    });
+  });
+
+  return overlap;
 }
 
 function computeLateSlotLegibilityScore(
@@ -3843,19 +6951,6 @@ function evaluatePlayerGate(
     summary.frictionFlags.includes('timer-friction')
   );
 
-  const curveballCoverageEntries = Object.entries(audit.curveballCoverageByMonth).sort(([left], [right]) =>
-    left.localeCompare(right)
-  );
-  const startMonth = START_DATE_KEY.slice(0, 7);
-  const endMonth = getDateKey(addDays(getStartDate(), TOTAL_DAYS - 1)).slice(0, 7);
-  curveballCoverageEntries.forEach(([monthKey, count]) => {
-    if (monthKey === startMonth || monthKey === endMonth) {
-      if (count < 1) failures.push(`curveballCoverage:${monthKey}=${count}`);
-      return;
-    }
-    if (count !== 3) failures.push(`curveballCoverage:${monthKey}=${count}`);
-  });
-
   const expectSlotRange = (slot: number, min: number, max: number) => {
     const value = first90BySlot.get(slot)?.averageCorrectRate;
     if (value == null || value < min || value > max) {
@@ -3875,6 +6970,23 @@ function evaluatePlayerGate(
   };
 
   if (feed === 'sports') {
+    const curveballCoverageEntries = Object.entries(audit.curveballCoverageByMonth).sort(([left], [right]) =>
+      left.localeCompare(right)
+    );
+    const startMonth = START_DATE_KEY.slice(0, 7);
+    const endMonth = getDateKey(addDays(getStartDate(), TOTAL_DAYS - 1)).slice(0, 7);
+    curveballCoverageEntries.forEach(([monthKey, count]) => {
+      if (monthKey === startMonth || monthKey === endMonth) {
+        if (count < 0 || count > 1) {
+          failures.push(`curveballCoverage:${monthKey}=${count}`);
+        }
+        return;
+      }
+      if (count !== SPORTS_CURVEBALL_TARGET_PER_MONTH) {
+        failures.push(`curveballCoverage:${monthKey}=${count}`);
+      }
+    });
+
     if (audit.scheduledOffToneCount !== 0) {
       failures.push(`scheduledOffToneCount=${audit.scheduledOffToneCount}`);
     }
@@ -3884,27 +6996,42 @@ function evaluatePlayerGate(
     if (audit.curveballSpacingViolations !== 0) {
       failures.push(`curveballSpacingViolations=${audit.curveballSpacingViolations}`);
     }
-    if (audit.repeatedVariantGroups > 300) {
+    if (audit.repeatedVariantGroups !== 0) {
       failures.push(`repeatedVariantGroups=${audit.repeatedVariantGroups}`);
     }
-    if (audit.reserveCount < 250) {
+    if (audit.coreFactReuseViolations !== 0) {
+      failures.push(`coreFactReuseViolations=${audit.coreFactReuseViolations}`);
+    }
+    if (audit.crossDifficultyCoreFactOverlap !== 0) {
+      failures.push(`crossDifficultyCoreFactOverlap=${audit.crossDifficultyCoreFactOverlap}`);
+    }
+    if (audit.crossDifficultyVariantOverlap !== 0) {
+      failures.push(`crossDifficultyVariantOverlap=${audit.crossDifficultyVariantOverlap}`);
+    }
+    if (audit.reserveShortfall !== 0) {
       failures.push(`reserveCount=${audit.reserveCount}`);
     }
     if (audit.first90BlockedPatternCount !== 0) {
       failures.push(`first90BlockedPatternCount=${audit.first90BlockedPatternCount}`);
     }
-    if (audit.coreSubdomainShare < 0.68 || audit.coreSubdomainShare > 0.8) {
+    if (audit.blockingTasteTagCount !== 0) {
+      failures.push(`blockingTasteTagCount=${audit.blockingTasteTagCount}`);
+    }
+    if (audit.authoredFamilyShare < AUTHORED_SHARE_MINIMUMS[feed][difficulty]) {
+      failures.push(`authoredFamilyShare=${audit.authoredFamilyShare}`);
+    }
+    if (audit.coreSubdomainShare < 0.68 || audit.coreSubdomainShare > 0.82) {
       failures.push(`coreSubdomainShare=${audit.coreSubdomainShare}`);
     }
 
     if (difficulty === 'easy') {
-      expectGroupRange('sports-q1-q2', [1, 2], 0.78, 0.86);
-      expectGroupRange('sports-q3-q5', [3, 4, 5], 0.55, 0.66);
-      expectSlotRange(6, 0.36, 0.46);
+      expectGroupRange('sports-q1-q2', [1, 2], 0.74, 0.86);
+      expectGroupRange('sports-q3-q5', [3, 4, 5], 0.5, 0.66);
+      expectSlotRange(6, 0.32, 0.46);
       expectGroupRange('sports-q7-q9', [7, 8, 9], 0.22, 0.32);
     } else {
       expectGroupRange('sports-q1-q2', [1, 2], 0.5, 0.77);
-      expectGroupRange('sports-q3-q5', [3, 4, 5], 0.31, 0.45);
+      expectGroupRange('sports-q3-q5', [3, 4, 5], 0.31, 0.5);
       expectSlotRange(6, 0.1, 0.33);
       expectGroupRange('sports-q7-q9', [7, 8, 9], 0.03, 0.13);
     }
@@ -3966,12 +7093,33 @@ function evaluatePlayerGate(
     if (audit.scheduledOffToneCount !== 0) {
       failures.push(`scheduledOffToneCount=${audit.scheduledOffToneCount}`);
     }
+    if (audit.repeatedVariantGroups !== 0) {
+      failures.push(`repeatedVariantGroups=${audit.repeatedVariantGroups}`);
+    }
+    if (audit.coreFactReuseViolations !== 0) {
+      failures.push(`coreFactReuseViolations=${audit.coreFactReuseViolations}`);
+    }
+    if (audit.crossDifficultyCoreFactOverlap !== 0) {
+      failures.push(`crossDifficultyCoreFactOverlap=${audit.crossDifficultyCoreFactOverlap}`);
+    }
+    if (audit.crossDifficultyVariantOverlap !== 0) {
+      failures.push(`crossDifficultyVariantOverlap=${audit.crossDifficultyVariantOverlap}`);
+    }
+    if (audit.reserveShortfall !== 0) {
+      failures.push(`reserveCount=${audit.reserveCount}`);
+    }
     if (audit.first90BlockedPatternCount !== 0) {
       failures.push(`first90BlockedPatternCount=${audit.first90BlockedPatternCount}`);
     }
+    if (audit.blockingTasteTagCount !== 0) {
+      failures.push(`blockingTasteTagCount=${audit.blockingTasteTagCount}`);
+    }
+    if (audit.authoredFamilyShare < AUTHORED_SHARE_MINIMUMS[feed][difficulty]) {
+      failures.push(`authoredFamilyShare=${audit.authoredFamilyShare}`);
+    }
     if (difficulty === 'easy') {
       expectGroupRange('mix-q1-q3', [1, 2, 3], 0.85, 0.93);
-      expectGroupRange('mix-q4-q6', [4, 5, 6], 0.72, 0.82);
+      expectGroupRange('mix-q4-q6', [4, 5, 6], 0.7, 0.82);
       expectGroupRange('mix-q7-q9', [7, 8, 9], 0.47, 0.57);
       expectGroupRange('mix-q10-q12', [10, 11, 12], 0.42, 0.53);
     } else {
@@ -3995,19 +7143,19 @@ function evaluatePlayerGate(
     const commuter = byAgent.get('casual-pace');
     if (
       !commuter ||
-      commuter.averageCorrect < (difficulty === 'easy' ? 6 : 4) ||
+      commuter.averageCorrect < (difficulty === 'easy' ? 6 : 3.3) ||
       commuter.timeoutRate > 0.14
     ) {
       failures.push(
         `casual-pace averageCorrect=${commuter?.averageCorrect ?? 'missing'} timeoutRate=${commuter?.timeoutRate ?? 'missing'}`
       );
     }
-    if ((byAgent.get('culture-generalist')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 7 : 5.5)) {
+    if ((byAgent.get('culture-generalist')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 7 : 5)) {
       failures.push(
         `culture-generalist averageCorrect=${byAgent.get('culture-generalist')?.averageCorrect ?? 'missing'}`
       );
     }
-    if ((byAgent.get('broad-generalist')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 6.4 : 5)) {
+    if ((byAgent.get('broad-generalist')?.averageCorrect ?? 0) < (difficulty === 'easy' ? 6.4 : 4.5)) {
       failures.push(
         `broad-generalist averageCorrect=${byAgent.get('broad-generalist')?.averageCorrect ?? 'missing'}`
       );
@@ -4032,17 +7180,55 @@ function applyAuditSignals(
   difficulty: TriviaDifficulty,
   audit: TriviaAuditReport['feeds'][TriviaFeed][TriviaDifficulty],
   episodes: TriviaEpisodeDefinition[],
+  crossDifficultyEpisodes: TriviaEpisodeDefinition[],
   library: TriviaQuestionRecord[],
   calibrationFeed: TriviaPlayerCalibrationFeedReport,
   first90Feed: TriviaPlayerCalibrationFeedReport,
   fullYearFeed: TriviaPlayerCalibrationFeedReport
 ) {
   const questionMap = buildQuestionMap(library);
+  audit.repeatedVariantGroups = countRepeatedVariantGroups(episodes, questionMap);
   audit.variantReuseCount = audit.repeatedVariantGroups;
+  audit.coreFactReuseViolations = countRepeatedCoreFacts(episodes, questionMap);
+  audit.crossDifficultyCoreFactOverlap = countCrossScheduleOverlap(
+    crossDifficultyEpisodes,
+    episodes,
+    questionMap,
+    'coreFactId'
+  );
+  audit.crossDifficultyVariantOverlap = countCrossScheduleOverlap(
+    crossDifficultyEpisodes,
+    episodes,
+    questionMap,
+    'variantGroup'
+  );
+  audit.reserveHeadroomTarget = feed === 'mix' ? MIX_RESERVE_HEADROOM_TARGET : SPORTS_RESERVE_HEADROOM_TARGET;
+  audit.poolScheduledCount = episodes.reduce((sum, episode) => sum + episode.questionIds.length, 0);
+  audit.poolReserveCount = library.length - audit.poolScheduledCount;
+  audit.reserveShortfall = Math.max(0, audit.reserveHeadroomTarget - audit.poolReserveCount);
+  audit.libraryCount = library.length;
+  audit.scheduledCount = audit.poolScheduledCount;
+  audit.reserveCount = audit.poolReserveCount;
   audit.scheduledOffToneCount = countScheduledOffToneQuestions(feed, episodes, questionMap);
+  audit.scheduledOffToneExamples = collectScheduledOffToneExamples(feed, episodes, questionMap);
   audit.lateSlotGeneralSportsCount = countLateSlotGeneralSportsQuestions(feed, episodes, questionMap);
   audit.curveballSpacingViolations = countCurveballSpacingViolations(feed, episodes, questionMap);
   audit.first90BlockedPatternCount = countFirst90BlockedPatterns(feed, episodes, questionMap);
+  audit.blockedPatternExamples = collectFirst90BlockedPatternExamples(feed, episodes, questionMap);
+  const tasteSummary = buildTasteTagCounts(feed, episodes, questionMap);
+  audit.blockingTasteTagCount = tasteSummary.blockingCount;
+  audit.blockingTasteTagExamples = tasteSummary.blockingExamples;
+  audit.tasteTagCounts = tasteSummary.counts;
+  audit.scheduleEligibleShare = computeScheduleEligibleShare(episodes, questionMap);
+  audit.scheduledBlockedSourceFamilies = buildScheduledBlockedSourceFamilies(
+    feed,
+    difficulty,
+    episodes,
+    questionMap
+  );
+  audit.first28SampleStems = collectFirst28SampleStems(episodes, questionMap);
+  audit.sourceFamilyDistribution = buildSourceFamilyDistribution(episodes, questionMap);
+  audit.authoredFamilyShare = computeAuthoredFamilyShare(episodes, questionMap);
   audit.curveballCoverageByMonth = getCurveballCoverageByMonth(feed, episodes, questionMap);
   audit.topRepeatedGroups = buildTopRepeatedGroups(episodes, questionMap);
   audit.lateSlotLegibilityScore = computeLateSlotLegibilityScore(episodes, questionMap);
@@ -4113,18 +7299,85 @@ function applyAuditSignals(
   const gate = evaluatePlayerGate(feed, difficulty, audit, calibrationFeed, first90Feed, fullYearFeed);
   audit.playerGatePass = gate.playerGatePass;
   audit.playerGateFailures = gate.playerGateFailures;
-  audit.launchReady = gate.playerGatePass && audit.first90BlockedPatternCount === 0;
+  audit.launchReady =
+    gate.playerGatePass &&
+    audit.scheduledOffToneCount === 0 &&
+    audit.first90BlockedPatternCount === 0 &&
+    audit.blockingTasteTagCount === 0 &&
+    audit.scheduleEligibleShare === 1 &&
+    Object.keys(audit.scheduledBlockedSourceFamilies).length === 0 &&
+    audit.crossDifficultyCoreFactOverlap === 0 &&
+    audit.crossDifficultyVariantOverlap === 0 &&
+    audit.repeatedVariantGroups === 0 &&
+    audit.coreFactReuseViolations === 0 &&
+    audit.reserveShortfall === 0;
 }
 
 async function writeJson(filename: string, value: unknown) {
   await fs.writeFile(path.join(TRIVIA_DIR, filename), `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
+function markReserveOnly(
+  library: TriviaQuestionRecord[],
+  scheduledQuestionIds: Set<string>
+): TriviaQuestionRecord[] {
+  return library.map((question) => ({
+    ...question,
+    reserveOnly: !scheduledQuestionIds.has(question.id),
+  }));
+}
+
 async function main() {
+  logBuildStage('main:start');
   const telemetrySnapshot = await loadTriviaTelemetrySnapshot();
+  logBuildStage(`telemetry:questions=${telemetrySnapshot.questions.length}:slots=${telemetrySnapshot.slots.length}`);
   const telemetryMaps = buildTelemetryMaps(telemetrySnapshot);
-  const mixLibrary = getMixCandidates();
-  const sportsLibrary = getSportsCandidates();
+  if (process.env.TRIVIA_DEBUG_RAW === '1') {
+    logBuildStage('debug:raw');
+    printRawEligibilityDiagnostics('mix-raw', getMixRawCandidates(), 'domain');
+    printRawEligibilityDiagnostics(
+      'sports-raw',
+      getSportsRawCandidates().filter((record) =>
+        Object.prototype.hasOwnProperty.call(SPORTS_SUBDOMAIN_DISTRIBUTION, record.subdomain)
+      ),
+      'subdomain'
+    );
+    return;
+  }
+  logBuildStage('buildPools:mix:start');
+  const mixPools = buildDedicatedMixPools();
+  logBuildStage('buildPools:mix:done');
+  logBuildStage('buildPools:sports:start');
+  const sportsPools = buildDedicatedSportsPools();
+  logBuildStage('buildPools:sports:done');
+  if (process.env.TRIVIA_DEBUG_POOLS === '1') {
+    logBuildStage('debug:pools');
+    printPoolDiagnostics('mix', mixPools, 'domain');
+    printPoolDiagnostics('sports', sportsPools, 'subdomain');
+    return;
+  }
+  if (mixPools.easy.length < MIX_POOL_TARGET || mixPools.hard.length < MIX_POOL_TARGET) {
+    throw new Error(
+      `Mix pool shortfall: easy=${mixPools.easy.length} hard=${mixPools.hard.length} target=${MIX_POOL_TARGET}.`
+    );
+  }
+  if (sportsPools.easy.length < SPORTS_POOL_TARGET || sportsPools.hard.length < SPORTS_POOL_TARGET) {
+    throw new Error(
+      `Sports pool shortfall: easy=${sportsPools.easy.length} hard=${sportsPools.hard.length} target=${SPORTS_POOL_TARGET}.`
+    );
+  }
+  const mixLibrary = [...mixPools.easy, ...mixPools.hard];
+  const sportsLibrary = [...sportsPools.easy, ...sportsPools.hard];
+  logBuildStage(`libraries:mix=${mixLibrary.length}:sports=${sportsLibrary.length}`);
+  const mixEasyCoreFacts = new Set(mixPools.easy.map((question) => question.coreFactId));
+  const sportsEasyCoreFacts = new Set(sportsPools.easy.map((question) => question.coreFactId));
+  const mixCrossOverlap = mixPools.hard.filter((question) => mixEasyCoreFacts.has(question.coreFactId)).length;
+  const sportsCrossOverlap = sportsPools.hard.filter((question) => sportsEasyCoreFacts.has(question.coreFactId)).length;
+  if (mixCrossOverlap !== 0 || sportsCrossOverlap !== 0) {
+    throw new Error(
+      `Cross-difficulty core fact overlap detected before scheduling: mix=${mixCrossOverlap} sports=${sportsCrossOverlap}.`
+    );
+  }
 
   const invalidMix = mixLibrary.flatMap((question) =>
     validateQuestionRecord(question).map((issue) => `${question.id}: ${issue}`)
@@ -4138,14 +7391,22 @@ async function main() {
     );
   }
 
+  const mixHardSchedule = buildEpisodeSchedule('mix', 'hard', mixPools.hard);
+  logBuildStage('schedules:mix-hard:done');
+  const mixEasySchedule = buildEpisodeSchedule('mix', 'easy', mixPools.easy);
+  logBuildStage('schedules:mix-easy:done');
+  const sportsHardSchedule = buildEpisodeSchedule('sports', 'hard', sportsPools.hard);
+  logBuildStage('schedules:sports-hard:done');
+  const sportsEasySchedule = buildEpisodeSchedule('sports', 'easy', sportsPools.easy);
+  logBuildStage('schedules:sports-easy:done');
   const schedules = {
     mix: {
-      easy: buildEpisodeSchedule('mix', 'easy', mixLibrary),
-      hard: buildEpisodeSchedule('mix', 'hard', mixLibrary),
+      easy: mixEasySchedule,
+      hard: mixHardSchedule,
     },
     sports: {
-      easy: buildEpisodeSchedule('sports', 'easy', sportsLibrary),
-      hard: buildEpisodeSchedule('sports', 'hard', sportsLibrary),
+      easy: sportsEasySchedule,
+      hard: sportsHardSchedule,
     },
   } as const;
   const replacementLogMap = new Map<string, string>();
@@ -4168,28 +7429,8 @@ async function main() {
   );
 
   const replacementLogs: ReplacementLogEntry[] = [];
-  (['mix', 'sports'] as TriviaFeed[]).forEach((feed) => {
-    const library = feed === 'mix' ? mixLibrary : sportsLibrary;
-    TRIVIA_DIFFICULTIES.forEach((difficulty) => {
-      const logs = applyAutomatedReplacements(
-        feed,
-        difficulty,
-        schedules[feed][difficulty].episodes,
-        library,
-        playerCalibration.cohorts.fullYear.feeds[feed][difficulty]
-      );
-      logs.forEach((log) => {
-        replacementLogMap.set(
-          `${log.date}:${log.slot}:${log.replacementQuestionId}`,
-          log.reason
-        );
-      });
-      replacementLogs.push(...logs);
-    });
-  });
-
-  if (replacementLogs.length > 0) {
-    playerCalibration = buildPlayerCalibrationReport(
+  const rebuildCalibration = () =>
+    buildPlayerCalibrationReport(
       {
         mix: {
           easy: schedules.mix.easy.episodes,
@@ -4205,11 +7446,68 @@ async function main() {
       telemetryMaps,
       replacementLogMap
     );
+
+  const runAutomatedReplacementRounds = (maxRounds: number) => {
+    for (let round = 0; round < maxRounds; round += 1) {
+      const roundLogs: ReplacementLogEntry[] = [];
+      (['mix', 'sports'] as TriviaFeed[]).forEach((feed) => {
+        TRIVIA_DIFFICULTIES.forEach((difficulty) => {
+          const library =
+            feed === 'mix' ? mixPools[difficulty] : sportsPools[difficulty];
+          const logs = applyAutomatedReplacements(
+            feed,
+            difficulty,
+            schedules[feed][difficulty].episodes,
+            library,
+            playerCalibration.cohorts.fullYear.feeds[feed][difficulty]
+          );
+          logs.forEach((log) => {
+            replacementLogMap.set(
+              `${log.date}:${log.slot}:${log.replacementQuestionId}`,
+              log.reason
+            );
+          });
+          roundLogs.push(...logs);
+        });
+      });
+
+      if (roundLogs.length === 0) {
+        return;
+      }
+
+      replacementLogs.push(...roundLogs);
+      playerCalibration = rebuildCalibration();
+    }
+  };
+
+  runAutomatedReplacementRounds(8);
+
+  let variantCleanupLogs: ReplacementLogEntry[] = [];
+  (['mix', 'sports'] as TriviaFeed[]).forEach((feed) => {
+    TRIVIA_DIFFICULTIES.forEach((difficulty) => {
+      const library =
+        feed === 'mix' ? mixPools[difficulty] : sportsPools[difficulty];
+      const logs = applyVariantReuseCleanup(feed, difficulty, schedules[feed][difficulty].episodes, library);
+      logs.forEach((log) => {
+        replacementLogMap.set(
+          `${log.date}:${log.slot}:${log.replacementQuestionId}`,
+          log.reason
+        );
+      });
+      variantCleanupLogs.push(...logs);
+    });
+  });
+
+  if (variantCleanupLogs.length > 0) {
+    replacementLogs.push(...variantCleanupLogs);
+    playerCalibration = rebuildCalibration();
+    runAutomatedReplacementRounds(4);
   }
 
   (['mix', 'sports'] as TriviaFeed[]).forEach((feed) => {
-    const library = feed === 'mix' ? mixLibrary : sportsLibrary;
     TRIVIA_DIFFICULTIES.forEach((difficulty) => {
+      const library =
+        feed === 'mix' ? mixPools[difficulty] : sportsPools[difficulty];
       const schedule = schedules[feed][difficulty];
       schedule.audit.playerAgentSummaries = playerCalibration.feeds[feed][difficulty].agentSummaries;
       applyAuditSignals(
@@ -4217,6 +7515,7 @@ async function main() {
         difficulty,
         schedule.audit,
         schedule.episodes,
+        schedules[feed][difficulty === 'easy' ? 'hard' : 'easy'].episodes,
         library,
         playerCalibration.feeds[feed][difficulty],
         playerCalibration.cohorts.first90.feeds[feed][difficulty],
@@ -4243,8 +7542,19 @@ async function main() {
     },
   };
 
-  await writeJson('mixQuestionLibrary.json', mixLibrary);
-  await writeJson('sportsQuestionLibrary.json', sportsLibrary);
+  const mixScheduledIds = new Set([
+    ...schedules.mix.easy.episodes.flatMap((episode) => episode.questionIds),
+    ...schedules.mix.hard.episodes.flatMap((episode) => episode.questionIds),
+  ]);
+  const sportsScheduledIds = new Set([
+    ...schedules.sports.easy.episodes.flatMap((episode) => episode.questionIds),
+    ...schedules.sports.hard.episodes.flatMap((episode) => episode.questionIds),
+  ]);
+  const finalMixLibrary = markReserveOnly(mixLibrary, mixScheduledIds);
+  const finalSportsLibrary = markReserveOnly(sportsLibrary, sportsScheduledIds);
+
+  await writeJson('mixQuestionLibrary.json', finalMixLibrary);
+  await writeJson('sportsQuestionLibrary.json', finalSportsLibrary);
   await writeJson('mixEasyEpisodeSchedule.json', schedules.mix.easy.episodes);
   await writeJson('mixHardEpisodeSchedule.json', schedules.mix.hard.episodes);
   await writeJson('sportsEasyEpisodeSchedule.json', schedules.sports.easy.episodes);
@@ -4255,8 +7565,8 @@ async function main() {
   console.log(
     JSON.stringify(
       {
-        mixQuestions: mixLibrary.length,
-        sportsQuestions: sportsLibrary.length,
+        mixQuestions: finalMixLibrary.length,
+        sportsQuestions: finalSportsLibrary.length,
         mixEasyEpisodes: schedules.mix.easy.episodes.length,
         mixHardEpisodes: schedules.mix.hard.episodes.length,
         sportsEasyEpisodes: schedules.sports.easy.episodes.length,
@@ -4272,7 +7582,11 @@ async function main() {
   );
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

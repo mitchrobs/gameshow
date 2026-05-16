@@ -78,10 +78,11 @@ The daily flow is:
   - `🟦` shielded save
   - `🟨` wrong answer
   - `⬛` timeout
-- Each feed should land three fair trick questions per month.
+- `Daily Sports` should land one fair curveball in each full calendar month.
   - A trick question is a curveball with a satisfying reveal, not a dirty gotcha.
   - It should still have one clearly defensible answer.
   - Partial edge months may land fewer because the shipped schedule begins on `2026-04-26` and ends on `2027-04-25`, but they should still land at least one fair curveball if enough days remain.
+- `Daily Mix` may use trick questions more sparingly.
 
 ## Question First Principles
 
@@ -334,6 +335,14 @@ Every question record must include:
 
 - `id`
 - `feed`
+- `coreFactId`
+- `difficultyPool`
+- `reserveOnly`
+- `launchEligible`
+- `launchBlockReasons`
+- `scheduleEligible`
+- `editorialSourceFamily`
+- `tasteTags`
 - `stem`
 - `options`
 - `answerIndex`
@@ -424,6 +433,8 @@ The audit layer should also emit:
 - slot-level friction summaries
 - slot-group telemetry confidence tiers
 - per-question telemetry confidence tiers
+- scheduled off-tone examples
+- blocked-pattern examples
 - replacement reasons for reserve swaps
 - top repeated groups
 - monthly curveball coverage
