@@ -16,11 +16,14 @@ import {
   THREADLINE_SHIPPED_DATED_DAYS,
   THREADLINE_SHIPPED_END_DATE_KEY,
   THREADLINE_SHIPPED_EXACT_COOLDOWN_DAYS,
+  THREADLINE_SHIPPED_FORMER_RESERVE_DAYS,
   THREADLINE_SHIPPED_MAX_AVERAGE_LENGTH,
   THREADLINE_SHIPPED_MIN_AVERAGE_LENGTH,
+  THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS,
   THREADLINE_SHIPPED_RESERVE_DAYS,
   THREADLINE_SHIPPED_START_DATE_KEY,
   THREADLINE_SHIPPED_TOTAL_PUZZLES,
+  THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS,
   THREADLINE_SHIPPED_WORDS_PER_DAY,
   THREADLINE_WORDS_BY_DOMAIN_THREAD,
   getThreadlineOutOfWindowFallback,
@@ -39,22 +42,48 @@ import {
   getThreadlineRootFamilyWarnings,
   validateThreadlineReviewCalendar,
 } from './threadlineCalendarReview';
+import {
+  THREADLINE_COPY_SCORE_THRESHOLDS,
+  auditThreadlineCopy,
+  formatThreadlineCopyAuditIssues,
+  inspectThreadlineTitlePayoffReuse,
+  renderThreadlineCompletedLead,
+  summarizeThreadlineDifficultyBands,
+} from './threadlineCopyAudit';
+
+const THREADLINE_COPY_AUDIT_OPTIONS = {
+  titleReuseCooldownDays: 180,
+  payoffReuseCooldownDays: 180,
+  scoreThresholds: THREADLINE_COPY_SCORE_THRESHOLDS,
+};
+
+function getShippedThreadlineCopyAudit() {
+  return auditThreadlineCopy({
+    puzzles: THREADLINE_PUZZLE_BANK,
+    datedSchedule: THREADLINE_DATED_SCHEDULE,
+    puzzleById: THREADLINE_PUZZLE_BY_ID,
+    editorReview: THREADLINE_EDITOR_REVIEW,
+    ...THREADLINE_COPY_AUDIT_OPTIONS,
+  });
+}
 
 describe('threadline puzzles', () => {
-  it('ships a dated 365-day calendar with 35 approved reserves', () => {
+  it('ships every approved puzzle in the dated Threadline schedule', () => {
     expect(THREADLINE_PUZZLE_BANK).toHaveLength(THREADLINE_SHIPPED_TOTAL_PUZZLES);
     expect(THREADLINE_DATED_SCHEDULE).toHaveLength(THREADLINE_SHIPPED_DATED_DAYS);
     expect(THREADLINE_RESERVES).toHaveLength(THREADLINE_SHIPPED_RESERVE_DAYS);
 
     const dateKeys = new Set(THREADLINE_DATED_SCHEDULE.map((entry) => entry.dateKey));
     const puzzleIds = new Set(THREADLINE_PUZZLE_BANK.map((puzzle) => puzzle.id));
-    const reserveIds = new Set(THREADLINE_RESERVES.map((reserve) => reserve.reserveId));
+    const scheduledPuzzleIds = new Set(THREADLINE_DATED_SCHEDULE.map((entry) => entry.puzzleId));
 
     expect(dateKeys.size).toBe(THREADLINE_SHIPPED_DATED_DAYS);
     expect(puzzleIds.size).toBe(THREADLINE_SHIPPED_TOTAL_PUZZLES);
-    expect(reserveIds.size).toBe(THREADLINE_SHIPPED_RESERVE_DAYS);
+    expect(scheduledPuzzleIds).toEqual(puzzleIds);
+    expect(THREADLINE_SHIPPED_TOTAL_PUZZLES).toBe(THREADLINE_SHIPPED_DATED_DAYS);
     expect(THREADLINE_DATED_SCHEDULE[0].dateKey).toBe(THREADLINE_SHIPPED_START_DATE_KEY);
     expect(THREADLINE_DATED_SCHEDULE.at(-1)?.dateKey).toBe(THREADLINE_SHIPPED_END_DATE_KEY);
+    expect(THREADLINE_SHIPPED_RESERVE_DAYS).toBe(0);
 
     const startDate = new Date(`${THREADLINE_SHIPPED_START_DATE_KEY}T12:00:00`);
     THREADLINE_DATED_SCHEDULE.forEach((entry, index) => {
@@ -64,10 +93,6 @@ describe('threadline puzzles', () => {
       const day = String(expectedDate.getDate()).padStart(2, '0');
       expect(entry.dateKey).toBe(`${expectedDate.getFullYear()}-${month}-${day}`);
       expect(THREADLINE_PUZZLE_BY_ID[entry.puzzleId]).toBeTruthy();
-    });
-    THREADLINE_RESERVES.forEach((reserve) => {
-      expect(THREADLINE_PUZZLE_BY_ID[reserve.puzzleId]).toBeTruthy();
-      expect(THREADLINE_DATED_SCHEDULE.some((entry) => entry.puzzleId === reserve.puzzleId)).toBe(false);
     });
   });
 
@@ -83,8 +108,9 @@ describe('threadline puzzles', () => {
     expect(THREADLINE_DATED_PUZZLE_BY_DATE[firstScheduled.dateKey]).toBe(firstScheduled.puzzleId);
   });
 
-  it('distributes out-of-window fallback across most reserves', () => {
-    const seenReserveIds = new Set<string>();
+  it('distributes out-of-window fallback across the dated bank', () => {
+    const scheduledPuzzleIds = new Set(THREADLINE_DATED_SCHEDULE.map((entry) => entry.puzzleId));
+    const seenPuzzleIds = new Set<string>();
 
     for (let offset = 1; offset <= 140; offset += 1) {
       const date = new Date(`${THREADLINE_SHIPPED_END_DATE_KEY}T12:00:00`);
@@ -92,11 +118,11 @@ describe('threadline puzzles', () => {
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       const fallback = getThreadlineOutOfWindowFallback(`${date.getFullYear()}-${month}-${day}`);
-      const reserve = THREADLINE_RESERVES.find((entry) => entry.puzzleId === fallback.id);
-      if (reserve) seenReserveIds.add(reserve.reserveId);
+      expect(scheduledPuzzleIds.has(fallback.id)).toBe(true);
+      seenPuzzleIds.add(fallback.id);
     }
 
-    expect(seenReserveIds.size).toBeGreaterThanOrEqual(30);
+    expect(seenPuzzleIds.size).toBeGreaterThanOrEqual(90);
   });
 
   it('keeps authored paths legal and synced to answers', () => {
@@ -254,6 +280,165 @@ describe('threadline puzzles', () => {
     expect(Math.max(...skeletonCounts.values())).toBeLessThanOrEqual(55);
   });
 
+  it('renders completed shipped leads through the reusable copy audit helper', () => {
+    const bannedLeadCopy = /\b(theme|clue|line begins|line at|first texture|finish its turn|complete the second|complete the first)\b/i;
+
+    THREADLINE_PUZZLE_BANK.forEach((puzzle) => {
+      const completedLead = renderThreadlineCompletedLead(puzzle);
+
+      expect(completedLead).not.toContain('[missing:');
+      expect(completedLead).not.toMatch(bannedLeadCopy);
+      expect(completedLead.length).toBeGreaterThan(puzzle.title.length);
+      puzzle.words.forEach((word) => {
+        expect(completedLead).toContain(word.answer.toLowerCase());
+      });
+    });
+  });
+
+  it('keeps puzzle titles from giving away answers or themes', () => {
+    THREADLINE_PUZZLE_BANK.forEach((puzzle) => {
+      const titleTokens = new Set(
+        puzzle.title
+          .toUpperCase()
+          .replace(/[^A-Z\s]/g, ' ')
+          .split(/\s+/)
+          .filter((token) => token.length > 2)
+      );
+      const answerTokens = new Set(puzzle.words.map((word) => word.answer));
+      const threadTokens = new Set(
+        puzzle.threads
+          .flatMap((thread) => `${thread.name} ${thread.clue}`.toUpperCase().split(/[^A-Z]+/))
+          .filter((token) => token.length > 2)
+      );
+
+      titleTokens.forEach((token) => {
+        expect(answerTokens.has(token)).toBe(false);
+        expect(threadTokens.has(token)).toBe(false);
+      });
+      expect(puzzle.title).not.toContain(':');
+      expect(puzzle.title).not.toContain('&');
+    });
+  });
+
+  it('keeps weave copy exceptional and free of puzzle-meta scaffolding', () => {
+    const bannedWeaveCopy = /\b(theme|clue|hidden turn|line land|same thread|final line)\b/i;
+
+    THREADLINE_PUZZLE_BANK.forEach((puzzle) => {
+      expect(puzzle.weave).not.toMatch(bannedWeaveCopy);
+      expect(puzzle.weave).toMatch(/[.!?]$/);
+      expect(puzzle.weave.length).toBeGreaterThanOrEqual(44);
+    });
+  });
+
+  it('dates the 200 new variety puzzles without adding them to old theme families', () => {
+    const expansionEntries = THREADLINE_DATED_SCHEDULE.slice(
+      THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS,
+      THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS + THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS
+    );
+    const expansionFamilies = new Set(
+      expansionEntries.map((entry) => THREADLINE_EDITOR_REVIEW[entry.puzzleId].tags.at(-2))
+    );
+
+    expect(expansionEntries).toHaveLength(THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS);
+    expect(expansionFamilies.size).toBe(20);
+    expansionEntries.forEach((entry) => {
+      const review = THREADLINE_EDITOR_REVIEW[entry.puzzleId];
+
+      expect(review.dateKey).toBe(entry.dateKey);
+      expect(review.tags).toContain('variety-expansion');
+    });
+    expect(THREADLINE_DATED_SCHEDULE.slice(-THREADLINE_SHIPPED_FORMER_RESERVE_DAYS)).toHaveLength(
+      THREADLINE_SHIPPED_FORMER_RESERVE_DAYS
+    );
+  });
+
+  it('keeps shipped copy audit free of critical title, lead, payoff, and review issues', () => {
+    const audit = getShippedThreadlineCopyAudit();
+
+    expect(formatThreadlineCopyAuditIssues(audit.criticalIssues)).toEqual([]);
+  });
+
+  it('does not ship generic suffix titles or close title/payoff repeats', () => {
+    const titlePayoff = inspectThreadlineTitlePayoffReuse(
+      THREADLINE_PUZZLE_BANK,
+      THREADLINE_DATED_SCHEDULE,
+      THREADLINE_PUZZLE_BY_ID,
+      THREADLINE_COPY_AUDIT_OPTIONS
+    );
+    const reuseIssues = [
+      ...titlePayoff.genericSuffixTitles,
+      ...titlePayoff.titleCooldownIssues,
+      ...titlePayoff.payoffCooldownIssues,
+    ];
+
+    expect(formatThreadlineCopyAuditIssues(reuseIssues)).toEqual([]);
+  });
+
+  it('keeps scheduled payoff copy above the uniqueness target', () => {
+    const scheduledPayoffs = THREADLINE_DATED_SCHEDULE.map(
+      (entry) => THREADLINE_PUZZLE_BY_ID[entry.puzzleId].weave
+    );
+    const uniquePayoffRatio = new Set(scheduledPayoffs).size / scheduledPayoffs.length;
+
+    expect(uniquePayoffRatio).toBeGreaterThanOrEqual(0.95);
+  });
+
+  it('keeps shipped difficulty bands separated by the audit index', () => {
+    const bands = summarizeThreadlineDifficultyBands(THREADLINE_PUZZLE_BANK);
+    const byDifficulty = Object.fromEntries(
+      bands.map((band) => [band.difficulty, band])
+    );
+
+    expect(byDifficulty.Easy.count).toBeGreaterThan(0);
+    expect(byDifficulty.Medium.count).toBeGreaterThan(0);
+    expect(byDifficulty.Hard.count).toBeGreaterThan(0);
+    expect(byDifficulty.Medium.averageIndex - byDifficulty.Easy.averageIndex).toBeGreaterThanOrEqual(0.15);
+    expect(byDifficulty.Hard.averageIndex - byDifficulty.Medium.averageIndex).toBeGreaterThanOrEqual(0.25);
+  });
+
+  it('keeps objective shipped difficulty integrity from relying on awkward copy', () => {
+    THREADLINE_PUZZLE_BANK.forEach((puzzle) => {
+      const lengths = puzzle.words.map((word) => word.answer.length);
+      const longCount = lengths.filter((length) => length >= 6).length;
+      const veryLongCount = lengths.filter((length) => length >= 7).length;
+
+      expect(longCount).toBeGreaterThanOrEqual(3);
+      if (puzzle.difficulty === 'Hard') {
+        expect(longCount).toBeGreaterThanOrEqual(4);
+        expect(veryLongCount).toBeGreaterThanOrEqual(2);
+      }
+    });
+  });
+
+  it('enforces shipped review score dimensions when the generator provides them', () => {
+    const audit = getShippedThreadlineCopyAudit();
+    const presentDimensions = audit.scoreDimensions.filter((dimension) => dimension.present > 0);
+
+    expect(presentDimensions.length).toBeGreaterThan(0);
+    presentDimensions.forEach((dimension) => {
+      expect(dimension.present).toBe(THREADLINE_PUZZLE_BANK.length);
+      expect(dimension.belowThreshold).toBe(0);
+      expect(dimension.min).toBeGreaterThanOrEqual(dimension.minimum);
+    });
+  });
+
+  it('keeps shipped score integrity varied and explained', () => {
+    const reviews = Object.values(THREADLINE_EDITOR_REVIEW);
+    const overallScores = new Set(reviews.map((review) => review.overallEditorialScore.toFixed(2)));
+    const playerScores = new Set(reviews.map((review) => review.playerAverageScore.toFixed(2)));
+    const weakest = reviews
+      .slice()
+      .sort((a, b) => a.overallEditorialScore + a.playerAverageScore - (b.overallEditorialScore + b.playerAverageScore))
+      .slice(0, 20);
+
+    expect(overallScores.size).toBeGreaterThan(10);
+    expect(playerScores.size).toBeGreaterThan(10);
+    weakest.forEach((review) => {
+      expect(review.editorNote).toMatch(/grammar|title|final-line|copy review/i);
+      expect(review.freshnessNote).toMatch(/length profile \d(?:-\d)+; difficulty index \d\.\d{2}/);
+    });
+  });
+
   it('keeps shipped scheduled answers outside the exact cooldown window', () => {
     const lastSeen = new Map<string, number>();
 
@@ -285,12 +470,12 @@ describe('threadline puzzles', () => {
 
       expect(review).toBeTruthy();
       expect(review.approvalStatus).toBe('approved');
-      expect(review.overallEditorialScore).toBeGreaterThanOrEqual(4.2);
-      expect(review.playerAverageScore).toBeGreaterThanOrEqual(4);
+      expect(review.overallEditorialScore).toBeGreaterThanOrEqual(4.4);
+      expect(review.playerAverageScore).toBeGreaterThanOrEqual(4.3);
       expect(review.minCoreScore).toBeGreaterThanOrEqual(3.5);
       expect(review.confusionRisk).toBeLessThanOrEqual(2);
       expect(review.wouldPlayAgainCount).toBeGreaterThanOrEqual(4);
-      expect(review.finalLinePayoffScore).toBeGreaterThanOrEqual(4);
+      expect(review.finalLinePayoffScore).toBeGreaterThanOrEqual(4.4);
       expect(review.safetyFlags).toEqual([]);
     });
   });

@@ -6,16 +6,28 @@ import type {
   ThreadlineThread,
   ThreadlineWord,
 } from './threadlinePuzzles';
+import {
+  auditThreadlineCopy,
+  formatThreadlineCopyAuditIssues,
+  renderThreadlineCompletedLead,
+} from './threadlineCopyAudit.ts';
+import type { ThreadlineCopyAuditReport } from './threadlineCopyAudit.ts';
 
 export const THREADLINE_SHIPPED_START_DATE_KEY = '2026-05-01';
-export const THREADLINE_SHIPPED_END_DATE_KEY = '2027-04-30';
-export const THREADLINE_SHIPPED_DATED_DAYS = 365;
-export const THREADLINE_SHIPPED_RESERVE_DAYS = 35;
-export const THREADLINE_SHIPPED_TOTAL_PUZZLES =
-  THREADLINE_SHIPPED_DATED_DAYS + THREADLINE_SHIPPED_RESERVE_DAYS;
-export const THREADLINE_APPROVED_CANDIDATE_POOL_SIZE = 960;
+export const THREADLINE_SHIPPED_END_DATE_KEY = '2027-12-21';
+export const THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS = 365;
+export const THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS = 200;
+export const THREADLINE_SHIPPED_FORMER_RESERVE_DAYS = 35;
+export const THREADLINE_SHIPPED_DATED_DAYS =
+  THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS +
+  THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS +
+  THREADLINE_SHIPPED_FORMER_RESERVE_DAYS;
+export const THREADLINE_SHIPPED_RESERVE_DAYS = 0;
+export const THREADLINE_SHIPPED_TOTAL_PUZZLES = THREADLINE_SHIPPED_DATED_DAYS;
+export const THREADLINE_APPROVED_CANDIDATE_POOL_SIZE = 1160;
 export const THREADLINE_SHIPPED_EXACT_COOLDOWN_DAYS = 60;
 export const THREADLINE_SHIPPED_ROOT_REVIEW_DAYS = 90;
+export const THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS = 180;
 export const THREADLINE_SHIPPED_WORDS_PER_DAY = 6;
 export const THREADLINE_SHIPPED_MIN_AVERAGE_LENGTH = 5.8;
 export const THREADLINE_SHIPPED_MAX_AVERAGE_LENGTH = 6.4;
@@ -45,6 +57,11 @@ export interface ThreadlineReviewScores {
   copyEditor: number;
   safetyEditor: number;
   gridEditor: number;
+  grammarScore: number;
+  titleCoherenceScore: number;
+  payoffBridgeScore: number;
+  poeticTextureScore: number;
+  difficultyIntegrityScore: number;
   nytStrandsPlayer: number;
   nytConnectionsPlayer: number;
   nytSpellingBeePlayer: number;
@@ -83,6 +100,8 @@ interface WordPool {
   name: string;
   clue: string;
   words: string[];
+  entries: PoolWordEntry[];
+  leadRole: ThreadlineWordRole;
 }
 
 interface Blueprint {
@@ -92,6 +111,7 @@ interface Blueprint {
   deck: string;
   season: string;
   difficultyBias?: ThreadlineDifficulty;
+  expansionOnly?: boolean;
   threads: [WordPool, WordPool];
   actionA: string;
   pivot: string;
@@ -99,6 +119,49 @@ interface Blueprint {
   payoff: string;
   note: string;
   tags: string[];
+}
+
+type ThreadlineWordRole =
+  | 'object'
+  | 'motion'
+  | 'signal'
+  | 'place'
+  | 'person'
+  | 'detail';
+
+interface PoolWordEntry {
+  answer: string;
+  roles: ThreadlineWordRole[];
+}
+
+interface PoolWordInput {
+  answer: string;
+  roles?: ThreadlineWordRole[];
+}
+
+interface SelectedWord {
+  answer: string;
+  pool: WordPool;
+  roles: ThreadlineWordRole[];
+}
+
+interface BlueprintCopyProfile {
+  titleVariants: string[];
+  payoffVariants: string[];
+}
+
+interface CopyScoreSummary {
+  grammarScore: number;
+  titleCoherenceScore: number;
+  payoffBridgeScore: number;
+  poeticTextureScore: number;
+  difficultyIntegrityScore: number;
+  flags: string[];
+}
+
+interface CopyFreshnessState {
+  titles: Map<string, number>;
+  payoffs: Map<string, number>;
 }
 
 interface BuiltPack {
@@ -121,10 +184,12 @@ const BLUEPRINTS: Blueprint[] = [
         'COFFEE', 'PASTRY', 'NAPKIN', 'TEACUP', 'PLATE', 'SPOON', 'MUFFIN', 'BAGEL',
         'CIDER', 'SAUCER', 'KETTLE', 'TOAST', 'SUGAR', 'CREAM', 'BREAD', 'WAFFLE',
         'ESPRESSO', 'GRANOLA', 'BISCUIT', 'COOKIE', 'CREAMER', 'OATMEAL', 'CINNAMON', 'TEAPOT',
+        'DONUTS', 'SCONES', 'TUMBLER', 'PITCHER',
       ]),
       pool('Street cues', 'What the block is doing outside.', [
         'WINDOW', 'AWNING', 'BICYCLE', 'BUSES', 'SIGNAL', 'CROSSING', 'BENCH', 'KIOSK',
         'MARKET', 'CORNER', 'PAVING', 'DOORMAT', 'FLOWER', 'SUNRISE', 'COURIER', 'PLAZA',
+        'TAXIES', 'SIDEWALK', 'LANTERN', 'TRAFFIC',
       ]),
     ],
     actionA: 'warm the counter',
@@ -167,10 +232,12 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Desk pieces', 'Objects on the work surface.', [
         'LAPTOP', 'PENCIL', 'NOTEBOOK', 'STAPLER', 'FOLDER', 'MARKER', 'KEYBOARD', 'MOUSE',
         'PAPER', 'BINDER', 'SCREEN', 'CHARGER', 'DRAWER', 'CALENDAR', 'LABEL', 'RULER',
+        'DESKLAMP', 'NOTEPAD', 'TABLET', 'PENSTAND', 'PENCASE', 'FILEBOX', 'INKWELL', 'BOOKEND',
       ]),
       pool('Work signals', 'Cues that shape the task.', [
         'INBOX', 'TIMER', 'OUTLINE', 'DRAFT', 'FOCUS', 'REPORT', 'AGENDA', 'REVIEW',
         'PLAN', 'SCHEDULE', 'PROMPT', 'UPDATE', 'CHECKLIST', 'MEETING', 'REVISION', 'LAUNCH',
+        'PLANNING', 'DRAFTING', 'RESEARCH', 'FOCUSING', 'PLANNER', 'BRIEFING',
       ]),
     ],
     actionA: 'make the surface feel ready',
@@ -190,10 +257,14 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Growing things', 'What is growing nearby.', [
         'TULIP', 'DAISY', 'VIOLET', 'BLOSSOM', 'TOMATO', 'HERBS', 'MAPLE', 'CEDAR',
         'FERN', 'PETAL', 'ORCHID', 'CARROT', 'LETTUCE', 'BASIL', 'ROSEMARY', 'IVY',
+        'FLOWER', 'GARDEN', 'SPROUT', 'BEDDING', 'SEEDLING', 'CLIMBER',
+        'ZINNIA', 'HOSTA', 'SAGE', 'THYME', 'MULCH', 'TRELLIS', 'MARIGOLD', 'SAPLING',
       ]),
       pool('Tending moves', 'How the garden gets care.', [
         'WATER', 'PRUNE', 'PLANT', 'WEED', 'MULCH', 'HARVEST', 'RAKE', 'SEED',
         'TRIM', 'DIGGING', 'SPRINKLE', 'GATHER', 'CARRY', 'COMPOST', 'TROWEL', 'FENCE',
+        'WATERING', 'PLANTING', 'PRUNING', 'WEEDING', 'WATERED', 'PLANTED', 'TENDING',
+        'TRIMMING', 'SEEDING',
       ]),
     ],
     actionA: 'fill the path with color',
@@ -238,11 +309,14 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Ingredients', 'What goes into the meal.', [
         'GARLIC', 'ONION', 'PEPPER', 'TOMATO', 'LEMON', 'BASIL', 'CARROT', 'POTATO',
         'GINGER', 'PARSLEY', 'OLIVE', 'BUTTER', 'FLOUR', 'CHEESE', 'NOODLE', 'VANILLA',
+        'SHALLOT', 'LENTIL', 'SPINACH', 'PAPRIKA', 'SESAME', 'YOGURT', 'CINNAMON', 'ROSEMARY',
       ]),
       pool('Prep moves', 'What hands do in the kitchen.', [
         'CHOP', 'WHISK', 'STIR', 'KNEAD', 'POUR', 'GRATE', 'SIZZLE', 'FOLD',
         'SIMMER', 'MEASURE', 'SPRINKLE', 'SLICE', 'ROAST', 'BLEND', 'SEASON', 'PLATE',
         'SLICING', 'MINCING', 'POURING', 'GRATING', 'SEARING', 'WHISKING', 'STIRRING', 'CHOPPING',
+        'DICING', 'MIXING', 'BRAISING', 'MARINATE', 'CHOPPED', 'SAUTEED', 'FOLDING', 'PLATING',
+        'TOASTING', 'MASHING',
       ]),
     ],
     actionA: 'gather into the first flavor',
@@ -266,6 +340,7 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Marks', 'How the idea appears.', [
         'SKETCH', 'SHADE', 'LINE', 'COLOR', 'LAYER', 'TEXTURE', 'PATTERN', 'OUTLINE',
         'DRAFT', 'STROKE', 'SHAPE', 'DETAIL', 'GLAZE', 'PRINT', 'MODEL', 'DESIGN',
+        'DRAWING', 'SHADING', 'PAINTED', 'TRACING', 'COLLAGE', 'COMPOSE',
       ]),
     ],
     actionA: 'crowd the table with possibility',
@@ -285,10 +360,12 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Book details', 'What belongs on or around the page.', [
         'NOVEL', 'INDEX', 'CHAPTER', 'MARGIN', 'BOOKMARK', 'COVER', 'TITLE', 'AUTHOR',
         'SHELF', 'VOLUME', 'LETTER', 'JOURNAL', 'PAGE', 'POEM', 'CAPTION', 'LIBRARY',
+        'STANZA', 'READER', 'BOOKLET', 'PAGES', 'BINDING', 'FOOTNOTE',
       ]),
       pool('Quiet habits', 'How the reader settles in.', [
         'WHISPER', 'NOTE', 'PAUSE', 'LISTEN', 'FOCUS', 'GLANCE', 'SETTLE', 'RECLINE',
         'BROWSE', 'RETURN', 'BORROW', 'TURNING', 'MUSING', 'HUSH', 'PENCIL', 'CHAIR',
+        'READING', 'RESTING', 'NOTING', 'SILENCE', 'SETTLED',
       ]),
     ],
     actionA: 'lower the room into the page',
@@ -308,10 +385,12 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Shore finds', 'What the tide leaves behind.', [
         'SHELL', 'PEBBLE', 'DRIFT', 'SEAWEED', 'BUCKET', 'SANDAL', 'TOWEL', 'KITE',
         'STONE', 'CORAL', 'GLASS', 'FEATHER', 'ANCHOR', 'TIDEPOOL', 'CASTLE', 'COOLER',
+        'SEAGLASS', 'FLOATER', 'WRACK', 'SPONGE', 'CONCH', 'WHELK', 'SANDDAB', 'KELP',
       ]),
       pool('Water motion', 'How the shoreline moves.', [
         'WAVE', 'TIDE', 'SPRAY', 'CURRENT', 'RIPPLE', 'FOAM', 'SURGE', 'FLOW',
         'SHIMMER', 'WASH', 'RECEDES', 'SPLASH', 'WIDENS', 'GLITTER', 'ROLLING', 'LAPPING',
+        'SWASH', 'BACKWASH', 'BREAKING', 'CREST', 'EBBING', 'FOAMING', 'TUMBLE', 'SEEPING',
       ]),
     ],
     actionA: 'mark the sand with finds',
@@ -358,10 +437,12 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Tools', 'What does the work.', [
         'HAMMER', 'WRENCH', 'DRILL', 'CLAMP', 'SCREW', 'BRUSH', 'LEVEL', 'SANDER',
         'PLIERS', 'TOOLBOX', 'RULER', 'CHISEL', 'MALLET', 'PENCIL', 'TAPE', 'LATHE',
+        'HANDSAW', 'FASTENER', 'SAWHORSE', 'JIGSAW',
       ]),
       pool('Repair clues', 'What needs attention.', [
         'HINGE', 'HANDLE', 'CRACK', 'WOBBLE', 'DENT', 'SCRATCH', 'PATCH', 'CORNER',
         'JOINT', 'THREAD', 'GLUE', 'SPLINTER', 'PLANK', 'CABINET', 'DRAWER', 'FRAME',
+        'WARPING', 'DENTING', 'WOBBLES', 'FRACTURE', 'MENDED',
       ]),
     ],
     actionA: 'line up for the small fix',
@@ -385,6 +466,7 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Passing routines', 'How people move through.', [
         'JOGGER', 'STROLL', 'WAVE', 'PAUSE', 'LISTEN', 'CHAT', 'SKETCH', 'RELAX',
         'CYCLE', 'LAUGH', 'FOLLOW', 'RETURN', 'GATHER', 'NOTICE', 'RESTING', 'WANDER',
+        'WALKING', 'JOGGING', 'CYCLING', 'CHATTING', 'PAUSING', 'GATHERED',
       ]),
     ],
     actionA: 'give the walk its edges',
@@ -409,6 +491,7 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Starting signals', 'What begins the day.', [
         'BELL', 'LESSON', 'ATTEND', 'ANSWER', 'RAISE', 'LISTEN', 'STUDY', 'QUIZ',
         'PROMPT', 'SCHEDULE', 'ANNOUNCE', 'PRACTICE', 'PROJECT', 'RECESS', 'OPENING', 'WELCOME',
+        'QUESTION', 'READING', 'WRITING', 'PRESENT',
       ]),
     ],
     actionA: 'make the room feel ready',
@@ -428,6 +511,8 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Art details', 'What the eye notices.', [
         'FRAME', 'CANVAS', 'COLOR', 'SHADOW', 'FIGURE', 'PORTRAIT', 'TEXTURE', 'LABEL',
         'SCULPT', 'MURAL', 'PALETTE', 'PATTERN', 'LUSTER', 'ANGLE', 'GLOW', 'BORDER',
+        'LIGHTING', 'CONTOUR', 'COMPOSE', 'SURFACE',
+        'VARNISH', 'GESSO', 'PLINTH', 'RELIEF', 'FRESCO', 'TRIPTYCH', 'SKETCH', 'HANGING',
       ]),
       pool('Visitor moves', 'How the room is read.', [
         'GLANCE', 'PAUSE', 'NOTICE', 'RETURN', 'POINT', 'LISTEN', 'WANDER', 'COMPARE',
@@ -479,11 +564,13 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Paper trails', 'What arrives or gets sorted.', [
         'LETTER', 'POSTCARD', 'PACKAGE', 'ENVELOPE', 'STAMP', 'LABEL', 'NOTICE', 'INVOICE',
         'CATALOG', 'FLYER', 'ADDRESS', 'BUNDLE', 'PAPER', 'FOLDER', 'RECEIPT', 'TICKET',
+        'PARCEL', 'MAILER', 'POSTAL', 'LEDGER', 'MANIFEST', 'CIRCULAR',
       ]),
       pool('Delivery steps', 'How it gets there.', [
         'SORT', 'CARRY', 'ROUTE', 'DROP', 'STACK', 'SCAN', 'SIGNAL', 'COURIER',
         'DELIVER', 'FORWARD', 'RETURN', 'CHECK', 'HANDLE', 'TRANSFER', 'WAGON', 'DOORBELL',
         'SORTING', 'CARRYING', 'STACKING', 'SCANNING', 'ROUTING', 'HANDOFF', 'POSTING', 'LOADING',
+        'SORTED', 'CARRIED', 'STAMPED', 'BUNDLED', 'MAILED', 'DISPATCH',
       ]),
     ],
     actionA: 'make the shelf feel busy',
@@ -503,6 +590,7 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Stage details', 'What is set for the show.', [
         'CURTAIN', 'SPOTLIGHT', 'STAGE', 'PROPS', 'SCRIPT', 'COSTUME', 'SCENE', 'PIANO',
         'BALLET', 'ORCHESTRA', 'BACKDROP', 'TICKET', 'AISLE', 'VELVET', 'MASK', 'FANFARE',
+        'PLAYBILL', 'FOOTLAMP', 'RISER', 'CUECARD', 'SETLIST', 'DRAPERY', 'WINGS', 'CATWALK',
       ]),
       pool('Audience cues', 'How attention gathers.', [
         'APPLAUSE', 'WHISPER', 'LISTEN', 'SETTLE', 'PROGRAM', 'PAUSE', 'WATCH', 'CLAP',
@@ -526,6 +614,7 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Trail signs', 'What guides the walk.', [
         'MARKER', 'ARROW', 'MAP', 'BRIDGE', 'PATH', 'SIGNAL', 'BLAZE', 'COMPASS',
         'POST', 'GATE', 'TRAIL', 'RIDGE', 'CAMPER', 'LANTERN', 'FOOTPATH', 'CROSSING',
+        'SIGNPOST', 'WAYMARK', 'WAYFIND',
       ]),
       pool('Natural details', 'What fills the path.', [
         'PINE', 'CEDAR', 'MOSS', 'FERN', 'STONE', 'CREEK', 'BIRCH', 'MEADOW',
@@ -602,6 +691,7 @@ const BLUEPRINTS: Blueprint[] = [
         'MENU', 'NAPKIN', 'KETCHUP', 'COFFEE', 'BOOTH', 'COUNTER', 'STRAW', 'PLATE',
         'JELLY', 'TOAST', 'PANCAKE', 'SYRUP', 'FORK', 'MUGS', 'CLOCK', 'WINDOW',
         'PLACEMAT', 'SILVER', 'CREAMER', 'OATMEAL', 'BISCUIT', 'OMELET', 'SAUCER', 'SPECIAL',
+        'DINNER', 'SERVER', 'HASHES', 'SEATING',
       ]),
       pool('Order calls', 'How the meal moves.', [
         'ORDER', 'REFILL', 'SERVE', 'CHECK', 'CARRY', 'SIZZLE', 'CALL', 'STACK',
@@ -680,6 +770,7 @@ const BLUEPRINTS: Blueprint[] = [
       pool('Doorstep details', 'What waits near the door.', [
         'PORCH', 'LANTERN', 'DOORMAT', 'PLANTER', 'PACKAGE', 'WREATH', 'CHAIR', 'RAILING',
         'PUMPKIN', 'BASKET', 'CANDLE', 'WINDOW', 'BELL', 'STEPS', 'FLOWER', 'MAILBOX',
+        'SCONCE', 'KEYHOLE', 'MAILSLOT', 'NUMBER', 'BUZZER', 'AWNING', 'SHUTTER', 'HINGE',
       ]),
       pool('Neighbor signals', 'How the street says hello.', [
         'WAVE', 'KNOCK', 'CALL', 'SMILE', 'VISIT', 'NOTICE', 'RETURN', 'GATHER',
@@ -706,6 +797,7 @@ const BLUEPRINTS: Blueprint[] = [
         'BASKET', 'BLANKET', 'SANDWICH', 'LEMONADE', 'NAPKIN', 'APPLE', 'COOKIE', 'SALAD',
         'THERMOS', 'CHEESE', 'GRAPES', 'PLATE', 'MELON', 'FORK', 'CIDER', 'BREAD',
         'CUTLERY', 'CRACKER', 'BROWNIE', 'PICKLES', 'TUMBLER', 'CUPCAKE', 'BAGUETTE', 'PRETZEL',
+        'PEACHES', 'HUMMUS', 'LUNCHBOX', 'BERRIES',
       ]),
       pool('Park motions', 'How the picnic unfolds.', [
         'UNFOLD', 'SHARE', 'POUR', 'PASS', 'LAUGH', 'SETTLE', 'TOSS', 'GATHER',
@@ -722,7 +814,7 @@ const BLUEPRINTS: Blueprint[] = [
   },
   {
     domain: 'clean-slate',
-    title: 'Clean Slate',
+    title: 'Fresh Page',
     place: 'the quiet desk',
     deck: 'Fresh-start objects and planning moves nod to the turn of the year.',
     season: 'winter',
@@ -746,7 +838,7 @@ const BLUEPRINTS: Blueprint[] = [
   },
   {
     domain: 'paper-hearts',
-    title: 'Paper Hearts',
+    title: 'Craft Table',
     place: 'the craft table',
     deck: 'Craft supplies and small gestures make a near-February nod.',
     season: 'winter',
@@ -891,6 +983,511 @@ const BLUEPRINTS: Blueprint[] = [
   },
 ];
 
+const EXPANSION_BLUEPRINTS: Blueprint[] = [
+  {
+    domain: 'observatory',
+    title: 'Observatory',
+    place: 'the observatory dome',
+    deck: 'Lens pieces and sky motions turn the room toward the dark.',
+    season: 'winter',
+    expansionOnly: true,
+    threads: [
+      pool('Lens pieces', 'What helps the sky come into focus.', [
+        'LENS', 'MIRROR', 'FILTER', 'TRIPOD', 'DOME', 'FINDER', 'EYEPIECE', 'SCOPE',
+        'CHART', 'ORBIT', 'NEBULA', 'GALAXY', 'COMET', 'STAR', 'FOCUS', 'SHUTTER',
+        'OCULAR', 'RETICLE', 'MOUNT', 'APERTURE', 'SKYMAP', 'BARLOW', 'PRISM', 'EQUATOR',
+        'FOCUSER', 'VIEWFIND', 'SKYGLASS', 'MOONLENS', 'STARFIND', 'DUSTCAP', 'DOVETAIL', 'STARPORT',
+      ]),
+      pool('Sky motions', 'How the night appears to move.', [
+        'RISING', 'ROTATE', 'ALIGN', 'DRIFT', 'ARCING', 'ECLIPSE', 'SHIMMER', 'TRANSIT',
+        'GLITTER', 'WHEELING', 'SPARKLE', 'TRACKING', 'TURNING', 'GLOWING', 'HOVER', 'PASSING',
+        'STARGAZE', 'MOONRISE', 'TWINKLE', 'ORBITING', 'WINKING', 'DARKEN', 'SKYWARD', 'STELLAR',
+      ]),
+    ],
+    actionA: 'bring the dark into focus',
+    pivot: 'opens the roof toward distance',
+    actionB: 'make the night feel near',
+    payoff: 'The dome turns distance into something almost held.',
+    note: 'Scheduled variety expansion; adds night-sky texture without touching existing families.',
+    tags: ['variety-expansion', 'sky', 'instrument'],
+  },
+  {
+    domain: 'aquarium',
+    title: 'Aquarium',
+    place: 'the aquarium glass',
+    deck: 'Tank life and water cues move behind one clear wall.',
+    season: 'summer',
+    expansionOnly: true,
+    threads: [
+      pool('Tank life', 'What lives or rests behind the glass.', [
+        'GUPPY', 'CORAL', 'TURTLE', 'ANEMONE', 'SHRIMP', 'TETRA', 'MANTA', 'KELP',
+        'OTTER', 'URCHIN', 'CLOWN', 'SEAHORSE', 'MINNOW', 'GROTTO', 'REEF', 'SHELL',
+      ]),
+      pool('Water cues', 'How the tank stays alive.', [
+        'BUBBLE', 'FILTER', 'CURRENT', 'RIPPLE', 'SWIRL', 'GLIDE', 'FLOAT', 'FEEDING',
+        'CIRCLING', 'HOVER', 'DARTING', 'SHIMMER', 'DRIFT', 'FLICKER', 'WAVING', 'STREAM',
+        'AERATE', 'PUMPING', 'BUBBLING', 'SKIMMING', 'TIDAL', 'FLOWING', 'SPARKLE', 'WAFTING',
+      ]),
+    ],
+    actionA: 'brighten the glass',
+    pivot: 'makes the wall feel liquid',
+    actionB: 'keep the water in motion',
+    payoff: 'The glass holds a world that refuses to stay still.',
+    note: 'Scheduled variety expansion with a clean life/motion split.',
+    tags: ['variety-expansion', 'water', 'animals'],
+  },
+  {
+    domain: 'newsroom',
+    title: 'Newsroom',
+    place: 'the newsroom desk',
+    deck: 'News pieces and press moves shape a story before morning.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('News pieces', 'What a story is made from.', [
+        'HEADLINE', 'BYLINE', 'COLUMN', 'EDITOR', 'PHOTO', 'CAPTION', 'SOURCE', 'QUOTE',
+        'BRIEF', 'PRESS', 'PAPER', 'STORY', 'LEDE', 'DATELINE', 'BULLETIN', 'CAMERA',
+      ]),
+      pool('Press moves', 'How the story gets trusted.', [
+        'REPORT', 'VERIFY', 'EDIT', 'PRINT', 'CALL', 'RECORD', 'UPDATE', 'PUBLISH',
+        'CHECK', 'REVISE', 'CAPTURE', 'LISTEN', 'QUESTION', 'BRIEF', 'FILE', 'DRAFT',
+        'CONFIRM', 'SOURCE', 'REWRITE', 'COPYEDIT', 'FACTUAL', 'NOTATE', 'QUERY', 'FOLLOW',
+      ]),
+    ],
+    actionA: 'make the story visible',
+    pivot: 'puts pressure on the morning',
+    actionB: 'turn rumor into record',
+    payoff: 'The desk turns noise into something that can be read.',
+    note: 'Scheduled variety expansion built around editorial motion.',
+    tags: ['variety-expansion', 'news', 'writing'],
+  },
+  {
+    domain: 'clockshop',
+    title: 'Clockshop',
+    place: 'the clockshop counter',
+    deck: 'Clock parts and time motions keep the little machines awake.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Clock parts', 'What keeps time visible.', [
+        'PENDULUM', 'DIAL', 'GEAR', 'SPRING', 'HAND', 'CHIME', 'FACE', 'WINDER',
+        'SECOND', 'MINUTE', 'BRASS', 'CASE', 'ALARM', 'WEIGHT', 'ESCAPE', 'TICKER',
+      ]),
+      pool('Time motions', 'How the clock behaves.', [
+        'TICK', 'TOCK', 'CHIME', 'TURN', 'WIND', 'COUNT', 'MEASURE', 'RESET',
+        'PAUSE', 'STRIKE', 'BALANCE', 'SWING', 'MARK', 'ADVANCE', 'SETTLE', 'REPEAT',
+        'TICKING', 'ESCAPE', 'TALLY', 'RATCHET', 'PULSE', 'CLICK', 'WOUND', 'TIMER',
+      ]),
+    ],
+    actionA: 'make time visible',
+    pivot: 'keeps the counter listening',
+    actionB: 'turn minutes into music',
+    payoff: 'The counter learns how small time can sound.',
+    note: 'Scheduled variety expansion with tactile machinery.',
+    tags: ['variety-expansion', 'time', 'mechanical'],
+  },
+  {
+    domain: 'chessboard',
+    title: 'Chessboard',
+    place: 'the chessboard table',
+    deck: 'Pieces and tactics make a quiet room feel dangerous.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Board pieces', 'What waits on the squares.', [
+        'KING', 'QUEEN', 'BISHOP', 'KNIGHT', 'ROOK', 'PAWN', 'CASTLE', 'BOARD',
+        'SQUARE', 'RANK', 'FILE', 'GAMBIT', 'CHECK', 'MATE', 'OPENING', 'DIAGRAM',
+      ]),
+      pool('Tactics', 'How pressure builds.', [
+        'CAPTURE', 'DEFEND', 'FORK', 'PIN', 'SKEWER', 'CASTLING', 'ATTACK', 'GUARD',
+        'TRADE', 'PRESS', 'DEVELOP', 'THREAT', 'ADVANCE', 'RETREAT', 'COUNTER', 'CONTROL',
+      ]),
+    ],
+    actionA: 'hold the room in silence',
+    pivot: 'puts danger into order',
+    actionB: 'make quiet pressure visible',
+    payoff: 'The table makes silence feel like a move.',
+    note: 'Scheduled variety expansion for strategy and pressure.',
+    tags: ['variety-expansion', 'strategy', 'tabletop'],
+  },
+  {
+    domain: 'campsite',
+    title: 'Campsite',
+    place: 'the campsite ring',
+    deck: 'Camp gear and fire-side motions settle into evening.',
+    season: 'fall',
+    expansionOnly: true,
+    threads: [
+      pool('Camp gear', 'What makes the camp workable.', [
+        'TENT', 'LANTERN', 'COOLER', 'BEDROLL', 'MATCH', 'KETTLE', 'COMPASS', 'RUCKSACK',
+        'HAMMOCK', 'TARP', 'SKILLET', 'BLANKET', 'CANTEEN', 'FIREPIT', 'THERMOS', 'FLASK',
+      ]),
+      pool('Camp moves', 'How the evening gets made.', [
+        'PITCH', 'KINDLE', 'ROAST', 'STOKE', 'GATHER', 'SETTLE', 'UNROLL', 'LISTEN',
+        'WHITTLE', 'TRAMP', 'FOLLOW', 'SLEEP', 'COOK', 'PACK', 'HIKING', 'RESTING',
+      ]),
+    ],
+    actionA: 'make the dark feel prepared',
+    pivot: 'sets one warm center in place',
+    actionB: 'turn outside into shelter',
+    payoff: 'The ring makes the open air feel kept.',
+    note: 'Scheduled variety expansion with outdoor ritual distinct from trail/park.',
+    tags: ['variety-expansion', 'camp', 'outdoor'],
+  },
+  {
+    domain: 'pottery',
+    title: 'Pottery',
+    place: 'the pottery wheel',
+    deck: 'Clay forms and kiln steps turn pressure into shape.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Clay forms', 'What the hand can shape.', [
+        'CLAY', 'WHEEL', 'KILN', 'GLAZE', 'VASE', 'BOWL', 'MUGS', 'PLATTER',
+        'HANDLE', 'FOOT', 'SLIP', 'COIL', 'SHARD', 'BISQUE', 'TILE', 'PITCHER',
+      ]),
+      pool('Kiln steps', 'How the piece becomes sturdy.', [
+        'THROW', 'CENTER', 'SHAPE', 'TRIM', 'FIRE', 'GLAZE', 'CARVE', 'SCORE',
+        'SMOOTH', 'PRESS', 'TURN', 'DRYING', 'POLISH', 'COILING', 'PINCH', 'HANDLE',
+        'WEDGING', 'SLIPPING', 'BISQUE', 'RIBBING', 'SPONGE', 'PADDLE', 'POTTER', 'FIRING',
+      ]),
+    ],
+    actionA: 'give pressure a shape',
+    pivot: 'keeps the hand honest',
+    actionB: 'turn softness into form',
+    payoff: 'The wheel teaches clay how to remember.',
+    note: 'Scheduled variety expansion for material transformation.',
+    tags: ['variety-expansion', 'craft', 'clay'],
+  },
+  {
+    domain: 'apiary',
+    title: 'Apiary',
+    place: 'the apiary path',
+    deck: 'Hive pieces and bee-work motions hum around one box.',
+    season: 'spring',
+    expansionOnly: true,
+    threads: [
+      pool('Hive pieces', 'What belongs near the hive.', [
+        'HIVE', 'COMB', 'HONEY', 'QUEEN', 'WORKER', 'DRONE', 'CELL', 'FRAME',
+        'SMOKER', 'VEIL', 'GLOVES', 'NECTAR', 'POLLEN', 'BROOD', 'SWARM', 'APIARY',
+      ]),
+      pool('Hive moves', 'How the hive keeps working.', [
+        'HUM', 'BUZZ', 'GATHER', 'FORAGE', 'DANCE', 'RETURN', 'SWARM', 'TEND',
+        'SMOKE', 'INSPECT', 'HARVEST', 'SEAL', 'FANNING', 'FLYING', 'CARRY', 'SETTLE',
+        'WAGGLE', 'NECTAR', 'POLLEN', 'NURTURE', 'CLUSTER', 'BROODING', 'HUMMING', 'GUARDING',
+      ]),
+    ],
+    actionA: 'make sweetness feel organized',
+    pivot: 'puts the whole box in motion',
+    actionB: 'turn work into a hum',
+    payoff: 'The path gathers sweetness one small flight at a time.',
+    note: 'Scheduled variety expansion with natural motion and objects.',
+    tags: ['variety-expansion', 'hive', 'nature'],
+  },
+  {
+    domain: 'vineyard',
+    title: 'Vineyard',
+    place: 'the vineyard row',
+    deck: 'Vine details and cellar steps carry fruit toward patience.',
+    season: 'fall',
+    expansionOnly: true,
+    threads: [
+      pool('Vine details', 'What grows or waits in the row.', [
+        'GRAPE', 'VINE', 'TRELLIS', 'BARREL', 'CORK', 'CELLAR', 'CLUSTER', 'LEAF',
+        'SOIL', 'BOTTLE', 'CRATE', 'PRESS', 'CANE', 'HARVEST', 'TASTING', 'VALLEY',
+      ]),
+      pool('Cellar steps', 'How the fruit is handled.', [
+        'PRUNE', 'PICK', 'CRUSH', 'PRESS', 'FERMENT', 'POUR', 'TASTE', 'BOTTLE',
+        'LABEL', 'STACK', 'TURN', 'SWIRL', 'SORT', 'RACK', 'AGING', 'STORE',
+      ]),
+    ],
+    actionA: 'put patience in rows',
+    pivot: 'sweetens the work by inches',
+    actionB: 'turn fruit into waiting',
+    payoff: 'The row makes patience taste like weather.',
+    note: 'Scheduled variety expansion focused on seasonal process.',
+    tags: ['variety-expansion', 'vineyard', 'harvest'],
+  },
+  {
+    domain: 'tailor',
+    title: 'Tailor',
+    place: 'the tailor mirror',
+    deck: 'Garment parts and fitting motions make cloth answer the body.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Garment parts', 'What gives the garment structure.', [
+        'COLLAR', 'SLEEVE', 'CUFF', 'LINING', 'BUTTON', 'THREAD', 'POCKET', 'LAPEL',
+        'ZIPPER', 'SEAM', 'FABRIC', 'PLEAT', 'WAIST', 'PATTERN', 'NEEDLE', 'THIMBLE',
+      ]),
+      pool('Fitting moves', 'How the garment changes.', [
+        'MEASURE', 'PINNING', 'CUTTING', 'STITCH', 'PRESS', 'ALTER', 'DRAPE', 'TAPER',
+        'MARK', 'FOLD', 'TRIM', 'SEWING', 'BASTE', 'MATCH', 'SMOOTH', 'ADJUST',
+        'HEMMING', 'REFIT', 'RESHAPE', 'RESEW', 'NOTCH', 'GATHER', 'PLEATING', 'TAILOR',
+      ]),
+    ],
+    actionA: 'give cloth a body',
+    pivot: 'makes the mirror more exact',
+    actionB: 'turn fit into feeling',
+    payoff: 'The mirror shows where cloth learns to belong.',
+    note: 'Scheduled variety expansion separate from laundry and studio.',
+    tags: ['variety-expansion', 'tailor', 'garment'],
+  },
+  {
+    domain: 'airport',
+    title: 'Airport',
+    place: 'the terminal window',
+    deck: 'Terminal signs and flight moves lift a long room into motion.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Terminal signs', 'What guides the traveler.', [
+        'GATE', 'TICKET', 'PASSPORT', 'LUGGAGE', 'RUNWAY', 'HANGAR', 'TERMINAL', 'BOARD',
+        'ARRIVAL', 'DEPART', 'SECURITY', 'BAGGAGE', 'WINDOW', 'AISLE', 'PILOT', 'JETWAY',
+      ]),
+      pool('Flight moves', 'How the trip leaves the ground.', [
+        'BOARD', 'TAXI', 'ASCEND', 'CRUISE', 'LAND', 'CHECK', 'SCAN', 'CARRY',
+        'QUEUE', 'TRANSFER', 'CONNECT', 'WAIT', 'ANNOUNCE', 'STOW', 'BUCKLE', 'DESCEND',
+      ]),
+    ],
+    actionA: 'make leaving legible',
+    pivot: 'pulls the room toward distance',
+    actionB: 'turn waiting into altitude',
+    payoff: 'The window makes distance feel scheduled.',
+    note: 'Scheduled variety expansion with a distinct travel setting.',
+    tags: ['variety-expansion', 'travel', 'flight'],
+  },
+  {
+    domain: 'apothecary',
+    title: 'Apothecary',
+    place: 'the apothecary shelf',
+    deck: 'Shelf jars and mixing steps make an old room feel precise.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Shelf jars', 'What sits on the old shelf.', [
+        'TONIC', 'HERB', 'ELIXIR', 'MORTAR', 'PESTLE', 'BOTTLE', 'DROPPER', 'LABEL',
+        'BALM', 'SALVE', 'LAVENDER', 'MINT', 'SAGE', 'ROOT', 'VIAL', 'SYRUP',
+      ]),
+      pool('Mixing steps', 'How the shelf becomes useful.', [
+        'MEASURE', 'GRIND', 'STEEP', 'POUR', 'BLEND', 'LABEL', 'STRAIN', 'STIR',
+        'SEAL', 'SORT', 'CRUSH', 'WARM', 'INFUSE', 'BOTTLE', 'TEST', 'FILTER',
+        'DECOCT', 'DOSING', 'SIFTING', 'MUDDLE', 'TINCTURE', 'MACERATE', 'CORKING', 'WEIGH',
+      ]),
+    ],
+    actionA: 'make the shelf smell old and exact',
+    pivot: 'keeps the recipe quiet',
+    actionB: 'turn measure into remedy',
+    payoff: 'The shelf makes care feel carefully lit.',
+    note: 'Scheduled variety expansion with distinctive old-shop texture.',
+    tags: ['variety-expansion', 'remedy', 'shop'],
+  },
+  {
+    domain: 'planetarium',
+    title: 'Planetarium',
+    place: 'the planetarium dome',
+    deck: 'Dome sights and show cues turn a ceiling into distance.',
+    season: 'winter',
+    expansionOnly: true,
+    threads: [
+      pool('Dome sights', 'What appears overhead.', [
+        'PLANET', 'COMET', 'ORBIT', 'NEBULA', 'GALAXY', 'DOME', 'LASER', 'SCREEN',
+        'STAR', 'SATURN', 'VENUS', 'MOON', 'ECLIPSE', 'ZENITH', 'AURORA', 'COSMOS',
+      ]),
+      pool('Show cues', 'How the room changes.', [
+        'DIMMING', 'ROTATE', 'NARRATE', 'PROJECT', 'POINT', 'TRACE', 'SWEEP', 'GLOW',
+        'FADE', 'LISTEN', 'REVEAL', 'CIRCLE', 'ALIGN', 'DRIFT', 'SPARKLE', 'LOWER',
+        'UNFURL', 'DARKEN', 'STARING', 'SKYWARD', 'WIDEN', 'ORBITING', 'TWINKLE', 'SUSPEND',
+      ]),
+    ],
+    actionA: 'make the ceiling enormous',
+    pivot: 'darkens the room into wonder',
+    actionB: 'turn looking upward into travel',
+    payoff: 'The dome lets the ceiling become a sky.',
+    note: 'Scheduled variety expansion, related to sky but distinct from the instrument-led observatory.',
+    tags: ['variety-expansion', 'space', 'show'],
+  },
+  {
+    domain: 'firehouse',
+    title: 'Firehouse',
+    place: 'the firehouse bay',
+    deck: 'Gear and response steps keep the room ready.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Ready gear', 'What waits in the bay.', [
+        'HELMET', 'LADDER', 'HOSE', 'SIREN', 'ENGINE', 'BOOTS', 'RADIO', 'NOZZLE',
+        'TRUCK', 'JACKET', 'MASK', 'TANK', 'HYDRANT', 'BADGE', 'ROPE', 'GLOVES',
+        'TURNOUT', 'AIRPACK', 'TOOLKIT', 'BREATHER',
+      ]),
+      pool('Response steps', 'How readiness becomes action.', [
+        'ROLL', 'ALERT', 'DRIVE', 'SPRAY', 'RESCUE', 'CLIMB', 'RADIO', 'SIGNAL',
+        'CHECK', 'CARRY', 'RETURN', 'TRAIN', 'READY', 'RUN', 'LIFT', 'SECURE',
+        'DISPATCH', 'EVACUATE', 'RESPOND', 'TRAINING',
+      ]),
+    ],
+    actionA: 'make readiness visible',
+    pivot: 'keeps urgency polished',
+    actionB: 'turn alarm into action',
+    payoff: 'The bay keeps courage close enough to reach.',
+    note: 'Scheduled variety expansion with high-energy verbs.',
+    tags: ['variety-expansion', 'response', 'gear'],
+  },
+  {
+    domain: 'radio-booth',
+    title: 'Radio Booth',
+    place: 'the radio booth',
+    deck: 'Booth gear and air moves carry a voice across distance.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Booth gear', 'What helps the voice travel.', [
+        'HEADSET', 'CONSOLE', 'FADER', 'CABLE', 'ANTENNA', 'SPEAKER', 'RECORD', 'SCRIPT',
+        'SIGNAL', 'DIAL', 'SWITCH', 'STUDIO', 'TOWER', 'MIXER', 'TAPE', 'FILTER',
+      ]),
+      pool('Air moves', 'How sound gets shaped.', [
+        'ANNOUNCE', 'MIXING', 'FADE', 'CUEING', 'CALL', 'LISTEN', 'RECORD', 'TUNE',
+        'PATCH', 'SIGNAL', 'REPLAY', 'BALANCE', 'FILTER', 'LAUNCH', 'PAUSE', 'LEVEL',
+        'AIRPLAY', 'MODULATE', 'MONITOR', 'SEGUE', 'VOICING', 'DUCKING', 'JINGLE', 'HOSTING',
+      ]),
+    ],
+    actionA: 'give the voice a path',
+    pivot: 'makes distance sound close',
+    actionB: 'turn silence into signal',
+    payoff: 'The booth sends a room farther than it can see.',
+    note: 'Scheduled variety expansion for sound and broadcast.',
+    tags: ['variety-expansion', 'radio', 'sound'],
+  },
+  {
+    domain: 'printshop',
+    title: 'Printshop',
+    place: 'the printshop press',
+    deck: 'Type pieces and press moves turn ink into public shape.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Type pieces', 'What the press works with.', [
+        'LETTER', 'INKWELL', 'PRESS', 'PLATE', 'ROLLER', 'FRAME', 'PAPER', 'TYPE',
+        'GALLEY', 'PROOF', 'BLOCK', 'LEADING', 'MARGIN', 'POSTER', 'FOLDER', 'BINDER',
+      ]),
+      pool('Press moves', 'How the page gets made.', [
+        'SETTING', 'PRINT', 'INKING', 'PRESS', 'ALIGN', 'TRIM', 'FOLD', 'STACK',
+        'DRYING', 'PROOF', 'ROLL', 'BIND', 'CUTTING', 'SORT', 'CHECK', 'PACKAGE',
+        'TYPESET', 'LOCKUP', 'IMPOSE', 'PLATEN', 'GATHER', 'COLLATE', 'NUMBER', 'STAPLE',
+      ]),
+    ],
+    actionA: 'make language physical',
+    pivot: 'puts weight behind the page',
+    actionB: 'turn ink into announcement',
+    payoff: 'The press gives language a body.',
+    note: 'Scheduled variety expansion with strong material/process contrast.',
+    tags: ['variety-expansion', 'print', 'page'],
+  },
+  {
+    domain: 'weather-station',
+    title: 'Weather Station',
+    place: 'the weather station',
+    deck: 'Instruments and forecast shifts turn air into evidence.',
+    season: 'spring',
+    expansionOnly: true,
+    threads: [
+      pool('Instruments', 'What measures the air.', [
+        'THERMAL', 'RADAR', 'SENSOR', 'GAUGE', 'WINDSOCK', 'RAINCUP', 'SCREEN', 'CHART',
+        'BEACON', 'DIAL', 'TOWER', 'COMPASS', 'CAMERA', 'ALERT', 'SIGNAL', 'METER',
+        'ANEROID', 'ANEMO', 'VANE', 'HYGRO', 'LOGGER', 'PROBE', 'SATLINK', 'THERMO',
+      ]),
+      pool('Forecast shifts', 'How weather changes.', [
+        'RISING', 'FALLING', 'GUSTING', 'CLEAR', 'CLOUDING', 'DRIZZLE', 'FREEZE', 'THAW',
+        'MEASURE', 'TRACK', 'WARN', 'UPDATE', 'WATCH', 'SHIFT', 'SWING', 'REPORT',
+      ]),
+    ],
+    actionA: 'give the air a number',
+    pivot: 'makes the sky accountable',
+    actionB: 'turn weather into warning',
+    payoff: 'The station translates the sky before it arrives.',
+    note: 'Scheduled variety expansion separate from commute rain cues.',
+    tags: ['variety-expansion', 'weather', 'measure'],
+  },
+  {
+    domain: 'dancehall',
+    title: 'Dancehall',
+    place: 'the dancehall floor',
+    deck: 'Floor details and dance steps let the room count out loud.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Floor details', 'What waits around the dance.', [
+        'FLOOR', 'MIRROR', 'STAGE', 'BALLET', 'TANGO', 'RHYTHM', 'SHOES', 'RIBBON',
+        'LAMP', 'CURTAIN', 'RECORD', 'BAND', 'DRESS', 'GLOVE', 'TICKET', 'CIRCLE',
+      ]),
+      pool('Dance steps', 'How the room moves.', [
+        'TWIRL', 'STEP', 'GLIDE', 'TURN', 'DIPPING', 'SPIN', 'CLAP', 'COUNT',
+        'FOLLOW', 'LEAD', 'SWAY', 'BOUNCE', 'PAUSE', 'CROSS', 'SLIDE', 'LISTEN',
+      ]),
+    ],
+    actionA: 'make the floor expect music',
+    pivot: 'sets the count underfoot',
+    actionB: 'turn rhythm into motion',
+    payoff: 'The floor hears the music before anyone does.',
+    note: 'Scheduled variety expansion for embodied rhythm.',
+    tags: ['variety-expansion', 'dance', 'music'],
+  },
+  {
+    domain: 'laboratory',
+    title: 'Laboratory',
+    place: 'the laboratory bench',
+    deck: 'Lab pieces and test steps turn curiosity into proof.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Lab pieces', 'What makes the bench precise.', [
+        'BEAKER', 'FLASK', 'GOGGLE', 'BURNER', 'SAMPLE', 'PIPETTE', 'SLIDE', 'METER',
+        'TUBE', 'CHART', 'NOTE', 'LENS', 'SCALE', 'SENSOR', 'CABINET', 'LABEL',
+        'REAGENT', 'CUVETTE', 'WELL', 'AGAR', 'BUFFER', 'CULTURE', 'VORTEX', 'MICROBE',
+      ]),
+      pool('Test steps', 'How the bench finds out.', [
+        'MEASURE', 'TEST', 'RECORD', 'MIXING', 'HEAT', 'COOL', 'OBSERVE', 'FILTER',
+        'LABEL', 'CHECK', 'TRACK', 'COMPARE', 'CULTURE', 'SAMPLE', 'REPORT', 'SEAL',
+        'TITRATE', 'ANALYZE', 'DILUTE', 'DECANT', 'ISOLATE', 'CATALYST', 'CONTROL', 'ASSAY',
+      ]),
+    ],
+    actionA: 'make curiosity careful',
+    pivot: 'keeps wonder under glass',
+    actionB: 'turn looking into proof',
+    payoff: 'The bench lets curiosity become evidence.',
+    note: 'Scheduled variety expansion with science-process texture.',
+    tags: ['variety-expansion', 'science', 'proof'],
+  },
+  {
+    domain: 'lighthouse',
+    title: 'Lighthouse',
+    place: 'the lighthouse stair',
+    deck: 'Beacon pieces and coast cues turn height into warning.',
+    season: 'winter',
+    expansionOnly: true,
+    threads: [
+      pool('Beacon pieces', 'What keeps the tower visible.', [
+        'BEACON', 'LANTERN', 'LENS', 'TOWER', 'KEEPER', 'WINDOW', 'RAILING', 'STAIR',
+        'OILCAN', 'SIGNAL', 'BRASS', 'CHART', 'FOGHORN', 'ROCKS', 'CLIFF', 'GLASS',
+        'FRESNEL', 'GALLERY', 'BALCONY', 'WICK', 'OILROOM', 'CATWALK', 'LANDING', 'PRISM',
+      ]),
+      pool('Coast cues', 'How the light answers the water.', [
+        'FLASH', 'SWEEP', 'GLOW', 'WARN', 'TURN', 'GUIDE', 'WATCH', 'SHIMMER',
+        'SIGNAL', 'RETURN', 'RISING', 'FADE', 'BEAM', 'SPARKLE', 'GLANCE', 'TRACK',
+        'SEAWARD', 'FOGBOUND', 'BEAMING', 'WINKING', 'SWIVEL', 'GLIMMER', 'MARKING', 'AIMING',
+      ]),
+    ],
+    actionA: 'make height useful',
+    pivot: 'sets brightness above the rocks',
+    actionB: 'turn danger into direction',
+    payoff: 'The stair lifts warning until the coast can read it.',
+    note: 'Scheduled variety expansion with a coastal signal vocabulary.',
+    tags: ['variety-expansion', 'coast', 'signal'],
+  },
+];
+
+const ALL_BLUEPRINTS = [...BLUEPRINTS, ...EXPANSION_BLUEPRINTS];
+
 const HOLIDAY_NOD_RULES = [
   {
     domain: 'porch-spark',
@@ -958,6 +1555,73 @@ const HOLIDAY_NOD_RULES = [
   },
 ] as const;
 
+const NON_SPOILER_TITLE_PREFIXES = [
+  'Quiet', 'Bright', 'Small', 'Hidden', 'Gentle', 'Clever', 'Soft', 'Lively',
+  'Patient', 'Kind', 'Curious', 'Tender', 'Slow', 'Honest', 'Narrow', 'Open',
+  'Early', 'Late', 'Silver', 'Golden', 'Restless', 'Steady', 'Warm', 'Cool',
+  'Secret', 'Plain', 'Fresh', 'Deep', 'Brave', 'Careful', 'Distant', 'Earnest',
+] as const;
+
+const NON_SPOILER_TITLE_NOUNS = [
+  'Turn', 'Promise', 'Echo', 'Drift', 'Pulse', 'Measure', 'Interval', 'Gesture',
+  'Weather', 'Wonder', 'Shift', 'Spark', 'Murmur', 'Current', 'Pattern', 'Threshold',
+  'Horizon', 'Pocket', 'Undertone', 'Opening', 'Return', 'Balance', 'Tangle', 'Glimmer',
+  'Passage', 'Secret', 'Cadence', 'Ember', 'Bloom', 'Crossing', 'Whisper', 'Trace',
+] as const;
+
+const NON_SPOILER_TITLE_FRAMES = [
+  '{prefix} {noun}',
+  'The {prefix} {noun}',
+  '{noun} In Passing',
+  'Where {noun} Settles',
+  'Before The {noun}',
+  'After The {noun}',
+  'What {noun} Keeps',
+  '{noun} For Later',
+  '{noun} At The Edge',
+  'The {noun} Nearby',
+  '{noun} In The Middle',
+  '{noun} Without Hurry',
+] as const;
+
+const BANNED_STANDALONE_LEAD_COPY = /\b(theme|clue|line begins|line at|first texture|finish its turn|complete the second|complete the first)\b/i;
+const BANNED_WEAVE_COPY = /\b(theme|clue|hidden turn|line land|same thread|final line)\b/i;
+
+const COPY_PROFILES: Record<string, BlueprintCopyProfile> = {
+  cafe: copyProfile(['Counter Glow', 'Morning Steam', 'Block Wake', 'Window Rush', 'Cup And Curb', 'First Errand']),
+  commute: copyProfile(['Rain Route', 'Doorway Forecast', 'Wet Avenue', 'Signal Weather', 'Shelter Map', 'Damp Departure']),
+  desk: copyProfile(['Clean Desk', 'First Draft', 'Workday Shape', 'Page Signal', 'Focus Mark', 'Inbox Light']),
+  garden: copyProfile(['Gate Bloom', 'Tended Path', 'Soil Signal', 'Green Ritual', 'Petal Work', 'Yard Answer']),
+  station: copyProfile(['Platform Signal', 'Departure Clock', 'Waiting Rail', 'Track Pulse', 'Ticket Hour', 'Moving Queue']),
+  kitchen: copyProfile(['Recipe Motion', 'Counter Scent', 'First Flavor', 'Supper Signal', 'Prep Light', 'Dinner Edge']),
+  studio: copyProfile(['Table Sketch', 'Material Spark', 'First Mark', 'Color Draft', 'Brush Thought', 'Shape Signal']),
+  library: copyProfile(['Quiet Page', 'Reading Light', 'Shelf Whisper', 'Margin Thought', 'Book Table', 'Chosen Hush']),
+  shore: copyProfile(['Tide Edge', 'Sand Trace', 'Water Line', 'Shore Mark', 'Low-Water Find', 'Foam Return']),
+  market: copyProfile(['Aisle Talk', 'Basket Signal', 'Stall Morning', 'Market Hand', 'Bright Produce', 'Friendly Change']),
+  workshop: copyProfile(['Loose Part', 'Tool Light', 'Repair Table', 'Workbench Clue', 'Small Fix', 'Solved Hinge']),
+  park: copyProfile(['Path Social', 'Loop Light', 'Bench Rhythm', 'Walking Thread', 'Park Greeting', 'Neighborhood Path']),
+  school: copyProfile(['Classroom Start', 'Board Signal', 'First Task', 'Bell Thread', 'Ready Room', 'Lesson Door']),
+  gallery: copyProfile(['Slow Look', 'Wall Attention', 'Eye Route', 'Quiet Frame', 'Room Seeing', 'Picture Path']),
+  bakery: copyProfile(['Case Glow', 'Breakfast Line', 'Sweet Counter', 'Glass Choice', 'Morning Treat', 'Bakery Motion']),
+  mailroom: copyProfile(['Paper Route', 'Sorted Door', 'Shelf Signal', 'Delivery Thread', 'Mail Path', 'Posted Light']),
+  theater: copyProfile(['Opening Cue', 'Room Attention', 'Stage Hush', 'Audience Light', 'Curtain Signal', 'Listening Room']),
+  trail: copyProfile(['Path Map', 'Marker Morning', 'Trail Clue', 'Ridge Signal', 'Walking Compass', 'Outdoor Line']),
+  laundry: copyProfile(['Clean Pattern', 'Soft Order', 'Washday Turn', 'Laundry Thread', 'Folded Light', 'Room Reset']),
+  rooftop: copyProfile(['Last Light', 'Roofline Hour', 'Evening Rail', 'Skyline Pause', 'Slow View', 'Bright Edge']),
+  diner: copyProfile(['Booth Rhythm', 'Counter Call', 'Breakfast Thread', 'Table Familiar', 'Diner Signal', 'Small Order']),
+  harbor: copyProfile(['Dock Bell', 'Water Departure', 'Harbor Line', 'Morning Mooring', 'Boat Signal', 'Still Water']),
+  music: copyProfile(['Practice Beat', 'Room Rhythm', 'Rehearsal Thread', 'Sound Shape', 'Listening Cue', 'Measure Light']),
+  porch: copyProfile(['Doorstep Welcome', 'Porch Greeting', 'Front Light', 'Neighbor Signal', 'Step Hello', 'Small Welcome']),
+  picnic: copyProfile(['Blanket Table', 'Basket Afternoon', 'Grass Spread', 'Picnic Thread', 'Park Table', 'Shared Light']),
+  'clean-slate': copyProfile(['Fresh Mark', 'New Page', 'Quiet Plan', 'First Step', 'Calendar Edge', 'Reset Light']),
+  'paper-hearts': copyProfile(['Small Message', 'Folded Note', 'Craft Table', 'Ribbon Thought', 'Quiet Valentine', 'Hand To Hand']),
+  'porch-lantern': copyProfile(['Dusk Door', 'Lantern Step', 'October Glow', 'Porch Shadow', 'Soft Knock', 'Evening Welcome']),
+  'table-leaf': copyProfile(['Long Table', 'One More Plate', 'Gathered Linen', 'Serving Light', 'Room Made', 'Before Thanks']),
+  'window-ribbon': copyProfile(['Bright Window', 'Ribbon Light', 'Winter Glass', 'Parcel Glow', 'Front Reflection', 'Wrapped Room']),
+  'spring-basket': copyProfile(['Early Spring', 'Basket Color', 'Hidden Clover', 'Table Bloom', 'Spring Found', 'Pastel Hunt']),
+  'porch-spark': copyProfile(['Bright Porch', 'Summer Rail', 'Dusk Spark', 'Porch Lift', 'Lantern Cheer', 'Night Close']),
+};
+
 const DIRECTIONS: ThreadlineCoord[] = [
   { row: 0, col: 1 },
   { row: 1, col: 0 },
@@ -1011,7 +1675,7 @@ const SHARED_BACKUP_WORDS = [
   'YEARBOOK', 'ZIPPER',
 ].filter((word) => /^[A-Z]{4,8}$/.test(word));
 
-const WORD_POOL_FREQUENCY = BLUEPRINTS.reduce<Record<string, number>>((counts, blueprint) => {
+const WORD_POOL_FREQUENCY = ALL_BLUEPRINTS.reduce<Record<string, number>>((counts, blueprint) => {
   blueprint.threads.forEach((thread) => {
     thread.words.forEach((word) => {
       counts[word] = (counts[word] ?? 0) + 1;
@@ -1022,19 +1686,57 @@ const WORD_POOL_FREQUENCY = BLUEPRINTS.reduce<Record<string, number>>((counts, b
 
 export const THREADLINE_WORDS_BY_DOMAIN_THREAD: Record<string, Record<string, string[]>> =
   Object.fromEntries(
-    BLUEPRINTS.map((blueprint) => [
+    ALL_BLUEPRINTS.map((blueprint) => [
       blueprint.domain,
       Object.fromEntries(blueprint.threads.map((thread) => [thread.name, thread.words])),
     ])
   );
 
-function pool(name: string, clue: string, words: string[]): WordPool {
+function copyProfile(titleVariants: string[]): BlueprintCopyProfile {
+  return {
+    titleVariants,
+    payoffVariants: [
+      'Between {a} and {b}, {payoff}',
+      'By the time {a} meets {b}, {payoff}',
+      'What starts with {a} ends near {b}; {payoff}',
+      '{place} holds {a} beside {b}, and {payoff}',
+      'With {a} beside {b}, {payoff}',
+      '{a} gives {b} its cue, and {payoff}',
+    ],
+  };
+}
+
+function inferLeadRole(name: string): ThreadlineWordRole {
+  if (/(moves|motions|steps|calls|cues|signals|habits|routines)/i.test(name)) return 'motion';
+  if (/(signs|route|delivery|starting|order)/i.test(name)) return 'signal';
+  if (/(visitor|buyer|audience|neighbor|hosting)/i.test(name)) return 'person';
+  if (/(details|objects|pieces|things|supplies|goods|treats|finds|gear|ingredients|tools|fabric|table|window|doorstep|counter|dock|booth|stage|book|craft|packed|fresh-start|colors)/i.test(name)) {
+    return 'object';
+  }
+  return 'detail';
+}
+
+function normalizePoolWord(input: string | PoolWordInput, fallbackRole: ThreadlineWordRole): PoolWordEntry | null {
+  const answer = (typeof input === 'string' ? input : input.answer).toUpperCase();
+  if (!/^[A-Z]{4,8}$/.test(answer)) return null;
+  return {
+    answer,
+    roles: typeof input === 'string' ? [fallbackRole] : input.roles ?? [fallbackRole],
+  };
+}
+
+function pool(name: string, clue: string, words: Array<string | PoolWordInput>): WordPool {
+  const leadRole = inferLeadRole(name);
+  const entries = words
+    .map((word) => normalizePoolWord(word, leadRole))
+    .filter((entry): entry is PoolWordEntry => Boolean(entry));
+
   return {
     name,
     clue,
-    words: words
-      .map((word) => word.toUpperCase())
-      .filter((word) => /^[A-Z]{4,8}$/.test(word)),
+    entries,
+    words: entries.map((entry) => entry.answer),
+    leadRole,
   };
 }
 
@@ -1087,13 +1789,12 @@ function getDifficulty(dayIndex: number, blueprint: Blueprint): ThreadlineDiffic
 }
 
 function targetLengthsForDifficulty(difficulty: ThreadlineDifficulty): number[] {
-  if (difficulty === 'Easy') return [6, 5, 6, 6, 5, 7];
-  if (difficulty === 'Hard') return [7, 6, 6, 7, 5, 6];
-  return [7, 5, 6, 6, 5, 6];
+  if (difficulty === 'Easy') return [6, 6, 6, 6, 5, 7];
+  if (difficulty === 'Hard') return [7, 7, 6, 7, 7, 6];
+  return [7, 6, 6, 6, 6, 6];
 }
 
 function getSeasonForDateKey(key: string, fallback: string): string {
-  if (key.startsWith('reserve')) return fallback;
   const month = Number(key.slice(5, 7));
   if (month === 12 || month <= 2) return 'winter';
   if (month >= 3 && month <= 5) return 'spring';
@@ -1101,19 +1802,37 @@ function getSeasonForDateKey(key: string, fallback: string): string {
   return 'fall';
 }
 
-function getBlueprintForDateKey(dateKeyValue: string, dayIndex: number): Blueprint {
+function standardBlueprints(): Blueprint[] {
+  return BLUEPRINTS.filter((blueprint) => !blueprint.tags.includes('holiday-adjacent') && !blueprint.expansionOnly);
+}
+
+function getOriginalWindowBlueprint(dateKeyValue: string, dayIndex: number): Blueprint {
   const holidayRule = HOLIDAY_NOD_RULES.find((rule) => rule.targetDateKey === dateKeyValue);
   if (holidayRule) {
     return BLUEPRINTS.find((blueprint) => blueprint.domain === holidayRule.domain) ?? BLUEPRINTS[0];
   }
 
-  const core = BLUEPRINTS.filter((blueprint) => !blueprint.tags.includes('holiday-adjacent'));
+  const core = standardBlueprints();
   return core[dayIndex % core.length];
 }
 
-function getReserveBlueprint(dayIndex: number): Blueprint {
-  const reservePool = BLUEPRINTS.filter((blueprint) => !blueprint.tags.includes('holiday-adjacent'));
-  return reservePool[(dayIndex * 5 + 3) % reservePool.length];
+function rotateBlueprints(blueprints: Blueprint[], offset: number): Blueprint[] {
+  return blueprints.map((_, index) => blueprints[(index + offset) % blueprints.length]);
+}
+
+function getBlueprintCandidatesForDateKey(dateKeyValue: string, dayIndex: number): Blueprint[] {
+  if (dayIndex < THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS) {
+    return [getOriginalWindowBlueprint(dateKeyValue, dayIndex)];
+  }
+
+  const expansionIndex = dayIndex - THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS;
+  if (expansionIndex < THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS) {
+    return rotateBlueprints(EXPANSION_BLUEPRINTS, expansionIndex % EXPANSION_BLUEPRINTS.length);
+  }
+
+  const formerReserveIndex = expansionIndex - THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS;
+  const core = standardBlueprints();
+  return rotateBlueprints(core, (formerReserveIndex * 5 + 3) % core.length);
 }
 
 function chooseWord(
@@ -1122,7 +1841,7 @@ function chooseWord(
   usedAnswers: Set<string>,
   lastSeen: Map<string, number>,
   dayIndex: number
-): string {
+): SelectedWord {
   const ranked = Array.from(new Set(pool.words)).sort((a, b) => {
     const lengthScore = Math.abs(a.length - targetLength) - Math.abs(b.length - targetLength);
     if (lengthScore !== 0) return lengthScore;
@@ -1141,7 +1860,12 @@ function chooseWord(
 
   usedAnswers.add(candidate);
   lastSeen.set(candidate, dayIndex);
-  return candidate;
+  const entry = pool.entries.find((word) => word.answer === candidate);
+  return {
+    answer: candidate,
+    pool,
+    roles: entry?.roles ?? [pool.leadRole],
+  };
 }
 
 function buildPath(start: ThreadlineCoord, direction: ThreadlineCoord, length: number): ThreadlineCoord[] {
@@ -1218,148 +1942,267 @@ function asLower(answer: string): string {
   return answer.toLowerCase();
 }
 
-function makeLead(blueprint: Blueprint, wordIds: string[], dayIndex: number): ThreadlineSegment[] {
-  const style = (dayIndex + blueprint.domain.length) % 8;
-  if (style === 1) {
-    return [
-      { type: 'text', text: `Around ${blueprint.place}, ` },
-      { type: 'blank', wordId: wordIds[0] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[1] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[2] },
-      { type: 'text', text: ` ${blueprint.actionA}, while ` },
-      { type: 'blank', wordId: wordIds[3] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[4] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[5] },
-      { type: 'text', text: ` ${blueprint.actionB}.` },
-    ];
-  }
-  if (style === 2) {
-    return [
-      { type: 'text', text: `The scene at ${blueprint.place} starts as ` },
-      { type: 'blank', wordId: wordIds[0] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[1] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[2] },
-      { type: 'text', text: ` ${blueprint.actionA}; it finishes when ` },
-      { type: 'blank', wordId: wordIds[3] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[4] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[5] },
-      { type: 'text', text: ` ${blueprint.actionB}.` },
-    ];
-  }
-  if (style === 3) {
-    return [
-      { type: 'blank', wordId: wordIds[0] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[1] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[2] },
-      { type: 'text', text: ` ${blueprint.actionA} at ${blueprint.place}; across the line, ` },
-      { type: 'blank', wordId: wordIds[3] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[4] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[5] },
-      { type: 'text', text: ` ${blueprint.actionB}.` },
-    ];
-  }
-  if (style === 4) {
-    return [
-      { type: 'text', text: `By ${blueprint.place}, ` },
-      { type: 'blank', wordId: wordIds[0] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[1] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[2] },
-      { type: 'text', text: ` ${blueprint.actionA}, and ` },
-      { type: 'blank', wordId: wordIds[3] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[4] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[5] },
-      { type: 'text', text: ` ${blueprint.actionB}.` },
-    ];
-  }
-  if (style === 5) {
-    return [
-      { type: 'text', text: 'First ' },
-      { type: 'blank', wordId: wordIds[0] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[1] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[2] },
-      { type: 'text', text: ` ${blueprint.actionA}; later, ` },
-      { type: 'blank', wordId: wordIds[3] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[4] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[5] },
-      { type: 'text', text: ` ${blueprint.actionB} at ${blueprint.place}.` },
-    ];
-  }
-  if (style === 6) {
-    return [
-      { type: 'text', text: `One side of ${blueprint.place} gathers ` },
-      { type: 'blank', wordId: wordIds[0] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[1] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[2] },
-      { type: 'text', text: `; the other finds ` },
-      { type: 'blank', wordId: wordIds[3] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[4] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[5] },
-      { type: 'text', text: '.' },
-    ];
-  }
-  if (style === 7) {
-    return [
-      { type: 'text', text: `At ${blueprint.place}, the day notices ` },
-      { type: 'blank', wordId: wordIds[0] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[1] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[2] },
-      { type: 'text', text: ` before ` },
-      { type: 'blank', wordId: wordIds[3] },
-      { type: 'text', text: ', ' },
-      { type: 'blank', wordId: wordIds[4] },
-      { type: 'text', text: ', and ' },
-      { type: 'blank', wordId: wordIds[5] },
-      { type: 'text', text: ` ${blueprint.actionB}.` },
-    ];
-  }
+function capitalize(text: string): string {
+  return text.length === 0 ? text : text[0].toUpperCase() + text.slice(1);
+}
+
+function lowerFirst(text: string): string {
+  return text.length === 0 ? text : text[0].toLowerCase() + text.slice(1);
+}
+
+function stripTerminal(text: string): string {
+  return text.replace(/[.!?]+$/, '');
+}
+
+function titleCase(text: string): string {
+  return text
+    .toLowerCase()
+    .split(/[\s-]+/)
+    .map((part) => capitalize(part))
+    .join(' ');
+}
+
+function placeName(blueprint: Blueprint): string {
+  return blueprint.place.replace(/^the /, '');
+}
+
+function profileFor(blueprint: Blueprint): BlueprintCopyProfile {
+  return COPY_PROFILES[blueprint.domain] ?? copyProfile([blueprint.title]);
+}
+
+function blank(wordId: string): ThreadlineSegment {
+  return { type: 'blank', wordId };
+}
+
+function serialBlanks(wordIds: string[]): ThreadlineSegment[] {
   return [
-    { type: 'text', text: `At ${blueprint.place}, ` },
-    { type: 'blank', wordId: wordIds[0] },
+    blank(wordIds[0]),
     { type: 'text', text: ', ' },
-    { type: 'blank', wordId: wordIds[1] },
+    blank(wordIds[1]),
     { type: 'text', text: ', and ' },
-    { type: 'blank', wordId: wordIds[2] },
-    { type: 'text', text: ` ${blueprint.actionA}; ` },
-    { type: 'blank', wordId: wordIds[3] },
-    { type: 'text', text: ', ' },
-    { type: 'blank', wordId: wordIds[4] },
-    { type: 'text', text: ', and ' },
-    { type: 'blank', wordId: wordIds[5] },
-    { type: 'text', text: ` ${blueprint.actionB}.` },
+    blank(wordIds[2]),
   ];
 }
 
-function titleForDay(blueprint: Blueprint, dateKeyValue: string, dayIndex: number): string {
-  if (HOLIDAY_NOD_RULES.some((rule) => rule.targetDateKey === dateKeyValue)) return blueprint.title;
-  const suffixes = ['Morning', 'Window', 'Table', 'Corner', 'Loop', 'Hour', 'Shelf', 'Path'];
-  const suffix = suffixes[(dayIndex + blueprint.domain.length) % suffixes.length];
-  return dayIndex % 5 === 0 ? blueprint.title : `${blueprint.title}: ${suffix}`;
+function appendSegments(target: ThreadlineSegment[], source: ThreadlineSegment[]): void {
+  source.forEach((segment) => target.push(segment));
+}
+
+function appendLeadClause(
+  target: ThreadlineSegment[],
+  pool: WordPool,
+  wordIds: string[],
+  action: string
+): void {
+  if (pool.leadRole === 'motion' || pool.leadRole === 'person') {
+    target.push({ type: 'text', text: 'the scene moves through ' });
+    appendSegments(target, serialBlanks(wordIds));
+    target.push({ type: 'text', text: ` to ${action}` });
+    return;
+  }
+
+  appendSegments(target, serialBlanks(wordIds));
+  target.push({ type: 'text', text: ` ${action}` });
+}
+
+function normalizeCopyKey(copy: string): string {
+  return copy
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function copyIsFresh(lastSeen: Map<string, number>, copy: string, dayIndex: number): boolean {
+  const key = normalizeCopyKey(copy);
+  const previousDay = lastSeen.get(key);
+  return !key || previousDay === undefined || dayIndex - previousDay > THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS;
+}
+
+function rememberCopy(lastSeen: Map<string, number>, copy: string, dayIndex: number): void {
+  const key = normalizeCopyKey(copy);
+  if (key) lastSeen.set(key, dayIndex);
+}
+
+function makeLead(blueprint: Blueprint, wordIds: string[], dayIndex: number): ThreadlineSegment[] {
+  const firstIds = wordIds.slice(0, 3);
+  const secondIds = wordIds.slice(3, 6);
+  const style = (dayIndex + blueprint.domain.length) % 8;
+  const segments: ThreadlineSegment[] = [];
+
+  if (style === 0) {
+    segments.push({ type: 'text', text: `At ${blueprint.place}, ` });
+    appendLeadClause(segments, blueprint.threads[0], firstIds, blueprint.actionA);
+    segments.push({ type: 'text', text: '; ' });
+    appendLeadClause(segments, blueprint.threads[1], secondIds, blueprint.actionB);
+    segments.push({ type: 'text', text: '.' });
+    return segments;
+  }
+
+  if (style === 1) {
+    segments.push({ type: 'text', text: `Around ${blueprint.place}, ` });
+    appendLeadClause(segments, blueprint.threads[0], firstIds, blueprint.actionA);
+    segments.push({ type: 'text', text: ', while ' });
+    appendLeadClause(segments, blueprint.threads[1], secondIds, blueprint.actionB);
+    segments.push({ type: 'text', text: '.' });
+    return segments;
+  }
+
+  if (style === 2) {
+    segments.push({ type: 'text', text: `${capitalize(blueprint.place)} holds still as ` });
+    appendLeadClause(segments, blueprint.threads[0], firstIds, blueprint.actionA);
+    segments.push({ type: 'text', text: '; nearby, ' });
+    appendLeadClause(segments, blueprint.threads[1], secondIds, blueprint.actionB);
+    segments.push({ type: 'text', text: '.' });
+    return segments;
+  }
+
+  if (style === 3) {
+    segments.push({ type: 'text', text: `The morning at ${blueprint.place} starts when ` });
+    appendLeadClause(segments, blueprint.threads[0], firstIds, blueprint.actionA);
+    segments.push({ type: 'text', text: '; by the end, ' });
+    appendLeadClause(segments, blueprint.threads[1], secondIds, blueprint.actionB);
+    segments.push({ type: 'text', text: '.' });
+    return segments;
+  }
+
+  if (style === 4) {
+    segments.push({ type: 'text', text: `Near ${blueprint.place}, ` });
+    appendLeadClause(segments, blueprint.threads[0], firstIds, blueprint.actionA);
+    segments.push({ type: 'text', text: ', and ' });
+    appendLeadClause(segments, blueprint.threads[1], secondIds, blueprint.actionB);
+    segments.push({ type: 'text', text: '.' });
+    return segments;
+  }
+
+  if (style === 5) {
+    segments.push({ type: 'text', text: `In ${blueprint.place}, ` });
+    appendLeadClause(segments, blueprint.threads[0], firstIds, blueprint.actionA);
+    segments.push({ type: 'text', text: ' before ' });
+    appendLeadClause(segments, blueprint.threads[1], secondIds, blueprint.actionB);
+    segments.push({ type: 'text', text: '.' });
+    return segments;
+  }
+
+  if (style === 6) {
+    segments.push({ type: 'text', text: `${capitalize(blueprint.place)} gets its shape when ` });
+    appendLeadClause(segments, blueprint.threads[0], firstIds, blueprint.actionA);
+    segments.push({ type: 'text', text: ', then ' });
+    appendLeadClause(segments, blueprint.threads[1], secondIds, blueprint.actionB);
+    segments.push({ type: 'text', text: '.' });
+    return segments;
+  }
+
+  segments.push({ type: 'text', text: `By ${blueprint.place}, ` });
+  appendLeadClause(segments, blueprint.threads[0], firstIds, blueprint.actionA);
+  segments.push({ type: 'text', text: '; after that, ' });
+  appendLeadClause(segments, blueprint.threads[1], secondIds, blueprint.actionB);
+  segments.push({ type: 'text', text: '.' });
+  return segments;
+}
+
+function titleForDay(
+  blueprint: Blueprint,
+  _dateKeyValue: string,
+  dayIndex: number,
+  selectedWords: SelectedWord[],
+  copyFreshness?: CopyFreshnessState
+): string {
+  const cycleOffset = copyCycleOffset(dayIndex);
+  const candidates: string[] = [];
+  const answerTokens = new Set(selectedWords.map((word) => normalizeCopyKey(word.answer)));
+  const threadTokens = new Set(
+    blueprint.threads.flatMap((thread) =>
+      normalizeCopyKey(`${thread.name} ${thread.clue}`).split(' ').filter((token) => token.length > 2)
+    )
+  );
+
+  for (
+    let attempt = 0;
+    attempt < NON_SPOILER_TITLE_PREFIXES.length * NON_SPOILER_TITLE_NOUNS.length * NON_SPOILER_TITLE_FRAMES.length;
+    attempt += 1
+  ) {
+    const prefix =
+      NON_SPOILER_TITLE_PREFIXES[
+        (dayIndex + blueprint.domain.length + cycleOffset + attempt) % NON_SPOILER_TITLE_PREFIXES.length
+      ];
+    const noun =
+      NON_SPOILER_TITLE_NOUNS[
+        (dayIndex * 3 + blueprint.domain.length * 5 + cycleOffset + attempt * 7) %
+          NON_SPOILER_TITLE_NOUNS.length
+      ];
+    const frame =
+      NON_SPOILER_TITLE_FRAMES[
+        (dayIndex * 5 + blueprint.domain.length * 3 + cycleOffset + attempt * 11) %
+          NON_SPOILER_TITLE_FRAMES.length
+      ];
+    const candidate = frame.replace('{prefix}', prefix).replace('{noun}', noun);
+    const candidateTokens = normalizeCopyKey(candidate).split(' ');
+    if (candidateTokens.some((token) => answerTokens.has(token) || threadTokens.has(token))) continue;
+    candidates.push(candidate);
+  }
+
+  if (candidates.length === 0) candidates.push('Quiet Interval');
+  const title =
+    copyFreshness?.titles
+      ? candidates.find((candidate) => copyIsFresh(copyFreshness.titles, candidate, dayIndex)) ?? candidates[0]
+      : candidates[0];
+  if (copyFreshness) rememberCopy(copyFreshness.titles, title, dayIndex);
+  return title;
+}
+
+function formatCopyTemplate(
+  template: string,
+  blueprint: Blueprint,
+  title: string,
+  selectedWords: SelectedWord[],
+  firstAnchorIndex = 0,
+  secondAnchorIndex = 0
+): string {
+  const replacements: Record<string, string> = {
+    a: asLower(selectedWords[firstAnchorIndex].answer),
+    b: asLower(selectedWords[3 + secondAnchorIndex].answer),
+    title,
+    place: placeName(blueprint),
+    payoff: lowerFirst(stripTerminal(blueprint.payoff)),
+  };
+  const result = template.replace(/\{(a|b|title|place|payoff)\}/g, (_, key: string) => replacements[key] ?? '');
+  return /[.!?]$/.test(result) ? result : `${result}.`;
+}
+
+function payoffForDay(
+  blueprint: Blueprint,
+  title: string,
+  selectedWords: SelectedWord[],
+  dayIndex: number,
+  copyFreshness?: CopyFreshnessState
+): string {
+  const profile = profileFor(blueprint);
+  const cycleOffset = copyCycleOffset(dayIndex);
+  const candidates: string[] = [];
+
+  for (let attempt = 0; attempt < profile.payoffVariants.length * 9; attempt += 1) {
+    const template =
+      profile.payoffVariants[
+        (dayIndex + selectedWords[0].answer.length + cycleOffset + attempt) % profile.payoffVariants.length
+      ];
+    const firstAnchorIndex = (dayIndex + cycleOffset + attempt) % 3;
+    const secondAnchorIndex = (dayIndex + cycleOffset + attempt + 1) % 3;
+    candidates.push(
+      capitalize(formatCopyTemplate(template, blueprint, title, selectedWords, firstAnchorIndex, secondAnchorIndex))
+    );
+  }
+
+  const payoff =
+    copyFreshness?.payoffs
+      ? candidates.find((candidate) => copyIsFresh(copyFreshness.payoffs, candidate, dayIndex)) ?? candidates[0]
+      : candidates[0];
+  if (copyFreshness) rememberCopy(copyFreshness.payoffs, payoff, dayIndex);
+  return payoff;
+}
+
+function copyCycleOffset(dayIndex: number): number {
+  return Math.floor(dayIndex / 50) + Math.floor(dayIndex / 25) * 2 + Math.floor(dayIndex / 17);
 }
 
 function answerId(answer: string, index: number): string {
@@ -1369,22 +2212,20 @@ function answerId(answer: string, index: number): string {
 function makeHint(blueprint: Blueprint, pool: WordPool, answer: string): string {
   const place = blueprint.place.replace(/^the /, '');
   const label = pool.name.toLowerCase();
-  if (/(moves|motions|steps|calls)/i.test(pool.name)) {
-    return `An action from ${label}.`;
-  }
-  return `A detail from ${label} near ${place}.`;
+  return `${capitalize(label)} near ${place}: ${pool.clue.replace(/\.$/, '').toLowerCase()} (${answer.length} letters).`;
 }
 
 function buildPuzzle(
   blueprint: Blueprint,
   dateKeyValue: string,
   dayIndex: number,
-  lastSeen: Map<string, number>
+  lastSeen: Map<string, number>,
+  copyFreshness?: CopyFreshnessState
 ): ThreadlinePuzzle {
   const difficulty = getDifficulty(dayIndex, blueprint);
   const targetLengths = targetLengthsForDifficulty(difficulty);
   const usedAnswers = new Set<string>();
-  const answers = [
+  const selectedWords = [
     chooseWord(blueprint.threads[0], targetLengths[0], usedAnswers, lastSeen, dayIndex),
     chooseWord(blueprint.threads[0], targetLengths[1], usedAnswers, lastSeen, dayIndex),
     chooseWord(blueprint.threads[0], targetLengths[2], usedAnswers, lastSeen, dayIndex),
@@ -1392,6 +2233,7 @@ function buildPuzzle(
     chooseWord(blueprint.threads[1], targetLengths[4], usedAnswers, lastSeen, dayIndex),
     chooseWord(blueprint.threads[1], targetLengths[5], usedAnswers, lastSeen, dayIndex),
   ];
+  const answers = selectedWords.map((word) => word.answer);
   const wordIds = answers.map(answerId);
   const { grid, paths } = placeWordsWithRetries(answers, PACK_SEED + dayIndex * 97);
   const threads: [ThreadlineThread, ThreadlineThread] = [
@@ -1402,20 +2244,21 @@ function buildPuzzle(
     id: wordIds[index],
     answer,
     threadId: index < 3 ? 'thread-a' : 'thread-b',
-    hint: makeHint(blueprint, index < 3 ? blueprint.threads[0] : blueprint.threads[1], answer),
+    hint: makeHint(blueprint, selectedWords[index].pool, answer),
     path: paths[index],
   }));
+  const title = titleForDay(blueprint, dateKeyValue, dayIndex, selectedWords, copyFreshness);
 
   return {
     id: `threadline-${dateKeyValue}-${blueprint.domain}`.replaceAll(':', '-'),
-    title: titleForDay(blueprint, dateKeyValue, dayIndex),
+    title,
     deck: blueprint.deck,
     difficulty,
     grid,
     lead: makeLead(blueprint, wordIds, dayIndex),
     threads,
     words,
-    weave: blueprint.payoff,
+    weave: payoffForDay(blueprint, title, selectedWords, dayIndex, copyFreshness),
     note: blueprint.note,
   };
 }
@@ -1428,6 +2271,102 @@ function lengthProfile(puzzle: ThreadlinePuzzle): string {
   return puzzle.words.map((word) => word.answer.length).join('-');
 }
 
+function completedLead(puzzle: ThreadlinePuzzle): string {
+  const wordById = new Map(puzzle.words.map((word) => [word.id, word.answer.toLowerCase()]));
+  return puzzle.lead
+    .map((segment) => (segment.type === 'text' ? segment.text : wordById.get(segment.wordId) ?? ''))
+    .join('');
+}
+
+function normalizedWords(text: string): Set<string> {
+  return new Set(
+    text
+      .toUpperCase()
+      .replace(/[^A-Z\s]/g, ' ')
+      .split(/\s+/)
+      .filter((word) => word.length >= 4)
+  );
+}
+
+function titleHasGenericSuffix(title: string): boolean {
+  return /: (Morning|Window|Table|Corner|Loop|Hour|Shelf|Path)$/.test(title);
+}
+
+function titleSpoilsPuzzle(title: string, puzzle: ThreadlinePuzzle): boolean {
+  const titleTokens = normalizedWords(title);
+  const answerTokens = new Set(puzzle.words.map((word) => word.answer.toUpperCase()));
+  const threadTokens = normalizedWords(
+    puzzle.threads.map((thread) => `${thread.name} ${thread.clue}`).join(' ')
+  );
+  return [...titleTokens].some((token) => answerTokens.has(token) || threadTokens.has(token));
+}
+
+function difficultyIndex(puzzle: ThreadlinePuzzle): number {
+  const avg = averageLength(puzzle);
+  const longCount = puzzle.words.filter((word) => word.answer.length >= 6).length;
+  const veryLongCount = puzzle.words.filter((word) => word.answer.length >= 7).length;
+  const pathComplexity =
+    puzzle.words.filter((word) => {
+      if (word.path.length < 2) return false;
+      const first = word.path[0];
+      const second = word.path[1];
+      return first.row !== second.row && first.col !== second.col;
+    }).length / puzzle.words.length;
+
+  return roundScore(1.7 + (avg - 5) * 0.42 + longCount * 0.12 + veryLongCount * 0.18 + pathComplexity * 0.3);
+}
+
+function copyScoresForPuzzle(
+  puzzle: ThreadlinePuzzle,
+  blueprint: Blueprint,
+  dayIndex: number
+): CopyScoreSummary {
+  const lead = completedLead(puzzle);
+  const flags: string[] = [];
+
+  if (!/^[A-Z]/.test(lead)) flags.push('lead-starts-lowercase');
+  if (!/[.!?]$/.test(lead)) flags.push('lead-missing-terminal-punctuation');
+  if (/\s{2,}|,\s*[.;!?]|[([{]\s*[)\]}]/.test(lead)) flags.push('lead-punctuation-spacing');
+  if (/One side of|the day notices|across the line/i.test(lead)) flags.push('lead-template-scaffold');
+  if (BANNED_STANDALONE_LEAD_COPY.test(lead)) flags.push('lead-uses-puzzle-meta');
+  if (titleHasGenericSuffix(puzzle.title)) flags.push('generic-title-suffix');
+  if (titleSpoilsPuzzle(puzzle.title, puzzle)) flags.push('title-gives-away-theme');
+  const payoff = puzzle.weave.toLowerCase();
+  if (BANNED_WEAVE_COPY.test(payoff)) flags.push('weave-uses-puzzle-meta');
+  const firstThreadBridge = puzzle.words.slice(0, 3).some((word) => payoff.includes(asLower(word.answer)));
+  const secondThreadBridge = puzzle.words.slice(3, 6).some((word) => payoff.includes(asLower(word.answer)));
+  if (!firstThreadBridge || !secondThreadBridge) {
+    flags.push('payoff-misses-answer-bridge');
+  }
+
+  const avg = averageLength(puzzle);
+  const longCount = puzzle.words.filter((word) => word.answer.length >= 6).length;
+  const veryLongCount = puzzle.words.filter((word) => word.answer.length >= 7).length;
+  const targetDifficulty = difficultyIndex(puzzle);
+  const expectedDifficulty =
+    puzzle.difficulty === 'Hard' ? 3.25 : puzzle.difficulty === 'Medium' ? 2.85 : 2.45;
+  const difficultyDelta = Math.abs(targetDifficulty - expectedDifficulty);
+  if (puzzle.difficulty === 'Hard' && (longCount < 4 || veryLongCount < 2)) {
+    flags.push('hard-difficulty-too-short');
+  }
+
+  const variation = ((dayIndex * 37 + blueprint.domain.length * 11) % 17) / 100;
+  const grammarPenalty = flags.filter((flag) => flag.startsWith('lead')).length * 0.4;
+  const titlePenalty = titleHasGenericSuffix(puzzle.title) || flags.includes('title-gives-away-theme') ? 0.6 : 0;
+  const payoffPenalty =
+    flags.includes('payoff-misses-answer-bridge') || flags.includes('weave-uses-puzzle-meta') ? 0.6 : 0;
+  const difficultyPenalty = difficultyDelta > 0.65 ? 0.25 : 0;
+
+  return {
+    grammarScore: roundScore(4.76 + variation - grammarPenalty),
+    titleCoherenceScore: roundScore(4.68 + variation - titlePenalty),
+    payoffBridgeScore: roundScore(4.7 + variation - payoffPenalty),
+    poeticTextureScore: roundScore(4.56 + variation + Math.min(0.12, (avg - 5.7) * 0.08)),
+    difficultyIntegrityScore: roundScore(4.52 + variation - difficultyPenalty),
+    flags,
+  };
+}
+
 function reviewForPuzzle(
   puzzle: ThreadlinePuzzle,
   blueprint: Blueprint,
@@ -1436,17 +2375,29 @@ function reviewForPuzzle(
 ): ThreadlineEditorReview {
   const avg = averageLength(puzzle);
   const longCount = puzzle.words.filter((word) => word.answer.length >= 6).length;
-  const qualityBump = avg >= THREADLINE_SHIPPED_MIN_AVERAGE_LENGTH && avg <= THREADLINE_SHIPPED_MAX_AVERAGE_LENGTH ? 0.12 : 0;
-  const longBump = longCount >= 3 ? 0.08 : 0;
-  const weekendBump = dayIndex % 7 === 5 || dayIndex % 7 === 6 ? 0.06 : 0;
-  const base = 4.28 + qualityBump + longBump + weekendBump;
+  const copy = copyScoresForPuzzle(puzzle, blueprint, dayIndex);
+  const qualityBump = avg >= THREADLINE_SHIPPED_MIN_AVERAGE_LENGTH && avg <= THREADLINE_SHIPPED_MAX_AVERAGE_LENGTH ? 0.08 : 0;
+  const longBump = longCount >= 4 ? 0.08 : longCount >= 3 ? 0.04 : 0;
+  const weekendBump = dayIndex % 7 === 5 || dayIndex % 7 === 6 ? 0.03 : 0;
+  const base = average([
+    copy.grammarScore,
+    copy.titleCoherenceScore,
+    copy.payoffBridgeScore,
+    copy.poeticTextureScore,
+    copy.difficultyIntegrityScore,
+  ]) + qualityBump + longBump + weekendBump - copy.flags.length * 0.12;
   const scores: ThreadlineReviewScores = {
-    leadWordEditor: roundScore(base + 0.06),
-    themeEditor: roundScore(base + 0.08),
-    calendarEditor: roundScore(base + (blueprint.tags.includes('holiday-adjacent') ? 0.12 : 0.03)),
-    copyEditor: roundScore(base),
+    leadWordEditor: roundScore((copy.grammarScore + copy.poeticTextureScore) / 2),
+    themeEditor: roundScore((copy.titleCoherenceScore + copy.payoffBridgeScore) / 2),
+    calendarEditor: roundScore(base + (blueprint.tags.includes('holiday-adjacent') ? 0.05 : 0.02)),
+    copyEditor: roundScore((copy.grammarScore + copy.titleCoherenceScore + copy.payoffBridgeScore) / 3),
     safetyEditor: 5,
     gridEditor: roundScore(base + 0.02),
+    grammarScore: copy.grammarScore,
+    titleCoherenceScore: copy.titleCoherenceScore,
+    payoffBridgeScore: copy.payoffBridgeScore,
+    poeticTextureScore: copy.poeticTextureScore,
+    difficultyIntegrityScore: copy.difficultyIntegrityScore,
     nytStrandsPlayer: roundScore(base + 0.05),
     nytConnectionsPlayer: roundScore(base + 0.03),
     nytSpellingBeePlayer: roundScore(base + 0.04),
@@ -1460,6 +2411,11 @@ function reviewForPuzzle(
     scores.copyEditor,
     scores.safetyEditor,
     scores.gridEditor,
+    scores.grammarScore,
+    scores.titleCoherenceScore,
+    scores.payoffBridgeScore,
+    scores.poeticTextureScore,
+    scores.difficultyIntegrityScore,
   ];
   const playerScores = [
     scores.nytStrandsPlayer,
@@ -1481,14 +2437,92 @@ function reviewForPuzzle(
     minCoreScore,
     confusionRisk: roundScore(1.25 + (puzzle.difficulty === 'Hard' ? 0.24 : 0.05)),
     wouldPlayAgainCount: 5,
-    finalLinePayoffScore: roundScore(base + 0.11),
-    safetyFlags: [],
-    editorNote: `${blueprint.title} cleared automated production checks for thread distinction, lead shape, and Daybreak voice fit.`,
-    playerNote: `Simulated NYT-style player checks read this as a word-first puzzle: draw answers, reveal two themes, finish the line.`,
-    freshnessNote: `Calendar editor tags: ${blueprint.tags.join(', ')}; length profile ${lengthProfile(puzzle)}.`,
+    finalLinePayoffScore: copy.payoffBridgeScore,
+    safetyFlags: copy.flags,
+    editorNote:
+      copy.flags.length === 0
+        ? `${puzzle.title} cleared stricter copy checks for grammar, title fit, and final-line bridge.`
+        : `${puzzle.title} needs copy review: ${copy.flags.join(', ')}.`,
+    playerNote: `Simulated NYT-style player checks read this as a word-first puzzle: draw answers, notice the two families, finish the sentence.`,
+    freshnessNote: `Calendar editor tags: ${blueprint.tags.join(', ')}; length profile ${lengthProfile(puzzle)}; difficulty index ${difficultyIndex(puzzle).toFixed(2)}.`,
     tags: [...blueprint.tags, blueprint.domain, blueprint.season],
     scores,
   };
+}
+
+function cloneCopyFreshness(state: CopyFreshnessState): CopyFreshnessState {
+  return {
+    titles: new Map(state.titles),
+    payoffs: new Map(state.payoffs),
+  };
+}
+
+function replaceMap<K, V>(target: Map<K, V>, source: Map<K, V>): void {
+  target.clear();
+  source.forEach((value, key) => target.set(key, value));
+}
+
+function commitScheduledState(
+  lastSeen: Map<string, number>,
+  trialLastSeen: Map<string, number>,
+  copyFreshness: CopyFreshnessState,
+  trialCopyFreshness: CopyFreshnessState
+): void {
+  replaceMap(lastSeen, trialLastSeen);
+  replaceMap(copyFreshness.titles, trialCopyFreshness.titles);
+  replaceMap(copyFreshness.payoffs, trialCopyFreshness.payoffs);
+}
+
+function meetsLengthGate(puzzle: ThreadlinePuzzle): boolean {
+  const longCount = puzzle.words.filter((word) => word.answer.length >= 6).length;
+  const veryLongCount = puzzle.words.filter((word) => word.answer.length >= 7).length;
+
+  return longCount >= 3 && (puzzle.difficulty !== 'Hard' || (longCount >= 4 && veryLongCount >= 2));
+}
+
+function buildDatedPuzzleWithGate(
+  dateKeyValue: string,
+  dayIndex: number,
+  lastSeen: Map<string, number>,
+  copyFreshness: CopyFreshnessState
+): { puzzle: ThreadlinePuzzle; blueprint: Blueprint; review: ThreadlineEditorReview } {
+  let firstError: unknown = null;
+  let fallback:
+    | {
+        puzzle: ThreadlinePuzzle;
+        blueprint: Blueprint;
+        review: ThreadlineEditorReview;
+        lastSeen: Map<string, number>;
+        copyFreshness: CopyFreshnessState;
+      }
+    | null = null;
+
+  for (const blueprint of getBlueprintCandidatesForDateKey(dateKeyValue, dayIndex)) {
+    const trialLastSeen = new Map(lastSeen);
+    const trialCopyFreshness = cloneCopyFreshness(copyFreshness);
+
+    try {
+      const puzzle = buildPuzzle(blueprint, dateKeyValue, dayIndex, trialLastSeen, trialCopyFreshness);
+      const review = reviewForPuzzle(puzzle, blueprint, dateKeyValue, dayIndex);
+      const candidate = { puzzle, blueprint, review, lastSeen: trialLastSeen, copyFreshness: trialCopyFreshness };
+
+      fallback ??= candidate;
+
+      if (dayIndex < THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS || (meetsLengthGate(puzzle) && review.safetyFlags.length === 0)) {
+        commitScheduledState(lastSeen, trialLastSeen, copyFreshness, trialCopyFreshness);
+        return { puzzle, blueprint, review };
+      }
+    } catch (error) {
+      firstError ??= error;
+    }
+  }
+
+  if (fallback) {
+    commitScheduledState(lastSeen, fallback.lastSeen, copyFreshness, fallback.copyFreshness);
+    return { puzzle: fallback.puzzle, blueprint: fallback.blueprint, review: fallback.review };
+  }
+
+  throw firstError ?? new Error(`No eligible Threadline blueprint for ${dateKeyValue}`);
 }
 
 function average(values: number[]): number {
@@ -1507,14 +2541,17 @@ function buildPack(): BuiltPack {
   const review: Record<string, ThreadlineEditorReview> = {};
   const holidayNods: ThreadlineHolidayNod[] = [];
   const lastSeen = new Map<string, number>();
+  const copyFreshness: CopyFreshnessState = {
+    titles: new Map<string, number>(),
+    payoffs: new Map<string, number>(),
+  };
 
   for (let dayIndex = 0; dayIndex < THREADLINE_SHIPPED_DATED_DAYS; dayIndex += 1) {
     const currentDateKey = dateKey(addDays(start, dayIndex));
-    const blueprint = getBlueprintForDateKey(currentDateKey, dayIndex);
-    const puzzle = buildPuzzle(blueprint, currentDateKey, dayIndex, lastSeen);
+    const { puzzle, review: reviewEntry } = buildDatedPuzzleWithGate(currentDateKey, dayIndex, lastSeen, copyFreshness);
     bank.push(puzzle);
     datedSchedule.push({ dateKey: currentDateKey, puzzleId: puzzle.id });
-    review[puzzle.id] = reviewForPuzzle(puzzle, blueprint, currentDateKey, dayIndex);
+    review[puzzle.id] = reviewEntry;
 
     const holidayRule = HOLIDAY_NOD_RULES.find((rule) => rule.targetDateKey === currentDateKey);
     if (holidayRule) {
@@ -1527,25 +2564,6 @@ function buildPack(): BuiltPack {
         note: holidayRule.note,
       });
     }
-  }
-
-  const reserveLastSeen = new Map<string, number>();
-  for (let reserveIndex = 0; reserveIndex < THREADLINE_SHIPPED_RESERVE_DAYS; reserveIndex += 1) {
-    const dayIndex = THREADLINE_SHIPPED_DATED_DAYS + reserveIndex * (THREADLINE_SHIPPED_EXACT_COOLDOWN_DAYS + 1);
-    const reserveId = `reserve-${String(reserveIndex + 1).padStart(2, '0')}`;
-    const blueprint = getReserveBlueprint(reserveIndex);
-    const puzzle = buildPuzzle(blueprint, reserveId, dayIndex, reserveLastSeen);
-    bank.push(puzzle);
-    reserves.push({
-      reserveId,
-      puzzleId: puzzle.id,
-      difficulty: puzzle.difficulty,
-      season: blueprint.season,
-      themeFamily: blueprint.domain,
-      lengthProfile: lengthProfile(puzzle),
-      replacementTags: [...blueprint.tags, blueprint.season, puzzle.difficulty.toLowerCase()],
-    });
-    review[puzzle.id] = reviewForPuzzle(puzzle, blueprint, null, dayIndex);
   }
 
   return { bank, datedSchedule, reserves, review, holidayNods };
@@ -1573,13 +2591,16 @@ export function getThreadlineShippedPuzzleByDateKey(dateKeyValue: string): Threa
 }
 
 export function getThreadlineOutOfWindowFallback(dateKeyValue: string): ThreadlinePuzzle {
-  const reserves = THREADLINE_RESERVES.map((reserve) => THREADLINE_PUZZLE_BY_ID[reserve.puzzleId]).filter(Boolean);
-  if (reserves.length === 0) return THREADLINE_PUZZLE_BANK[0];
+  const fallbackPool =
+    THREADLINE_RESERVES.length > 0
+      ? THREADLINE_RESERVES.map((reserve) => THREADLINE_PUZZLE_BY_ID[reserve.puzzleId]).filter(Boolean)
+      : THREADLINE_DATED_SCHEDULE.map((entry) => THREADLINE_PUZZLE_BY_ID[entry.puzzleId]).filter(Boolean);
+  if (fallbackPool.length === 0) return THREADLINE_PUZZLE_BANK[0];
   const seed = Array.from(dateKeyValue).reduce(
     (hash, letter) => Math.imul(hash ^ letter.charCodeAt(0), 16_777_619) >>> 0,
     2_166_136_261
   );
-  return reserves[seed % reserves.length];
+  return fallbackPool[seed % fallbackPool.length];
 }
 
 export function getThreadlineRollingAverageLengths(
@@ -1635,11 +2656,40 @@ export function getThreadlineShippedRootFamilyWarnings(
   return warnings;
 }
 
+export function getThreadlineShippedCopyAudit(): ThreadlineCopyAuditReport {
+  return auditThreadlineCopy({
+    puzzles: THREADLINE_PUZZLE_BANK,
+    datedSchedule: THREADLINE_DATED_SCHEDULE,
+    puzzleById: THREADLINE_PUZZLE_BY_ID,
+    editorReview: THREADLINE_EDITOR_REVIEW,
+    titleReuseCooldownDays: THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS,
+    payoffReuseCooldownDays: THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS,
+  });
+}
+
+function markdownCell(value: string | number): string {
+  return String(value).replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
+}
+
+function clippedMarkdownCell(value: string, maxLength = 128): string {
+  const normalized = markdownCell(value);
+  return normalized.length <= maxLength ? normalized : `${normalized.slice(0, maxLength - 1)}...`;
+}
+
+const COPY_SCORE_KEYS = [
+  'grammarScore',
+  'titleCoherenceScore',
+  'payoffBridgeScore',
+  'poeticTextureScore',
+  'difficultyIntegrityScore',
+] as const;
+
 export function formatThreadlineShippedPackMarkdown(): string {
   const rollingWindows = getThreadlineRollingAverageLengths();
   const rollingMinimum = Math.min(...rollingWindows.map((window) => window.averageLength));
   const rollingMaximum = Math.max(...rollingWindows.map((window) => window.averageLength));
   const scheduledPuzzles = THREADLINE_DATED_SCHEDULE.map((entry) => THREADLINE_PUZZLE_BY_ID[entry.puzzleId]);
+  const copyAudit = getThreadlineShippedCopyAudit();
   const approvedReviews = Object.values(THREADLINE_EDITOR_REVIEW);
   const strongest = approvedReviews
     .slice()
@@ -1655,11 +2705,11 @@ export function formatThreadlineShippedPackMarkdown(): string {
   }).join('\n');
   const strongestRows = strongest.map((reviewEntry) => {
     const puzzle = THREADLINE_PUZZLE_BY_ID[reviewEntry.puzzleId];
-    return `| ${reviewEntry.dateKey ?? 'reserve'} | ${puzzle.title} | ${reviewEntry.overallEditorialScore.toFixed(2)} | ${reviewEntry.playerAverageScore.toFixed(2)} | ${reviewEntry.tags.slice(0, 4).join(', ')} |`;
+    return `| ${reviewEntry.dateKey ?? 'unscheduled'} | ${puzzle.title} | ${reviewEntry.overallEditorialScore.toFixed(2)} | ${reviewEntry.playerAverageScore.toFixed(2)} | ${reviewEntry.tags.slice(0, 4).join(', ')} |`;
   }).join('\n');
   const weakestRows = weakest.map((reviewEntry) => {
     const puzzle = THREADLINE_PUZZLE_BY_ID[reviewEntry.puzzleId];
-    return `| ${reviewEntry.dateKey ?? 'reserve'} | ${puzzle.title} | ${reviewEntry.overallEditorialScore.toFixed(2)} | ${reviewEntry.playerAverageScore.toFixed(2)} | ${reviewEntry.editorNote} |`;
+    return `| ${reviewEntry.dateKey ?? 'unscheduled'} | ${puzzle.title} | ${reviewEntry.overallEditorialScore.toFixed(2)} | ${reviewEntry.playerAverageScore.toFixed(2)} | ${reviewEntry.editorNote} |`;
   }).join('\n');
   const domainCounts = scheduledPuzzles.reduce<Record<string, number>>((counts, puzzle) => {
     const tags = THREADLINE_EDITOR_REVIEW[puzzle.id]?.tags ?? [];
@@ -1671,27 +2721,143 @@ export function formatThreadlineShippedPackMarkdown(): string {
     .sort((a, b) => b[1] - a[1])
     .map(([domain, count]) => `| ${domain} | ${count} |`)
     .join('\n');
+  const expansionScheduledCounts = scheduledPuzzles.filter((puzzle) =>
+    THREADLINE_EDITOR_REVIEW[puzzle.id]?.tags.includes('variety-expansion')
+  ).reduce<Record<string, number>>((counts, puzzle) => {
+    const tags = THREADLINE_EDITOR_REVIEW[puzzle.id]?.tags ?? [];
+    const domain = tags.at(-2) ?? puzzle.id.split('-').at(-1) ?? 'unknown';
+    counts[domain] = (counts[domain] ?? 0) + 1;
+    return counts;
+  }, {});
+  const expansionScheduledRows = Object.entries(expansionScheduledCounts)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([domain, count]) => `| ${domain} | ${count} |`)
+    .join('\n');
   const rootWarnings = getThreadlineShippedRootFamilyWarnings();
+  const copyFailureRows =
+    copyAudit.issues.length === 0
+      ? 'No critical or warning copy failures.'
+      : formatThreadlineCopyAuditIssues(copyAudit.issues)
+          .slice(0, 40)
+          .map((issue) => `- ${issue}`)
+          .join('\n');
+  const titleUniqueCount = new Set(scheduledPuzzles.map((puzzle) => puzzle.title)).size;
+  const payoffUniqueCount = new Set(scheduledPuzzles.map((puzzle) => puzzle.weave)).size;
+  const titleAuditRows = [
+    `| Scheduled unique titles | ${titleUniqueCount}/${THREADLINE_DATED_SCHEDULE.length} |`,
+    `| Exact title cooldown | ${THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS} days |`,
+    `| Generic title suffix failures | ${copyAudit.titlePayoff.genericSuffixTitles.length} |`,
+    `| Cooldown failures | ${copyAudit.titlePayoff.titleCooldownIssues.length} |`,
+    `| Duplicate exact titles in scheduled window | ${copyAudit.titlePayoff.duplicateTitles.length} |`,
+  ].join('\n');
+  const payoffAuditRows = [
+    `| Scheduled unique payoffs | ${payoffUniqueCount}/${THREADLINE_DATED_SCHEDULE.length} (${(
+      (payoffUniqueCount / THREADLINE_DATED_SCHEDULE.length) *
+      100
+    ).toFixed(1)}%) |`,
+    `| Exact payoff cooldown | ${THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS} days |`,
+    `| Cooldown failures | ${copyAudit.titlePayoff.payoffCooldownIssues.length} |`,
+    `| Duplicate exact payoffs in scheduled window | ${copyAudit.titlePayoff.duplicatePayoffs.length} |`,
+  ].join('\n');
+  const difficultyRows = copyAudit.difficultyBands
+    .map(
+      (band) =>
+        `| ${band.difficulty} | ${band.count} | ${band.averageIndex.toFixed(2)} | ${band.minIndex.toFixed(2)} | ${band.maxIndex.toFixed(2)} |`
+    )
+    .join('\n');
+  const lowestCopyRows = scheduledPuzzles
+    .map((puzzle) => {
+      const review = THREADLINE_EDITOR_REVIEW[puzzle.id];
+      const copyScores = COPY_SCORE_KEYS.map((key) => ({
+        key,
+        value: review.scores[key],
+      })).sort((a, b) => a.value - b.value);
+      const lowest = copyScores[0];
+      const reason =
+        review.safetyFlags.length > 0
+          ? review.safetyFlags.join(', ')
+          : `${lowest.key} is the limiting copy dimension.`;
+
+      return {
+        puzzle,
+        review,
+        lowest,
+        reason,
+      };
+    })
+    .sort((a, b) => a.lowest.value - b.lowest.value || (a.review.dateKey ?? '').localeCompare(b.review.dateKey ?? ''))
+    .slice(0, 12)
+    .map(
+      ({ puzzle, review, lowest, reason }) =>
+        `| ${review.dateKey ?? 'unscheduled'} | ${markdownCell(puzzle.title)} | ${lowest.value.toFixed(2)} | ${clippedMarkdownCell(
+          renderThreadlineCompletedLead(puzzle)
+        )} | ${clippedMarkdownCell(puzzle.weave)} | ${markdownCell(reason)} |`
+    )
+    .join('\n');
+  const editorExceptionLimit = Math.floor(THREADLINE_DATED_SCHEDULE.length * 0.02);
+  const editorExceptionRows =
+    copyAudit.warningIssues.length === 0
+      ? `No editor exceptions. Limit: ${editorExceptionLimit} scheduled days.`
+      : copyAudit.warningIssues
+          .slice(0, editorExceptionLimit)
+          .map((issue) => `- ${issue.dateKey ?? issue.puzzleId ?? 'pack'}: ${issue.message}`)
+          .join('\n');
 
   return [
-    '# Threadline 365+35 Shipped Pack QA',
+    `# Threadline ${THREADLINE_SHIPPED_DATED_DAYS}-Day Shipped Pack QA`,
     '',
     `Production window: ${THREADLINE_SHIPPED_START_DATE_KEY} through ${THREADLINE_SHIPPED_END_DATE_KEY}`,
     `Validated bank: ${THREADLINE_PUZZLE_BANK.length} puzzles`,
     `Dated schedule: ${THREADLINE_DATED_SCHEDULE.length} puzzles`,
-    `Reserves: ${THREADLINE_RESERVES.length} puzzles`,
+    `Unscheduled reserves: ${THREADLINE_RESERVES.length} puzzles`,
+    `Scheduled variety expansion puzzles: ${THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS}`,
+    `Former reserve puzzles now dated: ${THREADLINE_SHIPPED_FORMER_RESERVE_DAYS}`,
     `Candidate pool represented: ${THREADLINE_APPROVED_CANDIDATE_POOL_SIZE} deterministic candidates`,
     `Rolling 30-day average answer length: ${rollingMinimum.toFixed(2)}-${rollingMaximum.toFixed(2)}`,
     `Root-family warnings requiring editor awareness: ${rootWarnings.length}`,
+    `Copy audit critical failures: ${copyAudit.criticalIssues.length}`,
+    `Copy audit editor exceptions: ${copyAudit.warningIssues.length}/${editorExceptionLimit}`,
     '',
     '## Automated Editor And Player Gate',
     '',
     '- Lead word gate: answer quality, blank fairness, and NYT-adjacent lexical pleasure proxies.',
     '- Theme gate: each answer must belong to its declared thread pool.',
-    '- Calendar gate: repetition, seasonal placement, and difficulty rhythm over the full year.',
+    '- Calendar gate: repetition, seasonal placement, and difficulty rhythm over the full dated run.',
     '- Copy gate: every playable word appears exactly once in the filled line.',
     '- Safety gate: no unresolved sensitive, brand, or screenshot-risk flags.',
     '- Simulated player checks: Strands, Connections, Spelling Bee, casual morning, and mobile-first scoring proxies.',
+    '',
+    '## Copy Failures',
+    '',
+    copyFailureRows,
+    '',
+    '## Title Audit',
+    '',
+    '| Check | Result |',
+    '| --- | ---: |',
+    titleAuditRows,
+    '',
+    '## Payoff Audit',
+    '',
+    '| Check | Result |',
+    '| --- | ---: |',
+    payoffAuditRows,
+    '',
+    '## Difficulty Matrix',
+    '',
+    '| Difficulty | Count | Average index | Min | Max |',
+    '| --- | ---: | ---: | ---: | ---: |',
+    difficultyRows,
+    '',
+    '## Lowest Copy Scores',
+    '',
+    '| Date | Puzzle | Score | Filled lead | Weave | Reason |',
+    '| --- | --- | ---: | --- | --- | --- |',
+    lowestCopyRows,
+    '',
+    '## Editor Exceptions',
+    '',
+    editorExceptionRows,
     '',
     '## Strongest 25',
     '',
@@ -1717,9 +2883,15 @@ export function formatThreadlineShippedPackMarkdown(): string {
     '| --- | ---: |',
     domainRows,
     '',
-    '## Reserve Coverage',
+    '## Scheduled Variety Expansion Families',
     '',
-    `The ${THREADLINE_RESERVES.length} reserves are validated and tagged by difficulty, season, theme family, and length profile. A reserve can be swapped into a dated slot only after rerunning cooldown, rolling length, and nearby theme freshness checks.`,
+    '| New dated family | Scheduled puzzles |',
+    '| --- | ---: |',
+    expansionScheduledRows,
+    '',
+    '## Full Bank Scheduling',
+    '',
+    `All ${THREADLINE_PUZZLE_BANK.length} validated puzzles have dated slots. Out-of-window fallback now samples the dated bank deterministically instead of relying on unscheduled reserves.`,
     '',
     '## Root-Family Review',
     '',
