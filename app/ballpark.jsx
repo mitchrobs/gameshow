@@ -15,7 +15,7 @@ import { Stack } from 'expo-router';
 import {
   MAX_GUESSES,
   WIN_THRESHOLD,
-  getDailySet,
+  getPlayableDailySet,
   getTodayKey,
 } from '../src/ballpark/daybreak-v1-data.mjs';
 import { BUILD_ID } from '../src/constants/build';
@@ -1881,15 +1881,32 @@ export default function BallparkRoute() {
   const [currentQuestionState, setCurrentQuestionState] = useState(null);
   const [hardMode, setHardMode] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [playableStatus, setPlayableStatus] = useState(null);
   const countedSummaryDateRef = useRef(null);
 
   useEffect(() => {
     let isActive = true;
     setLoading(true);
 
-    getDailySet(todayKey).then((resolvedSet) => {
+    getPlayableDailySet(todayKey).then((resolvedPlayableSet) => {
       if (!isActive) return;
 
+      setPlayableStatus(resolvedPlayableSet.playableStatus);
+
+      if (!resolvedPlayableSet.available) {
+        clearSavedProgress(todayKey);
+        setDailySet(null);
+        setPhase('unavailable');
+        setQIndex(0);
+        setResults([]);
+        setExtraInningResult(null);
+        setCurrentQuestionState(null);
+        setHardMode(false);
+        setLoading(false);
+        return;
+      }
+
+      const resolvedSet = resolvedPlayableSet.dailySet;
       const savedProgress = loadSavedProgress(todayKey);
       const canRestoreSavedProgress =
         savedProgress?.version === STORAGE_VERSION &&
@@ -2056,10 +2073,20 @@ export default function BallparkRoute() {
 
             {loading || !dailySet ? (
               <View style={styles.loadingCard}>
-                <Text style={styles.loadingTitle}>Setting the table</Text>
-                <Text style={styles.loadingBody}>
-                  Pulling today&apos;s Ballpark set into the lineup.
+                <Text style={styles.loadingTitle}>
+                  {phase === 'unavailable' ? 'Still in the bullpen' : 'Setting the table'}
                 </Text>
+                <Text style={styles.loadingBody}>
+                  {phase === 'unavailable'
+                    ? playableStatus?.message ?? 'Today&apos;s Ballpark set is not approved for play yet.'
+                    : 'Pulling today&apos;s Ballpark set into the lineup.'}
+                </Text>
+                {phase === 'unavailable' && playableStatus?.launchWindowStart ? (
+                  <Text style={styles.loadingBody}>
+                    Approved window: {formatLongDate(playableStatus.launchWindowStart)} through{' '}
+                    {formatLongDate(playableStatus.launchWindowEnd)}.
+                  </Text>
+                ) : null}
               </View>
             ) : null}
 
