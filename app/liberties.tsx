@@ -97,9 +97,11 @@ const QUICK_START_RULES = [
   'If your move clears nothing, one white group stretches into one empty side spot.',
 ];
 const WHITE_STRETCH_RULES = [
-  'The white group with the fewest open side spots stretches first.',
-  'Tie? The group with the longest straight open path moves.',
-  'Still tied? The topmost, then leftmost group moves.',
+  'If any white group has only one open side spot, white saves one of those groups first.',
+  'Otherwise, white checks every empty side spot next to every white group.',
+  'White stretches into the spot with the longest straight open path.',
+  'If spots are tied, white chooses the highest spot, then the furthest-left spot.',
+  'The new white pebble joins the group it touched.',
 ];
 
 function getStorage(): Storage | null {
