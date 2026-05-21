@@ -544,12 +544,61 @@ describe('Ballpark 2026 calendar', () => {
     expect(moonWatch.theme).toBe('Moon Watch');
     expect(moonWatch.questions[1].prompt).not.toMatch(/seconds for light/i);
     expect(moonWatch.questions[1].answer).toBeGreaterThan(100000);
-    expect(moonWatch.questions[2].prompt).toMatch(/moon-watching seconds/i);
+    expect(moonWatch.questions[2].prompt).toMatch(/seconds of moon watching/i);
+    expect(moonWatch.questions[2].prompt).not.toMatch(/moon-watching seconds/i);
 
     expect(countdownNight.questions[0].prompt).toMatch(/party horns/i);
     expect(countdownNight.questions[0].answerType).toBe('estimate');
-    expect(countdownNight.questions[2].prompt).toMatch(/countdown seconds/i);
+    expect(countdownNight.questions[2].prompt).toMatch(/seconds of countdown/i);
     expect(countdownNight.questions.filter((question) => question.answerType === 'exact')).toHaveLength(0);
+  });
+
+  it('keeps the broader-player polish gates green across all 400 packs', () => {
+    const combinedAudit = runBallpark400PackAudit();
+    const reviewScoreKeys = [
+      'firstGuessFairness',
+      'calibrationFun',
+      'revealSatisfaction',
+      'copyClarity',
+      'freshness',
+    ];
+    const artificialUnitPattern =
+      /\b(?:viewer|audience|listener|waiting|reader|visitor|passenger|conveyor|rise|climb|lap|lane|song|checkout|oven|blade|washer|moon-watching|table-lap|claw-machine|concert-hall|yellow-bus|passenger-seat)-?(?:minutes|seconds|feet|inches|miles|hours|beats|turns|rotations|ounces|pounds|square-inches|square inches)\b/i;
+    const promptNumberPattern = /\b\d[\d,]*(?:\.\d+)?\b/g;
+    const allPacks = [
+      ...validateAuthoredLibrary().authoredSets,
+      ...validateBallparkReserveBank().reservePacks,
+    ];
+    const allQuestions = allPacks.flatMap((pack) => [
+      ...pack.questions,
+      ...(pack.extraInning ? [pack.extraInning] : []),
+    ]);
+
+    expect(combinedAudit.passed).toBe(true);
+    expect(combinedAudit.totalReady).toBe(400);
+    expect(combinedAudit.blockerCount).toBe(0);
+    expect(combinedAudit.warningCount).toBe(0);
+    expect(combinedAudit.categoryCounts.artificial_unit ?? 0).toBe(0);
+    expect(combinedAudit.categoryCounts.placeholder_source ?? 0).toBe(0);
+    expect(combinedAudit.categoryCounts.agent_review_scores ?? 0).toBe(0);
+    expect(combinedAudit.categoryCounts.iconic_exact_mix ?? 0).toBe(0);
+
+    expect(allPacks.filter((pack) => pack.playerAgentReviews?.length === 8)).toHaveLength(400);
+    allPacks.forEach((pack) => {
+      pack.playerAgentReviews.forEach((review) => {
+        expect(['P3', undefined]).toContain(review.severity);
+        reviewScoreKeys.forEach((scoreKey) => {
+          expect(review.scores[scoreKey]).toBeGreaterThanOrEqual(4);
+        });
+      });
+    });
+
+    expect(allQuestions.filter((question) => question.answerType === 'exact')).toHaveLength(40);
+    allQuestions.forEach((question) => {
+      expect(question.prompt).not.toMatch(artificialUnitPattern);
+      expect(question.prompt.match(promptNumberPattern)?.length ?? 0).toBeLessThanOrEqual(1);
+      expect(question.sources.some((source) => source.url.includes('mitchrobs.github.io/gameshow/ballpark'))).toBe(false);
+    });
   });
 
   it('spaces puzzle themes so they stay occasional and never Friday-led', () => {

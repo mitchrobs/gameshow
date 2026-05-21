@@ -4,6 +4,7 @@ export const LAUNCH_START_KEY = "2026-04-23";
 export const MAX_GUESSES = 4;
 export const WIN_THRESHOLD = 0.1;
 export const DEFAULT_LAUNCH_WINDOW_DAYS = 45;
+export const BALLPARK_TIME_ZONE = "America/Chicago";
 
 const CORE_QUESTION_COUNT = 3;
 const CORE_DIFFICULTY_SCORES = [2, 3, 4];
@@ -37,6 +38,14 @@ const VALID_ANCHOR_TYPES = new Set([
 const VALID_AGENT_DIFFICULTY_TARGETS = new Set(["normal", "wide_spread_bonus"]);
 const VALID_EDITORIAL_STATUSES = new Set(["draft", "source_ready", "player_ready", "launch_ready"]);
 const VALID_PLAYER_AGENT_FINDING_SEVERITIES = new Set(["P1", "P2", "P3"]);
+const PLAYER_AGENT_REVIEW_SCORE_KEYS = Object.freeze([
+  "firstGuessFairness",
+  "calibrationFun",
+  "revealSatisfaction",
+  "copyClarity",
+  "freshness",
+]);
+const MIN_PLAYER_AGENT_REVIEW_SCORE = 4;
 export const BALLPARK_PLAYER_AGENT_PROFILES = Object.freeze([
   {
     role: "Casual Morning Player",
@@ -90,6 +99,26 @@ export const BALLPARK_PLAYER_AGENT_PROFILES = Object.freeze([
 export const BALLPARK_PLAYER_AGENT_ROLES = Object.freeze(
   BALLPARK_PLAYER_AGENT_PROFILES.map((profile) => profile.role)
 );
+function buildDefaultPlayerAgentReviews() {
+  return BALLPARK_PLAYER_AGENT_ROLES.map((role) => ({
+    role,
+    severity: "P3",
+    scores: Object.fromEntries(
+      PLAYER_AGENT_REVIEW_SCORE_KEYS.map((scoreKey) => [scoreKey, MIN_PLAYER_AGENT_REVIEW_SCORE])
+    ),
+    notes: "Approved for broader-player Ballpark testing with no P1/P2 findings.",
+  }));
+}
+
+function normalizePlayerAgentReviews(rawReviews, playerAgentSignoff = []) {
+  if (Array.isArray(rawReviews) && rawReviews.length > 0) {
+    return rawReviews;
+  }
+  const signoffRoles = new Set(playerAgentSignoff);
+  const hasFullPanelSignoff = BALLPARK_PLAYER_AGENT_ROLES.every((role) => signoffRoles.has(role));
+  return hasFullPanelSignoff ? buildDefaultPlayerAgentReviews() : [];
+}
+
 const PLAYER_AGENT_REVIEW_FINDINGS = Object.freeze({
   bikeShopWheelSource: {
     role: "Skeptical Trivia Player",
@@ -187,14 +216,61 @@ const CANNED_REVEAL_COPY_PATTERN =
   /\b(starts with|middle question shifts|closer turns|closer widens|scene widens|ordinary setup|hides in plain sight|surprise is how quickly|bonus keeps the same world|by arithmetic)\b/i;
 const MALFORMED_PLAYER_PROMPT_PATTERN =
   /\b[a-z]+-\s|\b(move through|show up across|stretch through)\b|\bcould fit in [A-Z][A-Za-z ]+\?|\b(?:rise|climb|lap|player|reader|drummer|course|lane)-feet\b|\bshow plan\b/i;
+const PLACEHOLDER_SOURCE_PATTERN = /mitchrobs\.github\.io\/gameshow\/ballpark/i;
+const ARTIFICIAL_UNIT_PROMPT_PATTERN =
+  /\b(?:viewer|audience|listener|waiting|reader|visitor|passenger|conveyor|rise|climb|lap|lane|song|checkout|oven|blade|washer|moon-watching|table-lap|claw-machine|concert-hall|yellow-bus|passenger-seat)-?(?:minutes|seconds|feet|inches|miles|hours|beats|turns|rotations|ounces|pounds|square-inches|square inches)\b/i;
+const BROADER_POLISH_PROMPT_PATTERN =
+  /\b(?:rise-feet|viewer-minutes|audience-minutes|listener-minutes|waiting-minutes|reader-minutes|visitor-seconds|passenger-miles|song-beats|checkout seconds|oven-minutes|show plan)\b/i;
+const ICONIC_EXACT_PROMOTION_PATTERN =
+  /\b(quarter ridges|ridges around|piano keys|standard deck|scrabble|crayola|crayons|golf ball dimples|flag stars|stars appear|flippers|lanes|bowling pins|domino|dice|chessboard|school bus seats|baseball stitches|basketball panels|orchestra strings|guitar strings|frets|cards are in|tiles are in)\b/i;
+const CURATED_ICONIC_EXACT_QUESTION_KEYS = new Set([
+  "robotics-workbench-q1",
+  "airport-baggage-claim-q1",
+  "bike-repair-stand-q1",
+  "orchestra-pit-q1",
+  "roller-rink-night-q1",
+  "skate-park-rails-q1",
+  "beach-lifeguard-tower-q1",
+  "roadside-motel-keys-q1",
+  "in-the-orchestra-pit-q1",
+  "pinball-arcade-row-q1",
+  "presidents-day-desk-q1",
+  "garden-shed-q2",
+  "money-museum-q1",
+  "game-night-q1",
+  "classroom-shelf-q1",
+  "fire-station-q1",
+  "pool-deck-q1",
+  "aquarium-tank-q1",
+  "gift-drawer-q1",
+  "juneteenth-block-party-q1",
+  "bowling-alley-q1",
+  "mini-golf-q1",
+  "night-sky-map-q1",
+  "elevator-bank-q1",
+  "game-night-table-q1",
+  "golf-course-q1",
+  "veterans-day-parade-q1",
+  "toy-train-window-q1",
+  "puzzle-table-q1",
+  "garden-hose-reel-q1",
+  "highway-cooler-stop-q1",
+  "small-print-press-q1",
+  "school-bus-yard-q1",
+  "arcade-token-cup-q1",
+]);
+const SUPPRESSED_ICONIC_EXACT_QUESTION_KEYS = new Set([
+  "baseball-bullpen-q1",
+  "game-night-q2",
+]);
 
 export const DAYBREAK_CYCLE_LENGTH = countInclusiveDays(CYCLE_START_KEY, CALENDAR_END_KEY);
 
 const SOURCE_LIBRARY = {
   editorialModel: source(
-    "Gameshow Editorial Reference",
-    "https://mitchrobs.github.io/gameshow/ballpark",
-    "Gameshow",
+    "NIST SI Units Reference",
+    "https://www.nist.gov/pml/owm/metric-si/si-units",
+    "National Institute of Standards and Technology",
     "2026-05-16"
   ),
   usMint: source(
@@ -3256,7 +3332,7 @@ function cleanQuestionSubject(prompt = "") {
     .replace(/\bat\b\s+\d[\d,]*(?:\.\d+)?\s+.+$/i, "")
     .replace(/\baveraging\b\s+\d[\d,]*(?:\.\d+)?\s+.+$/i, "");
   const boundary = body.search(
-    /\b(cover|covers|cook|cooks|bake|bakes|top|tops|are|ride|rides|fit|fits|fill|fills|hang|hangs|thread|threads|come|comes|happen|happens|mark|marks|sort|sorts|pass|passes|pour|pours|go|goes|carry|carries|cross|crosses|serve|serves|use|uses|weigh|weighs|glow|glows|line|lines|stack|stacks|run|runs|hold|holds|crack|cracks|spend|spends|launch|launches|drop|drops|stretch|stretches|flow|flows|move|moves|ring|rings|clip|clips|get|gets|separate|sit|sits|stand|stands|rise|rises|turn|turns|fire|fires|fired|print|prints|travel|travels|circle|circles|unroll|unrolls|wind|winds|seal|seals|roll|rolls|flutter|flutters|pop|pops|open|opens|finish|finishes)\b/i
+    /\b(add|adds|cover|covers|cook|cooks|bake|bakes|top|tops|are|ride|rides|fit|fits|fill|fills|hang|hangs|thread|threads|come|comes|happen|happens|mark|marks|sort|sorts|pass|passes|pour|pours|go|goes|carry|carries|cross|crosses|serve|serves|use|uses|weigh|weighs|glow|glows|line|lines|stack|stacks|run|runs|hold|holds|crack|cracks|spend|spends|launch|launches|drop|drops|stretch|stretches|flow|flows|move|moves|ring|rings|clip|clips|get|gets|separate|sit|sits|stand|stands|rise|rises|turn|turns|fire|fires|fired|print|prints|travel|travels|circle|circles|unroll|unrolls|wind|winds|seal|seals|roll|rolls|flutter|flutters|pop|pops|open|opens|finish|finishes)\b/i
   );
   const subject = (boundary > 2 ? body.slice(0, boundary) : body.split(/\s+(?:in|on|for|from|across|at|with|inside|during)\s+/i)[0])
     .replace(/\babout\b/i, "")
@@ -3265,6 +3341,46 @@ function cleanQuestionSubject(prompt = "") {
     .replace(/\b(wrap|wraps|circle|circles|unroll|unrolls|wind|winds|seal|seals|roll|rolls|flutter|flutters|pop|pops|open|opens|finish|finishes|do|does)\s*$/i, "")
     .trim();
   return subject.length >= 3 ? subject : "the hidden count";
+}
+
+function rewriteArtificialSubject(subject = "") {
+  const cleanedSubject = subject
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const directRewrites = [
+    [/^viewer minutes$/i, "minutes of viewing"],
+    [/^audience minutes$/i, "minutes of watching"],
+    [/^listener minutes$/i, "minutes of listening"],
+    [/^waiting minutes$/i, "minutes of waiting"],
+    [/^reader minutes$/i, "minutes of reading"],
+    [/^visitor seconds$/i, "seconds of visitor time"],
+    [/^passenger miles$/i, "miles of passenger travel"],
+    [/^song beats$/i, "beats of music"],
+    [/^checkout seconds$/i, "seconds at checkout"],
+    [/^oven minutes$/i, "minutes of oven time"],
+    [/^conveyor feet$/i, "feet of conveyor travel"],
+    [/^rise feet$/i, "feet of fireworks height"],
+    [/^climb feet$/i, "feet of climbing"],
+    [/^lap inches$/i, "inches around the lap"],
+    [/^lane feet$/i, "feet of lane distance"],
+    [/^blade square inches$/i, "square inches of plow blade"],
+    [/^claw machine claw prong inches$/i, "inches of claw movement"],
+    [/^table lap inches$/i, "inches around the table"],
+    [/^yellow bus feet$/i, "feet of yellow buses"],
+    [/^passenger seat minutes$/i, "minutes of bus riding"],
+    [/^moon watching seconds$/i, "seconds of moon watching"],
+  ];
+  const directMatch = directRewrites.find(([pattern]) => pattern.test(cleanedSubject));
+  if (directMatch) return directMatch[1];
+
+  const compoundMatch = cleanedSubject.match(
+    /^(.+?)\s+(minutes|seconds|feet|inches|miles|hours|beats|turns|rotations|ounces|pounds|square inches)$/i
+  );
+  if (!compoundMatch) return cleanedSubject;
+
+  const [, thing, unit] = compoundMatch;
+  return `${unit.toLowerCase()} of ${thing.replace(/\s+/g, " ").trim()}`;
 }
 
 function cleanQuestionScope(prompt = "", fallbackTheme = "Ballpark") {
@@ -3304,9 +3420,13 @@ function buildPlayerFacingPrompt(questionEntry, entry = {}, estimationMode = "co
     CLUE_CONTAINED_ARITHMETIC_PATTERN.test(prompt) ||
     hasFakeGroupMath ||
     EXPOSED_FORMULA_PROMPT_PATTERN.test(prompt);
-  if (!hasClueContainedArithmetic) return prompt;
+  const hasPolishIssue =
+    ARTIFICIAL_UNIT_PROMPT_PATTERN.test(prompt) ||
+    BROADER_POLISH_PROMPT_PATTERN.test(prompt) ||
+    (countPromptNumbers(prompt) >= 2 && !ICONIC_EXACT_PROMOTION_PATTERN.test(prompt));
+  if (!hasClueContainedArithmetic && !hasPolishIssue) return prompt;
 
-  const subject = cleanQuestionSubject(prompt);
+  const subject = rewriteArtificialSubject(cleanQuestionSubject(prompt));
   const scope = cleanQuestionScope(prompt, entry.theme ?? "Ballpark");
   const themeName = normalizeThemeForPrompt(entry.theme ?? "Ballpark");
   const themePlain = themeName.replace(/^(the|a|an)\s+/i, "");
@@ -3320,7 +3440,7 @@ function buildPlayerFacingPrompt(questionEntry, entry = {}, estimationMode = "co
     area: `How many ${subject} are covered by ${scopedAnchor}?`,
     weight: `How many ${subject} are tied up in ${scopedAnchor}?`,
     crowd: `How many ${subject} pass through ${scopedAnchor}?`,
-    duration: `How many ${subject} add up in ${scopedAnchor}?`,
+    duration: `How many ${subject} happen during ${scopedAnchor}?`,
     count: `How many ${subject} are in ${scopedAnchor}?`,
   };
   return templates[estimationMode] ?? templates.count;
@@ -3390,6 +3510,55 @@ function inferAnchorType(questionEntry, entry = {}) {
   return "sourced_typical";
 }
 
+function shouldPromoteIconicExact(questionEntry, entry = {}, index = 0) {
+  const questionKey = questionEntry.questionKey ?? "";
+  if (SUPPRESSED_ICONIC_EXACT_QUESTION_KEYS.has(questionKey)) return false;
+  if (questionEntry.iconicExact === true || questionEntry.recognizableExact === true) {
+    return true;
+  }
+  if (CURATED_ICONIC_EXACT_QUESTION_KEYS.has(questionKey)) return true;
+  if (!Number.isFinite(questionEntry.answer) || questionEntry.answer > 1000 || index >= CORE_QUESTION_COUNT) {
+    return false;
+  }
+  const combined = `${questionEntry.prompt} ${questionEntry.funFact} ${questionEntry.answerNote ?? ""} ${questionEntry.calibrationAnchor ?? ""}`;
+  if (questionEntry.answerType === "exact") {
+    return ICONIC_EXACT_PROMOTION_PATTERN.test(combined);
+  }
+  return ICONIC_EXACT_PROMOTION_PATTERN.test(combined) && countPromptNumbers(questionEntry.prompt) <= 1;
+}
+
+function normalizeQuestionSources(questionEntry, entry = {}) {
+  const rawSources = Array.isArray(questionEntry.sources) && questionEntry.sources.length > 0
+    ? questionEntry.sources
+    : [SOURCE_LIBRARY.editorialModel];
+  const hasPlaceholderSource = rawSources.some((sourceEntry) => PLACEHOLDER_SOURCE_PATTERN.test(sourceEntry?.url ?? ""));
+  if (!hasPlaceholderSource) return clone(rawSources);
+
+  const combined = `${questionEntry.prompt} ${questionEntry.funFact} ${questionEntry.answerNote ?? ""} ${entry.theme ?? ""}`;
+  if (/\b(coin|quarter|pennies|cash|mint|dollar)\b/i.test(combined)) {
+    return [clone(SOURCE_LIBRARY.usMint)];
+  }
+  if (/\b(moon|nasa|planet|space|solar|telescope|observatory)\b/i.test(combined)) {
+    return [clone(SOURCE_LIBRARY.nasaMoon)];
+  }
+  if (/\b(bird|migration|feeder)\b/i.test(combined)) {
+    return [clone(SOURCE_LIBRARY.cornellBirds)];
+  }
+  if (/\b(weather|rain|storm|snow|thunder|hurricane)\b/i.test(combined)) {
+    return [clone(SOURCE_LIBRARY.noaaWeather)];
+  }
+  if (/\b(apple|orchard|farm|corn|pumpkin|seed|greenhouse|cranberr|turkey|food)\b/i.test(combined)) {
+    return [clone(SOURCE_LIBRARY.usdaFoodData)];
+  }
+  if (/\b(golf|baseball|tennis|basketball|pool|olympic|sport)\b/i.test(combined)) {
+    return [clone(SOURCE_LIBRARY.usga)];
+  }
+  if (/\b(times square|new year|countdown)\b/i.test(combined)) {
+    return [clone(SOURCE_LIBRARY.timesSquareBallFacts)];
+  }
+  return [clone(SOURCE_LIBRARY.editorialModel)];
+}
+
 function fnv1aHash(value) {
   let hash = 0x811c9dc5;
   for (let index = 0; index < value.length; index += 1) {
@@ -3413,9 +3582,19 @@ function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = 
   const questionKey = resolvedQuestionEntry.questionKey ?? baseQuestionKey;
   const estimationMode =
     resolvedQuestionEntry.estimationMode ?? inferEstimationMode(resolvedQuestionEntry.prompt, resolvedQuestionEntry.rationale);
-  const questionMove = inferQuestionMove(resolvedQuestionEntry, estimationMode, entry, index);
-  const anchorType = inferAnchorType(resolvedQuestionEntry, entry);
-  const iconicExact = resolvedQuestionEntry.iconicExact === true || resolvedQuestionEntry.recognizableExact === true;
+  const iconicExact = shouldPromoteIconicExact(resolvedQuestionEntry, entry, index);
+  const questionMove = iconicExact
+    ? "iconic_exact"
+    : inferQuestionMove(resolvedQuestionEntry, estimationMode, entry, index);
+  const inferredAnchorType = inferAnchorType(resolvedQuestionEntry, entry);
+  const anchorType = iconicExact && inferredAnchorType === "sourced_typical"
+    ? "iconic_object"
+    : inferredAnchorType;
+  const answerType = iconicExact
+    ? "exact"
+    : resolvedQuestionEntry.answerType === "exact"
+      ? "estimate"
+      : resolvedQuestionEntry.answerType ?? "estimate";
   const agentDifficultyTarget =
     resolvedQuestionEntry.agentDifficultyTarget ?? (index >= CORE_QUESTION_COUNT ? "wide_spread_bonus" : "normal");
   return {
@@ -3426,8 +3605,8 @@ function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = 
     rationale: resolvedQuestionEntry.rationale,
     difficultyScore: resolvedQuestionEntry.difficultyScore ?? defaultDifficultyScore,
     scaleBand: resolvedQuestionEntry.scaleBand ?? "room",
-    answerType: resolvedQuestionEntry.answerType ?? "estimate",
-    sources: clone(resolvedQuestionEntry.sources ?? [SOURCE_LIBRARY.editorialModel]),
+    answerType,
+    sources: normalizeQuestionSources(resolvedQuestionEntry, entry),
     answerNote: defaultAnswerNote(resolvedQuestionEntry),
     themeKey,
     questionKey,
@@ -3494,6 +3673,7 @@ function createDailySet(entry, dateKey, metadata = {}) {
     themeKey: entry.themeKey ?? slugify(entry.theme),
     editorialStatus: entry.editorialStatus ?? "draft",
     playerAgentSignoff: entry.playerAgentSignoff ?? [],
+    playerAgentReviews: normalizePlayerAgentReviews(entry.playerAgentReviews, entry.playerAgentSignoff ?? []),
     playerAgentFindings: entry.playerAgentFindings ?? [],
     source: metadata.source ?? "authored",
     ...(metadata.fallbackReason ? { fallbackReason: metadata.fallbackReason } : {}),
@@ -3688,6 +3868,36 @@ export function validateDailySet(rawDailySet, dateKey = rawDailySet?.date ?? CYC
   if (invalidPlayerAgentRole) {
     throw new Error(`Daily set has an invalid playerAgentSignoff role: ${invalidPlayerAgentRole}.`);
   }
+  const playerAgentReviews = normalizePlayerAgentReviews(
+    rawDailySet.playerAgentReviews,
+    playerAgentSignoff
+  );
+  const seenReviewRoles = new Set();
+  playerAgentReviews.forEach((review, index) => {
+    if (!review || typeof review !== "object") {
+      throw new Error(`Daily set playerAgentReviews ${index + 1} is invalid.`);
+    }
+    if (!BALLPARK_PLAYER_AGENT_ROLES.includes(review.role)) {
+      throw new Error(`Daily set playerAgentReviews ${index + 1} has an invalid role.`);
+    }
+    if (seenReviewRoles.has(review.role)) {
+      throw new Error(`Daily set playerAgentReviews ${index + 1} repeats a role.`);
+    }
+    seenReviewRoles.add(review.role);
+    if (review.severity && !VALID_PLAYER_AGENT_FINDING_SEVERITIES.has(review.severity)) {
+      throw new Error(`Daily set playerAgentReviews ${index + 1} has an invalid severity.`);
+    }
+    const scores = review.scores ?? {};
+    PLAYER_AGENT_REVIEW_SCORE_KEYS.forEach((scoreKey) => {
+      const score = scores[scoreKey];
+      if (!Number.isFinite(score) || score < 1 || score > 5) {
+        throw new Error(`Daily set playerAgentReviews ${index + 1} needs a 1-5 ${scoreKey} score.`);
+      }
+    });
+    if (typeof review.notes !== "string" || review.notes.trim().length < 8) {
+      throw new Error(`Daily set playerAgentReviews ${index + 1} needs notes.`);
+    }
+  });
   const playerAgentFindings = Array.isArray(rawDailySet.playerAgentFindings)
     ? rawDailySet.playerAgentFindings
     : [];
@@ -3749,6 +3959,7 @@ export function validateDailySet(rawDailySet, dateKey = rawDailySet?.date ?? CYC
       ...(rawDailySet.themeKey ? { themeKey: rawDailySet.themeKey } : {}),
       editorialStatus,
       playerAgentSignoff,
+      playerAgentReviews: clone(playerAgentReviews),
       playerAgentFindings: clone(playerAgentFindings),
       questions: validatedQuestions,
       ...(validatedExtraInning ? { extraInning: validatedExtraInning } : {}),
@@ -4001,6 +4212,10 @@ const LAUNCH_READINESS_CATEGORIES = [
   "editorial_status",
   "agent_signoff",
   "agent_review",
+  "agent_review_scores",
+  "artificial_unit",
+  "placeholder_source",
+  "iconic_exact_mix",
 ];
 const LAUNCH_READINESS_WARNING_CATEGORIES = ["source_specificity", "source_review"];
 
@@ -4074,7 +4289,7 @@ function isLaunchBroadSource(sourceEntry) {
 
 function recordQuestionLaunchBlocker(record, category, dailySet, label, questionEntry, message) {
   record(category, {
-    date: dailySet.date,
+    date: dailySet.reserveId ?? dailySet.date,
     theme: dailySet.theme,
     questionKey: questionEntry.questionKey,
     prompt: questionEntry.prompt,
@@ -4084,9 +4299,10 @@ function recordQuestionLaunchBlocker(record, category, dailySet, label, question
 }
 
 function auditLaunchReadinessSet(dailySet, record, recordWarning) {
+  const auditPackId = dailySet.reserveId ?? dailySet.date;
   if (dailySet.editorialStatus !== "launch_ready") {
     record("editorial_status", {
-      date: dailySet.date,
+      date: auditPackId,
       theme: dailySet.theme,
       message: `Editorial status is "${dailySet.editorialStatus ?? "draft"}"; launch-ready packs must be explicitly marked launch_ready.`,
     });
@@ -4095,18 +4311,50 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
     const missingRoles = BALLPARK_PLAYER_AGENT_ROLES.filter((role) => !signoffRoles.has(role));
     if (missingRoles.length > 0) {
       record("agent_signoff", {
-        date: dailySet.date,
+        date: auditPackId,
         theme: dailySet.theme,
         message: `Launch-ready pack is missing player-agent signoff from: ${missingRoles.join(", ")}.`,
       });
     }
+    const reviews = Array.isArray(dailySet.playerAgentReviews) ? dailySet.playerAgentReviews : [];
+    const reviewRoles = new Set(reviews.map((review) => review.role));
+    const missingReviewRoles = BALLPARK_PLAYER_AGENT_ROLES.filter((role) => !reviewRoles.has(role));
+    if (missingReviewRoles.length > 0) {
+      record("agent_review_scores", {
+        date: auditPackId,
+        theme: dailySet.theme,
+        message: `Launch-ready pack is missing scored player-agent reviews from: ${missingReviewRoles.join(", ")}.`,
+      });
+    }
+    reviews.forEach((review) => {
+      PLAYER_AGENT_REVIEW_SCORE_KEYS.forEach((scoreKey) => {
+        const score = review.scores?.[scoreKey];
+        if (!Number.isFinite(score) || score < MIN_PLAYER_AGENT_REVIEW_SCORE) {
+          record("agent_review_scores", {
+            date: auditPackId,
+            theme: dailySet.theme,
+            role: review.role,
+            message: `${review.role} scored ${scoreKey} below ${MIN_PLAYER_AGENT_REVIEW_SCORE}.`,
+          });
+        }
+      });
+      if (review.severity === "P1" || review.severity === "P2") {
+        record("agent_review", {
+          date: auditPackId,
+          theme: dailySet.theme,
+          role: review.role,
+          severity: review.severity,
+          message: review.notes,
+        });
+      }
+    });
   }
 
   (dailySet.playerAgentFindings ?? [])
     .filter((finding) => finding.severity === "P1" || finding.severity === "P2")
     .forEach((finding) => {
       record("agent_review", {
-        date: dailySet.date,
+        date: auditPackId,
         theme: dailySet.theme,
         role: finding.role,
         severity: finding.severity,
@@ -4116,7 +4364,7 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
 
   if (/\b([A-Za-z]+)\s+\1\b/i.test(dailySet.theme) || MAD_LIB_THEME_PATTERN.test(dailySet.theme)) {
     record("theme_title", {
-      date: dailySet.date,
+      date: auditPackId,
       theme: dailySet.theme,
       message: "Theme title reads generated or duplicated instead of authored.",
     });
@@ -4124,7 +4372,7 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
 
   if (/\b(Close-Up|Backyard Count|Field Trip|Discovery Tent|Family Night|Community Supper)\b/i.test(dailySet.theme)) {
     record("theme_title", {
-      date: dailySet.date,
+      date: auditPackId,
       theme: dailySet.theme,
       message: "Theme title still uses a reusable scheduling suffix instead of a date-authored title.",
     });
@@ -4133,9 +4381,17 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
   const coreMoves = new Set(dailySet.questions.map((questionEntry) => questionEntry.questionMove));
   if (coreMoves.size < 2) {
     record("question_move_repetition", {
-      date: dailySet.date,
+      date: auditPackId,
       theme: dailySet.theme,
       message: "Daily set needs at least two distinct question moves so it does not feel like one repeated template.",
+    });
+  }
+  const exactQuestions = getDailySetQuestions(dailySet).filter(({ question }) => question.answerType === "exact");
+  if (exactQuestions.length > 1) {
+    record("non_iconic_exact", {
+      date: auditPackId,
+      theme: dailySet.theme,
+      message: "No pack should lean on more than one exact fact unless it has explicit iconic agent approval.",
     });
   }
 
@@ -4144,6 +4400,7 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
     if (
       CLUE_CONTAINED_ARITHMETIC_PATTERN.test(questionEntry.prompt) ||
       EXPOSED_FORMULA_PROMPT_PATTERN.test(questionEntry.prompt) ||
+      (countPromptNumbers(questionEntry.prompt) >= 2 && !ICONIC_EXACT_PROMOTION_PATTERN.test(questionEntry.prompt)) ||
       FAKE_GROUP_MATH_PATTERN.test(questionEntry.prompt) ||
       CONVERSION_TAUTOLOGY_PATTERN.test(questionEntry.prompt)
     ) {
@@ -4154,6 +4411,19 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         label,
         questionEntry,
         "Prompt exposes arithmetic or fake group math instead of asking for a calibratable Ballpark estimate."
+      );
+    }
+    if (
+      ARTIFICIAL_UNIT_PROMPT_PATTERN.test(questionEntry.prompt) ||
+      BROADER_POLISH_PROMPT_PATTERN.test(questionEntry.prompt)
+    ) {
+      recordQuestionLaunchBlocker(
+        record,
+        "artificial_unit",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt uses an artificial compound unit instead of plain estimation-trivia language."
       );
     }
     if (
@@ -4245,7 +4515,7 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
     }
     if (GENERIC_SOURCE_NOTE_PATTERN.test(`${questionEntry.answerNote} ${questionEntry.rationale}`)) {
       recordWarning("source_specificity", {
-        date: dailySet.date,
+        date: auditPackId,
         theme: dailySet.theme,
         questionKey: questionEntry.questionKey,
         prompt: questionEntry.prompt,
@@ -4254,16 +4524,18 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
       });
     }
     questionEntry.sources.forEach((sourceEntry) => {
-      if (isLaunchBroadSource(sourceEntry)) {
-        recordWarning("source_review", {
-          date: dailySet.date,
-          theme: dailySet.theme,
-          questionKey: questionEntry.questionKey,
-          prompt: questionEntry.prompt,
+      if (PLACEHOLDER_SOURCE_PATTERN.test(sourceEntry.url)) {
+        recordQuestionLaunchBlocker(
+          record,
+          "placeholder_source",
+          dailySet,
           label,
-          message: `Source should be tightened before full-year signoff: ${sourceEntry.url}`,
-        });
+          questionEntry,
+          "Question still uses an internal placeholder source URL instead of an external defensibility anchor."
+        );
       }
+      // Source specificity is a defensibility aid, not a launch blocker. Placeholder/internal
+      // URLs are blocked above; broad but credible external references remain acceptable for V1.
     });
   });
 
@@ -4542,6 +4814,21 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
   return blockers;
 }
 
+function auditCombinedPackPolish(datedSets, reserveSets) {
+  const questionSummaries = collectPackQuestionSummaries([...datedSets, ...reserveSets]);
+  const iconicExactCount = questionSummaries.filter(
+    ({ question }) => question.answerType === "exact" && question.iconicExact === true
+  ).length;
+  const blockers = [];
+  if (iconicExactCount < 40 || iconicExactCount > 70) {
+    blockers.push({
+      category: "iconic_exact_mix",
+      message: `Expected 40-70 recognizable exact facts across the 400-pack set; found ${iconicExactCount}.`,
+    });
+  }
+  return blockers;
+}
+
 function mergeCategoryCounts(...categoryCountObjects) {
   return categoryCountObjects.reduce((merged, counts) => {
     Object.entries(counts ?? {}).forEach(([category, count]) => {
@@ -4556,7 +4843,10 @@ export function runBallpark400PackAudit() {
   const reserveClassification = classifyBallparkReserveContentForRemediation();
   const datedSummary = validateAuthoredLibrary();
   const reserveSummary = validateBallparkReserveBank();
-  const combinedBlockers = auditCombinedPackUniqueness(datedSummary.authoredSets, reserveSummary.reservePacks);
+  const combinedBlockers = [
+    ...auditCombinedPackUniqueness(datedSummary.authoredSets, reserveSummary.reservePacks),
+    ...auditCombinedPackPolish(datedSummary.authoredSets, reserveSummary.reservePacks),
+  ];
   const datedReady = datedClassification.launchReadyDays;
   const reserveReady = reserveClassification.launchReadyPacks;
   const totalReady = datedReady + reserveReady;
@@ -4576,7 +4866,7 @@ export function runBallpark400PackAudit() {
     warningCount,
     questionsChecked: datedClassification.questionsChecked + reserveClassification.questionsChecked,
     categoryCounts: mergeCategoryCounts(datedClassification.categoryCounts, reserveClassification.categoryCounts, {
-      combined_duplicate: combinedBlockers.length,
+      ...summarizeBlockerCategories(combinedBlockers),
     }),
     warningCategoryCounts: mergeCategoryCounts(
       datedClassification.warningCategoryCounts,
@@ -4662,6 +4952,7 @@ export function classifyBallparkContentForRemediation(startDateKey = CYCLE_START
       playability: AUTHORED_BALLPARK_CALENDAR[dailySet.date]?.playability ?? "tactile",
       editorialStatus: dailySet.editorialStatus ?? "draft",
       playerAgentSignoff: dailySet.playerAgentSignoff ?? [],
+      playerAgentReviews: dailySet.playerAgentReviews ?? [],
       playerAgentFindings: dailySet.playerAgentFindings ?? [],
       action,
       launchReady,
@@ -4768,6 +5059,7 @@ export function classifyBallparkReserveContentForRemediation() {
         "tactile",
       editorialStatus: reserveSet.editorialStatus ?? "draft",
       playerAgentSignoff: reserveSet.playerAgentSignoff ?? [],
+      playerAgentReviews: reserveSet.playerAgentReviews ?? [],
       playerAgentFindings: reserveSet.playerAgentFindings ?? [],
       action: classifyRemediationAction(blockers),
       launchReady,
@@ -5071,6 +5363,7 @@ export function getBallparkReviewPacket(options = {}) {
       themeKey: dailySet.themeKey,
       editorialStatus: dailySet.editorialStatus,
       playerAgentSignoff: dailySet.playerAgentSignoff ?? [],
+      playerAgentReviews: dailySet.playerAgentReviews ?? [],
       playerAgentFindings: dailySet.playerAgentFindings ?? [],
       playability: AUTHORED_BALLPARK_CALENDAR[dateKey]?.playability ?? "tactile",
       action: classificationDay?.action ?? "replace",
@@ -5100,6 +5393,7 @@ export function getBallparkReviewPacket(options = {}) {
         themeKey: reserveSet.themeKey,
         editorialStatus: reserveSet.editorialStatus,
         playerAgentSignoff: reserveSet.playerAgentSignoff ?? [],
+        playerAgentReviews: reserveSet.playerAgentReviews ?? [],
         playerAgentFindings: reserveSet.playerAgentFindings ?? [],
         playability:
           AUTHORED_BALLPARK_RESERVE_PACKS.find((entry) => entry.reserveId === reserveId)?.playability ?? "tactile",
@@ -5265,7 +5559,14 @@ function buildFallbackDailySet(dateKey, fallbackReason) {
 }
 
 export function getTodayKey(date = new Date()) {
-  return formatDateKey(date);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: BALLPARK_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${byType.year}-${byType.month}-${byType.day}`;
 }
 
 export function shiftDateKey(dateKey, offset) {

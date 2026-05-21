@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Platform,
@@ -7,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -25,9 +27,21 @@ import {
 } from '../src/constants/theme';
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { incrementGlobalPlayCount } from '../src/globalPlayCount';
+import {
+  HARD_WIN_THRESHOLD,
+  appendDigit,
+  evaluateGuess,
+  formatBallparkLongDate,
+  formatBallparkShareText,
+  formatCompactNumber,
+  formatFullNumber,
+  getPctOffBucket,
+  parseGuessInput,
+  sanitizeGuessInput,
+} from '../src/ballpark/gameplay';
+import { trackBallparkEvent } from '../src/ballpark/telemetry';
 
-const STORAGE_VERSION = 7;
-const HARD_WIN_THRESHOLD = 0.05;
+const STORAGE_VERSION = 8;
 const KEYPAD_LAYOUT = [
   ['1', '2', '3'],
   ['4', '5', '6'],
@@ -86,67 +100,6 @@ function clearSavedProgress(dateKey) {
   } catch {
     // Ignore storage failures.
   }
-}
-
-function formatLongDate(dateKey) {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(`${dateKey}T12:00:00`));
-}
-
-function formatCompactNumber(value) {
-  const rounded = Math.round(value);
-  if (rounded >= 1e12) return `${(rounded / 1e12).toFixed(1).replace(/\.0$/, '')}T`;
-  if (rounded >= 1e9) return `${(rounded / 1e9).toFixed(1).replace(/\.0$/, '')}B`;
-  if (rounded >= 1e6) return `${(rounded / 1e6).toFixed(1).replace(/\.0$/, '')}M`;
-  if (rounded >= 1e3) return `${(rounded / 1e3).toFixed(1).replace(/\.0$/, '')}K`;
-  return String(rounded);
-}
-
-function formatFullNumber(value) {
-  return Math.round(value).toLocaleString();
-}
-
-function sanitizeGuessInput(value) {
-  return value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
-}
-
-function appendDigit(value, digit) {
-  const next = `${value}${digit}`;
-  return sanitizeGuessInput(next).slice(0, 12);
-}
-
-function parseGuessInput(value) {
-  const digits = sanitizeGuessInput(value);
-  if (!digits) return null;
-
-  const parsed = Number(digits);
-  if (!Number.isFinite(parsed) || parsed <= 0) return null;
-  return Math.round(parsed);
-}
-
-function orderOfMagnitude(value) {
-  if (value <= 0) return 0;
-  return Math.floor(Math.log10(value));
-}
-
-function evaluateGuess(guess, answer, winThreshold = WIN_THRESHOLD) {
-  const pctOff = Math.abs(guess - answer) / answer;
-  const sameOOM = orderOfMagnitude(guess) === orderOfMagnitude(answer);
-
-  let tier = 'cold';
-  if (pctOff <= winThreshold) tier = 'bullseye';
-  else if (pctOff <= 0.5) tier = 'close';
-  else if (sameOOM) tier = 'warm';
-
-  return {
-    tier,
-    pctOff,
-    sameOOM,
-    direction: guess > answer ? 'down' : guess < answer ? 'up' : null,
-  };
 }
 
 function deriveRoundPhase(savedQuestionState) {
@@ -228,13 +181,6 @@ function getBestGuess(history) {
   return [...history].sort((left, right) => left.evaluation.pctOff - right.evaluation.pctOff)[0];
 }
 
-function getShareGlyph(result) {
-  if (!result) return '⬜️';
-  if (result.won) return '🟩';
-  if (result.bestPctOff <= 0.5) return '🟨';
-  return '⬛️';
-}
-
 function KeyButton({
   label,
   onPress,
@@ -242,9 +188,12 @@ function KeyButton({
   styles,
   isWide = false,
   kind = 'default',
+  accessibilityLabel,
 }) {
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -275,9 +224,12 @@ function AppButton({
   variant = 'primary',
   disabled = false,
   fullWidth = false,
+  accessibilityLabel,
 }) {
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -370,7 +322,7 @@ function StartScreen({ dailySet, hardMode, onStart, onToggleHardMode, styles }) 
       <View style={styles.heroCard}>
         <View style={styles.heroMetaCard}>
           <Text style={styles.heroEyebrow}>Today&apos;s Ballpark</Text>
-          <Text style={styles.heroDate}>{formatLongDate(dailySet.date)}</Text>
+          <Text style={styles.heroDate}>{formatBallparkLongDate(dailySet.date)}</Text>
           <Text style={styles.heroMeta}>Three questions. Four guesses each.</Text>
         </View>
 
@@ -399,6 +351,7 @@ function StartScreen({ dailySet, hardMode, onStart, onToggleHardMode, styles }) 
 
         <Pressable
           accessibilityRole="switch"
+          accessibilityLabel="Hard Mode"
           accessibilityState={{ checked: hardMode }}
           onPress={onToggleHardMode}
           style={({ pressed }) => [
@@ -429,6 +382,7 @@ function QuestionScreen({
   isExtraInning = false,
   onComplete,
   onStateChange,
+  onTrack,
   previousResults = [],
   progressSegments,
   question,
@@ -446,6 +400,7 @@ function QuestionScreen({
   const [roundPhase, setRoundPhase] = useState(deriveRoundPhase(restoredState));
   const [lastGuess, setLastGuess] = useState(restoredState?.lastGuess ?? null);
   const revealTimeoutRef = useRef(null);
+  const questionStartedAtRef = useRef(Date.now());
 
   const currentGuess = parseGuessInput(guessInput);
   const guessesLeft = MAX_GUESSES - history.length;
@@ -457,6 +412,15 @@ function QuestionScreen({
   const displayProgressSegments = isDone
     ? progressSegments.map((segment) => (segment === 'active' ? 'complete' : segment))
     : progressSegments;
+
+  useEffect(() => {
+    questionStartedAtRef.current = Date.now();
+    onTrack?.({
+      event: 'question_shown',
+      phase: isExtraInning ? 'extra-inning' : 'question',
+      questionKey: question.questionKey,
+    });
+  }, [isExtraInning, onTrack, question.id, question.questionKey]);
 
   useEffect(() => {
     if (roundPhase !== 'resolved') return undefined;
@@ -522,6 +486,15 @@ function QuestionScreen({
     setLatestFeedback(evaluation);
     setLastGuess(currentGuess);
     setGuessInput('');
+    onTrack?.({
+      event: 'guess_submitted',
+      phase: isExtraInning ? 'extra-inning' : 'question',
+      questionKey: question.questionKey,
+      guessIndex: nextHistory.length,
+      tier: evaluation.tier,
+      pctOffBucket: getPctOffBucket(evaluation.pctOff),
+      pctOff: evaluation.pctOff,
+    });
 
     if (evaluation.tier === 'bullseye') {
       setIsWon(true);
@@ -536,6 +509,17 @@ function QuestionScreen({
 
   const handleContinue = () => {
     const bestGuess = getBestGuess(history);
+    onTrack?.({
+      event: 'round_complete',
+      phase: isExtraInning ? 'extra-inning' : 'question',
+      questionKey: question.questionKey,
+      guessIndex: history.length,
+      won: isWon,
+      tier: bestGuess?.evaluation?.tier,
+      pctOffBucket: bestGuess ? getPctOffBucket(bestGuess.evaluation.pctOff) : undefined,
+      pctOff: bestGuess?.evaluation?.pctOff,
+      elapsedMs: Date.now() - questionStartedAtRef.current,
+    });
     onComplete({
       answer: question.answer,
       bestGuess: bestGuess.guess,
@@ -555,11 +539,12 @@ function QuestionScreen({
       <View style={styles.metaRow}>
         <View style={styles.metaCopy}>
           <Text style={styles.sectionEyebrow}>{questionLabel}</Text>
-          <Text style={styles.metaSubcopy}>{formatLongDate(dateKey)}</Text>
+          <Text style={styles.metaSubcopy}>{formatBallparkLongDate(dateKey)}</Text>
           <View style={styles.progressRow}>
             {displayProgressSegments.map((segment, index) => (
               <View
                 key={`segment-${index}`}
+                accessibilityLabel={`Question progress ${index + 1}: ${segment}`}
                 style={[
                   styles.progressSegment,
                   segment === 'active' && styles.progressSegmentActive,
@@ -585,15 +570,33 @@ function QuestionScreen({
       <View style={styles.questionCard}>
         <Text style={styles.questionPrompt}>{question.prompt}</Text>
         {question.asOfDate ? (
-          <Text style={styles.questionBlurb}>Measured as of {formatLongDate(question.asOfDate)}.</Text>
+          <Text style={styles.questionBlurb}>Measured as of {formatBallparkLongDate(question.asOfDate)}.</Text>
         ) : null}
       </View>
 
       <View style={styles.guessDisplayCard}>
         <Text style={styles.sectionEyebrow}>Current guess</Text>
-        <Text style={guessInput ? styles.guessDisplayValue : styles.guessDisplayPlaceholder}>
-          {guessInput ? formatFullNumber(Number(guessInput)) : 'Enter a guess'}
-        </Text>
+        <TextInput
+          accessibilityLabel="Current numeric guess"
+          editable={!isDone}
+          inputMode="numeric"
+          keyboardType="number-pad"
+          onChangeText={(nextValue) => {
+            if (!isDone) setGuessInput(sanitizeGuessInput(nextValue));
+          }}
+          onKeyPress={({ nativeEvent }) => {
+            if (nativeEvent.key === 'Enter') handleSubmit();
+          }}
+          onSubmitEditing={handleSubmit}
+          placeholder="Enter a guess"
+          placeholderTextColor="rgba(148, 163, 184, 0.9)"
+          returnKeyType="done"
+          style={[
+            styles.guessInput,
+            guessInput ? styles.guessDisplayValue : styles.guessDisplayPlaceholder,
+          ]}
+          value={guessInput ? formatFullNumber(Number(guessInput)) : ''}
+        />
         <Text style={styles.guessDisplayHint}>
           {currentGuess !== null
             ? `${formatCompactNumber(currentGuess)} ready to submit`
@@ -604,7 +607,11 @@ function QuestionScreen({
       </View>
 
       {feedbackMessage ? (
-        <View style={styles.feedbackCard}>
+        <View
+          accessibilityLiveRegion="polite"
+          accessibilityLabel={`${feedbackMessage.title}. ${feedbackMessage.body}`}
+          style={styles.feedbackCard}
+        >
           <Text style={styles.feedbackTitle}>{feedbackMessage.title}</Text>
           <Text style={styles.feedbackBody}>{feedbackMessage.body}</Text>
         </View>
@@ -652,6 +659,8 @@ function QuestionScreen({
           <View style={styles.adjustmentsRow}>
             {ADJUSTMENTS.map((button) => (
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Adjust current guess ${button.label}`}
                 key={button.label}
                 disabled={adjustmentBase === null || isDone}
                 onPress={() => handleAdjust(button.factor)}
@@ -686,6 +695,7 @@ function QuestionScreen({
                         disabled={guessInput.length === 0 || isDone}
                         styles={styles}
                         kind="muted"
+                        accessibilityLabel="Clear current guess"
                       />
                     );
                   }
@@ -699,6 +709,7 @@ function QuestionScreen({
                         disabled={guessInput.length === 0 || isDone}
                         styles={styles}
                         kind="muted"
+                        accessibilityLabel="Delete last digit"
                       />
                     );
                   }
@@ -710,6 +721,7 @@ function QuestionScreen({
                       onPress={() => handleNumberTap(keyValue)}
                       disabled={isDone}
                       styles={styles}
+                      accessibilityLabel={`Digit ${keyValue}`}
                     />
                   );
                 })}
@@ -730,10 +742,15 @@ function QuestionScreen({
   );
 }
 
-function ExtraInningCallToAction({ onPress, styles }) {
+function ExtraInningCallToAction({ onPress, reduceMotion = false, styles }) {
   const pulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    if (reduceMotion) {
+      pulse.setValue(0);
+      return undefined;
+    }
+
     const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, {
@@ -755,13 +772,13 @@ function ExtraInningCallToAction({ onPress, styles }) {
     return () => {
       animation.stop();
     };
-  }, [pulse]);
+  }, [pulse, reduceMotion]);
 
   return (
     <Animated.View
       style={[
         styles.extraInningShell,
-        {
+        !reduceMotion && {
           opacity: pulse.interpolate({
             inputRange: [0, 1],
             outputRange: [0.92, 1],
@@ -778,6 +795,8 @@ function ExtraInningCallToAction({ onPress, styles }) {
       ]}
     >
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Play Extra Inning bonus question"
         onPress={onPress}
         style={({ pressed }) => [
           styles.extraInningCard,
@@ -799,8 +818,11 @@ function SummaryScreen({
   dailySet,
   dateKey,
   extraInningResult,
+  hardMode,
   onPlayExtraInning,
   onReplayDay,
+  onTrack,
+  reduceMotion = false,
   results,
   styles,
 }) {
@@ -812,22 +834,37 @@ function SummaryScreen({
   const misses = resultList.filter((result) => !result.won);
   const closestMiss = misses.length > 0 ? Math.min(...misses.map((result) => result.bestPctOff)) : null;
   const shareText = useMemo(() => {
-    const resultRow = resultList.map((result) => getShareGlyph(result)).join('');
-    const resultLine = extraInningResult
-      ? `${totalGuesses} | ${resultRow} EI`
-      : `${totalGuesses} | ${resultRow}`;
-
-    return [
-      `Ballpark ${formatLongDate(dateKey)}`,
-      dailySet.theme,
-      resultLine,
-    ].join('\n');
-  }, [dailySet.theme, dateKey, extraInningResult, resultList, totalGuesses]);
+    return formatBallparkShareText({
+      dateKey,
+      extraInningResult,
+      hardMode,
+      results,
+      theme: dailySet.theme,
+    });
+  }, [dailySet.theme, dateKey, extraInningResult, hardMode, results]);
   const [copyStatus, setCopyStatus] = useState(null);
+  const summaryTrackedRef = useRef(false);
 
   useEffect(() => {
     setCopyStatus(null);
   }, [shareText]);
+
+  useEffect(() => {
+    if (summaryTrackedRef.current) return;
+    summaryTrackedRef.current = true;
+    onTrack?.({
+      event: 'summary_shown',
+      metadata: {
+        wins: wins + bonusWins,
+        totalGuesses,
+        extraInningAvailable: Boolean(dailySet.extraInning),
+        extraInningPlayed: Boolean(extraInningResult),
+      },
+    });
+    if (dailySet.extraInning && !extraInningResult) {
+      onTrack?.({ event: 'extra_inning_shown', phase: 'summary' });
+    }
+  }, [bonusWins, dailySet.extraInning, extraInningResult, onTrack, totalGuesses, wins]);
 
   const handleCopyResults = useCallback(async () => {
     if (Platform.OS !== 'web') return;
@@ -841,17 +878,25 @@ function SummaryScreen({
     try {
       await clipboard.writeText(shareText);
       setCopyStatus('Copied to clipboard');
+      onTrack?.({
+        event: 'share_copied',
+        metadata: {
+          resultLength: shareText.length,
+          hardMode,
+          extraInningPlayed: Boolean(extraInningResult),
+        },
+      });
     } catch {
       setCopyStatus('Copy failed');
     }
-  }, [shareText]);
+  }, [extraInningResult, hardMode, onTrack, shareText]);
 
   return (
     <View>
       <View style={styles.heroCard}>
         <View style={styles.summaryIntro}>
           <Text style={styles.sectionEyebrow}>Today&apos;s result</Text>
-          <Text style={styles.metaSubcopy}>{formatLongDate(dateKey)}</Text>
+          <Text style={styles.metaSubcopy}>{formatBallparkLongDate(dateKey)}</Text>
         </View>
 
         <View style={styles.summaryHero}>
@@ -879,7 +924,11 @@ function SummaryScreen({
         </View>
 
         {dailySet.extraInning && !extraInningResult ? (
-          <ExtraInningCallToAction onPress={onPlayExtraInning} styles={styles} />
+          <ExtraInningCallToAction
+            onPress={onPlayExtraInning}
+            reduceMotion={reduceMotion}
+            styles={styles}
+          />
         ) : null}
 
         <View style={styles.summaryStatsRow}>
@@ -908,6 +957,8 @@ function SummaryScreen({
           </View>
           {Platform.OS === 'web' ? (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Copy Ballpark result"
               onPress={handleCopyResults}
               style={({ pressed }) => [
                 styles.shareCodeButton,
@@ -1381,6 +1432,14 @@ function createStyles(theme, screenAccent, viewportWidth) {
       padding: Spacing.md,
       gap: Spacing.xs,
       marginBottom: Spacing.sm,
+    },
+    guessInput: {
+      width: '100%',
+      borderWidth: 0,
+      backgroundColor: 'transparent',
+      paddingHorizontal: 0,
+      paddingVertical: 0,
+      margin: 0,
     },
     guessDisplayValue: {
       fontSize: 30,
@@ -1882,7 +1941,38 @@ export default function BallparkRoute() {
   const [hardMode, setHardMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [playableStatus, setPlayableStatus] = useState(null);
+  const [reduceMotion, setReduceMotion] = useState(false);
   const countedSummaryDateRef = useRef(null);
+  const unavailableTrackedDateRef = useRef(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const reduceMotionPromise = AccessibilityInfo.isReduceMotionEnabled?.();
+    reduceMotionPromise?.then?.((isEnabled) => {
+      if (isMounted) setReduceMotion(Boolean(isEnabled));
+    });
+    const subscription = AccessibilityInfo.addEventListener?.(
+      'reduceMotionChanged',
+      (isEnabled) => setReduceMotion(Boolean(isEnabled))
+    );
+
+    return () => {
+      isMounted = false;
+      subscription?.remove?.();
+    };
+  }, []);
+
+  const trackGameEvent = useCallback(
+    (eventPayload) => {
+      trackBallparkEvent({
+        dateKey: todayKey,
+        themeKey: dailySet?.themeKey,
+        mode: hardMode ? 'hard' : 'normal',
+        ...eventPayload,
+      });
+    },
+    [dailySet?.themeKey, hardMode, todayKey]
+  );
 
   useEffect(() => {
     let isActive = true;
@@ -1951,6 +2041,19 @@ export default function BallparkRoute() {
   }, [todayKey]);
 
   useEffect(() => {
+    if (phase !== 'unavailable' || unavailableTrackedDateRef.current === todayKey) return;
+    unavailableTrackedDateRef.current = todayKey;
+    trackBallparkEvent({
+      event: 'unavailable_view',
+      dateKey: todayKey,
+      metadata: {
+        reason: playableStatus?.reason,
+        message: playableStatus?.message,
+      },
+    });
+  }, [phase, playableStatus?.message, playableStatus?.reason, todayKey]);
+
+  useEffect(() => {
     if (loading || !dailySet) return;
 
     const hasSavedProgress =
@@ -2001,6 +2104,7 @@ export default function BallparkRoute() {
 
   const handleStart = () => {
     if (!dailySet) return;
+    trackGameEvent({ event: 'start', phase: 'start' });
     setPhase('question');
     setQIndex(0);
     setResults([]);
@@ -2009,7 +2113,17 @@ export default function BallparkRoute() {
   };
 
   const handleToggleHardMode = () => {
-    setHardMode((current) => !current);
+    setHardMode((current) => {
+      const nextValue = !current;
+      trackBallparkEvent({
+        event: 'hard_mode_toggle',
+        dateKey: todayKey,
+        themeKey: dailySet?.themeKey,
+        mode: nextValue ? 'hard' : 'normal',
+        metadata: { enabled: nextValue },
+      });
+      return nextValue;
+    });
   };
 
   const handleQuestionComplete = (result) => {
@@ -2029,6 +2143,11 @@ export default function BallparkRoute() {
 
   const handleStartExtraInning = () => {
     if (!dailySet?.extraInning) return;
+    trackGameEvent({
+      event: 'extra_inning_played',
+      phase: 'summary',
+      questionKey: dailySet.extraInning.questionKey,
+    });
     setPhase('extra-inning');
     setCurrentQuestionState(null);
   };
@@ -2040,6 +2159,10 @@ export default function BallparkRoute() {
   };
 
   const handleReplayDay = () => {
+    if (dailySet?.extraInning && !extraInningResult) {
+      trackGameEvent({ event: 'extra_inning_skipped', phase: 'summary' });
+    }
+    trackGameEvent({ event: 'replay', phase: 'summary' });
     setPhase('question');
     setQIndex(0);
     setResults([]);
@@ -2083,8 +2206,8 @@ export default function BallparkRoute() {
                 </Text>
                 {phase === 'unavailable' && playableStatus?.launchWindowStart ? (
                   <Text style={styles.loadingBody}>
-                    Approved window: {formatLongDate(playableStatus.launchWindowStart)} through{' '}
-                    {formatLongDate(playableStatus.launchWindowEnd)}.
+                    Approved window: {formatBallparkLongDate(playableStatus.launchWindowStart)} through{' '}
+                    {formatBallparkLongDate(playableStatus.launchWindowEnd)}.
                   </Text>
                 ) : null}
               </View>
@@ -2110,6 +2233,7 @@ export default function BallparkRoute() {
                 hardMode={hardMode}
                 onComplete={handleQuestionComplete}
                 onStateChange={setCurrentQuestionState}
+                onTrack={trackGameEvent}
                 previousResults={results}
                 progressSegments={coreProgressSegments}
                 question={dailySet.questions[qIndex]}
@@ -2125,8 +2249,11 @@ export default function BallparkRoute() {
                 dailySet={dailySet}
                 dateKey={todayKey}
                 extraInningResult={extraInningResult}
+                hardMode={hardMode}
                 onPlayExtraInning={handleStartExtraInning}
                 onReplayDay={handleReplayDay}
+                onTrack={trackGameEvent}
+                reduceMotion={reduceMotion}
                 results={results}
                 styles={styles}
               />
@@ -2141,6 +2268,7 @@ export default function BallparkRoute() {
                 isExtraInning
                 onComplete={handleExtraInningComplete}
                 onStateChange={setCurrentQuestionState}
+                onTrack={trackGameEvent}
                 previousResults={results}
                 progressSegments={extraInningSegments}
                 question={dailySet.extraInning}

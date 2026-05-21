@@ -30,6 +30,14 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install
+      - name: Ballpark tests
+        run: npx vitest run src/ballpark/daybreak-v1-data.test.ts src/ballpark/gameplay.test.ts src/ballpark/telemetry.test.ts
+      - name: Ballpark 400-pack audit
+        run: npm run audit:ballpark -- --combined --fail-on-blockers --limit=20
+      - name: Ballpark reserve audit
+        run: npm run audit:ballpark -- --reserve-bank --fail-on-blockers --limit=20
+      - name: Ballpark launch-window audit
+        run: npm run audit:ballpark -- --launch-window --from=2026-05-21 --days=45 --fail-on-blockers --limit=20
       - name: Build web
         run: npm run build:web
       - name: Preserve previous Pages JS chunks
