@@ -96,20 +96,18 @@ const HOW_TO_CLOSED_GRID: HowToCell[][] = [
   [null, null, null, null],
 ];
 const QUICK_START_RULES = [
-  'Place black pebbles on empty line spots. Tap once to preview, then tap the same spot again to place.',
-  'Side spots are up, down, left, and right. Diagonals do not count.',
-  'White pebbles that touch side-to-side are one group. Trap the whole group, not each pebble alone.',
-  'A white group disappears when every empty side spot around it is blocked by black, red, or the board edge.',
-  'If your move clears white pebbles, white does not move. You get the next turn right away.',
-  'If your move clears nothing, white stretches by adding one white pebble to one empty side spot.',
-  'Black pebbles need an open side spot too. If a black group has none after white stretches, that black group disappears.',
+  'Tap an empty line spot once to preview, then tap it again to place a black pebble.',
+  'Only side neighbors count: up, down, left, and right. Diagonals never count.',
+  'White pebbles touching side-to-side are one group. Clear the group by closing every side spot with black, red, or the board edge.',
+  'A clearing move gives you another turn before white moves. A quiet move lets white stretch.',
+  'If white stretches and a black group has no empty side spot, that black group disappears.',
 ];
 const WHITE_STRETCH_RULES = [
-  'White first looks for groups with only one open side spot. One of those groups moves first.',
-  'If no group is almost trapped, white checks every empty side spot touching every white group.',
-  'White chooses the spot with the longest straight empty path from it.',
-  'If spots are still tied, white chooses the highest row, then the furthest-left column.',
-  'The new white pebble joins the group it touched. Then any black group with no open side spot disappears.',
+  'White first looks for any group with exactly one empty side spot.',
+  'If no group is almost trapped, white checks every empty side spot touching a white group.',
+  'White chooses the spot with the longest straight open path.',
+  'Ties go to the highest row, then the furthest-left column.',
+  'The new white pebble joins the group it touched.',
 ];
 
 function getStorage(): Storage | null {
@@ -1360,31 +1358,30 @@ export default function LibertiesScreen() {
               <View style={styles.objectiveCard}>
                 <Text style={styles.objectiveTitle}>Goal</Text>
                 <Text style={styles.objectiveText}>
-                  Clear all white pebbles. Place black pebbles on empty line spots to block every open
-                  side spot around a white group. Watch your black groups too: white can make them disappear
-                  if they run out of open side spots.
+                  Clear every white group. Use black pebbles to close their side spots, while keeping
+                  your own black groups from getting boxed in.
                 </Text>
               </View>
 
               <Text style={styles.modalTitle}>How to play</Text>
               <View style={styles.rulesList}>
+                <HowToMiniBoard
+                  grid={HOW_TO_OPEN_GRID}
+                  label="Board example"
+                  caption="The two white pebbles touch side-to-side, so they are one group. Black, red, and board edges close side spots."
+                  styles={styles}
+                />
                 <Text style={styles.ruleListTitle}>Rules</Text>
                 {QUICK_START_RULES.map((rule) => (
                   <HowToRuleItem key={rule} text={rule} styles={styles} />
                 ))}
-                <HowToMiniBoard
-                  grid={HOW_TO_OPEN_GRID}
-                  label="Board example"
-                  caption="The two white pebbles touch side-to-side, so they are one group. Black and red pebbles block side spots."
-                  styles={styles}
-                />
               </View>
 
               <Text style={styles.modalTitle}>When white moves</Text>
               <View style={[styles.rulesList, styles.rulesListSecondary]}>
                 <Text style={styles.ruleListTitle}>Stretch order</Text>
                 <Text style={styles.ruleListIntro}>
-                  This only happens after a move that does not clear white pebbles.
+                  White only stretches after a move that does not clear a group.
                 </Text>
                 {WHITE_STRETCH_RULES.map((rule, index) => (
                   <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
