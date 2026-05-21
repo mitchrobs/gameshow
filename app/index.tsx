@@ -11,24 +11,8 @@ import {
 } from '../src/constants/theme';
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { BUILD_ID } from '../src/constants/build';
-import { getDailyPuzzle } from '../src/data/mojiMashPuzzles';
-import { getDailyWhodunit } from '../src/data/whodunitPuzzles';
-import { getDailyWordie } from '../src/data/wordiePuzzles';
-import { getDailyThreadline } from '../src/data/threadlinePuzzles';
-import { getTriviaFeedSummary } from '../src/data/trivia/summaries';
-import { getDailySudoku } from '../src/data/sudokuPuzzles';
-import { getDailyBarter, getGoodById } from '../src/data/barterPuzzles';
-import { getDailyBridges } from '../src/data/bridgesPuzzles';
-import { getDailyMiniCrossword } from '../src/data/miniCrosswordPuzzles';
-import { getDailyMuseumArtwork } from '../src/data/museumArtworks';
-import { getDailyDawnCabinet } from '../src/data/dawnCabinetPuzzles';
-import {
-  createLibertiesBoard,
-  getDailyLibertiesEntry,
-  getRemainingLibertiesLights,
-} from '../src/data/libertiesPuzzles';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
-import { formatUtcDateLabel, getUtcDateKey } from '../src/utils/dailyUtc';
+import { getUtcDateKey } from '../src/utils/dailyUtc';
 
 const WEB_NO_SELECT =
   Platform.OS === 'web'
@@ -42,6 +26,97 @@ const WEB_NO_SELECT =
     : {};
 
 const SUBSET_HOME_PILLAR_WORD = 'JAM';
+const HOME_MOJI_PREVIEW_IMAGE = require('../assets/genmoji/spicy-curry.png');
+const HOME_WORDIE_PREVIEW = { length: 5, guessesAllowed: 6, firstLetter: 'P' };
+const HOME_THREADLINE_PREVIEW = {
+  title: 'Threadline',
+  words: 8,
+  threads: 3,
+  grid: ['WORD', 'GRID', 'PLAY', 'LINE'],
+};
+const HOME_CROSSWORD_PREVIEW = {
+  across: 5,
+  down: 5,
+  cells: [
+    [{ number: 1 }, { number: 2 }, { number: 3 }, { isBlock: true }, { number: 4 }],
+    [{}, {}, {}, { number: 5 }, {}],
+    [{ number: 6 }, {}, { isBlock: true }, {}, {}],
+    [{}, { number: 7 }, {}, {}, {}],
+    [{ number: 8 }, {}, {}, { isBlock: true }, {}],
+  ],
+};
+const HOME_SUDOKU_PREVIEW = {
+  dateLabel: 'Daily UTC',
+  difficulty: 'Medium',
+  size: 6,
+  boxRows: 2,
+  boxCols: 3,
+  grid: [
+    [3, 0, 0, 4, 1, 0],
+    [0, 0, 5, 3, 0, 0],
+    [5, 0, 6, 0, 0, 2],
+    [0, 1, 0, 0, 6, 0],
+    [0, 4, 0, 6, 0, 0],
+    [2, 0, 1, 0, 0, 5],
+  ],
+};
+const HOME_CABINET_PREVIEW = {
+  rails: 8,
+  rows: 3,
+  columns: 5,
+  givens: {
+    '0:0': { rank: '1' },
+    '0:2': { rank: '4' },
+    '1:1': { rank: '7' },
+    '1:4': { rank: '2' },
+    '2:0': { rank: 'D' },
+    '2:3': { rank: '6' },
+  } as Record<string, { rank: string }>,
+};
+type HomeLibertiesCell = 'black' | 'white' | 'frozen' | null;
+const HOME_LIBERTIES_PREVIEW: HomeLibertiesCell[][] = [
+  [null, null, 'black', null, null, 'frozen', null, null],
+  [null, 'white', 'white', null, 'black', null, 'white', null],
+  ['black', null, null, null, null, null, 'white', null],
+  [null, null, 'black', 'white', 'white', null, null, null],
+  [null, 'frozen', null, null, 'black', null, 'black', null],
+  [null, null, 'white', null, null, 'white', 'white', null],
+  [null, 'black', null, null, null, null, null, null],
+  [null, null, null, 'frozen', null, 'black', null, null],
+];
+const HOME_LIBERTIES_GROUP_COUNT = 5;
+const HOME_BRIDGES_PREVIEW_VALUES = [2, 3, 1];
+const HOME_TRIVIA_MIX_SUMMARY = {
+  title: 'Daily Mix',
+  questionCount: 10,
+  timerSeconds: 15,
+};
+const HOME_TRIVIA_SPORTS_SUMMARY = {
+  title: 'Daily Sports',
+  questionCount: 10,
+  timerSeconds: 15,
+};
+const HOME_BARTER_PREVIEW = {
+  goal: { emoji: '🏺', qty: 2, name: 'Pottery' },
+  par: 12,
+  goods: 6,
+};
+const HOME_WHODUNIT_PREVIEW = {
+  caseNumber: 17,
+  caseName: 'The Locked Study',
+  suspects: [
+    { emoji: '🎩', name: 'Avery' },
+    { emoji: '🕰️', name: 'Blair' },
+    { emoji: '🗝️', name: 'Casey' },
+  ],
+};
+const HOME_MUSEUM_PREVIEW = {
+  title: 'Wheat Field with Cypresses',
+  artist: 'Vincent van Gogh',
+  objectDate: '1889',
+  periodTag: 'Post-Impressionism - France - 1889',
+  thumbnailUrl: 'https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg',
+};
 
 type HomeGameCategory = 'all' | 'word' | 'logic' | 'trivia';
 type FilterableGameCategory = Exclude<HomeGameCategory, 'all'>;
@@ -150,49 +225,9 @@ export default function HomeScreen() {
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
   const [isHydrated, setIsHydrated] = useState(Platform.OS !== 'web');
   const router = useRouter();
-  const puzzle = getDailyPuzzle();
-  const whodunit = getDailyWhodunit();
-  const wordie = getDailyWordie();
-  const threadline = getDailyThreadline();
-  const mixTriviaSummary = useMemo(() => getTriviaFeedSummary('mix', 'hard'), []);
-  const sportsTriviaSummary = useMemo(() => getTriviaFeedSummary('sports', 'hard'), []);
-  const sudokuEntry = getDailySudoku();
-  const sudoku = sudokuEntry.puzzle;
-  const barterPuzzle = getDailyBarter();
-  const bridgesPuzzle = getDailyBridges();
-  const miniCrossword = getDailyMiniCrossword();
-  const museumArtwork = getDailyMuseumArtwork();
-  const dawnCabinet = getDailyDawnCabinet();
-  const libertiesEntry = getDailyLibertiesEntry();
-  const libertiesPuzzle = libertiesEntry.puzzle;
-  const libertiesInitialBoard = useMemo(
-    () => createLibertiesBoard(libertiesPuzzle),
-    [libertiesPuzzle]
-  );
-  const libertiesGroupCount = useMemo(
-    () => getRemainingLibertiesLights(libertiesPuzzle, libertiesInitialBoard).length,
-    [libertiesInitialBoard, libertiesPuzzle]
-  );
-  const miniCrosswordPreview = useMemo(() => {
-    const map = new Map<string, { isBlock: boolean; number?: number }>();
-    miniCrossword.cells.forEach((cell) => {
-      map.set(`${cell.row}:${cell.col}`, { isBlock: cell.isBlock, number: cell.number });
-    });
-    return Array.from({ length: miniCrossword.size }, (_, row) =>
-      Array.from({ length: miniCrossword.size }, (_, col) => map.get(`${row}:${col}`))
-    );
-  }, [miniCrossword]);
-  const bridgesPreviewValues = useMemo(() => {
-    const values = bridgesPuzzle.islands.slice(0, 3).map((island) => island.requiredBridges);
-    return values.length === 3 ? values : [2, 3, 1];
-  }, [bridgesPuzzle]);
-  const sudokuPreviewCellSize = sudoku.size === 9 ? 16 : 26;
-  const sudokuPreviewBaseGap = sudoku.size === 9 ? 3 : 4;
-  const sudokuPreviewBlockGap = sudoku.size === 9 ? 7 : 4;
-  const sudokuDateLabel = useMemo(
-    () => `${formatUtcDateLabel(sudokuEntry.date)} UTC`,
-    [sudokuEntry.date]
-  );
+  const sudokuPreviewCellSize = HOME_SUDOKU_PREVIEW.size === 9 ? 16 : 26;
+  const sudokuPreviewBaseGap = HOME_SUDOKU_PREVIEW.size === 9 ? 3 : 4;
+  const sudokuPreviewBlockGap = HOME_SUDOKU_PREVIEW.size === 9 ? 7 : 4;
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const [activeCategory, setActiveCategory] = useState<HomeGameCategory>('all');
@@ -507,15 +542,15 @@ export default function HomeScreen() {
             <View style={styles.dailyCard}>
               <View style={styles.museumPreview}>
                 <Image
-                  source={{ uri: museumArtwork.images.thumbnailUrl }}
+                  source={{ uri: HOME_MUSEUM_PREVIEW.thumbnailUrl }}
                   style={styles.museumPreviewImage}
                 />
                 <View style={styles.museumPreviewText}>
-                  <Text style={styles.museumPreviewTitle}>{museumArtwork.title}</Text>
+                  <Text style={styles.museumPreviewTitle}>{HOME_MUSEUM_PREVIEW.title}</Text>
                   <Text style={styles.museumPreviewMeta}>
-                    {museumArtwork.artist} - {museumArtwork.objectDate}
+                    {HOME_MUSEUM_PREVIEW.artist} - {HOME_MUSEUM_PREVIEW.objectDate}
                   </Text>
-                  <Text style={styles.museumPreviewTag}>{museumArtwork.periodTag}</Text>
+                  <Text style={styles.museumPreviewTag}>{HOME_MUSEUM_PREVIEW.periodTag}</Text>
                 </View>
               </View>
               <Pressable
@@ -546,7 +581,7 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.preview}>
-                <Image source={puzzle.image} style={styles.previewImage} />
+                <Image source={HOME_MOJI_PREVIEW_IMAGE} style={styles.previewImage} />
               </View>
               <Pressable
                 style={({ pressed }) => [
@@ -567,7 +602,7 @@ export default function HomeScreen() {
               <Text style={styles.gameTitle}>Wordie</Text>
             </View>
             <Text style={styles.blurb}>
-              Solve the {wordie.length}-letter word in {wordie.guesses_allowed} guesses.
+              Solve the {HOME_WORDIE_PREVIEW.length}-letter word in {HOME_WORDIE_PREVIEW.guessesAllowed} guesses.
             </Text>
             {(playCounts['wordie'] ?? 0) > 0 && (
               <View style={styles.streakPill}>
@@ -578,16 +613,16 @@ export default function HomeScreen() {
               <View style={styles.wordiePreview}>
                 {Array.from({ length: 2 }).map((_, row) => (
                   <View key={row} style={styles.wordieRow}>
-                    {Array.from({ length: wordie.length }).map((_, col) => (
+                    {Array.from({ length: HOME_WORDIE_PREVIEW.length }).map((_, col) => (
                       <View
                         key={col}
                         style={[
                           styles.wordieTile,
-                          wordie.length === 6 && styles.wordieTileCompact,
+                          HOME_WORDIE_PREVIEW.length === 6 && styles.wordieTileCompact,
                         ]}
                       >
                         {row === 0 && col === 0 ? (
-                          <Text style={styles.wordieTileText}>{wordie.word[0]}</Text>
+                          <Text style={styles.wordieTileText}>{HOME_WORDIE_PREVIEW.firstLetter}</Text>
                         ) : null}
                       </View>
                     ))}
@@ -680,12 +715,12 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.threadlinePreview}>
-                <Text style={styles.threadlinePreviewTitle}>{threadline.title}</Text>
+                <Text style={styles.threadlinePreviewTitle}>{HOME_THREADLINE_PREVIEW.title}</Text>
                 <Text style={styles.threadlinePreviewCopy}>
-                  {threadline.words.length} hidden words - {threadline.threads.length} hidden themes.
+                  {HOME_THREADLINE_PREVIEW.words} hidden words - {HOME_THREADLINE_PREVIEW.threads} hidden themes.
                 </Text>
                 <View style={styles.threadlinePreviewGrid}>
-                  {threadline.grid.slice(0, 4).map((row, rowIndex) => (
+                  {HOME_THREADLINE_PREVIEW.grid.map((row, rowIndex) => (
                     <View key={`threadline-preview-row-${rowIndex}`} style={styles.threadlinePreviewRow}>
                       {row.slice(0, 4).split('').map((letter, colIndex) => (
                         <View
@@ -732,7 +767,7 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.crosswordPreview}>
-                {miniCrosswordPreview.map((row, rowIndex) => (
+                {HOME_CROSSWORD_PREVIEW.cells.map((row, rowIndex) => (
                   <View key={`crossword-row-${rowIndex}`} style={styles.crosswordPreviewRow}>
                     {row.map((cell, colIndex) => (
                       <View
@@ -750,7 +785,7 @@ export default function HomeScreen() {
                   </View>
                 ))}
                 <Text style={styles.crosswordPreviewMeta}>
-                  {miniCrossword.across.length} across • {miniCrossword.down.length} down
+                  {HOME_CROSSWORD_PREVIEW.across} across • {HOME_CROSSWORD_PREVIEW.down} down
                 </Text>
               </View>
               <Pressable
@@ -781,19 +816,19 @@ export default function HomeScreen() {
             )}
             <View style={styles.dailyCard}>
               <View style={styles.sudokuPreview}>
-                <Text style={styles.sudokuPreviewDate}>{sudokuDateLabel}</Text>
+                <Text style={styles.sudokuPreviewDate}>{HOME_SUDOKU_PREVIEW.dateLabel}</Text>
                 <Text style={styles.sudokuPreviewMeta}>
-                  {sudokuEntry.difficulty} · {sudoku.size}x{sudoku.size}
+                  {HOME_SUDOKU_PREVIEW.difficulty} · {HOME_SUDOKU_PREVIEW.size}x{HOME_SUDOKU_PREVIEW.size}
                 </Text>
-                {sudoku.grid.map((row, rowIndex) => (
+                {HOME_SUDOKU_PREVIEW.grid.map((row, rowIndex) => (
                   <View
                     key={`sudoku-row-${rowIndex}`}
                     style={[
                       styles.sudokuRow,
                       {
                         marginBottom:
-                          rowIndex % sudoku.boxRows === sudoku.boxRows - 1 &&
-                          rowIndex !== sudoku.size - 1
+                          rowIndex % HOME_SUDOKU_PREVIEW.boxRows === HOME_SUDOKU_PREVIEW.boxRows - 1 &&
+                          rowIndex !== HOME_SUDOKU_PREVIEW.size - 1
                             ? sudokuPreviewBlockGap
                             : sudokuPreviewBaseGap,
                       },
@@ -808,8 +843,8 @@ export default function HomeScreen() {
                             width: sudokuPreviewCellSize,
                             height: sudokuPreviewCellSize,
                             marginRight:
-                              colIndex % sudoku.boxCols === sudoku.boxCols - 1 &&
-                              colIndex !== sudoku.size - 1
+                              colIndex % HOME_SUDOKU_PREVIEW.boxCols === HOME_SUDOKU_PREVIEW.boxCols - 1 &&
+                              colIndex !== HOME_SUDOKU_PREVIEW.size - 1
                                 ? sudokuPreviewBlockGap
                                 : sudokuPreviewBaseGap,
                           },
@@ -819,7 +854,7 @@ export default function HomeScreen() {
                         <Text
                           style={[
                             styles.sudokuCellText,
-                            sudoku.size === 9 && styles.sudokuCellTextCompact,
+                            HOME_SUDOKU_PREVIEW.size === 9 && styles.sudokuCellTextCompact,
                           ]}
                         >
                           {value !== 0 ? value : ''}
@@ -860,12 +895,12 @@ export default function HomeScreen() {
             <View style={styles.dailyCard}>
               <View style={styles.cabinetPreview}>
                 <Text style={styles.cabinetPreviewMeta}>
-                  Choose Standard, Hard, or Expert · {dawnCabinet.lines.length} rails
+                  Choose Standard, Hard, or Expert · {HOME_CABINET_PREVIEW.rails} rails
                 </Text>
-                {Array.from({ length: Math.min(dawnCabinet.rows, 3) }, (_, rowIndex) => (
+                {Array.from({ length: Math.min(HOME_CABINET_PREVIEW.rows, 3) }, (_, rowIndex) => (
                   <View key={`cabinet-row-${rowIndex}`} style={styles.cabinetPreviewRow}>
-                    {Array.from({ length: Math.min(dawnCabinet.columns, 5) }, (_, colIndex) => {
-                      const tile = dawnCabinet.givens[`${rowIndex}:${colIndex}`];
+                    {Array.from({ length: Math.min(HOME_CABINET_PREVIEW.columns, 5) }, (_, colIndex) => {
+                      const tile = HOME_CABINET_PREVIEW.givens[`${rowIndex}:${colIndex}`];
                       return (
                         <View
                           key={`cabinet-${rowIndex}-${colIndex}`}
@@ -914,9 +949,9 @@ export default function HomeScreen() {
             <View style={styles.dailyCard}>
               <View style={styles.libertiesPreview}>
                 <Text style={styles.libertiesPreviewMeta}>
-                  Today's board · {libertiesGroupCount} pale groups
+                  Today's board · {HOME_LIBERTIES_GROUP_COUNT} pale groups
                 </Text>
-                {libertiesInitialBoard.map((row, rowIndex) => (
+                {HOME_LIBERTIES_PREVIEW.map((row, rowIndex) => (
                   <View key={`liberties-row-${rowIndex}`} style={styles.libertiesPreviewRow}>
                     {row.map((cell, colIndex) => (
                       <View
@@ -969,12 +1004,12 @@ export default function HomeScreen() {
               <View style={styles.bridgesPreview}>
                 <Text style={styles.bridgesPreviewEmoji}>🏝️</Text>
                 <View style={styles.bridgesPreviewRow}>
-                  {bridgesPreviewValues.map((value, index) => (
+                  {HOME_BRIDGES_PREVIEW_VALUES.map((value, index) => (
                     <View key={`bridge-preview-${index}`} style={styles.bridgesPreviewRowItem}>
                       <View style={styles.bridgesPreviewIsland}>
                         <Text style={styles.bridgesPreviewIslandText}>{value}</Text>
                       </View>
-                      {index < bridgesPreviewValues.length - 1 && (
+                      {index < HOME_BRIDGES_PREVIEW_VALUES.length - 1 && (
                         <View style={styles.bridgesPreviewConnector} />
                       )}
                     </View>
@@ -1061,9 +1096,9 @@ export default function HomeScreen() {
                 <Text style={styles.triviaPreviewTitle}>Today's game</Text>
                 <View style={styles.triviaFeedGrid}>
                   <View style={styles.triviaFeedCard}>
-                    <Text style={styles.triviaFeedName}>{mixTriviaSummary.title}</Text>
+                    <Text style={styles.triviaFeedName}>{HOME_TRIVIA_MIX_SUMMARY.title}</Text>
                     <Text style={styles.triviaFeedMeta}>
-                      {mixTriviaSummary.questionCount} questions · {mixTriviaSummary.timerSeconds}s timer
+                      {HOME_TRIVIA_MIX_SUMMARY.questionCount} questions · {HOME_TRIVIA_MIX_SUMMARY.timerSeconds}s timer
                     </Text>
                   </View>
                   <View style={styles.triviaFeedCard}>
@@ -1107,9 +1142,9 @@ export default function HomeScreen() {
                 <Text style={styles.triviaPreviewTitle}>Today's game</Text>
                 <View style={styles.triviaFeedGrid}>
                   <View style={styles.triviaFeedCard}>
-                    <Text style={styles.triviaFeedName}>{sportsTriviaSummary.title}</Text>
+                    <Text style={styles.triviaFeedName}>{HOME_TRIVIA_SPORTS_SUMMARY.title}</Text>
                     <Text style={styles.triviaFeedMeta}>
-                      {sportsTriviaSummary.questionCount} questions · {sportsTriviaSummary.timerSeconds}s timer
+                      {HOME_TRIVIA_SPORTS_SUMMARY.questionCount} questions · {HOME_TRIVIA_SPORTS_SUMMARY.timerSeconds}s timer
                     </Text>
                   </View>
                   <View style={styles.triviaFeedCard}>
@@ -1155,17 +1190,17 @@ export default function HomeScreen() {
                 <Text style={styles.barterPreviewLabel}>Today&apos;s Goal</Text>
                 <View style={styles.barterPreviewGoal}>
                   <Text style={styles.barterPreviewEmoji}>
-                    {getGoodById(barterPuzzle.goal.good).emoji}
+                    {HOME_BARTER_PREVIEW.goal.emoji}
                   </Text>
                   <Text style={styles.barterPreviewGoalText}>
-                    {barterPuzzle.goal.qty} {getGoodById(barterPuzzle.goal.good).name}
+                    {HOME_BARTER_PREVIEW.goal.qty} {HOME_BARTER_PREVIEW.goal.name}
                   </Text>
                 </View>
                 <View style={styles.barterPreviewMeta}>
-                  <Text style={styles.barterPreviewMetaText}>Par {barterPuzzle.par} trades</Text>
+                  <Text style={styles.barterPreviewMetaText}>Par {HOME_BARTER_PREVIEW.par} trades</Text>
                   <Text style={styles.barterPreviewMetaDivider}>•</Text>
                   <Text style={styles.barterPreviewMetaText}>
-                    {barterPuzzle.goods.length} goods
+                    {HOME_BARTER_PREVIEW.goods} goods
                   </Text>
                 </View>
               </View>
@@ -1199,10 +1234,10 @@ export default function HomeScreen() {
               <View style={styles.whodunitPreview}>
                 <Text style={styles.whodunitPreviewEmoji}>🔍</Text>
                 <Text style={styles.whodunitCaseName}>
-                  Case #{String(whodunit.caseNumber).padStart(3, '0')} - {whodunit.caseName}
+                  Case #{String(HOME_WHODUNIT_PREVIEW.caseNumber).padStart(3, '0')} - {HOME_WHODUNIT_PREVIEW.caseName}
                 </Text>
                 <View style={styles.whodunitSuspects}>
-                  {whodunit.suspects.map((s, i) => (
+                  {HOME_WHODUNIT_PREVIEW.suspects.map((s, i) => (
                     <Text key={i} style={styles.whodunitSuspectChip}>
                       {s.emoji} {s.name}
                     </Text>
