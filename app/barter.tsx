@@ -567,7 +567,7 @@ export default function BarterScreen() {
     () => shouldShowHiddenNightPlaceholder(puzzle, activeTab, lateWindowOpen),
     [activeTab, lateWindowOpen, puzzle]
   );
-  const activeTabTitle = activeTab === 'night' ? 'Night Trades' : "Today's Trades";
+  const activeTabTitle = activeTab === 'night' ? 'Night Trades' : 'Day Trades';
   const activeTabSubtitle =
     activeTab === 'night'
       ? lateWindowOpen
@@ -1072,10 +1072,10 @@ export default function BarterScreen() {
                 <Text style={styles.marketIntroFlavor}>{marketIdentity.flavor}</Text>
                 <View style={styles.marketIntroGoal}>
                   <Text style={styles.marketIntroGoalText}>
-                    Collect {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
+                    Make {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
                   </Text>
                   <Text style={styles.marketIntroGoalMeta}>
-                    Day has {earlyWindowTrades} trades. Night opens after that.
+                    Use {earlyWindowTrades} Day trades first. Then Night opens.
                   </Text>
                 </View>
                 <View style={styles.marketIntroStock}>
@@ -1334,28 +1334,43 @@ export default function BarterScreen() {
           <View style={styles.modalOverlay}>
             <View style={[styles.modalCard, styles.tutorialModalCard]}>
               <Text style={styles.tutorialModalKicker}>How to play</Text>
-              <Text style={styles.tutorialModalTitle}>
-                {marketName} {marketEmoji}
-              </Text>
+              <Text style={styles.tutorialModalTitle}>How to play Barter</Text>
               <Text style={styles.tutorialModalBody}>
-                {marketIdentity.flavor}
+                Trade what you have for what you need. Win by making {goalShort} before
+                you run out of trades.
               </Text>
               <View style={styles.marketReadBox}>
-                <Text style={styles.marketReadBoxTitle}>Today</Text>
-                <Text style={styles.marketReadBoxText}>Start: {openingStock}</Text>
+                <Text style={styles.marketReadBoxTitle}>
+                  {marketName} {marketEmoji}
+                </Text>
+                <Text style={styles.marketReadBoxText}>You start with: {openingStock}</Text>
                 <Text style={styles.marketReadBoxText}>
-                  Goal: collect {goalShort} within {puzzle.maxTrades} trades.
+                  Goal: make {goalShort}.
                 </Text>
                 <Text style={styles.marketReadBoxText}>
-                  Day Market closes after trade {earlyWindowTrades}. Night Market opens after that.
+                  You have {puzzle.maxTrades} total trades.
                 </Text>
               </View>
-              <Text style={styles.tutorialModalSectionTitle}>Rules</Text>
-              <Text style={styles.tutorialModalBody}>
-                Tap a good in your stall to bring matching trades upward. Other trades stay visible.
-              </Text>
+              <Text style={styles.tutorialModalSectionTitle}>What to do</Text>
+              <View style={styles.tutorialModalSteps}>
+                <Text style={styles.marketReadBoxText}>
+                  1. Look at your stall. These are the goods you can spend.
+                </Text>
+                <Text style={styles.marketReadBoxText}>
+                  2. Pick a trade. The left side is what you pay. The right side is what you get.
+                </Text>
+                <Text style={styles.marketReadBoxText}>
+                  3. Use {earlyWindowTrades} Day trades first. Then the Night Market opens.
+                </Text>
+                <Text style={styles.marketReadBoxText}>
+                  4. You can peek at Night early. One mystery stall appears later.
+                </Text>
+                <Text style={styles.marketReadBoxText}>
+                  5. Tap a good to move useful trades upward. No trades are hidden.
+                </Text>
+              </View>
               <Text style={styles.tutorialModalHint}>
-                The Night tab can be previewed before it opens. One hidden stall joins at night.
+                Tip: plan for Night before you spend everything in Day.
               </Text>
               <Pressable
                 style={({ pressed }) => [

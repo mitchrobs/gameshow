@@ -155,7 +155,7 @@ export function getTradeActionState(
       detail:
         entry.lockReason === 'day_closed'
           ? 'Day Market trades are closed.'
-          : 'This contract can be used after the Day Market closes.',
+          : 'You can use this after the Day Market closes.',
       missing,
     };
   }
@@ -191,7 +191,7 @@ export function getTradeActionState(
     return {
       canExecute: false,
       buttonLabel: 'Need goods',
-      detail: 'Missing required goods.',
+      detail: 'You do not have the goods for this trade yet.',
       missing,
     };
   }
@@ -199,7 +199,7 @@ export function getTradeActionState(
   return {
     canExecute: true,
     buttonLabel: 'Trade',
-    detail: 'Ready to trade.',
+    detail: 'Ready.',
     missing: [],
   };
 }

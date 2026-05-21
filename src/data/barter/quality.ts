@@ -472,6 +472,24 @@ function repeatedGoalCashoutCount(puzzle: BarterPuzzle, route: RouteResult | nul
   return Math.max(0, ...counts.values());
 }
 
+export function countCashInTradesForRoute(puzzle: BarterPuzzle, trades: Trade[] | null): number {
+  if (!trades) return 0;
+  return trades.filter((trade) => goalOutput(trade, puzzle.goal.good) > 0).length;
+}
+
+function routeCashInCount(puzzle: BarterPuzzle, route: RouteResult | null): number {
+  return countCashInTradesForRoute(puzzle, route?.trades ?? null);
+}
+
+function cashInCountDistribution(puzzle: BarterPuzzle, routes: RouteResult[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  routes.forEach((route) => {
+    const key = String(routeCashInCount(puzzle, route));
+    counts[key] = (counts[key] ?? 0) + 1;
+  });
+  return counts;
+}
+
 function nightCashoutPattern(puzzle: BarterPuzzle, route: RouteResult | null): string {
   if (!route) return 'none';
   const cashouts = route.trades
@@ -616,6 +634,8 @@ function pickBestRoute(puzzle: BarterPuzzle, routes: RouteResult[]): RouteResult
     routes
       .slice()
       .sort((a, b) => {
+        const cashInDiff = routeCashInCount(puzzle, a) - routeCashInCount(puzzle, b);
+        if (cashInDiff !== 0) return cashInDiff;
         const cashoutDiff =
           repeatedGoalCashoutCount(puzzle, a) - repeatedGoalCashoutCount(puzzle, b);
         if (cashoutDiff !== 0) return cashoutDiff;
@@ -774,6 +794,9 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
   const silhouette = startSilhouette(puzzle, startTrades.length);
   const nightRoleDiversity = routeNightRoleDiversity(puzzle, preferredBestRoute);
   const repeatedCashouts = repeatedGoalCashoutCount(puzzle, preferredBestRoute);
+  const bestRouteCashIns = routeCashInCount(puzzle, preferredBestRoute);
+  const nearRouteMaxCashIns = Math.max(0, ...nearRoutes.map((route) => routeCashInCount(puzzle, route)));
+  const cashInDistribution = cashInCountDistribution(puzzle, nearRoutes);
   const visiblePremiseTrade = findVisiblePremiseTrade(puzzle, bottleneckGood);
   const visiblePremiseTradeKey = visiblePremiseTrade ? tradeKey(visiblePremiseTrade) : null;
   const dayTrades = puzzle.trades.filter((trade) => (trade.window ?? 'early') !== 'late');
@@ -893,6 +916,12 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
   if (nightRoleDiversity < 2) {
     violations.push('Best route needs more than one kind of Night Market vendor.');
   }
+  if (bestRouteCashIns > 3) {
+    violations.push('Best route may not use more than three cash-in trades.');
+  }
+  if (nearRouteMaxCashIns > 3) {
+    violations.push('Near-optimal routes may not use more than three cash-in trades.');
+  }
   if (repeatedCashouts > 4) {
     violations.push('Best route repeats too many similar goal-building vendors.');
   }
@@ -970,6 +999,9 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
     nightRoleSignature: nightSignature,
     bestRouteNightRoleDiversity: nightRoleDiversity,
     repeatedGoalCashoutCount: repeatedCashouts,
+    bestRouteCashInCount: bestRouteCashIns,
+    nearRouteMaxCashInCount: nearRouteMaxCashIns,
+    cashInCountDistribution: cashInDistribution,
     routeDistance: distance,
     compressionValue: compoundCompressionValue,
     signatureTurnValue: bestSignatureTurnValue,

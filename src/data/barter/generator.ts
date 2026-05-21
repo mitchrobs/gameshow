@@ -122,9 +122,11 @@ interface CoreRecipeConfig {
   enginePayoffReceiveQty?: number;
   hiddenBailoutReceive?: (ctx: MarketPlanContext) => TradeSide[];
   compoundGateGive?: (ctx: MarketPlanContext) => TradeSide[];
+  compoundGateReceiveQty?: number;
   signatureGateGive?: (ctx: MarketPlanContext) => TradeSide[];
   signatureGateReceiveQty?: number;
   engineDiscountGive?: (ctx: MarketPlanContext) => TradeSide[];
+  engineDiscountReceiveQty?: number;
 }
 
 interface RecipeTradeSet {
@@ -489,17 +491,25 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
   const feltThesis = feltThesisForSolveFeel(playerSolveFeel, index);
   const economicThesis = economicThesisForFelt(feltThesis, topology);
   const par = cycle.par;
+  const prefersTwoCashIns =
+    playerSolveFeel === 'carry_pair' ||
+    playerSolveFeel === 'compression_bundle' ||
+    playerSolveFeel === 'visible_night_target' ||
+    playerSolveFeel === 'ugly_liquidity';
+  const canStayBrisk = playerSolveFeel === 'liquefy_heap';
   let includeCommitmentSetup =
-    par === 11 ||
+    (par >= 9 && !canStayBrisk) ||
     (par >= 10 && startEconomy === 'prepared_piece' && feltThesis === 'use_the_ugly_trade');
   let signatureValue =
+    prefersTwoCashIns ||
     feltThesis === 'carry_the_pair' ||
     feltThesis === 'night_told_you' ||
-    (feltThesis === 'protect_key_good' && par >= 10) ||
+    feltThesis === 'spend_the_heap' ||
+    feltThesis === 'protect_key_good' ||
     (feltThesis === 'use_the_ugly_trade' && par >= 10) ||
     topology === 'compression_route'
-      ? 3
-      : 2;
+      ? 4
+      : 3;
   const variance = positiveModulo(seed + index * 17, 37);
   let engineCost = cycle.texture === 'trap' ? 6 : 5;
   let balanceCost = includeCommitmentSetup || cycle.texture === 'heavy' ? 7 : 6;
@@ -570,11 +580,13 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
   }
   if (playerSolveFeel === 'liquefy_heap') {
     includeExtraNightTrade = true;
-    extraNightGoalQty = variance % 2 === 0 ? 1 : 0;
+    extraNightGoalQty = 0;
   }
   if (playerSolveFeel === 'compression_bundle') {
-    signatureValue = 3;
+    signatureValue = 4;
     includeEngineDiscount = false;
+    includeExtraNightTrade = true;
+    extraNightGoalQty = 0;
   }
   if (playerSolveFeel === 'hidden_recovery') {
     includeExtraNightTrade = true;
@@ -582,21 +594,43 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
     extraNightGoalQty = 0;
   }
   if (playerSolveFeel === 'visible_night_target') {
-    signatureValue = 3;
+    signatureValue = 4;
     includeCommitmentSetup = false;
+    includeExtraNightTrade = true;
+    extraNightGoalQty = 0;
   }
   if (playerSolveFeel === 'stop_production') {
     includeEngineDiscount = false;
+    includeExtraNightTrade = true;
+    extraNightGoalQty = 0;
   }
   if (playerSolveFeel === 'ugly_liquidity') {
     includeExtraNightTrade = true;
-    extraNightGoalQty = Math.max(1, extraNightGoalQty);
+    signatureValue = 4;
+    extraNightGoalQty = Math.max(2, extraNightGoalQty);
   }
-  const signatureGoalBump =
-    signatureValue >= 3 &&
-    (par >= 10 || feltThesis === 'carry_the_pair' || feltThesis === 'night_told_you')
-      ? 1
-      : 0;
+  const wantsThreeCashInFinish =
+    playerSolveFeel === 'liquefy_heap' ||
+    playerSolveFeel === 'protect_coupon' ||
+    playerSolveFeel === 'split_lanes';
+  const needsTallerTwoCashInFinish = playerSolveFeel === 'carry_pair';
+  const visibleTwoCashFinish = playerSolveFeel === 'visible_night_target';
+  if (
+    needsTallerTwoCashInFinish ||
+    visibleTwoCashFinish ||
+    (playerSolveFeel === 'stop_production' && par >= 10)
+  ) {
+    includeCommitmentSetup = true;
+  }
+  const goalQty = wantsThreeCashInFinish
+    ? signatureValue + 5
+    : needsTallerTwoCashInFinish
+    ? signatureValue + 5
+    : visibleTwoCashFinish
+    ? signatureValue + 4
+    : par >= 9
+    ? signatureValue + 3
+    : signatureValue + 2;
   const target: QualityTargets = {
     texture: cycle.texture,
     intendedPar: par,
@@ -609,7 +643,7 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
     catalystQty,
     initialEnginePartQty,
     initialTempoPartQty,
-    goalQty: par - 4 + signatureGoalBump,
+    goalQty,
     engineCost,
     tempoReceiveCatalystQty: 1,
     tempoReceiveTempoQty: 1,
@@ -626,7 +660,14 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
         ? 3
         : 2,
     payoffQty: par === 11 ? 5 : topology === 'delayed_multiplier' ? 4 : 3,
-    signatureTempoCost: par < 10 ? 4 : includeCommitmentSetup ? 2 : 3,
+    signatureTempoCost:
+      wantsThreeCashInFinish || needsTallerTwoCashInFinish || visibleTwoCashFinish
+        ? 5
+        : par < 10
+        ? 4
+        : includeCommitmentSetup
+        ? 2
+        : 3,
     signatureValue,
     includeCommitmentSetup,
     includeEngineDiscount,
@@ -918,6 +959,21 @@ function portfolioTargetVariants(choice: PortfolioDirectorChoice): QualityTarget
       extraNightGoalQty: 0,
     });
   }
+  if (base.playerSolveFeel === 'carry_pair') {
+    add({
+      ...base,
+      catalystQty: base.catalystQty + 1,
+    });
+    add({
+      ...base,
+      catalystQty: base.catalystQty + 2,
+    });
+    add({
+      ...base,
+      sourceBQty: base.sourceBQty + 1,
+      catalystQty: base.catalystQty + 1,
+    });
+  }
 
   return Array.from(new Map(variants.map((target) => [targetKey(target), target])).values());
 }
@@ -942,91 +998,36 @@ function createMarketPlanContext(
 function plannedLateSequence(
   target: QualityTargets,
   enginePayoff: Trade,
+  hiddenTempoBailout: Trade,
   compoundGate: Trade,
   signatureGate: Trade,
   engineDiscount: Trade,
   nightBridge: Trade
 ): Trade[] {
-  if (target.feltThesis === 'carry_the_pair' || target.feltThesis === 'night_told_you') {
-    const closer = target.includeExtraNightTrade ? nightBridge : compoundGate;
-    return target.intendedPar <= 9
-      ? [enginePayoff, signatureGate, compoundGate, closer]
-      : [enginePayoff, signatureGate, compoundGate, closer, signatureGate, compoundGate].slice(
-          0,
-          target.intendedPar - target.earlyWindowTrades
-        );
-  }
-  if (target.feltThesis === 'stop_early' || target.feltThesis === 'hidden_is_mercy') {
-    const recovery = target.includeExtraNightTrade ? nightBridge : engineDiscount;
-    return target.intendedPar <= 9
-      ? [enginePayoff, signatureGate, compoundGate, recovery]
-      : [enginePayoff, signatureGate, compoundGate, recovery, engineDiscount, compoundGate].slice(
-          0,
-          target.intendedPar - target.earlyWindowTrades
-        );
-  }
-  if (target.feltThesis === 'use_the_ugly_trade') {
-    return target.intendedPar <= 9
-      ? [enginePayoff, nightBridge, signatureGate, compoundGate]
-      : [enginePayoff, nightBridge, signatureGate, compoundGate, engineDiscount, compoundGate].slice(
-          0,
-          target.intendedPar - target.earlyWindowTrades
-        );
-  }
-  if (target.intendedPar === 8) {
-    if (target.extraNightGoalQty > 0) {
-      return [enginePayoff, signatureGate, compoundGate, nightBridge];
-    }
-    return target.signatureTempoCost >= 4
-      ? [enginePayoff, signatureGate, compoundGate, engineDiscount]
-      : [enginePayoff, signatureGate, compoundGate, compoundGate];
-  }
-  if (target.intendedPar === 9) {
-    if (target.extraNightGoalQty > 0) {
-      return [enginePayoff, signatureGate, compoundGate, nightBridge, engineDiscount];
-    }
-    return target.signatureTempoCost >= 4
-      ? [enginePayoff, signatureGate, compoundGate, engineDiscount, engineDiscount]
-      : [enginePayoff, signatureGate, compoundGate, compoundGate, engineDiscount];
-  }
-  if (target.intendedPar === 10) {
-    if (target.extraNightGoalQty > 0) {
-      return [
-        enginePayoff,
-        signatureGate,
-        compoundGate,
-        nightBridge,
-        engineDiscount,
-        engineDiscount,
-      ];
-    }
-    return [
-      enginePayoff,
-      signatureGate,
-      compoundGate,
-      compoundGate,
-      engineDiscount,
-      engineDiscount,
-    ];
-  }
-  if (target.extraNightGoalQty > 0) {
-    return [
-      enginePayoff,
-      signatureGate,
-      signatureGate,
-      compoundGate,
-      nightBridge,
-      engineDiscount,
-    ];
-  }
-  return [
-    enginePayoff,
-    signatureGate,
-    signatureGate,
-    compoundGate,
-    engineDiscount,
-    engineDiscount,
-  ];
+  const lateSlots = target.intendedPar - target.earlyWindowTrades;
+  const canUseNightRecycler = target.includeExtraNightTrade && target.extraNightGoalQty <= 0;
+  const recycler = canUseNightRecycler ? nightBridge : hiddenTempoBailout;
+  const bridge = target.includeExtraNightTrade && target.extraNightGoalQty > 0 ? nightBridge : engineDiscount;
+  const prefersTwoCashIns =
+    target.playerSolveFeel === 'carry_pair' ||
+    target.playerSolveFeel === 'compression_bundle' ||
+    target.playerSolveFeel === 'visible_night_target' ||
+    target.playerSolveFeel === 'ugly_liquidity';
+
+  const sequence =
+    lateSlots <= 4
+      ? prefersTwoCashIns
+        ? [enginePayoff, signatureGate, recycler, compoundGate]
+        : [enginePayoff, signatureGate, compoundGate, bridge]
+      : lateSlots === 5
+      ? prefersTwoCashIns
+        ? [enginePayoff, recycler, signatureGate, enginePayoff, compoundGate]
+        : [enginePayoff, signatureGate, recycler, compoundGate, bridge]
+      : prefersTwoCashIns
+      ? [enginePayoff, recycler, enginePayoff, signatureGate, recycler, compoundGate]
+      : [enginePayoff, recycler, signatureGate, enginePayoff, compoundGate, bridge];
+
+  return sequence.slice(0, lateSlots);
 }
 
 function hiddenVendorPurposeForFelt(
@@ -1166,7 +1167,7 @@ function buildCoreRecipeTrades(
       tradeSide(picks.catalyst, 1),
       tradeSide(picks.tempoPart, 1),
     ],
-    receive: [tradeSide(picks.goal, 1)],
+    receive: [tradeSide(picks.goal, config.compoundGateReceiveQty ?? 1)],
     window: 'late',
     stage: 8,
     role: 'compound_gate',
@@ -1187,7 +1188,7 @@ function buildCoreRecipeTrades(
   };
   const engineDiscount: Trade = {
     give: config.engineDiscountGive?.(ctx) ?? [tradeSide(picks.catalyst, 1)],
-    receive: [tradeSide(picks.goal, 1)],
+    receive: [tradeSide(picks.goal, config.engineDiscountReceiveQty ?? 1)],
     window: 'late',
     stage: 10,
     role: 'engine_payoff',
@@ -1199,7 +1200,7 @@ function buildCoreRecipeTrades(
     give: [tradeSide(picks.tempoPart, target.nightBridgeTempoCost)],
     receive:
       target.extraNightGoalQty > 0
-        ? [tradeSide(picks.goal, target.extraNightGoalQty)]
+        ? [tradeSide(picks.goal, Math.max(2, target.extraNightGoalQty))]
         : [tradeSide(picks.catalyst, 1)],
     window: 'late',
     stage: 11,
@@ -1230,6 +1231,7 @@ function buildCoreRecipeTrades(
       ...plannedLateSequence(
         target,
         enginePayoff,
+        hiddenTempoBailout,
         compoundGate,
         signatureGate,
         engineDiscount,
@@ -1252,18 +1254,27 @@ function buildSolveFeelRecipe(
           earlyBalanceLine: 'shared',
           falseFriendReceive: () => [tradeSide(picks.enginePart, 2)],
           hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
+          engineDiscountGive: () => [tradeSide(picks.catalyst, 2)],
+          compoundGateReceiveQty: 3,
+          engineDiscountReceiveQty: 3,
         };
       case 'protect_coupon':
         return {
           compoundGateGive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
-          engineDiscountGive: () => [tradeSide(picks.catalyst, 1)],
+          engineDiscountGive: () => [tradeSide(picks.catalyst, 2)],
           hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 2)],
+          compoundGateReceiveQty: 3,
+          engineDiscountReceiveQty: 3,
         };
       case 'carry_pair':
         return {
           earlyBalanceRole: 'tempo',
           earlyBalanceLine: 'tempo',
-          signatureGateReceiveQty: Math.max(3, target.signatureValue),
+          compoundGateGive: () => [tradeSide(picks.catalyst, 2), tradeSide(picks.tempoPart, 2)],
+          compoundGateReceiveQty: 3,
+          engineDiscountGive: () => [tradeSide(picks.catalyst, 3)],
+          engineDiscountReceiveQty: 3,
+          signatureGateReceiveQty: Math.max(4, target.signatureValue),
         };
       case 'ugly_liquidity':
         return {
@@ -1280,7 +1291,8 @@ function buildSolveFeelRecipe(
       case 'visible_night_target':
         return {
           enginePayoffReceiveQty: target.payoffQty + 1,
-          signatureGateReceiveQty: Math.max(3, target.signatureValue),
+          compoundGateReceiveQty: 3,
+          signatureGateReceiveQty: Math.max(4, target.signatureValue),
         };
       case 'hidden_recovery':
         return {
@@ -1292,6 +1304,9 @@ function buildSolveFeelRecipe(
           earlyBalanceRole: 'variant',
           earlyBalanceLine: 'shared',
           commitmentReceiveEngineQty: 3,
+          engineDiscountGive: () => [tradeSide(picks.catalyst, 2)],
+          compoundGateReceiveQty: 3,
+          engineDiscountReceiveQty: 3,
         };
       case 'compression_bundle':
         return {
@@ -1472,12 +1487,32 @@ function candidateScore(
       ? 4
       : 2;
   const signatureSpike = report.signatureTurnValue >= 3 ? 10 : 0;
-  const compactBonus = puzzle.trades.length === 8 ? 5 : puzzle.trades.length === 9 ? 3 : 0;
+  const compactBonus = puzzle.trades.length === 9 ? 4 : puzzle.trades.length === 10 ? 2 : 0;
   const repeatPenalty = report.bestRouteMaxRepeat > 2 ? 62 : report.bestRouteMaxRepeat * 3;
   const nightDiversityBonus = report.bestRouteNightRoleDiversity >= 3 ? 8 : 0;
   const repeatedCashoutPenalty = Math.max(0, report.repeatedGoalCashoutCount - 2) * 52;
+  const twoCashInBonus = report.bestRouteCashInCount === 2 ? 22 : 0;
+  const cashInPenalty =
+    Math.max(0, report.bestRouteCashInCount - 2) * 44 +
+    Math.max(0, report.nearRouteMaxCashInCount - 3) * 150;
+  const intendedParFit =
+    report.shortestPathLength === puzzle.par
+      ? 22
+      : report.shortestPathLength === puzzle.par - 1
+      ? -18
+      : report.shortestPathLength !== null && report.shortestPathLength < puzzle.par
+      ? -52
+      : 0;
   const parSweetSpot =
-    report.shortestPathLength === 9 ? 12 : report.shortestPathLength === 8 ? -4 : 0;
+    report.shortestPathLength === 9
+      ? 72
+      : report.shortestPathLength === 10
+      ? 58
+      : report.shortestPathLength === 11
+      ? 18
+      : report.shortestPathLength === 8
+      ? -82
+      : 0;
   const startEconomyBonus =
     report.startInventorySignature.includes(':4:') || report.startInventorySignature.includes(':5:')
       ? 4
@@ -1491,11 +1526,14 @@ function candidateScore(
     signatureSpike +
     compactBonus +
     nightDiversityBonus +
+    twoCashInBonus +
     startEconomyBonus +
     parSweetSpot +
+    intendedParFit +
     report.compressionValue * 4 -
     repeatPenalty -
-    repeatedCashoutPenalty
+    repeatedCashoutPenalty -
+    cashInPenalty
   );
 }
 
@@ -1542,7 +1580,7 @@ export function generateBarterPuzzle(seed: number, date: Date = new Date()): Bar
         continue;
       }
       violations.push(
-        `${choice.topology}/${target.intendedPar}: shortest=${report.shortestPathLength ?? 'none'} open=${report.startAffordableCount} opt=${report.optimalFirstMoveCount} regret=${report.maxEarlyRegret} sig=${report.signatureTurnValue} repeat=${report.bestRouteMaxRepeat} cash=${report.repeatedGoalCashoutCount}: ${report.violations.slice(0, 4).join(', ')}`
+        `${choice.topology}/${target.intendedPar}: shortest=${report.shortestPathLength ?? 'none'} open=${report.startAffordableCount} opt=${report.optimalFirstMoveCount} regret=${report.maxEarlyRegret} sig=${report.signatureTurnValue} repeat=${report.bestRouteMaxRepeat} cashIns=${report.bestRouteCashInCount}/${report.nearRouteMaxCashInCount} repeatedCash=${report.repeatedGoalCashoutCount}: ${report.violations.slice(0, 4).join(', ')}`
       );
     }
     if (bestCandidate) return withAnalyzedSolution(bestCandidate.puzzle, bestCandidate.report);

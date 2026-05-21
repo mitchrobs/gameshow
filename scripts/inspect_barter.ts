@@ -84,6 +84,8 @@ const dayCloseTargetSignatures: string[] = [];
 const solveFeelSignatures: string[] = [];
 const nightRoleDiversity: string[] = [];
 const repeatedGoalCashouts: string[] = [];
+const bestRouteCashIns: string[] = [];
+const nearRouteMaxCashIns: string[] = [];
 const signatureValues: string[] = [];
 const optimalFirstMoveCounts: string[] = [];
 const bestRouteRepeats: string[] = [];
@@ -100,6 +102,7 @@ function adjacentSimilarityScore(
   if (previous.playerSolveFeel === current.playerSolveFeel) score += 4;
   if (previous.startQuantitySilhouette === current.startQuantitySilhouette) score += 3;
   if (previous.nightCashoutPattern === current.nightCashoutPattern) score += 3;
+  if (previous.bestRouteCashInCount === current.bestRouteCashInCount) score += 2;
   if (previous.dayCloseTargetSignature === current.dayCloseTargetSignature) score += 2;
   if (previous.firstQuestion === current.firstQuestion) score += 1;
   if (previous.startEconomy === current.startEconomy) score += 1;
@@ -148,6 +151,8 @@ for (let day = 0; day < days; day++) {
   adjacentSimilarityScores.push(adjacentScore);
   nightRoleDiversity.push(String(report.bestRouteNightRoleDiversity));
   repeatedGoalCashouts.push(String(report.repeatedGoalCashoutCount));
+  bestRouteCashIns.push(String(report.bestRouteCashInCount));
+  nearRouteMaxCashIns.push(String(report.nearRouteMaxCashInCount));
   signatureValues.push(String(report.signatureTurnValue));
   optimalFirstMoveCounts.push(String(report.optimalFirstMoveCount));
   bestRouteRepeats.push(String(report.bestRouteMaxRepeat));
@@ -168,13 +173,13 @@ for (let day = 0; day < days; day++) {
   console.log(`Start silhouette: ${report.startSilhouette}`);
   console.log(`Player feel: start=${report.startQuantitySilhouette} | day-close=${report.dayCloseTargetSignature} | night=${report.nightCashoutPattern} | adjacent=${adjacentScore}`);
   console.log(
-    `Quality: ${report.accepted ? 'PASS' : 'FAIL'} | shortest=${report.shortestPathLength} routeIds=${report.nearOptimalRouteCount} firstMoves=${report.nearOptimalFirstMoveCount} regret=${report.maxEarlyRegret} signature=${report.signatureTurnValue} repeat=${report.bestRouteMaxRepeat}`
+    `Quality: ${report.accepted ? 'PASS' : 'FAIL'} | shortest=${report.shortestPathLength} routeIds=${report.nearOptimalRouteCount} firstMoves=${report.nearOptimalFirstMoveCount} regret=${report.maxEarlyRegret} signature=${report.signatureTurnValue} repeat=${report.bestRouteMaxRepeat} cash-ins=${report.bestRouteCashInCount}/${report.nearRouteMaxCashInCount}`
   );
   console.log(
     `Pressure: bottleneck=${report.bottleneckGood ? formatGood(puzzle, report.bottleneckGood) : 'n/a'} | divergence=${report.routeDivergenceDepth ?? 'n/a'} | distance=${report.routeDistance} | compression=${report.compressionValue}`
   );
   console.log(
-    `Night roles: diversity=${report.bestRouteNightRoleDiversity} | repeated goal cashouts=${report.repeatedGoalCashoutCount} | ${report.nightRoleSignature}`
+    `Night roles: diversity=${report.bestRouteNightRoleDiversity} | repeated goal cashouts=${report.repeatedGoalCashoutCount} | cash-in distribution=${JSON.stringify(report.cashInCountDistribution)} | ${report.nightRoleSignature}`
   );
   console.log(`Night script: ${report.nightScriptSignature}`);
   console.log(
@@ -227,6 +232,8 @@ console.log(`Start silhouettes: ${countBy(startSilhouettes).size}`);
 console.log(`Start quantity silhouettes: ${countBy(startQuantitySilhouettes).size}`);
 console.log(`Night role diversity: ${Array.from(countBy(nightRoleDiversity).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`Repeated goal cashouts: ${Array.from(countBy(repeatedGoalCashouts).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
+console.log(`Best route cash-ins: ${Array.from(countBy(bestRouteCashIns).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
+console.log(`Near route max cash-ins: ${Array.from(countBy(nearRouteMaxCashIns).entries()).map(([key, count]) => `${key}=${count}`).join(', ')}`);
 console.log(`Night role signatures: ${countBy(nightRoleSignatures).size}`);
 console.log(`Night script signatures: ${countBy(nightScriptSignatures).size}`);
 console.log(`Night cashout patterns: ${countBy(nightCashoutPatterns).size}`);

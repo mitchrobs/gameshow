@@ -201,6 +201,9 @@ export interface BarterQualityReport {
   nightRoleSignature: string;
   bestRouteNightRoleDiversity: number;
   repeatedGoalCashoutCount: number;
+  bestRouteCashInCount: number;
+  nearRouteMaxCashInCount: number;
+  cashInCountDistribution: Record<string, number>;
   routeDistance: number;
   compressionValue: number;
   signatureTurnValue: number;
