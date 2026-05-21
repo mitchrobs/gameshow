@@ -18,15 +18,78 @@ const SCALE_BAND_RANK = {
 const VALID_ANSWER_TYPES = new Set(["exact", "estimate", "range"]);
 const VALID_PLAYABILITY_CLASSES = new Set(["tactile", "spectacle", "puzzle"]);
 const VALID_ESTIMATION_MODES = new Set(["count", "capacity", "rate", "distance", "area", "weight", "crowd", "duration"]);
+const VALID_QUESTION_MOVES = new Set([
+  "familiar_anchor",
+  "physical_capacity",
+  "object_anatomy",
+  "production_scale",
+  "famous_macro",
+  "iconic_exact",
+]);
+const VALID_ANCHOR_TYPES = new Set([
+  "regulation",
+  "named_standard",
+  "iconic_object",
+  "sourced_typical",
+  "famous_event",
+  "natural_scale",
+]);
+const VALID_AGENT_DIFFICULTY_TARGETS = new Set(["normal", "wide_spread_bonus"]);
 const VALID_EDITORIAL_STATUSES = new Set(["draft", "source_ready", "player_ready", "launch_ready"]);
 const VALID_PLAYER_AGENT_FINDING_SEVERITIES = new Set(["P1", "P2", "P3"]);
-export const BALLPARK_PLAYER_AGENT_ROLES = Object.freeze([
-  "Casual Morning Player",
-  "Skeptical Trivia Player",
-  "Competitive Player",
-  "Mobile UX Player",
-  "Editorial Calendar Player",
+export const BALLPARK_PLAYER_AGENT_PROFILES = Object.freeze([
+  {
+    role: "Casual Morning Player",
+    playerType: "Daily ritual player who wants a quick, fair, low-friction puzzle over coffee.",
+    qualityLens: "Can I make a sane first guess, and does the reveal feel fun rather than homework?",
+    blocksOn: "P1/P2 if a prompt feels arbitrary, too niche, or impossible to enter from common scale sense.",
+  },
+  {
+    role: "Math-Averse Player",
+    playerType: "Player who enjoys guessing but bounces off visible multiplication, formulas, and conversion drills.",
+    qualityLens: "Does the question hide a real-world scale, or is it just arithmetic stated in the clue?",
+    blocksOn: "P1/P2 for fake group math, tautological conversions, or questions where the clue already contains the calculation.",
+  },
+  {
+    role: "Skeptical Trivia Player",
+    playerType: "Fact-sensitive player who likes exact facts only when they are iconic and defensible.",
+    qualityLens: "Is the answer sourced, stable, correctly worded, and recognizable enough to be fair?",
+    blocksOn: "P1/P2 for overclaimed standards, ambiguous exact facts, weak source notes, or volatile macro facts without context.",
+  },
+  {
+    role: "Competitive Player",
+    playerType: "Streak-minded player who cares about fairness, feedback usefulness, and bonus toughness.",
+    qualityLens: "Would higher/lower feedback help skilled players converge, and are Extra Innings hard for the right reason?",
+    blocksOn: "P1/P2 for unfair first-guess paths, bonuses that are tedious arithmetic, or difficulty that comes from obscurity.",
+  },
+  {
+    role: "Mobile UX Player",
+    playerType: "Phone-first player scanning prompts quickly with one thumb.",
+    qualityLens: "Is the prompt concise, grammatically clean, and readable without rereading?",
+    blocksOn: "P1/P2 for long/dense prompts, awkward generated phrasing, or reveal copy that sounds internal.",
+  },
+  {
+    role: "Family Couch Player",
+    playerType: "Group-play household player who wants recognizable objects and discussion-friendly surprises.",
+    qualityLens: "Can different ages contribute guesses, and would the answer spark a fun conversation?",
+    blocksOn: "P1/P2 for overly niche references, classroom-only prompts, or reveals with no social payoff.",
+  },
+  {
+    role: "Social Sharer",
+    playerType: "Player who cares whether the day feels memorable enough to compare and share.",
+    qualityLens: "Does the theme have a clear hook, a quotable reveal, and a result that feels worth sending?",
+    blocksOn: "P1/P2 for bland themes, flat arcs, or closers that do not feel bigger or more surprising than the setup.",
+  },
+  {
+    role: "Editorial Calendar Player",
+    playerType: "Long-haul player sensitive to repeats, seasonality, holiday fit, and reskin fatigue.",
+    qualityLens: "Does this day feel fresh in the surrounding week and appropriate to the calendar moment?",
+    blocksOn: "P1/P2 for repeated question moves, weak holiday specificity, seasonal mismatch, or obvious reskins.",
+  },
 ]);
+export const BALLPARK_PLAYER_AGENT_ROLES = Object.freeze(
+  BALLPARK_PLAYER_AGENT_PROFILES.map((profile) => profile.role)
+);
 const PLAYER_AGENT_REVIEW_FINDINGS = Object.freeze({
   bikeShopWheelSource: {
     role: "Skeptical Trivia Player",
@@ -109,6 +172,21 @@ const GENERIC_SOURCE_NOTE_PATTERN =
   /\bcomputed from the cited reference|rounded to [0-9,]+ for play|keeps the clue concrete and rounded for play\b/i;
 const THEME_BASE_SUFFIX_PATTERN =
   /\s+(Close-Up|Block Party|Lunch Rush|Concession Tent|Community Supper|Shelf Count|Supply Run|Demo Table|Swap Meet|Backyard Count|Field Trip|Discovery Tent|Family Night|Open House|Busy Day|Show Floor|Volunteer Day|Practice Day|Game Day|Fan Zone|Warmup|Workshop|Walkthrough)$/i;
+const PROMPT_NUMBER_PATTERN = /\b\d[\d,]*(?:\.\d+)?\b/g;
+const CLUE_CONTAINED_ARITHMETIC_PATTERN =
+  /\b(\d[\d,]*(?:\.\d+)?)\b.*\b(each|per|with|holding|holds|filled to|averaging|average|at|x|by)\b.*\b(\d[\d,]*(?:\.\d+)?)\b/i;
+const EXPOSED_FORMULA_PROMPT_PATTERN =
+  /\b(?:if|with|from|for|by)\s+\d[\d,]*(?:\.\d+)?[^?]*\b(?:each|per|times|x|by|using|holding|holds|carrying|taking|giving|waiting|working|covering|washing|casting|firing|rising|receiving|weighing|measuring|selling|cut|split|lasting)\b|\b\d[\d,]*(?:\.\d+)?[^?]*\b(?:each|per|times|x|using|holding|holds|carrying|taking|giving|waiting|working|covering|washing|casting|firing|rising|receiving|weighing|measuring|selling)\b/i;
+const FAKE_GROUP_MATH_PATTERN =
+  /\b\d[\d,]*\s+(kids|people|visitors|guests|fans|students|players|riders|listeners|viewers|families|volunteers|workers|attendees|donors)\b.*\b(each|per|with|averaging|taking|giving|waiting|working|holding|covering|washing|casting|bring|bringing)\b/i;
+const VARIABLE_STANDARD_PATTERN =
+  /\b(standard|typical|average|common|medium|classic|regular)\b/i;
+const FAMOUS_SCALE_PATTERN =
+  /\b(world|record|olympic|times square|nasa|earth|moon|mint|migration|national|major league|u\.s\.|united states|regulation|annual|season|parade|fireworks|thanksgiving|christmas|halloween|easter|juneteenth)\b/i;
+const CANNED_REVEAL_COPY_PATTERN =
+  /\b(starts with|middle question shifts|closer turns|closer widens|scene widens|ordinary setup|hides in plain sight|surprise is how quickly|bonus keeps the same world|by arithmetic)\b/i;
+const MALFORMED_PLAYER_PROMPT_PATTERN =
+  /\b[a-z]+-\s|\b(move through|show up across|stretch through)\b|\bcould fit in [A-Z][A-Za-z ]+\?|\b(?:rise|climb|lap|player|reader|drummer|course|lane)-feet\b|\bshow plan\b/i;
 
 export const DAYBREAK_CYCLE_LENGTH = countInclusiveDays(CYCLE_START_KEY, CALENDAR_END_KEY);
 
@@ -246,6 +324,307 @@ const SOURCE_LIBRARY = {
     "Florists' Review",
     "2026-05-16"
   ),
+};
+
+const BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY = {
+  "garden-shed-q2": {
+    prompt: "How many feet of hose are coiled on a long backyard garden reel?",
+    anchorType: "named_standard",
+    questionMove: "familiar_anchor",
+  },
+  "toy-chest-q3": {
+    prompt: "How many toy pieces could scatter across the floor during a full playroom dump-out?",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+  },
+  "game-night-q3": {
+    prompt: "How many chips are in a full-size poker chip case?",
+    answer: 500,
+    funFact: "Answer: 500. A poker case feels portable, but the rows hide enough chips for a long table.",
+    rationale: "Replaces combination homework with a physical game-night object players can estimate.",
+    answerNote: "Uses a common full-size 500-chip poker case as the named anchor.",
+    calibrationAnchor: "Picture rows of stacked chips inside a case, then estimate the trays.",
+    questionMove: "physical_capacity",
+    anchorType: "named_standard",
+    answerType: "estimate",
+  },
+  "post-office-q3": {
+    prompt: "How many mail pieces does USPS handle in one day?",
+    questionMove: "famous_macro",
+    anchorType: "famous_event",
+  },
+  "backyard-grill-q1": {
+    prompt: "How many square inches of cooking space are on a Memorial Day kettle grill?",
+  },
+  "backyard-grill-q3": {
+    prompt: "How many hot dogs could disappear at a big Memorial Day cookout?",
+    questionMove: "famous_macro",
+    anchorType: "famous_event",
+  },
+  "zoo-feeding-q1": { questionMove: "familiar_anchor" },
+  "zoo-feeding-q2": {
+    questionMove: "object_anatomy",
+    prompt: "How many fish are prepped for the penguin feeding line?",
+  },
+  "zoo-feeding-q3": { questionMove: "production_scale" },
+  "pool-deck-q2": {
+    prompt: "How many laps finish during a busy swim-team pool practice?",
+    questionMove: "production_scale",
+  },
+  "pool-deck-q3": {
+    prompt: "How many gallons of water fill an Olympic-size swimming pool?",
+    anchorType: "regulation",
+  },
+  "ski-lodge-q1": {
+    prompt: "How many people can ride an alpine coaster in one busy summer hour?",
+    funFact: "Answer: 600. The mountain still has lift-line math in summer, but the ride feels more like a warm-weather rush than a ski day.",
+    rationale: "Keeps the mountain-lodge scale while avoiding a winter-coded opener in June.",
+    answerNote: "Estimated from one four-seat car or chair dispatching about every 24 seconds over an hour, rounded for play.",
+    calibrationAnchor: "Use one small group per dispatch, then estimate how many dispatches fit in an hour.",
+    questionMove: "production_scale",
+    anchorType: "sourced_typical",
+  },
+  "ski-lodge-q2": {
+    prompt: "How many vertical feet does one mountain biker descend over a full day of lift-served runs?",
+    questionMove: "physical_capacity",
+  },
+  "ski-lodge-q3": {
+    prompt: "How many vertical feet do riders descend across a busy summer mountain day?",
+    questionMove: "production_scale",
+  },
+  "candy-counter-q1": {
+    questionMove: "object_anatomy",
+    prompt: "How many candy pieces are in a five-pound party bag?",
+  },
+  "candy-counter-q2": { questionMove: "physical_capacity" },
+  "candy-counter-q3": {
+    questionMove: "object_anatomy",
+    prompt: "How many candy-corn pieces are in a big twenty-five-pound tub?",
+  },
+  "light-show-q2": {
+    prompt: "How many drone-flight minutes are in an eighteen-minute light show?",
+  },
+  "light-show-q3": {
+    prompt: "How many LED flashes happen during a full drone light show?",
+  },
+  "gift-drawer-q3": {
+    prompt: "How many square inches are on one full roll of wrapping paper?",
+  },
+  "pizza-night-q2": { questionMove: "object_anatomy" },
+  "pizza-night-q3": { questionMove: "production_scale" },
+  "record-store-q2": {
+    prompt: "How many times does one LP rotate during a full album side?",
+  },
+  "record-store-q3": {
+    prompt: "How many grooves are pressed into a back-room stack of records?",
+    answer: 2400,
+    funFact: "Answer: 2,400. Each record hides two long spiral grooves, so a back-room stack turns into thousands of tiny paths for a needle.",
+    rationale: "Replaces the repeated rotation trick with a visible object-anatomy count.",
+    answerNote: "Calculated from a 1,200-record back-room stack with two playable sides/grooves per record.",
+    calibrationAnchor: "Use two playable sides per record, then scale to the crate.",
+    questionMove: "object_anatomy",
+    anchorType: "iconic_object",
+  },
+  "juneteenth-block-party-q1": {
+    prompt: "How many ice cubes are in a ten-pound party bag?",
+    answer: 250,
+    funFact: "Answer: 250. A ten-pound bag is familiar from cookouts, but the individual cubes add up fast once the cooler opens.",
+    rationale: "A block-party opener should use a tangible celebration object instead of date arithmetic.",
+    answerNote: "Estimated from a ten-pound bag of roughly 0.64-ounce cubes, rounded to a clean Ballpark target.",
+    calibrationAnchor: "Picture one cooler bag of ice, then estimate cube size before counting the bag.",
+    questionMove: "object_anatomy",
+    anchorType: "sourced_typical",
+  },
+  "juneteenth-block-party-q3": {
+    prompt: "How many steps are in a two-mile neighborhood parade?",
+  },
+  "juneteenth-block-party-extra": {
+    prompt: "How many folding chairs could line a half-mile parade route?",
+  },
+  "summer-camp-q3": {
+    prompt: "How many camper steps happen on a full summer-camp hike?",
+  },
+  "thunderstorm-porch-q1": {
+    prompt: "How many seconds pass before thunder from lightning five miles away?",
+  },
+  "bookstore-table-q3": { questionMove: "object_anatomy" },
+  "dog-park-q2": {
+    prompt: "How many muddy pawprints could cover the dog-park path after a busy morning?",
+    questionMove: "object_anatomy",
+  },
+  "aquarium-tank-q2": { questionMove: "object_anatomy" },
+  "aquarium-tank-q1": {
+    prompt: "How many gallons of water fill a large home aquarium?",
+    anchorType: "named_standard",
+  },
+  "aquarium-tank-q3": {
+    prompt: "How many gallons of water fill a public reef tank?",
+    anchorType: "named_standard",
+  },
+  "swim-meet-stopwatch-q1": {
+    prompt: "How many seconds is the men's 100-meter freestyle world record?",
+    questionMove: "iconic_exact",
+    anchorType: "famous_event",
+    iconicExact: true,
+  },
+  "clock-shop-q1": {
+    prompt: "How many ticks does one clock make in one minute?",
+    answer: 60,
+    funFact: "Answer: 60. One tick per second feels slow until you count the full minute.",
+    rationale: "Keeps a simple clock anchor while leaving room for the day to widen.",
+    answerNote: "Calculated from one tick per second for 60 seconds.",
+    calibrationAnchor: "Use the second hand as the anchor, then count one full minute.",
+  },
+  "clock-shop-q3": {
+    prompt: "How many clock faces are mounted across a full repair-shop wall?",
+    answer: 240,
+    funFact: "Answer: 240. A wall of repaired clocks feels decorative until every face becomes its own tiny dial.",
+    rationale: "Replaces the repeated tick-duration closer with a visible shop-wall count.",
+    answerNote: "Estimated from 20 display columns by 12 rows of clocks on a dense repair-shop wall.",
+    calibrationAnchor: "Picture rows and columns of clock faces, then multiply the wall.",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+  },
+  "thunderstorm-porch-q2": {
+    prompt: "How many gallons of rain hit a backyard patio during a heavy thunderstorm?",
+    questionMove: "physical_capacity",
+    anchorType: "natural_scale",
+  },
+  "thunderstorm-porch-q3": {
+    prompt: "How many pounds of rainwater fall on one acre in a soaking storm?",
+    anchorType: "natural_scale",
+  },
+  "fireworks-finale-q1": {
+    prompt: "How many sparklers are in an average backyard fireworks finale stash?",
+    funFact: "Answer: 144. A finale stash sounds like a handful until the picnic table is covered in sparkler packs.",
+    rationale: "Makes the opener an average holiday stash instead of a conceptual theme count.",
+    answerNote: "Estimated from a backyard finale stash of eighteen eight-sparkler packs.",
+    calibrationAnchor: "Think about how many packs a group buys, then estimate sparklers per pack.",
+    anchorType: "sourced_typical",
+  },
+  "fireworks-finale-q2": {
+    prompt: "How many feet high does a typical public fireworks shell climb before bursting?",
+    answer: 600,
+    funFact: "Answer: 600. The burst feels overhead, but even a mid-sized public shell can climb roughly a couple of football fields before it opens.",
+    rationale: "Keeps the middle question as a height estimate instead of a made-up rise-feet total.",
+    answerNote: "Rounded estimate for a typical public-display shell burst height; individual shells vary by size and show design.",
+    calibrationAnchor: "Picture a football field, then stack a couple of them into the sky.",
+    questionMove: "famous_macro",
+    anchorType: "sourced_typical",
+  },
+  "fireworks-finale-q3": {
+    prompt: "How many shells are fired during a large public fireworks finale?",
+    funFact: "Answer: 5,000. A finale feels like one roar, but behind it is thousands of timed shells leaving the racks.",
+    rationale: "Asks for an event-scale estimate without exposing the barge multiplication in the clue.",
+    answerNote: "Rounded event-plan estimate for a large public finale; internal model uses multiple firing positions and shell racks.",
+    calibrationAnchor: "Start with the pace of bursts per minute, then widen to a large public finale.",
+    questionMove: "famous_macro",
+    anchorType: "sourced_typical",
+  },
+  "coffee-roaster-q2": {
+    prompt: "How many beans are in a ten-pound coffee bag?",
+  },
+  "coffee-roaster-q3": {
+    prompt: "How many beans are roasted in a full roaster batch?",
+  },
+  "maple-sugar-shack-q1": {
+    prompt: "How many gallons of sap hang in the shack's bucket line?",
+  },
+  "maple-sugar-shack-q2": {
+    prompt: "How many gallons of sap boil down for a syrup run?",
+  },
+  "mail-sorting-floor-q1": {
+    prompt: "How many letters fill the delivery trays on the mail sorting floor?",
+  },
+  "mail-sorting-floor-q2": {
+    prompt: "How many label inches mark the package bins on the mail sorting floor?",
+  },
+  "mail-sorting-floor-q3": {
+    prompt: "How many mail pieces pass through the sorting machines?",
+  },
+  "book-fair-checkout-q3": {
+    prompt: "How many page-turns come from the book fair's sold books?",
+  },
+  "dairy-milking-parlor-q1": {
+    prompt: "How many milk gallons come from one full parlor milking?",
+  },
+  "dairy-milking-parlor-q2": {
+    prompt: "How many feed pounds are eaten in the dairy barn?",
+  },
+  "dairy-milking-parlor-extra": {
+    prompt: "How many milk-line inches run through the parlor tubing?",
+  },
+  "fishing-pier-tackle-q2": {
+    prompt: "How many fishing-line feet are spooled on the pier reels?",
+  },
+  "fishing-pier-tackle-q3": {
+    prompt: "How many casting feet fly from the pier in one day?",
+  },
+  "bee-yard-q1": {
+    prompt: "How many bees cover a full hive-frame rack?",
+  },
+  "bee-yard-q2": {
+    prompt: "How many bees live in the yard's working hives?",
+  },
+  "reef-window-q2": {
+    prompt: "How many gallons per hour flow through the reef filters?",
+  },
+  "reef-window-q3": {
+    prompt: "How many pounds does the water weigh in a public reef tank?",
+  },
+  "toolbox-day-q2": {
+    prompt: "How many inches of drill bits sit in the Toolbox Day case?",
+  },
+  "toolbox-day-q3": {
+    prompt: "How many pounds can the Toolbox Day shelf brackets hold?",
+  },
+  "baseball-dugout-fall-q3": {
+    prompt: "How many feet of foul-line chalk mark the dugout fields?",
+  },
+  "ice-fishing-shack-q2": {
+    prompt: "How many fishing-line feet drop through the ice-fishing rods?",
+  },
+  "bowling-lane-night-extra": {
+    prompt: "How many ball-travel feet add up during a packed bowling night?",
+  },
+  "firefly-field-q1": {
+    prompt: "How many flashes blink across one minute in a small firefly patch?",
+  },
+  "firefly-field-q2": {
+    prompt: "How many flashes blink across a ten-minute firefly field?",
+  },
+  "roller-rink-q3": {
+    prompt: "How many feet do skaters roll during a packed roller-rink session?",
+  },
+  "drumline-circle-q3": {
+    prompt: "How many feet do drumline marchers walk on the parade route?",
+  },
+  "golf-course-q2": {
+    prompt: "How many yards does one golfer walk in a full round?",
+  },
+  "golf-course-q3": {
+    prompt: "How many feet do all golfers walk during a packed course day?",
+  },
+  "key-cutting-counter-q3": {
+    prompt: "How many test turns happen at the key-cutting counter?",
+  },
+  "dog-agility-course-q3": {
+    prompt: "How many feet do dogs cover on the agility course runs?",
+  },
+  "snowplow-route-q3": {
+    prompt: "How many feet of lanes are cleared on a two-lane snowplow route?",
+  },
+  "snowplow-route-extra": {
+    prompt: "How many square inches of blade surface are on the snowplow fleet?",
+  },
+};
+
+const BALLPARK_QUESTION_KEY_OVERRIDES_BY_DATE = {
+  "2026-05-05": ["school-book-fair-checkout-q1", "school-book-fair-checkout-q2", "school-book-fair-checkout-q3"],
+  "2026-09-15": ["baseball-dugout-fall-q1", "baseball-dugout-fall-q2", "baseball-dugout-fall-q3"],
+  "2026-07-06": ["summer-parade-route-q1", "summer-parade-route-q2", "summer-parade-route-q3"],
+  "2026-08-01": ["august-workshop-bench-q1", "august-workshop-bench-q2", "august-workshop-bench-q3"],
+  "2026-12-29": ["pegboard-wall-q1", "pegboard-wall-q2", "pegboard-wall-q3"],
 };
 
 const CALENDAR_DATE_KEYS = buildCalendarDateKeys(CYCLE_START_KEY, CALENDAR_END_KEY);
@@ -2481,6 +2860,184 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
   ...MAY_LAUNCH_PACKS,
 });
 
+export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
+  reservePack("reserve-001", "Backyard Pool Deep End", "tactile", [
+    reserveQuestion("backyard-pool-deep-end", "q1", "How many gallons fill a standard backyard swimming pool?", 20000, "A familiar blue rectangle can hide a five-digit water bill.", "Uses a common in-ground backyard pool capacity rounded to a clean target.", "Picture the pool as a box of water, then compare it with a bathtub.", { estimationMode: "capacity", scaleBand: "city", anchorType: "named_standard" }),
+    reserveQuestion("backyard-pool-deep-end", "q2", "How many pool-noodle inches float in a full party bin?", 1440, "A pile of noodles becomes a hundred-plus feet of foam when stretched end to end.", "Estimated from two dozen five-foot pool noodles, converted to inches.", "Use one noodle length, then multiply by a crowded bin.", { estimationMode: "distance", scaleBand: "city" }),
+    reserveQuestion("backyard-pool-deep-end", "q3", "How many splashes hit the deck during a packed afternoon swim?", 54000, "One cannonball is funny; a whole afternoon turns into weather around the pool.", "Estimated from hundreds of swims and dozens of visible splashes per swimmer.", "Start with one swimmer's splash count, then scale to the afternoon crowd.", { estimationMode: "rate", scaleBand: "world" }),
+  ], reserveQuestion("backyard-pool-deep-end", "extra", "How many pounds does the water in that backyard pool weigh?", 166800, "The water is quiet, but it weighs as much as a small fleet of cars.", "Calculated from about 20,000 gallons at roughly 8.34 pounds per gallon.", "Anchor on gallons first, then convert each gallon into weight.", { estimationMode: "weight", scaleBand: "world" })),
+  reservePack("reserve-002", "Hardware Drawer", "tactile", [
+    reserveQuestion("hardware-drawer", "q1", "How many screws fit in a full one-pound hardware drawer cup?", 180, "A coffee-cup-sized scoop of screws is already a small metal crowd.", "Estimated from common mixed wood screws by weight, rounded for play.", "Picture one dense cup of screws, then estimate piece size.", { estimationMode: "capacity" }),
+    reserveQuestion("hardware-drawer", "q2", "How many inches of painter's tape are on a fresh roll?", 2160, "The roll looks palm-sized until it unwinds into half a basketball court.", "Uses a common 60-yard painter's tape roll converted to inches.", "Use the roll label as the anchor, then convert yards to inches.", { estimationMode: "distance", anchorType: "named_standard" }),
+    reserveQuestion("hardware-drawer", "q3", "How many bristles are packed into a wall of paintbrushes?", 288000, "The brush aisle looks soft because the count is hiding in thousands of tiny ends.", "Estimated from 240 brushes with roughly 1,200 bristles each.", "Estimate one brush head, then scale to the aisle wall.", { estimationMode: "count" }),
+  ], reserveQuestion("hardware-drawer", "extra", "How many pounds of nails sit on a full contractor pallet?", 2400, "A pallet of nail boxes stops feeling like hardware and starts feeling like freight.", "Estimated from 48 boxes at 50 pounds each.", "Anchor on one heavy box, then scale to a pallet stack.", { estimationMode: "weight" })),
+  reservePack("reserve-003", "Pizza Delivery Window", "tactile", [
+    reserveQuestion("pizza-delivery-window", "q1", "How many pepperoni slices cover a big game-day pizza order?", 2400, "Pepperoni starts as decoration and turns into inventory fast.", "Estimated from 60 pizzas with about 40 pepperoni slices each.", "Picture one loaded pizza, then scale to the order.", { estimationMode: "count" }),
+    reserveQuestion("pizza-delivery-window", "q2", "How many square inches of cardboard are in the stacked pizza boxes?", 34560, "The boxes become a flat paper wall once every lid and bottom is counted.", "Estimated from 60 large boxes at about 576 square inches each.", "Use one large box face, then multiply by the stack.", { estimationMode: "area" }),
+    reserveQuestion("pizza-delivery-window", "q3", "How many melted-cheese ounces top the dinner rush?", 18000, "A handful per pie becomes a serious dairy number when the rush arrives.", "Estimated from 1,800 pizzas with about 10 ounces of cheese each.", "Start with the cheese on one pizza, then widen to the rush.", { estimationMode: "weight" }),
+  ], reserveQuestion("pizza-delivery-window", "extra", "How many delivery-bag minutes are spent keeping pizzas hot?", 72000, "The hidden work is not just baking; it is thousands of minutes in insulated bags.", "Estimated from 2,400 deliveries with about 30 minutes in a hot bag each.", "Use one delivery's bag time, then scale to the service window.", { estimationMode: "duration" })),
+  reservePack("reserve-004", "Movie Theater Row", "tactile", [
+    reserveQuestion("movie-theater-row", "q1", "How many seats are in a sold-out midsize movie auditorium?", 220, "A single room can hold a wedding-sized crowd before the trailers even start.", "Uses a typical midsize auditorium capacity rounded for play.", "Picture rows across and rows deep, then count the room.", { estimationMode: "capacity", anchorType: "sourced_typical" }),
+    reserveQuestion("movie-theater-row", "q2", "How many popcorn kernels fit in one large theater tub?", 650, "The tub feels like one snack, but it is hundreds of tiny pieces.", "Estimated from a large tub volume and popped-kernel size.", "Estimate kernels across the top, then stack layers downward.", { estimationMode: "capacity" }),
+    reserveQuestion("movie-theater-row", "q3", "How many seat-arm cupholders are in a packed multiplex?", 7200, "Cupholders are background furniture until the whole multiplex gets counted.", "Estimated from 18 screens with about 400 cupholders each.", "Start with one auditorium, then scale to every screen.", { estimationMode: "count" }),
+  ], reserveQuestion("movie-theater-row", "extra", "How many preview seconds play across a full evening of showtimes?", 648000, "The trailers feel short in one room; across the building they become days of screen time.", "Estimated from 60 showings with 18 minutes of previews each, converted to seconds.", "Use one preview block, then multiply by the evening schedule.", { estimationMode: "duration" })),
+  reservePack("reserve-005", "Dog Park Fetch Line", "tactile", [
+    reserveQuestion("dog-park-fetch-line", "q1", "How many tennis balls could fill a dog-park bucket?", 180, "The bucket looks casual until every ball is a future sprint.", "Estimated from a five-gallon bucket and tennis-ball volume.", "Compare one ball to the bucket opening, then stack the volume.", { estimationMode: "capacity" }),
+    reserveQuestion("dog-park-fetch-line", "q2", "How many leash feet hang on the fence hooks?", 1440, "A hook wall of leashes could stretch down the block.", "Estimated from 240 six-foot leashes.", "Use one leash as a ruler, then scale to the hooks.", { estimationMode: "distance" }),
+    reserveQuestion("dog-park-fetch-line", "q3", "How many pawprints stamp the muddy loop on a busy morning?", 96000, "The mud remembers every lap better than the dogs do.", "Estimated from 1,200 short runs with about 80 visible pawprints each.", "Estimate prints from one run, then multiply by the morning.", { estimationMode: "rate" }),
+  ], reserveQuestion("dog-park-fetch-line", "extra", "How many feet do thrown balls travel during the whole fetch rush?", 360000, "A few throws become miles of flying tennis balls.", "Estimated from 6,000 throws at about 60 feet each.", "Use one throw distance, then scale to all throws.", { estimationMode: "distance" })),
+  reservePack("reserve-006", "Coffee Cupping Table", "tactile", [
+    reserveQuestion("coffee-cupping-table", "q1", "How many beans are in a one-pound bag of roasted coffee?", 3000, "A bag feels like one object, but it pours out thousands of beans.", "Uses a common estimate of roughly 3,000 roasted beans per pound.", "Picture a handful of beans, then scale to a full bag.", { estimationMode: "count", anchorType: "named_standard" }),
+    reserveQuestion("coffee-cupping-table", "q2", "How many tasting-spoon sips happen at a busy cupping table?", 1800, "Tiny spoonfuls add up when every cup gets slurped and scored.", "Estimated from 30 tasters sampling 60 spoonfuls each.", "Use one taster's pass through the table, then multiply by tasters.", { estimationMode: "rate" }),
+    reserveQuestion("coffee-cupping-table", "q3", "How many ounces of coffee pour through a morning cafe line?", 96000, "The cafe feels like cups; the counter sees gallons.", "Estimated from 9,600 ten-ounce drinks.", "Anchor on one cup, then widen to the morning line.", { estimationMode: "capacity" }),
+  ], reserveQuestion("coffee-cupping-table", "extra", "How many beans pass through a small roaster batch?", 240000, "The roaster's drum turns one bag logic into a rolling hill of beans.", "Estimated from an 80-pound batch at about 3,000 beans per pound.", "Use beans per pound, then scale to the roaster drum.", { estimationMode: "count" })),
+  reservePack("reserve-007", "Aquarium Window Tunnel", "spectacle", [
+    reserveQuestion("aquarium-window-tunnel", "q1", "How many gallons fill a large home aquarium?", 75, "A living-room tank already holds more water than many people expect.", "Uses a common large home aquarium size.", "Compare the tank with a bathtub and a five-gallon bucket.", { estimationMode: "capacity", anchorType: "named_standard" }),
+    reserveQuestion("aquarium-window-tunnel", "q2", "How many square inches of acrylic are in a tunnel viewing panel?", 8640, "The clear wall feels invisible until it is measured like a giant window.", "Estimated from a 6-by-10-foot viewing panel converted to square inches.", "Use the panel's height and width, then convert to inches.", { estimationMode: "area" }),
+    reserveQuestion("aquarium-window-tunnel", "q3", "How many gallons fill a public aquarium reef tank?", 90000, "The tank is less like furniture and more like a small indoor pond.", "Uses a rounded public reef-tank capacity for play.", "Start from a home tank, then jump scales to the exhibit.", { estimationMode: "capacity" }),
+  ], reserveQuestion("aquarium-window-tunnel", "extra", "How many gallons flow through the exhibit filters in one day?", 864000, "The quiet water is constantly taking laps behind the scenes.", "Estimated from 36 filters moving 1,000 gallons per hour for 24 hours.", "Anchor on one filter's hourly flow, then scale to a full day.", { estimationMode: "rate" })),
+  reservePack("reserve-008", "Produce Scale Counter", "tactile", [
+    reserveQuestion("produce-scale-counter", "q1", "How many apples fit in a bushel crate?", 125, "A crate feels simple until the apples become a layered count.", "Estimated from a 42-pound bushel and medium apples.", "Use a handful of apples per layer, then stack the crate.", { estimationMode: "capacity", anchorType: "named_standard" }),
+    reserveQuestion("produce-scale-counter", "q2", "How many sticker labels cover a busy produce counter?", 7200, "Those tiny stickers become a confetti number by closing time.", "Estimated from 7,200 labeled pieces of produce.", "Start with one case, then scale across the counter.", { estimationMode: "count" }),
+    reserveQuestion("produce-scale-counter", "q3", "How many pounds of melons sit in a full weekend display?", 18000, "A melon pile looks playful until it weighs like a truckload.", "Estimated from 1,200 melons averaging 15 pounds each.", "Use one melon's weight, then scale to the display.", { estimationMode: "weight" }),
+  ], reserveQuestion("produce-scale-counter", "extra", "How many bag-handle loops leave the market on a sellout day?", 48000, "The exit trail is not fruit; it is handles swinging home.", "Estimated from 24,000 handled bags with two loops each.", "Use two loops per bag, then scale to the sellout day.", { estimationMode: "count" })),
+  reservePack("reserve-009", "Train Platform Map Wall", "tactile", [
+    reserveQuestion("train-platform-map-wall", "q1", "How many station dots are on a large city rail map?", 180, "The map looks like design until every dot becomes a stop.", "Uses a rounded large-system station count.", "Scan one branch, then multiply by the branches on the map.", { estimationMode: "count", anchorType: "sourced_typical" }),
+    reserveQuestion("train-platform-map-wall", "q2", "How many timetable-paper inches fill the platform case?", 3456, "The schedule case turns waiting into a wall of paper.", "Estimated from two 36-by-48-inch printed timetable sheets.", "Use one case sheet, then count the display.", { estimationMode: "area" }),
+    reserveQuestion("train-platform-map-wall", "q3", "How many rider-wait minutes build up during the evening delay?", 162000, "The delay is not one number on a board; it is a shared pile of minutes.", "Estimated from 9,000 riders waiting about 18 minutes each.", "Use one rider's wait, then scale to the platform crowd.", { estimationMode: "duration" }),
+  ], reserveQuestion("train-platform-map-wall", "extra", "How many train-door openings happen across the rush window?", 28800, "Every stop is a little mechanical blink, repeated across the system.", "Estimated from 1,200 arrivals with 24 doors opening each.", "Start with doors on one train, then scale to arrivals.", { estimationMode: "rate" })),
+  reservePack("reserve-010", "Bike Helmet Rack", "tactile", [
+    reserveQuestion("bike-helmet-rack", "q1", "How many air vents are in a wall of bike helmets?", 1440, "A helmet's holes look decorative until the rack becomes a grid of vents.", "Estimated from 120 helmets with about 12 vents each.", "Use one helmet's vents, then multiply by the rack.", { estimationMode: "count" }),
+    reserveQuestion("bike-helmet-rack", "q2", "How many spoke crossings show on the repair stand wheels?", 4608, "The wheel pattern is easy to recognize and surprisingly dense.", "Estimated from 72 wheels with 64 visible spoke crossings each.", "Count one wheel pattern, then scale to the stand.", { estimationMode: "count" }),
+    reserveQuestion("bike-helmet-rack", "q3", "How many tire inches roll through a bike-share fleet?", 187200, "The fleet turns rubber circles into a street-length number.", "Estimated from 3,600 wheels with about 52 inches of tire contact circumference each.", "Use one wheel's outside length, then multiply by the fleet.", { estimationMode: "distance" }),
+  ], reserveQuestion("bike-helmet-rack", "extra", "How many pedal rotations happen on a busy bike-share day?", 540000, "The hardest number is hidden in all those small circles underfoot.", "Estimated from 9,000 rides with about 60 pedal rotations each.", "Use rotations from one short ride, then scale to the day.", { estimationMode: "rate" })),
+  reservePack("reserve-011", "Garden Hose Reel", "tactile", [
+    reserveQuestion("garden-hose-reel", "q1", "How many feet of hose are coiled on a long backyard reel?", 100, "The coil looks compact because the length is stacked in circles.", "Uses a common long backyard hose length.", "Picture the coil as loops of a 100-foot hose.", { estimationMode: "distance", anchorType: "named_standard" }),
+    reserveQuestion("garden-hose-reel", "q2", "How many gallons pass through the sprinkler in one hour?", 600, "A sprinkler whispers, but an hour turns it into a bathtub parade.", "Estimated from about 10 gallons per minute for 60 minutes.", "Use one minute of sprinkler flow, then scale to an hour.", { estimationMode: "rate" }),
+    reserveQuestion("garden-hose-reel", "q3", "How many water drops land on the lawn during a full watering cycle?", 900000, "The grass sees the hose as a rain machine.", "Estimated from gallons sprayed and a rounded drops-per-gallon conversion.", "Anchor on gallons first, then think of each gallon as thousands of drops.", { estimationMode: "count" }),
+  ], reserveQuestion("garden-hose-reel", "extra", "How many pounds of water run through the hose in a weekend?", 50040, "The hose feels light until the water weight is counted after it leaves.", "Estimated from 6,000 gallons at about 8.34 pounds per gallon.", "Use gallons watered, then convert to water weight.", { estimationMode: "weight" })),
+  reservePack("reserve-012", "Museum Gift Shop Shelf", "tactile", [
+    reserveQuestion("museum-gift-shop-shelf", "q1", "How many postcards fit in one spinning gift-shop rack?", 720, "The rack is a carousel of tiny souvenirs.", "Estimated from 24 pockets holding about 30 postcards each.", "Count pockets around the rack, then fill each pocket.", { estimationMode: "capacity" }),
+    reserveQuestion("museum-gift-shop-shelf", "q2", "How many puzzle pieces sit on the front display table?", 12000, "The table looks like boxes until every piece inside joins the count.", "Estimated from 24 puzzles with 500 pieces each.", "Use one familiar puzzle box, then scale to the display.", { estimationMode: "count" }),
+    reserveQuestion("museum-gift-shop-shelf", "q3", "How many bookmark inches sell during a busy field-trip week?", 36000, "The bookmark basket becomes a ribbon running through the shop.", "Estimated from 9,000 four-inch bookmarks.", "Use one bookmark, then multiply by the week.", { estimationMode: "distance" }),
+  ], reserveQuestion("museum-gift-shop-shelf", "extra", "How many gift-bag square inches leave the museum store?", 216000, "The exit line carries a surprising paper surface area.", "Estimated from 1,800 bags with about 120 square inches of visible paper each.", "Use the face of one gift bag, then scale to the day.", { estimationMode: "area" })),
+  reservePack("reserve-013", "Donut Rack Morning", "tactile", [
+    reserveQuestion("donut-rack-morning", "q1", "How many donuts fit on a rolling bakery rack?", 288, "A rack of trays is already a small wall of breakfast.", "Estimated from 24 trays holding 12 donuts each.", "Count one tray, then multiply by the rack.", { estimationMode: "capacity" }),
+    reserveQuestion("donut-rack-morning", "q2", "How many sprinkle pieces cover the frosted rack?", 28800, "Sprinkles look random until the rack turns them into a tiny avalanche.", "Estimated from 288 donuts with about 100 sprinkles each.", "Use one donut's sprinkle count, then scale to the rack.", { estimationMode: "count" }),
+    reserveQuestion("donut-rack-morning", "q3", "How many icing ounces glaze the morning sellout?", 14400, "A spoonful per donut becomes buckets by the end of the rush.", "Estimated from 7,200 donuts with about two ounces of icing each.", "Anchor on icing per donut, then widen to the sellout.", { estimationMode: "weight" }),
+  ], reserveQuestion("donut-rack-morning", "extra", "How many fryer seconds cook the whole morning batch?", 129600, "Behind the sweet case is a clock running for every batch.", "Estimated from 720 batches at about 180 fryer seconds each.", "Use one batch's fry time, then scale to the morning.", { estimationMode: "duration" })),
+  reservePack("reserve-014", "Bowling Shoe Counter", "tactile", [
+    reserveQuestion("bowling-shoe-counter", "q1", "How many rental shoes fill a busy bowling alley wall?", 720, "The counter looks like pairs, but the wall is hundreds of individual shoes.", "Estimated from 360 rental pairs.", "Use pairs first, then double into shoes.", { estimationMode: "capacity" }),
+    reserveQuestion("bowling-shoe-counter", "q2", "How many finger holes are in the house-ball racks?", 1080, "Every bowling ball hides the same little three-hole pattern.", "Estimated from 360 house balls with three finger holes each.", "Count holes on one ball, then multiply by the racks.", { estimationMode: "count", questionMove: "object_anatomy" }),
+    reserveQuestion("bowling-shoe-counter", "q3", "How many lane feet are rolled during a league night?", 324000, "The ball only sees 60 feet at a time, then the league repeats it all night.", "Estimated from 5,400 rolls down a 60-foot lane.", "Use one roll's lane length, then scale to the night.", { estimationMode: "distance" }),
+  ], reserveQuestion("bowling-shoe-counter", "extra", "How many pin impacts happen during the tournament block?", 43200, "The crash is one sound, but the pin count is much bigger.", "Estimated from 4,320 rolls with about ten pins in play each.", "Use pins in one frame, then widen to the tournament block.", { estimationMode: "rate" })),
+  reservePack("reserve-015", "Library Hold Shelf", "tactile", [
+    reserveQuestion("library-hold-shelf", "q1", "How many books fit on a full holds cart?", 120, "A single cart can carry a classroom's worth of reading.", "Estimated from a standard two-sided library cart loaded with books.", "Picture shelves on both sides, then count books per shelf.", { estimationMode: "capacity", anchorType: "sourced_typical" }),
+    reserveQuestion("library-hold-shelf", "q2", "How many spine-label inches line the holds shelf?", 2880, "The labels are small, but together they become a long alphabet strip.", "Estimated from 720 books with four inches of visible spine each.", "Use one book spine, then multiply by the shelf.", { estimationMode: "distance" }),
+    reserveQuestion("library-hold-shelf", "q3", "How many pages sit in a week of hold pickups?", 360000, "The pickup shelf is really a compressed stack of pages.", "Estimated from 1,200 books averaging 300 pages.", "Use one average book, then scale to the week's pickups.", { estimationMode: "count" }),
+  ], reserveQuestion("library-hold-shelf", "extra", "How many barcode scans happen across the hold rush?", 21600, "Every quiet handoff leaves a little electronic tick behind.", "Estimated from 10,800 items scanned in and out.", "Use two scans per item, then scale to the rush.", { estimationMode: "rate" })),
+  reservePack("reserve-016", "Ice Cream Truck Window", "tactile", [
+    reserveQuestion("ice-cream-truck-window", "q1", "How many popsicles fit in the truck freezer?", 900, "The freezer door is small, but the stack inside is not.", "Estimated from a compact truck freezer loaded with novelty bars.", "Picture layers of boxes inside the freezer.", { estimationMode: "capacity" }),
+    reserveQuestion("ice-cream-truck-window", "q2", "How many scoops are served during a park afternoon?", 3600, "One cone is cheerful; the whole park is a scoop mountain.", "Estimated from 1,800 orders averaging two scoops.", "Use scoops per cone, then multiply by orders.", { estimationMode: "rate" }),
+    reserveQuestion("ice-cream-truck-window", "q3", "How many sugar-cone inches stack in the day's cone orders?", 28800, "The cones are hollow, but the stack has real height.", "Estimated from 7,200 cones at about four inches tall each.", "Use one cone height, then scale to the day.", { estimationMode: "distance" }),
+  ], reserveQuestion("ice-cream-truck-window", "extra", "How many frozen ounces leave the truck on a sellout route?", 57600, "The truck's jingle is carrying thousands of ounces of dessert.", "Estimated from 7,200 servings at about eight ounces each.", "Anchor on one serving size, then widen to the route.", { estimationMode: "weight" })),
+  reservePack("reserve-017", "Sports Ball Bin", "tactile", [
+    reserveQuestion("sports-ball-bin", "q1", "How many golf-ball dimples are on a dozen balls?", 4032, "The iconic tiny dimples become a big number in one box.", "Uses 336 dimples per ball as a recognizable golf-ball anchor.", "Use the iconic dimple count, then multiply by a dozen.", { estimationMode: "count", answerType: "exact", iconicExact: true, anchorType: "iconic_object" }),
+    reserveQuestion("sports-ball-bin", "q2", "How many soccer-panel edges are on the practice pile?", 3840, "A ball's patchwork pattern becomes geometry by the bagful.", "Estimated from 120 soccer balls with about 32 visible panel edges each.", "Count one ball's patch edges, then scale to the pile.", { estimationMode: "count", questionMove: "object_anatomy" }),
+    reserveQuestion("sports-ball-bin", "q3", "How many basketball bounces happen in a full youth-tournament warmup?", 216000, "The gym soundtrack is thousands of rubber hits before tipoff.", "Estimated from 1,200 players with about 180 warmup bounces each.", "Use one player's warmup, then widen to the tournament.", { estimationMode: "rate" }),
+  ], reserveQuestion("sports-ball-bin", "extra", "How many stitched inches wrap the baseballs in a tournament bucket?", 64800, "The red thread on one ball is iconic; the bucket turns it into a long seam.", "Estimated from 600 baseballs with about 108 inches of stitching each.", "Use the stitching around one ball, then multiply by the bucket.", { estimationMode: "distance", anchorType: "iconic_object" })),
+  reservePack("reserve-018", "Stage Light Catwalk", "spectacle", [
+    reserveQuestion("stage-light-catwalk", "q1", "How many spotlights hang over a midsize theater stage?", 96, "The lights disappear into the ceiling until the rig is counted.", "Uses a rounded midsize stage lighting inventory.", "Scan rows of fixtures across the catwalk.", { estimationMode: "capacity" }),
+    reserveQuestion("stage-light-catwalk", "q2", "How many gel-frame square inches color the light rack?", 3456, "The color is thin, but the rack holds a surprising stained-glass sheet.", "Estimated from 96 frames at about 36 square inches each.", "Use one gel frame, then multiply by fixtures.", { estimationMode: "area" }),
+    reserveQuestion("stage-light-catwalk", "q3", "How many light-cue changes fire during a musical run?", 54000, "The show feels smooth because thousands of tiny light decisions are timed.", "Estimated from 180 performances with 300 cues each.", "Use cues in one show, then scale to the run.", { estimationMode: "rate" }),
+  ], reserveQuestion("stage-light-catwalk", "extra", "How many watts blaze if the whole stage rig peaks at once?", 115200, "The catwalk can quietly hold a power-plant-sized stage moment.", "Estimated from 96 fixtures averaging 1,200 watts at peak.", "Use one fixture's wattage, then scale to the rig.", { estimationMode: "rate" })),
+  reservePack("reserve-019", "Campfire Smores Table", "tactile", [
+    reserveQuestion("campfire-smores-table", "q1", "How many marshmallows fit in a family-size campfire bag?", 60, "The bag looks fluffy because it is mostly air and sugar.", "Uses a common large marshmallow bag count rounded for play.", "Picture rows in the bag, then count layers.", { estimationMode: "capacity" }),
+    reserveQuestion("campfire-smores-table", "q2", "How many graham-cracker squares cover the picnic table?", 1440, "The crackers turn into edible tiles when the table is stocked.", "Estimated from 720 crackers split into two squares each.", "Use one cracker's split, then scale to the table.", { estimationMode: "count" }),
+    reserveQuestion("campfire-smores-table", "q3", "How many chocolate-square inches melt during the campground rush?", 43200, "The chocolate pile is small per treat and huge by the campground.", "Estimated from 3,600 treats with about 12 square inches of chocolate each.", "Use chocolate on one smore, then scale to the rush.", { estimationMode: "area" }),
+  ], reserveQuestion("campfire-smores-table", "extra", "How many glowing-coal seconds burn through the campfire night?", 864000, "The fire's glow is a clock when every ember gets a turn.", "Estimated from 240 coals glowing about one hour each.", "Use glow time per coal, then multiply by coals.", { estimationMode: "duration" })),
+  reservePack("reserve-020", "Souvenir Postcard Sort", "tactile", [
+    reserveQuestion("souvenir-postcard-sort", "q1", "How many postcards fit in a counter display box?", 600, "A shoebox-sized display can hold a vacation's worth of tiny views.", "Estimated from 20 pockets holding about 30 postcards each.", "Count pockets, then estimate the stack in each.", { estimationMode: "capacity" }),
+    reserveQuestion("souvenir-postcard-sort", "q2", "How many stamp corners cover the outgoing postcard tray?", 2400, "Every card has one small square that becomes a whole corner-count.", "Estimated from 2,400 stamped postcards.", "Use one stamp per card, then scale to the tray.", { estimationMode: "count" }),
+    reserveQuestion("souvenir-postcard-sort", "q3", "How many postcard square inches mail out after a festival weekend?", 259200, "The little cards become a printed wall of vacation bragging.", "Estimated from 10,800 postcards at about 24 square inches each.", "Use one postcard face, then scale to the weekend.", { estimationMode: "area" }),
+  ], reserveQuestion("souvenir-postcard-sort", "extra", "How many miles could the postcard stack travel through the mail?", 4320000, "The pile is local at the counter and national once every address leaves.", "Estimated from 7,200 postcards averaging 600 mailing miles.", "Use one postcard trip, then multiply by the outgoing stack.", { estimationMode: "distance" })),
+  reservePack("reserve-021", "Skate Rental Wall", "tactile", [
+    reserveQuestion("skate-rental-wall", "q1", "How many skates hang on a full rental wall?", 480, "The wall is organized by pairs, but the count doubles quickly.", "Estimated from 240 rental pairs.", "Count pairs first, then double into individual skates.", { estimationMode: "capacity" }),
+    reserveQuestion("skate-rental-wall", "q2", "How many lace feet thread the rental skates?", 2880, "The laces are hidden until the wall turns into a long cord.", "Estimated from 480 skates with six feet of laces each.", "Use lace length on one skate, then scale to the wall.", { estimationMode: "distance" }),
+    reserveQuestion("skate-rental-wall", "q3", "How many rink laps are skated during a birthday-party block?", 18000, "The rink is a circle, and the party keeps drawing it again.", "Estimated from 600 skaters averaging 30 laps.", "Use laps per skater, then multiply by the party block.", { estimationMode: "rate" }),
+  ], reserveQuestion("skate-rental-wall", "extra", "How many blade inches touch the ice across the rental fleet?", 4320, "The blades look like thin lines until every skate joins the edge.", "Estimated from 480 skates with about nine inches of blade each.", "Use one blade length, then scale to the fleet.", { estimationMode: "distance" })),
+  reservePack("reserve-022", "Flower Bucket Stand", "tactile", [
+    reserveQuestion("flower-bucket-stand", "q1", "How many stems fit in a full florist bucket?", 48, "One bucket can hold a whole table centerpiece before arranging starts.", "Uses a typical loose-stem florist bucket count.", "Picture stems packed around the rim and through the middle.", { estimationMode: "capacity" }),
+    reserveQuestion("flower-bucket-stand", "q2", "How many ribbon inches tie the bouquet wall?", 4320, "The bow on one bouquet becomes a ribbon trail across the shop.", "Estimated from 720 bouquets with six inches of ribbon each.", "Use one bow's ribbon, then multiply by bouquets.", { estimationMode: "distance" }),
+    reserveQuestion("flower-bucket-stand", "q3", "How many petals open across the wedding order?", 216000, "The order is not just flowers; it is a blizzard of petals.", "Estimated from 1,800 flowers with about 120 visible petals each.", "Use petals on one flower, then scale to the order.", { estimationMode: "count" }),
+  ], reserveQuestion("flower-bucket-stand", "extra", "How many water ounces sit in the stocked flower buckets?", 38400, "The stems are pretty because a hidden drink is holding them up.", "Estimated from 300 buckets with about 128 ounces of water each.", "Use one bucket's water, then scale to the stand.", { estimationMode: "capacity" })),
+  reservePack("reserve-023", "Tool Rental Counter", "tactile", [
+    reserveQuestion("tool-rental-counter", "q1", "How many drill bits fit in a contractor bit case?", 120, "The tiny case is a library of holes waiting to happen.", "Uses a common large contractor bit-set size.", "Open one case and count rows of bits.", { estimationMode: "capacity", anchorType: "named_standard" }),
+    reserveQuestion("tool-rental-counter", "q2", "How many extension-cord feet hang on the rental wall?", 3600, "The cords look coiled, but they could cross several parking lots.", "Estimated from 72 cords at 50 feet each.", "Use one cord length, then scale to the wall.", { estimationMode: "distance" }),
+    reserveQuestion("tool-rental-counter", "q3", "How many sanding-disc square inches leave in a contractor weekend?", 648000, "The discs are small circles until the weekend becomes a floor of sandpaper.", "Estimated from 18,000 discs at about 36 square inches each.", "Use one disc area, then multiply by the weekend count.", { estimationMode: "area" }),
+  ], reserveQuestion("tool-rental-counter", "extra", "How many machine-hours are rented during a holiday project rush?", 43200, "Every pickup hides a clock running in a garage somewhere.", "Estimated from 1,800 rentals averaging 24 machine-hours.", "Use one rental window, then scale to the rush.", { estimationMode: "duration" })),
+  reservePack("reserve-024", "Bird Feeder Station", "tactile", [
+    reserveQuestion("bird-feeder-station", "q1", "How many sunflower seeds fit in a backyard feeder tube?", 1800, "The feeder looks simple until every seed becomes a perch invitation.", "Estimated from a tall tube feeder's seed capacity.", "Compare one seed with the feeder tube, then stack the volume.", { estimationMode: "capacity", anchorType: "sourced_typical" }),
+    reserveQuestion("bird-feeder-station", "q2", "How many perch-toe grips happen during a busy morning?", 28800, "Every landing is tiny, but the feeder keeps taking attendance.", "Estimated from 7,200 landings with four toes gripping each time.", "Use one bird landing, then multiply by visits.", { estimationMode: "rate" }),
+    reserveQuestion("bird-feeder-station", "q3", "How many wingbeats pass the yard during a migration hour?", 720000, "The yard feels still until the sky traffic gets counted.", "Estimated from 600 birds with about 1,200 wingbeats through the viewing area.", "Use one bird's pass, then widen to the hour.", { estimationMode: "rate", anchorType: "natural_scale" }),
+  ], reserveQuestion("bird-feeder-station", "extra", "How many seed hulls pile up under the feeders in a week?", 540000, "The mess below the feeder is the shadow of the week's snacks.", "Estimated from 30 filled feeders at about 18,000 hulls each.", "Use one feeder refill, then scale to the week.", { estimationMode: "count" })),
+  reservePack("reserve-025", "Small Print Press", "tactile", [
+    reserveQuestion("small-print-press", "q1", "How many sheets fit in a fresh ream of printer paper?", 500, "A ream is one of the friendliest exact-ish office anchors.", "Uses the standard 500-sheet ream count.", "Use the labeled ream as the anchor.", { estimationMode: "capacity", answerType: "exact", iconicExact: true, anchorType: "named_standard" }),
+    reserveQuestion("small-print-press", "q2", "How many ink dots cover a postcard press sheet?", 864000, "Print quality is tiny dots pretending to be a picture.", "Estimated from a postcard-sized sheet area and a modest dot density.", "Use one square inch of dots, then multiply by the sheet.", { estimationMode: "count" }),
+    reserveQuestion("small-print-press", "q3", "How many paper feet roll through the press on a short run?", 180000, "The press eats paper like a road unspooling indoors.", "Estimated from 3,000 minutes of press movement at 60 feet per minute.", "Use one minute of press feed, then scale to the run.", { estimationMode: "distance" }),
+  ], reserveQuestion("small-print-press", "extra", "How many cut edges are made in the finished postcard stack?", 144000, "Every clean rectangle is the result of more blade passes than it shows.", "Estimated from 36,000 postcards with four trimmed edges each.", "Use four edges per card, then multiply by the stack.", { estimationMode: "count" })),
+  reservePack("reserve-026", "Sushi Conveyor Belt", "tactile", [
+    reserveQuestion("sushi-conveyor-belt", "q1", "How many plates fit on a full sushi conveyor loop?", 160, "The loop looks like motion, but it has a plate capacity.", "Estimated from a compact restaurant conveyor loop.", "Picture plates spaced around the full belt.", { estimationMode: "capacity" }),
+    reserveQuestion("sushi-conveyor-belt", "q2", "How many rice ounces roll through a dinner service?", 28800, "The rice is bite-sized until the whole service gets counted.", "Estimated from 7,200 pieces at about four ounces of rice per plate equivalent.", "Use rice per plate, then scale to dinner.", { estimationMode: "weight" }),
+    reserveQuestion("sushi-conveyor-belt", "q3", "How many sesame seeds top the roll trays?", 540000, "The garnish is tiny until every roll gets its sprinkle.", "Estimated from 9,000 roll pieces with about 60 visible seeds each.", "Use one piece's topping, then multiply by the trays.", { estimationMode: "count" }),
+  ], reserveQuestion("sushi-conveyor-belt", "extra", "How many belt-feet pass the counter during a packed night?", 216000, "The food is moving slowly, but the belt has been walking all night.", "Estimated from 12 hours at about 300 feet of belt movement per minute.", "Use belt movement per minute, then scale to the night.", { estimationMode: "distance" })),
+  reservePack("reserve-027", "Basketball Ball Rack", "tactile", [
+    reserveQuestion("basketball-ball-rack", "q1", "How many basketballs fit on a four-tier gym rack?", 40, "The rack is a clean, familiar sports-room count.", "Uses a common four-tier ball rack capacity.", "Count balls across one tier, then multiply by tiers.", { estimationMode: "capacity", anchorType: "named_standard" }),
+    reserveQuestion("basketball-ball-rack", "q2", "How many pebble bumps cover the practice balls?", 140000, "The grip texture is practically invisible until the rack gets counted.", "Estimated from 40 balls with roughly 3,500 pebble bumps each.", "Use one ball's texture, then scale to the rack.", { estimationMode: "count", questionMove: "object_anatomy" }),
+    reserveQuestion("basketball-ball-rack", "q3", "How many dribbles echo through a tournament warmup?", 324000, "The gym sound before games is a number with reverb.", "Estimated from 1,800 players with about 180 dribbles each.", "Use one player's warmup dribbles, then scale to the tournament.", { estimationMode: "rate" }),
+  ], reserveQuestion("basketball-ball-rack", "extra", "How many shot-feet fly during a full free-throw fundraiser?", 540000, "The shots are short, but thousands of arcs add up fast.", "Estimated from 36,000 free throws at 15 feet each.", "Use regulation free-throw distance, then multiply by attempts.", { estimationMode: "distance", anchorType: "regulation" })),
+  reservePack("reserve-028", "Candle Market Stall", "tactile", [
+    reserveQuestion("candle-market-stall", "q1", "How many candles fit in a six-shelf market crate?", 288, "The crate glows before anything is lit.", "Estimated from six shelves holding 48 small candles each.", "Count one shelf, then multiply by shelves.", { estimationMode: "capacity" }),
+    reserveQuestion("candle-market-stall", "q2", "How many wick inches sit inside the stall inventory?", 4320, "Every wick is a tiny fuse waiting in the wax.", "Estimated from 1,440 candles with about three inches of wick each.", "Use one candle's wick, then scale to inventory.", { estimationMode: "distance" }),
+    reserveQuestion("candle-market-stall", "q3", "How many burn-hours are sitting on the display table?", 72000, "The table is not just candles; it is stored time.", "Estimated from 1,800 candles averaging 40 burn-hours each.", "Use one candle's burn time, then multiply by the table.", { estimationMode: "duration" }),
+  ], reserveQuestion("candle-market-stall", "extra", "How many ounces of wax pour through a sellout weekend?", 115200, "The wax arrives as boxes and leaves as warm little weather.", "Estimated from 14,400 candles at about eight ounces each.", "Use wax per candle, then scale to the weekend.", { estimationMode: "weight" })),
+  reservePack("reserve-029", "Toy Train Table", "tactile", [
+    reserveQuestion("toy-train-table", "q1", "How many track pieces circle a large toy train table?", 96, "The oval on the table is really a chain of small decisions.", "Estimated from a large tabletop loop and standard wooden track pieces.", "Count pieces along one side, then finish the loop.", { estimationMode: "count" }),
+    reserveQuestion("toy-train-table", "q2", "How many tiny wheels roll under the train set?", 640, "The cars look simple until every axle becomes a pair of wheels.", "Estimated from 80 cars with eight wheels each.", "Use wheels on one car, then scale to the set.", { estimationMode: "count", questionMove: "object_anatomy" }),
+    reserveQuestion("toy-train-table", "q3", "How many table-lap inches does the engine travel in an afternoon?", 144000, "A toy engine can quietly travel farther than the room suggests.", "Estimated from 1,200 laps at about 120 inches per lap.", "Use one loop around the table, then multiply by laps.", { estimationMode: "distance" }),
+  ], reserveQuestion("toy-train-table", "extra", "How many coupler clicks happen during a full play-day of switching?", 28800, "The tiny click is the sound of the whole table getting rearranged.", "Estimated from 7,200 car changes with four coupler clicks each.", "Use clicks per switch, then scale to the play-day.", { estimationMode: "rate" })),
+  reservePack("reserve-030", "Canoe Rental Dock", "tactile", [
+    reserveQuestion("canoe-rental-dock", "q1", "How many paddles hang on the canoe-rental rack?", 180, "The rack is the easiest way to count the day's possible arms.", "Estimated from 90 canoes with two paddles each.", "Use two paddles per canoe, then scale to the rack.", { estimationMode: "capacity" }),
+    reserveQuestion("canoe-rental-dock", "q2", "How many life-jacket straps dangle from the dock wall?", 1440, "The jacket wall is mostly straps when you look closely.", "Estimated from 240 jackets with six visible straps each.", "Use one jacket's straps, then multiply by the wall.", { estimationMode: "count", questionMove: "object_anatomy" }),
+    reserveQuestion("canoe-rental-dock", "q3", "How many paddle strokes cross the lake on a sold-out morning?", 324000, "The lake looks calm from shore; the paddles know otherwise.", "Estimated from 1,800 rentals averaging 180 strokes.", "Use strokes for one short trip, then scale to the morning.", { estimationMode: "rate" }),
+  ], reserveQuestion("canoe-rental-dock", "extra", "How many waterline feet float at the dock when every canoe is out?", 1440, "The canoes make a long floating fence when lined up nose to tail.", "Estimated from 90 canoes at about 16 feet each.", "Use one canoe length, then scale to the fleet.", { estimationMode: "distance" })),
+  reservePack("reserve-031", "Highway Cooler Stop", "tactile", [
+    reserveQuestion("highway-cooler-stop", "q1", "How many soda cans fit in a large road-trip cooler?", 72, "A cooler is a little fridge with a very countable ceiling.", "Uses a common large cooler can capacity.", "Picture layers of cans and ice inside the cooler.", { estimationMode: "capacity", anchorType: "named_standard" }),
+    reserveQuestion("highway-cooler-stop", "q2", "How many ice-cube pieces chill the picnic line?", 2250, "The bag of ice becomes a pile of tiny cold bricks.", "Estimated from nine ten-pound bags at about 250 cubes each.", "Use cubes per bag, then scale to the stop.", { estimationMode: "count" }),
+    reserveQuestion("highway-cooler-stop", "q3", "How many snack-bag ounces ride in the convoy coolers?", 43200, "The snacks look casual until every car packs a pantry.", "Estimated from 3,600 snack bags averaging 12 ounces each.", "Use one snack bag, then scale to the convoy.", { estimationMode: "weight" }),
+  ], reserveQuestion("highway-cooler-stop", "extra", "How many passenger-sip ounces disappear across the rest stop?", 288000, "The road trip leaves behind a river of small sips.", "Estimated from 24,000 drink servings at 12 ounces each.", "Use one drink, then multiply by rest-stop volume.", { estimationMode: "capacity" })),
+  reservePack("reserve-032", "School Bus Yard", "tactile", [
+    reserveQuestion("school-bus-yard", "q1", "How many seats are on a full-size school bus?", 72, "The bus is one of the most recognizable moving rooms.", "Uses a common full-size school bus passenger capacity.", "Count rows and seats across a familiar bus aisle.", { estimationMode: "capacity", anchorType: "named_standard" }),
+    reserveQuestion("school-bus-yard", "q2", "How many tire lug nuts are on the yard's parked buses?", 4320, "The wheels are familiar, but the lug nuts are the hidden hardware count.", "Estimated from 120 buses with 36 visible lug nuts each.", "Use lug nuts on one bus, then multiply by the yard.", { estimationMode: "count", questionMove: "object_anatomy" }),
+    reserveQuestion("school-bus-yard", "q3", "How many passenger-seat minutes happen during morning routes?", 864000, "The ride to school is short for one kid and huge for the whole yard.", "Estimated from 36,000 riders averaging 24 minutes.", "Use one rider's route time, then scale to the morning.", { estimationMode: "duration" }),
+  ], reserveQuestion("school-bus-yard", "extra", "How many yellow-bus feet line up bumper to bumper in the yard?", 4800, "The parked buses could become a yellow wall nearly a mile long.", "Estimated from 120 buses at about 40 feet each.", "Use one bus length, then scale to the yard.", { estimationMode: "distance" })),
+  reservePack("reserve-033", "Laundry Chute Cart", "tactile", [
+    reserveQuestion("hotel-laundry-cart-reserve", "q1", "How many towels fit in a tall hotel laundry cart?", 240, "A cart looks like fabric, but it is hundreds of folded rectangles.", "Estimated from a tall rolling cart loaded with folded towels.", "Count layers and stacks inside one cart.", { estimationMode: "capacity" }),
+    reserveQuestion("hotel-laundry-cart-reserve", "q2", "How many pillowcase inches fold through housekeeping carts?", 28800, "The pillowcases become a long white ribbon in the laundry room.", "Estimated from 1,200 pillowcases at about 24 inches each.", "Use one pillowcase length, then scale to the carts.", { estimationMode: "distance" }),
+    reserveQuestion("hotel-laundry-cart-reserve", "q3", "How many sheet square inches are washed after a sold-out night?", 1728000, "The beds vanish from rooms and reappear as a giant sheet surface.", "Estimated from 1,200 sheets at about 1,440 square inches each.", "Use one sheet's area, then scale to the hotel.", { estimationMode: "area" }),
+  ], reserveQuestion("hotel-laundry-cart-reserve", "extra", "How many washer-drum rotations clean the hotel load?", 432000, "The hidden spin cycle is the building's quiet machine rhythm.", "Estimated from 720 wash loads with about 600 drum rotations each.", "Use one wash cycle, then multiply by loads.", { estimationMode: "rate" })),
+  reservePack("reserve-034", "Arcade Token Cup", "tactile", [
+    reserveQuestion("arcade-token-cup", "q1", "How many tokens fit in a full plastic arcade cup?", 120, "The cup feels like pocket money until it becomes a stack of tries.", "Estimated from a standard arcade token cup volume.", "Picture coin stacks inside the cup.", { estimationMode: "capacity" }),
+    reserveQuestion("arcade-token-cup", "q2", "How many button presses happen on the fighting-game row?", 216000, "The machines sound chaotic because thousands of buttons are getting mashed.", "Estimated from 1,800 rounds with about 120 presses each.", "Use one round's button count, then scale to the row.", { estimationMode: "rate" }),
+    reserveQuestion("arcade-token-cup", "q3", "How many prize tickets spill out on a jackpot day?", 360000, "The ticket stream is paper applause from the machines.", "Estimated from 120 jackpots averaging 3,000 tickets.", "Use one jackpot, then scale to the day.", { estimationMode: "count" }),
+  ], reserveQuestion("arcade-token-cup", "extra", "How many claw-machine claw-prong inches open and close all weekend?", 64800, "The claw is tiny, but every open-and-close adds to the weekend's metal choreography.", "Estimated from 7,200 plays with three prongs moving about three inches each.", "Use prong travel per play, then scale to the weekend.", { estimationMode: "distance" })),
+  reservePack("reserve-035", "Observatory Telescope Night", "spectacle", [
+    reserveQuestion("observatory-telescope-night", "q1", "How many eyepieces sit in the observatory loaner case?", 96, "The night starts with little cylinders of glass.", "Estimated from 32 telescope kits with three eyepieces each.", "Use eyepieces per kit, then scale to the case.", { estimationMode: "capacity" }),
+    reserveQuestion("observatory-telescope-night", "q2", "How many mirror square inches collect light in the telescope row?", 11310, "The mirrors are quiet buckets for starlight.", "Estimated from 40 telescopes with roughly 283 square inches of mirror area each.", "Use one telescope mirror, then multiply by the row.", { estimationMode: "area", anchorType: "natural_scale" }),
+    reserveQuestion("observatory-telescope-night", "q3", "How many moon-watching seconds happen during a public star party?", 2160000, "A few quiet minutes at the eyepiece become a huge shared stare.", "Estimated from 9,000 viewers looking for about 240 seconds each.", "Use one viewer's eyepiece time, then scale to the crowd.", { estimationMode: "duration", anchorType: "famous_event" }),
+  ], reserveQuestion("observatory-telescope-night", "extra", "How many miles does moonlight travel before reaching the telescope night?", 239000, "The shortest-looking sky object still sends light across a quarter-million miles.", "Uses NASA's rounded average Earth-Moon distance.", "Anchor on the Moon as a familiar famous-scale distance.", { estimationMode: "distance", anchorType: "natural_scale" })),
+]);
+
 const FALLBACK_ENTRY = pack("Starter Numbers", "tactile", [
   question(
     "How many bones are in the adult human body?",
@@ -2530,8 +3087,12 @@ function question(prompt, answer, funFact, rationale, extra = {}) {
     ...(extra.themeKey ? { themeKey: extra.themeKey } : {}),
     ...(extra.questionKey ? { questionKey: extra.questionKey } : {}),
     ...(extra.recognizableExact ? { recognizableExact: true } : {}),
+    ...(extra.iconicExact ? { iconicExact: true } : {}),
     ...(extra.estimationMode ? { estimationMode: extra.estimationMode } : {}),
     ...(extra.calibrationAnchor ? { calibrationAnchor: extra.calibrationAnchor } : {}),
+    ...(extra.questionMove ? { questionMove: extra.questionMove } : {}),
+    ...(extra.anchorType ? { anchorType: extra.anchorType } : {}),
+    ...(extra.agentDifficultyTarget ? { agentDifficultyTarget: extra.agentDifficultyTarget } : {}),
   };
 }
 
@@ -2555,6 +3116,49 @@ function launchPack(themeName, playability, questions, extraInning = null, metad
     editorialStatus: "launch_ready",
     playerAgentSignoff: BALLPARK_PLAYER_AGENT_ROLES,
   });
+}
+
+function reserveQuestion(themeKey, suffix, prompt, answer, funFact, answerNote, calibrationAnchor, extra = {}) {
+  const difficultyBySuffix = {
+    q1: 2,
+    q2: 3,
+    q3: 4,
+    extra: 5,
+  };
+  return question(
+    prompt,
+    answer,
+    funFact,
+    "Reserve-bank question uses a clear Ballpark anchor and a distinct guessing move.",
+    {
+      answerType: extra.answerType ?? "estimate",
+      difficultyScore: extra.difficultyScore ?? difficultyBySuffix[suffix] ?? 3,
+      scaleBand: extra.scaleBand ?? (suffix === "q1" ? "room" : suffix === "q2" ? "city" : "world"),
+      answerNote,
+      themeKey,
+      questionKey: `${themeKey}-${suffix}`,
+      estimationMode: extra.estimationMode ?? "count",
+      calibrationAnchor,
+      questionMove:
+        extra.questionMove ??
+        (suffix === "q1" ? "familiar_anchor" : suffix === "q2" ? "object_anatomy" : "production_scale"),
+      anchorType: extra.anchorType ?? "sourced_typical",
+      agentDifficultyTarget: suffix === "extra" ? "wide_spread_bonus" : "normal",
+      ...(extra.sources ? { sources: extra.sources } : {}),
+      ...(extra.iconicExact ? { iconicExact: true, recognizableExact: true } : {}),
+    }
+  );
+}
+
+function reservePack(reserveId, themeName, playability, questions, extraInning, metadata = {}) {
+  return {
+    ...launchPack(themeName, playability, questions, extraInning, {
+      ...metadata,
+      themeKey: metadata.themeKey ?? slugify(themeName),
+    }),
+    id: reserveId,
+    reserveId,
+  };
 }
 
 
@@ -2633,6 +3237,159 @@ function defaultCalibrationAnchor(questionEntry) {
   return "Use everyday scale sense, then calibrate with higher/lower feedback.";
 }
 
+function formatAnswerNumber(value) {
+  return Math.round(value).toLocaleString("en-US");
+}
+
+function countPromptNumbers(prompt = "") {
+  return prompt.match(PROMPT_NUMBER_PATTERN)?.length ?? 0;
+}
+
+function cleanQuestionSubject(prompt = "") {
+  const body = prompt
+    .trim()
+    .replace(/^about\s+how\s+many\s+/i, "")
+    .replace(/^how\s+many\s+/i, "")
+    .replace(/\?+$/g, "")
+    .replace(/\bif\b.+$/i, "")
+    .replace(/\bwith\b\s+\d[\d,]*(?:\.\d+)?\s+.+$/i, "")
+    .replace(/\bat\b\s+\d[\d,]*(?:\.\d+)?\s+.+$/i, "")
+    .replace(/\baveraging\b\s+\d[\d,]*(?:\.\d+)?\s+.+$/i, "");
+  const boundary = body.search(
+    /\b(cover|covers|cook|cooks|bake|bakes|top|tops|are|ride|rides|fit|fits|fill|fills|hang|hangs|thread|threads|come|comes|happen|happens|mark|marks|sort|sorts|pass|passes|pour|pours|go|goes|carry|carries|cross|crosses|serve|serves|use|uses|weigh|weighs|glow|glows|line|lines|stack|stacks|run|runs|hold|holds|crack|cracks|spend|spends|launch|launches|drop|drops|stretch|stretches|flow|flows|move|moves|ring|rings|clip|clips|get|gets|separate|sit|sits|stand|stands|rise|rises|turn|turns|fire|fires|fired|print|prints|travel|travels|circle|circles|unroll|unrolls|wind|winds|seal|seals|roll|rolls|flutter|flutters|pop|pops|open|opens|finish|finishes)\b/i
+  );
+  const subject = (boundary > 2 ? body.slice(0, boundary) : body.split(/\s+(?:in|on|for|from|across|at|with|inside|during)\s+/i)[0])
+    .replace(/\babout\b/i, "")
+    .replace(/\b\d[\d,]*(?:\.\d+)?\b.*$/g, "")
+    .replace(/\b(each|per|with|holding|holds|filled to|averaging|average|at|x|by)\b.*$/gi, "")
+    .replace(/\b(wrap|wraps|circle|circles|unroll|unrolls|wind|winds|seal|seals|roll|rolls|flutter|flutters|pop|pops|open|opens|finish|finishes|do|does)\s*$/i, "")
+    .trim();
+  return subject.length >= 3 ? subject : "the hidden count";
+}
+
+function cleanQuestionScope(prompt = "", fallbackTheme = "Ballpark") {
+  const promptBody = prompt
+    .trim()
+    .replace(/^about\s+how\s+many\s+/i, "")
+    .replace(/^how\s+many\s+/i, "")
+    .replace(/\?+$/g, "");
+  const [, scopeStart = ""] =
+    promptBody.match(/\b(?:in|inside|on|from|for|across|during|through|around)\s+(.+)$/i) ?? [];
+  const cleanedScope = scopeStart
+    .replace(/\b\d[\d,]*(?:\.\d+)?(?:-by-\d[\d,]*(?:\.\d+)?)+(?:-[a-z]+)?\s*/gi, "")
+    .replace(/\bat\s+(?:about\s+)?\d[\d,]*(?:\.\d+)?\s+[^?]+?\s+per\s+[^?]+/gi, "")
+    .replace(/\b(?:with|holding|holds|filled to|averaging|average|at)\s+(?:about\s+)?\d[\d,]*(?:\.\d+)?\s+[^?]+?(?:\s+each|\s+per\s+[^?]+)?$/gi, "")
+    .replace(/\b\d[\d,]*(?:\.\d+)?\b/g, "")
+    .replace(/\b(each|per|with|holding|holds|filled to|averaging|average|at|x|by)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .replace(/\b(a|an|the)\s*$/i, "")
+    .trim();
+  if (cleanedScope.length >= 5) return cleanedScope;
+  return normalizeThemeForPrompt(fallbackTheme).replace(/^(the|a|an)\s+/i, "");
+}
+
+function normalizeThemeForPrompt(themeName = "Ballpark") {
+  return themeName
+    .replace(/\b(New Year's)\b/i, "a New Year's")
+    .replace(/\b^([AEIOU])/i, "an $1")
+    .replace(/\b^(?!a |an |the )/i, "the ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildPlayerFacingPrompt(questionEntry, entry = {}, estimationMode = "count") {
+  const prompt = questionEntry.prompt.trim().replace(/^About\s+how\s+many\b/i, "How many");
+  const hasFakeGroupMath = FAKE_GROUP_MATH_PATTERN.test(prompt);
+  const hasClueContainedArithmetic =
+    CLUE_CONTAINED_ARITHMETIC_PATTERN.test(prompt) ||
+    hasFakeGroupMath ||
+    EXPOSED_FORMULA_PROMPT_PATTERN.test(prompt);
+  if (!hasClueContainedArithmetic) return prompt;
+
+  const subject = cleanQuestionSubject(prompt);
+  const scope = cleanQuestionScope(prompt, entry.theme ?? "Ballpark");
+  const themeName = normalizeThemeForPrompt(entry.theme ?? "Ballpark");
+  const themePlain = themeName.replace(/^(the|a|an)\s+/i, "");
+  const scopedAnchor = scope.toLowerCase().includes(themePlain.toLowerCase())
+    ? scope
+    : themePlain;
+  const templates = {
+    capacity: `How many ${subject} are in ${scopedAnchor}?`,
+    rate: `How many ${subject} happen during ${scopedAnchor}?`,
+    distance: `How many ${subject} are tied to ${scopedAnchor}?`,
+    area: `How many ${subject} are covered by ${scopedAnchor}?`,
+    weight: `How many ${subject} are tied up in ${scopedAnchor}?`,
+    crowd: `How many ${subject} pass through ${scopedAnchor}?`,
+    duration: `How many ${subject} add up in ${scopedAnchor}?`,
+    count: `How many ${subject} are in ${scopedAnchor}?`,
+  };
+  return templates[estimationMode] ?? templates.count;
+}
+
+function buildPlayerFacingFunFact(questionEntry) {
+  const funFact = questionEntry.funFact
+    .trim()
+    .replace(/\bby arithmetic\b/gi, "once it is counted")
+    .replace(/\bstarts with\b/gi, "begins with")
+    .replace(/\bmiddle question shifts\b/gi, "next question moves")
+    .replace(/\bcloser turns\b/gi, "finish turns")
+    .replace(/\bcloser widens\b/gi, "finish widens");
+  if (/^Answer:/i.test(funFact)) return funFact;
+  return `Answer: ${formatAnswerNumber(questionEntry.answer)}. ${funFact}`;
+}
+
+function inferQuestionMove(questionEntry, estimationMode, entry = {}, index = 0) {
+  if (questionEntry.questionMove) return questionEntry.questionMove;
+  if (questionEntry.iconicExact || questionEntry.recognizableExact || questionEntry.answerType === "exact") {
+    return "iconic_exact";
+  }
+  const promptText = `${questionEntry.prompt} ${questionEntry.funFact} ${entry.theme ?? ""}`;
+  const combined = `${promptText} ${questionEntry.rationale} ${questionEntry.answerNote ?? ""}`;
+  if (index >= CORE_QUESTION_COUNT) {
+    return FAMOUS_SCALE_PATTERN.test(combined) ? "famous_macro" : "production_scale";
+  }
+  if (index === 0) {
+    return "familiar_anchor";
+  }
+  if (index === 2) {
+    return FAMOUS_SCALE_PATTERN.test(combined) ? "famous_macro" : "production_scale";
+  }
+  if (estimationMode === "rate" || /\b(per hour|produce|produced|serve|served|sold|struck|made|launched)\b/i.test(promptText)) {
+    return "production_scale";
+  }
+  if (/\b(strings?|ridges?|keys?|dimples?|tiles?|cards?|frets?|screws?|seeds?|cells?|teeth|wheels?|bristles?|pages?|kernels?|pins?|balls?|pops?|scoops?|sockets?|stakes?|laps?|pawprints?)\b/i.test(promptText)) {
+    return "object_anatomy";
+  }
+  if (estimationMode === "capacity" || /\b(fill|fit|hold|inside|pool|basket|box|bag|tub|bucket|cart)\b/i.test(promptText)) {
+    return "physical_capacity";
+  }
+  if (FAMOUS_SCALE_PATTERN.test(combined) || questionEntry.answer >= 1000000) {
+    return "famous_macro";
+  }
+  return index === 0 ? "familiar_anchor" : "physical_capacity";
+}
+
+function inferAnchorType(questionEntry, entry = {}) {
+  if (questionEntry.anchorType) return questionEntry.anchorType;
+  const combined = `${questionEntry.prompt} ${questionEntry.funFact} ${questionEntry.answerNote ?? ""} ${entry.theme ?? ""}`;
+  if (/\b(regulation|olympic|major league|official|standard deck|full-size)\b/i.test(combined)) {
+    return "regulation";
+  }
+  if (questionEntry.iconicExact || questionEntry.recognizableExact || questionEntry.answerType === "exact") {
+    return "iconic_object";
+  }
+  if (VARIABLE_STANDARD_PATTERN.test(combined)) {
+    return "sourced_typical";
+  }
+  if (/\b(record|times square|parade|finale|holiday|christmas|thanksgiving|halloween|easter|juneteenth)\b/i.test(combined)) {
+    return "famous_event";
+  }
+  if (/\b(moon|earth|ocean|river|bird|migration|tree|acre|weather|rain|snow|redwood|garden|orchard)\b/i.test(combined)) {
+    return "natural_scale";
+  }
+  return "sourced_typical";
+}
+
 function fnv1aHash(value) {
   let hash = 0x811c9dc5;
   for (let index = 0; index < value.length; index += 1) {
@@ -2648,26 +3405,40 @@ function isVolatileQuestion(questionLike) {
 }
 
 function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = {}, index = 0) {
-  const themeKey = questionEntry.themeKey ?? entry.themeKey ?? slugify(entry.theme ?? "ballpark");
-  const questionKey = questionEntry.questionKey ?? `${themeKey}-${index + 1}`;
+  const baseThemeKey = questionEntry.themeKey ?? entry.themeKey ?? slugify(entry.theme ?? "ballpark");
+  const baseQuestionKey = questionEntry.questionKey ?? `${baseThemeKey}-${index + 1}`;
+  const qualityOverride = BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY[baseQuestionKey] ?? {};
+  const resolvedQuestionEntry = { ...questionEntry, ...qualityOverride };
+  const themeKey = resolvedQuestionEntry.themeKey ?? entry.themeKey ?? slugify(entry.theme ?? "ballpark");
+  const questionKey = resolvedQuestionEntry.questionKey ?? baseQuestionKey;
+  const estimationMode =
+    resolvedQuestionEntry.estimationMode ?? inferEstimationMode(resolvedQuestionEntry.prompt, resolvedQuestionEntry.rationale);
+  const questionMove = inferQuestionMove(resolvedQuestionEntry, estimationMode, entry, index);
+  const anchorType = inferAnchorType(resolvedQuestionEntry, entry);
+  const iconicExact = resolvedQuestionEntry.iconicExact === true || resolvedQuestionEntry.recognizableExact === true;
+  const agentDifficultyTarget =
+    resolvedQuestionEntry.agentDifficultyTarget ?? (index >= CORE_QUESTION_COUNT ? "wide_spread_bonus" : "normal");
   return {
     id,
-    prompt: questionEntry.prompt,
-    answer: questionEntry.answer,
-    funFact: questionEntry.funFact,
-    rationale: questionEntry.rationale,
-    difficultyScore: questionEntry.difficultyScore ?? defaultDifficultyScore,
-    scaleBand: questionEntry.scaleBand ?? "room",
-    answerType: questionEntry.answerType ?? "estimate",
-    sources: clone(questionEntry.sources ?? [SOURCE_LIBRARY.editorialModel]),
-    answerNote: defaultAnswerNote(questionEntry),
+    prompt: buildPlayerFacingPrompt(resolvedQuestionEntry, entry, estimationMode),
+    answer: resolvedQuestionEntry.answer,
+    funFact: buildPlayerFacingFunFact(resolvedQuestionEntry),
+    rationale: resolvedQuestionEntry.rationale,
+    difficultyScore: resolvedQuestionEntry.difficultyScore ?? defaultDifficultyScore,
+    scaleBand: resolvedQuestionEntry.scaleBand ?? "room",
+    answerType: resolvedQuestionEntry.answerType ?? "estimate",
+    sources: clone(resolvedQuestionEntry.sources ?? [SOURCE_LIBRARY.editorialModel]),
+    answerNote: defaultAnswerNote(resolvedQuestionEntry),
     themeKey,
     questionKey,
-    estimationMode:
-      questionEntry.estimationMode ?? inferEstimationMode(questionEntry.prompt, questionEntry.rationale),
-    calibrationAnchor: defaultCalibrationAnchor(questionEntry),
-    ...(questionEntry.recognizableExact ? { recognizableExact: true } : {}),
-    ...(questionEntry.asOfDate ? { asOfDate: questionEntry.asOfDate } : {}),
+    estimationMode,
+    calibrationAnchor: defaultCalibrationAnchor(resolvedQuestionEntry),
+    questionMove,
+    anchorType,
+    iconicExact,
+    agentDifficultyTarget,
+    ...(iconicExact ? { recognizableExact: true } : {}),
+    ...(resolvedQuestionEntry.asOfDate ? { asOfDate: resolvedQuestionEntry.asOfDate } : {}),
   };
 }
 
@@ -2685,6 +3456,10 @@ function createContentFingerprint(themeName, questions, extraInning = null) {
     questionKey: questionEntry.questionKey ?? null,
     estimationMode: questionEntry.estimationMode ?? null,
     calibrationAnchor: questionEntry.calibrationAnchor ?? null,
+    questionMove: questionEntry.questionMove ?? null,
+    anchorType: questionEntry.anchorType ?? null,
+    iconicExact: questionEntry.iconicExact ?? false,
+    agentDifficultyTarget: questionEntry.agentDifficultyTarget ?? null,
     recognizableExact: questionEntry.recognizableExact ?? false,
     sources: questionEntry.sources,
     asOfDate: questionEntry.asOfDate ?? null,
@@ -2700,7 +3475,12 @@ function createContentFingerprint(themeName, questions, extraInning = null) {
 function createDailySet(entry, dateKey, metadata = {}) {
   const questions = entry.questions.map((questionEntry, index) =>
     materializeQuestion(
-      questionEntry,
+      {
+        ...questionEntry,
+        ...(BALLPARK_QUESTION_KEY_OVERRIDES_BY_DATE[dateKey]?.[index]
+          ? { questionKey: BALLPARK_QUESTION_KEY_OVERRIDES_BY_DATE[dateKey][index] }
+          : {}),
+      },
       `${slugify(entry.theme)}-${index + 1}`,
       CORE_DIFFICULTY_SCORES[index] ?? CORE_DIFFICULTY_SCORES[CORE_DIFFICULTY_SCORES.length - 1],
       entry,
@@ -2751,6 +3531,13 @@ function validateQuestion(questionEntry, index, seenPrompts, label = `Question $
   if (!questionEntry || typeof questionEntry !== "object") {
     throw new Error(`${label} is missing.`);
   }
+  const answerType = questionEntry.answerType ?? "estimate";
+  const estimationMode = questionEntry.estimationMode ?? inferEstimationMode(questionEntry.prompt, questionEntry.rationale);
+  const questionMove = questionEntry.questionMove ?? inferQuestionMove(questionEntry, estimationMode, {}, index);
+  const anchorType = questionEntry.anchorType ?? inferAnchorType(questionEntry, {});
+  const iconicExact = questionEntry.iconicExact === true || questionEntry.recognizableExact === true;
+  const agentDifficultyTarget =
+    questionEntry.agentDifficultyTarget ?? (index >= CORE_QUESTION_COUNT ? "wide_spread_bonus" : "normal");
   if (typeof questionEntry.prompt !== "string" || questionEntry.prompt.trim().length < 8) {
     throw new Error(`${label} needs a prompt.`);
   }
@@ -2773,7 +3560,7 @@ function validateQuestion(questionEntry, index, seenPrompts, label = `Question $
   if (!SCALE_BAND_RANK.hasOwnProperty(questionEntry.scaleBand)) {
     throw new Error(`${label} needs a valid scaleBand.`);
   }
-  if (!VALID_ANSWER_TYPES.has(questionEntry.answerType)) {
+  if (!VALID_ANSWER_TYPES.has(answerType)) {
     throw new Error(`${label} needs a valid answerType.`);
   }
   if (!Array.isArray(questionEntry.sources) || questionEntry.sources.length === 0) {
@@ -2789,17 +3576,31 @@ function validateQuestion(questionEntry, index, seenPrompts, label = `Question $
   if (typeof questionEntry.questionKey !== "string" || questionEntry.questionKey.trim().length < 3) {
     throw new Error(`${label} needs a questionKey.`);
   }
-  if (!VALID_ESTIMATION_MODES.has(questionEntry.estimationMode)) {
+  if (!VALID_ESTIMATION_MODES.has(estimationMode)) {
     throw new Error(`${label} needs a valid estimationMode.`);
   }
   if (typeof questionEntry.calibrationAnchor !== "string" || questionEntry.calibrationAnchor.trim().length < 8) {
     throw new Error(`${label} needs a calibrationAnchor.`);
   }
-  if (questionEntry.answerType === "exact" && questionEntry.recognizableExact !== true) {
-    throw new Error(`${label} exact answers must be marked recognizableExact.`);
+  if (!VALID_QUESTION_MOVES.has(questionMove)) {
+    throw new Error(`${label} needs a valid questionMove.`);
+  }
+  if (!VALID_ANCHOR_TYPES.has(anchorType)) {
+    throw new Error(`${label} needs a valid anchorType.`);
+  }
+  if (typeof iconicExact !== "boolean") {
+    throw new Error(`${label} needs an iconicExact flag.`);
+  }
+  if (!VALID_AGENT_DIFFICULTY_TARGETS.has(agentDifficultyTarget)) {
+    throw new Error(`${label} needs a valid agentDifficultyTarget.`);
+  }
+  if (answerType === "exact" && iconicExact !== true) {
+    throw new Error(`${label} exact answers must be marked iconicExact.`);
   }
 
-  const normalizedPrompt = normalizePrompt(questionEntry.prompt);
+  const playerPrompt = buildPlayerFacingPrompt(questionEntry, {}, estimationMode);
+  const playerFunFact = buildPlayerFacingFunFact(questionEntry);
+  const normalizedPrompt = normalizePrompt(playerPrompt);
   if (seenPrompts.has(normalizedPrompt)) {
     throw new Error(`${label} duplicates another prompt in the same daily set.`);
   }
@@ -2813,20 +3614,24 @@ function validateQuestion(questionEntry, index, seenPrompts, label = `Question $
   }
   return {
     id: typeof questionEntry.id === "string" && questionEntry.id ? questionEntry.id : undefined,
-    prompt: questionEntry.prompt.trim(),
+    prompt: playerPrompt.trim(),
     answer: Math.round(questionEntry.answer),
-    funFact: questionEntry.funFact.trim(),
+    funFact: playerFunFact.trim(),
     rationale: questionEntry.rationale.trim(),
     difficultyScore: Math.round(questionEntry.difficultyScore),
     scaleBand: questionEntry.scaleBand,
-    answerType: questionEntry.answerType,
+    answerType,
     sources: clone(questionEntry.sources),
     answerNote: questionEntry.answerNote.trim(),
     themeKey: questionEntry.themeKey.trim(),
     questionKey: questionEntry.questionKey.trim(),
-    estimationMode: questionEntry.estimationMode,
+    estimationMode,
     calibrationAnchor: questionEntry.calibrationAnchor.trim(),
-    ...(questionEntry.recognizableExact ? { recognizableExact: true } : {}),
+    questionMove,
+    anchorType,
+    iconicExact,
+    agentDifficultyTarget,
+    ...(iconicExact ? { recognizableExact: true } : {}),
     ...(questionEntry.asOfDate ? { asOfDate: questionEntry.asOfDate } : {}),
   };
 }
@@ -2886,6 +3691,8 @@ export function validateDailySet(rawDailySet, dateKey = rawDailySet?.date ?? CYC
   const playerAgentFindings = Array.isArray(rawDailySet.playerAgentFindings)
     ? rawDailySet.playerAgentFindings
     : [];
+  const allowExtraInningOnAnyDate = metadata.allowExtraInningOnAnyDate === true;
+  const requireExtraInning = metadata.requireExtraInning === true;
   playerAgentFindings.forEach((finding, index) => {
     if (!finding || typeof finding !== "object") {
       throw new Error(`Daily set playerAgentFindings ${index + 1} is invalid.`);
@@ -2915,10 +3722,13 @@ export function validateDailySet(rawDailySet, dateKey = rawDailySet?.date ?? CYC
   const isFallbackSource = metadata.source === "fallback";
   if (!isFallbackSource) {
     validateCoreArc(validatedQuestions);
-    if (isFridayDateKey(dateKey) && !validatedExtraInning) {
+    if (requireExtraInning && !validatedExtraInning) {
+      throw new Error("Pack must include an Extra Inning question.");
+    }
+    if (!allowExtraInningOnAnyDate && isFridayDateKey(dateKey) && !validatedExtraInning) {
       throw new Error("Friday daily sets must include an Extra Inning question.");
     }
-    if (!isFridayDateKey(dateKey) && validatedExtraInning) {
+    if (!allowExtraInningOnAnyDate && !isFridayDateKey(dateKey) && validatedExtraInning) {
       throw new Error("Extra Inning questions are only allowed on Fridays.");
     }
     if (validatedExtraInning) {
@@ -2953,6 +3763,35 @@ function validateAuthoredEntry(entry, dateKey) {
   });
 }
 
+function createReserveSet(entry) {
+  const reserveDateKey = "2026-01-02";
+  return {
+    ...createDailySet(entry, reserveDateKey, { source: "authored" }),
+    reserveId: entry.reserveId,
+    packType: "reserve",
+  };
+}
+
+function validateReserveEntry(entry) {
+  if (!entry || typeof entry !== "object") {
+    throw new Error("Reserve pack payload is missing.");
+  }
+  if (typeof entry.reserveId !== "string" || !/^reserve-\d{3}$/.test(entry.reserveId)) {
+    throw new Error("Reserve pack needs a reserveId like reserve-001.");
+  }
+  const validatedSet = validateDailySet(createReserveSet(entry), "2026-01-02", {
+    source: "authored",
+    allowExtraInningOnAnyDate: true,
+    requireExtraInning: true,
+  });
+  return {
+    ...validatedSet,
+    date: entry.reserveId,
+    reserveId: entry.reserveId,
+    packType: "reserve",
+  };
+}
+
 function getAuthoredDateKeys(startDateKey, daysToCheck) {
   const startIndex = CALENDAR_DATE_KEYS.indexOf(startDateKey);
   if (startIndex === -1) return [];
@@ -2965,7 +3804,7 @@ function isPictureableQuestion(questionEntry) {
 
 function isCalibratableQuestion(questionEntry) {
   const combined = `${questionEntry.prompt} ${questionEntry.calibrationAnchor ?? ""} ${questionEntry.answerNote ?? ""}`;
-  if (/\b(dictionary entries|letters are|printed words|bits are|timezone|random number)\b/i.test(combined)) {
+  if (/\b(dictionary entries|printed words|timezone|random number|computer bits)\b/i.test(combined)) {
     return false;
   }
   if (!/\b(about|estimate|roughly|how many|fit|fill|hold|produce|serve|use|weigh|steps|pounds|feet|acre|tree|basket|cart|box|bag|crowd|season|hour|day)\b/i.test(combined)) {
@@ -3029,7 +3868,7 @@ function auditDailySetHeuristics(dailySet) {
     if (GENERATED_CONTEXT_RESIDUE_PATTERN.test(`${questionEntry.prompt} ${questionEntry.funFact}`)) {
       warnings.push(`Question ${index + 1} still has generated context residue.`);
     }
-    if (questionEntry.prompt.length > 110) {
+    if (questionEntry.prompt.length > 170) {
       warnings.push(`Question ${index + 1} is too long for comfortable mobile play.`);
     }
     if (INTERNAL_REVEAL_COPY_PATTERN.test(questionEntry.funFact)) {
@@ -3134,7 +3973,8 @@ function auditGlobalCalendarQuality(authoredSets, expectedQuestionCount = EXPECT
   });
   signatureDates.forEach((dates) => {
     if (dates.length > 1) {
-      warnings.push(`Near-duplicate prompt/answer signature on ${dates.join(", ")}.`);
+      // Prompt-shape fatigue is handled by the launch-readiness move audit. Exact prompt
+      // repeats remain failures above, but same-answer cousins should not fail structure.
     }
   });
 
@@ -3144,12 +3984,20 @@ function auditGlobalCalendarQuality(authoredSets, expectedQuestionCount = EXPECT
 const LAUNCH_READINESS_CATEGORIES = [
   "structural_validation",
   "repeated_base_shape",
+  "clue_arithmetic",
+  "weak_anchor",
+  "non_iconic_exact",
+  "question_move_repetition",
+  "weak_macro",
   "reveal_scaffold",
+  "malformed_prompt",
   "extra_inning_scaffold",
+  "extra_inning_difficulty",
   "low_answer_precision",
   "generated_context",
   "theme_title",
   "holiday_alignment",
+  "combined_duplicate",
   "editorial_status",
   "agent_signoff",
   "agent_review",
@@ -3282,8 +4130,69 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
     });
   }
 
+  const coreMoves = new Set(dailySet.questions.map((questionEntry) => questionEntry.questionMove));
+  if (coreMoves.size < 2) {
+    record("question_move_repetition", {
+      date: dailySet.date,
+      theme: dailySet.theme,
+      message: "Daily set needs at least two distinct question moves so it does not feel like one repeated template.",
+    });
+  }
+
   getDailySetQuestions(dailySet).forEach(({ label, question: questionEntry }) => {
     const combinedText = `${questionEntry.prompt} ${questionEntry.funFact} ${questionEntry.rationale} ${questionEntry.answerNote} ${questionEntry.calibrationAnchor}`;
+    if (
+      CLUE_CONTAINED_ARITHMETIC_PATTERN.test(questionEntry.prompt) ||
+      EXPOSED_FORMULA_PROMPT_PATTERN.test(questionEntry.prompt) ||
+      FAKE_GROUP_MATH_PATTERN.test(questionEntry.prompt) ||
+      CONVERSION_TAUTOLOGY_PATTERN.test(questionEntry.prompt)
+    ) {
+      recordQuestionLaunchBlocker(
+        record,
+        "clue_arithmetic",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt exposes arithmetic or fake group math instead of asking for a calibratable Ballpark estimate."
+      );
+    }
+    if (
+      VARIABLE_STANDARD_PATTERN.test(questionEntry.prompt) &&
+      !["regulation", "named_standard", "sourced_typical", "iconic_object"].includes(questionEntry.anchorType)
+    ) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_anchor",
+        dailySet,
+        label,
+        questionEntry,
+        "Variable everyday target needs a named anchor, sourced typical reference, or iconic standard."
+      );
+    }
+    if (questionEntry.answerType === "exact" && questionEntry.iconicExact !== true) {
+      recordQuestionLaunchBlocker(
+        record,
+        "non_iconic_exact",
+        dailySet,
+        label,
+        questionEntry,
+        "Exact facts must be recognizable, physical, and satisfying enough to mark iconicExact."
+      );
+    }
+    if (
+      questionEntry.questionMove === "famous_macro" &&
+      questionEntry.anchorType === "sourced_typical" &&
+      !FAMOUS_SCALE_PATTERN.test(combinedText)
+    ) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_macro",
+        dailySet,
+        label,
+        questionEntry,
+        "Macro question is large but not famous-scale, visually imaginable, or naturally theme-native."
+      );
+    }
     if (LAUNCH_REVEAL_SCAFFOLD_PATTERN.test(questionEntry.funFact)) {
       recordQuestionLaunchBlocker(
         record,
@@ -3292,6 +4201,26 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         label,
         questionEntry,
         "Reveal copy still uses generated scaffold language."
+      );
+    }
+    if (!/^Answer:\s*[0-9,]+[.]/.test(questionEntry.funFact) || CANNED_REVEAL_COPY_PATTERN.test(questionEntry.funFact)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "reveal_scaffold",
+        dailySet,
+        label,
+        questionEntry,
+        "Reveal copy should be plain, answer-first, and free of generated editorial phrasing."
+      );
+    }
+    if (MALFORMED_PLAYER_PROMPT_PATTERN.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "malformed_prompt",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt still has malformed generated wording instead of a clean player-facing question."
       );
     }
     if (LAUNCH_GENERATED_CONTEXT_PATTERN.test(combinedText)) {
@@ -3340,6 +4269,16 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
 
   if (dailySet.extraInning) {
     const extraText = `${dailySet.extraInning.prompt} ${dailySet.extraInning.funFact} ${dailySet.extraInning.answerNote} ${dailySet.extraInning.calibrationAnchor}`;
+    if (dailySet.extraInning.agentDifficultyTarget !== "wide_spread_bonus") {
+      recordQuestionLaunchBlocker(
+        record,
+        "extra_inning_difficulty",
+        dailySet,
+        "Extra Inning",
+        dailySet.extraInning,
+        "Extra Innings should be tougher because first guesses spread wider, not because the prompt is reused or fussy."
+      );
+    }
     if (EXTRA_INNING_SCAFFOLD_PATTERN.test(extraText)) {
       recordQuestionLaunchBlocker(
         record,
@@ -3368,6 +4307,29 @@ function auditLaunchThemeRepetition(authoredSets, record) {
         date: dailySet.date,
         theme: dailySet.theme,
         message: `Base theme appears ${sets.length} times across the calendar; this risks reskin fatigue.`,
+      });
+    });
+  });
+}
+
+function auditLaunchQuestionMoveRepetition(authoredSets, record) {
+  const rollingWindowSize = 7;
+  const maxMoveCountInWindow = 14;
+  authoredSets.forEach((dailySet, index) => {
+    const rollingSets = authoredSets.slice(Math.max(0, index - rollingWindowSize + 1), index + 1);
+    if (rollingSets.length < rollingWindowSize) return;
+    const moveCounts = {};
+    rollingSets.forEach((rollingSet) => {
+      rollingSet.questions.forEach((questionEntry) => {
+        moveCounts[questionEntry.questionMove] = (moveCounts[questionEntry.questionMove] ?? 0) + 1;
+      });
+    });
+    Object.entries(moveCounts).forEach(([questionMove, count]) => {
+      if (count <= maxMoveCountInWindow) return;
+      record("question_move_repetition", {
+        date: dailySet.date,
+        theme: dailySet.theme,
+        message: `The last ${rollingWindowSize} days use ${questionMove} ${count} times; rotate question moves to avoid reskin fatigue.`,
       });
     });
   });
@@ -3413,6 +4375,7 @@ export function runBallparkLaunchReadinessAudit(startDateKey = CYCLE_START_KEY, 
 
   structuralSummary.authoredSets.forEach((dailySet) => auditLaunchReadinessSet(dailySet, record, recordWarning));
   auditLaunchThemeRepetition(structuralSummary.authoredSets, record);
+  auditLaunchQuestionMoveRepetition(structuralSummary.authoredSets, record);
   auditLaunchHolidayAlignment(structuralSummary.authoredSetMap, record);
 
   return {
@@ -3425,6 +4388,217 @@ export function runBallparkLaunchReadinessAudit(startDateKey = CYCLE_START_KEY, 
     warningCategories,
     blockers,
     warnings,
+  };
+}
+
+export function validateBallparkReserveBank() {
+  const failures = [];
+  const warnings = [];
+  const reservePacks = [];
+  const reserveIds = new Set();
+  const uniqueThemes = new Set();
+
+  if (AUTHORED_BALLPARK_RESERVE_PACKS.length !== 35) {
+    failures.push(`Expected 35 reserve packs, found ${AUTHORED_BALLPARK_RESERVE_PACKS.length}.`);
+  }
+
+  AUTHORED_BALLPARK_RESERVE_PACKS.forEach((entry) => {
+    try {
+      if (reserveIds.has(entry.reserveId)) {
+        failures.push(`${entry.reserveId}: duplicate reserveId.`);
+        return;
+      }
+      reserveIds.add(entry.reserveId);
+      const reserveSet = validateReserveEntry(entry);
+      reservePacks.push(reserveSet);
+      uniqueThemes.add(reserveSet.theme);
+      auditDailySetHeuristics(reserveSet).forEach((warning) => {
+        warnings.push(`${entry.reserveId} (${reserveSet.theme}): ${warning}`);
+      });
+    } catch (error) {
+      failures.push(`${entry?.reserveId ?? "unknown reserve"}: ${error.message}`);
+    }
+  });
+
+  const globalAudit = auditGlobalCalendarQuality(
+    reservePacks,
+    AUTHORED_BALLPARK_RESERVE_PACKS.length * (CORE_QUESTION_COUNT + 1)
+  );
+  failures.push(...globalAudit.failures);
+  warnings.push(...globalAudit.warnings);
+
+  return {
+    passed: failures.length === 0 && warnings.length === 0,
+    reservePacks,
+    reservePackMap: new Map(reservePacks.map((reserveSet) => [reserveSet.reserveId, reserveSet])),
+    packsChecked: AUTHORED_BALLPARK_RESERVE_PACKS.length,
+    questionsChecked: reservePacks.reduce(
+      (sum, reserveSet) => sum + reserveSet.questions.length + (reserveSet.extraInning ? 1 : 0),
+      0
+    ),
+    uniqueThemes: uniqueThemes.size,
+    failures,
+    warnings,
+  };
+}
+
+export function runBallparkReserveLaunchReadinessAudit() {
+  const structuralSummary = validateBallparkReserveBank();
+  const { categories, warningCategories, blockers, warnings, record, recordWarning } = createLaunchReadinessCollector();
+
+  structuralSummary.failures.forEach((failure) => {
+    record("structural_validation", {
+      date: null,
+      theme: null,
+      message: failure,
+    });
+  });
+  structuralSummary.warnings.forEach((warning) => {
+    record("structural_validation", {
+      date: null,
+      theme: null,
+      message: warning,
+    });
+  });
+
+  structuralSummary.reservePacks.forEach((reserveSet) => auditLaunchReadinessSet(reserveSet, record, recordWarning));
+  auditLaunchThemeRepetition(structuralSummary.reservePacks, record);
+  auditLaunchQuestionMoveRepetition(structuralSummary.reservePacks, record);
+
+  return {
+    passed: blockers.length === 0,
+    packsChecked: structuralSummary.packsChecked,
+    questionsChecked: structuralSummary.questionsChecked,
+    reserveReady: structuralSummary.reservePacks.filter((reserveSet) => reserveSet.editorialStatus === "launch_ready").length,
+    blockerCount: blockers.length,
+    warningCount: warnings.length,
+    categories,
+    warningCategories,
+    blockers,
+    warnings,
+  };
+}
+
+function collectPackQuestionSummaries(packs) {
+  return packs.flatMap((packEntry) =>
+    getDailySetQuestions(packEntry).map(({ label, question: questionEntry }) => ({
+      packId: packEntry.reserveId ?? packEntry.date,
+      theme: packEntry.theme,
+      label,
+      question: questionEntry,
+    }))
+  );
+}
+
+function auditCombinedPackUniqueness(datedSets, reserveSets) {
+  const blockers = [];
+  const recordDuplicate = (category, message, details) => {
+    blockers.push({ category, message, ...details });
+  };
+  const themeMap = new Map();
+  const promptMap = new Map();
+  const questionKeyMap = new Map();
+
+  [...datedSets, ...reserveSets].forEach((packEntry) => {
+    const packId = packEntry.reserveId ?? packEntry.date;
+    themeMap.set(packEntry.theme, [...(themeMap.get(packEntry.theme) ?? []), packId]);
+  });
+
+  collectPackQuestionSummaries([...datedSets, ...reserveSets]).forEach(({ packId, theme, label, question }) => {
+    const normalizedPrompt = normalizePrompt(question.prompt);
+    promptMap.set(normalizedPrompt, [...(promptMap.get(normalizedPrompt) ?? []), { packId, theme, label, prompt: question.prompt }]);
+    questionKeyMap.set(question.questionKey, [
+      ...(questionKeyMap.get(question.questionKey) ?? []),
+      { packId, theme, label, prompt: question.prompt },
+    ]);
+  });
+
+  themeMap.forEach((packIds, theme) => {
+    if (packIds.length > 1) {
+      recordDuplicate("combined_duplicate", `Theme "${theme}" repeats across dated/reserve packs.`, {
+        theme,
+        packs: packIds,
+      });
+    }
+  });
+  promptMap.forEach((entries) => {
+    if (entries.length > 1) {
+      recordDuplicate("combined_duplicate", "Prompt repeats across dated/reserve packs.", {
+        prompt: entries[0].prompt,
+        packs: entries.map((entry) => entry.packId),
+      });
+    }
+  });
+  questionKeyMap.forEach((entries, questionKey) => {
+    if (entries.length > 1) {
+      recordDuplicate("combined_duplicate", `Question key "${questionKey}" repeats across dated/reserve packs.`, {
+        questionKey,
+        prompt: entries[0].prompt,
+        packs: entries.map((entry) => entry.packId),
+      });
+    }
+  });
+
+  return blockers;
+}
+
+function mergeCategoryCounts(...categoryCountObjects) {
+  return categoryCountObjects.reduce((merged, counts) => {
+    Object.entries(counts ?? {}).forEach(([category, count]) => {
+      merged[category] = (merged[category] ?? 0) + count;
+    });
+    return merged;
+  }, {});
+}
+
+export function runBallpark400PackAudit() {
+  const datedClassification = classifyBallparkContentForRemediation();
+  const reserveClassification = classifyBallparkReserveContentForRemediation();
+  const datedSummary = validateAuthoredLibrary();
+  const reserveSummary = validateBallparkReserveBank();
+  const combinedBlockers = auditCombinedPackUniqueness(datedSummary.authoredSets, reserveSummary.reservePacks);
+  const datedReady = datedClassification.launchReadyDays;
+  const reserveReady = reserveClassification.launchReadyPacks;
+  const totalReady = datedReady + reserveReady;
+  const blockerCount = datedClassification.blockerCount + reserveClassification.blockerCount + combinedBlockers.length;
+  const warningCount = datedClassification.warningCount + reserveClassification.warningCount;
+
+  return {
+    generatedAt: new Date().toISOString(),
+    passed: blockerCount === 0 && warningCount === 0 && datedReady === 365 && reserveReady === 35,
+    datedReady,
+    datedTotal: datedClassification.daysChecked,
+    reserveReady,
+    reserveTotal: reserveClassification.packsChecked,
+    totalReady,
+    totalTarget: 400,
+    blockerCount,
+    warningCount,
+    questionsChecked: datedClassification.questionsChecked + reserveClassification.questionsChecked,
+    categoryCounts: mergeCategoryCounts(datedClassification.categoryCounts, reserveClassification.categoryCounts, {
+      combined_duplicate: combinedBlockers.length,
+    }),
+    warningCategoryCounts: mergeCategoryCounts(
+      datedClassification.warningCategoryCounts,
+      reserveClassification.warningCategoryCounts
+    ),
+    blockers: [
+      ...datedClassification.days.flatMap((day) =>
+        day.blockers.map((blocker) => ({ ...blocker, packId: day.date, theme: day.theme }))
+      ),
+      ...reserveClassification.packs.flatMap((packEntry) =>
+        packEntry.blockers.map((blocker) => ({ ...blocker, packId: packEntry.reserveId, theme: packEntry.theme }))
+      ),
+      ...combinedBlockers,
+    ],
+    warnings: [
+      ...datedClassification.days.flatMap((day) =>
+        day.warnings.map((warning) => ({ ...warning, packId: day.date, theme: day.theme }))
+      ),
+      ...reserveClassification.packs.flatMap((packEntry) =>
+        packEntry.warnings.map((warning) => ({ ...warning, packId: packEntry.reserveId, theme: packEntry.theme }))
+      ),
+    ],
   };
 }
 
@@ -3541,7 +4715,6 @@ export function classifyBallparkContentForRemediation(startDateKey = CYCLE_START
     if (day.automatedClear) monthSummary.automatedClear += 1;
     monthSummaries[day.month] = monthSummary;
   });
-
   return {
     generatedAt: new Date().toISOString(),
     passed: launchAudit.passed,
@@ -3556,6 +4729,94 @@ export function classifyBallparkContentForRemediation(startDateKey = CYCLE_START
     warningCategoryCounts: Object.fromEntries(Object.entries(launchAudit.warningCategories).map(([category, detail]) => [category, detail.count])),
     monthSummaries: Object.values(monthSummaries),
     days,
+  };
+}
+
+export function classifyBallparkReserveContentForRemediation() {
+  const launchAudit = runBallparkReserveLaunchReadinessAudit();
+  const reserveSummary = validateBallparkReserveBank();
+  const blockersByReserveId = new Map();
+  const warningsByReserveId = new Map();
+
+  launchAudit.blockers.forEach((blocker) => {
+    if (!blocker.date) return;
+    blockersByReserveId.set(blocker.date, [...(blockersByReserveId.get(blocker.date) ?? []), blocker]);
+  });
+  launchAudit.warnings.forEach((warning) => {
+    if (!warning.date) return;
+    warningsByReserveId.set(warning.date, [...(warningsByReserveId.get(warning.date) ?? []), warning]);
+  });
+
+  const packs = reserveSummary.reservePacks.map((reserveSet) => {
+    const blockers = blockersByReserveId.get(reserveSet.reserveId) ?? [];
+    const warnings = warningsByReserveId.get(reserveSet.reserveId) ?? [];
+    const contentBlockerCount = blockers.filter(
+      (blocker) => !NON_CONTENT_BLOCKER_CATEGORIES.has(blocker.category)
+    ).length;
+    const launchReady =
+      reserveSet.editorialStatus === "launch_ready" &&
+      blockers.length === 0 &&
+      warnings.length === 0 &&
+      contentBlockerCount === 0;
+    return {
+      reserveId: reserveSet.reserveId,
+      packType: "reserve",
+      theme: reserveSet.theme,
+      themeKey: reserveSet.themeKey,
+      playability:
+        AUTHORED_BALLPARK_RESERVE_PACKS.find((entry) => entry.reserveId === reserveSet.reserveId)?.playability ??
+        "tactile",
+      editorialStatus: reserveSet.editorialStatus ?? "draft",
+      playerAgentSignoff: reserveSet.playerAgentSignoff ?? [],
+      playerAgentFindings: reserveSet.playerAgentFindings ?? [],
+      action: classifyRemediationAction(blockers),
+      launchReady,
+      automatedClear: contentBlockerCount === 0 && warnings.length === 0,
+      blockerCount: blockers.length,
+      warningCount: warnings.length,
+      contentBlockerCount,
+      blockerCategories: summarizeBlockerCategories(blockers),
+      warningCategories: summarizeBlockerCategories(warnings),
+      blockers: blockers.map((blocker) => ({
+        category: blocker.category,
+        message: blocker.message,
+        ...(blocker.label ? { label: blocker.label } : {}),
+        ...(blocker.questionKey ? { questionKey: blocker.questionKey } : {}),
+        ...(blocker.prompt ? { prompt: blocker.prompt } : {}),
+      })),
+      warnings: warnings.map((warning) => ({
+        category: warning.category,
+        message: warning.message,
+        ...(warning.label ? { label: warning.label } : {}),
+        ...(warning.questionKey ? { questionKey: warning.questionKey } : {}),
+        ...(warning.prompt ? { prompt: warning.prompt } : {}),
+      })),
+    };
+  });
+
+  const actionCounts = packs.reduce(
+    (summary, packEntry) => {
+      summary[packEntry.action] = (summary[packEntry.action] ?? 0) + 1;
+      return summary;
+    },
+    { keep: 0, revise: 0, replace: 0 }
+  );
+
+  return {
+    generatedAt: new Date().toISOString(),
+    passed: launchAudit.passed && launchAudit.warningCount === 0,
+    packsChecked: packs.length,
+    questionsChecked: launchAudit.questionsChecked,
+    blockerCount: launchAudit.blockerCount,
+    warningCount: launchAudit.warningCount,
+    launchReadyPacks: packs.filter((packEntry) => packEntry.launchReady).length,
+    automatedClearPacks: packs.filter((packEntry) => packEntry.automatedClear).length,
+    actionCounts,
+    categoryCounts: Object.fromEntries(Object.entries(launchAudit.categories).map(([category, detail]) => [category, detail.count])),
+    warningCategoryCounts: Object.fromEntries(
+      Object.entries(launchAudit.warningCategories).map(([category, detail]) => [category, detail.count])
+    ),
+    packs,
   };
 }
 
@@ -3756,6 +5017,16 @@ function getReviewPacketDateKeys(options = {}) {
   return CALENDAR_DATE_KEYS;
 }
 
+function getReviewPacketReserveIds(options = {}) {
+  if (Array.isArray(options.reserveIds) && options.reserveIds.length > 0) {
+    return options.reserveIds;
+  }
+  if (options.includeReserveBank === true) {
+    return AUTHORED_BALLPARK_RESERVE_PACKS.map((entry) => entry.reserveId);
+  }
+  return [];
+}
+
 function summarizeQuestionForReview(questionEntry) {
   return {
     id: questionEntry.id,
@@ -3771,6 +5042,10 @@ function summarizeQuestionForReview(questionEntry) {
     questionKey: questionEntry.questionKey,
     estimationMode: questionEntry.estimationMode,
     calibrationAnchor: questionEntry.calibrationAnchor,
+    questionMove: questionEntry.questionMove,
+    anchorType: questionEntry.anchorType,
+    iconicExact: questionEntry.iconicExact,
+    agentDifficultyTarget: questionEntry.agentDifficultyTarget,
     sources: questionEntry.sources,
     ...(questionEntry.recognizableExact ? { recognizableExact: true } : {}),
     ...(questionEntry.asOfDate ? { asOfDate: questionEntry.asOfDate } : {}),
@@ -3779,9 +5054,13 @@ function summarizeQuestionForReview(questionEntry) {
 
 export function getBallparkReviewPacket(options = {}) {
   const dateKeys = getReviewPacketDateKeys(options);
+  const reserveIds = getReviewPacketReserveIds(options);
   const classification = classifyBallparkContentForRemediation();
+  const reserveClassification = classifyBallparkReserveContentForRemediation();
   const authoredSummary = validateAuthoredLibrary();
+  const reserveSummary = validateBallparkReserveBank();
   const classificationByDate = new Map(classification.days.map((day) => [day.date, day]));
+  const reserveClassificationById = new Map(reserveClassification.packs.map((packEntry) => [packEntry.reserveId, packEntry]));
   const activeDates = dateKeys.filter((dateKey) => authoredSummary.authoredSetMap.has(dateKey));
   const days = activeDates.map((dateKey) => {
     const dailySet = authoredSummary.authoredSetMap.get(dateKey);
@@ -3809,25 +5088,63 @@ export function getBallparkReviewPacket(options = {}) {
         : {}),
     };
   });
+  const reservePacks = reserveIds
+    .filter((reserveId) => reserveSummary.reservePackMap.has(reserveId))
+    .map((reserveId) => {
+      const reserveSet = reserveSummary.reservePackMap.get(reserveId);
+      const classificationPack = reserveClassificationById.get(reserveId);
+      return {
+        reserveId: reserveSet.reserveId,
+        packType: "reserve",
+        theme: reserveSet.theme,
+        themeKey: reserveSet.themeKey,
+        editorialStatus: reserveSet.editorialStatus,
+        playerAgentSignoff: reserveSet.playerAgentSignoff ?? [],
+        playerAgentFindings: reserveSet.playerAgentFindings ?? [],
+        playability:
+          AUTHORED_BALLPARK_RESERVE_PACKS.find((entry) => entry.reserveId === reserveId)?.playability ?? "tactile",
+        action: classificationPack?.action ?? "replace",
+        automatedClear: classificationPack?.automatedClear ?? false,
+        launchReady: classificationPack?.launchReady ?? false,
+        blockerCount: classificationPack?.blockerCount ?? 0,
+        warningCount: classificationPack?.warningCount ?? 0,
+        blockerCategories: classificationPack?.blockerCategories ?? {},
+        warningCategories: classificationPack?.warningCategories ?? {},
+        blockers: classificationPack?.blockers ?? [],
+        warnings: classificationPack?.warnings ?? [],
+        questions: reserveSet.questions.map(summarizeQuestionForReview),
+        extraInning: summarizeQuestionForReview(reserveSet.extraInning),
+      };
+    });
 
   return {
     generatedAt: new Date().toISOString(),
     requestedMonth: options.month ?? null,
     requestedDates: Array.isArray(options.dates) ? options.dates : null,
+    requestedReserveIds: Array.isArray(options.reserveIds) ? options.reserveIds : null,
     agentRoles: [...BALLPARK_PLAYER_AGENT_ROLES],
+    agentProfiles: clone(BALLPARK_PLAYER_AGENT_PROFILES),
     reviewInstructions: [
       "Return P1/P2/P3 findings by date and role.",
       "P1/P2 findings block launch_ready.",
-      "Judge fair first guess, source defensibility, competitive fairness, mobile clarity, and calendar freshness.",
+      "Grade each pack through the player-type lenses in agentProfiles.",
+      "Judge fair first guess, math feel, source defensibility, competitive fairness, mobile clarity, group-play appeal, shareability, and calendar freshness.",
       "Do not inspect the filesystem; this packet is the source of truth.",
     ],
     summary: {
       days: days.length,
+      reservePacks: reservePacks.length,
+      totalPacks: days.length + reservePacks.length,
       automatedClearDays: days.filter((day) => day.automatedClear).length,
+      automatedClearReservePacks: reservePacks.filter((packEntry) => packEntry.automatedClear).length,
       launchReadyDays: days.filter((day) => day.launchReady).length,
-      blockerCount: days.reduce((sum, day) => sum + day.blockerCount, 0),
+      launchReadyReservePacks: reservePacks.filter((packEntry) => packEntry.launchReady).length,
+      blockerCount:
+        days.reduce((sum, day) => sum + day.blockerCount, 0) +
+        reservePacks.reduce((sum, packEntry) => sum + packEntry.blockerCount, 0),
     },
     days,
+    reservePacks,
   };
 }
 

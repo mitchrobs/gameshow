@@ -1,9 +1,11 @@
 import { writeFileSync } from "node:fs";
 import {
   classifyBallparkContentForRemediation,
+  classifyBallparkReserveContentForRemediation,
   getBallparkReservePool,
   getBallparkReviewPacket,
   getBallparkRemediationBatch,
+  runBallpark400PackAudit,
   runBallparkProductionReadinessAudit,
 } from "../src/ballpark/daybreak-v1-data.mjs";
 
@@ -13,6 +15,7 @@ type CliOptions = {
   month?: string;
   category?: string;
   dates?: string[];
+  reserveIds?: string[];
   from?: string;
   days?: number;
   limit: number;
@@ -20,6 +23,8 @@ type CliOptions = {
   launchWindow: boolean;
   reviewPacket: boolean;
   reservePool: boolean;
+  reserveBank: boolean;
+  combined: boolean;
 };
 
 function parseArgs(argv: string[]): CliOptions {
@@ -30,6 +35,8 @@ function parseArgs(argv: string[]): CliOptions {
     limit: 20,
     reviewPacket: false,
     reservePool: false,
+    reserveBank: false,
+    combined: false,
   };
 
   argv.forEach((arg) => {
@@ -38,6 +45,8 @@ function parseArgs(argv: string[]): CliOptions {
     if (arg === "--launch-window") options.launchWindow = true;
     if (arg === "--review-packet") options.reviewPacket = true;
     if (arg === "--reserve-pool") options.reservePool = true;
+    if (arg === "--reserve-bank") options.reserveBank = true;
+    if (arg === "--combined") options.combined = true;
     if (arg.startsWith("--month=")) options.month = arg.slice("--month=".length);
     if (arg.startsWith("--from=")) options.from = arg.slice("--from=".length);
     if (arg.startsWith("--category=")) options.category = arg.slice("--category=".length);
@@ -46,6 +55,13 @@ function parseArgs(argv: string[]): CliOptions {
         .slice("--dates=".length)
         .split(",")
         .map((dateKey) => dateKey.trim())
+        .filter(Boolean);
+    }
+    if (arg.startsWith("--reserve-ids=")) {
+      options.reserveIds = arg
+        .slice("--reserve-ids=".length)
+        .split(",")
+        .map((reserveId) => reserveId.trim())
         .filter(Boolean);
     }
     if (arg.startsWith("--limit=")) {
@@ -196,9 +212,68 @@ function printReservePoolSummary(payload: ReturnType<typeof getBallparkReservePo
   });
 }
 
+function printReserveBankSummary(payload: ReturnType<typeof classifyBallparkReserveContentForRemediation>, limit: number) {
+  console.log(`Ballpark reserve bank: ${payload.passed ? "PASS" : "BLOCKED"}`);
+  console.log(`Reserve packs: ${payload.launchReadyPacks}/${payload.packsChecked}`);
+  console.log(`Questions checked: ${payload.questionsChecked}`);
+  console.log(`Blockers: ${payload.blockerCount}`);
+  console.log(`Warnings: ${payload.warningCount}`);
+  console.log("");
+  console.log("Categories:");
+  Object.entries(payload.categoryCounts)
+    .filter(([, count]) => count > 0)
+    .forEach(([category, count]) => {
+      console.log(`  ${category}: ${count}`);
+    });
+  console.log("");
+  console.log(`Top ${limit} reserve packs by blocker count:`);
+  payload.packs
+    .filter((pack) => pack.blockerCount > 0)
+    .sort((first, second) => second.blockerCount - first.blockerCount)
+    .slice(0, limit)
+    .forEach((pack) => {
+      const categories = Object.entries(pack.blockerCategories)
+        .filter(([, count]) => count > 0)
+        .map(([category, count]) => `${category}:${count}`)
+        .join(", ");
+      console.log(`  ${pack.reserveId} ${pack.theme} [${pack.action}] ${pack.blockerCount} blockers (${categories})`);
+    });
+}
+
+function printCombinedSummary(payload: ReturnType<typeof runBallpark400PackAudit>, limit: number) {
+  console.log(`Ballpark 400-pack readiness: ${payload.passed ? "PASS" : "BLOCKED"}`);
+  console.log(`Dated packs: ${payload.datedReady}/${payload.datedTotal}`);
+  console.log(`Reserve packs: ${payload.reserveReady}/${payload.reserveTotal}`);
+  console.log(`Total packs: ${payload.totalReady}/${payload.totalTarget}`);
+  console.log(`Questions checked: ${payload.questionsChecked}`);
+  console.log(`Blockers: ${payload.blockerCount}`);
+  console.log(`Warnings: ${payload.warningCount}`);
+  console.log("");
+  console.log("Categories:");
+  Object.entries(payload.categoryCounts)
+    .filter(([, count]) => count > 0)
+    .forEach(([category, count]) => {
+      console.log(`  ${category}: ${count}`);
+    });
+  console.log("");
+  console.log(`Top ${limit} combined blockers:`);
+  payload.blockers.slice(0, limit).forEach((blocker) => {
+    console.log(`  ${blocker.packId ?? blocker.packs?.join(",") ?? "combined"} ${blocker.category}: ${blocker.message}`);
+  });
+}
+
 const options = parseArgs(process.argv.slice(2));
 const payload = options.reviewPacket
-  ? getBallparkReviewPacket({ month: options.month, dates: options.dates })
+  ? getBallparkReviewPacket({
+      month: options.month,
+      dates: options.dates,
+      reserveIds: options.reserveIds,
+      includeReserveBank: options.reserveBank,
+    })
+  : options.combined
+  ? runBallpark400PackAudit()
+  : options.reserveBank
+  ? classifyBallparkReserveContentForRemediation()
   : options.reservePool
   ? getBallparkReservePool({ fromDateKey: options.from, windowDays: options.days })
   : options.launchWindow
@@ -217,6 +292,10 @@ if (options.json || options.reviewPacket) {
   printLaunchWindowSummary(payload as ReturnType<typeof runBallparkProductionReadinessAudit>, options.limit);
 } else if (options.reservePool) {
   printReservePoolSummary(payload as ReturnType<typeof getBallparkReservePool>, options.limit);
+} else if (options.reserveBank) {
+  printReserveBankSummary(payload as ReturnType<typeof classifyBallparkReserveContentForRemediation>, options.limit);
+} else if (options.combined) {
+  printCombinedSummary(payload as ReturnType<typeof runBallpark400PackAudit>, options.limit);
 } else if (options.month) {
   printMonthSummary(payload as ReturnType<typeof getBallparkRemediationBatch>, options.limit);
 } else {
@@ -224,7 +303,8 @@ if (options.json || options.reviewPacket) {
 }
 
 const blockerCount = "blockerCount" in payload ? payload.blockerCount : 0;
+const warningCount = "warningCount" in payload ? payload.warningCount : 0;
 const productionReady = "productionReady" in payload ? payload.productionReady : blockerCount === 0;
-if (options.failOnBlockers && (!productionReady || blockerCount > 0)) {
+if (options.failOnBlockers && (!productionReady || blockerCount > 0 || warningCount > 0)) {
   process.exitCode = 1;
 }
