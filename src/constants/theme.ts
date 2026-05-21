@@ -93,6 +93,8 @@ export type ScreenAccentId =
   | 'sudoku'
   | 'trivia'
   | 'bridges'
+  | 'liberties'
+  | 'closeout'
   | 'whodunit'
   | 'barter'
   | 'museum'
@@ -368,6 +370,8 @@ const SCREEN_ACCENT_HEX: Record<ScreenAccentId, string> = {
   sudoku: '#4fb477',
   trivia: '#00a48a',
   bridges: '#e8a838',
+  liberties: '#2f8f83',
+  closeout: '#2f8f83',
   whodunit: '#7f1d1d',
   barter: '#0d7c5f',
   museum: '#8b5e34',

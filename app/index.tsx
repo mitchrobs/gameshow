@@ -22,6 +22,11 @@ import { getDailyBridges } from '../src/data/bridgesPuzzles';
 import { getDailyMiniCrossword } from '../src/data/miniCrosswordPuzzles';
 import { getDailyMuseumArtwork } from '../src/data/museumArtworks';
 import { getDailyDawnCabinet } from '../src/data/dawnCabinetPuzzles';
+import {
+  createLibertiesBoard,
+  getDailyLibertiesEntry,
+  getRemainingLibertiesLights,
+} from '../src/data/libertiesPuzzles';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 import { formatUtcDateLabel, getUtcDateKey } from '../src/utils/dailyUtc';
 
@@ -158,6 +163,16 @@ export default function HomeScreen() {
   const miniCrossword = getDailyMiniCrossword();
   const museumArtwork = getDailyMuseumArtwork();
   const dawnCabinet = getDailyDawnCabinet();
+  const libertiesEntry = getDailyLibertiesEntry();
+  const libertiesPuzzle = libertiesEntry.puzzle;
+  const libertiesInitialBoard = useMemo(
+    () => createLibertiesBoard(libertiesPuzzle),
+    [libertiesPuzzle]
+  );
+  const libertiesGroupCount = useMemo(
+    () => getRemainingLibertiesLights(libertiesPuzzle, libertiesInitialBoard).length,
+    [libertiesInitialBoard, libertiesPuzzle]
+  );
   const miniCrosswordPreview = useMemo(() => {
     const map = new Map<string, { isBlock: boolean; number?: number }>();
     miniCrossword.cells.forEach((cell) => {
@@ -220,6 +235,14 @@ export default function HomeScreen() {
         route: '/dawn-cabinet',
         emoji: '🀄',
         countKey: 'dawn-cabinet',
+        category: 'logic',
+        isNew: true,
+      },
+      {
+        label: 'Liberties',
+        route: '/liberties',
+        emoji: '●',
+        countKey: 'liberties',
         category: 'logic',
         isNew: true,
       },
@@ -304,6 +327,10 @@ export default function HomeScreen() {
         storage.getItem(`trivia:mix:daily:${key}`) === '1' ||
         storage.getItem(`trivia:sports:daily:${key}`) === '1' ||
         storage.getItem(`barter:daily:${key}`) === '1' ||
+        storage.getItem(`closeout:daily:${key}`) === '1' ||
+        storage.getItem(`closeout:daily:${utcKey}`) === '1' ||
+        storage.getItem(`liberties:daily:${key}`) === '1' ||
+        storage.getItem(`liberties:daily:${utcKey}`) === '1' ||
         storage.getItem(`dawn-cabinet:daily:${key}`) === '1' ||
         storage.getItem(`dawn-cabinet:daily:${utcKey}`) === '1' ||
         storage.getItem(`dawn-cabinet-v10:daily:${utcKey}:Standard`) === '1' ||
@@ -337,6 +364,7 @@ export default function HomeScreen() {
       'crossword',
       'sudoku',
       'dawn-cabinet',
+      'liberties',
       'bridges',
       'museum',
       'whodunit',
@@ -867,6 +895,62 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Liberties card */}
+          <View style={[styles.gameSection, !shouldShowGame('logic') && styles.gameSectionHidden]}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.libertiesKicker}>Spatial Logic</Text>
+                <Text style={styles.gameTitle}>Liberties</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              Place dark pebbles to clear the pale pebbles while they keep stretching.
+            </Text>
+            {(playCounts['liberties'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['liberties']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.libertiesPreview}>
+                <Text style={styles.libertiesPreviewMeta}>
+                  Today's board · {libertiesGroupCount} pale groups
+                </Text>
+                {libertiesInitialBoard.map((row, rowIndex) => (
+                  <View key={`liberties-row-${rowIndex}`} style={styles.libertiesPreviewRow}>
+                    {row.map((cell, colIndex) => (
+                      <View
+                        key={`liberties-${rowIndex}-${colIndex}`}
+                        style={styles.libertiesPreviewCell}
+                      >
+                        {cell === 'frozen' && <View style={styles.libertiesPreviewFrozen} />}
+                        {(cell === 'black' || cell === 'white') && (
+                          <View
+                            style={[
+                              styles.libertiesPreviewStone,
+                              cell === 'black'
+                                ? styles.libertiesPreviewBlackStone
+                                : styles.libertiesPreviewWhiteStone,
+                            ]}
+                          />
+                        )}
+                      </View>
+                    ))}
+                  </View>
+                ))}
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/liberties')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
           {/* Bridges card */}
           <View style={[styles.gameSection, !shouldShowGame('logic') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
@@ -1156,6 +1240,7 @@ const createStyles = (
   const BorderRadius = theme.borderRadius;
   const ui = createDaybreakPrimitives(theme, screenAccent);
   const bridgesAccent = resolveScreenAccent('bridges', theme);
+  const libertiesAccent = resolveScreenAccent('liberties', theme);
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
   const subsetAccent = resolveScreenAccent('wordie', theme);
@@ -1386,6 +1471,14 @@ const createStyles = (
   },
   bridgesKicker: {
     color: bridgesAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
+  libertiesKicker: {
+    color: libertiesAccent.main,
     fontSize: FontSize.sm,
     fontWeight: '700',
     letterSpacing: 1.2,
@@ -1687,6 +1780,54 @@ const createStyles = (
     fontSize: FontSize.sm,
     fontWeight: '900',
     color: theme.mode === 'dark' ? '#221a12' : Colors.text,
+  },
+  libertiesPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    gap: 4,
+  },
+  libertiesPreviewMeta: {
+    marginBottom: Spacing.xs,
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '700',
+  },
+  libertiesPreviewRow: {
+    flexDirection: 'row',
+  },
+  libertiesPreviewCell: {
+    width: 26,
+    height: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(43, 58, 67, 0.14)',
+    backgroundColor: theme.mode === 'dark' ? '#1a2631' : '#f4f7f8',
+  },
+  libertiesPreviewStone: {
+    width: 17,
+    height: 17,
+    borderRadius: 9,
+    borderWidth: 1,
+  },
+  libertiesPreviewBlackStone: {
+    backgroundColor: theme.mode === 'dark' ? '#10161e' : '#15171c',
+    borderColor: theme.mode === 'dark' ? '#303b48' : '#000000',
+  },
+  libertiesPreviewWhiteStone: {
+    backgroundColor: theme.mode === 'dark' ? '#f4efe5' : '#fff8e8',
+    borderColor: theme.mode === 'dark' ? '#6f6657' : '#b59a73',
+  },
+  libertiesPreviewFrozen: {
+    width: 18,
+    height: 18,
+    borderRadius: 5,
+    backgroundColor: theme.mode === 'dark' ? '#35404a' : '#c9d2d7',
   },
   bridgesPreview: {
     alignItems: 'center',

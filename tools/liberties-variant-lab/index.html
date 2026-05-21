@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Liberties Variant Lab</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <p>Daybreak Prototype</p>
+          <h1>Liberties Variant Lab</h1>
+        </div>
+        <nav class="variant-list" data-variant-list aria-label="Liberties variants"></nav>
+      </aside>
+
+      <section class="play-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Playable rules sandbox</p>
+            <h2 data-title></h2>
+            <p data-thesis class="thesis"></p>
+          </div>
+          <label class="puzzle-picker">
+            Puzzle
+            <select data-puzzle-select></select>
+          </label>
+        </header>
+
+        <div class="content-grid">
+          <section class="board-panel" aria-label="Playable board">
+            <div class="board" data-board></div>
+            <div class="controls">
+              <button type="button" data-auto>Auto-play solved sample</button>
+              <button type="button" data-reset>Reset</button>
+              <button type="button" data-next>Next day</button>
+            </div>
+            <p class="status" data-status></p>
+          </section>
+
+          <aside class="rules-panel">
+            <section>
+              <h3>Rules Under Test</h3>
+              <ul data-rules></ul>
+            </section>
+            <section>
+              <h3>Live Metrics</h3>
+              <div class="metrics" data-metrics></div>
+            </section>
+            <section>
+              <h3>Event Log</h3>
+              <ol class="event-log" data-event-log></ol>
+            </section>
+          </aside>
+        </div>
+
+        <section class="report">
+          <div class="report-heading">
+            <p class="eyebrow">Automated mini-pack playtest</p>
+            <h2>Variant Ranking</h2>
+          </div>
+          <div class="report-grid" data-report></div>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="./src/app.mjs"></script>
+  </body>
+</html>
