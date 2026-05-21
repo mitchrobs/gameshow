@@ -87,34 +87,21 @@ const HOW_TO_CLOSED_GRID: HowToCell[][] = [
   [null, null, null, null],
 ];
 const QUICK_START_RULES = [
-  'This is a pebble-trapping puzzle. The light pebbles are trying to stay on the board.',
-  'Your job is to place dark pebbles so the light pebbles get trapped and disappear.',
-  'Pebbles sit on crossings where grid lines meet. The squares between the lines are only background.',
-  'A light pebble checks the four crossings touching it: above, below, left, and right.',
-  'When all touching crossings are filled, blocked, or outside the board, that light pebble clears.',
-  'Clearing is the reward: if your move clears light pebbles, the light does not stretch and you get the next move.',
-  'Tap an empty crossing once to preview a dark pebble. Tap that same crossing again to place it.',
+  'Tap an empty line spot once to preview. Tap it again to place a black pebble.',
+  'Side spots are directly up, down, left, and right. Diagonals do not count.',
+  'Black pebbles trap white pebbles. Red pebbles and board edges are already blocked.',
+  'White pebbles touching side-to-side are one group. Trap the outside of the whole group.',
+  'A white group disappears when all of its outside side spots are blocked.',
+  'Clearing white pebbles is good: white does not move, and you get the next turn.',
+  'If your move clears nothing, one white group stretches into one empty side spot.',
 ];
-const LIBERTIES_RULES = [
-  'If light pebbles touch side-to-side, they move and clear together. Trap the outside of the whole connected shape.',
-  'A board edge already closes that direction because there is no crossing beyond the edge.',
-  'A red pebble is a blocked crossing. It already counts as closed for nearby light pebbles, but you cannot play there.',
-  'Diagonal crossings never count. Corners do not connect light pebbles and do not close them.',
-  'Your dark pebbles do not all need to connect. Separate dark groups are allowed.',
-  'After you place a dark pebble, that pebble or its connected dark shape must still touch at least one empty neighboring crossing.',
+const WHITE_STRETCH_RULES = [
+  'The white group with the fewest open side spots stretches first.',
+  'Tie? The group with the longest straight open path moves.',
+  'Still tied? The topmost, then leftmost group moves.',
 ];
-const SCORING_RULES = [
-  'Every dark pebble you place counts as one move.',
-  'A strong move can close touching crossings for more than one light shape at once.',
-  'The share result shows your time, move count, and hint count. The puzzle never shows an internal target number.',
-];
-const PUZZLE_PATTERN_RULES = [
-  'If your move clears at least one light pebble, the light pebbles do not move. You get to place again before any stretch.',
-  'If your move clears nothing, one connected light shape stretches into one empty touching crossing.',
-  'The stretch is not random. First, the most trapped light shape gets a chance to stretch.',
-  'If several shapes are equally trapped, the one with the longest straight escape lane stretches.',
-  'If there is still a tie, the game uses a fixed top-to-bottom, left-to-right order.',
-  'The preview tells you where a quiet move will stretch before you place it.',
+const MOVE_RULES = [
+  'Your black pebbles can be separate, but the black group you place must still touch one open side spot.',
 ];
 
 function getStorage(): Storage | null {
@@ -170,13 +157,13 @@ function getIllegalMoveMessage(reason: LibertiesIllegalReason): string {
     case 'outside-board':
       return 'That spot is outside the board.';
     case 'suicide':
-      return 'That dark pebble would leave its connected dark shape with no empty neighboring crossing. Clear a light pebble first or choose a different crossing.';
+      return 'That black pebble would have no open side spot. Clear a white pebble first or choose a different crossing.';
   }
 }
 
 function getOccupiedCellMessage(cell: LibertiesBoard[number][number], linkedGroupIndex?: number): string {
-  if (cell === 'white') return 'Light pebbles cannot be covered. Close their adjacent empty crossings instead.';
-  if (cell === 'black') return 'That crossing already has a dark pebble.';
+  if (cell === 'white') return 'White pebbles cannot be covered. Block their side spots instead.';
+  if (cell === 'black') return 'That crossing already has a black pebble.';
   if (cell === 'frozen') return 'Red pebbles are already blocked. You cannot place there.';
   if (cell === 'release') return 'That crossing is blocked in this puzzle.';
   return 'Choose an empty crossing.';
@@ -188,8 +175,8 @@ function getCellAccessibilityLabel(
   cell: LibertiesBoard[number][number]
 ): string {
   const position = `Row ${row + 1}, column ${col + 1}`;
-  if (cell === 'white') return `${position}, light pebble`;
-  if (cell === 'black') return `${position}, dark pebble`;
+  if (cell === 'white') return `${position}, white pebble`;
+  if (cell === 'black') return `${position}, black pebble`;
   if (cell === 'frozen') return `${position}, red pebble, blocked crossing`;
   if (cell === 'release') return `${position}, blocked crossing`;
   return `${position}, empty crossing`;
@@ -259,17 +246,17 @@ function formatPreviewStatus(
 ): string {
   const targetText =
     groupIndexes.length === 0
-      ? 'Does not touch a light pebble yet.'
+      ? 'Does not touch a white pebble yet.'
       : groupIndexes.length === 1
-        ? 'Touches a light shape.'
-        : `Touches ${groupIndexes.length} light shapes.`;
+        ? 'Touches a white group.'
+        : `Touches ${groupIndexes.length} white groups.`;
   let resultText = '';
   if (captureCount > 0 && responsePoints.length > 0) {
-    resultText = ` Quiet move: the most trapped light shape will stretch to ${formatPointLabel(responsePoints[0]!)} and clear.`;
+    resultText = ` Quiet move: the most trapped white group will stretch to ${formatPointLabel(responsePoints[0]!)} and clear.`;
   } else if (captureCount > 0) {
-    resultText = ` Clears ${captureCount} light pebble${captureCount === 1 ? '' : 's'}. You get the next move before light stretches.`;
+    resultText = ` Clears ${captureCount} white pebble${captureCount === 1 ? '' : 's'}. You get the next move before white stretches.`;
   } else if (responsePoints.length > 0) {
-    resultText = ` Quiet move: the most trapped light shape will stretch to ${formatPointLabel(responsePoints[0]!)}.`;
+    resultText = ` Quiet move: the most trapped white group will stretch to ${formatPointLabel(responsePoints[0]!)}.`;
   }
   const actionText = legal ? `Tap again to place.${resultText}` : 'That move is not legal yet.';
   return `${formatPointLabel(point)}. ${targetText} ${actionText}`;
@@ -845,15 +832,15 @@ export default function LibertiesScreen() {
       setMoves((previous) => [...previous, point]);
       if (result.captured.length > 0 && result.responses.length > 0) {
         setStatusMessage(
-          `Quiet move: light stretched to ${formatPointLabel(result.responses[0]!)} and cleared ${result.captured.length} light pebble${result.captured.length === 1 ? '' : 's'}.`
+          `Quiet move: white stretched to ${formatPointLabel(result.responses[0]!)} and cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}.`
         );
       } else if (result.captured.length > 0) {
         setStatusMessage(
-          `Cleared ${result.captured.length} light pebble${result.captured.length === 1 ? '' : 's'}. Your turn again before light stretches.`
+          `Cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}. Your turn again before white stretches.`
         );
       } else if (result.responses.length > 0) {
         setStatusMessage(
-          `Quiet move: light stretched to ${formatPointLabel(result.responses[0]!)}.`
+          `Quiet move: white stretched to ${formatPointLabel(result.responses[0]!)}.`
         );
       }
     },
@@ -974,7 +961,7 @@ export default function LibertiesScreen() {
               <View style={styles.howToHeader}>
                 <View>
                   <Text style={styles.howToKicker}>How to play</Text>
-                  <Text style={styles.howToTitle}>Clear the light pebbles</Text>
+                  <Text style={styles.howToTitle}>Clear the white pebbles</Text>
                 </View>
                 <Pressable
                   accessibilityRole="button"
@@ -987,104 +974,32 @@ export default function LibertiesScreen() {
               </View>
 
               <View style={styles.objectiveCard}>
-                <Text style={styles.objectiveTitle}>Objective</Text>
+                <Text style={styles.objectiveTitle}>Goal</Text>
                 <Text style={styles.objectiveText}>
-                  Trap every light pebble. A light pebble looks at the crossings directly above, below, left, and right.
-                  Place dark pebbles on those touching crossings until the light pebble has no empty way out. If your move
-                  clears light pebbles, the board stays still and you get the next move before any stretch. If your move
-                  clears nothing, the most trapped connected light shape stretches into one empty touching crossing. Red
-                  pebbles are blocked crossings. Your dark pebbles do not need to form one connected chain.
+                  Clear all white pebbles. Place black pebbles on empty line spots to block every open
+                  side spot around a white group.
                 </Text>
               </View>
 
-              <Text style={styles.modalTitle}>Start Here</Text>
+              <Text style={styles.modalTitle}>How it works</Text>
               <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>The board, from scratch</Text>
+                <Text style={styles.ruleListTitle}>Rules</Text>
                 {QUICK_START_RULES.map((rule) => (
                   <HowToRuleItem key={rule} text={rule} styles={styles} />
                 ))}
               </View>
 
-              <View style={styles.howToDiagram}>
-                <HowToMiniBoard
-                  grid={HOW_TO_OPEN_GRID}
-                  label="Before"
-                  caption="The two light pebbles touch side-to-side, so they act as one shape. The empty crossings directly around the shape are the ones you care about."
-                  styles={styles}
-                />
-                <HowToMiniBoard
-                  grid={HOW_TO_CLOSED_GRID}
-                  label="Stretch"
-                  caption="If your move clears nothing, the most trapped light shape stretches into an open side crossing. Clear urgent shapes before they grow."
-                  styles={styles}
-                />
-              </View>
-
-              <Text style={styles.modalTitle}>Pieces</Text>
-              <HowToLessonRow
-                kind="target"
-                title="Light Pebble"
-                badge="Clear"
-                text="Clear all light pebbles to finish the puzzle."
-                styles={styles}
-              />
-              <HowToLessonRow
-                kind="seal"
-                title="Dark Pebble"
-                badge="Place"
-                text="A dark pebble closes the neighboring crossings around light pebbles. Black pebbles do not all need to touch each other. Some dark pebbles are already set at the start."
-                styles={styles}
-              />
-              <HowToLessonRow
-                kind="response"
-                title="Light Stretch"
-                badge="Stretch"
-                text="After a quiet move, one connected light shape stretches into one open side crossing. A clear move skips this, so finishing a light shape earns you the next move."
-                styles={styles}
-              />
-              <HowToLessonRow
-                kind="blocker"
-                title="Red Pebble"
-                badge="Blocked"
-                text="A red pebble marks a crossing that is already blocked. It helps close nearby light pebbles, but you cannot place a dark pebble there."
-                styles={styles}
-              />
-
-              <Text style={styles.modalTitle}>Playing a Move</Text>
-              <View style={styles.howToActionGrid}>
-                <View style={styles.howToActionCard}>
-                  <Text style={styles.howToActionNumber}>1</Text>
-                  <Text style={styles.howToActionTitle}>Find</Text>
-                  <Text style={styles.howToActionText}>Pick a light pebble or connected light shape and look at the crossings touching it.</Text>
-                </View>
-                <View style={styles.howToActionCard}>
-                  <Text style={styles.howToActionNumber}>2</Text>
-                  <Text style={styles.howToActionTitle}>Preview</Text>
-                  <Text style={styles.howToActionText}>Tap an empty crossing to test it. The dark pebble appears as a preview, and the message below the board tells you if it is legal.</Text>
-                </View>
-                <View style={styles.howToActionCard}>
-                  <Text style={styles.howToActionNumber}>3</Text>
-                  <Text style={styles.howToActionTitle}>Place</Text>
-                  <Text style={styles.howToActionText}>Tap that same crossing again to place the pebble. If a light shape has no empty touching crossings left, it disappears.</Text>
-                </View>
-              </View>
-
-              <Text style={styles.modalTitle}>Rules That Matter</Text>
+              <Text style={styles.modalTitle}>Which white group moves?</Text>
               <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>Shapes and closed crossings</Text>
-                {LIBERTIES_RULES.map((rule) => (
+                <Text style={styles.ruleListTitle}>Stretch order</Text>
+                {WHITE_STRETCH_RULES.map((rule) => (
                   <HowToRuleItem key={rule} text={rule} styles={styles} />
                 ))}
               </View>
+
+              <Text style={styles.modalTitle}>One small rule</Text>
               <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>Finish and score</Text>
-                {SCORING_RULES.map((rule) => (
-                  <HowToRuleItem key={rule} text={rule} styles={styles} />
-                ))}
-              </View>
-              <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>What changes day to day</Text>
-                {PUZZLE_PATTERN_RULES.map((rule) => (
+                {MOVE_RULES.map((rule) => (
                   <HowToRuleItem key={rule} text={rule} styles={styles} />
                 ))}
               </View>
