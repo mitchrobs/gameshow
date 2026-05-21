@@ -268,6 +268,13 @@ function formatPreviewStatus(
   return `${formatPointLabel(point)}. ${targetText} ${actionText}`;
 }
 
+function formatDarkClearStatus(count: number): string {
+  if (count <= 0) return '';
+  const pebbleText = `black pebble${count === 1 ? '' : 's'}`;
+  const ending = count === 1 ? 'it disappeared' : 'they disappeared';
+  return ` White boxed in ${count} ${pebbleText}, so ${ending}.`;
+}
+
 function getShareUrl(): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -1212,18 +1219,21 @@ export default function LibertiesScreen() {
       setHoverPoint(null);
       setActiveGroupIndex(null);
       setMoves((previous) => [...previous, point]);
+      const darkClearStatus = formatDarkClearStatus(result.capturedDark.length);
       if (result.captured.length > 0 && result.responses.length > 0) {
         setStatusMessage(
-          `Quiet move: white stretched to ${formatPointLabel(result.responses[0]!)} and cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}.`
+          `Quiet move: white stretched to ${formatPointLabel(result.responses[0]!)} and cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}.${darkClearStatus}`
         );
       } else if (result.captured.length > 0) {
         setStatusMessage(
-          `Cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}. Your turn again before white stretches.`
+          `Cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}. Your turn again before white stretches.${darkClearStatus}`
         );
       } else if (result.responses.length > 0) {
         setStatusMessage(
-          `Quiet move: white stretched to ${formatPointLabel(result.responses[0]!)}.`
+          `Quiet move: white stretched to ${formatPointLabel(result.responses[0]!)}.${darkClearStatus}`
         );
+      } else if (darkClearStatus) {
+        setStatusMessage(darkClearStatus.trim());
       }
     },
     [board, gameState, puzzle]
