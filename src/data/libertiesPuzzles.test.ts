@@ -9,6 +9,7 @@ import {
   getLibertiesPackAudit,
   getLibertiesPuzzleAudit,
   getLibertiesGroupAt,
+  getLowestLibertiesMoveCount,
   isLibertiesSolved,
   libertiesPreviewPuzzles,
   libertiesReservePuzzles,
@@ -390,6 +391,13 @@ describe('liberties puzzle engine', () => {
     expect(entry.puzzle.targetMoves).toBe(25);
     expect(hint?.movesToSolve).toBeLessThanOrEqual(15);
     expect(hint?.movesToSolve).toBeLessThan(entry.puzzle.targetMoves);
+  });
+
+  it('exposes the day move floor from the move-optimized route', () => {
+    const entry = getDailyLibertiesEntry(new Date('2026-05-21T12:00:00.000Z'));
+
+    expect(getLowestLibertiesMoveCount(entry.puzzle)).toBeLessThanOrEqual(15);
+    expect(getLowestLibertiesMoveCount(entry.puzzle)).toBeLessThan(entry.puzzle.targetMoves);
   });
 
   it('selects a dated daily puzzle', () => {

@@ -2399,6 +2399,7 @@ const LIVE_HINT_CANDIDATE_LIMIT = 10;
 const LIVE_HINT_ROUTE_CACHE_LIMIT = 600;
 
 const liveHintRouteCache = new Map<string, LibertiesHintResult>();
+const lowestMoveCountCache = new Map<string, number>();
 
 function getSolutionRankMap(puzzle: Pick<LibertiesPuzzle, 'solution'>): Map<string, number> {
   const ranks = new Map<string, number>();
@@ -2755,6 +2756,16 @@ export function getBestLibertiesHintMove(
     route: [fallback.point],
     movesToSolve: 1,
   };
+}
+
+export function getLowestLibertiesMoveCount(puzzle: LibertiesPuzzle): number {
+  const cached = lowestMoveCountCache.get(puzzle.id);
+  if (cached !== undefined) return cached;
+
+  const hint = getBestLibertiesHintMove(puzzle, createLibertiesBoard(puzzle));
+  const moveCount = hint?.movesToSolve ?? puzzle.targetMoves;
+  lowestMoveCountCache.set(puzzle.id, moveCount);
+  return moveCount;
 }
 
 export function isLibertiesSolved(puzzle: LibertiesPuzzle, board: LibertiesBoard): boolean {

@@ -34,6 +34,7 @@ import {
   getBestLibertiesHintMove,
   getDailyLibertiesEntry,
   getLibertiesPuzzleAudit,
+  getLowestLibertiesMoveCount,
   getRemainingLibertiesLights,
   isLibertiesSolved,
   libertiesPreviewPuzzles,
@@ -1084,6 +1085,10 @@ export default function LibertiesScreen() {
   const hitSize = Math.max(stoneSize * 1.1, Math.min(pointGap * 0.98, width < 420 ? 54 : 78));
   const gridLineThickness = width < 420 ? 1 : 2;
   const dailyLabel = useMemo(() => formatUtcDateLabel(dateKey), [dateKey]);
+  const lowestMoveCount = useMemo(
+    () => (gameState === 'won' ? getLowestLibertiesMoveCount(puzzle) : null),
+    [gameState, puzzle]
+  );
   const shareText = useMemo(
     () =>
       formatLibertiesShareText({
@@ -1598,6 +1603,19 @@ export default function LibertiesScreen() {
           {gameState === 'won' && (
             <View style={styles.winCard}>
               <Text style={styles.winTitle}>Cleared in {moves.length} moves</Text>
+              {lowestMoveCount !== null && (
+                <View style={styles.bestScoreCard}>
+                  <Text style={styles.bestScoreLabel}>Lowest possible today</Text>
+                  <Text style={styles.bestScoreValue}>
+                    {lowestMoveCount} move{lowestMoveCount === 1 ? '' : 's'}
+                  </Text>
+                  <Text style={styles.bestScoreNote}>
+                    {moves.length === lowestMoveCount
+                      ? 'You hit the move floor. Time breaks ties.'
+                      : 'Score is moves first. Time breaks ties.'}
+                  </Text>
+                </View>
+              )}
               <Text style={styles.winCopy}>
                 {hintsUsed > 0 ? `${hintsUsed} hint${hintsUsed === 1 ? '' : 's'} used.` : 'No hints used.'}
               </Text>
@@ -2395,6 +2413,31 @@ const createStyles = (
       fontWeight: '800',
     },
     winCopy: {
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 20,
+    },
+    bestScoreCard: {
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+      padding: Spacing.md,
+      gap: 2,
+    },
+    bestScoreLabel: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      fontWeight: '900',
+      letterSpacing: 0.8,
+      textTransform: 'uppercase',
+    },
+    bestScoreValue: {
+      color: Colors.text,
+      fontSize: FontSize.lg,
+      fontWeight: '900',
+    },
+    bestScoreNote: {
       color: Colors.textSecondary,
       fontSize: FontSize.sm,
       lineHeight: 20,
