@@ -31,6 +31,7 @@ import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 import { formatUtcDateLabel } from '../src/utils/dailyUtc';
 import {
   formatLibertiesShareText,
+  getBestLibertiesHintMove,
   getDailyLibertiesEntry,
   getLibertiesPuzzleAudit,
   getRemainingLibertiesLights,
@@ -887,14 +888,6 @@ function sanitizeMoves(value: unknown, size: number): LibertiesPoint[] {
   });
 }
 
-function isSolutionMoveAvailable(
-  board: LibertiesBoard,
-  point: LibertiesPoint | undefined
-): point is LibertiesPoint {
-  if (!point) return false;
-  return board[point.row]?.[point.col] === null;
-}
-
 function getDemoMoveCount(mode: DemoMode): number {
   switch (mode) {
     case 'stage1':
@@ -1006,10 +999,6 @@ export default function LibertiesScreen() {
   const hitSize = Math.max(stoneSize * 1.1, Math.min(pointGap * 0.98, width < 420 ? 54 : 78));
   const gridLineThickness = width < 420 ? 1 : 2;
   const dailyLabel = useMemo(() => formatUtcDateLabel(dateKey), [dateKey]);
-  const nextHint = useMemo(
-    () => puzzle.solution.find((point) => isSolutionMoveAvailable(board, point)) ?? null,
-    [board, puzzle.solution]
-  );
   const shareText = useMemo(
     () =>
       formatLibertiesShareText({
@@ -1300,16 +1289,21 @@ export default function LibertiesScreen() {
 
   const handleHint = useCallback(() => {
     if (gameState !== 'playing') return;
+    const nextHint = getBestLibertiesHintMove(puzzle, board);
     if (!nextHint) {
       setStatusMessage('No useful hint is available from this position.');
       return;
     }
-    setHintPoint(nextHint);
-    setSelectedPoint(nextHint);
+    setHintPoint(nextHint.point);
+    setSelectedPoint(nextHint.point);
     setHintsUsed((previous) => previous + 1);
     setShareStatus(null);
-    setStatusMessage('Hint ring marks a useful empty crossing. Tap it again to place.');
-  }, [gameState, nextHint]);
+    setStatusMessage(
+      nextHint.movesToSolve <= 1
+        ? 'Hint ring marks the clearing move. Tap it again to place.'
+        : `Hint ring marks a shortest route from here: ${nextHint.movesToSolve} moves left. Tap it again to place.`
+    );
+  }, [board, gameState, puzzle]);
 
   const handleShare = useCallback(async () => {
     setShareStatus(null);

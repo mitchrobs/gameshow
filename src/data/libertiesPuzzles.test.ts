@@ -3,6 +3,7 @@ import {
   LIBERTIES_TAG_LABELS,
   createLibertiesBoard,
   formatLibertiesShareText,
+  getBestLibertiesHintMove,
   getDailyLibertiesEntry,
   getLibertiesBlockerRange,
   getLibertiesPackAudit,
@@ -13,6 +14,7 @@ import {
   libertiesReservePuzzles,
   libertiesPuzzles,
   playLibertiesMove,
+  pointKey,
   replayLibertiesMoves,
 } from './libertiesPuzzles';
 
@@ -334,6 +336,50 @@ describe('liberties puzzle engine', () => {
     expect(firstSixtyMix.Hard).toBeGreaterThanOrEqual(10);
     expect(reserveIds.has(firstDaily.puzzle.id)).toBe(false);
     expect(libertiesReservePuzzles.every((puzzle) => typeof puzzle.reserveRank === 'number')).toBe(true);
+  });
+
+  it('recalculates hints from off-path boards', () => {
+    const puzzle = libertiesPuzzles.find((entry) => entry.id === 'liberties-clock-square')!;
+    const board = createLibertiesBoard(puzzle);
+    const deviation = { row: 0, col: 0 };
+    const deviated = playLibertiesMove(board, puzzle.size, deviation, 'black', puzzle);
+
+    expect(deviated.legal).toBe(true);
+    if (!deviated.legal) return;
+
+    const oldPathHint = puzzle.solution.find((point) => deviated.board[point.row]?.[point.col] === null);
+    const liveHint = getBestLibertiesHintMove(puzzle, deviated.board);
+
+    expect(oldPathHint).toEqual({ row: 6, col: 5 });
+    expect(liveHint?.point).toEqual({ row: 4, col: 1 });
+    expect(liveHint?.point).not.toEqual(oldPathHint);
+    expect(liveHint?.movesToSolve).toBe(17);
+  });
+
+  it('solves legally when every move after a deviation follows live hints', () => {
+    const puzzle = libertiesPuzzles.find((entry) => entry.id === 'liberties-clock-square')!;
+    let board = createLibertiesBoard(puzzle);
+    const moves = [{ row: 0, col: 0 }];
+    const firstMove = playLibertiesMove(board, puzzle.size, moves[0]!, 'black', puzzle);
+
+    expect(firstMove.legal).toBe(true);
+    if (!firstMove.legal) return;
+    board = firstMove.board;
+
+    while (!isLibertiesSolved(puzzle, board) && moves.length < 60) {
+      const hint = getBestLibertiesHintMove(puzzle, board);
+      expect(hint).not.toBeNull();
+      if (!hint) break;
+      const result = playLibertiesMove(board, puzzle.size, hint.point, 'black', puzzle);
+      expect(result.legal).toBe(true);
+      if (!result.legal) break;
+      board = result.board;
+      moves.push(hint.point);
+    }
+
+    expect(moves.map(pointKey).slice(0, 2)).toEqual(['0:0', '4:1']);
+    expect(moves).toHaveLength(18);
+    expect(isLibertiesSolved(puzzle, board)).toBe(true);
   });
 
   it('selects a dated daily puzzle', () => {

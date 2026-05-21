@@ -105,6 +105,12 @@ export interface LibertiesReplayResult {
   responses: LibertiesPoint[];
 }
 
+export interface LibertiesHintResult {
+  point: LibertiesPoint;
+  route: LibertiesPoint[];
+  movesToSolve: number;
+}
+
 export interface LibertiesShareTextOptions {
   date: string;
   moves: number;
@@ -2372,6 +2378,215 @@ export function replayLibertiesMoves(
   }
 
   return { board, illegalMoveIndex: null, captured, capturedDark, released, responses };
+}
+
+type LegalLibertiesMoveResult = Extract<LibertiesMoveResult, { legal: true }>;
+
+interface LiveHintCandidate {
+  point: LibertiesPoint;
+  result: LegalLibertiesMoveResult;
+  score: number;
+  captureCount: number;
+  responseCount: number;
+  touchCount: number;
+  solutionRank: number;
+}
+
+const MISSING_SOLUTION_RANK = Number.MAX_SAFE_INTEGER;
+const LIVE_HINT_CANDIDATE_LIMIT = 10;
+
+function getSolutionRankMap(puzzle: Pick<LibertiesPuzzle, 'solution'>): Map<string, number> {
+  const ranks = new Map<string, number>();
+  puzzle.solution.forEach((point, index) => {
+    if (!ranks.has(pointKey(point))) ranks.set(pointKey(point), index);
+  });
+  return ranks;
+}
+
+function getSolutionRank(ranks: Map<string, number>, point: LibertiesPoint): number {
+  return ranks.get(pointKey(point)) ?? MISSING_SOLUTION_RANK;
+}
+
+function getLiveHintCandidates(
+  puzzle: LibertiesPuzzle,
+  board: LibertiesBoard,
+  desiredResponses: number,
+  responseCount: number,
+  solutionRanks: Map<string, number>,
+  limit = Number.POSITIVE_INFINITY
+): LiveHintCandidate[] {
+  const beforeWhiteCount = countLibertiesBoardCells(board, 'white');
+
+  return Array.from(getLightOpenSideEntries(puzzle, board).values())
+    .map((entry): LiveHintCandidate | null => {
+      const result = playLibertiesMove(board, puzzle.size, entry.point, 'black', puzzle);
+      if (!result.legal) return null;
+      const afterWhiteCount = countLibertiesBoardCells(result.board, 'white');
+      const ownGroup = getLibertiesGroupAt(result.board, puzzle.size, entry.point);
+      const wantsResponse = responseCount < desiredResponses;
+      const captureScore = result.captured.length * 28;
+      const sharedScore = entry.groupTouches * 13;
+      const responseScore = result.responses.length * (wantsResponse ? 18 : -18);
+      const progressScore = (beforeWhiteCount - afterWhiteCount) * 16;
+      const breathScore = Math.min(3, ownGroup?.liberties.size ?? 0) * 2;
+      const whitePenalty = Math.max(0, afterWhiteCount - beforeWhiteCount) * 5;
+
+      return {
+        point: entry.point,
+        result,
+        score: captureScore + sharedScore + responseScore + progressScore + breathScore - whitePenalty - 1,
+        captureCount: result.captured.length,
+        responseCount: result.responses.length,
+        touchCount: entry.groupTouches,
+        solutionRank: getSolutionRank(solutionRanks, entry.point),
+      };
+    })
+    .filter((candidate): candidate is LiveHintCandidate => candidate !== null)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.captureCount - a.captureCount ||
+        b.responseCount - a.responseCount ||
+        b.touchCount - a.touchCount ||
+        a.solutionRank - b.solutionRank ||
+        pointKey(a.point).localeCompare(pointKey(b.point))
+    )
+    .slice(0, limit);
+}
+
+function solveLibertiesGreedyFromBoard(
+  puzzle: LibertiesPuzzle,
+  startBoard: LibertiesBoard,
+  solutionRanks: Map<string, number>,
+  maxDepth: number
+): LibertiesPoint[] | null {
+  if (isLibertiesSolved(puzzle, startBoard)) return [];
+
+  const targetResponses = puzzle.difficulty === 'Hard' ? 4 : puzzle.difficulty === 'Standard' ? 3 : 1;
+
+  const attemptGreedySolve = (desiredResponses: number): LibertiesPoint[] | null => {
+    let board = cloneLibertiesBoard(startBoard);
+    const solution: LibertiesPoint[] = [];
+    let responseCount = 0;
+    const seen = new Set<string>();
+
+    for (let depth = 0; depth < maxDepth; depth += 1) {
+      if (isLibertiesSolved(puzzle, board)) return solution;
+
+      const boardKey = serializeLibertiesBoard(board);
+      if (seen.has(boardKey)) return null;
+      seen.add(boardKey);
+
+      const selected = getLiveHintCandidates(
+        puzzle,
+        board,
+        desiredResponses,
+        responseCount,
+        solutionRanks,
+        1
+      )[0];
+      if (!selected) return null;
+
+      board = selected.result.board;
+      solution.push(selected.point);
+      responseCount += selected.responseCount;
+    }
+
+    return isLibertiesSolved(puzzle, board) ? solution : null;
+  };
+
+  return attemptGreedySolve(targetResponses) ?? attemptGreedySolve(0);
+}
+
+function getPackedSolutionRouteFromBoard(
+  puzzle: LibertiesPuzzle,
+  board: LibertiesBoard
+): LibertiesPoint[] | null {
+  const targetBoardKey = serializeLibertiesBoard(board);
+  let cursor = createLibertiesBoard(puzzle);
+
+  for (let index = 0; index <= puzzle.solution.length; index += 1) {
+    if (serializeLibertiesBoard(cursor) === targetBoardKey) {
+      return puzzle.solution.slice(index);
+    }
+
+    const move = puzzle.solution[index];
+    if (!move) break;
+    const result = playLibertiesMove(cursor, puzzle.size, move, 'black', puzzle);
+    if (!result.legal) return null;
+    cursor = result.board;
+  }
+
+  return null;
+}
+
+export function getBestLibertiesHintMove(
+  puzzle: LibertiesPuzzle,
+  board: LibertiesBoard
+): LibertiesHintResult | null {
+  if (isLibertiesSolved(puzzle, board)) return null;
+
+  const packedRoute = getPackedSolutionRouteFromBoard(puzzle, board);
+  if (packedRoute && packedRoute.length > 0) {
+    return {
+      point: packedRoute[0]!,
+      route: packedRoute,
+      movesToSolve: packedRoute.length,
+    };
+  }
+
+  const solutionRanks = getSolutionRankMap(puzzle);
+  const maxDepth = getSolutionSearchDepth(puzzle);
+  const targetResponses = puzzle.difficulty === 'Hard' ? 4 : puzzle.difficulty === 'Standard' ? 3 : 1;
+  const candidates = getLiveHintCandidates(
+    puzzle,
+    board,
+    targetResponses,
+    0,
+    solutionRanks,
+    LIVE_HINT_CANDIDATE_LIMIT
+  );
+  let best: LibertiesHintResult | null = null;
+  let bestCandidate: LiveHintCandidate | null = null;
+
+  candidates.forEach((candidate) => {
+    const rest = solveLibertiesGreedyFromBoard(
+      puzzle,
+      candidate.result.board,
+      solutionRanks,
+      maxDepth - 1
+    );
+    if (!rest) return;
+
+    const route = [candidate.point, ...rest];
+    const result: LibertiesHintResult = {
+      point: candidate.point,
+      route,
+      movesToSolve: route.length,
+    };
+
+    if (
+      !best ||
+      result.movesToSolve < best.movesToSolve ||
+      (result.movesToSolve === best.movesToSolve &&
+        (candidate.solutionRank < (bestCandidate?.solutionRank ?? MISSING_SOLUTION_RANK) ||
+          (candidate.solutionRank === (bestCandidate?.solutionRank ?? MISSING_SOLUTION_RANK) &&
+            candidate.score > (bestCandidate?.score ?? Number.NEGATIVE_INFINITY))))
+    ) {
+      best = result;
+      bestCandidate = candidate;
+    }
+  });
+
+  if (best) return best;
+  const fallback = candidates[0];
+  if (!fallback) return null;
+
+  return {
+    point: fallback.point,
+    route: [fallback.point],
+    movesToSolve: 1,
+  };
 }
 
 export function isLibertiesSolved(puzzle: LibertiesPuzzle, board: LibertiesBoard): boolean {
