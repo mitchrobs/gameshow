@@ -99,17 +99,18 @@ const HOW_TO_CLOSED_GRID: HowToCell[][] = [
 ];
 const QUICK_START_RULES = [
   'Tap an empty crossing once to preview. Tap again to place a black pebble.',
-  'Side crossings are directly up, down, left, and right. Diagonals do not count.',
-  'Black pebbles, red blockers, and board edges close side crossings.',
-  'Close every side crossing around a white group to remove that group. Then you move again.',
-  'A standard move removes no white group, so white automatically stretches.',
-  'Black groups need one open side crossing. If white fills the last one, that black group disappears.',
+  'White pebbles that touch side-to-side are one white group.',
+  'Only side crossings count: up, down, left, and right. Diagonals do not count.',
+  'Black pebbles, red blockers, and board edges close empty side crossings.',
+  'A white group clears when every side crossing around that white group is closed.',
+  'If your move clears a white group, you move again before white moves.',
+  'Black pebbles also need one empty side crossing. If white closes the last one, those black pebbles disappear.',
 ];
 const WHITE_STRETCH_RULES = [
-  'White first saves a group with only one open side crossing.',
-  'Otherwise, white checks every empty side crossing touching a white group.',
-  'White chooses the crossing with the longest straight open path.',
-  'Ties go to the topmost crossing, then the leftmost crossing.',
+  'First, white saves a white group with only one empty side crossing.',
+  'If no white group is in trouble, white checks every empty side crossing beside a white group.',
+  'White chooses the empty crossing with the longest straight open path.',
+  'If two paths are tied, white chooses the topmost crossing, then the leftmost crossing.',
 ];
 
 function getStorage(): Storage | null {
@@ -502,7 +503,7 @@ function HowToStretchOrderBoard({ styles }: { styles: ReturnType<typeof createSt
 
   return (
     <View style={styles.howToStretchPanel}>
-      <Text style={styles.howToMiniBoardLabel}>Longest path example</Text>
+      <Text style={styles.howToMiniBoardLabel}>How white chooses</Text>
       <View style={styles.howToStretchBoard}>
         {Array.from({ length: 5 }).map((_, index) => (
           <View
@@ -565,7 +566,7 @@ function HowToStretchOrderBoard({ styles }: { styles: ReturnType<typeof createSt
         <Text style={[styles.howToStretchLabel, styles.howToStretchLongLabel]}>longer</Text>
       </View>
       <Text style={styles.howToMiniBoardCaption}>
-        White compares its empty side crossings. It chooses the one with the longest straight open path.
+        White compares the empty side crossings beside white groups. Longer straight path wins.
       </Text>
     </View>
   );
@@ -1462,8 +1463,8 @@ export default function LibertiesScreen() {
               <View style={styles.objectiveCard}>
                 <Text style={styles.objectiveTitle}>Goal</Text>
                 <Text style={styles.objectiveText}>
-                  You always place black. Clear every white group by closing the open crossings
-                  directly beside it.
+                  Place black pebbles on empty crossings. Clear each white group by closing every
+                  empty side crossing directly beside that white group.
                 </Text>
               </View>
 
@@ -1472,7 +1473,7 @@ export default function LibertiesScreen() {
                 <HowToMiniBoard
                   grid={HOW_TO_OPEN_GRID}
                   label="Board example"
-                  caption="Pebbles sit on crossings, where grid lines meet. Touching white pebbles form one group."
+                  caption="Pebbles sit where grid lines meet. White pebbles touching side-to-side are one white group."
                   styles={styles}
                 />
                 <Text style={styles.ruleListTitle}>Rules</Text>
@@ -1481,17 +1482,18 @@ export default function LibertiesScreen() {
                 ))}
               </View>
 
-              <Text accessibilityRole="header" style={styles.modalTitle}>White's turn</Text>
+              <Text accessibilityRole="header" style={styles.modalTitle}>When white moves</Text>
               <View style={[styles.rulesList, styles.rulesListSecondary]}>
-                <Text style={styles.ruleListTitle}>Where white stretches</Text>
                 <Text style={styles.ruleListIntro}>
-                  White is automatic. After a standard move, it adds one pebble to an empty side
-                  crossing beside a white group. The new pebble joins that group.
+                  White moves only after a standard move: a black pebble that clears no white group.
+                  White adds one white pebble beside an existing white group.
                 </Text>
                 <HowToStretchOrderBoard styles={styles} />
-                {WHITE_STRETCH_RULES.map((rule, index) => (
-                  <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
-                ))}
+                <View style={styles.whiteMoveSteps}>
+                  {WHITE_STRETCH_RULES.map((rule, index) => (
+                    <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
+                  ))}
+                </View>
               </View>
 
               <Pressable
@@ -1800,9 +1802,9 @@ const createStyles = (
       letterSpacing: 0.8,
     },
     objectiveText: {
-      color: Colors.textSecondary,
-      fontSize: FontSize.sm,
-      lineHeight: 20,
+      color: Colors.text,
+      fontSize: FontSize.md,
+      lineHeight: 22,
       fontWeight: '800',
     },
     modalTitle: {
@@ -1823,7 +1825,8 @@ const createStyles = (
     rulesListSecondary: {
       borderColor: Colors.border,
       backgroundColor: modalPanelSurface,
-      paddingTop: Spacing.sm,
+      paddingTop: Spacing.md,
+      gap: Spacing.md,
     },
     ruleListTitle: {
       color: screenAccent.main,
@@ -1834,11 +1837,11 @@ const createStyles = (
       marginBottom: 2,
     },
     ruleListIntro: {
-      color: Colors.textMuted,
+      color: Colors.textSecondary,
       fontSize: FontSize.sm,
-      lineHeight: 19,
+      lineHeight: 20,
       fontWeight: '700',
-      marginTop: -2,
+      marginTop: -4,
     },
     ruleItem: {
       flexDirection: 'row',
@@ -1862,22 +1865,22 @@ const createStyles = (
     numberedRuleItem: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      gap: Spacing.sm,
+      gap: Spacing.xs,
     },
     numberedRuleIndex: {
-      width: 20,
-      height: 20,
+      width: 22,
+      height: 22,
       borderRadius: 999,
       overflow: 'hidden',
-      color: screenAccent.main,
+      color: screenAccent.badgeText,
       backgroundColor: screenAccent.soft,
       borderWidth: 1,
       borderColor: screenAccent.badgeBorder,
       textAlign: 'center',
       fontSize: 11,
-      lineHeight: 18,
+      lineHeight: 20,
       fontWeight: '900',
-      marginTop: 1,
+      marginTop: 0,
     },
     numberedRuleText: {
       flex: 1,
@@ -1962,11 +1965,7 @@ const createStyles = (
     howToStretchPanel: {
       alignItems: 'center',
       gap: Spacing.sm,
-      borderRadius: BorderRadius.md,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: modalPanelSurface,
-      padding: Spacing.md,
+      paddingVertical: Spacing.xs,
     },
     howToStretchBoard: {
       width: 176,
@@ -1977,6 +1976,10 @@ const createStyles = (
       borderColor: boardEdge,
       backgroundColor: boardColor,
       position: 'relative',
+      shadowColor: '#000',
+      shadowOpacity: theme.mode === 'dark' ? 0.2 : 0.08,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 6 },
       ...WEB_NO_SELECT,
     },
     howToStretchPath: {
@@ -2037,6 +2040,12 @@ const createStyles = (
       top: 80,
       right: 10,
       color: screenAccent.badgeText,
+    },
+    whiteMoveSteps: {
+      gap: Spacing.sm,
+      paddingTop: Spacing.xs,
+      borderTopWidth: 1,
+      borderTopColor: Colors.border,
     },
     howToLessonRow: {
       flexDirection: 'row',
