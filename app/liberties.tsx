@@ -1706,7 +1706,7 @@ const createStyles = (
     },
     rulesListSecondary: {
       borderColor: Colors.border,
-      backgroundColor: modalPanel,
+      backgroundColor: modalPanelSurface,
       paddingTop: Spacing.sm,
     },
     ruleListTitle: {
