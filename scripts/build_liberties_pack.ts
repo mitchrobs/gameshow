@@ -53,7 +53,9 @@ function summarizePack(label: string, puzzles: LibertiesPuzzle[]): string[] {
     '',
     `Puzzles: ${packAudit.puzzleCount}`,
     `Difficulty mix: Easy ${packAudit.difficultyCounts.Easy}, Standard ${packAudit.difficultyCounts.Standard}, Hard ${packAudit.difficultyCounts.Hard}`,
-    `Target moves: min ${packAudit.minTargetMoves}, max ${packAudit.maxTargetMoves}, average ${packAudit.averageTargetMoves.toFixed(1)}`,
+    `Generated route moves: min ${packAudit.minTargetMoves}, max ${packAudit.maxTargetMoves}, average ${packAudit.averageTargetMoves.toFixed(1)}`,
+    `Move floor: min ${packAudit.minMinimumMoves}, max ${packAudit.maxMinimumMoves}, average ${packAudit.averageMinimumMoves.toFixed(1)}`,
+    `Generated-to-floor gap: average ${packAudit.averageTargetToMinimumMoveGap.toFixed(1)}, max ${packAudit.maxTargetToMinimumMoveGap}`,
     `Standard median target time: ${formatTime(packAudit.standardMedianTargetSeconds)}`,
     `Standard target time range: ${formatTime(standardSeconds[0] ?? 0)} - ${formatTime(standardSeconds.at(-1) ?? 0)}`,
     `Average red blockers: ${packAudit.averageBlockerCount.toFixed(1)}`,
@@ -102,7 +104,7 @@ function writeAuditReport(result: LibertiesPackGenerationResult): void {
       '',
       ...strongest.map(
         ({ puzzle, audit }) =>
-          `- ${puzzle.id}: ${puzzle.difficulty}, ${puzzle.targetMoves} moves, ${audit.responseEventCount} stretches, dependency ${audit.captureOrderDependencyScore}`
+          `- ${puzzle.id}: ${puzzle.difficulty}, ${puzzle.targetMoves} generated moves, ${puzzle.minMoves ?? puzzle.targetMoves} floor moves, ${audit.responseEventCount} stretches, dependency ${audit.captureOrderDependencyScore}`
       ),
       '',
     ].join('\n')

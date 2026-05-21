@@ -120,12 +120,15 @@ function difficultyLoad(difficulty: LibertiesDifficulty): number {
 function simulatePersona(persona: Persona, puzzles: LibertiesPuzzle[], pool: string): PersonaSummary {
   const results = puzzles.map((puzzle) => {
     const audit = getLibertiesPuzzleAudit(puzzle);
+    const moveFloor = puzzle.minMoves ?? puzzle.targetMoves;
+    const routeGap = Math.max(0, puzzle.targetMoves - moveFloor);
     const complexity =
       audit.responseEventCount +
       audit.dynamicMoveCount * 0.8 +
       audit.captureOrderDependencyScore * 0.65 +
       audit.blockerImpactScore * 0.22 +
-      Math.max(0, puzzle.targetMoves - 22) * 0.5;
+      Math.max(0, moveFloor - 18) * 0.8 +
+      Math.min(10, routeGap) * 0.25;
     const sharedHelp = audit.sharedOpenSideCount * persona.sharedMoveBonus;
     const stress = Math.max(0, complexity - persona.responseTolerance - sharedHelp);
     const predictedSeconds = Math.round(

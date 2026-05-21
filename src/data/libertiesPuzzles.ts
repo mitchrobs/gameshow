@@ -53,10 +53,12 @@ export interface LibertiesPuzzle {
   difficulty: LibertiesDifficulty;
   size: number;
   targetMoves: number;
+  minMoves?: number;
   targetSeconds: number;
   variant: LibertiesVariant;
   layout: string[];
   solution: LibertiesPoint[];
+  minSolution?: LibertiesPoint[];
   releaseLinks: LibertiesReleaseLink[];
   lightGroups: LibertiesPoint[][];
   motif: string;
@@ -1285,10 +1287,12 @@ function addCandidateToPuzzleSelection(
   if (selected.length >= targetLength || selectedIds.has(puzzle.id)) return false;
   const layoutFingerprint = puzzle.layout.join('/');
   if (selectedLayouts.has(layoutFingerprint)) return false;
+  const puzzleWithMinimumRoute = withLibertiesMinimumRoute(puzzle);
+  if (!candidatePassesMoveFloorGate(puzzleWithMinimumRoute)) return false;
   selectedLayouts.add(layoutFingerprint);
   selectedIds.add(puzzle.id);
   selectedDifficultyCounts[puzzle.difficulty] += 1;
-  selected.push(puzzle);
+  selected.push(puzzleWithMinimumRoute);
   return true;
 }
 
@@ -1549,7 +1553,7 @@ function buildLibertiesPacks(tuning: LibertiesGenerationTuning): LibertiesPackGe
   const scoredCandidates = scoreLibertiesCandidates(tuning);
   const selectedLayouts = new Set<string>();
   const selectedIds = new Set<string>();
-  const publicPuzzles = orderLibertiesPublicPuzzles(selectLibertiesPuzzlesByQuota(
+  const publicPuzzles = withLibertiesMinimumRoutes(orderLibertiesPublicPuzzles(selectLibertiesPuzzlesByQuota(
     scoredCandidates,
     LIBERTIES_PUBLIC_DIFFICULTY_QUOTAS,
     LIBERTIES_PUBLIC_SIZE_QUOTAS,
@@ -1557,8 +1561,8 @@ function buildLibertiesPacks(tuning: LibertiesGenerationTuning): LibertiesPackGe
     selectedIds,
     true,
     LIBERTIES_PACK_LENGTH
-  ));
-  const reservePuzzles = selectLibertiesPuzzlesByQuota(
+  )));
+  const reservePuzzles = withLibertiesMinimumRoutes(selectLibertiesPuzzlesByQuota(
     scoredCandidates,
     LIBERTIES_RESERVE_DIFFICULTY_QUOTAS,
     LIBERTIES_RESERVE_SIZE_QUOTAS,
@@ -1566,7 +1570,7 @@ function buildLibertiesPacks(tuning: LibertiesGenerationTuning): LibertiesPackGe
     selectedIds,
     false,
     LIBERTIES_RESERVE_PACK_LENGTH
-  ).map((puzzle, index) => ({ ...puzzle, reserveRank: index + 1 }));
+  ).map((puzzle, index) => ({ ...puzzle, reserveRank: index + 1 })));
 
   return {
     publicPuzzles,
@@ -1665,6 +1669,11 @@ export interface LibertiesPackAudit {
   minTargetMoves: number;
   maxTargetMoves: number;
   averageTargetMoves: number;
+  minMinimumMoves: number;
+  maxMinimumMoves: number;
+  averageMinimumMoves: number;
+  averageTargetToMinimumMoveGap: number;
+  maxTargetToMinimumMoveGap: number;
   standardMedianTargetSeconds: number;
   averageBlockerCount: number;
   minimumBlockerImpactScore: number;
@@ -1803,10 +1812,12 @@ function deriveAutomaticReleaseSpecs(spec: LibertiesPuzzleSpec): LibertiesReleas
     difficulty: spec.difficulty,
     size: spec.size,
     targetMoves: 0,
+    minMoves: 0,
     targetSeconds: 0,
     variant: spec.variant ?? getDefaultLibertiesVariant(spec.difficulty),
     layout: baseLayout,
     solution: [],
+    minSolution: [],
     releaseLinks: [],
     lightGroups: spec.groups.map((group) => group.stones.map(toPoint)),
     motif: spec.motif,
@@ -1851,10 +1862,12 @@ function defineLibertiesPuzzle(spec: LibertiesPuzzleSpec): LibertiesPuzzle {
     difficulty: spec.difficulty,
     size: spec.size,
     targetMoves: 0,
+    minMoves: 0,
     targetSeconds: 0,
     variant: spec.variant ?? getDefaultLibertiesVariant(spec.difficulty),
     layout,
     solution: [],
+    minSolution: [],
     releaseLinks: releaseSpecs.map(toReleaseLink),
     lightGroups: spec.groups.map((group) => group.stones.map(toPoint)),
     motif: spec.motif,
@@ -1869,12 +1882,16 @@ function defineLibertiesPuzzle(spec: LibertiesPuzzleSpec): LibertiesPuzzle {
   const auditPuzzle = {
     ...definedPuzzle,
     targetMoves: solution.length,
+    minMoves: solution.length,
+    minSolution: solution,
     targetSeconds: 0,
   };
   const audit = getLibertiesPuzzleAudit(auditPuzzle);
   const finalPuzzle = {
     ...definedPuzzle,
     targetMoves: solution.length,
+    minMoves: solution.length,
+    minSolution: solution,
     targetSeconds: estimateLibertiesSolveSeconds(spec.difficulty, solution.length, audit),
   };
   return {
@@ -2401,6 +2418,7 @@ const LIVE_HINT_ROUTE_CACHE_LIMIT = 600;
 const liveHintRouteCache = new Map<string, LibertiesHintResult>();
 const lowestMoveCountCache = new Map<string, number>();
 const lowestMoveRouteCache = new Map<string, LibertiesPoint[]>();
+const generatedMinimumRouteCache = new Map<string, LibertiesPoint[]>();
 
 function getSolutionRankMap(puzzle: Pick<LibertiesPuzzle, 'solution'>): Map<string, number> {
   const ranks = new Map<string, number>();
@@ -2665,9 +2683,87 @@ function findMoveOptimizedLibertiesRoute(
   return null;
 }
 
+function getMoveFloorGenerationTimeBudgetMs(difficulty: LibertiesDifficulty): number {
+  if (difficulty === 'Hard') return 1400;
+  if (difficulty === 'Standard') return 1000;
+  return 500;
+}
+
+function routeSolvesLibertiesPuzzle(puzzle: LibertiesPuzzle, route: LibertiesPoint[]): boolean {
+  const replay = replayLibertiesMoves(puzzle, route);
+  return replay.illegalMoveIndex === null && isLibertiesSolved(puzzle, replay.board);
+}
+
+function getGeneratedLibertiesMinimumRoute(puzzle: LibertiesPuzzle): LibertiesPoint[] {
+  const cached = generatedMinimumRouteCache.get(puzzle.id);
+  if (cached) return cloneHintRoute(cached);
+
+  const route = findMoveOptimizedLibertiesRoute(
+    puzzle,
+    createLibertiesBoard(puzzle),
+    getSolutionRankMap(puzzle),
+    getMoveFloorGenerationTimeBudgetMs(puzzle.difficulty)
+  );
+
+  if (
+    route &&
+    route.length > 0 &&
+    route.length <= puzzle.solution.length &&
+    routeSolvesLibertiesPuzzle(puzzle, route)
+  ) {
+    generatedMinimumRouteCache.set(puzzle.id, cloneHintRoute(route));
+    return cloneHintRoute(route);
+  }
+
+  generatedMinimumRouteCache.set(puzzle.id, cloneHintRoute(puzzle.solution));
+  return cloneHintRoute(puzzle.solution);
+}
+
+function getMinimumMoveFloorThreshold(puzzle: LibertiesPuzzle): number {
+  if (puzzle.difficulty === 'Hard') return puzzle.size >= 10 ? 18 : 13;
+  if (puzzle.difficulty === 'Standard') return 9;
+  return 6;
+}
+
+function getMaximumGeneratedToFloorGap(puzzle: LibertiesPuzzle): number {
+  if (puzzle.difficulty === 'Hard') return puzzle.size >= 10 ? 20 : 16;
+  if (puzzle.difficulty === 'Standard') return 16;
+  return 12;
+}
+
+function candidatePassesMoveFloorGate(puzzle: LibertiesPuzzle): boolean {
+  const minMoves = puzzle.minMoves ?? puzzle.targetMoves;
+  const generatedToFloorGap = Math.max(0, puzzle.targetMoves - minMoves);
+  return (
+    minMoves >= getMinimumMoveFloorThreshold(puzzle) &&
+    generatedToFloorGap <= getMaximumGeneratedToFloorGap(puzzle)
+  );
+}
+
+function withLibertiesMinimumRoute(puzzle: LibertiesPuzzle): LibertiesPuzzle {
+  const minSolution = getGeneratedLibertiesMinimumRoute(puzzle);
+  return {
+    ...puzzle,
+    minMoves: minSolution.length,
+    minSolution,
+  };
+}
+
+function withLibertiesMinimumRoutes(puzzles: LibertiesPuzzle[]): LibertiesPuzzle[] {
+  return puzzles.map(withLibertiesMinimumRoute);
+}
+
 function getInitialMoveOptimizedLibertiesRoute(puzzle: LibertiesPuzzle): LibertiesPoint[] | null {
   const cached = lowestMoveRouteCache.get(puzzle.id);
   if (cached) return cloneHintRoute(cached);
+
+  if (Array.isArray(puzzle.minSolution) && puzzle.minSolution.length > 0) {
+    const route = cloneHintRoute(puzzle.minSolution);
+    lowestMoveRouteCache.set(puzzle.id, cloneHintRoute(route));
+    lowestMoveCountCache.set(puzzle.id, route.length);
+    cacheLiveHintRoute(puzzle, createLibertiesBoard(puzzle), route);
+    return cloneHintRoute(route);
+  }
 
   const board = createLibertiesBoard(puzzle);
   const route = findMoveOptimizedLibertiesRoute(
@@ -2802,6 +2898,10 @@ export function getBestLibertiesHintMove(
 }
 
 export function getLowestLibertiesMoveCount(puzzle: LibertiesPuzzle): number {
+  if (typeof puzzle.minMoves === 'number' && (puzzle.minMoves > 0 || puzzle.solution.length === 0)) {
+    return puzzle.minMoves;
+  }
+
   const cached = lowestMoveCountCache.get(puzzle.id);
   if (cached !== undefined) return cached;
 
@@ -3009,6 +3109,11 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
   let minTargetMoves = Number.POSITIVE_INFINITY;
   let maxTargetMoves = 0;
   let targetMoveTotal = 0;
+  let minMinimumMoves = Number.POSITIVE_INFINITY;
+  let maxMinimumMoves = 0;
+  let minimumMoveTotal = 0;
+  let targetToMinimumMoveGapTotal = 0;
+  let maxTargetToMinimumMoveGap = 0;
   let blockerCountTotal = 0;
   let blockerImpactTotal = 0;
   let minimumBlockerImpactScore = Number.POSITIVE_INFINITY;
@@ -3035,6 +3140,13 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
     minTargetMoves = Math.min(minTargetMoves, puzzle.targetMoves);
     maxTargetMoves = Math.max(maxTargetMoves, puzzle.targetMoves);
     targetMoveTotal += puzzle.targetMoves;
+    const minimumMoves = getLowestLibertiesMoveCount(puzzle);
+    const targetToMinimumMoveGap = Math.max(0, puzzle.targetMoves - minimumMoves);
+    minMinimumMoves = Math.min(minMinimumMoves, minimumMoves);
+    maxMinimumMoves = Math.max(maxMinimumMoves, minimumMoves);
+    minimumMoveTotal += minimumMoves;
+    targetToMinimumMoveGapTotal += targetToMinimumMoveGap;
+    maxTargetToMinimumMoveGap = Math.max(maxTargetToMinimumMoveGap, targetToMinimumMoveGap);
     blockerCountTotal += puzzleAudit.blockerCount;
     blockerImpactTotal += puzzleAudit.blockerImpactScore;
     minimumBlockerImpactScore = Math.min(minimumBlockerImpactScore, puzzleAudit.blockerImpactScore);
@@ -3069,6 +3181,11 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
     minTargetMoves: Number.isFinite(minTargetMoves) ? minTargetMoves : 0,
     maxTargetMoves,
     averageTargetMoves: puzzles.length > 0 ? targetMoveTotal / puzzles.length : 0,
+    minMinimumMoves: Number.isFinite(minMinimumMoves) ? minMinimumMoves : 0,
+    maxMinimumMoves,
+    averageMinimumMoves: puzzles.length > 0 ? minimumMoveTotal / puzzles.length : 0,
+    averageTargetToMinimumMoveGap: puzzles.length > 0 ? targetToMinimumMoveGapTotal / puzzles.length : 0,
+    maxTargetToMinimumMoveGap,
     standardMedianTargetSeconds,
     averageBlockerCount: puzzles.length > 0 ? blockerCountTotal / puzzles.length : 0,
     minimumBlockerImpactScore: Number.isFinite(minimumBlockerImpactScore) ? minimumBlockerImpactScore : 0,

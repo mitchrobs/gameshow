@@ -2,6 +2,7 @@ import {
   getLibertiesBlockerRange,
   getLibertiesPackAudit,
   getLibertiesPuzzleAudit,
+  isLibertiesSolved,
   libertiesReservePuzzles,
   libertiesPuzzles,
   replayLibertiesMoves,
@@ -10,11 +11,23 @@ import {
 
 function puzzleFailsGate(puzzle: LibertiesPuzzle): boolean {
   const replay = replayLibertiesMoves(puzzle, puzzle.solution);
+  const minimumReplay = replayLibertiesMoves(puzzle, puzzle.minSolution ?? []);
   const puzzleAudit = getLibertiesPuzzleAudit(puzzle);
   const [minBlockers, maxBlockers] = getLibertiesBlockerRange(puzzle.difficulty);
   const responseMinimum = puzzle.difficulty === 'Hard' ? 3 : puzzle.difficulty === 'Standard' ? 2 : 0;
+  const minMoves = puzzle.minMoves ?? puzzle.targetMoves;
+  const generatedToFloorGap = Math.max(0, puzzle.targetMoves - minMoves);
+  const minimumMoveFloor =
+    puzzle.difficulty === 'Hard' ? (puzzle.size >= 10 ? 18 : 13) : puzzle.difficulty === 'Standard' ? 9 : 6;
+  const maximumGeneratedToFloorGap =
+    puzzle.difficulty === 'Hard' ? (puzzle.size >= 10 ? 20 : 16) : puzzle.difficulty === 'Standard' ? 16 : 12;
   return (
     replay.illegalMoveIndex !== null ||
+    minimumReplay.illegalMoveIndex !== null ||
+    !isLibertiesSolved(puzzle, minimumReplay.board) ||
+    minMoves < minimumMoveFloor ||
+    minMoves > puzzle.targetMoves ||
+    generatedToFloorGap > maximumGeneratedToFloorGap ||
     puzzleAudit.isPureOpeningFill ||
     puzzleAudit.responseEventCount < responseMinimum ||
     puzzleAudit.fillerMoveRatio >= 0.25 ||
@@ -33,7 +46,13 @@ function printAudit(label: string, puzzles: LibertiesPuzzle[]): void {
     `Difficulty mix: Easy ${audit.difficultyCounts.Easy}, Standard ${audit.difficultyCounts.Standard}, Hard ${audit.difficultyCounts.Hard}`
   );
   console.log(
-    `Target moves: min ${audit.minTargetMoves}, max ${audit.maxTargetMoves}, average ${audit.averageTargetMoves.toFixed(1)}`
+    `Generated route moves: min ${audit.minTargetMoves}, max ${audit.maxTargetMoves}, average ${audit.averageTargetMoves.toFixed(1)}`
+  );
+  console.log(
+    `Move floor: min ${audit.minMinimumMoves}, max ${audit.maxMinimumMoves}, average ${audit.averageMinimumMoves.toFixed(1)}`
+  );
+  console.log(
+    `Generated-to-floor gap: average ${audit.averageTargetToMinimumMoveGap.toFixed(1)}, max ${audit.maxTargetToMinimumMoveGap}`
   );
   console.log(`Standard median target seconds: ${audit.standardMedianTargetSeconds}`);
   console.log(`Average red blockers: ${audit.averageBlockerCount.toFixed(1)}`);
@@ -68,6 +87,9 @@ if (
   allLayouts.size !== allPuzzles.length ||
   publicAudit.standardMedianTargetSeconds < 240 ||
   publicAudit.standardMedianTargetSeconds > 420 ||
+  publicAudit.minMinimumMoves < 8 ||
+  publicAudit.averageTargetToMinimumMoveGap > 10 ||
+  publicAudit.maxTargetToMinimumMoveGap > 20 ||
   publicAudit.pureOpeningFillCount > 0 ||
   reserveAudit.pureOpeningFillCount > 0 ||
   publicFailed.length > 0 ||
