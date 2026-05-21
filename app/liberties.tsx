@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Image,
   Modal,
@@ -495,6 +504,365 @@ function HowToNumberedItem({
     </View>
   );
 }
+
+type LibertiesBoardCardProps = {
+  activeGroupIndex: number | null;
+  activeOpenSideKeys: Set<string>;
+  board: LibertiesBoard;
+  boardPadding: number;
+  boardSize: number;
+  dailyLabel: string;
+  gameState: GameState;
+  gridLineThickness: number;
+  gridSpan: number;
+  groupIndexByPoint: Map<string, number>;
+  guideStoneSize: number;
+  handlePointPress: (point: LibertiesPoint) => void;
+  highlightedGroupIndexes: Set<number>;
+  hintPoint: LibertiesPoint | null;
+  hitSize: number;
+  hoverPoint: LibertiesPoint | null;
+  pointGap: number;
+  previewStoneSize: number;
+  puzzle: typeof libertiesPuzzles[number];
+  recentResponseKeys: Set<string>;
+  releaseIndexByPoint: Map<string, number>;
+  remainingGroupCount: number;
+  selectedPoint: LibertiesPoint | null;
+  setActiveGroupIndex: Dispatch<SetStateAction<number | null>>;
+  setHoverPoint: Dispatch<SetStateAction<LibertiesPoint | null>>;
+  stoneSize: number;
+  styles: ReturnType<typeof createStyles>;
+  width: number;
+};
+
+const LibertiesBoardCard = memo(function LibertiesBoardCard({
+  activeGroupIndex,
+  activeOpenSideKeys,
+  board,
+  boardPadding,
+  boardSize,
+  dailyLabel,
+  gameState,
+  gridLineThickness,
+  gridSpan,
+  groupIndexByPoint,
+  guideStoneSize,
+  handlePointPress,
+  highlightedGroupIndexes,
+  hintPoint,
+  hitSize,
+  hoverPoint,
+  pointGap,
+  previewStoneSize,
+  puzzle,
+  recentResponseKeys,
+  releaseIndexByPoint,
+  remainingGroupCount,
+  selectedPoint,
+  setActiveGroupIndex,
+  setHoverPoint,
+  stoneSize,
+  styles,
+  width,
+}: LibertiesBoardCardProps) {
+  return (
+    <View style={[styles.boardCard, width < 420 && styles.boardCardCompact, WEB_BORDER_BOX]}>
+      <View style={styles.boardHeader}>
+        <View>
+          <Text style={styles.puzzleTitle}>{dailyLabel}</Text>
+        </View>
+        <View style={[styles.statePill, gameState === 'won' && styles.statePillWon]}>
+          <Text style={[styles.statePillText, gameState === 'won' && styles.statePillTextWon]}>
+            {gameState === 'won'
+              ? 'Solved'
+              : `${remainingGroupCount} shape${remainingGroupCount === 1 ? '' : 's'}`}
+          </Text>
+        </View>
+      </View>
+
+      <View
+        style={[
+          styles.board,
+          {
+            width: boardSize,
+            height: boardSize,
+          },
+        ]}
+      >
+        {Array.from({ length: puzzle.size }).map((_, index) => (
+          <View
+            key={`grid-vertical-${index}`}
+            style={[
+              styles.boardGridLine,
+              {
+                left: boardPadding + index * pointGap - gridLineThickness / 2,
+                top: boardPadding,
+                width: gridLineThickness,
+                height: gridSpan,
+              },
+            ]}
+          />
+        ))}
+        {Array.from({ length: puzzle.size }).map((_, index) => (
+          <View
+            key={`grid-horizontal-${index}`}
+            style={[
+              styles.boardGridLine,
+              {
+                left: boardPadding,
+                top: boardPadding + index * pointGap - gridLineThickness / 2,
+                width: gridSpan,
+                height: gridLineThickness,
+              },
+            ]}
+          />
+        ))}
+        {puzzle.releaseLinks.map((release, index) => {
+          if (board[release.point.row]?.[release.point.col] !== 'release') return null;
+          const group = puzzle.lightGroups[release.groupIndex] ?? [];
+          const active = activeGroupIndex === release.groupIndex;
+          return (
+            <View
+              key={`release-link-${index}-${pointKey(release.point)}`}
+              style={[
+                styles.releaseConnector,
+                {
+                  ...getReleaseConnectorStyle(
+                    release.point,
+                    getGroupCenter(group),
+                    boardPadding,
+                    pointGap
+                  ),
+                  backgroundColor: getGroupAccent(release.groupIndex),
+                  opacity: active ? 0.6 : 0.22,
+                },
+                active && styles.releaseConnectorActive,
+              ]}
+            />
+          );
+        })}
+        {board.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            const point = { row: rowIndex, col: colIndex };
+            const pointKeyValue = pointKey(point);
+            const pointLeft = boardPadding + colIndex * pointGap;
+            const pointTop = boardPadding + rowIndex * pointGap;
+            const hinted = hintPoint ? samePoint(hintPoint, point) : false;
+            const selected = selectedPoint ? samePoint(selectedPoint, point) : false;
+            const hovered = hoverPoint ? samePoint(hoverPoint, point) : false;
+            const previewing = cell === null && (selected || hovered);
+            const previewResult = previewing
+              ? playLibertiesMove(board, puzzle.size, point, 'black', puzzle)
+              : null;
+            const previewLegal = previewResult?.legal ?? false;
+            const groupIndex = cell === 'white' ? groupIndexByPoint.get(pointKeyValue) : undefined;
+            const releaseGroupIndex = cell === 'release' ? releaseIndexByPoint.get(pointKeyValue) : undefined;
+            const releaseHighlighted =
+              cell === 'release' &&
+              releaseGroupIndex !== undefined &&
+              highlightedGroupIndexes.has(releaseGroupIndex);
+            const isActiveOpenSide = cell === null && activeOpenSideKeys.has(pointKeyValue);
+            const recentlyResponded = recentResponseKeys.has(pointKeyValue);
+
+            return (
+              <Pressable
+                key={pointKeyValue}
+                accessibilityRole="button"
+                accessibilityLabel={getCellAccessibilityLabel(rowIndex, colIndex, cell)}
+                disabled={gameState === 'won'}
+                onPress={() => {
+                  if (cell === 'white' && groupIndex !== undefined) {
+                    setActiveGroupIndex(groupIndex);
+                  }
+                  if (cell === 'release' && releaseGroupIndex !== undefined) {
+                    setActiveGroupIndex(releaseGroupIndex);
+                  }
+                  handlePointPress(point);
+                }}
+                onHoverIn={() => {
+                  if (Platform.OS !== 'web') return;
+                  if (cell === null) setHoverPoint(point);
+                  if (cell === 'white' && groupIndex !== undefined) setActiveGroupIndex(groupIndex);
+                  if (cell === 'release' && releaseGroupIndex !== undefined) {
+                    setActiveGroupIndex(releaseGroupIndex);
+                  }
+                }}
+                onHoverOut={() => {
+                  if (Platform.OS !== 'web') return;
+                  if (hoverPoint && samePoint(hoverPoint, point)) {
+                    setHoverPoint(null);
+                  }
+                  if (cell === 'white' && groupIndex !== undefined) {
+                    setActiveGroupIndex((current) => (current === groupIndex ? null : current));
+                  }
+                  if (cell === 'release' && releaseGroupIndex !== undefined) {
+                    setActiveGroupIndex((current) => (current === releaseGroupIndex ? null : current));
+                  }
+                }}
+                style={({ pressed }) => [
+                  styles.cell,
+                  {
+                    left: pointLeft - hitSize / 2,
+                    top: pointTop - hitSize / 2,
+                    width: hitSize,
+                    height: hitSize,
+                    borderRadius: hitSize / 2,
+                  },
+                  cell === 'frozen' && styles.frozenCell,
+                  cell === 'release' && styles.releaseCell,
+                  hinted && styles.cellHinted,
+                  hovered && cell === null && styles.cellHovered,
+                  selected && styles.cellSelected,
+                  previewing && !previewLegal && styles.cellInvalid,
+                  pressed && cell === null && styles.cellPressed,
+                ]}
+              >
+                {cell === 'frozen' && (
+                  <Image
+                    source={PEBBLE_ASSETS.blocker}
+                    style={[
+                      styles.pieceImage,
+                      styles.blockerPiece,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                )}
+                {cell === 'release' && releaseGroupIndex !== undefined && (
+                  <View
+                    style={[
+                      styles.releaseHalo,
+                      {
+                        width: stoneSize * 1.18,
+                        height: stoneSize * 1.18,
+                        borderRadius: stoneSize,
+                        borderColor: getGroupAccent(releaseGroupIndex),
+                        opacity: releaseHighlighted ? 0.78 : 0.22,
+                      },
+                      releaseHighlighted && styles.releaseHaloActive,
+                    ]}
+                  />
+                )}
+                {cell === 'release' && (
+                  <Image
+                    source={PEBBLE_ASSETS.guide}
+                    style={[
+                      styles.pieceImage,
+                      styles.releasePiece,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                )}
+                {cell === 'white' && groupIndex !== undefined && (
+                  <View
+                    style={[
+                      styles.lightGroupHalo,
+                      {
+                        width: stoneSize * 1.22,
+                        height: stoneSize * 1.22,
+                        borderRadius: stoneSize,
+                        borderColor: getGroupAccent(groupIndex),
+                        opacity: highlightedGroupIndexes.has(groupIndex) ? 0.72 : 0.3,
+                      },
+                      highlightedGroupIndexes.has(groupIndex) && styles.lightGroupHaloActive,
+                    ]}
+                  />
+                )}
+                {(cell === 'black' || cell === 'white') && (
+                  <Image
+                    source={cell === 'black' ? PEBBLE_ASSETS.seal : PEBBLE_ASSETS.target}
+                    style={[
+                      styles.pieceImage,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                )}
+                {selected && cell === null && (
+                  <View
+                    style={[
+                      styles.previewRing,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                        borderRadius: stoneSize / 2,
+                      },
+                    ]}
+                  />
+                )}
+                {hovered && cell === null && !selected && (
+                  <View
+                    style={[
+                      styles.hoverRing,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                        borderRadius: stoneSize / 2,
+                      },
+                    ]}
+                  />
+                )}
+                {isActiveOpenSide && !previewing && (
+                  <View style={[styles.openSideMarker, { borderColor: getGroupAccent(activeGroupIndex ?? 0) }]} />
+                )}
+                {recentlyResponded && !previewing && (
+                  <View
+                    style={[
+                      styles.releasedPulse,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                        borderRadius: stoneSize / 2,
+                      },
+                    ]}
+                  />
+                )}
+                {previewing && (
+                  <Image
+                    source={PEBBLE_ASSETS.seal}
+                    style={[
+                      styles.pieceImage,
+                      styles.previewPiece,
+                      !previewLegal && styles.invalidPreviewPiece,
+                      {
+                        width: previewStoneSize,
+                        height: previewStoneSize,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                )}
+                {hinted && !previewing && cell === null && (
+                  <View
+                    style={[
+                      styles.hintRing,
+                      {
+                        width: guideStoneSize,
+                        height: guideStoneSize,
+                        borderRadius: guideStoneSize / 2,
+                      },
+                    ]}
+                  />
+                )}
+              </Pressable>
+            );
+          })
+        )}
+      </View>
+    </View>
+  );
+});
 
 function sanitizeMoves(value: unknown, size: number): LibertiesPoint[] {
   if (!Array.isArray(value)) return [];
@@ -1064,298 +1432,36 @@ export default function LibertiesScreen() {
             </View>
           </View>
 
-          <View style={[styles.boardCard, width < 420 && styles.boardCardCompact, WEB_BORDER_BOX]}>
-            <View style={styles.boardHeader}>
-              <View>
-                <Text style={styles.puzzleTitle}>{dailyLabel}</Text>
-              </View>
-              <View style={[styles.statePill, gameState === 'won' && styles.statePillWon]}>
-                <Text style={[styles.statePillText, gameState === 'won' && styles.statePillTextWon]}>
-                  {gameState === 'won'
-                    ? 'Solved'
-                    : `${remainingGroups.length} shape${remainingGroups.length === 1 ? '' : 's'}`}
-                </Text>
-              </View>
-            </View>
-
-            <View
-              style={[
-                styles.board,
-                {
-                  width: boardSize,
-                  height: boardSize,
-                },
-              ]}
-            >
-              {Array.from({ length: puzzle.size }).map((_, index) => (
-                <View
-                  key={`grid-vertical-${index}`}
-                  style={[
-                    styles.boardGridLine,
-                    {
-                      left: boardPadding + index * pointGap - gridLineThickness / 2,
-                      top: boardPadding,
-                      width: gridLineThickness,
-                      height: gridSpan,
-                    },
-                  ]}
-                />
-              ))}
-              {Array.from({ length: puzzle.size }).map((_, index) => (
-                <View
-                  key={`grid-horizontal-${index}`}
-                  style={[
-                    styles.boardGridLine,
-                    {
-                      left: boardPadding,
-                      top: boardPadding + index * pointGap - gridLineThickness / 2,
-                      width: gridSpan,
-                      height: gridLineThickness,
-                    },
-                  ]}
-                />
-              ))}
-              {puzzle.releaseLinks.map((release, index) => {
-                if (board[release.point.row]?.[release.point.col] !== 'release') return null;
-                const group = puzzle.lightGroups[release.groupIndex] ?? [];
-                const active = activeGroupIndex === release.groupIndex;
-                return (
-                  <View
-                    key={`release-link-${index}-${pointKey(release.point)}`}
-                    style={[
-                      styles.releaseConnector,
-                      {
-                        ...getReleaseConnectorStyle(
-                          release.point,
-                          getGroupCenter(group),
-                          boardPadding,
-                          pointGap
-                        ),
-                        backgroundColor: getGroupAccent(release.groupIndex),
-                        opacity: active ? 0.6 : 0.22,
-                      },
-                      active && styles.releaseConnectorActive,
-                    ]}
-                  />
-                );
-              })}
-              {board.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    const point = { row: rowIndex, col: colIndex };
-                    const pointKeyValue = pointKey(point);
-                    const pointLeft = boardPadding + colIndex * pointGap;
-                    const pointTop = boardPadding + rowIndex * pointGap;
-                    const hinted = hintPoint ? samePoint(hintPoint, point) : false;
-                    const selected = selectedPoint ? samePoint(selectedPoint, point) : false;
-                    const hovered = hoverPoint ? samePoint(hoverPoint, point) : false;
-                    const previewing = cell === null && (selected || hovered);
-                    const previewResult = previewing
-                      ? playLibertiesMove(board, puzzle.size, point, 'black', puzzle)
-                      : null;
-                    const previewLegal = previewResult?.legal ?? false;
-                    const groupIndex = cell === 'white' ? groupIndexByPoint.get(pointKeyValue) : undefined;
-                    const releaseGroupIndex = cell === 'release' ? releaseIndexByPoint.get(pointKeyValue) : undefined;
-                    const releaseHighlighted =
-                      cell === 'release' &&
-                      releaseGroupIndex !== undefined &&
-                      highlightedGroupIndexes.has(releaseGroupIndex);
-                    const isActiveOpenSide = cell === null && activeOpenSideKeys.has(pointKeyValue);
-                    const recentlyResponded = recentResponseKeys.has(pointKeyValue);
-                    return (
-                      <Pressable
-                        key={pointKeyValue}
-                        accessibilityRole="button"
-                        accessibilityLabel={getCellAccessibilityLabel(rowIndex, colIndex, cell)}
-                        disabled={gameState === 'won'}
-                        onPress={() => {
-                          if (cell === 'white' && groupIndex !== undefined) {
-                            setActiveGroupIndex(groupIndex);
-                          }
-                          if (cell === 'release' && releaseGroupIndex !== undefined) {
-                            setActiveGroupIndex(releaseGroupIndex);
-                          }
-                          handlePointPress(point);
-                        }}
-                        onHoverIn={() => {
-                          if (Platform.OS !== 'web') return;
-                          if (cell === null) setHoverPoint(point);
-                          if (cell === 'white' && groupIndex !== undefined) setActiveGroupIndex(groupIndex);
-                          if (cell === 'release' && releaseGroupIndex !== undefined) setActiveGroupIndex(releaseGroupIndex);
-                        }}
-                        onHoverOut={() => {
-                          if (Platform.OS !== 'web') return;
-                          if (hoverPoint && samePoint(hoverPoint, point)) {
-                            setHoverPoint(null);
-                          }
-                          if (cell === 'white' && groupIndex !== undefined) {
-                            setActiveGroupIndex((current) => (current === groupIndex ? null : current));
-                          }
-                          if (cell === 'release' && releaseGroupIndex !== undefined) {
-                            setActiveGroupIndex((current) => (current === releaseGroupIndex ? null : current));
-                          }
-                        }}
-                        style={({ pressed }) => [
-                          styles.cell,
-                          {
-                            left: pointLeft - hitSize / 2,
-                            top: pointTop - hitSize / 2,
-                            width: hitSize,
-                            height: hitSize,
-                            borderRadius: hitSize / 2,
-                          },
-                          cell === 'frozen' && styles.frozenCell,
-                          cell === 'release' && styles.releaseCell,
-                          hinted && styles.cellHinted,
-                          hovered && cell === null && styles.cellHovered,
-                          selected && styles.cellSelected,
-                          previewing && !previewLegal && styles.cellInvalid,
-                          pressed && cell === null && styles.cellPressed,
-                        ]}
-                      >
-                        {cell === 'frozen' && (
-                          <Image
-                            source={PEBBLE_ASSETS.blocker}
-                            style={[
-                              styles.pieceImage,
-                              styles.blockerPiece,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                              },
-                            ]}
-                            resizeMode="contain"
-                          />
-                        )}
-                        {cell === 'release' && releaseGroupIndex !== undefined && (
-                          <View
-                            style={[
-                              styles.releaseHalo,
-                              {
-                                width: stoneSize * 1.18,
-                                height: stoneSize * 1.18,
-                                borderRadius: stoneSize,
-                                borderColor: getGroupAccent(releaseGroupIndex),
-                                opacity: releaseHighlighted ? 0.78 : 0.22,
-                              },
-                              releaseHighlighted && styles.releaseHaloActive,
-                            ]}
-                          />
-                        )}
-                        {cell === 'release' && (
-                          <Image
-                            source={PEBBLE_ASSETS.guide}
-                            style={[
-                              styles.pieceImage,
-                              styles.releasePiece,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                              },
-                            ]}
-                            resizeMode="contain"
-                          />
-                        )}
-                        {cell === 'white' && groupIndex !== undefined && (
-                          <View
-                            style={[
-                              styles.lightGroupHalo,
-                              {
-                                width: stoneSize * 1.22,
-                                height: stoneSize * 1.22,
-                                borderRadius: stoneSize,
-                                borderColor: getGroupAccent(groupIndex),
-                                opacity: highlightedGroupIndexes.has(groupIndex) ? 0.72 : 0.3,
-                              },
-                              highlightedGroupIndexes.has(groupIndex) && styles.lightGroupHaloActive,
-                            ]}
-                          />
-                        )}
-                        {(cell === 'black' || cell === 'white') && (
-                          <Image
-                            source={cell === 'black' ? PEBBLE_ASSETS.seal : PEBBLE_ASSETS.target}
-                            style={[
-                              styles.pieceImage,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                              },
-                            ]}
-                            resizeMode="contain"
-                          />
-                        )}
-                        {selected && cell === null && (
-                          <View
-                            style={[
-                              styles.previewRing,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                                borderRadius: stoneSize / 2,
-                              },
-                            ]}
-                          />
-                        )}
-                        {hovered && cell === null && !selected && (
-                          <View
-                            style={[
-                              styles.hoverRing,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                                borderRadius: stoneSize / 2,
-                              },
-                            ]}
-                          />
-                        )}
-                        {isActiveOpenSide && !previewing && (
-                          <View style={[styles.openSideMarker, { borderColor: getGroupAccent(activeGroupIndex ?? 0) }]} />
-                        )}
-                        {recentlyResponded && !previewing && (
-                          <View
-                            style={[
-                              styles.releasedPulse,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                                borderRadius: stoneSize / 2,
-                              },
-                            ]}
-                          />
-                        )}
-                        {previewing && (
-                          <Image
-                            source={PEBBLE_ASSETS.seal}
-                            style={[
-                              styles.pieceImage,
-                              styles.previewPiece,
-                              !previewLegal && styles.invalidPreviewPiece,
-                              {
-                                width: previewStoneSize,
-                                height: previewStoneSize,
-                              },
-                            ]}
-                            resizeMode="contain"
-                          />
-                        )}
-                        {hinted && !previewing && cell === null && (
-                          <View
-                            style={[
-                              styles.hintRing,
-                              {
-                                width: guideStoneSize,
-                                height: guideStoneSize,
-                                borderRadius: guideStoneSize / 2,
-                              },
-                            ]}
-                          />
-                        )}
-                      </Pressable>
-                    );
-                  })
-              )}
-            </View>
-
-          </View>
+          <LibertiesBoardCard
+            activeGroupIndex={activeGroupIndex}
+            activeOpenSideKeys={activeOpenSideKeys}
+            board={board}
+            boardPadding={boardPadding}
+            boardSize={boardSize}
+            dailyLabel={dailyLabel}
+            gameState={gameState}
+            gridLineThickness={gridLineThickness}
+            gridSpan={gridSpan}
+            groupIndexByPoint={groupIndexByPoint}
+            guideStoneSize={guideStoneSize}
+            handlePointPress={handlePointPress}
+            highlightedGroupIndexes={highlightedGroupIndexes}
+            hintPoint={hintPoint}
+            hitSize={hitSize}
+            hoverPoint={hoverPoint}
+            pointGap={pointGap}
+            previewStoneSize={previewStoneSize}
+            puzzle={puzzle}
+            recentResponseKeys={recentResponseKeys}
+            releaseIndexByPoint={releaseIndexByPoint}
+            remainingGroupCount={remainingGroups.length}
+            selectedPoint={selectedPoint}
+            setActiveGroupIndex={setActiveGroupIndex}
+            setHoverPoint={setHoverPoint}
+            stoneSize={stoneSize}
+            styles={styles}
+            width={width}
+          />
 
           {statusMessage && (
             <View style={styles.statusCard}>
