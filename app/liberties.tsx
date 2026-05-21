@@ -1366,15 +1366,7 @@ export default function LibertiesScreen() {
                 </Text>
               </View>
 
-              <Text style={styles.modalTitle}>When white moves</Text>
-              <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>Stretch order</Text>
-                {WHITE_STRETCH_RULES.map((rule, index) => (
-                  <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
-                ))}
-              </View>
-
-              <Text style={styles.modalTitle}>How it works</Text>
+              <Text style={styles.modalTitle}>How to play</Text>
               <View style={styles.rulesList}>
                 <Text style={styles.ruleListTitle}>Rules</Text>
                 {QUICK_START_RULES.map((rule) => (
@@ -1386,6 +1378,17 @@ export default function LibertiesScreen() {
                   caption="The two white pebbles touch side-to-side, so they are one group. Black and red pebbles block side spots."
                   styles={styles}
                 />
+              </View>
+
+              <Text style={styles.modalTitle}>When white moves</Text>
+              <View style={[styles.rulesList, styles.rulesListSecondary]}>
+                <Text style={styles.ruleListTitle}>Stretch order</Text>
+                <Text style={styles.ruleListIntro}>
+                  This only happens after a move that does not clear white pebbles.
+                </Text>
+                {WHITE_STRETCH_RULES.map((rule, index) => (
+                  <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
+                ))}
               </View>
 
               <Pressable
@@ -1701,6 +1704,11 @@ const createStyles = (
       backgroundColor: modalAccentPanel,
       padding: Spacing.md,
     },
+    rulesListSecondary: {
+      borderColor: Colors.border,
+      backgroundColor: modalPanel,
+      paddingTop: Spacing.sm,
+    },
     ruleListTitle: {
       color: screenAccent.main,
       fontSize: FontSize.sm,
@@ -1708,6 +1716,13 @@ const createStyles = (
       textTransform: 'uppercase',
       letterSpacing: 0.8,
       marginBottom: 2,
+    },
+    ruleListIntro: {
+      color: Colors.textMuted,
+      fontSize: FontSize.sm,
+      lineHeight: 19,
+      fontWeight: '700',
+      marginTop: -2,
     },
     ruleItem: {
       flexDirection: 'row',
