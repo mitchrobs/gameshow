@@ -1301,7 +1301,7 @@ export default function LibertiesScreen() {
     setStatusMessage(
       nextHint.movesToSolve <= 1
         ? 'Hint ring marks the clearing move. Tap it again to place.'
-        : `Hint ring marks a shortest route from here: ${nextHint.movesToSolve} moves left. Tap it again to place.`
+        : `Hint ring marks a move-optimized route from here: ${nextHint.movesToSolve} moves left. Tap it again to place.`
     );
   }, [board, gameState, puzzle]);
 

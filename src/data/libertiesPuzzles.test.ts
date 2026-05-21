@@ -378,8 +378,18 @@ describe('liberties puzzle engine', () => {
     }
 
     expect(moves.map(pointKey).slice(0, 2)).toEqual(['0:0', '4:1']);
-    expect(moves).toHaveLength(18);
+    expect(moves.length).toBeLessThan(18);
     expect(isLibertiesSolved(puzzle, board)).toBe(true);
+  });
+
+  it('does not treat the generated route as the best hint route for today', () => {
+    const entry = getDailyLibertiesEntry(new Date('2026-05-21T12:00:00.000Z'));
+    const board = createLibertiesBoard(entry.puzzle);
+    const hint = getBestLibertiesHintMove(entry.puzzle, board);
+
+    expect(entry.puzzle.targetMoves).toBe(25);
+    expect(hint?.movesToSolve).toBeLessThanOrEqual(15);
+    expect(hint?.movesToSolve).toBeLessThan(entry.puzzle.targetMoves);
   });
 
   it('selects a dated daily puzzle', () => {

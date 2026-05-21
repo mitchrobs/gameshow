@@ -2387,13 +2387,18 @@ interface LiveHintCandidate {
   result: LegalLibertiesMoveResult;
   score: number;
   captureCount: number;
+  progressCount: number;
   responseCount: number;
   touchCount: number;
+  whiteCountAfter: number;
   solutionRank: number;
 }
 
 const MISSING_SOLUTION_RANK = Number.MAX_SAFE_INTEGER;
 const LIVE_HINT_CANDIDATE_LIMIT = 10;
+const LIVE_HINT_ROUTE_CACHE_LIMIT = 600;
+
+const liveHintRouteCache = new Map<string, LibertiesHintResult>();
 
 function getSolutionRankMap(puzzle: Pick<LibertiesPuzzle, 'solution'>): Map<string, number> {
   const ranks = new Map<string, number>();
@@ -2436,8 +2441,10 @@ function getLiveHintCandidates(
         result,
         score: captureScore + sharedScore + responseScore + progressScore + breathScore - whitePenalty - 1,
         captureCount: result.captured.length,
+        progressCount: beforeWhiteCount - afterWhiteCount,
         responseCount: result.responses.length,
         touchCount: entry.groupTouches,
+        whiteCountAfter: afterWhiteCount,
         solutionRank: getSolutionRank(solutionRanks, entry.point),
       };
     })
@@ -2446,6 +2453,7 @@ function getLiveHintCandidates(
       (a, b) =>
         b.score - a.score ||
         b.captureCount - a.captureCount ||
+        b.progressCount - a.progressCount ||
         b.responseCount - a.responseCount ||
         b.touchCount - a.touchCount ||
         a.solutionRank - b.solutionRank ||
@@ -2498,6 +2506,156 @@ function solveLibertiesGreedyFromBoard(
   return attemptGreedySolve(targetResponses) ?? attemptGreedySolve(0);
 }
 
+function getLiveHintRouteCacheKey(puzzle: Pick<LibertiesPuzzle, 'id'>, board: LibertiesBoard): string {
+  return `${puzzle.id}:${serializeLibertiesBoard(board)}`;
+}
+
+function cloneHintRoute(route: LibertiesPoint[]): LibertiesPoint[] {
+  return route.map((point) => ({ ...point }));
+}
+
+function cacheLiveHintRoute(
+  puzzle: LibertiesPuzzle,
+  startBoard: LibertiesBoard,
+  route: LibertiesPoint[]
+): void {
+  let board = cloneLibertiesBoard(startBoard);
+
+  for (let index = 0; index < route.length; index += 1) {
+    const suffix = cloneHintRoute(route.slice(index));
+    const key = getLiveHintRouteCacheKey(puzzle, board);
+    liveHintRouteCache.set(key, {
+      point: suffix[0]!,
+      route: suffix,
+      movesToSolve: suffix.length,
+    });
+
+    const result = playLibertiesMove(board, puzzle.size, route[index]!, 'black', puzzle);
+    if (!result.legal) break;
+    board = result.board;
+  }
+
+  if (liveHintRouteCache.size > LIVE_HINT_ROUTE_CACHE_LIMIT) {
+    Array.from(liveHintRouteCache.keys())
+      .slice(0, liveHintRouteCache.size - LIVE_HINT_ROUTE_CACHE_LIMIT)
+      .forEach((key) => liveHintRouteCache.delete(key));
+  }
+}
+
+function scoreLibertiesHintBoard(
+  puzzle: LibertiesPuzzle,
+  board: LibertiesBoard,
+  routeLength: number
+): number {
+  const groups = getRemainingLibertiesLights(puzzle, board);
+  const whiteCount = countLibertiesBoardCells(board, 'white');
+  const totalOpenSides = groups.reduce((total, group) => total + group.liberties.size, 0);
+  const minimumOpenSides = Math.min(...groups.map((group) => group.liberties.size));
+  const urgentBonus = minimumOpenSides === 1 ? 20 : 0;
+
+  return (
+    urgentBonus -
+    groups.length * 80 -
+    whiteCount * 15 -
+    totalOpenSides * 8 -
+    routeLength * 2
+  );
+}
+
+function scoreLibertiesHintCandidate(candidate: LiveHintCandidate): number {
+  return (
+    candidate.captureCount * 120 +
+    candidate.progressCount * 40 +
+    candidate.touchCount * 20 -
+    candidate.responseCount * 10 -
+    candidate.whiteCountAfter * 2 +
+    candidate.score
+  );
+}
+
+function getLiveHintBeamWidth(difficulty: LibertiesDifficulty): number {
+  if (difficulty === 'Hard') return 90;
+  if (difficulty === 'Standard') return 60;
+  return 40;
+}
+
+function getLiveHintTimeBudgetMs(difficulty: LibertiesDifficulty): number {
+  if (difficulty === 'Hard') return 240;
+  if (difficulty === 'Standard') return 180;
+  return 100;
+}
+
+function findMoveOptimizedLibertiesRoute(
+  puzzle: LibertiesPuzzle,
+  startBoard: LibertiesBoard,
+  solutionRanks: Map<string, number>
+): LibertiesPoint[] | null {
+  if (isLibertiesSolved(puzzle, startBoard)) return [];
+
+  const startedAt = Date.now();
+  const deadline = startedAt + getLiveHintTimeBudgetMs(puzzle.difficulty);
+  const beamWidth = getLiveHintBeamWidth(puzzle.difficulty);
+  const maxDepth = getSolutionSearchDepth(puzzle);
+  const targetResponses = puzzle.difficulty === 'Hard' ? 4 : puzzle.difficulty === 'Standard' ? 3 : 1;
+  const seen = new Map<string, number>([[serializeLibertiesBoard(startBoard), 0]]);
+  let frontier: Array<{
+    board: LibertiesBoard;
+    route: LibertiesPoint[];
+    responseCount: number;
+    score: number;
+  }> = [
+    {
+      board: cloneLibertiesBoard(startBoard),
+      route: [],
+      responseCount: 0,
+      score: scoreLibertiesHintBoard(puzzle, startBoard, 0),
+    },
+  ];
+
+  for (let depth = 0; depth < maxDepth; depth += 1) {
+    const nextFrontier: typeof frontier = [];
+
+    for (const state of frontier) {
+      if (Date.now() > deadline) return null;
+
+      const candidates = getLiveHintCandidates(
+        puzzle,
+        state.board,
+        targetResponses,
+        state.responseCount,
+        solutionRanks
+      );
+
+      for (const candidate of candidates) {
+        const route = [...state.route, candidate.point];
+        if (isLibertiesSolved(puzzle, candidate.result.board)) {
+          return route;
+        }
+
+        const boardKey = serializeLibertiesBoard(candidate.result.board);
+        const previousDepth = seen.get(boardKey);
+        if (previousDepth !== undefined && previousDepth <= route.length) continue;
+        seen.set(boardKey, route.length);
+
+        nextFrontier.push({
+          board: candidate.result.board,
+          route,
+          responseCount: state.responseCount + candidate.responseCount,
+          score:
+            scoreLibertiesHintBoard(puzzle, candidate.result.board, route.length) +
+            scoreLibertiesHintCandidate(candidate),
+        });
+      }
+    }
+
+    if (nextFrontier.length === 0) return null;
+    nextFrontier.sort((a, b) => b.score - a.score || a.route.length - b.route.length);
+    frontier = nextFrontier.slice(0, beamWidth);
+  }
+
+  return null;
+}
+
 function getPackedSolutionRouteFromBoard(
   puzzle: LibertiesPuzzle,
   board: LibertiesBoard
@@ -2526,8 +2684,19 @@ export function getBestLibertiesHintMove(
 ): LibertiesHintResult | null {
   if (isLibertiesSolved(puzzle, board)) return null;
 
+  const cached = liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board));
+  if (cached) return cached;
+
+  const solutionRanks = getSolutionRankMap(puzzle);
+  const optimizedRoute = findMoveOptimizedLibertiesRoute(puzzle, board, solutionRanks);
+  if (optimizedRoute && optimizedRoute.length > 0) {
+    cacheLiveHintRoute(puzzle, board, optimizedRoute);
+    return liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board)) ?? null;
+  }
+
   const packedRoute = getPackedSolutionRouteFromBoard(puzzle, board);
   if (packedRoute && packedRoute.length > 0) {
+    cacheLiveHintRoute(puzzle, board, packedRoute);
     return {
       point: packedRoute[0]!,
       route: packedRoute,
@@ -2535,7 +2704,6 @@ export function getBestLibertiesHintMove(
     };
   }
 
-  const solutionRanks = getSolutionRankMap(puzzle);
   const maxDepth = getSolutionSearchDepth(puzzle);
   const targetResponses = puzzle.difficulty === 'Hard' ? 4 : puzzle.difficulty === 'Standard' ? 3 : 1;
   const candidates = getLiveHintCandidates(
