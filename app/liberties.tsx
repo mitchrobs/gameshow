@@ -87,22 +87,20 @@ const HOW_TO_CLOSED_GRID: HowToCell[][] = [
   [null, null, null, null],
 ];
 const QUICK_START_RULES = [
-  'Tap an empty line spot once to preview. Tap it again to place a black pebble.',
-  'Side spots are directly up, down, left, and right. Diagonals do not count.',
-  'Black pebbles trap white pebbles. Red pebbles and board edges are already blocked.',
-  'Black pebbles need one open side spot too. You cannot place one where its black group would have none.',
-  'White can trap black pebbles too. If a white stretch leaves a black group with no open side spot, that black group disappears.',
-  'White pebbles touching side-to-side are one group. Trap the outside of the whole group.',
-  'A white group disappears when all of its outside side spots are blocked.',
-  'Clearing white pebbles is good: white does not move, and you get the next turn.',
-  'If your move clears nothing, one white group stretches into one empty side spot.',
+  'Place black pebbles on empty line spots. Tap once to preview, then tap the same spot again to place.',
+  'Side spots are up, down, left, and right. Diagonals do not count.',
+  'White pebbles that touch side-to-side are one group. Trap the whole group, not each pebble alone.',
+  'A white group disappears when every empty side spot around it is blocked by black, red, or the board edge.',
+  'If your move clears white pebbles, white does not move. You get the next turn right away.',
+  'If your move clears nothing, white stretches by adding one white pebble to one empty side spot.',
+  'Black pebbles need an open side spot too. If a black group has none after white stretches, that black group disappears.',
 ];
 const WHITE_STRETCH_RULES = [
-  'If any white group has only one open side spot, white saves one of those groups first.',
-  'Otherwise, white checks every empty side spot next to every white group.',
-  'White stretches into the spot with the longest straight open path.',
-  'If spots are tied, white chooses the highest spot, then the furthest-left spot.',
-  'The new white pebble joins the group it touched.',
+  'White first looks for groups with only one open side spot. One of those groups moves first.',
+  'If no group is almost trapped, white checks every empty side spot touching every white group.',
+  'White chooses the spot with the longest straight empty path from it.',
+  'If spots are still tied, white chooses the highest row, then the furthest-left column.',
+  'The new white pebble joins the group it touched. Then any black group with no open side spot disappears.',
 ];
 
 function getStorage(): Storage | null {
@@ -253,11 +251,11 @@ function formatPreviewStatus(
         : `Touches ${groupIndexes.length} white groups.`;
   let resultText = '';
   if (captureCount > 0 && responsePoints.length > 0) {
-    resultText = ` Quiet move: the most trapped white group will stretch to ${formatPointLabel(responsePoints[0]!)} and clear.`;
+    resultText = ` Quiet move: white will stretch to ${formatPointLabel(responsePoints[0]!)} using the stretch order, then clear.`;
   } else if (captureCount > 0) {
     resultText = ` Clears ${captureCount} white pebble${captureCount === 1 ? '' : 's'}. You get the next move before white stretches.`;
   } else if (responsePoints.length > 0) {
-    resultText = ` Quiet move: the most trapped white group will stretch to ${formatPointLabel(responsePoints[0]!)}.`;
+    resultText = ` Quiet move: white will stretch to ${formatPointLabel(responsePoints[0]!)} using the stretch order.`;
   }
   const actionText = legal ? `Tap again to place.${resultText}` : 'That move is not legal yet.';
   return `${formatPointLabel(point)}. ${targetText} ${actionText}`;
@@ -995,8 +993,17 @@ export default function LibertiesScreen() {
                 <Text style={styles.objectiveTitle}>Goal</Text>
                 <Text style={styles.objectiveText}>
                   Clear all white pebbles. Place black pebbles on empty line spots to block every open
-                  side spot around a white group.
+                  side spot around a white group. Watch your black groups too: white can make them disappear
+                  if they run out of open side spots.
                 </Text>
+              </View>
+
+              <Text style={styles.modalTitle}>When white moves</Text>
+              <View style={styles.rulesList}>
+                <Text style={styles.ruleListTitle}>Stretch order</Text>
+                {WHITE_STRETCH_RULES.map((rule, index) => (
+                  <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
+                ))}
               </View>
 
               <Text style={styles.modalTitle}>How it works</Text>
@@ -1011,14 +1018,6 @@ export default function LibertiesScreen() {
                   caption="The two white pebbles touch side-to-side, so they are one group. Black and red pebbles block side spots."
                   styles={styles}
                 />
-              </View>
-
-              <Text style={styles.modalTitle}>Which white group moves?</Text>
-              <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>Stretch order</Text>
-                {WHITE_STRETCH_RULES.map((rule, index) => (
-                  <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
-                ))}
               </View>
 
               <Pressable
