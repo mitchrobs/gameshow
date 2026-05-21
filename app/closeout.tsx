@@ -90,6 +90,7 @@ const QUICK_START_RULES = [
   'Tap an empty line spot once to preview. Tap it again to place a black pebble.',
   'Side spots are directly up, down, left, and right. Diagonals do not count.',
   'Black pebbles trap white pebbles. Red pebbles and board edges are already blocked.',
+  'Black pebbles need one open side spot too. You cannot place one where its black group would have none.',
   'White pebbles touching side-to-side are one group. Trap the outside of the whole group.',
   'A white group disappears when all of its outside side spots are blocked.',
   'Clearing white pebbles is good: white does not move, and you get the next turn.',
@@ -154,7 +155,7 @@ function getIllegalMoveMessage(reason: LibertiesIllegalReason): string {
     case 'outside-board':
       return 'That spot is outside the board.';
     case 'suicide':
-      return 'That black pebble would have no open side spot. Clear a white pebble first or choose a different crossing.';
+      return 'A black group needs one open side spot, so this spot is not allowed yet.';
   }
 }
 
@@ -1001,9 +1002,6 @@ export default function LibertiesScreen() {
                 {QUICK_START_RULES.map((rule) => (
                   <HowToRuleItem key={rule} text={rule} styles={styles} />
                 ))}
-              </View>
-
-              <View style={styles.howToDiagram}>
                 <HowToMiniBoard
                   grid={HOW_TO_OPEN_GRID}
                   label="Board example"
