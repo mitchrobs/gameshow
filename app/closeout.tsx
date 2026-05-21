@@ -100,9 +100,6 @@ const WHITE_STRETCH_RULES = [
   'Tie? The group with the longest straight open path moves.',
   'Still tied? The topmost, then leftmost group moves.',
 ];
-const MOVE_RULES = [
-  'Your black pebbles can be separate, but the black group you place must still touch one open side spot.',
-];
 
 function getStorage(): Storage | null {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -476,6 +473,23 @@ function HowToRuleItem({ text, styles }: { text: string; styles: ReturnType<type
     <View style={styles.ruleItem}>
       <View style={styles.ruleBullet} />
       <Text style={styles.ruleText}>{text}</Text>
+    </View>
+  );
+}
+
+function HowToNumberedItem({
+  index,
+  text,
+  styles,
+}: {
+  index: number;
+  text: string;
+  styles: ReturnType<typeof createStyles>;
+}) {
+  return (
+    <View style={styles.numberedRuleItem}>
+      <Text style={styles.numberedRuleIndex}>{index + 1}</Text>
+      <Text style={styles.numberedRuleText}>{text}</Text>
     </View>
   );
 }
@@ -989,18 +1003,20 @@ export default function LibertiesScreen() {
                 ))}
               </View>
 
+              <View style={styles.howToDiagram}>
+                <HowToMiniBoard
+                  grid={HOW_TO_OPEN_GRID}
+                  label="Board example"
+                  caption="The two white pebbles touch side-to-side, so they are one group. Black and red pebbles block side spots."
+                  styles={styles}
+                />
+              </View>
+
               <Text style={styles.modalTitle}>Which white group moves?</Text>
               <View style={styles.rulesList}>
                 <Text style={styles.ruleListTitle}>Stretch order</Text>
-                {WHITE_STRETCH_RULES.map((rule) => (
-                  <HowToRuleItem key={rule} text={rule} styles={styles} />
-                ))}
-              </View>
-
-              <Text style={styles.modalTitle}>One small rule</Text>
-              <View style={styles.rulesList}>
-                {MOVE_RULES.map((rule) => (
-                  <HowToRuleItem key={rule} text={rule} styles={styles} />
+                {WHITE_STRETCH_RULES.map((rule, index) => (
+                  <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
                 ))}
               </View>
 
@@ -1600,6 +1616,33 @@ const createStyles = (
       marginTop: 7,
     },
     ruleText: {
+      flex: 1,
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 20,
+      fontWeight: '700',
+    },
+    numberedRuleItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: Spacing.sm,
+    },
+    numberedRuleIndex: {
+      width: 20,
+      height: 20,
+      borderRadius: 999,
+      overflow: 'hidden',
+      color: screenAccent.main,
+      backgroundColor: screenAccent.soft,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      textAlign: 'center',
+      fontSize: 11,
+      lineHeight: 18,
+      fontWeight: '900',
+      marginTop: 1,
+    },
+    numberedRuleText: {
       flex: 1,
       color: Colors.textSecondary,
       fontSize: FontSize.sm,
