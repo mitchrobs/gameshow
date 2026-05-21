@@ -96,18 +96,18 @@ const HOW_TO_CLOSED_GRID: HowToCell[][] = [
   [null, null, null, null],
 ];
 const QUICK_START_RULES = [
-  'Tap an empty line spot once to preview, then tap it again to place a black pebble.',
-  'Only side neighbors count: up, down, left, and right. Diagonals never count.',
-  'White pebbles touching side-to-side are one group. Clear the group by closing every side spot with black, red, or the board edge.',
-  'A clearing move gives you another turn before white moves. A quiet move lets white stretch.',
-  'If white stretches and a black group has no empty side spot, that black group disappears.',
+  'Tap an empty crossing once to preview. Tap again to place a black pebble.',
+  'Side crossings are directly up, down, left, and right. Diagonals do not count.',
+  'Black pebbles, red blockers, and board edges close side crossings.',
+  'Close every side crossing around a white group to remove that group. Then you move again.',
+  'A standard move removes no white group, so white automatically stretches.',
+  'Black groups need one open side crossing. If white fills the last one, that black group disappears.',
 ];
 const WHITE_STRETCH_RULES = [
-  'White first looks for any group with exactly one empty side spot.',
-  'If no group is almost trapped, white checks every empty side spot touching a white group.',
-  'White chooses the spot with the longest straight open path.',
-  'Ties go to the highest row, then the furthest-left column.',
-  'The new white pebble joins the group it touched.',
+  'White first saves a group with only one open side crossing.',
+  'Otherwise, white checks every empty side crossing touching a white group.',
+  'White chooses the crossing with the longest straight open path.',
+  'Ties go to the topmost crossing, then the leftmost crossing.',
 ];
 
 function getStorage(): Storage | null {
@@ -163,12 +163,12 @@ function getIllegalMoveMessage(reason: LibertiesIllegalReason): string {
     case 'outside-board':
       return 'That spot is outside the board.';
     case 'suicide':
-      return 'A black group needs one open side spot, so this spot is not allowed yet.';
+      return 'A black group needs one open side crossing, so this crossing is not allowed yet.';
   }
 }
 
 function getOccupiedCellMessage(cell: LibertiesBoard[number][number], linkedGroupIndex?: number): string {
-  if (cell === 'white') return 'White pebbles cannot be covered. Block their side spots instead.';
+  if (cell === 'white') return 'White pebbles cannot be covered. Block their side crossings instead.';
   if (cell === 'black') return 'That crossing already has a black pebble.';
   if (cell === 'frozen') return 'Red pebbles are already blocked. You cannot place there.';
   if (cell === 'release') return 'That crossing is blocked in this puzzle.';
@@ -258,11 +258,11 @@ function formatPreviewStatus(
         : `Touches ${groupIndexes.length} white groups.`;
   let resultText = '';
   if (captureCount > 0 && responsePoints.length > 0) {
-    resultText = ` Quiet move: white will stretch to ${formatPointLabel(responsePoints[0]!)} using the stretch order, then clear.`;
+    resultText = ` Standard move: white will stretch to ${formatPointLabel(responsePoints[0]!)} using the stretch order, then clear.`;
   } else if (captureCount > 0) {
     resultText = ` Clears ${captureCount} white pebble${captureCount === 1 ? '' : 's'}. You get the next move before white stretches.`;
   } else if (responsePoints.length > 0) {
-    resultText = ` Quiet move: white will stretch to ${formatPointLabel(responsePoints[0]!)} using the stretch order.`;
+    resultText = ` Standard move: white will stretch to ${formatPointLabel(responsePoints[0]!)} using the stretch order.`;
   }
   const actionText = legal ? `Tap again to place.${resultText}` : 'That move is not legal yet.';
   return `${formatPointLabel(point)}. ${targetText} ${actionText}`;
@@ -1222,7 +1222,7 @@ export default function LibertiesScreen() {
       const darkClearStatus = formatDarkClearStatus(result.capturedDark.length);
       if (result.captured.length > 0 && result.responses.length > 0) {
         setStatusMessage(
-          `Quiet move: white stretched to ${formatPointLabel(result.responses[0]!)} and cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}.${darkClearStatus}`
+          `Standard move: white stretched to ${formatPointLabel(result.responses[0]!)} and cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}.${darkClearStatus}`
         );
       } else if (result.captured.length > 0) {
         setStatusMessage(
@@ -1230,7 +1230,7 @@ export default function LibertiesScreen() {
         );
       } else if (result.responses.length > 0) {
         setStatusMessage(
-          `Quiet move: white stretched to ${formatPointLabel(result.responses[0]!)}.${darkClearStatus}`
+          `Standard move: white stretched to ${formatPointLabel(result.responses[0]!)}.${darkClearStatus}`
         );
       } else if (darkClearStatus) {
         setStatusMessage(darkClearStatus.trim());
@@ -1353,7 +1353,7 @@ export default function LibertiesScreen() {
               <View style={styles.howToHeader}>
                 <View>
                   <Text style={styles.howToKicker}>How to play</Text>
-                  <Text style={styles.howToTitle}>Clear the white pebbles</Text>
+                  <Text accessibilityRole="header" style={styles.howToTitle}>Clear the white groups</Text>
                 </View>
                 <Pressable
                   accessibilityRole="button"
@@ -1368,17 +1368,17 @@ export default function LibertiesScreen() {
               <View style={styles.objectiveCard}>
                 <Text style={styles.objectiveTitle}>Goal</Text>
                 <Text style={styles.objectiveText}>
-                  Clear every white group. Use black pebbles to close their side spots, while keeping
-                  your own black groups from getting boxed in.
+                  You always place black. Clear every white group by closing the open crossings
+                  directly beside it.
                 </Text>
               </View>
 
-              <Text style={styles.modalTitle}>How to play</Text>
+              <Text accessibilityRole="header" style={styles.modalTitle}>Your move</Text>
               <View style={styles.rulesList}>
                 <HowToMiniBoard
                   grid={HOW_TO_OPEN_GRID}
                   label="Board example"
-                  caption="The two white pebbles touch side-to-side, so they are one group. Black, red, and board edges close side spots."
+                  caption="Pebbles sit on crossings, where grid lines meet. Touching white pebbles form one group."
                   styles={styles}
                 />
                 <Text style={styles.ruleListTitle}>Rules</Text>
@@ -1387,11 +1387,12 @@ export default function LibertiesScreen() {
                 ))}
               </View>
 
-              <Text style={styles.modalTitle}>When white moves</Text>
+              <Text accessibilityRole="header" style={styles.modalTitle}>White's turn</Text>
               <View style={[styles.rulesList, styles.rulesListSecondary]}>
-                <Text style={styles.ruleListTitle}>Stretch order</Text>
+                <Text style={styles.ruleListTitle}>Where white stretches</Text>
                 <Text style={styles.ruleListIntro}>
-                  White only stretches after a move that does not clear a group.
+                  White is automatic. After a standard move, it adds one pebble to an empty side
+                  crossing beside a white group. The new pebble joins that group.
                 </Text>
                 {WHITE_STRETCH_RULES.map((rule, index) => (
                   <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
