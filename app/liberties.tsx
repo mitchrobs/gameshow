@@ -485,6 +485,91 @@ function HowToLessonRow({
   );
 }
 
+function HowToStretchOrderBoard({ styles }: { styles: ReturnType<typeof createStyles> }) {
+  const miniSize = 176;
+  const miniPadding = 24;
+  const miniGridSpan = miniSize - miniPadding * 2;
+  const miniGap = miniGridSpan / 4;
+  const miniHitSize = 34;
+  const pointStyle = (row: number, col: number) => ({
+    left: miniPadding + col * miniGap - miniHitSize / 2,
+    top: miniPadding + row * miniGap - miniHitSize / 2,
+    width: miniHitSize,
+    height: miniHitSize,
+    borderRadius: miniHitSize / 2,
+  });
+
+  return (
+    <View style={styles.howToStretchPanel}>
+      <Text style={styles.howToMiniBoardLabel}>Longest path example</Text>
+      <View style={styles.howToStretchBoard}>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <View
+            key={`stretch-vertical-${index}`}
+            style={[
+              styles.howToMiniGridLine,
+              {
+                left: miniPadding + index * miniGap,
+                top: miniPadding,
+                width: 1,
+                height: miniGridSpan,
+              },
+            ]}
+          />
+        ))}
+        {Array.from({ length: 5 }).map((_, index) => (
+          <View
+            key={`stretch-horizontal-${index}`}
+            style={[
+              styles.howToMiniGridLine,
+              {
+                left: miniPadding,
+                top: miniPadding + index * miniGap,
+                width: miniGridSpan,
+                height: 1,
+              },
+            ]}
+          />
+        ))}
+        <View
+          style={[
+            styles.howToStretchPath,
+            {
+              left: miniPadding + 3 * miniGap,
+              top: miniPadding + 2 * miniGap - 3,
+              width: miniGap,
+            },
+          ]}
+        />
+        <View style={[styles.howToStretchCandidate, styles.howToStretchShortCandidate, pointStyle(1, 2)]}>
+          <Text style={styles.howToStretchCandidateText}>1</Text>
+        </View>
+        <View style={[styles.howToStretchCandidate, styles.howToStretchChosenCandidate, pointStyle(2, 3)]}>
+          <Text style={styles.howToStretchChosenText}>2</Text>
+        </View>
+        <View style={[styles.howToStretchDot, pointStyle(2, 4)]} />
+        <View style={[styles.howToMiniPoint, pointStyle(0, 2)]}>
+          <Image source={PEBBLE_ASSETS.blocker} style={styles.howToBlockerPiece} resizeMode="contain" />
+        </View>
+        <View style={[styles.howToMiniPoint, pointStyle(2, 1)]}>
+          <Image source={PEBBLE_ASSETS.seal} style={styles.howToPiece} resizeMode="contain" />
+        </View>
+        <View style={[styles.howToMiniPoint, pointStyle(3, 2)]}>
+          <Image source={PEBBLE_ASSETS.seal} style={styles.howToPiece} resizeMode="contain" />
+        </View>
+        <View style={[styles.howToMiniPoint, pointStyle(2, 2)]}>
+          <Image source={PEBBLE_ASSETS.target} style={styles.howToPiece} resizeMode="contain" />
+        </View>
+        <Text style={[styles.howToStretchLabel, styles.howToStretchShortLabel]}>short</Text>
+        <Text style={[styles.howToStretchLabel, styles.howToStretchLongLabel]}>longer</Text>
+      </View>
+      <Text style={styles.howToMiniBoardCaption}>
+        White compares its empty side crossings. It chooses the one with the longest straight open path.
+      </Text>
+    </View>
+  );
+}
+
 function HowToRuleItem({ text, styles }: { text: string; styles: ReturnType<typeof createStyles> }) {
   return (
     <View style={styles.ruleItem}>
@@ -1388,6 +1473,7 @@ export default function LibertiesScreen() {
                   White is automatic. After a standard move, it adds one pebble to an empty side
                   crossing beside a white group. The new pebble joins that group.
                 </Text>
+                <HowToStretchOrderBoard styles={styles} />
                 {WHITE_STRETCH_RULES.map((rule, index) => (
                   <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
                 ))}
@@ -1844,6 +1930,85 @@ const createStyles = (
       fontWeight: '800',
       textAlign: 'center',
       maxWidth: 220,
+    },
+    howToStretchPanel: {
+      alignItems: 'center',
+      gap: Spacing.sm,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: modalPanelSurface,
+      padding: Spacing.md,
+    },
+    howToStretchBoard: {
+      width: 176,
+      height: 176,
+      overflow: 'hidden',
+      borderRadius: BorderRadius.sm,
+      borderWidth: 1,
+      borderColor: boardEdge,
+      backgroundColor: boardColor,
+      position: 'relative',
+      ...WEB_NO_SELECT,
+    },
+    howToStretchPath: {
+      position: 'absolute',
+      height: 6,
+      borderRadius: 999,
+      backgroundColor: screenAccent.main,
+      opacity: theme.mode === 'dark' ? 0.72 : 0.58,
+    },
+    howToStretchCandidate: {
+      position: 'absolute',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(17, 29, 35, 0.84)' : 'rgba(255, 255, 255, 0.78)',
+    },
+    howToStretchShortCandidate: {
+      borderColor: theme.mode === 'dark' ? 'rgba(215, 154, 51, 0.72)' : 'rgba(172, 111, 20, 0.62)',
+    },
+    howToStretchChosenCandidate: {
+      borderColor: screenAccent.main,
+      backgroundColor: screenAccent.soft,
+    },
+    howToStretchCandidateText: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      fontWeight: '900',
+    },
+    howToStretchChosenText: {
+      color: screenAccent.badgeText,
+      fontSize: 12,
+      fontWeight: '900',
+    },
+    howToStretchDot: {
+      position: 'absolute',
+      borderWidth: 2,
+      borderColor: screenAccent.main,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(99, 210, 178, 0.18)' : 'rgba(30, 143, 112, 0.12)',
+    },
+    howToStretchLabel: {
+      position: 'absolute',
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 999,
+      overflow: 'hidden',
+      color: Colors.textMuted,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(7, 13, 18, 0.78)' : 'rgba(255, 255, 255, 0.78)',
+      fontSize: 10,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0,
+    },
+    howToStretchShortLabel: {
+      top: 42,
+      left: 104,
+    },
+    howToStretchLongLabel: {
+      top: 80,
+      right: 10,
+      color: screenAccent.badgeText,
     },
     howToLessonRow: {
       flexDirection: 'row',
