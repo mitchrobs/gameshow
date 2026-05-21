@@ -1379,6 +1379,16 @@ export default function LibertiesScreen() {
 
   const handleHint = useCallback(() => {
     if (gameState !== 'playing') return;
+    if (
+      hintPoint &&
+      selectedPoint &&
+      samePoint(hintPoint, selectedPoint) &&
+      board[hintPoint.row]?.[hintPoint.col] === null
+    ) {
+      commitMove(hintPoint);
+      return;
+    }
+
     const nextHint = getBestLibertiesHintMove(puzzle, board);
     if (!nextHint) {
       setStatusMessage('No useful hint is available from this position.');
@@ -1390,10 +1400,10 @@ export default function LibertiesScreen() {
     setShareStatus(null);
     setStatusMessage(
       nextHint.movesToSolve <= 1
-        ? 'Hint ring marks the clearing move. Tap it again to place.'
-        : `Hint ring marks a move-optimized route from here: ${nextHint.movesToSolve} moves left. Tap it again to place.`
+        ? 'Hint marks the clearing move. Tap the crossing or press Hint again to place.'
+        : `Hint marks the move floor from here: ${nextHint.movesToSolve} moves left. Tap the crossing or press Hint again to place.`
     );
-  }, [board, gameState, puzzle]);
+  }, [board, commitMove, gameState, hintPoint, puzzle, selectedPoint]);
 
   const handleShare = useCallback(async () => {
     setShareStatus(null);

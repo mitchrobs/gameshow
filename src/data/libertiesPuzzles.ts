@@ -2400,6 +2400,7 @@ const LIVE_HINT_ROUTE_CACHE_LIMIT = 600;
 
 const liveHintRouteCache = new Map<string, LibertiesHintResult>();
 const lowestMoveCountCache = new Map<string, number>();
+const lowestMoveRouteCache = new Map<string, LibertiesPoint[]>();
 
 function getSolutionRankMap(puzzle: Pick<LibertiesPuzzle, 'solution'>): Map<string, number> {
   const ranks = new Map<string, number>();
@@ -2581,20 +2582,27 @@ function getLiveHintBeamWidth(difficulty: LibertiesDifficulty): number {
 }
 
 function getLiveHintTimeBudgetMs(difficulty: LibertiesDifficulty): number {
-  if (difficulty === 'Hard') return 240;
-  if (difficulty === 'Standard') return 180;
-  return 100;
+  if (difficulty === 'Hard') return 800;
+  if (difficulty === 'Standard') return 500;
+  return 250;
+}
+
+function getMoveFloorTimeBudgetMs(difficulty: LibertiesDifficulty): number {
+  if (difficulty === 'Hard') return 1400;
+  if (difficulty === 'Standard') return 1000;
+  return 500;
 }
 
 function findMoveOptimizedLibertiesRoute(
   puzzle: LibertiesPuzzle,
   startBoard: LibertiesBoard,
-  solutionRanks: Map<string, number>
+  solutionRanks: Map<string, number>,
+  timeBudgetMs = getLiveHintTimeBudgetMs(puzzle.difficulty)
 ): LibertiesPoint[] | null {
   if (isLibertiesSolved(puzzle, startBoard)) return [];
 
   const startedAt = Date.now();
-  const deadline = startedAt + getLiveHintTimeBudgetMs(puzzle.difficulty);
+  const deadline = startedAt + timeBudgetMs;
   const beamWidth = getLiveHintBeamWidth(puzzle.difficulty);
   const maxDepth = getSolutionSearchDepth(puzzle);
   const targetResponses = puzzle.difficulty === 'Hard' ? 4 : puzzle.difficulty === 'Standard' ? 3 : 1;
@@ -2657,6 +2665,26 @@ function findMoveOptimizedLibertiesRoute(
   return null;
 }
 
+function getInitialMoveOptimizedLibertiesRoute(puzzle: LibertiesPuzzle): LibertiesPoint[] | null {
+  const cached = lowestMoveRouteCache.get(puzzle.id);
+  if (cached) return cloneHintRoute(cached);
+
+  const board = createLibertiesBoard(puzzle);
+  const route = findMoveOptimizedLibertiesRoute(
+    puzzle,
+    board,
+    getSolutionRankMap(puzzle),
+    getMoveFloorTimeBudgetMs(puzzle.difficulty)
+  );
+
+  if (!route || route.length === 0) return route;
+
+  lowestMoveRouteCache.set(puzzle.id, cloneHintRoute(route));
+  lowestMoveCountCache.set(puzzle.id, route.length);
+  cacheLiveHintRoute(puzzle, board, route);
+  return cloneHintRoute(route);
+}
+
 function getPackedSolutionRouteFromBoard(
   puzzle: LibertiesPuzzle,
   board: LibertiesBoard
@@ -2685,6 +2713,19 @@ export function getBestLibertiesHintMove(
 ): LibertiesHintResult | null {
   if (isLibertiesSolved(puzzle, board)) return null;
 
+  const initialBoardKey = serializeLibertiesBoard(createLibertiesBoard(puzzle));
+  const currentBoardKey = serializeLibertiesBoard(board);
+  if (currentBoardKey === initialBoardKey) {
+    const route = getInitialMoveOptimizedLibertiesRoute(puzzle);
+    if (route && route.length > 0) {
+      return liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board)) ?? {
+        point: route[0]!,
+        route,
+        movesToSolve: route.length,
+      };
+    }
+  }
+
   const cached = liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board));
   if (cached) return cached;
 
@@ -2697,7 +2738,6 @@ export function getBestLibertiesHintMove(
 
   const packedRoute = getPackedSolutionRouteFromBoard(puzzle, board);
   if (packedRoute && packedRoute.length > 0) {
-    cacheLiveHintRoute(puzzle, board, packedRoute);
     return {
       point: packedRoute[0]!,
       route: packedRoute,
@@ -2747,7 +2787,10 @@ export function getBestLibertiesHintMove(
     }
   });
 
-  if (best) return best;
+  if (best) {
+    cacheLiveHintRoute(puzzle, board, best.route);
+    return liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board)) ?? best;
+  }
   const fallback = candidates[0];
   if (!fallback) return null;
 
@@ -2762,8 +2805,8 @@ export function getLowestLibertiesMoveCount(puzzle: LibertiesPuzzle): number {
   const cached = lowestMoveCountCache.get(puzzle.id);
   if (cached !== undefined) return cached;
 
-  const hint = getBestLibertiesHintMove(puzzle, createLibertiesBoard(puzzle));
-  const moveCount = hint?.movesToSolve ?? puzzle.targetMoves;
+  const route = getInitialMoveOptimizedLibertiesRoute(puzzle);
+  const moveCount = route?.length ?? puzzle.targetMoves;
   lowestMoveCountCache.set(puzzle.id, moveCount);
   return moveCount;
 }

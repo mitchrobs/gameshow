@@ -352,9 +352,9 @@ describe('liberties puzzle engine', () => {
     const liveHint = getBestLibertiesHintMove(puzzle, deviated.board);
 
     expect(oldPathHint).toEqual({ row: 6, col: 5 });
-    expect(liveHint?.point).toEqual({ row: 4, col: 1 });
+    expect(liveHint?.point).toEqual({ row: 1, col: 1 });
     expect(liveHint?.point).not.toEqual(oldPathHint);
-    expect(liveHint?.movesToSolve).toBe(17);
+    expect(liveHint?.movesToSolve).toBe(14);
   });
 
   it('solves legally when every move after a deviation follows live hints', () => {
@@ -378,8 +378,8 @@ describe('liberties puzzle engine', () => {
       moves.push(hint.point);
     }
 
-    expect(moves.map(pointKey).slice(0, 2)).toEqual(['0:0', '4:1']);
-    expect(moves.length).toBeLessThan(18);
+    expect(moves.map(pointKey).slice(0, 2)).toEqual(['0:0', '1:1']);
+    expect(moves.length).toBeLessThanOrEqual(15);
     expect(isLibertiesSolved(puzzle, board)).toBe(true);
   });
 
@@ -398,6 +398,26 @@ describe('liberties puzzle engine', () => {
 
     expect(getLowestLibertiesMoveCount(entry.puzzle)).toBeLessThanOrEqual(15);
     expect(getLowestLibertiesMoveCount(entry.puzzle)).toBeLessThan(entry.puzzle.targetMoves);
+  });
+
+  it('solves today at the displayed move floor when every move follows hints', () => {
+    const entry = getDailyLibertiesEntry(new Date('2026-05-21T12:00:00.000Z'));
+    let board = createLibertiesBoard(entry.puzzle);
+    let hintMoveCount = 0;
+
+    while (!isLibertiesSolved(entry.puzzle, board) && hintMoveCount < 40) {
+      const hint = getBestLibertiesHintMove(entry.puzzle, board);
+      expect(hint).not.toBeNull();
+      if (!hint) break;
+      const result = playLibertiesMove(board, entry.puzzle.size, hint.point, 'black', entry.puzzle);
+      expect(result.legal).toBe(true);
+      if (!result.legal) break;
+      board = result.board;
+      hintMoveCount += 1;
+    }
+
+    expect(isLibertiesSolved(entry.puzzle, board)).toBe(true);
+    expect(hintMoveCount).toBe(getLowestLibertiesMoveCount(entry.puzzle));
   });
 
   it('selects a dated daily puzzle', () => {
