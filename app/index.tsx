@@ -276,7 +276,7 @@ export default function HomeScreen() {
       {
         label: 'Liberties',
         route: '/liberties',
-        emoji: '●',
+        emoji: '⚫',
         countKey: 'liberties',
         category: 'logic',
         isNew: true,
