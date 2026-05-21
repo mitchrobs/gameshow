@@ -10,16 +10,16 @@ Scored candidates: 13247
 ## Public Daily Pack
 
 Puzzles: 365
-Difficulty mix: Easy 45, Standard 240, Hard 80
-Target moves: min 13, max 39, average 23.7
+Difficulty mix: Easy 45, Standard 200, Hard 120
+Target moves: min 13, max 39, average 24.0
 Standard median target time: 4:25
 Standard target time range: 4:25 - 4:45
-Average red blockers: 5.6
-Average blocker impact: 30.9
+Average red blockers: 5.8
+Average blocker impact: 32.1
 Minimum blocker impact: 6
-Average small-board density: 36.8
-Response events: 8072
-Dynamic moves: 6054
+Average small-board density: 37.2
+Response events: 8186
+Dynamic moves: 6114
 Average filler ratio: 0.0%
 Pure fill puzzles: 0
 
@@ -27,44 +27,44 @@ Pure fill puzzles: 0
 
 Puzzles: 35
 Difficulty mix: Easy 5, Standard 23, Hard 7
-Target moves: min 13, max 35, average 22.4
+Target moves: min 13, max 35, average 22.6
 Standard median target time: 4:25
 Standard target time range: 4:25 - 4:25
 Average red blockers: 5.6
-Average blocker impact: 29.3
+Average blocker impact: 30.3
 Minimum blocker impact: 13
-Average small-board density: 36.4
-Response events: 741
-Dynamic moves: 538
+Average small-board density: 36.6
+Response events: 743
+Dynamic moves: 537
 Average filler ratio: 0.0%
 Pure fill puzzles: 0
 
 ## Combined 400-Board Pool
 
 Puzzles: 400
-Difficulty mix: Easy 50, Standard 263, Hard 87
-Target moves: min 13, max 39, average 23.6
+Difficulty mix: Easy 50, Standard 223, Hard 127
+Target moves: min 13, max 39, average 23.9
 Standard median target time: 4:25
 Standard target time range: 4:25 - 4:45
-Average red blockers: 5.6
-Average blocker impact: 30.8
+Average red blockers: 5.8
+Average blocker impact: 31.9
 Minimum blocker impact: 6
-Average small-board density: 36.8
-Response events: 8813
-Dynamic moves: 6592
+Average small-board density: 37.2
+Response events: 8929
+Dynamic moves: 6651
 Average filler ratio: 0.0%
 Pure fill puzzles: 0
 
 ## Public Terrain Archetypes
 
-- corner-pocket: 84
-- tight-room: 231
-- soft-net: 88
+- corner-pocket: 75
+- tight-room: 219
+- soft-net: 98
 - chase-lane: 19
-- lane-stopper: 46
-- split-gate: 109
-- tempo-pocket: 152
-- fake-room: 6
+- lane-stopper: 48
+- split-gate: 111
+- tempo-pocket: 155
+- fake-room: 16
 
 ## Strongest Chase Samples
 

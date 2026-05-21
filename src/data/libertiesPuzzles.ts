@@ -725,8 +725,8 @@ interface ScoredLibertiesCandidate {
 
 const LIBERTIES_PUBLIC_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
   Easy: 45,
-  Standard: 240,
-  Hard: 80,
+  Standard: 200,
+  Hard: 120,
 };
 
 const LIBERTIES_RESERVE_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
@@ -739,8 +739,8 @@ type LibertiesSizeQuotas = Record<LibertiesDifficulty, Record<number, number>>;
 
 const LIBERTIES_PUBLIC_SIZE_QUOTAS: LibertiesSizeQuotas = {
   Easy: { 7: 28, 8: 17 },
-  Standard: { 8: 110, 9: 130 },
-  Hard: { 9: 68, 10: 12 },
+  Standard: { 8: 90, 9: 110 },
+  Hard: { 9: 108, 10: 12 },
 };
 
 const LIBERTIES_RESERVE_SIZE_QUOTAS: LibertiesSizeQuotas = {

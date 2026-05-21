@@ -620,7 +620,6 @@ type LibertiesBoardCardProps = {
   puzzle: typeof libertiesPuzzles[number];
   recentResponseKeys: Set<string>;
   releaseIndexByPoint: Map<string, number>;
-  remainingGroupCount: number;
   selectedPoint: LibertiesPoint | null;
   setActiveGroupIndex: Dispatch<SetStateAction<number | null>>;
   setHoverPoint: Dispatch<SetStateAction<LibertiesPoint | null>>;
@@ -651,7 +650,6 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
   puzzle,
   recentResponseKeys,
   releaseIndexByPoint,
-  remainingGroupCount,
   selectedPoint,
   setActiveGroupIndex,
   setHoverPoint,
@@ -665,13 +663,11 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
         <View>
           <Text style={styles.puzzleTitle}>{dailyLabel}</Text>
         </View>
-        <View style={[styles.statePill, gameState === 'won' && styles.statePillWon]}>
-          <Text style={[styles.statePillText, gameState === 'won' && styles.statePillTextWon]}>
-            {gameState === 'won'
-              ? 'Solved'
-              : `${remainingGroupCount} shape${remainingGroupCount === 1 ? '' : 's'}`}
-          </Text>
-        </View>
+        {gameState === 'won' && (
+          <View style={[styles.statePill, styles.statePillWon]}>
+            <Text style={[styles.statePillText, styles.statePillTextWon]}>Solved</Text>
+          </View>
+        )}
       </View>
 
       <View
@@ -1562,7 +1558,6 @@ export default function LibertiesScreen() {
             puzzle={puzzle}
             recentResponseKeys={recentResponseKeys}
             releaseIndexByPoint={releaseIndexByPoint}
-            remainingGroupCount={remainingGroups.length}
             selectedPoint={selectedPoint}
             setActiveGroupIndex={setActiveGroupIndex}
             setHoverPoint={setHoverPoint}

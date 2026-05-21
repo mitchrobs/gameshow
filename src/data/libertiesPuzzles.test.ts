@@ -283,9 +283,9 @@ describe('liberties puzzle engine', () => {
     const audit = getLibertiesPackAudit();
 
     expect(audit.puzzleCount).toBe(365);
-    expect(audit.difficultyCounts.Easy).toBeGreaterThanOrEqual(40);
-    expect(audit.difficultyCounts.Standard).toBeGreaterThanOrEqual(220);
-    expect(audit.difficultyCounts.Hard).toBeGreaterThanOrEqual(75);
+    expect(audit.difficultyCounts.Easy).toBe(45);
+    expect(audit.difficultyCounts.Standard).toBe(200);
+    expect(audit.difficultyCounts.Hard).toBe(120);
     expect(audit.minTargetMoves).toBeGreaterThanOrEqual(8);
     expect(audit.maxTargetMoves).toBeGreaterThanOrEqual(24);
     expect(audit.averageTargetMoves).toBeGreaterThan(14);
@@ -314,6 +314,9 @@ describe('liberties puzzle engine', () => {
       counts[puzzle.size] = (counts[puzzle.size] ?? 0) + 1;
       return counts;
     }, {});
+    const hardTenCount = libertiesPuzzles.filter(
+      (puzzle) => puzzle.difficulty === 'Hard' && puzzle.size === 10
+    ).length;
     const firstSixtyMix = libertiesPuzzles.slice(0, 60).reduce<Record<string, number>>((counts, puzzle) => {
       counts[puzzle.difficulty] = (counts[puzzle.difficulty] ?? 0) + 1;
       return counts;
@@ -328,12 +331,13 @@ describe('liberties puzzle engine', () => {
     const firstDaily = getDailyLibertiesEntry(new Date('2026-05-18T12:00:00.000Z'));
 
     expect(publicSizeCounts[7]).toBe(28);
-    expect(publicSizeCounts[8]).toBe(127);
-    expect(publicSizeCounts[9]).toBe(198);
+    expect(publicSizeCounts[8]).toBe(107);
+    expect(publicSizeCounts[9]).toBe(218);
     expect(publicSizeCounts[10]).toBe(12);
+    expect(hardTenCount).toBe(12);
     expect(difficultyTransitions).toBeGreaterThanOrEqual(220);
     expect(firstSixtyMix.Easy).toBeGreaterThanOrEqual(6);
-    expect(firstSixtyMix.Standard).toBeGreaterThanOrEqual(35);
+    expect(firstSixtyMix.Standard).toBeGreaterThanOrEqual(30);
     expect(firstSixtyMix.Hard).toBeGreaterThanOrEqual(10);
     expect(reserveIds.has(firstDaily.puzzle.id)).toBe(false);
     expect(libertiesReservePuzzles.every((puzzle) => typeof puzzle.reserveRank === 'number')).toBe(true);
