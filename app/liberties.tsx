@@ -51,7 +51,9 @@ import {
 type GameState = 'playing' | 'won';
 type DemoMode = 'intro' | 'select' | 'stage0' | 'stage1' | 'stage2' | 'complete';
 type HowToCell = 'black' | 'white' | 'frozen' | null;
-type HowToLessonKind = 'target' | 'seal' | 'response' | 'blocker';
+type LibertiesVisualThemeId = 'pebble' | 'knob' | 'neoCity' | 'softCeramic';
+type LibertiesPieceKind = 'black' | 'white' | 'blocker' | 'release';
+type LibertiesMetricTone = 'default' | 'success';
 
 interface PersistedLibertiesState {
   version: 1;
@@ -63,17 +65,69 @@ interface PersistedLibertiesState {
 
 const STORAGE_PREFIX = 'liberties';
 const PLAY_COUNT_KEY = 'liberties';
+const THEME_STORAGE_KEY = `${STORAGE_PREFIX}:visual-theme`;
 const PUBLIC_GAME_TITLE = 'Liberties';
 const PROGRESS_STORAGE_VERSION = 1 as const;
 const STANDARD_PLAYTEST_PUZZLE_ID = 'liberties-clock-square';
 const HARD_PLAYTEST_PUZZLE_ID = 'liberties-ladder-garden';
-const PEBBLE_ASSETS = {
-  seal: require('../assets/closeout/seal-pebble.png'),
-  target: require('../assets/closeout/target-pebble.png'),
-  guide: require('../assets/closeout/guide-pebble.png'),
-  blocker: require('../assets/closeout/blocker-pebble.png'),
-};
 const GROUP_ACCENTS = ['#43b7a8', '#d79a33', '#7c93df', '#d76f8b', '#6fac55', '#b17aca', '#cf7c42', '#4d9dc4'] as const;
+const LIBERTIES_VISUAL_THEME_IDS = ['pebble', 'knob', 'neoCity', 'softCeramic'] as const;
+const LIBERTIES_VISUAL_THEME_LABELS: Record<LibertiesVisualThemeId, string> = {
+  pebble: 'Pebble',
+  knob: 'Knob',
+  neoCity: 'Neo',
+  softCeramic: 'Soft',
+};
+const THEMED_PIECE_ASSETS = {
+  pebble: {
+    light: {
+      black: require('../assets/liberties/themes/pebble/black.png'),
+      white: require('../assets/liberties/themes/pebble/white.png'),
+      blocker: require('../assets/liberties/themes/pebble/blocker.png'),
+    },
+    dark: {
+      black: require('../assets/liberties/themes/pebble/black.png'),
+      white: require('../assets/liberties/themes/pebble/white.png'),
+      blocker: require('../assets/liberties/themes/pebble/blocker.png'),
+    },
+  },
+  knob: {
+    light: {
+      black: require('../assets/liberties/themes/knob/black.png'),
+      white: require('../assets/liberties/themes/knob/white.png'),
+      blocker: require('../assets/liberties/themes/knob/blocker.png'),
+    },
+    dark: {
+      black: require('../assets/liberties/themes/knob/black.png'),
+      white: require('../assets/liberties/themes/knob/white.png'),
+      blocker: require('../assets/liberties/themes/knob/blocker.png'),
+    },
+  },
+  neoCity: {
+    light: {
+      black: require('../assets/liberties/themes/neo-city/light/black.png'),
+      white: require('../assets/liberties/themes/neo-city/light/white.png'),
+      blocker: require('../assets/liberties/themes/neo-city/light/blocker.png'),
+    },
+    dark: {
+      black: require('../assets/liberties/themes/neo-city/dark/black.png'),
+      white: require('../assets/liberties/themes/neo-city/dark/white.png'),
+      blocker: require('../assets/liberties/themes/neo-city/dark/blocker.png'),
+    },
+  },
+  softCeramic: {
+    light: {
+      black: require('../assets/liberties/themes/soft-ceramic/black.png'),
+      white: require('../assets/liberties/themes/soft-ceramic/white.png'),
+      blocker: require('../assets/liberties/themes/soft-ceramic/blocker.png'),
+    },
+    dark: {
+      black: require('../assets/liberties/themes/soft-ceramic/black.png'),
+      white: require('../assets/liberties/themes/soft-ceramic/white.png'),
+      blocker: require('../assets/liberties/themes/soft-ceramic/blocker.png'),
+    },
+  },
+} as const;
 const WEB_NO_SELECT =
   Platform.OS === 'web'
     ? {
@@ -112,6 +166,84 @@ const WHITE_STRETCH_RULES = [
   'White chooses the empty crossing with the longest straight open path.',
   'If two paths are tied, white chooses the topmost crossing, then the leftmost crossing.',
 ];
+
+interface LibertiesVisualTheme {
+  id: LibertiesVisualThemeId;
+  label: string;
+  mode: ThemeTokens['mode'];
+  boardColor: string;
+  boardLine: string;
+  boardEdge: string;
+  pointHover: string;
+  pointSelected: string;
+  tileColor: string;
+  markerRadius: 'round' | 'soft' | 'deco';
+}
+
+function parseLibertiesVisualThemeId(value: string | null): LibertiesVisualThemeId {
+  return LIBERTIES_VISUAL_THEME_IDS.includes(value as LibertiesVisualThemeId)
+    ? (value as LibertiesVisualThemeId)
+    : 'pebble';
+}
+
+function getLibertiesVisualTheme(mode: ThemeTokens['mode'], id: LibertiesVisualThemeId): LibertiesVisualTheme {
+  const dark = mode === 'dark';
+  const shared = {
+    id,
+    label: LIBERTIES_VISUAL_THEME_LABELS[id],
+    mode,
+  };
+
+  if (id === 'knob') {
+    return {
+      ...shared,
+      boardColor: dark ? '#111923' : '#f0f2ef',
+      boardLine: dark ? 'rgba(220, 229, 225, 0.27)' : 'rgba(48, 56, 59, 0.26)',
+      boardEdge: dark ? 'rgba(220, 229, 225, 0.14)' : 'rgba(48, 56, 59, 0.2)',
+      pointHover: dark ? 'rgba(198, 213, 213, 0.12)' : 'rgba(255,255,255,0.72)',
+      pointSelected: dark ? 'rgba(115, 180, 172, 0.18)' : 'rgba(52, 128, 118, 0.14)',
+      tileColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.62)',
+      markerRadius: 'round',
+    };
+  }
+
+  if (id === 'neoCity') {
+    return {
+      ...shared,
+      boardColor: dark ? '#091b1d' : '#f1eee4',
+      boardLine: dark ? 'rgba(209, 158, 87, 0.32)' : 'rgba(90, 78, 64, 0.27)',
+      boardEdge: dark ? 'rgba(209, 158, 87, 0.22)' : 'rgba(130, 99, 56, 0.28)',
+      pointHover: dark ? 'rgba(209, 158, 87, 0.1)' : 'rgba(255, 255, 255, 0.7)',
+      pointSelected: dark ? 'rgba(209, 158, 87, 0.18)' : 'rgba(148, 100, 42, 0.14)',
+      tileColor: dark ? 'rgba(209, 158, 87, 0.06)' : 'rgba(255,255,255,0.62)',
+      markerRadius: 'deco',
+    };
+  }
+
+  if (id === 'softCeramic') {
+    return {
+      ...shared,
+      boardColor: dark ? '#142229' : '#f5f0e8',
+      boardLine: dark ? 'rgba(212, 226, 220, 0.22)' : 'rgba(88, 88, 78, 0.22)',
+      boardEdge: dark ? 'rgba(212, 226, 220, 0.13)' : 'rgba(88, 88, 78, 0.17)',
+      pointHover: dark ? 'rgba(202, 223, 215, 0.1)' : 'rgba(255,255,255,0.74)',
+      pointSelected: dark ? 'rgba(126, 189, 165, 0.15)' : 'rgba(102, 151, 130, 0.13)',
+      tileColor: dark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.58)',
+      markerRadius: 'soft',
+    };
+  }
+
+  return {
+    ...shared,
+    boardColor: dark ? '#111d23' : '#e5ecea',
+    boardLine: dark ? 'rgba(218, 233, 232, 0.24)' : 'rgba(40, 60, 63, 0.24)',
+    boardEdge: dark ? 'rgba(218, 233, 232, 0.12)' : 'rgba(40, 60, 63, 0.18)',
+    pointHover: dark ? 'rgba(83, 111, 117, 0.34)' : 'rgba(255, 255, 255, 0.62)',
+    pointSelected: dark ? 'rgba(99, 210, 178, 0.18)' : 'rgba(30, 143, 112, 0.13)',
+    tileColor: dark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.58)',
+    markerRadius: 'round',
+  };
+}
 
 function getStorage(): Storage | null {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -197,53 +329,6 @@ function getGroupAccent(index: number): string {
 
 function formatPointLabel(point: LibertiesPoint): string {
   return `Row ${point.row + 1}, Col ${point.col + 1}`;
-}
-
-function getPointPixel(
-  point: LibertiesPoint,
-  boardPadding: number,
-  pointGap: number
-): { x: number; y: number } {
-  return {
-    x: boardPadding + point.col * pointGap,
-    y: boardPadding + point.row * pointGap,
-  };
-}
-
-function getGroupCenter(points: LibertiesPoint[]): LibertiesPoint {
-  if (points.length === 0) return { row: 0, col: 0 };
-  const total = points.reduce(
-    (sum, point) => ({
-      row: sum.row + point.row,
-      col: sum.col + point.col,
-    }),
-    { row: 0, col: 0 }
-  );
-  return {
-    row: total.row / points.length,
-    col: total.col / points.length,
-  };
-}
-
-function getReleaseConnectorStyle(
-  releasePoint: LibertiesPoint,
-  groupCenter: LibertiesPoint,
-  boardPadding: number,
-  pointGap: number
-) {
-  const start = getPointPixel(releasePoint, boardPadding, pointGap);
-  const end = getPointPixel(groupCenter, boardPadding, pointGap);
-  const dx = end.x - start.x;
-  const dy = end.y - start.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-  const angle = Math.atan2(dy, dx);
-
-  return {
-    left: (start.x + end.x) / 2 - distance / 2,
-    top: (start.y + end.y) / 2 - 1,
-    width: distance,
-    transform: [{ rotate: `${angle}rad` }],
-  };
 }
 
 function formatPreviewStatus(
@@ -345,16 +430,71 @@ function getPreviewPuzzleFromOverride(value: string | null): typeof libertiesPuz
   return libertiesPreviewPuzzles.find((entry) => entry.id.toLowerCase() === value) ?? null;
 }
 
+function getThemeMarkerRadius(size: number, visualTheme: LibertiesVisualTheme): number {
+  if (visualTheme.markerRadius === 'deco') return Math.max(8, size * 0.18);
+  if (visualTheme.markerRadius === 'soft') return Math.max(12, size * 0.3);
+  return size / 2;
+}
+
+function ThemedLibertiesPiece({
+  kind,
+  size,
+  visualTheme,
+  styles,
+  preview = false,
+  invalid = false,
+  connected = false,
+}: {
+  kind: LibertiesPieceKind;
+  size: number;
+  visualTheme: LibertiesVisualTheme;
+  styles: ReturnType<typeof createStyles>;
+  preview?: boolean;
+  invalid?: boolean;
+  connected?: boolean;
+}) {
+  const assetKind = kind === 'release' ? 'blocker' : kind;
+
+  return (
+    <View
+      style={[
+        styles.pieceStage,
+        preview && styles.previewPiece,
+        invalid && styles.invalidPreviewPiece,
+        {
+          width: size,
+          height: size,
+        },
+      ]}
+    >
+      <Image
+        source={THEMED_PIECE_ASSETS[visualTheme.id][visualTheme.mode][assetKind]}
+        style={[
+          styles.pieceImage,
+          {
+            width: size,
+            height: size,
+          },
+        ]}
+        resizeMode="contain"
+      />
+      {connected && visualTheme.id === 'neoCity' && <View style={styles.neoConnectedGlint} />}
+    </View>
+  );
+}
+
 function HowToMiniBoard({
   grid,
   label,
   caption,
   styles,
+  visualTheme,
 }: {
   grid: HowToCell[][];
   label: string;
   caption: string;
   styles: ReturnType<typeof createStyles>;
+  visualTheme: LibertiesVisualTheme;
 }) {
   const miniSize = 154;
   const miniPadding = 24;
@@ -412,15 +552,12 @@ function HowToMiniBoard({
                   },
                 ]}
               >
-                {cell === 'black' && (
-                  <Image source={PEBBLE_ASSETS.seal} style={styles.howToPiece} resizeMode="contain" />
-                )}
-                {cell === 'white' && (
-                  <Image source={PEBBLE_ASSETS.target} style={styles.howToPiece} resizeMode="contain" />
-                )}
-                {cell === 'frozen' && (
-                  <Image source={PEBBLE_ASSETS.blocker} style={styles.howToBlockerPiece} resizeMode="contain" />
-                )}
+                <ThemedLibertiesPiece
+                  kind={cell === 'frozen' ? 'blocker' : cell}
+                  size={cell === 'frozen' ? 32 : 34}
+                  styles={styles}
+                  visualTheme={visualTheme}
+                />
               </View>
             );
           })
@@ -431,63 +568,13 @@ function HowToMiniBoard({
   );
 }
 
-function HowToLessonRow({
-  kind,
-  title,
-  badge,
-  text,
+function HowToStretchOrderBoard({
   styles,
+  visualTheme,
 }: {
-  kind: HowToLessonKind;
-  title: string;
-  badge: string;
-  text: string;
   styles: ReturnType<typeof createStyles>;
+  visualTheme: LibertiesVisualTheme;
 }) {
-  const renderToken = () => {
-    if (kind === 'blocker') {
-      return (
-        <View style={[styles.howToLessonToken, styles.howToLessonTokenBlocker]}>
-          <Image source={PEBBLE_ASSETS.blocker} style={styles.howToLessonBlocker} resizeMode="contain" />
-        </View>
-      );
-    }
-
-    const source =
-      kind === 'target'
-        ? PEBBLE_ASSETS.target
-        : kind === 'response'
-          ? PEBBLE_ASSETS.target
-          : PEBBLE_ASSETS.seal;
-
-    return (
-      <View style={styles.howToLessonToken}>
-        <Image
-          source={source}
-          style={kind === 'response' ? styles.howToLessonGuide : styles.howToLessonPiece}
-          resizeMode="contain"
-        />
-      </View>
-    );
-  };
-
-  return (
-    <View style={styles.howToLessonRow}>
-      <View style={styles.howToLessonIcon}>{renderToken()}</View>
-      <View style={styles.howToLessonCopy}>
-        <View style={styles.howToLessonTitleRow}>
-          <Text style={styles.howToLessonTitle}>{title}</Text>
-          <View style={styles.howToLessonBadge}>
-            <Text style={styles.howToLessonBadgeText}>{badge}</Text>
-          </View>
-        </View>
-        <Text style={styles.howToLessonText}>{text}</Text>
-      </View>
-    </View>
-  );
-}
-
-function HowToStretchOrderBoard({ styles }: { styles: ReturnType<typeof createStyles> }) {
   const miniSize = 176;
   const miniPadding = 24;
   const miniGridSpan = miniSize - miniPadding * 2;
@@ -551,16 +638,16 @@ function HowToStretchOrderBoard({ styles }: { styles: ReturnType<typeof createSt
         </View>
         <View style={[styles.howToStretchDot, pointStyle(2, 4)]} />
         <View style={[styles.howToMiniPoint, pointStyle(0, 2)]}>
-          <Image source={PEBBLE_ASSETS.blocker} style={styles.howToBlockerPiece} resizeMode="contain" />
+          <ThemedLibertiesPiece kind="blocker" size={32} styles={styles} visualTheme={visualTheme} />
         </View>
         <View style={[styles.howToMiniPoint, pointStyle(2, 1)]}>
-          <Image source={PEBBLE_ASSETS.seal} style={styles.howToPiece} resizeMode="contain" />
+          <ThemedLibertiesPiece kind="black" size={34} styles={styles} visualTheme={visualTheme} />
         </View>
         <View style={[styles.howToMiniPoint, pointStyle(3, 2)]}>
-          <Image source={PEBBLE_ASSETS.seal} style={styles.howToPiece} resizeMode="contain" />
+          <ThemedLibertiesPiece kind="black" size={34} styles={styles} visualTheme={visualTheme} />
         </View>
         <View style={[styles.howToMiniPoint, pointStyle(2, 2)]}>
-          <Image source={PEBBLE_ASSETS.target} style={styles.howToPiece} resizeMode="contain" />
+          <ThemedLibertiesPiece kind="white" size={34} styles={styles} visualTheme={visualTheme} />
         </View>
         <Text style={[styles.howToStretchLabel, styles.howToStretchShortLabel]}>short</Text>
         <Text style={[styles.howToStretchLabel, styles.howToStretchLongLabel]}>longer</Text>
@@ -625,7 +712,10 @@ type LibertiesBoardCardProps = {
   setHoverPoint: Dispatch<SetStateAction<LibertiesPoint | null>>;
   stoneSize: number;
   styles: ReturnType<typeof createStyles>;
+  visualTheme: LibertiesVisualTheme;
   width: number;
+  showHeader?: boolean;
+  phoneLayout?: boolean;
 };
 
 const LibertiesBoardCard = memo(function LibertiesBoardCard({
@@ -655,24 +745,37 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
   setHoverPoint,
   stoneSize,
   styles,
+  visualTheme,
   width,
+  showHeader = true,
+  phoneLayout = false,
 }: LibertiesBoardCardProps) {
   return (
-    <View style={[styles.boardCard, width < 420 && styles.boardCardCompact, WEB_BORDER_BOX]}>
-      <View style={styles.boardHeader}>
-        <View>
-          <Text style={styles.puzzleTitle}>{dailyLabel}</Text>
-        </View>
-        {gameState === 'won' && (
-          <View style={[styles.statePill, styles.statePillWon]}>
-            <Text style={[styles.statePillText, styles.statePillTextWon]}>Solved</Text>
+    <View
+      style={[
+        styles.boardCard,
+        width < 420 && styles.boardCardCompact,
+        phoneLayout && styles.boardCardPhone,
+        WEB_BORDER_BOX,
+      ]}
+    >
+      {showHeader && (
+        <View style={styles.boardHeader}>
+          <View>
+            <Text style={styles.puzzleTitle}>{dailyLabel}</Text>
           </View>
-        )}
-      </View>
+          {gameState === 'won' && (
+            <View style={[styles.statePill, styles.statePillWon]}>
+              <Text style={[styles.statePillText, styles.statePillTextWon]}>Solved</Text>
+            </View>
+          )}
+        </View>
+      )}
 
       <View
         style={[
           styles.board,
+          phoneLayout && styles.boardPhone,
           {
             width: boardSize,
             height: boardSize,
@@ -707,30 +810,6 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
             ]}
           />
         ))}
-        {puzzle.releaseLinks.map((release, index) => {
-          if (board[release.point.row]?.[release.point.col] !== 'release') return null;
-          const group = puzzle.lightGroups[release.groupIndex] ?? [];
-          const active = activeGroupIndex === release.groupIndex;
-          return (
-            <View
-              key={`release-link-${index}-${pointKey(release.point)}`}
-              style={[
-                styles.releaseConnector,
-                {
-                  ...getReleaseConnectorStyle(
-                    release.point,
-                    getGroupCenter(group),
-                    boardPadding,
-                    pointGap
-                  ),
-                  backgroundColor: getGroupAccent(release.groupIndex),
-                  opacity: active ? 0.6 : 0.22,
-                },
-                active && styles.releaseConnectorActive,
-              ]}
-            />
-          );
-        })}
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const point = { row: rowIndex, col: colIndex };
@@ -753,6 +832,14 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
               highlightedGroupIndexes.has(releaseGroupIndex);
             const isActiveOpenSide = cell === null && activeOpenSideKeys.has(pointKeyValue);
             const recentlyResponded = recentResponseKeys.has(pointKeyValue);
+            const connectedBlack =
+              cell === 'black' &&
+              [
+                { row: rowIndex - 1, col: colIndex },
+                { row: rowIndex + 1, col: colIndex },
+                { row: rowIndex, col: colIndex - 1 },
+                { row: rowIndex, col: colIndex + 1 },
+              ].some((neighbor) => board[neighbor.row]?.[neighbor.col] === 'black');
 
             return (
               <Pressable
@@ -808,17 +895,11 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
                 ]}
               >
                 {cell === 'frozen' && (
-                  <Image
-                    source={PEBBLE_ASSETS.blocker}
-                    style={[
-                      styles.pieceImage,
-                      styles.blockerPiece,
-                      {
-                        width: stoneSize,
-                        height: stoneSize,
-                      },
-                    ]}
-                    resizeMode="contain"
+                  <ThemedLibertiesPiece
+                    kind="blocker"
+                    size={stoneSize}
+                    styles={styles}
+                    visualTheme={visualTheme}
                   />
                 )}
                 {cell === 'release' && releaseGroupIndex !== undefined && (
@@ -826,28 +907,22 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
                     style={[
                       styles.releaseHalo,
                       {
-                        width: stoneSize * 1.18,
-                        height: stoneSize * 1.18,
-                        borderRadius: stoneSize,
+                        width: stoneSize * 1.28,
+                        height: stoneSize * 1.28,
+                        borderRadius: getThemeMarkerRadius(stoneSize * 1.28, visualTheme),
                         borderColor: getGroupAccent(releaseGroupIndex),
-                        opacity: releaseHighlighted ? 0.78 : 0.22,
+                        opacity: releaseHighlighted ? 0.6 : 0.22,
                       },
                       releaseHighlighted && styles.releaseHaloActive,
                     ]}
                   />
                 )}
                 {cell === 'release' && (
-                  <Image
-                    source={PEBBLE_ASSETS.guide}
-                    style={[
-                      styles.pieceImage,
-                      styles.releasePiece,
-                      {
-                        width: stoneSize,
-                        height: stoneSize,
-                      },
-                    ]}
-                    resizeMode="contain"
+                  <ThemedLibertiesPiece
+                    kind="release"
+                    size={stoneSize}
+                    styles={styles}
+                    visualTheme={visualTheme}
                   />
                 )}
                 {cell === 'white' && groupIndex !== undefined && (
@@ -855,27 +930,23 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
                     style={[
                       styles.lightGroupHalo,
                       {
-                        width: stoneSize * 1.22,
-                        height: stoneSize * 1.22,
-                        borderRadius: stoneSize,
+                        width: stoneSize * 1.3,
+                        height: stoneSize * 1.3,
+                        borderRadius: getThemeMarkerRadius(stoneSize * 1.3, visualTheme),
                         borderColor: getGroupAccent(groupIndex),
-                        opacity: highlightedGroupIndexes.has(groupIndex) ? 0.72 : 0.3,
+                        opacity: highlightedGroupIndexes.has(groupIndex) ? 0.6 : 0.22,
                       },
                       highlightedGroupIndexes.has(groupIndex) && styles.lightGroupHaloActive,
                     ]}
                   />
                 )}
                 {(cell === 'black' || cell === 'white') && (
-                  <Image
-                    source={cell === 'black' ? PEBBLE_ASSETS.seal : PEBBLE_ASSETS.target}
-                    style={[
-                      styles.pieceImage,
-                      {
-                        width: stoneSize,
-                        height: stoneSize,
-                      },
-                    ]}
-                    resizeMode="contain"
+                  <ThemedLibertiesPiece
+                    kind={cell}
+                    size={stoneSize}
+                    styles={styles}
+                    visualTheme={visualTheme}
+                    connected={connectedBlack}
                   />
                 )}
                 {selected && cell === null && (
@@ -885,7 +956,7 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
                       {
                         width: stoneSize,
                         height: stoneSize,
-                        borderRadius: stoneSize / 2,
+                        borderRadius: getThemeMarkerRadius(stoneSize, visualTheme),
                       },
                     ]}
                   />
@@ -897,7 +968,7 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
                       {
                         width: stoneSize,
                         height: stoneSize,
-                        borderRadius: stoneSize / 2,
+                        borderRadius: getThemeMarkerRadius(stoneSize, visualTheme),
                       },
                     ]}
                   />
@@ -912,24 +983,19 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
                       {
                         width: stoneSize,
                         height: stoneSize,
-                        borderRadius: stoneSize / 2,
+                        borderRadius: getThemeMarkerRadius(stoneSize, visualTheme),
                       },
                     ]}
                   />
                 )}
                 {previewing && (
-                  <Image
-                    source={PEBBLE_ASSETS.seal}
-                    style={[
-                      styles.pieceImage,
-                      styles.previewPiece,
-                      !previewLegal && styles.invalidPreviewPiece,
-                      {
-                        width: previewStoneSize,
-                        height: previewStoneSize,
-                      },
-                    ]}
-                    resizeMode="contain"
+                  <ThemedLibertiesPiece
+                    kind="black"
+                    size={previewStoneSize}
+                    styles={styles}
+                    visualTheme={visualTheme}
+                    preview
+                    invalid={!previewLegal}
                   />
                 )}
                 {hinted && !previewing && cell === null && (
@@ -939,7 +1005,7 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
                       {
                         width: guideStoneSize,
                         height: guideStoneSize,
-                        borderRadius: guideStoneSize / 2,
+                        borderRadius: getThemeMarkerRadius(guideStoneSize, visualTheme),
                       },
                     ]}
                   />
@@ -952,6 +1018,25 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
     </View>
   );
 });
+
+function LibertiesMetric({
+  label,
+  value,
+  styles,
+  tone = 'default',
+}: {
+  label: string;
+  value: string | number;
+  styles: ReturnType<typeof createStyles>;
+  tone?: LibertiesMetricTone;
+}) {
+  return (
+    <View style={styles.mobileMetric}>
+      <Text style={[styles.mobileMetricValue, tone === 'success' && styles.mobileMetricValueSuccess]}>{value}</Text>
+      <Text style={styles.mobileMetricLabel}>{label}</Text>
+    </View>
+  );
+}
 
 function sanitizeMoves(value: unknown, size: number): LibertiesPoint[] {
   if (!Array.isArray(value)) return [];
@@ -999,9 +1084,16 @@ function getDemoElapsedSeconds(mode: DemoMode): number {
 
 export default function LibertiesScreen() {
   const theme = useDaybreakTheme();
+  const [visualThemeId, setVisualThemeId] = useState<LibertiesVisualThemeId>(() =>
+    parseLibertiesVisualThemeId(readSearchParam('theme') ?? readStorageItem(THEME_STORAGE_KEY))
+  );
+  const visualTheme = useMemo(
+    () => getLibertiesVisualTheme(theme.mode, visualThemeId),
+    [theme.mode, visualThemeId]
+  );
   const screenAccent = useMemo(() => resolveScreenAccent('liberties', theme), [theme]);
-  const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
-  const { width } = useWindowDimensions();
+  const styles = useMemo(() => createStyles(theme, screenAccent, visualTheme), [theme, screenAccent, visualTheme]);
+  const { width, height } = useWindowDimensions();
   const demoMode = useMemo(() => readDemoMode(), []);
   const puzzleOverride = useMemo(() => getPreviewPuzzleFromOverride(readPuzzleOverride()), []);
   const isPreviewMode = demoMode !== null || puzzleOverride !== null || readSearchParam('howTo') === '1';
@@ -1024,8 +1116,14 @@ export default function LibertiesScreen() {
   const [activeGroupIndex, setActiveGroupIndex] = useState<number | null>(null);
   const [recentResponseKeys, setRecentResponseKeys] = useState<Set<string>>(() => new Set());
   const [isHowToVisible, setIsHowToVisible] = useState(false);
+  const [isStyleMenuVisible, setIsStyleMenuVisible] = useState(false);
   const [hasRestoredProgress, setHasRestoredProgress] = useState(false);
   const hasCountedRef = useRef(false);
+
+  const handleVisualThemeChange = useCallback((nextTheme: LibertiesVisualThemeId) => {
+    setVisualThemeId(nextTheme);
+    writeStorageItem(THEME_STORAGE_KEY, nextTheme);
+  }, []);
 
   const replay = useMemo(() => replayLibertiesMoves(puzzle, moves), [moves, puzzle]);
   const board = replay.board;
@@ -1069,18 +1167,24 @@ export default function LibertiesScreen() {
     return next;
   }, [puzzle.releaseLinks]);
   const clearedCount = replay.captured.length;
-  const boardCap = width >= 1100 ? 940 : width >= 900 ? 860 : 740;
-  const boardInset = width < 420 ? 52 : width < 720 ? 56 : width < 900 ? 72 : 24;
-  const boardFloor = width < 420 ? 296 : 380;
-  const boardSize = Math.min(Math.max(width - boardInset, boardFloor), boardCap);
-  const boardPadding = Math.max(width < 420 ? 28 : 34, Math.min(54, boardSize * 0.075));
+  const isPhoneLayout = width < 720;
+  const boardCap = isPhoneLayout ? 520 : width >= 1100 ? 940 : width >= 900 ? 860 : 740;
+  const mobileHeightCap = Math.max(300, height - (gameState === 'won' ? 330 : 244));
+  const boardInset = isPhoneLayout ? 40 : width < 900 ? 72 : 24;
+  const boardFloor = isPhoneLayout ? Math.min(Math.max(width - 56, 276), 340) : 380;
+  const boardSize = isPhoneLayout
+    ? Math.max(276, Math.min(width - boardInset, mobileHeightCap, boardCap))
+    : Math.min(Math.max(width - boardInset, boardFloor), boardCap);
+  const boardPadding = isPhoneLayout
+    ? Math.max(22, Math.min(42, boardSize * 0.07))
+    : Math.max(34, Math.min(54, boardSize * 0.075));
   const gridSpan = boardSize - boardPadding * 2;
   const pointGap = gridSpan / Math.max(1, puzzle.size - 1);
-  const stoneSize = Math.min(pointGap * 0.74, width < 420 ? 46 : 64);
+  const stoneSize = Math.min(pointGap * (isPhoneLayout ? 0.8 : 0.78), isPhoneLayout ? 52 : 68);
   const previewStoneSize = stoneSize;
   const guideStoneSize = stoneSize;
-  const hitSize = Math.max(stoneSize * 1.1, Math.min(pointGap * 0.98, width < 420 ? 54 : 78));
-  const gridLineThickness = width < 420 ? 1 : 2;
+  const hitSize = Math.max(isPhoneLayout ? 44 : stoneSize * 1.16, Math.min(pointGap * 1.02, isPhoneLayout ? 58 : 78));
+  const gridLineThickness = isPhoneLayout && boardSize < 360 ? 1 : 2;
   const dailyLabel = useMemo(() => formatUtcDateLabel(dateKey), [dateKey]);
   const lowestMoveCount = useMemo(
     () => (gameState === 'won' ? getLowestLibertiesMoveCount(puzzle) : null),
@@ -1424,12 +1528,164 @@ export default function LibertiesScreen() {
     }
   }, [isPreviewMode]);
 
+  const phoneChromeWidth = Math.max(260, width - 32);
+  const phoneChromeStyle = isPhoneLayout
+    ? { width: phoneChromeWidth, maxWidth: phoneChromeWidth, alignSelf: 'center' as const }
+    : null;
+  const themeSwitcher = (
+    <View style={[styles.themeSwitcher, isPhoneLayout && styles.themeSwitcherPhone, phoneChromeStyle]}>
+      {LIBERTIES_VISUAL_THEME_IDS.map((themeId) => {
+        const active = themeId === visualThemeId;
+        return (
+          <Pressable
+            key={themeId}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+            style={({ pressed }) => [
+              styles.themeButton,
+              active && styles.themeButtonActive,
+              pressed && styles.themeButtonPressed,
+            ]}
+            onPress={() => {
+              handleVisualThemeChange(themeId);
+              if (isPhoneLayout) setIsStyleMenuVisible(false);
+            }}
+          >
+            <Text style={[styles.themeButtonText, active && styles.themeButtonTextActive]}>
+              {LIBERTIES_VISUAL_THEME_LABELS[themeId]}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+
+  const boardSurface = (
+    <LibertiesBoardCard
+      activeGroupIndex={activeGroupIndex}
+      activeOpenSideKeys={activeOpenSideKeys}
+      board={board}
+      boardPadding={boardPadding}
+      boardSize={boardSize}
+      dailyLabel={dailyLabel}
+      gameState={gameState}
+      gridLineThickness={gridLineThickness}
+      gridSpan={gridSpan}
+      groupIndexByPoint={groupIndexByPoint}
+      guideStoneSize={guideStoneSize}
+      handlePointPress={handlePointPress}
+      highlightedGroupIndexes={highlightedGroupIndexes}
+      hintPoint={hintPoint}
+      hitSize={hitSize}
+      hoverPoint={hoverPoint}
+      phoneLayout={isPhoneLayout}
+      pointGap={pointGap}
+      previewStoneSize={previewStoneSize}
+      puzzle={puzzle}
+      recentResponseKeys={recentResponseKeys}
+      releaseIndexByPoint={releaseIndexByPoint}
+      selectedPoint={selectedPoint}
+      setActiveGroupIndex={setActiveGroupIndex}
+      setHoverPoint={setHoverPoint}
+      showHeader={!isPhoneLayout}
+      stoneSize={stoneSize}
+      styles={styles}
+      visualTheme={visualTheme}
+      width={width}
+    />
+  );
+
+  const statusSurface = statusMessage ? (
+    <View style={[styles.statusCard, isPhoneLayout && styles.statusCardPhone, phoneChromeStyle]}>
+      <Text style={styles.statusText}>{statusMessage}</Text>
+    </View>
+  ) : isPhoneLayout ? (
+    <View style={[styles.statusCard, styles.statusCardIdle, phoneChromeStyle]}>
+      <Text style={[styles.statusText, styles.statusTextIdle]}>Tap once to preview. Tap again to place.</Text>
+    </View>
+  ) : null;
+
+  const controlsSurface = (
+    <View style={[styles.controls, isPhoneLayout && styles.controlsPhone, phoneChromeStyle]}>
+      <Pressable
+        accessibilityRole="button"
+        disabled={moves.length === 0}
+        style={({ pressed }) => [
+          styles.secondaryButton,
+          isPhoneLayout && styles.secondaryButtonPhone,
+          moves.length === 0 && styles.buttonDisabled,
+          pressed && styles.secondaryButtonPressed,
+        ]}
+        onPress={handleUndo}
+      >
+        <Text style={styles.secondaryButtonText}>Undo</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        style={({ pressed }) => [
+          styles.secondaryButton,
+          isPhoneLayout && styles.secondaryButtonPhone,
+          pressed && styles.secondaryButtonPressed,
+        ]}
+        onPress={handleHint}
+      >
+        <Text style={styles.secondaryButtonText}>Hint</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        style={({ pressed }) => [
+          styles.secondaryButton,
+          isPhoneLayout && styles.secondaryButtonPhone,
+          pressed && styles.secondaryButtonPressed,
+        ]}
+        onPress={handleReset}
+      >
+        <Text style={styles.secondaryButtonText}>Reset</Text>
+      </Pressable>
+    </View>
+  );
+
+  const winSurface = gameState === 'won' ? (
+    <View style={[styles.winCard, isPhoneLayout && styles.winCardPhone]}>
+      <Text style={styles.winTitle}>Cleared in {moves.length} moves</Text>
+      {lowestMoveCount !== null && (
+        <View style={styles.bestScoreCard}>
+          <Text style={styles.bestScoreLabel}>Lowest possible today</Text>
+          <Text style={styles.bestScoreValue}>
+            {lowestMoveCount} move{lowestMoveCount === 1 ? '' : 's'}
+          </Text>
+          <Text style={styles.bestScoreNote}>
+            {moves.length === lowestMoveCount
+              ? 'You hit the move floor. Time breaks ties.'
+              : 'Score is moves first. Time breaks ties.'}
+          </Text>
+        </View>
+      )}
+      <Text style={styles.winCopy}>
+        {hintsUsed > 0 ? `${hintsUsed} hint${hintsUsed === 1 ? '' : 's'} used.` : 'No hints used.'}
+      </Text>
+      <View style={styles.sharePreview}>
+        <Text style={styles.sharePreviewLabel}>Share code</Text>
+        <Text style={styles.sharePreviewText}>{shareText}</Text>
+      </View>
+      <Pressable
+        accessibilityRole="button"
+        style={({ pressed }) => [styles.shareButton, pressed && styles.shareButtonPressed]}
+        onPress={handleShare}
+      >
+        <Text style={styles.shareButtonText}>Share result</Text>
+      </Pressable>
+      {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
+    </View>
+  ) : null;
+
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen
         options={{
           title: PUBLIC_GAME_TITLE,
           headerBackTitle: 'Games',
+          headerShown: !isPhoneLayout,
         }}
       />
       <Modal
@@ -1438,8 +1694,8 @@ export default function LibertiesScreen() {
         visible={isHowToVisible}
         onRequestClose={() => setIsHowToVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.howToCard}>
+        <View style={[styles.modalOverlay, isPhoneLayout && styles.modalOverlayPhone]}>
+          <View style={[styles.howToCard, isPhoneLayout && styles.howToCardPhone]}>
             <ScrollView contentContainerStyle={styles.howToScroll} showsVerticalScrollIndicator={false}>
               <View style={styles.howToHeader}>
                 <View>
@@ -1471,6 +1727,7 @@ export default function LibertiesScreen() {
                   label="Board example"
                   caption="Pebbles sit where grid lines meet. White pebbles touching side-to-side are one white group."
                   styles={styles}
+                  visualTheme={visualTheme}
                 />
                 <Text style={styles.ruleListTitle}>Rules</Text>
                 {QUICK_START_RULES.map((rule) => (
@@ -1484,7 +1741,7 @@ export default function LibertiesScreen() {
                   White moves only after a standard move: a black pebble that clears no white group.
                   White adds one white pebble beside an existing white group.
                 </Text>
-                <HowToStretchOrderBoard styles={styles} />
+                <HowToStretchOrderBoard styles={styles} visualTheme={visualTheme} />
                 <View style={styles.whiteMoveSteps}>
                   {WHITE_STRETCH_RULES.map((rule, index) => (
                     <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
@@ -1503,142 +1760,88 @@ export default function LibertiesScreen() {
           </View>
         </View>
       </Modal>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={[styles.page, WEB_BORDER_BOX]}>
-          <View style={styles.hero}>
-            <View style={styles.accentBar} />
-            <Text style={styles.kicker}>Spatial logic</Text>
-            <Text style={styles.title}>{PUBLIC_GAME_TITLE}</Text>
-            <Text style={styles.subtitle}>
-              {dailyLabel}
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              style={({ pressed }) => [styles.howToTrigger, pressed && styles.howToTriggerPressed]}
-              onPress={() => setIsHowToVisible(true)}
-            >
-              <Text style={styles.howToTriggerText}>How to play</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.statsRow}>
-            <View style={[styles.statCard, WEB_BORDER_BOX]}>
-              <Text style={styles.statValue}>{moves.length}</Text>
-              <Text style={styles.statLabel}>Moves</Text>
-            </View>
-            <View style={[styles.statCard, WEB_BORDER_BOX]}>
-              <Text style={styles.statValue}>{clearedCount}</Text>
-              <Text style={styles.statLabel}>Cleared</Text>
-            </View>
-            <View style={[styles.statCard, WEB_BORDER_BOX]}>
-              <Text style={styles.statValue}>{formatTime(elapsedSeconds)}</Text>
-              <Text style={styles.statLabel}>Time</Text>
-            </View>
-          </View>
-
-          <LibertiesBoardCard
-            activeGroupIndex={activeGroupIndex}
-            activeOpenSideKeys={activeOpenSideKeys}
-            board={board}
-            boardPadding={boardPadding}
-            boardSize={boardSize}
-            dailyLabel={dailyLabel}
-            gameState={gameState}
-            gridLineThickness={gridLineThickness}
-            gridSpan={gridSpan}
-            groupIndexByPoint={groupIndexByPoint}
-            guideStoneSize={guideStoneSize}
-            handlePointPress={handlePointPress}
-            highlightedGroupIndexes={highlightedGroupIndexes}
-            hintPoint={hintPoint}
-            hitSize={hitSize}
-            hoverPoint={hoverPoint}
-            pointGap={pointGap}
-            previewStoneSize={previewStoneSize}
-            puzzle={puzzle}
-            recentResponseKeys={recentResponseKeys}
-            releaseIndexByPoint={releaseIndexByPoint}
-            selectedPoint={selectedPoint}
-            setActiveGroupIndex={setActiveGroupIndex}
-            setHoverPoint={setHoverPoint}
-            stoneSize={stoneSize}
-            styles={styles}
-            width={width}
-          />
-
-          {statusMessage && (
-            <View style={styles.statusCard}>
-              <Text style={styles.statusText}>{statusMessage}</Text>
-            </View>
-          )}
-
-          <View style={styles.controls}>
-            <Pressable
-              accessibilityRole="button"
-              disabled={moves.length === 0}
-              style={({ pressed }) => [
-                styles.secondaryButton,
-                moves.length === 0 && styles.buttonDisabled,
-                pressed && styles.secondaryButtonPressed,
-              ]}
-              onPress={handleUndo}
-            >
-              <Text style={styles.secondaryButtonText}>Undo</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              style={({ pressed }) => [
-                styles.secondaryButton,
-                pressed && styles.secondaryButtonPressed,
-              ]}
-              onPress={handleHint}
-            >
-              <Text style={styles.secondaryButtonText}>Hint</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              style={({ pressed }) => [
-                styles.secondaryButton,
-                pressed && styles.secondaryButtonPressed,
-              ]}
-              onPress={handleReset}
-            >
-              <Text style={styles.secondaryButtonText}>Reset</Text>
-            </Pressable>
-          </View>
-
-          {gameState === 'won' && (
-            <View style={styles.winCard}>
-              <Text style={styles.winTitle}>Cleared in {moves.length} moves</Text>
-              {lowestMoveCount !== null && (
-                <View style={styles.bestScoreCard}>
-                  <Text style={styles.bestScoreLabel}>Lowest possible today</Text>
-                  <Text style={styles.bestScoreValue}>
-                    {lowestMoveCount} move{lowestMoveCount === 1 ? '' : 's'}
-                  </Text>
-                  <Text style={styles.bestScoreNote}>
-                    {moves.length === lowestMoveCount
-                      ? 'You hit the move floor. Time breaks ties.'
-                      : 'Score is moves first. Time breaks ties.'}
-                  </Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[styles.scrollContent, isPhoneLayout && styles.scrollContentPhone]}
+      >
+        <View style={[styles.page, isPhoneLayout && styles.pagePhone, WEB_BORDER_BOX]}>
+          {isPhoneLayout ? (
+            <>
+              <View style={[styles.mobileTopBar, phoneChromeStyle]}>
+                <View style={styles.mobileTitleCluster}>
+                  <Text style={styles.mobileTitle}>{PUBLIC_GAME_TITLE}</Text>
+                  <Text style={styles.mobileDate}>{dailyLabel}</Text>
                 </View>
-              )}
-              <Text style={styles.winCopy}>
-                {hintsUsed > 0 ? `${hintsUsed} hint${hintsUsed === 1 ? '' : 's'} used.` : 'No hints used.'}
-              </Text>
-              <View style={styles.sharePreview}>
-                <Text style={styles.sharePreviewLabel}>Share code</Text>
-                <Text style={styles.sharePreviewText}>{shareText}</Text>
+                <View style={styles.mobileTopActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="How to play"
+                    style={({ pressed }) => [styles.mobileTopButton, pressed && styles.mobileTopButtonPressed]}
+                    onPress={() => setIsHowToVisible(true)}
+                  >
+                    <Text style={styles.mobileTopButtonText}>?</Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Choose visual style"
+                    accessibilityState={{ expanded: isStyleMenuVisible }}
+                    style={({ pressed }) => [styles.mobileTopButton, pressed && styles.mobileTopButtonPressed]}
+                    onPress={() => setIsStyleMenuVisible((current) => !current)}
+                  >
+                    <Text style={styles.mobileTopButtonText}>◐</Text>
+                  </Pressable>
+                </View>
               </View>
-              <Pressable
-                accessibilityRole="button"
-                style={({ pressed }) => [styles.shareButton, pressed && styles.shareButtonPressed]}
-                onPress={handleShare}
-              >
-                <Text style={styles.shareButtonText}>Share result</Text>
-              </Pressable>
-              {shareStatus && <Text style={styles.shareStatus}>{shareStatus}</Text>}
-            </View>
+
+              <View style={[styles.mobileStatsBar, phoneChromeStyle]}>
+                <LibertiesMetric label="Moves" value={moves.length} styles={styles} />
+                <LibertiesMetric label="Cleared" value={clearedCount} styles={styles} tone={gameState === 'won' ? 'success' : 'default'} />
+                <LibertiesMetric label="Time" value={formatTime(elapsedSeconds)} styles={styles} />
+              </View>
+
+              {isStyleMenuVisible && themeSwitcher}
+              {boardSurface}
+              {statusSurface}
+              {controlsSurface}
+              {winSurface}
+            </>
+          ) : (
+            <>
+              <View style={styles.hero}>
+                <View style={styles.accentBar} />
+                <Text style={styles.kicker}>Spatial logic</Text>
+                <Text style={styles.title}>{PUBLIC_GAME_TITLE}</Text>
+                <Text style={styles.subtitle}>{dailyLabel}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  style={({ pressed }) => [styles.howToTrigger, pressed && styles.howToTriggerPressed]}
+                  onPress={() => setIsHowToVisible(true)}
+                >
+                  <Text style={styles.howToTriggerText}>How to play</Text>
+                </Pressable>
+              </View>
+
+              <View style={styles.statsRow}>
+                <View style={[styles.statCard, WEB_BORDER_BOX]}>
+                  <Text style={styles.statValue}>{moves.length}</Text>
+                  <Text style={styles.statLabel}>Moves</Text>
+                </View>
+                <View style={[styles.statCard, WEB_BORDER_BOX]}>
+                  <Text style={styles.statValue}>{clearedCount}</Text>
+                  <Text style={styles.statLabel}>Cleared</Text>
+                </View>
+                <View style={[styles.statCard, WEB_BORDER_BOX]}>
+                  <Text style={styles.statValue}>{formatTime(elapsedSeconds)}</Text>
+                  <Text style={styles.statLabel}>Time</Text>
+                </View>
+              </View>
+
+              {themeSwitcher}
+              {boardSurface}
+              {statusSurface}
+              {controlsSurface}
+              {winSurface}
+            </>
           )}
         </View>
       </ScrollView>
@@ -1648,22 +1851,27 @@ export default function LibertiesScreen() {
 
 const createStyles = (
   theme: ThemeTokens,
-  screenAccent: ReturnType<typeof resolveScreenAccent>
+  screenAccent: ReturnType<typeof resolveScreenAccent>,
+  visualTheme: LibertiesVisualTheme
 ) => {
   const Colors = theme.colors;
   const Spacing = theme.spacing;
   const FontSize = theme.fontSize;
   const BorderRadius = theme.borderRadius;
   const ui = createDaybreakPrimitives(theme, screenAccent);
-  const boardColor = theme.mode === 'dark' ? '#111d23' : '#e5ecea';
-  const boardLine = theme.mode === 'dark' ? 'rgba(218, 233, 232, 0.24)' : 'rgba(40, 60, 63, 0.24)';
-  const boardEdge = theme.mode === 'dark' ? 'rgba(218, 233, 232, 0.12)' : 'rgba(40, 60, 63, 0.18)';
-  const pointHover = theme.mode === 'dark' ? 'rgba(83, 111, 117, 0.34)' : 'rgba(255, 255, 255, 0.62)';
-  const pointSelected = theme.mode === 'dark' ? 'rgba(99, 210, 178, 0.18)' : 'rgba(30, 143, 112, 0.13)';
-  const tileColor = theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.58)';
+  const boardColor = visualTheme.boardColor;
+  const boardLine = visualTheme.boardLine;
+  const boardEdge = visualTheme.boardEdge;
+  const pointHover = visualTheme.pointHover;
+  const pointSelected = visualTheme.pointSelected;
+  const tileColor = visualTheme.tileColor;
   const modalSurface = theme.mode === 'dark' ? '#121a23' : '#ffffff';
   const modalPanelSurface = theme.mode === 'dark' ? '#1b2632' : '#eef2f8';
   const modalAccentPanel = theme.mode === 'dark' ? '#173637' : '#e3f6f1';
+  const phoneChromeWidth =
+    Platform.OS === 'web'
+      ? ({ width: 'calc(100% - 16px)', maxWidth: 'calc(100% - 16px)', marginHorizontal: 8, boxSizing: 'border-box' } as any)
+      : { width: 'auto', maxWidth: '100%', marginHorizontal: 8 };
 
   return StyleSheet.create({
     container: {
@@ -1676,12 +1884,21 @@ const createStyles = (
     scrollContent: {
       paddingBottom: Spacing.xxl,
     },
+    scrollContentPhone: {
+      paddingBottom: Spacing.md,
+    },
     page: {
       ...ui.page,
       maxWidth: 1040,
       paddingHorizontal: Spacing.md,
       paddingTop: Spacing.lg,
       gap: Spacing.md,
+    },
+    pagePhone: {
+      maxWidth: '100%',
+      paddingHorizontal: 0,
+      paddingTop: 6,
+      gap: 8,
     },
     hero: {
       ...ui.glassCard,
@@ -1722,12 +1939,115 @@ const createStyles = (
       fontSize: FontSize.sm,
       fontWeight: '800',
     },
+    mobileTopBar: {
+      ...phoneChromeWidth,
+      alignSelf: 'stretch',
+      minHeight: 48,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.sm,
+      overflow: 'hidden',
+      borderRadius: BorderRadius.lg,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceGlass,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 6,
+    },
+    mobileTitleCluster: {
+      flex: 1,
+      minWidth: 0,
+      overflow: 'hidden',
+    },
+    mobileTitle: {
+      color: Colors.text,
+      fontSize: 18,
+      fontWeight: '900',
+      lineHeight: 22,
+    },
+    mobileDate: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      fontWeight: '800',
+      lineHeight: 15,
+    },
+    mobileTopActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      flexShrink: 0,
+    },
+    mobileTopButton: {
+      minHeight: 36,
+      minWidth: 36,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.soft,
+      paddingHorizontal: 8,
+    },
+    mobileTopButtonPressed: {
+      opacity: 0.82,
+      transform: [{ scale: 0.98 }],
+    },
+    mobileTopButtonText: {
+      color: screenAccent.badgeText,
+      fontSize: 14,
+      fontWeight: '900',
+    },
+    mobileStatsBar: {
+      ...phoneChromeWidth,
+      alignSelf: 'stretch',
+      minHeight: 50,
+      flexDirection: 'row',
+      alignItems: 'center',
+      overflow: 'hidden',
+      borderRadius: BorderRadius.lg,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.74)',
+      padding: 4,
+    },
+    mobileMetric: {
+      flex: 1,
+      minWidth: 0,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 5,
+      borderRadius: BorderRadius.md,
+    },
+    mobileMetricValue: {
+      color: Colors.text,
+      fontSize: FontSize.md,
+      lineHeight: 19,
+      fontWeight: '900',
+    },
+    mobileMetricValueSuccess: {
+      color: Colors.success,
+    },
+    mobileMetricLabel: {
+      marginTop: 1,
+      color: Colors.textMuted,
+      fontSize: 10,
+      lineHeight: 12,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.6,
+    },
     modalOverlay: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       padding: Spacing.lg,
       backgroundColor: theme.mode === 'dark' ? 'rgba(5, 8, 12, 0.88)' : Colors.overlay,
+    },
+    modalOverlayPhone: {
+      justifyContent: 'flex-end',
+      padding: 8,
+      paddingTop: Spacing.lg,
     },
     howToCard: {
       width: '100%',
@@ -1738,6 +2058,11 @@ const createStyles = (
       borderColor: Colors.border,
       backgroundColor: modalSurface,
       ...theme.shadows.elevated,
+    },
+    howToCardPhone: {
+      maxHeight: '88%',
+      borderBottomLeftRadius: BorderRadius.lg,
+      borderBottomRightRadius: BorderRadius.lg,
     },
     howToScroll: {
       padding: Spacing.xl,
@@ -2042,84 +2367,6 @@ const createStyles = (
       borderTopWidth: 1,
       borderTopColor: Colors.border,
     },
-    howToLessonRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: Spacing.md,
-      borderRadius: BorderRadius.md,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: modalPanelSurface,
-      padding: Spacing.md,
-    },
-    howToLessonIcon: {
-      width: 64,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    howToLessonToken: {
-      width: 52,
-      height: 52,
-      borderRadius: 999,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 1,
-      borderColor: boardEdge,
-      backgroundColor: tileColor,
-    },
-    howToLessonTokenBlocker: {
-      backgroundColor: 'transparent',
-      borderColor: 'transparent',
-    },
-    howToLessonPiece: {
-      width: 46,
-      height: 46,
-    },
-    howToLessonGuide: {
-      width: 46,
-      height: 46,
-    },
-    howToLessonBlocker: {
-      width: 46,
-      height: 46,
-    },
-    howToLessonCopy: {
-      flex: 1,
-      minWidth: 0,
-      gap: 3,
-    },
-    howToLessonTitleRow: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-      gap: Spacing.xs,
-    },
-    howToLessonTitle: {
-      color: Colors.text,
-      fontSize: FontSize.md,
-      fontWeight: '900',
-    },
-    howToLessonBadge: {
-      borderRadius: BorderRadius.full,
-      borderWidth: 1,
-      borderColor: screenAccent.badgeBorder,
-      backgroundColor: screenAccent.soft,
-      paddingHorizontal: 7,
-      paddingVertical: 2,
-    },
-    howToLessonBadgeText: {
-      color: screenAccent.main,
-      fontSize: 10,
-      fontWeight: '900',
-      textTransform: 'uppercase',
-      letterSpacing: 0.5,
-    },
-    howToLessonText: {
-      color: Colors.textMuted,
-      fontSize: FontSize.sm,
-      lineHeight: 20,
-      fontWeight: '700',
-    },
     howToActionGrid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
@@ -2198,6 +2445,53 @@ const createStyles = (
       textTransform: 'uppercase',
       letterSpacing: 0.8,
     },
+    themeSwitcher: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: Spacing.xs,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: BorderRadius.full,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.035)' : 'rgba(255,255,255,0.58)',
+      padding: 4,
+    },
+    themeSwitcherPhone: {
+      ...phoneChromeWidth,
+      alignSelf: 'stretch',
+      borderRadius: BorderRadius.lg,
+      justifyContent: 'space-between',
+      backgroundColor: Colors.surfaceGlass,
+      padding: 5,
+    },
+    themeButton: {
+      minHeight: 34,
+      minWidth: 68,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: BorderRadius.full,
+      paddingHorizontal: Spacing.sm,
+      borderWidth: 1,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
+    },
+    themeButtonPressed: {
+      backgroundColor: Colors.surfaceLight,
+    },
+    themeButtonActive: {
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.soft,
+    },
+    themeButtonText: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      fontWeight: '900',
+      letterSpacing: 0,
+    },
+    themeButtonTextActive: {
+      color: screenAccent.badgeText,
+    },
     boardCard: {
       ...ui.card,
       padding: Spacing.lg,
@@ -2205,6 +2499,19 @@ const createStyles = (
     },
     boardCardCompact: {
       padding: Spacing.md,
+    },
+    boardCardPhone: {
+      width: '100%',
+      maxWidth: '100%',
+      alignItems: 'center',
+      padding: 0,
+      gap: 0,
+      borderWidth: 0,
+      borderRadius: 0,
+      backgroundColor: 'transparent',
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
     },
     boardHeader: {
       flexDirection: 'row',
@@ -2261,18 +2568,17 @@ const createStyles = (
       elevation: 3,
       ...WEB_NO_SELECT,
     },
+    boardPhone: {
+      borderRadius: 20,
+      borderWidth: 1,
+      shadowOpacity: theme.mode === 'dark' ? 0.24 : 0.16,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+    },
     boardGridLine: {
       position: 'absolute',
       borderRadius: 999,
       backgroundColor: boardLine,
-    },
-    releaseConnector: {
-      position: 'absolute',
-      height: 2,
-      borderRadius: 999,
-    },
-    releaseConnectorActive: {
-      height: 3,
     },
     cell: {
       position: 'absolute',
@@ -2286,18 +2592,16 @@ const createStyles = (
       transform: [{ scale: 0.98 }],
     },
     cellHinted: {
-      borderColor: screenAccent.main,
-      backgroundColor: pointSelected,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
     },
     cellHovered: {
       backgroundColor: 'transparent',
       borderColor: 'transparent',
     },
     cellSelected: {
-      borderWidth: 1,
-      borderStyle: 'dashed',
-      borderColor: screenAccent.main,
-      backgroundColor: theme.mode === 'dark' ? 'rgba(99, 210, 178, 0.08)' : 'rgba(30, 143, 112, 0.07)',
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
     },
     cellInvalid: {
       borderWidth: 2,
@@ -2313,6 +2617,19 @@ const createStyles = (
       borderColor: 'transparent',
     },
     pieceImage: {},
+    pieceStage: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    neoConnectedGlint: {
+      position: 'absolute',
+      bottom: 7,
+      width: '44%',
+      height: 2,
+      borderRadius: 999,
+      backgroundColor: '#d6a453',
+      opacity: 0.82,
+    },
     blockerPiece: {
       opacity: 0.98,
     },
@@ -2321,31 +2638,31 @@ const createStyles = (
     },
     lightGroupHalo: {
       position: 'absolute',
-      borderWidth: 2,
-      backgroundColor: 'transparent',
+      borderWidth: 1,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.035)' : 'rgba(255,255,255,0.32)',
     },
     lightGroupHaloActive: {
-      borderWidth: 3,
+      borderWidth: 2,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.065)' : 'rgba(255,255,255,0.44)',
     },
     releaseHalo: {
       position: 'absolute',
-      borderWidth: 2,
-      backgroundColor: 'transparent',
+      borderWidth: 1,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.035)' : 'rgba(255,255,255,0.3)',
     },
     releaseHaloActive: {
-      borderWidth: 3,
-      backgroundColor: theme.mode === 'dark' ? 'rgba(85, 208, 148, 0.08)' : 'rgba(39, 166, 104, 0.08)',
+      borderWidth: 2,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(85, 208, 148, 0.06)' : 'rgba(39, 166, 104, 0.07)',
     },
     hintRing: {
       position: 'absolute',
       borderWidth: 2,
-      borderStyle: 'dashed',
       borderColor: screenAccent.main,
-      backgroundColor: theme.mode === 'dark' ? 'rgba(99, 210, 178, 0.1)' : 'rgba(30, 143, 112, 0.1)',
-      opacity: 0.9,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(99, 210, 178, 0.08)' : 'rgba(30, 143, 112, 0.08)',
+      opacity: 0.72,
     },
     previewPiece: {
-      opacity: 0.46,
+      opacity: 0.5,
     },
     invalidPreviewPiece: {
       opacity: 0.34,
@@ -2353,32 +2670,31 @@ const createStyles = (
     previewRing: {
       position: 'absolute',
       borderWidth: 2,
-      borderStyle: 'dashed',
       borderColor: screenAccent.main,
-      opacity: 0.72,
+      backgroundColor: pointSelected,
+      opacity: 0.56,
     },
     hoverRing: {
       position: 'absolute',
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: screenAccent.badgeBorder,
       backgroundColor: pointHover,
-      opacity: 0.82,
+      opacity: 0.52,
     },
     openSideMarker: {
       position: 'absolute',
-      width: 18,
-      height: 18,
+      width: 14,
+      height: 14,
       borderRadius: 999,
-      borderWidth: 2,
-      borderStyle: 'dashed',
-      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.45)',
+      borderWidth: 1,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.035)' : 'rgba(255,255,255,0.4)',
     },
     releasedPulse: {
       position: 'absolute',
       borderWidth: 2,
       borderColor: screenAccent.main,
-      backgroundColor: theme.mode === 'dark' ? 'rgba(99, 210, 178, 0.16)' : 'rgba(30, 143, 112, 0.14)',
-      opacity: 0.9,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(99, 210, 178, 0.1)' : 'rgba(30, 143, 112, 0.1)',
+      opacity: 0.68,
     },
     statusCard: {
       ...ui.subtleCard,
@@ -2386,15 +2702,44 @@ const createStyles = (
       borderColor: screenAccent.badgeBorder,
       backgroundColor: screenAccent.soft,
     },
+    statusCardPhone: {
+      ...phoneChromeWidth,
+      alignSelf: 'stretch',
+      minHeight: 48,
+      justifyContent: 'center',
+      borderRadius: BorderRadius.lg,
+      paddingVertical: Spacing.sm,
+      paddingHorizontal: Spacing.md,
+    },
+    statusCardIdle: {
+      ...phoneChromeWidth,
+      alignSelf: 'stretch',
+      minHeight: 42,
+      justifyContent: 'center',
+      borderColor: Colors.border,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.68)',
+      paddingVertical: Spacing.sm,
+      paddingHorizontal: Spacing.md,
+    },
     statusText: {
       color: Colors.text,
       fontSize: FontSize.sm,
       fontWeight: '700',
       textAlign: 'center',
     },
+    statusTextIdle: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      fontWeight: '800',
+    },
     controls: {
       flexDirection: 'row',
       gap: Spacing.sm,
+    },
+    controlsPhone: {
+      ...phoneChromeWidth,
+      alignSelf: 'stretch',
+      gap: 8,
     },
     secondaryButton: {
       ...ui.pill,
@@ -2403,6 +2748,11 @@ const createStyles = (
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: 44,
+    },
+    secondaryButtonPhone: {
+      minHeight: 48,
+      backgroundColor: Colors.surfaceGlass,
+      borderColor: Colors.border,
     },
     secondaryButtonPressed: {
       backgroundColor: Colors.surfaceLight,
@@ -2420,6 +2770,10 @@ const createStyles = (
       padding: Spacing.lg,
       gap: Spacing.sm,
       borderColor: screenAccent.badgeBorder,
+    },
+    winCardPhone: {
+      padding: Spacing.md,
+      borderRadius: BorderRadius.lg,
     },
     winTitle: {
       color: Colors.text,
