@@ -566,11 +566,17 @@ export default function ThreadlineScreen() {
     (boardAvailableWidth - boardPadding * 2 - cellGap * (gridColCount - 1)) / gridColCount;
   const fittedCellSizeFromHeight =
     (boardAvailableHeight - boardPadding * 2 - cellGap * (gridRowCount - 1)) / gridRowCount;
-  const fittedCellSize = isPhoneLayout && isShortPhoneLayout
+  const fittedCellSize = isPhoneLayout
     ? fittedCellSizeFromWidth
     : Math.min(fittedCellSizeFromWidth, fittedCellSizeFromHeight);
+  const minimumPhoneCellSize = boardAvailableWidth < 280 ? 24 : 30;
+  const maximumPhoneCellSize = boardAvailableWidth < 340
+    ? 32
+    : isShortPhoneLayout
+    ? 34
+    : 38;
   const cellSize = isPhoneLayout
-    ? Math.max(30, fittedCellSize)
+    ? Math.max(minimumPhoneCellSize, Math.min(maximumPhoneCellSize, fittedCellSize))
     : Math.max(22, fittedCellSize);
   const boardPixelWidth = Math.floor(
     gridColCount * cellSize + cellGap * (gridColCount - 1) + boardPadding * 2
@@ -581,6 +587,7 @@ export default function ThreadlineScreen() {
   const boardLayoutKey = `${boardPixelWidth}x${boardPixelHeight}`;
   const cellRadius = Math.max(6, Math.min(10, cellSize * 0.28));
   const cellFontSize = Math.max(12, Math.min(16, cellSize * 0.46));
+  const mobilePlayAreaMinHeight = boardPixelHeight + (statusMessage ? 48 : 16);
 
   const coordFromBoardPoint = useCallback(
     (locationX: number, locationY: number): ThreadlineCoord | null => {
@@ -1291,6 +1298,7 @@ export default function ThreadlineScreen() {
           style={[
             styles.mobilePlayArea,
             isShortPhoneLayout && styles.mobilePlayAreaScrollable,
+            { minHeight: mobilePlayAreaMinHeight },
           ]}
           onLayout={handlePlayAreaLayout}
         >
@@ -1403,20 +1411,19 @@ const createStyles = (
       alignItems: 'center',
     },
     mobilePlayArea: {
-      flex: 1,
-      minHeight: 0,
       width: '100%',
       alignItems: 'center',
       justifyContent: 'flex-start',
       position: 'relative',
       paddingTop: 8,
-      overflow: 'hidden',
+      paddingBottom: 8,
+      flexShrink: 0,
+      overflow: 'visible',
     },
     mobilePlayAreaScrollable: {
       flexGrow: 0,
       flexShrink: 0,
       flexBasis: 'auto',
-      aspectRatio: 0.92,
       paddingTop: 12,
       paddingBottom: 12,
       overflow: 'visible',
@@ -2095,6 +2102,7 @@ const createStyles = (
       marginTop: 0,
       gap: Spacing.sm,
       flexShrink: 0,
+      width: '100%',
     },
     hintButton: {
       ...ui.cta,
