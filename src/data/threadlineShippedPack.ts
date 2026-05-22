@@ -74,16 +74,18 @@ export { THREADLINE_REJECTED_COPY_ANSWERS } from './threadlineQualityRules.ts';
 
 const THREADLINE_SHIPPED_REJECTED_DATE_KEY_SET = new Set<string>(THREADLINE_SHIPPED_REJECTED_DATE_KEYS);
 
-export const THREADLINE_GRID_SIZE = 9;
-const GRID_SIZE = THREADLINE_GRID_SIZE;
+export const THREADLINE_GRID_ROWS = 10;
+export const THREADLINE_GRID_COLS = 8;
 const PACK_SEED = 19337;
 const THREADLINE_GRID_PLACEMENT_ATTEMPTS = 4;
 const THREADLINE_GRID_SEARCH_NODE_LIMIT = 2_500;
 const THREADLINE_GRID_SEARCH_BREADTH = 16;
 const THREADLINE_GRID_IDEAL_PRESENTATION_SCORE = 4.75;
 export const THREADLINE_MIN_GRID_PRESENTATION_SCORE = 4.25;
-const GRID_CENTER_MIN = Math.floor(GRID_SIZE / 4);
-const GRID_CENTER_MAX = GRID_SIZE - 1 - GRID_CENTER_MIN;
+const GRID_CENTER_ROW_MIN = Math.floor(THREADLINE_GRID_ROWS / 4);
+const GRID_CENTER_ROW_MAX = THREADLINE_GRID_ROWS - 1 - GRID_CENTER_ROW_MIN;
+const GRID_CENTER_COL_MIN = Math.floor(THREADLINE_GRID_COLS / 4);
+const GRID_CENTER_COL_MAX = THREADLINE_GRID_COLS - 1 - GRID_CENTER_COL_MIN;
 const TITLE_REVIEW_STOP_WORDS = new Set([
   'ABOVE',
   'AFTER',
@@ -2093,7 +2095,11 @@ function buildPath(start: ThreadlineCoord, direction: ThreadlineCoord, length: n
 
 function pathIsInside(path: ThreadlineCoord[]): boolean {
   return path.every(
-    (coord) => coord.row >= 0 && coord.row < GRID_SIZE && coord.col >= 0 && coord.col < GRID_SIZE
+    (coord) =>
+      coord.row >= 0 &&
+      coord.row < THREADLINE_GRID_ROWS &&
+      coord.col >= 0 &&
+      coord.col < THREADLINE_GRID_COLS
   );
 }
 
@@ -2115,18 +2121,18 @@ function pathEdgeCellCount(path: ThreadlineCoord[]): number {
   return path.filter(
     (coord) =>
       coord.row === 0 ||
-      coord.row === GRID_SIZE - 1 ||
+      coord.row === THREADLINE_GRID_ROWS - 1 ||
       coord.col === 0 ||
-      coord.col === GRID_SIZE - 1
+      coord.col === THREADLINE_GRID_COLS - 1
   ).length;
 }
 
 function pathUsesOuterRail(path: ThreadlineCoord[]): boolean {
   return (
     path.every((coord) => coord.row === 0) ||
-    path.every((coord) => coord.row === GRID_SIZE - 1) ||
+    path.every((coord) => coord.row === THREADLINE_GRID_ROWS - 1) ||
     path.every((coord) => coord.col === 0) ||
-    path.every((coord) => coord.col === GRID_SIZE - 1)
+    path.every((coord) => coord.col === THREADLINE_GRID_COLS - 1)
   );
 }
 
@@ -2147,10 +2153,10 @@ function scorePlacementCandidate(
   const centerRatio =
     path.filter(
       (coord) =>
-        coord.row >= GRID_CENTER_MIN &&
-        coord.row <= GRID_CENTER_MAX &&
-        coord.col >= GRID_CENTER_MIN &&
-        coord.col <= GRID_CENTER_MAX
+        coord.row >= GRID_CENTER_ROW_MIN &&
+        coord.row <= GRID_CENTER_ROW_MAX &&
+        coord.col >= GRID_CENTER_COL_MIN &&
+        coord.col <= GRID_CENTER_COL_MAX
     ).length / path.length;
   const crossingCount = path.filter(
     (coord, letterIndex) => cells[coord.row][coord.col] === answer[letterIndex]
@@ -2199,8 +2205,8 @@ function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresent
   const edgeHeavyWordCount = paths.filter((path) => pathEdgeCellCount(path) / path.length >= 0.66).length;
   const outerRailWordCount = paths.filter(pathUsesOuterRail).length;
   const cellCounts = new Map<string, number>();
-  const rowLoads = Array.from({ length: GRID_SIZE }, () => 0);
-  const colLoads = Array.from({ length: GRID_SIZE }, () => 0);
+  const rowLoads = Array.from({ length: THREADLINE_GRID_ROWS }, () => 0);
+  const colLoads = Array.from({ length: THREADLINE_GRID_COLS }, () => 0);
   let centerCellCount = 0;
 
   paths.forEach((path) => {
@@ -2210,10 +2216,10 @@ function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresent
       rowLoads[coord.row] += 1;
       colLoads[coord.col] += 1;
       if (
-        coord.row >= GRID_CENTER_MIN &&
-        coord.row <= GRID_CENTER_MAX &&
-        coord.col >= GRID_CENTER_MIN &&
-        coord.col <= GRID_CENTER_MAX
+        coord.row >= GRID_CENTER_ROW_MIN &&
+        coord.row <= GRID_CENTER_ROW_MAX &&
+        coord.col >= GRID_CENTER_COL_MIN &&
+        coord.col <= GRID_CENTER_COL_MAX
       ) {
         centerCellCount += 1;
       }
@@ -2301,12 +2307,12 @@ function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresent
 
 function placeWords(answers: string[], seed: number): ThreadlinePlacement {
   const random = mulberry32(seed);
-  const emptyCells: string[][] = Array.from({ length: GRID_SIZE }, () =>
-    Array.from({ length: GRID_SIZE }, () => '')
+  const emptyCells: string[][] = Array.from({ length: THREADLINE_GRID_ROWS }, () =>
+    Array.from({ length: THREADLINE_GRID_COLS }, () => '')
   );
-  const starts = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => ({
-    row: Math.floor(index / GRID_SIZE),
-    col: index % GRID_SIZE,
+  const starts = Array.from({ length: THREADLINE_GRID_ROWS * THREADLINE_GRID_COLS }, (_, index) => ({
+    row: Math.floor(index / THREADLINE_GRID_COLS),
+    col: index % THREADLINE_GRID_COLS,
   }));
   const placementOrder = answers
     .map((answer, wordIndex) => ({ answer, wordIndex }))

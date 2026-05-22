@@ -514,7 +514,8 @@ export default function ThreadlineScreen() {
     setStatusMessage(`${remainingWord.answer.length} letters: ${remainingWord.hint}`);
   }, [gameState, hasUsedHint, remainingWord]);
 
-  const gridSize = puzzle.grid.length;
+  const gridRowCount = puzzle.grid.length;
+  const gridColCount = puzzle.grid[0]?.length ?? gridRowCount;
   const mobileAvailableWidth = Math.max(
     0,
     mobileViewportWidth - mobileHorizontalPadding * 2
@@ -544,22 +545,40 @@ export default function ThreadlineScreen() {
   const pageWidth = isPhoneLayout
     ? mobileSafePlayAreaWidth
     : Math.max(0, Math.min(520, width - Spacing.lg * 2));
-  const boardSize = Math.floor(
-    Math.max(
-      0,
-      Math.min(430, pageWidth, isPhoneLayout ? mobileBoardLimit : pageWidth)
-    )
+  const maxBoardWidth = isPhoneLayout
+    ? isShortPhoneLayout
+      ? 380
+      : 410
+    : 430;
+  const boardAvailableWidth = Math.max(0, Math.min(maxBoardWidth, pageWidth));
+  const mobileBoardHeightLimit = Math.max(mobileBoardFallback, mobileBoardLimit);
+  const boardAvailableHeight = Math.max(
+    0,
+    Math.min(430, isPhoneLayout ? mobileBoardHeightLimit : 430)
   );
-  const boardLayoutSize = isPhoneLayout
-    ? Math.floor(Math.max(boardSize, Math.min(430, mobileAvailableWidth)))
-    : boardSize;
-  const cellGap = isPhoneLayout ? (boardLayoutSize < 310 ? 3 : 4) : 5;
-  const boardPadding = isPhoneLayout ? (boardLayoutSize < 310 ? 5 : 6) : Spacing.sm;
-  const fittedCellSize =
-    (boardLayoutSize - boardPadding * 2 - cellGap * (gridSize - 1)) / gridSize;
+  const boardReferenceSize =
+    isPhoneLayout && isShortPhoneLayout
+      ? boardAvailableWidth
+      : Math.min(boardAvailableWidth, boardAvailableHeight);
+  const cellGap = isPhoneLayout ? (boardReferenceSize < 310 ? 3 : 4) : 5;
+  const boardPadding = isPhoneLayout ? (boardReferenceSize < 310 ? 5 : 6) : Spacing.sm;
+  const fittedCellSizeFromWidth =
+    (boardAvailableWidth - boardPadding * 2 - cellGap * (gridColCount - 1)) / gridColCount;
+  const fittedCellSizeFromHeight =
+    (boardAvailableHeight - boardPadding * 2 - cellGap * (gridRowCount - 1)) / gridRowCount;
+  const fittedCellSize = isPhoneLayout && isShortPhoneLayout
+    ? fittedCellSizeFromWidth
+    : Math.min(fittedCellSizeFromWidth, fittedCellSizeFromHeight);
   const cellSize = isPhoneLayout
-    ? Math.max(14, fittedCellSize)
+    ? Math.max(30, fittedCellSize)
     : Math.max(22, fittedCellSize);
+  const boardPixelWidth = Math.floor(
+    gridColCount * cellSize + cellGap * (gridColCount - 1) + boardPadding * 2
+  );
+  const boardPixelHeight = Math.floor(
+    gridRowCount * cellSize + cellGap * (gridRowCount - 1) + boardPadding * 2
+  );
+  const boardLayoutKey = `${boardPixelWidth}x${boardPixelHeight}`;
   const cellRadius = Math.max(6, Math.min(10, cellSize * 0.28));
   const cellFontSize = Math.max(12, Math.min(16, cellSize * 0.46));
 
@@ -568,30 +587,31 @@ export default function ThreadlineScreen() {
       const localX = locationX - boardPadding;
       const localY = locationY - boardPadding;
       const pitch = cellSize + cellGap;
-      const gridPixelSize = gridSize * cellSize + (gridSize - 1) * cellGap;
+      const gridPixelWidth = gridColCount * cellSize + (gridColCount - 1) * cellGap;
+      const gridPixelHeight = gridRowCount * cellSize + (gridRowCount - 1) * cellGap;
       const edgeTolerance = Math.max(10, Math.min(18, cellSize * 0.45));
 
       if (
         localX < -edgeTolerance ||
         localY < -edgeTolerance ||
-        localX > gridPixelSize + edgeTolerance ||
-        localY > gridPixelSize + edgeTolerance
+        localX > gridPixelWidth + edgeTolerance ||
+        localY > gridPixelHeight + edgeTolerance
       ) {
         return null;
       }
 
       const col = Math.max(
         0,
-        Math.min(gridSize - 1, Math.round((localX - cellSize / 2) / pitch))
+        Math.min(gridColCount - 1, Math.round((localX - cellSize / 2) / pitch))
       );
       const row = Math.max(
         0,
-        Math.min(gridSize - 1, Math.round((localY - cellSize / 2) / pitch))
+        Math.min(gridRowCount - 1, Math.round((localY - cellSize / 2) / pitch))
       );
 
       return { row, col };
     },
-    [boardPadding, cellGap, cellSize, gridSize]
+    [boardPadding, cellGap, cellSize, gridColCount, gridRowCount]
   );
 
   const handleBoardPoint = useCallback(
@@ -972,23 +992,21 @@ export default function ThreadlineScreen() {
 
   const renderBoard = (compact = false) => (
     <View
-      key={compact ? `mobile-board-wrap-${boardLayoutSize}` : 'board-wrap'}
+      key={compact ? `mobile-board-wrap-${boardLayoutKey}` : 'board-wrap'}
       style={[
         styles.boardWrap,
         compact && styles.mobileBoardWrap,
-        !compact && { width: boardLayoutSize, height: boardLayoutSize },
+        { width: boardPixelWidth, height: boardPixelHeight },
       ]}
     >
       <View
-        key={compact ? `mobile-board-${boardLayoutSize}` : 'board'}
+        key={compact ? `mobile-board-${boardLayoutKey}` : 'board'}
         style={[
           styles.board,
           compact && styles.mobileBoard,
           {
-            ...(!compact && {
-              width: boardLayoutSize,
-              height: boardLayoutSize,
-            }),
+            width: boardPixelWidth,
+            height: boardPixelHeight,
             gap: cellGap,
             padding: boardPadding,
           },
@@ -1018,9 +1036,8 @@ export default function ThreadlineScreen() {
               const cellStyle = [
                 styles.cell,
                 styles.cellPassive,
-                compact
-                  ? [styles.mobileCell, { borderRadius: cellRadius }]
-                  : { width: cellSize, height: cellSize, borderRadius: cellRadius },
+                { width: cellSize, height: cellSize, borderRadius: cellRadius },
+                compact && styles.mobileCell,
                 found && styles.cellFound,
                 selected && styles.cellSelected,
                 hinted && styles.cellHinted,
@@ -1270,7 +1287,7 @@ export default function ThreadlineScreen() {
         {renderHeader(true)}
         {renderPuzzleDock(true)}
         <View
-          key={isShortPhoneLayout ? `mobile-play-area-${boardLayoutSize}` : 'mobile-play-area'}
+          key={isShortPhoneLayout ? `mobile-play-area-${boardLayoutKey}` : 'mobile-play-area'}
           style={[
             styles.mobilePlayArea,
             isShortPhoneLayout && styles.mobilePlayAreaScrollable,
@@ -1830,9 +1847,7 @@ const createStyles = (
       marginTop: Spacing.lg,
     },
     mobileBoardWrap: {
-      width: '100%',
       maxWidth: 430,
-      aspectRatio: 1,
       alignSelf: 'center',
       alignItems: 'center',
       justifyContent: 'center',
@@ -2118,10 +2133,8 @@ const createStyles = (
       ...WEB_NO_SELECT,
     },
     mobileCell: {
-      flex: 1,
       minWidth: 0,
       minHeight: 0,
-      aspectRatio: 1,
     },
     mobileTimerButton: {
       minHeight: 42,

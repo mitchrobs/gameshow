@@ -13,7 +13,8 @@ import {
   THREADLINE_DATED_SCHEDULE,
   THREADLINE_EDITOR_REVIEW,
   THREADLINE_HOLIDAY_NODS,
-  THREADLINE_GRID_SIZE,
+  THREADLINE_GRID_COLS,
+  THREADLINE_GRID_ROWS,
   THREADLINE_MIN_GRID_PRESENTATION_SCORE,
   THREADLINE_PUZZLE_BANK,
   THREADLINE_PUZZLE_BY_ID,
@@ -223,10 +224,10 @@ describe('threadline puzzles', () => {
     expect(errors).toEqual([]);
   });
 
-  it('ships Threadline on the roomier 9x9 board', () => {
+  it('ships Threadline on the portrait 10x8 board', () => {
     getThreadlinePuzzles().forEach((puzzle) => {
-      expect(puzzle.grid).toHaveLength(THREADLINE_GRID_SIZE);
-      puzzle.grid.forEach((row) => expect(row).toHaveLength(THREADLINE_GRID_SIZE));
+      expect(puzzle.grid).toHaveLength(THREADLINE_GRID_ROWS);
+      puzzle.grid.forEach((row) => expect(row).toHaveLength(THREADLINE_GRID_COLS));
     });
   });
 
