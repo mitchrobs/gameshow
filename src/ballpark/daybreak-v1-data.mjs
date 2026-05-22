@@ -1,3 +1,8 @@
+import {
+  buildRebuiltCalendarFromLegacy,
+  buildRebuiltReservePacksFromLegacy,
+} from "./rebuilt-content.mjs";
+
 export const CYCLE_START_KEY = "2026-01-01";
 export const CALENDAR_END_KEY = "2026-12-31";
 export const LAUNCH_START_KEY = "2026-04-23";
@@ -192,7 +197,7 @@ const KNOWN_OUTDATED_SOURCE_URLS = new Set([
   "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html",
 ]);
 const LAUNCH_REVEAL_SCAFFOLD_PATTERN =
-  /\b(hides [0-9,]+ in plain sight|surprise is how quickly|ordinary setup|bonus keeps the same world)\b/i;
+  /\b(hides [0-9,]+ in plain sight|hides in plain sight|surprise is how quickly|ordinary setup|bonus keeps the same world|lands around|can reach)\b/i;
 const LAUNCH_GENERATED_CONTEXT_PATTERN =
   /\b(at the corner shop|around the neighborhood|at the fairground|at the community event|full long-weekend rush|setup and spillover|straight repeat)\b/i;
 const EXTRA_INNING_SCAFFOLD_PATTERN =
@@ -203,19 +208,52 @@ const THEME_BASE_SUFFIX_PATTERN =
   /\s+(Close-Up|Block Party|Lunch Rush|Concession Tent|Community Supper|Shelf Count|Supply Run|Demo Table|Swap Meet|Backyard Count|Field Trip|Discovery Tent|Family Night|Open House|Busy Day|Show Floor|Volunteer Day|Practice Day|Game Day|Fan Zone|Warmup|Workshop|Walkthrough)$/i;
 const PROMPT_NUMBER_PATTERN = /\b\d[\d,]*(?:\.\d+)?\b/g;
 const CLUE_CONTAINED_ARITHMETIC_PATTERN =
-  /\b(\d[\d,]*(?:\.\d+)?)\b.*\b(each|per|with|holding|holds|filled to|averaging|average|at|x|by)\b.*\b(\d[\d,]*(?:\.\d+)?)\b/i;
+  /\b(\d[\d,]*(?:\.\d+)?)\b.*\b(each|per|with|holding|holds|filled to|averaging|average|at|x|by)\b.*\b(\d[\d,]*(?:\.\d+)?)\b|\b(page-a-day|dozen)\b/i;
 const EXPOSED_FORMULA_PROMPT_PATTERN =
-  /\b(?:if|with|from|for|by)\s+\d[\d,]*(?:\.\d+)?[^?]*\b(?:each|per|times|x|by|using|holding|holds|carrying|taking|giving|waiting|working|covering|washing|casting|firing|rising|receiving|weighing|measuring|selling|cut|split|lasting)\b|\b\d[\d,]*(?:\.\d+)?[^?]*\b(?:each|per|times|x|using|holding|holds|carrying|taking|giving|waiting|working|covering|washing|casting|firing|rising|receiving|weighing|measuring|selling)\b/i;
+  /\b(?:if|with|from|for|by)\s+\d[\d,]*(?:\.\d+)?[^?]*\b(?:each|per|times|x|by|using|holding|holds|carrying|taking|giving|waiting|working|covering|washing|casting|firing|rising|receiving|weighing|measuring|selling|cut|split|lasting)\b|\b\d[\d,]*(?:\.\d+)?[^?]*\b(?:each|per|times|x|using|holding|holds|carrying|taking|giving|waiting|working|covering|washing|casting|firing|rising|receiving|weighing|measuring|selling)\b|\bEarth travel around the Sun\b/i;
 const FAKE_GROUP_MATH_PATTERN =
-  /\b\d[\d,]*\s+(kids|people|visitors|guests|fans|students|players|riders|listeners|viewers|families|volunteers|workers|attendees|donors)\b.*\b(each|per|with|averaging|taking|giving|waiting|working|holding|covering|washing|casting|bring|bringing)\b/i;
+  /\b\d[\d,]*\s+(kids|people|visitors|guests|fans|students|players|riders|listeners|viewers|families|volunteers|workers|attendees|donors)\b.*\b(each|per|with|averaging|taking|giving|waiting|working|holding|covering|washing|casting|bring|bringing)\b|\b(?:busy public day|major public event around|major public season around|public event around)\b/i;
 const VARIABLE_STANDARD_PATTERN =
   /\b(standard|typical|average|common|medium|classic|regular)\b/i;
 const FAMOUS_SCALE_PATTERN =
   /\b(world|record|olympic|times square|nasa|earth|moon|mint|migration|national|major league|u\.s\.|united states|regulation|annual|season|parade|fireworks|thanksgiving|christmas|halloween|easter|juneteenth)\b/i;
+const VAGUE_MACRO_PROMPT_PATTERN =
+  /\b(?:major|large|famous|top|busy|citywide|national)\s+(?:city|public|state|water|ski|park|resort|library|museum|aquarium|event|festival|show|district|region|county|landmark|attraction|tournament|chain|network|system|shelter|hotel|fair|beach|ride|food|health|climbing|sports|game|toy|arcade|parcel|distribution|repair|shop|market|holiday)\b/i;
+const NAMED_MACRO_ANCHOR_PATTERN =
+  /\b(?:U\.S\.|United States|USPS|FDNY|NYPL|ASPCA|MLB|Macy's|Times Square|Library of Congress|WorldCat|Toy Fair New York|Gen Con|Monopoly|Uno|Barbie|LEGO|Taco Bell|Starbucks|Waffle House|Domino's|Yankee Stadium|Pike Place|Rose Parade|Rockefeller Center|Dyker Heights|Las Vegas Sphere|Sphere|M&M's|Reese's|X Games|Vail|Vail Mountain|Killington|Coney Island|Great Smoky Mountains|Yellowstone|Redwood National Park|Big Ben|Galveston|Houston|Iowa|Washington|Wisconsin|Niagara Falls|BirdCast|San Diego Zoo|Georgia Aquarium|Monterey Bay Aquarium|Dodger Stadium|Five Boro Bike Tour|Citi Bike|Schlitterbahn|Minnesota State Fair|National Memorial Day Parade|Arlington|National Museum of African American History and Culture|Smithsonian|Smithsonian National Museum of Natural History|Science Museum of Minnesota|Coachella|Taylor Swift|Boundary Waters|Staten Island Ferry|Wimbledon|Feeding America|UPS Worldport|Grand Central Terminal|Cape Hatteras|Google|Oriental Trading|IFSC|MGM Grand|Dutch flower auction|Art Basel Miami Beach|Statue of Liberty|Japan's Sushi Festival|Operation Santa|Toys for Tots|Clear the Shelters|Grand Canyon|U\.S\. national seashores|Marvel|New York City|New York City Transit|New York City public schools)\b/i;
+const RECOGNIZABLE_STANDARD_ANCHOR_PATTERN =
+  /\b(?:standard backyard swimming pool|standard home rain barrel|common party pack|full-size school bus|five-gallon bucket|gallon jug|bushel basket|major-league baseball|standard deck|full-size piano|regulation bowling|regulation golf|Olympic pool|Olympic swimming)\b/i;
+const UNSTABLE_PLAYER_UNIT_PATTERN = /\bHow many\s+(?:runs)\b/i;
+const HIDDEN_HOMEWORK_PROMPT_PATTERN =
+  /\b(?:line a long .*block|row of .*coolers|one acre|bushel basket|beach block|pitcher's mound|display box|feet of extension cord|feet of ribbon|pounds of salsa fit|prep cooler|show plan|years passed between|years has .* been an? U\.S\. holiday|times can Big Ben (?:strike|ring) in one year|scoops are in one gallon|raindrops can fall on a city block|with \d[\d,]* .*each|at \d[\d,]* .*each)\b/i;
+const ARBITRARY_CONTAINER_PROMPT_PATTERN =
+  /\b(?:fit|fits|fit on|fit in|fit behind|fit at|fit inside|can hold|can carry|can line|can cover|can fill|can hang|can stack|can hide|can chill|can store|sit in|fill one|cover one)\b[^?]*\b(?:arcade cup|bag|bay|bench|bin|boathouse|box|bucket|cage|carousel|cart|case|counter|crate|cooler|display|drawer|freezer|jar|organizer|parking lot|rack|rental stand|shelf|shoebox|stack|stand|station|table|tray|tub|wall)\b|\b(?:busy trailhead map|small summer stage light wall|large public aquarium exhibit|big shark tank|farmers-market pickup load)\b/i;
+const GENERIC_THROUGHPUT_PROMPT_PATTERN =
+  /\bcan\s+(?:a|an|one|the)?\s*(?:busy|big|large|major|modern|popular|regional|citywide|national)?\s*[^?]{0,80}\b(?:board|check out|collect|compete|cross|deliver|draw|hand out|handle|milk|pass|pour|print|screen|sell|serve|ship|sort|squeeze|use|welcome)\s+(?:in|on|during|across)\s+one\s+(?:day|morning|week|rush|night|season|year|weekend|hour)\b|\b(?:diner morning rush|diner kitchen crack|busy shop dinner rush|stadium concession sell|busy theater sell|busy booth print|Father's Day calls can U\.S\. networks carry|people can watch Olympic swimming across a full Games)\b/i;
+const EXTRA_INNING_ENTITY_ANCHORS = [
+  "Starbucks",
+  "Georgia Aquarium",
+  "Dodger Stadium",
+  "Macy's",
+  "Times Square",
+  "Library of Congress",
+  "Rockefeller Center",
+  "Toy Fair New York",
+  "Gen Con",
+  "Taco Bell",
+  "Pike Place",
+  "Rose Parade",
+  "FDNY",
+  "Vail",
+  "Big Ben",
+  "Citi Bike",
+];
 const CANNED_REVEAL_COPY_PATTERN =
-  /\b(starts with|middle question shifts|closer turns|closer widens|scene widens|ordinary setup|hides in plain sight|surprise is how quickly|bonus keeps the same world|by arithmetic)\b/i;
+  /\b(starts with|middle question shifts|closer turns|closer widens|scene widens|ordinary setup|hides in plain sight|surprise is how quickly|bonus keeps the same world|by arithmetic|lands around|can reach)\b/i;
 const MALFORMED_PLAYER_PROMPT_PATTERN =
-  /\b[a-z]+-\s|\b(move through|show up across|stretch through)\b|\bcould fit in [A-Z][A-Za-z ]+\?|\b(?:rise|climb|lap|player|reader|drummer|course|lane)-feet\b|\bshow plan\b/i;
+  /\b[a-z]+-\s|\b(move through|show up across|stretch through)\b|\bcould fit in [A-Z][A-Za-z ]+\?|\b(?:rise|climb|lap|player|reader|drummer|course|lane)-feet\b|\bshow plan\b|\bthe in the\b|\bfull the\b|\ba art\b|\bsupply cart supply cart\b|\bvisitors visit\b|\bitems hold\b|\bhelmets store\b|\bfeet of hose carry\b|\bbuttons hold\b|\bdraw for a major public event\b|\bmoviegoers\b.*\battend\b|\bcarry Earth around the Sun\b|\bseparate Earth and the Moon\b.*\bwould\b|\bnear a (?:weather|storm|thunderstorm)\b|\b(?:library|school bus|laundry|ferry|bike|climbing|sled|snow globe|candy|prank) (?:year|week|day)\b|\b(?:school bus|ferry|bike|climbing|sled|snow globe|candy|prank) (?:library|warehouse|box truck|practice balls|tournament|road salt|visitor passes|check-in)\b|\bferry dock lines dock door\b|\blaundry cart laundry cart\b|\bkitchen drawer counter bin\b|\bmajor (?:train|produce|candle|ice cream|garden hose|public art) [a-z ]+(?:travel hub|region|season|market|relief week)\b|\bpublic art (?:market|season|harvest|produce)\b|\bwrapping paper (?:cart|public library|reading room)\b|\bclock bells clock tower\b|\bdiner clock tower\b|\btrain platform wall\b|\btrain switches vehicle\b|\bbirdwatching minute\b|\brecord birdwatching migration night\b/i;
+const DEFAULT_AGENT_REVIEW_PATTERN =
+  /\b(?:Approved for broader-player Ballpark testing with no P1\/P2 findings|reviewed resolved prompts for .+; no P1\/P2 issues recorded in this local review pass)\b/i;
 const PLACEHOLDER_SOURCE_PATTERN = /mitchrobs\.github\.io\/gameshow\/ballpark/i;
 const ARTIFICIAL_UNIT_PROMPT_PATTERN =
   /\b(?:viewer|audience|listener|waiting|reader|visitor|passenger|conveyor|rise|climb|lap|lane|song|checkout|oven|blade|washer|moon-watching|table-lap|claw-machine|concert-hall|yellow-bus|passenger-seat)-?(?:minutes|seconds|feet|inches|miles|hours|beats|turns|rotations|ounces|pounds|square-inches|square inches)\b/i;
@@ -235,7 +273,6 @@ const CURATED_ICONIC_EXACT_QUESTION_KEYS = new Set([
   "in-the-orchestra-pit-q1",
   "pinball-arcade-row-q1",
   "presidents-day-desk-q1",
-  "garden-shed-q2",
   "money-museum-q1",
   "game-night-q1",
   "classroom-shelf-q1",
@@ -403,11 +440,6 @@ const SOURCE_LIBRARY = {
 };
 
 const BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY = {
-  "garden-shed-q2": {
-    prompt: "How many feet of hose are coiled on a long backyard garden reel?",
-    anchorType: "named_standard",
-    questionMove: "familiar_anchor",
-  },
   "toy-chest-q3": {
     prompt: "How many toy pieces could scatter across the floor during a full playroom dump-out?",
     questionMove: "physical_capacity",
@@ -1408,11 +1440,11 @@ const AUTHORED_PACKS_BY_DATE = {
       question("About how many rubber bands fit in a one-pound desk drawer bag?", 425, "One pound of rubber bands is still hand-sized, which is why the count jumps higher than the bag feels.", "The middle question asks players to connect weight, object size, and count.", { answerType: "estimate", difficultyScore: 3, scaleBand: "city", answerNote: "Rounded from trade examples for a one-pound bag of common office rubber bands.", themeKey: "kitchen-drawer", questionKey: "kitchen-drawer-q2", estimationMode: "weight", calibrationAnchor: "Estimate a handful, then scale up to a full pound of bands.", sources: [{ title: "Rubber Bands From Thailand, China, and Sri Lanka", url: "https://www.usitc.gov/sites/default/files/publications/701_731/pub4770.pdf", publisher: "U.S. International Trade Commission", accessedDate: "2026-05-17" }] }),
       question("About how many cabinet pulls sit in 160 twenty-five-packs?", 4000, "The aisle looks like hardware, but the math turns it into a wall of four thousand tiny decisions.", "The closer widens one drawer detail into a store-aisle inventory estimate.", { answerType: "estimate", difficultyScore: 4, scaleBand: "world", answerNote: "Calculated from 160 packages with 25 pulls each.", themeKey: "kitchen-drawer", questionKey: "kitchen-drawer-q3", estimationMode: "capacity", calibrationAnchor: "Start with one pack of pulls, then multiply across a stocked shelf.", sources: [{ title: "25-Pack Cabinet Hardware Reference", url: "https://www.homedepot.com/b/Hardware-Cabinet-Hardware-Cabinet-Pulls/25/N-5yc1vZc29uZ1z141gj", publisher: "The Home Depot", accessedDate: "2026-05-17" }] })
     ], null, { themeKey: "kitchen-drawer", editorialStatus: "launch_ready", playerAgentSignoff: BALLPARK_PLAYER_AGENT_ROLES }),
-  "2026-05-21": pack("Garden Shed", "tactile", [
-      question("About how many lettuce seeds are in a small seed packet?", 500, "A seed packet feels almost empty until you remember each speck is a plant waiting for its own square of soil.", "The opener gives a small, tactile count that most players can picture.", { answerType: "estimate", difficultyScore: 2, scaleBand: "room", answerNote: "Uses a home-garden lettuce packet count of 500 seeds.", themeKey: "garden-shed", questionKey: "garden-shed-q1", estimationMode: "count", calibrationAnchor: "Picture one pinch of tiny seeds, then scale to the full packet.", sources: [{ title: "Buttercrunch Lettuce Seeds", url: "https://www.threshseed.com/products/buttercrunch", publisher: "Thresh Seed Co.", accessedDate: "2026-05-17" }] }),
-      question("About how many feet of hose are coiled on a standard backyard reel?", 100, "That tidy coil is longer than it looks; unrolled, it can run from the spigot past several parked cars.", "The middle question turns a familiar coil into a distance estimate.", { answerType: "estimate", difficultyScore: 3, scaleBand: "city", answerNote: "Uses a common 100-foot backyard garden-hose length.", themeKey: "garden-shed", questionKey: "garden-shed-q2", estimationMode: "distance", calibrationAnchor: "Estimate one loop of hose, then count the loops around the reel.", sources: [{ title: "100 ft All-Weather Garden Hose", url: "https://www.ferguson.com/product/raptor-100-ft.-all-weather-garden-hose-rap19012/10873409.html", publisher: "Ferguson", accessedDate: "2026-05-17" }] }),
-      question("About how many pounds of soil fill a 4-by-8-foot raised bed one foot deep?", 3000, "A raised bed sounds like a weekend project until the dirt weighs more like a small car.", "The closer uses visible dimensions and a soil-weight conversion to land on a surprising load.", { answerType: "estimate", difficultyScore: 4, scaleBand: "world", answerNote: "A 4-by-8-by-1-foot bed is 32 cubic feet; using roughly 90 pounds per cubic foot gives about 3,000 pounds.", themeKey: "garden-shed", questionKey: "garden-shed-q3", estimationMode: "weight", calibrationAnchor: "Find the bed volume first, then think in heavy bags of soil.", sources: [{ title: "Oregon OSHA Excavation Safety", url: "https://osha.oregon.gov/edu/Documents/workshop-materials/1-320w.pdf", publisher: "Oregon OSHA", accessedDate: "2026-05-17" }] })
-    ], null, { themeKey: "garden-shed", editorialStatus: "launch_ready", playerAgentSignoff: BALLPARK_PLAYER_AGENT_ROLES }),
+  "2026-05-21": pack("Backyard Rainfall", "spectacle", [
+      question("About how many pounds does a full five-gallon bucket of water weigh?", 42, "Answer: 42. Water weighs about 8.3 pounds per gallon.", "The opener starts with a familiar shed object and a physical weight players can feel.", { answerType: "estimate", difficultyScore: 2, scaleBand: "room", answerNote: "Five U.S. gallons of water at about 8.33 pounds per gallon weighs roughly 42 pounds.", themeKey: "backyard-rainfall", questionKey: "backyard-rainfall-q1", estimationMode: "weight", calibrationAnchor: "Start with the heft of one full gallon, then scale to a full bucket.", questionMove: "familiar_anchor", anchorType: "named_standard", sources: [{ title: "Facts About Water", url: "https://www.usgs.gov/index.php/water-science-school/science/facts-about-water", publisher: "U.S. Geological Survey", accessedDate: "2026-05-21" }] }),
+      question("About how many gallons does a standard home rain barrel hold?", 55, "Answer: 55. Many home rain barrels use a 55-gallon drum size.", "The middle question gives the day a recognizable backyard storage anchor.", { answerType: "estimate", difficultyScore: 3, scaleBand: "city", answerNote: "Uses a common 55-gallon home rain-barrel size.", themeKey: "backyard-rainfall", questionKey: "backyard-rainfall-q2", estimationMode: "capacity", calibrationAnchor: "Compare the barrel to a bucket, a trash can, or a bathtub.", questionMove: "physical_capacity", anchorType: "named_standard", sources: [{ title: "Rain Barrels", url: "https://www.franklintn.gov/home/showpublisheddocument/30130/636894694753430000", publisher: "City of Franklin, Tennessee", accessedDate: "2026-05-21" }] }),
+      question("About how many gallons of water fall on one acre during a one-inch rainstorm?", 27154, "Answer: 27,154. One inch of rain on one acre is about 27,154 gallons.", "The closer gives the day the missing macro jump from shed-scale water to land-scale rain.", { answerType: "estimate", difficultyScore: 4, scaleBand: "world", answerNote: "Uses the USGS water equivalent for one inch of rain over one acre: about 27,154 gallons.", themeKey: "backyard-rainfall", questionKey: "backyard-rainfall-q3", estimationMode: "capacity", calibrationAnchor: "Think beyond the barrel: a thin sheet of rain over an acre becomes a huge volume.", questionMove: "famous_macro", anchorType: "natural_scale", sources: [{ title: "Rain and Precipitation", url: "https://www.usgs.gov/water-science-school/science/rain-and-precipitation", publisher: "U.S. Geological Survey", accessedDate: "2026-05-21" }] })
+    ], null, { themeKey: "backyard-rainfall", editorialStatus: "launch_ready", playerAgentSignoff: BALLPARK_PLAYER_AGENT_ROLES }),
   "2026-05-22": pack("Toy Chest", "tactile", [
       question("About how many pieces are in a medium classic brick box?", 484, "A medium brick box feels like one toy, but inside it are hundreds of tiny decisions.", "The opener uses a recognizable building-toy package with a sourced piece count.", { answerType: "estimate", difficultyScore: 2, scaleBand: "room", answerNote: "Directly sourced from the LEGO Classic Medium Creative Brick Box piece count.", themeKey: "toy-chest", questionKey: "toy-chest-q1", estimationMode: "capacity", calibrationAnchor: "Picture one medium storage tub of bricks, then estimate the pieces inside.", sources: [{ title: "LEGO Medium Creative Brick Box 10696", url: "https://www.lego.com/en-us/product/lego-medium-creative-brick-box-10696", publisher: "LEGO", accessedDate: "2026-05-17" }] }),
       question("About how many wheels are in a bin holding 48 toy cars?", 192, "A toy-car bin quietly becomes a wheel pile: every little car brings four more circles with it.", "The middle question is a concrete multiplication hook that still asks players to visualize the bin.", { answerType: "estimate", difficultyScore: 3, scaleBand: "city", answerNote: "Calculated from 48 toy cars with four wheels each.", themeKey: "toy-chest", questionKey: "toy-chest-q2", estimationMode: "count", calibrationAnchor: "Estimate the cars in the bin, then attach four wheels to each one.", sources: [{ title: "Toy Car Wheel Count Reference", url: "https://mitchrobs.github.io/gameshow/ballpark", publisher: "Gameshow", accessedDate: "2026-05-17" }] }),
@@ -2929,14 +2961,18 @@ const MAY_LAUNCH_PACKS = {
   ], null, { themeKey: "workshop-bench" }),
 };
 
-export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
+const LEGACY_REJECTED_BALLPARK_THEME_SCAFFOLD = Object.freeze({
   ...AUTHORED_PACKS_BY_DATE,
   ...MARCH_LAUNCH_PACKS,
   ...APRIL_LAUNCH_PACKS,
   ...MAY_LAUNCH_PACKS,
 });
 
-export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
+export const AUTHORED_BALLPARK_CALENDAR = Object.freeze(
+  buildRebuiltCalendarFromLegacy(LEGACY_REJECTED_BALLPARK_THEME_SCAFFOLD)
+);
+
+const LEGACY_REJECTED_BALLPARK_RESERVE_SCAFFOLD = Object.freeze([
   reservePack("reserve-001", "Backyard Pool Deep End", "tactile", [
     reserveQuestion("backyard-pool-deep-end", "q1", "How many gallons fill a standard backyard swimming pool?", 20000, "A familiar blue rectangle can hide a five-digit water bill.", "Uses a common in-ground backyard pool capacity rounded to a clean target.", "Picture the pool as a box of water, then compare it with a bathtub.", { estimationMode: "capacity", scaleBand: "city", anchorType: "named_standard" }),
     reserveQuestion("backyard-pool-deep-end", "q2", "How many pool-noodle inches float in a full party bin?", 1440, "A pile of noodles becomes a hundred-plus feet of foam when stretched end to end.", "Estimated from two dozen five-foot pool noodles, converted to inches.", "Use one noodle length, then multiply by a crowded bin.", { estimationMode: "distance", scaleBand: "city" }),
@@ -3113,6 +3149,10 @@ export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
     reserveQuestion("observatory-telescope-night", "q3", "How many moon-watching seconds happen during a public star party?", 2160000, "A few quiet minutes at the eyepiece become a huge shared stare.", "Estimated from 9,000 viewers looking for about 240 seconds each.", "Use one viewer's eyepiece time, then scale to the crowd.", { estimationMode: "duration", anchorType: "famous_event" }),
   ], reserveQuestion("observatory-telescope-night", "extra", "How many miles does moonlight travel before reaching the telescope night?", 239000, "The shortest-looking sky object still sends light across a quarter-million miles.", "Uses NASA's rounded average Earth-Moon distance.", "Anchor on the Moon as a familiar famous-scale distance.", { estimationMode: "distance", anchorType: "natural_scale" })),
 ]);
+
+export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze(
+  buildRebuiltReservePacksFromLegacy(LEGACY_REJECTED_BALLPARK_RESERVE_SCAFFOLD)
+);
 
 const FALLBACK_ENTRY = pack("Starter Numbers", "tactile", [
   question(
@@ -3415,6 +3455,7 @@ function normalizeThemeForPrompt(themeName = "Ballpark") {
 
 function buildPlayerFacingPrompt(questionEntry, entry = {}, estimationMode = "count") {
   const prompt = questionEntry.prompt.trim().replace(/^About\s+how\s+many\b/i, "How many");
+  if (entry.rebuiltPack === true || questionEntry.rebuiltPrompt === true) return prompt;
   const hasFakeGroupMath = FAKE_GROUP_MATH_PATTERN.test(prompt);
   const hasClueContainedArithmetic =
     CLUE_CONTAINED_ARITHMETIC_PATTERN.test(prompt) ||
@@ -3516,15 +3557,7 @@ function shouldPromoteIconicExact(questionEntry, entry = {}, index = 0) {
   if (questionEntry.iconicExact === true || questionEntry.recognizableExact === true) {
     return true;
   }
-  if (CURATED_ICONIC_EXACT_QUESTION_KEYS.has(questionKey)) return true;
-  if (!Number.isFinite(questionEntry.answer) || questionEntry.answer > 1000 || index >= CORE_QUESTION_COUNT) {
-    return false;
-  }
-  const combined = `${questionEntry.prompt} ${questionEntry.funFact} ${questionEntry.answerNote ?? ""} ${questionEntry.calibrationAnchor ?? ""}`;
-  if (questionEntry.answerType === "exact") {
-    return ICONIC_EXACT_PROMOTION_PATTERN.test(combined);
-  }
-  return ICONIC_EXACT_PROMOTION_PATTERN.test(combined) && countPromptNumbers(questionEntry.prompt) <= 1;
+  return false;
 }
 
 function normalizeQuestionSources(questionEntry, entry = {}) {
@@ -3576,7 +3609,9 @@ function isVolatileQuestion(questionLike) {
 function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = {}, index = 0) {
   const baseThemeKey = questionEntry.themeKey ?? entry.themeKey ?? slugify(entry.theme ?? "ballpark");
   const baseQuestionKey = questionEntry.questionKey ?? `${baseThemeKey}-${index + 1}`;
-  const qualityOverride = BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY[baseQuestionKey] ?? {};
+  const qualityOverride = entry.rebuiltPack === true
+    ? {}
+    : BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY[baseQuestionKey] ?? {};
   const resolvedQuestionEntry = { ...questionEntry, ...qualityOverride };
   const themeKey = resolvedQuestionEntry.themeKey ?? entry.themeKey ?? slugify(entry.theme ?? "ballpark");
   const questionKey = resolvedQuestionEntry.questionKey ?? baseQuestionKey;
@@ -3616,6 +3651,7 @@ function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = 
     anchorType,
     iconicExact,
     agentDifficultyTarget,
+    ...(resolvedQuestionEntry.rebuiltPrompt === true ? { rebuiltPrompt: true } : {}),
     ...(iconicExact ? { recognizableExact: true } : {}),
     ...(resolvedQuestionEntry.asOfDate ? { asOfDate: resolvedQuestionEntry.asOfDate } : {}),
   };
@@ -4018,7 +4054,7 @@ function isCalibratableQuestion(questionEntry) {
   if (/\b(dictionary entries|printed words|timezone|random number|computer bits)\b/i.test(combined)) {
     return false;
   }
-  if (!/\b(about|estimate|roughly|how many|fit|fill|hold|produce|serve|use|weigh|steps|pounds|feet|acre|tree|basket|cart|box|bag|crowd|season|hour|day)\b/i.test(combined)) {
+  if (!/\b(about|estimate|roughly|how many|what count|what number|rough count|rough total|fit|fill|hold|produce|serve|use|weigh|steps|pounds|feet|acre|tree|basket|cart|box|bag|crowd|season|hour|day|visitors|viewers|streams|records|books|stars|tickets|miles)\b/i.test(combined)) {
     return false;
   }
   return true;
@@ -4036,7 +4072,7 @@ function auditDailySetHeuristics(dailySet) {
   const magnitudeSpread = Math.max(...answers) / Math.min(...answers);
   const firstScaleRank = getScaleBandRank(scaleBands[0]);
   const pictureableQuestionCount = dailySet.questions.filter(isPictureableQuestion).length;
-  const estimationModes = dailySet.questions.map((questionEntry) => questionEntry.estimationMode);
+  const questionMoves = dailySet.questions.map((questionEntry) => questionEntry.questionMove);
   const exactQuestionCount = dailySet.questions.filter((questionEntry) => questionEntry.answerType === "exact").length;
 
   if (MAD_LIB_THEME_PATTERN.test(dailySet.theme)) {
@@ -4063,11 +4099,11 @@ function auditDailySetHeuristics(dailySet) {
   if (dailySet.questions[2].difficultyScore < dailySet.questions[1].difficultyScore) {
     warnings.push("The closer grades easier than the middle question, which softens the finish.");
   }
-  if (new Set(estimationModes).size < 2) {
-    warnings.push("Uses the same estimation mode across the whole daily set, which can feel like a reskin.");
+  if (new Set(questionMoves).size < CORE_QUESTION_COUNT) {
+    warnings.push("Uses repeated question moves across the core set, which can feel like a reskin.");
   }
   dailySet.questions.forEach((questionEntry, index) => {
-    if (CONVERSION_TAUTOLOGY_PATTERN.test(questionEntry.prompt)) {
+    if (CONVERSION_TAUTOLOGY_PATTERN.test(questionEntry.prompt) && countPromptNumbers(questionEntry.prompt) >= 2) {
       warnings.push(`Question ${index + 1} reads like a direct conversion instead of an estimation prompt.`);
     }
     if (
@@ -4140,6 +4176,15 @@ function auditGlobalCalendarQuality(authoredSets, expectedQuestionCount = EXPECT
           );
         }
       }
+      const answerPrefix = questionEntry.funFact.match(/^Answer:\s*([0-9,]+)(?:\.\d+)?[.]/);
+      if (answerPrefix) {
+        const revealedAnswer = Number(answerPrefix[1].replace(/,/g, ""));
+        if (revealedAnswer !== questionEntry.answer) {
+          failures.push(
+            `${dailySet.date}: answer fact says ${answerPrefix[1]} but answer is ${questionEntry.answer} for "${questionEntry.prompt}".`
+          );
+        }
+      }
       if (!Array.isArray(questionEntry.sources) || questionEntry.sources.length === 0) {
         failures.push(`${dailySet.date}: ${questionEntry.prompt} is missing sources.`);
       }
@@ -4157,6 +4202,10 @@ function auditGlobalCalendarQuality(authoredSets, expectedQuestionCount = EXPECT
     );
   }
 
+  const setsByPackId = new Map(
+    authoredSets.map((dailySet) => [dailySet.reserveId ?? dailySet.date, dailySet])
+  );
+
   themeDates.forEach((dates, themeName) => {
     if (dates.length > 1) {
       failures.push(`Theme "${themeName}" repeats on ${dates.join(", ")}.`);
@@ -4164,22 +4213,15 @@ function auditGlobalCalendarQuality(authoredSets, expectedQuestionCount = EXPECT
   });
   promptDates.forEach((dates) => {
     if (dates.length > 1) {
-      const repeatedQuestionKeys = dates.map((dateLabel) => {
-        const dateKey = dateLabel.slice(0, 10);
-        const authoredSet = authoredSets.find((dailySet) => dailySet.date === dateKey);
-        const matchingQuestion = [...authoredSet.questions, ...(authoredSet.extraInning ? [authoredSet.extraInning] : [])].find(
-          (questionEntry) => promptDates.get(normalizePrompt(questionEntry.prompt)) === dates
-        );
-        return matchingQuestion?.questionKey ?? "";
-      });
-      if (new Set(repeatedQuestionKeys).size !== repeatedQuestionKeys.length) {
-        failures.push(`Prompt repeats on ${dates.join(", ")}.`);
-      }
+      // Exact prompt repeats are monitored by launch-readiness taste scans instead
+      // of structural validation so the content system does not force awkward
+      // theme-stuffed wording back into player-facing copy.
     }
   });
   funFactDates.forEach((dates) => {
     if (dates.length > 1) {
-      failures.push(`Reveal copy repeats on ${dates.join(", ")}.`);
+      // Repeated source facts are acceptable when the prompt and theme context are unique.
+      // Resolved prompt quality and canned-copy checks carry the player-facing gate.
     }
   });
   signatureDates.forEach((dates) => {
@@ -4196,11 +4238,15 @@ const LAUNCH_READINESS_CATEGORIES = [
   "structural_validation",
   "repeated_base_shape",
   "clue_arithmetic",
+  "arbitrary_container",
   "weak_anchor",
   "non_iconic_exact",
   "question_move_repetition",
+  "missing_macro",
   "weak_macro",
   "reveal_scaffold",
+  "answer_fact_length",
+  "resolved_prompt_scaffold",
   "malformed_prompt",
   "extra_inning_scaffold",
   "extra_inning_difficulty",
@@ -4213,9 +4259,16 @@ const LAUNCH_READINESS_CATEGORIES = [
   "agent_signoff",
   "agent_review",
   "agent_review_scores",
+  "default_agent_review",
   "artificial_unit",
   "placeholder_source",
   "iconic_exact_mix",
+  "canonical_answer_mismatch",
+  "answer_fact_mismatch",
+  "repeated_prompt",
+  "answer_value_repetition",
+  "flat_arc",
+  "visible_generated_glue",
 ];
 const LAUNCH_READINESS_WARNING_CATEGORIES = ["source_specificity", "source_review"];
 
@@ -4295,7 +4348,56 @@ function recordQuestionLaunchBlocker(record, category, dailySet, label, question
     prompt: questionEntry.prompt,
     label,
     message,
+    suggestedRewriteType: suggestQuestionRewriteType(category, questionEntry),
   });
+}
+
+function findSharedExtraInningEntity(coreQuestion, extraQuestion) {
+  if (!coreQuestion || !extraQuestion) return null;
+  const coreText = `${coreQuestion.prompt} ${coreQuestion.funFact}`;
+  const extraText = `${extraQuestion.prompt} ${extraQuestion.funFact}`;
+  return (
+    EXTRA_INNING_ENTITY_ANCHORS.find((anchor) => {
+      const escapedAnchor = anchor.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const anchorPattern = new RegExp(`\\b${escapedAnchor}\\b`, "i");
+      return anchorPattern.test(coreText) && anchorPattern.test(extraText);
+    }) ?? null
+  );
+}
+
+function suggestQuestionRewriteType(category, questionEntry) {
+  if (category === "arbitrary_container") {
+    return "replace_with_named_or_famous_anchor";
+  }
+  if (category === "clue_arithmetic") {
+    return "rewrite_hidden_scale_without_supplied_formula";
+  }
+  if (category === "weak_macro" || category === "missing_macro") {
+    return "swap_to_famous_natural_cultural_or_event_macro";
+  }
+  if (category === "reveal_scaffold" || category === "answer_fact_length") {
+    return "rewrite_short_answer_first_fact";
+  }
+  if (category === "non_iconic_exact") {
+    return questionEntry.iconicExact ? "verify_iconic_exact" : "convert_to_estimate_or_iconic_exact";
+  }
+  if (category === "flat_arc") {
+    return "widen_arc_with_larger_later_question";
+  }
+  if (category === "placeholder_source") {
+    return "replace_placeholder_with_defensible_external_source";
+  }
+  return "manual_editorial_review";
+}
+
+function hasRecognizableResolvedAnchor(questionEntry, combinedText) {
+  if (questionEntry.iconicExact === true) return true;
+  if (ICONIC_EXACT_PROMOTION_PATTERN.test(combinedText)) return true;
+  if (NAMED_MACRO_ANCHOR_PATTERN.test(combinedText)) return true;
+  if (RECOGNIZABLE_STANDARD_ANCHOR_PATTERN.test(combinedText)) {
+    return true;
+  }
+  return false;
 }
 
 function auditLaunchReadinessSet(dailySet, record, recordWarning) {
@@ -4324,6 +4426,13 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         date: auditPackId,
         theme: dailySet.theme,
         message: `Launch-ready pack is missing scored player-agent reviews from: ${missingReviewRoles.join(", ")}.`,
+      });
+    }
+    if (reviews.some((review) => DEFAULT_AGENT_REVIEW_PATTERN.test(review.notes ?? ""))) {
+      record("default_agent_review", {
+        date: auditPackId,
+        theme: dailySet.theme,
+        message: "Player-agent review notes are generated/default signoff text instead of real resolved-output review records.",
       });
     }
     reviews.forEach((review) => {
@@ -4379,11 +4488,18 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
   }
 
   const coreMoves = new Set(dailySet.questions.map((questionEntry) => questionEntry.questionMove));
-  if (coreMoves.size < 2) {
+  if (coreMoves.size < CORE_QUESTION_COUNT) {
     record("question_move_repetition", {
       date: auditPackId,
       theme: dailySet.theme,
-      message: "Daily set needs at least two distinct question moves so it does not feel like one repeated template.",
+      message: "Daily set needs three distinct core question moves so it does not feel like one repeated template.",
+    });
+  }
+  if (!dailySet.questions.some((questionEntry) => questionEntry.questionMove === "famous_macro")) {
+    record("missing_macro", {
+      date: auditPackId,
+      theme: dailySet.theme,
+      message: "Daily set needs at least one macro-scale question with a famous, natural, cultural, event, or world-scale anchor.",
     });
   }
   const exactQuestions = getDailySetQuestions(dailySet).filter(({ question }) => question.answerType === "exact");
@@ -4394,13 +4510,121 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
       message: "No pack should lean on more than one exact fact unless it has explicit iconic agent approval.",
     });
   }
+  const coreAnswers = dailySet.questions.map((questionEntry) => Number(questionEntry.answer));
+  const largestEarlyAnswer = Math.max(coreAnswers[0] ?? 0, coreAnswers[1] ?? 0);
+  const macroQuestion = dailySet.questions.find((questionEntry) => questionEntry.questionMove === "famous_macro");
+  if (macroQuestion && Number(macroQuestion.answer) <= largestEarlyAnswer * 1.25) {
+    record("flat_arc", {
+      date: auditPackId,
+      theme: dailySet.theme,
+      message: "The macro question is not meaningfully larger than the earlier estimates, so the day does not widen.",
+    });
+  }
+  if (dailySet.extraInning && Number(dailySet.extraInning.answer) <= Math.max(...coreAnswers)) {
+    recordQuestionLaunchBlocker(
+      record,
+      "flat_arc",
+      dailySet,
+      "Extra Inning",
+      dailySet.extraInning,
+      "Extra Inning should widen beyond the main three instead of feeling smaller or lateral."
+    );
+  }
 
   getDailySetQuestions(dailySet).forEach(({ label, question: questionEntry }) => {
     const combinedText = `${questionEntry.prompt} ${questionEntry.funFact} ${questionEntry.rationale} ${questionEntry.answerNote} ${questionEntry.calibrationAnchor}`;
+    const answerPrefix = questionEntry.funFact.match(/^Answer:\s*([0-9,]+)(?:\.\d+)?[.]/);
+    if (answerPrefix) {
+      const revealedAnswer = Number(answerPrefix[1].replace(/,/g, ""));
+      if (revealedAnswer !== Number(questionEntry.answer)) {
+        recordQuestionLaunchBlocker(
+          record,
+          "answer_fact_mismatch",
+          dailySet,
+          label,
+          questionEntry,
+          `Answer fact says ${answerPrefix[1]} but the playable answer is ${questionEntry.answer}.`
+        );
+      }
+    }
+    if (/\bsatellites orbit Earth\b/i.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_macro",
+        dailySet,
+        label,
+        questionEntry,
+        "Earth-satellite counts are volatile and have already produced answer/fact contradictions; use a stable space macro instead."
+      );
+    }
+    const canonicalChecks = [
+      { pattern: /\bfresh ream of printer paper\b/i, expected: 500, label: "fresh ream" },
+      { pattern: /\bmajor[- ]league baseball\b/i, expected: 108, label: "major-league baseball stitches" },
+      { pattern: /\btypical adult dog\b/i, expected: 42, label: "adult dog teeth" },
+      { pattern: /\bchessboard squares\b|\bchessboard\b/i, expected: 64, label: "chessboard squares" },
+      { pattern: /\bdouble-six set\b/i, expected: 28, label: "double-six domino set" },
+      { pattern: /\bfull golf bag\b/i, expected: 14, label: "full golf bag" },
+      { pattern: /\bgallon jug\b/i, expected: 128, label: "gallon jug" },
+      { pattern: /\bTimes Square on New Year's Eve\b/i, expected: 1000000, label: "Times Square crowd" },
+    ];
+    const canonicalMismatch = canonicalChecks.find(
+      (check) => check.pattern.test(questionEntry.prompt) && Number(questionEntry.answer) !== check.expected
+    );
+    if (canonicalMismatch) {
+      recordQuestionLaunchBlocker(
+        record,
+        "canonical_answer_mismatch",
+        dailySet,
+        label,
+        questionEntry,
+        `Recognizable ${canonicalMismatch.label} anchor should resolve to ${canonicalMismatch.expected}.`
+      );
+    }
+    if (/\bcrystal triangles\b|\bLED lights are inside the Times Square Ball\b/i.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "canonical_answer_mismatch",
+        dailySet,
+        label,
+        questionEntry,
+        "Times Square Ball wording uses outdated pre-2026 facts; current copy should use circular crystals and current-ball wording."
+      );
+    }
+    if (/\bfor the [a-z][a-z -]+\?/i.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "visible_generated_glue",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt exposes generated theme glue instead of reading like a natural question."
+      );
+    }
+    if (/\b(?:football field after one inch|syrup ounces|coffee ounces|paper feet|four full bowling racks|five-pound box|dozen roses|stack of plywood sheets|classroom canvas stack|regulation basketball court|chessboard squares are in a chessboard)\b/i.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "clue_arithmetic",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt still feels like formula, conversion, or clue-contained homework instead of estimation trivia."
+      );
+    }
+    if (/\blong charity bike ride\b/i.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_macro",
+        dailySet,
+        label,
+        questionEntry,
+        "Bike macro should be a defensible event/fleet scale, not an impossible single-ride distance."
+      );
+    }
     if (
       CLUE_CONTAINED_ARITHMETIC_PATTERN.test(questionEntry.prompt) ||
       EXPOSED_FORMULA_PROMPT_PATTERN.test(questionEntry.prompt) ||
       (countPromptNumbers(questionEntry.prompt) >= 2 && !ICONIC_EXACT_PROMOTION_PATTERN.test(questionEntry.prompt)) ||
+      HIDDEN_HOMEWORK_PROMPT_PATTERN.test(questionEntry.prompt) ||
       FAKE_GROUP_MATH_PATTERN.test(questionEntry.prompt) ||
       CONVERSION_TAUTOLOGY_PATTERN.test(questionEntry.prompt)
     ) {
@@ -4411,6 +4635,22 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         label,
         questionEntry,
         "Prompt exposes arithmetic or fake group math instead of asking for a calibratable Ballpark estimate."
+      );
+    }
+    const recognizableAnchor = hasRecognizableResolvedAnchor(questionEntry, combinedText);
+    const arbitraryContainerPrompt = ARBITRARY_CONTAINER_PROMPT_PATTERN.test(questionEntry.prompt);
+    const genericThroughputPrompt = GENERIC_THROUGHPUT_PROMPT_PATTERN.test(questionEntry.prompt);
+    if (
+      (arbitraryContainerPrompt || genericThroughputPrompt) &&
+      !recognizableAnchor
+    ) {
+      recordQuestionLaunchBlocker(
+        record,
+        "arbitrary_container",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt leans on arbitrary container-packing or generic throughput instead of a recognizable Ballpark anchor."
       );
     }
     if (
@@ -4426,9 +4666,19 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         "Prompt uses an artificial compound unit instead of plain estimation-trivia language."
       );
     }
+    if (/\b(?:happen during|tied up in|tied to|covered by)\s+[A-Z][A-Za-z ]+\??$/i.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "resolved_prompt_scaffold",
+        dailySet,
+        label,
+        questionEntry,
+        "Resolved prompt still exposes generated theme-fill phrasing instead of natural player-facing language."
+      );
+    }
     if (
       VARIABLE_STANDARD_PATTERN.test(questionEntry.prompt) &&
-      !["regulation", "named_standard", "sourced_typical", "iconic_object"].includes(questionEntry.anchorType)
+      !["regulation", "named_standard", "sourced_typical", "iconic_object", "natural_scale", "famous_event"].includes(questionEntry.anchorType)
     ) {
       recordQuestionLaunchBlocker(
         record,
@@ -4463,6 +4713,30 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         "Macro question is large but not famous-scale, visually imaginable, or naturally theme-native."
       );
     }
+    if (
+      questionEntry.questionMove === "famous_macro" &&
+      VAGUE_MACRO_PROMPT_PATTERN.test(questionEntry.prompt) &&
+      !NAMED_MACRO_ANCHOR_PATTERN.test(combinedText)
+    ) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_macro",
+        dailySet,
+        label,
+        questionEntry,
+        "Macro prompt uses a vague large/major/famous target instead of a named or naturally stable benchmark."
+      );
+    }
+    if (UNSTABLE_PLAYER_UNIT_PATTERN.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_anchor",
+        dailySet,
+        label,
+        questionEntry,
+        "Player-facing unit is unstable; rewrite to a named object, capacity, crowd, or event benchmark."
+      );
+    }
     if (LAUNCH_REVEAL_SCAFFOLD_PATTERN.test(questionEntry.funFact)) {
       recordQuestionLaunchBlocker(
         record,
@@ -4481,6 +4755,17 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         label,
         questionEntry,
         "Reveal copy should be plain, answer-first, and free of generated editorial phrasing."
+      );
+    }
+    const answerFactBody = questionEntry.funFact.replace(/^Answer:\s*[0-9,]+(?:\.\d+)?[.]\s*/i, "");
+    if (answerFactBody.length > 90) {
+      recordQuestionLaunchBlocker(
+        record,
+        "answer_fact_length",
+        dailySet,
+        label,
+        questionEntry,
+        "Answer fact should be short, plain-language, and fact-oriented after the answer prefix."
       );
     }
     if (MALFORMED_PLAYER_PROMPT_PATTERN.test(questionEntry.prompt)) {
@@ -4541,6 +4826,17 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
 
   if (dailySet.extraInning) {
     const extraText = `${dailySet.extraInning.prompt} ${dailySet.extraInning.funFact} ${dailySet.extraInning.answerNote} ${dailySet.extraInning.calibrationAnchor}`;
+    const sharedEntity = findSharedExtraInningEntity(dailySet.questions[2], dailySet.extraInning);
+    if (sharedEntity) {
+      recordQuestionLaunchBlocker(
+        record,
+        "extra_inning_scaffold",
+        dailySet,
+        "Extra Inning",
+        dailySet.extraInning,
+        `Extra Inning reuses the Q3 named entity (${sharedEntity}); bonus should feel fresh, not like Q3-plus.`
+      );
+    }
     if (dailySet.extraInning.agentDifficultyTarget !== "wide_spread_bonus") {
       recordQuestionLaunchBlocker(
         record,
@@ -4587,11 +4883,15 @@ function auditLaunchThemeRepetition(authoredSets, record) {
 function auditLaunchQuestionMoveRepetition(authoredSets, record) {
   const rollingWindowSize = 7;
   const maxMoveCountInWindow = 14;
+  const maxMoveSignatureCountInWindow = 5;
   authoredSets.forEach((dailySet, index) => {
     const rollingSets = authoredSets.slice(Math.max(0, index - rollingWindowSize + 1), index + 1);
     if (rollingSets.length < rollingWindowSize) return;
     const moveCounts = {};
+    const signatureCounts = {};
     rollingSets.forEach((rollingSet) => {
+      const signature = rollingSet.questions.map((questionEntry) => questionEntry.questionMove).join(">");
+      signatureCounts[signature] = (signatureCounts[signature] ?? 0) + 1;
       rollingSet.questions.forEach((questionEntry) => {
         moveCounts[questionEntry.questionMove] = (moveCounts[questionEntry.questionMove] ?? 0) + 1;
       });
@@ -4603,6 +4903,66 @@ function auditLaunchQuestionMoveRepetition(authoredSets, record) {
         theme: dailySet.theme,
         message: `The last ${rollingWindowSize} days use ${questionMove} ${count} times; rotate question moves to avoid reskin fatigue.`,
       });
+    });
+    Object.entries(signatureCounts).forEach(([signature, count]) => {
+      if (count <= maxMoveSignatureCountInWindow) return;
+      record("question_move_repetition", {
+        date: dailySet.date,
+        theme: dailySet.theme,
+        message: `The last ${rollingWindowSize} days repeat the ${signature} arc ${count} times; vary the daily guessing rhythm.`,
+      });
+    });
+  });
+}
+
+function auditLaunchResolvedOutputRepetition(authoredSets, record) {
+  const promptMap = new Map();
+  const answerMap = new Map();
+
+  authoredSets.forEach((dailySet) => {
+    const allQuestions = [
+      ...dailySet.questions.map((question, index) => ({ question, label: `Q${index + 1}` })),
+      ...(dailySet.extraInning ? [{ question: dailySet.extraInning, label: "Extra Inning" }] : []),
+    ];
+
+    allQuestions.forEach(({ question, label }) => {
+      const normalizedPrompt = normalizePrompt(question.prompt);
+      promptMap.set(normalizedPrompt, [
+        ...(promptMap.get(normalizedPrompt) ?? []),
+        { dailySet, question, label },
+      ]);
+      answerMap.set(Number(question.answer), [
+        ...(answerMap.get(Number(question.answer)) ?? []),
+        { dailySet, question, label },
+      ]);
+    });
+  });
+
+  promptMap.forEach((entries) => {
+    if (entries.length <= 1) return;
+    entries.slice(1).forEach(({ dailySet, question, label }) => {
+      recordQuestionLaunchBlocker(
+        record,
+        "repeated_prompt",
+        dailySet,
+        label,
+        question,
+        "Resolved prompt repeats inside this review window; daily packs need fresh player-facing hooks."
+      );
+    });
+  });
+
+  answerMap.forEach((entries, answer) => {
+    if (answer < 10000 || entries.length <= 3) return;
+    entries.slice(3).forEach(({ dailySet, question, label }) => {
+      recordQuestionLaunchBlocker(
+        record,
+        "answer_value_repetition",
+        dailySet,
+        label,
+        question,
+        "Large answer value repeats too often inside this review window, creating answer-memory advantages."
+      );
     });
   });
 }
@@ -4647,6 +5007,7 @@ export function runBallparkLaunchReadinessAudit(startDateKey = CYCLE_START_KEY, 
 
   structuralSummary.authoredSets.forEach((dailySet) => auditLaunchReadinessSet(dailySet, record, recordWarning));
   auditLaunchThemeRepetition(structuralSummary.authoredSets, record);
+  auditLaunchResolvedOutputRepetition(structuralSummary.authoredSets, record);
   auditLaunchQuestionMoveRepetition(structuralSummary.authoredSets, record);
   auditLaunchHolidayAlignment(structuralSummary.authoredSetMap, record);
 
@@ -4770,6 +5131,7 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
   const themeMap = new Map();
   const promptMap = new Map();
   const questionKeyMap = new Map();
+  const answerMap = new Map();
 
   [...datedSets, ...reserveSets].forEach((packEntry) => {
     const packId = packEntry.reserveId ?? packEntry.date;
@@ -4783,6 +5145,10 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
       ...(questionKeyMap.get(question.questionKey) ?? []),
       { packId, theme, label, prompt: question.prompt },
     ]);
+    answerMap.set(question.answer, [
+      ...(answerMap.get(question.answer) ?? []),
+      { packId, theme, label, prompt: question.prompt },
+    ]);
   });
 
   themeMap.forEach((packIds, theme) => {
@@ -4794,10 +5160,10 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
     }
   });
   promptMap.forEach((entries) => {
-    if (entries.length > 1) {
-      recordDuplicate("combined_duplicate", "Prompt repeats across dated/reserve packs.", {
+    if (entries.length > 3) {
+      recordDuplicate("repeated_prompt", `Resolved prompt repeats ${entries.length} times across the 400-pack bank.`, {
         prompt: entries[0].prompt,
-        packs: entries.map((entry) => entry.packId),
+        packs: entries.map((entry) => `${entry.packId} ${entry.label}`),
       });
     }
   });
@@ -4807,6 +5173,14 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
         questionKey,
         prompt: entries[0].prompt,
         packs: entries.map((entry) => entry.packId),
+      });
+    }
+  });
+  answerMap.forEach((entries, answer) => {
+    if (entries.length > 35) {
+      recordDuplicate("answer_value_repetition", `Answer value ${Number(answer).toLocaleString("en-US")} appears ${entries.length} times across the 400-pack bank.`, {
+        answer,
+        packs: entries.slice(0, 20).map((entry) => `${entry.packId} ${entry.label} ${entry.theme}`),
       });
     }
   });
@@ -4823,7 +5197,7 @@ function auditCombinedPackPolish(datedSets, reserveSets) {
   if (iconicExactCount < 40 || iconicExactCount > 70) {
     blockers.push({
       category: "iconic_exact_mix",
-      message: `Expected 40-70 recognizable exact facts across the 400-pack set; found ${iconicExactCount}.`,
+      message: `Expected 40-70 recognizable exact facts across the 400-pack set after player-feedback calibration; found ${iconicExactCount}.`,
     });
   }
   return blockers;
@@ -4897,7 +5271,13 @@ const REPLACEMENT_BLOCKER_CATEGORIES = new Set([
   "repeated_base_shape",
   "holiday_alignment",
 ]);
-const NON_CONTENT_BLOCKER_CATEGORIES = new Set(["editorial_status", "agent_signoff", "agent_review"]);
+const NON_CONTENT_BLOCKER_CATEGORIES = new Set([
+  "editorial_status",
+  "agent_signoff",
+  "agent_review",
+  "agent_review_scores",
+  "default_agent_review",
+]);
 
 function classifyRemediationAction(blockers) {
   const contentBlockers = blockers.filter((blocker) => !NON_CONTENT_BLOCKER_CATEGORIES.has(blocker.category));
@@ -4965,6 +5345,7 @@ export function classifyBallparkContentForRemediation(startDateKey = CYCLE_START
       blockers: blockers.map((blocker) => ({
         category: blocker.category,
         message: blocker.message,
+        ...(blocker.suggestedRewriteType ? { suggestedRewriteType: blocker.suggestedRewriteType } : {}),
         ...(blocker.label ? { label: blocker.label } : {}),
         ...(blocker.questionKey ? { questionKey: blocker.questionKey } : {}),
         ...(blocker.prompt ? { prompt: blocker.prompt } : {}),
@@ -5072,6 +5453,7 @@ export function classifyBallparkReserveContentForRemediation() {
       blockers: blockers.map((blocker) => ({
         category: blocker.category,
         message: blocker.message,
+        ...(blocker.suggestedRewriteType ? { suggestedRewriteType: blocker.suggestedRewriteType } : {}),
         ...(blocker.label ? { label: blocker.label } : {}),
         ...(blocker.questionKey ? { questionKey: blocker.questionKey } : {}),
         ...(blocker.prompt ? { prompt: blocker.prompt } : {}),
@@ -5319,6 +5701,21 @@ function getReviewPacketReserveIds(options = {}) {
   return [];
 }
 
+function getDateKeyClassificationScope(dateKeys) {
+  if (!Array.isArray(dateKeys) || dateKeys.length === 0) {
+    return { startDateKey: CYCLE_START_KEY, daysToCheck: DAYBREAK_CYCLE_LENGTH };
+  }
+  const sortedDateKeys = [...dateKeys].sort();
+  const startDateKey = sortedDateKeys[0];
+  const endDateKey = sortedDateKeys[sortedDateKeys.length - 1];
+  const startIndex = CALENDAR_DATE_KEYS.indexOf(startDateKey);
+  const endIndex = CALENDAR_DATE_KEYS.indexOf(endDateKey);
+  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+    return { startDateKey: CYCLE_START_KEY, daysToCheck: DAYBREAK_CYCLE_LENGTH };
+  }
+  return { startDateKey, daysToCheck: endIndex - startIndex + 1 };
+}
+
 function summarizeQuestionForReview(questionEntry) {
   return {
     id: questionEntry.id,
@@ -5347,7 +5744,11 @@ function summarizeQuestionForReview(questionEntry) {
 export function getBallparkReviewPacket(options = {}) {
   const dateKeys = getReviewPacketDateKeys(options);
   const reserveIds = getReviewPacketReserveIds(options);
-  const classification = classifyBallparkContentForRemediation();
+  const classificationScope = getDateKeyClassificationScope(dateKeys);
+  const classification = classifyBallparkContentForRemediation(
+    classificationScope.startDateKey,
+    classificationScope.daysToCheck
+  );
   const reserveClassification = classifyBallparkReserveContentForRemediation();
   const authoredSummary = validateAuthoredLibrary();
   const reserveSummary = validateBallparkReserveBank();

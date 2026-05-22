@@ -169,6 +169,7 @@ function getPlayerFacingFunFact(funFact) {
   if (exactRewrites.has(funFact)) return exactRewrites.get(funFact);
 
   return funFact
+    .replace(/^Answer:\s*[0-9,]+(?:\.\d+)?\.\s*/i, '')
     .replace(/\b[Tt]he closer\b/g, 'This answer')
     .replace(/\b[Tt]he stretch\b/g, 'This question')
     .replace(/\b[Tt]he opener\b/g, 'The first question')

@@ -258,7 +258,8 @@ function printCombinedSummary(payload: ReturnType<typeof runBallpark400PackAudit
   console.log("");
   console.log(`Top ${limit} combined blockers:`);
   payload.blockers.slice(0, limit).forEach((blocker) => {
-    console.log(`  ${blocker.packId ?? blocker.packs?.join(",") ?? "combined"} ${blocker.category}: ${blocker.message}`);
+    const suggestion = blocker.suggestedRewriteType ? ` -> ${blocker.suggestedRewriteType}` : "";
+    console.log(`  ${blocker.packId ?? blocker.packs?.join(",") ?? "combined"} ${blocker.category}: ${blocker.message}${suggestion}`);
   });
 }
 

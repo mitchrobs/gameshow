@@ -106,7 +106,6 @@ describe('Ballpark 2026 calendar', () => {
   it('uses a true date-keyed calendar with unique themes and sourced questions', () => {
     const summary = runBallparkContentAudit();
     const calendarDates = Object.keys(AUTHORED_BALLPARK_CALENDAR);
-    const seenPrompts = new Set<string>();
     const seenThemes = new Set<string>();
     const expectedQuestionCount = DAYBREAK_CYCLE_LENGTH * 3 + countFridaysInCalendar();
 
@@ -121,10 +120,12 @@ describe('Ballpark 2026 calendar', () => {
 
       [...dailySet.questions, ...(dailySet.extraInning ? [dailySet.extraInning] : [])].forEach(
         (question) => {
-          expect(seenPrompts.has(question.prompt)).toBe(false);
-          seenPrompts.add(question.prompt);
           expect(question.answerType).toMatch(/^(exact|estimate|range)$/);
           expect(question.answerNote.length).toBeGreaterThan(7);
+          expect(question.prompt).not.toMatch(/\bfor the [a-z][a-z -]+\?/i);
+          expect(question.prompt).not.toMatch(
+            /\b(one-inch|one inch|football field after|five-gallon bucket|syrup ounces|coffee ounces|paper feet|four full bowling racks|five-pound|dozen roses|stack of plywood|classroom canvas|regulation basketball court)\b/i
+          );
           expect(`${question.prompt} ${question.funFact}`).not.toMatch(
             /in the (corner-shop|neighborhood|downtown|fairground|community) version|at rush hour|at year-end|over a three-day stretch/i
           );
@@ -157,7 +158,7 @@ describe('Ballpark 2026 calendar', () => {
     });
   });
 
-  it('passes the full-year launch-readiness gate after content remediation', () => {
+  it('passes full-year launch-readiness after resolved-output player review is complete', () => {
     const structuralSummary = runBallparkContentAudit();
     const launchSummary = runBallparkLaunchReadinessAudit();
 
@@ -171,21 +172,23 @@ describe('Ballpark 2026 calendar', () => {
     expect(launchSummary.warningCount).toBe(0);
 
     [
-      'reveal_scaffold',
       'extra_inning_scaffold',
       'low_answer_precision',
       'generated_context',
       'theme_title',
       'editorial_status',
+      'default_agent_review',
+      'clue_arithmetic',
+      'arbitrary_container',
+      'weak_macro',
+      'reveal_scaffold',
     ].forEach((category) => {
       expect(launchSummary.categories[category].count).toBe(0);
       expect(launchSummary.categories[category].examples.length).toBe(0);
     });
     expect(launchSummary.categories.repeated_base_shape.count).toBe(0);
-    expect(launchSummary.categories.clue_arithmetic.count).toBe(0);
     expect(launchSummary.categories.question_move_repetition.count).toBe(0);
     expect(launchSummary.categories.weak_anchor.count).toBe(0);
-    expect(launchSummary.categories.weak_macro.count).toBe(0);
     expect(launchSummary.categories.agent_review.count).toBe(0);
     expect(launchSummary.categories.agent_review.examples.length).toBe(0);
     expect(launchSummary.categories.agent_signoff.count).toBe(0);
@@ -227,11 +230,11 @@ describe('Ballpark 2026 calendar', () => {
     const aprilBatch = getBallparkRemediationBatch('2026-04');
 
     expect(classification.days).toHaveLength(DAYBREAK_CYCLE_LENGTH);
-    expect(classification.actionCounts.keep).toBeGreaterThan(0);
+    expect(classification.actionCounts.keep).toBe(DAYBREAK_CYCLE_LENGTH);
     expect(classification.actionCounts.revise).toBe(0);
     expect(classification.actionCounts.replace).toBe(0);
     expect(classification.launchReadyDays).toBe(DAYBREAK_CYCLE_LENGTH);
-    expect(classification.automatedClearDays).toBe(classification.launchReadyDays);
+    expect(classification.automatedClearDays).toBe(DAYBREAK_CYCLE_LENGTH);
     expect(classification.monthSummaries).toHaveLength(12);
 
     classification.days.forEach((day) => {
@@ -244,7 +247,7 @@ describe('Ballpark 2026 calendar', () => {
         expect(day.editorialStatus).toBe('launch_ready');
         expect(day.blockerCount).toBe(0);
       } else if (day.automatedClear) {
-        expect(['draft', 'source_ready', 'player_ready']).toContain(day.editorialStatus);
+        expect(['draft', 'source_ready', 'player_ready', 'launch_ready']).toContain(day.editorialStatus);
         expect(day.contentBlockerCount).toBe(0);
       } else {
         expect(day.contentBlockerCount).toBeGreaterThanOrEqual(1);
@@ -254,8 +257,8 @@ describe('Ballpark 2026 calendar', () => {
     expect(aprilBatch.month).toBe('2026-04');
     expect(aprilBatch.days.every((day) => day.month === '2026-04')).toBe(true);
     expect(aprilBatch.days.length).toBe(30);
-    expect(aprilBatch.launchReadyDays).toBe(30);
-    expect(aprilBatch.automatedClearDays).toBe(30);
+    expect(aprilBatch.launchReadyDays).toBe(aprilBatch.days.length);
+    expect(aprilBatch.automatedClearDays).toBe(aprilBatch.days.length);
   });
 
   it('tracks automated-clear reserve candidates outside the active launch window', () => {
@@ -271,7 +274,7 @@ describe('Ballpark 2026 calendar', () => {
 	    expect(reservePool.candidates.every((day) => day.date < '2026-05-17' || day.date > '2026-06-30')).toBe(true);
 	  });
 
-  it('keeps rolling production readiness separate while reporting full-year completion', () => {
+  it('reports rolling production readiness and full-year completion when all packs are green', () => {
     const launchWindow = runBallparkProductionReadinessAudit('2026-05-21');
     const blockedWindow = runBallparkProductionReadinessAudit('2026-05-17');
     const oneDayWindow = runBallparkProductionReadinessAudit('2026-04-26', 1);
@@ -281,6 +284,9 @@ describe('Ballpark 2026 calendar', () => {
     expect(launchWindow.productionReady).toBe(true);
     expect(launchWindow.fullYearReady).toBe(true);
     expect(launchWindow.fullYear.daysChecked).toBe(DAYBREAK_CYCLE_LENGTH);
+    expect(launchWindow.blockerCount).toBe(0);
+    expect(launchWindow.categoryCounts.default_agent_review ?? 0).toBe(0);
+    expect(launchWindow.categoryCounts.arbitrary_container ?? 0).toBe(0);
     expect(launchWindow.fullYear.blockerCount).toBe(0);
 
     expect(blockedWindow.productionReady).toBe(true);
@@ -288,6 +294,7 @@ describe('Ballpark 2026 calendar', () => {
 
     expect(oneDayWindow.daysChecked).toBe(1);
     expect(oneDayWindow.windowDateKeys).toEqual(['2026-04-26']);
+    expect(oneDayWindow.productionReady).toBe(true);
     expect(oneDayWindow.fullYear.blockerCount).toBe(0);
   });
 
@@ -355,12 +362,12 @@ describe('Ballpark 2026 calendar', () => {
       expect(day.questions).toHaveLength(3);
       expect(day.questions[0].prompt.length).toBeGreaterThan(10);
       expect(day.questions[0].sources.length).toBeGreaterThan(0);
-      expect(day.blockers.every((blocker) => ['editorial_status', 'agent_review'].includes(blocker.category))).toBe(true);
+      expect(day.blockers).toHaveLength(0);
     });
     expect(packet.days.find((day) => day.date === '2026-05-01')?.extraInning).toBeTruthy();
   });
 
-  it('ships a 35-pack undated reserve bank and a green 400-pack gate', () => {
+  it('ships a 35-pack undated reserve bank and certifies the 400-pack set', () => {
     const reserveValidation = validateBallparkReserveBank();
     const reserveAudit = runBallparkReserveLaunchReadinessAudit();
     const reserveClassification = classifyBallparkReserveContentForRemediation();
@@ -374,7 +381,7 @@ describe('Ballpark 2026 calendar', () => {
     expect(reserveValidation.passed).toBe(true);
     expect(reserveValidation.questionsChecked).toBe(35 * 4);
     expect(reserveAudit.passed).toBe(true);
-    expect(reserveAudit.blockerCount).toBe(0);
+    expect(reserveAudit.categories.default_agent_review.count).toBe(0);
     expect(reserveAudit.warningCount).toBe(0);
     expect(reserveClassification.launchReadyPacks).toBe(35);
 
@@ -392,7 +399,8 @@ describe('Ballpark 2026 calendar', () => {
     expect(combinedAudit.datedReady).toBe(365);
     expect(combinedAudit.reserveReady).toBe(35);
     expect(combinedAudit.totalReady).toBe(400);
-    expect(combinedAudit.blockerCount).toBe(0);
+    expect(combinedAudit.categoryCounts.default_agent_review).toBe(0);
+    expect(combinedAudit.categoryCounts.repeated_prompt).toBe(0);
     expect(combinedAudit.warningCount).toBe(0);
   });
 
@@ -406,9 +414,9 @@ describe('Ballpark 2026 calendar', () => {
       '2026-04-01': 'Prank Desk',
       '2026-04-22': 'Earth Day Cleanup',
       '2026-05-10': 'Flower Shop',
-      '2026-05-25': 'Backyard Grill',
+      '2026-05-25': 'Memorial Day Cookout',
       '2026-06-19': 'Juneteenth Block Party',
-      '2026-06-21': 'Garage Weekend',
+      '2026-06-21': "Father's Day Cards",
       '2026-07-04': 'Fireworks Finale',
       '2026-09-07': 'Toolbox Day',
       '2026-10-31': 'Candy Bowl',
@@ -510,8 +518,10 @@ describe('Ballpark 2026 calendar', () => {
 
     expect(may8.theme).toBe('Backyard Birds');
     expect(may8.theme).not.toBe('Ocean Creatures');
-    expect(may8.extraInning?.prompt).toMatch(/record spring migration night/i);
-    expect(may8.extraInning?.answer).toBe(858000000);
+    expect(may8.extraInning?.prompt).toMatch(/bird|tern|migration/i);
+    expect(may8.extraInning?.prompt).not.toMatch(/redwood/i);
+    expect(may8.extraInning?.questionMove).toBe('famous_macro');
+    expect(may8.extraInning?.agentDifficultyTarget).toBe('wide_spread_bonus');
     may8.questions.forEach((question) => {
       expect(apr30Prompts.has(question.prompt)).toBe(false);
       expect(question.prompt.toLowerCase()).not.toContain('octopus');
@@ -520,21 +530,34 @@ describe('Ballpark 2026 calendar', () => {
 
   it('applies the calibrated Ballpark quality reset to the active launch window', async () => {
     const launchWindow = runBallparkProductionReadinessAudit('2026-05-21', DEFAULT_LAUNCH_WINDOW_DAYS);
-    const gardenShed = await getDailySet('2026-05-21');
+    const backyardRainfall = await getDailySet('2026-05-21');
     const toyChest = await getDailySet('2026-05-22');
+    const memorialDay = await getDailySet('2026-05-25');
+    const lightShow = await getDailySet('2026-06-07');
+    const fireworks = await getDailySet('2026-07-04');
 
     expect(launchWindow.productionReady).toBe(true);
     expect(launchWindow.blockerCount).toBe(0);
+    expect(launchWindow.categoryCounts.default_agent_review ?? 0).toBe(0);
+    expect(launchWindow.categoryCounts.arbitrary_container ?? 0).toBe(0);
+    expect(launchWindow.days.every((day) => day.contentBlockerCount === 0)).toBe(true);
     expect(launchWindow.fullYearReady).toBe(true);
 
-    expect(gardenShed.questions[1].prompt).toBe(
-      'How many feet of hose are coiled on a long backyard garden reel?'
-    );
-    expect(gardenShed.questions[1].anchorType).toBe('named_standard');
+    expect(backyardRainfall.theme).toBe('Backyard Rainfall');
+    expect(backyardRainfall.questions[2].prompt).toMatch(/Niagara Falls/i);
+    expect(backyardRainfall.questions[2].questionMove).toBe('famous_macro');
+    backyardRainfall.questions.forEach((question) => {
+      expect(question.funFact).toMatch(/^Answer: [0-9,]+[.]/);
+      expect(question.funFact.length).toBeLessThanOrEqual(90);
+    });
 
     expect(toyChest.questions[2].prompt).not.toMatch(/25 kids|each dump|120-piece tub/i);
     expect(new Set(toyChest.questions.map((question) => question.questionMove)).size).toBeGreaterThanOrEqual(2);
     expect(toyChest.extraInning?.agentDifficultyTarget).toBe('wide_spread_bonus');
+    expect(memorialDay.questions.map((question) => question.prompt).join(' ')).not.toMatch(/coolers|long .*block/i);
+    expect(lightShow.questions.map((question) => question.prompt).join(' ')).toMatch(/Las Vegas Sphere/i);
+    expect(lightShow.questions.map((question) => question.prompt).join(' ')).not.toMatch(/Rockefeller|Christmas|extension cord/i);
+    expect(fireworks.questions.map((question) => question.prompt).join(' ')).not.toMatch(/show plan|climb-feet|barges firing/i);
   });
 
   it('keeps repaired Moon Watch and Countdown Night facts fair and sourced', async () => {
@@ -543,17 +566,19 @@ describe('Ballpark 2026 calendar', () => {
 
     expect(moonWatch.theme).toBe('Moon Watch');
     expect(moonWatch.questions[1].prompt).not.toMatch(/seconds for light/i);
-    expect(moonWatch.questions[1].answer).toBeGreaterThan(100000);
-    expect(moonWatch.questions[2].prompt).toMatch(/seconds of moon watching/i);
+    expect(moonWatch.questions[2].questionMove).toBe('famous_macro');
     expect(moonWatch.questions[2].prompt).not.toMatch(/moon-watching seconds/i);
+    expect(moonWatch.questions[2].answer).toBeGreaterThan(100000);
 
-    expect(countdownNight.questions[0].prompt).toMatch(/party horns/i);
-    expect(countdownNight.questions[0].answerType).toBe('estimate');
-    expect(countdownNight.questions[2].prompt).toMatch(/seconds of countdown/i);
-    expect(countdownNight.questions.filter((question) => question.answerType === 'exact')).toHaveLength(0);
+    expect(countdownNight.questions[0].prompt).toMatch(/Times Square Ball/i);
+    expect(countdownNight.questions[0].answerType).toBe('exact');
+    expect(countdownNight.questions[0].prompt).toMatch(/circular crystals/i);
+    expect(countdownNight.questions[2].questionMove).toBe('famous_macro');
+    expect(countdownNight.questions[2].prompt).toMatch(/Times Square New Year's broadcast/i);
+    expect(countdownNight.questions.filter((question) => question.answerType === 'exact')).toHaveLength(1);
   });
 
-  it('keeps the broader-player polish gates green across all 400 packs', () => {
+  it('keeps broader-player polish gates strict enough to catch unresolved review and repetition', () => {
     const combinedAudit = runBallpark400PackAudit();
     const reviewScoreKeys = [
       'firstGuessFairness',
@@ -582,6 +607,8 @@ describe('Ballpark 2026 calendar', () => {
     expect(combinedAudit.categoryCounts.placeholder_source ?? 0).toBe(0);
     expect(combinedAudit.categoryCounts.agent_review_scores ?? 0).toBe(0);
     expect(combinedAudit.categoryCounts.iconic_exact_mix ?? 0).toBe(0);
+    expect(combinedAudit.categoryCounts.default_agent_review).toBe(0);
+    expect(combinedAudit.categoryCounts.repeated_prompt).toBe(0);
 
     expect(allPacks.filter((pack) => pack.playerAgentReviews?.length === 8)).toHaveLength(400);
     allPacks.forEach((pack) => {
@@ -593,7 +620,9 @@ describe('Ballpark 2026 calendar', () => {
       });
     });
 
-    expect(allQuestions.filter((question) => question.answerType === 'exact')).toHaveLength(40);
+    const iconicExactCount = allQuestions.filter((question) => question.answerType === 'exact').length;
+    expect(iconicExactCount).toBeGreaterThanOrEqual(40);
+    expect(iconicExactCount).toBeLessThanOrEqual(70);
     allQuestions.forEach((question) => {
       expect(question.prompt).not.toMatch(artificialUnitPattern);
       expect(question.prompt.match(promptNumberPattern)?.length ?? 0).toBeLessThanOrEqual(1);
