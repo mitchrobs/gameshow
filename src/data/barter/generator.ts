@@ -519,11 +519,9 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
   let initialEnginePartQty = 0;
   let initialTempoPartQty = 0;
   let includeEngineDiscount = feltThesis !== 'carry_the_pair' && feltThesis !== 'night_told_you';
-  let includeExtraNightTrade =
-    feltThesis === 'use_the_ugly_trade' ||
-    feltThesis === 'hidden_is_mercy' ||
-    (par >= 10 && cycle.texture === 'heavy' && (seed + TOPOLOGY_ORDER.indexOf(topology)) % 2 === 0);
-  let extraNightGoalQty = feltThesis === 'use_the_ugly_trade' ? (par >= 10 ? 2 : 1) : 0;
+  let includeExtraNightTrade = true;
+  let extraNightGoalQty =
+    feltThesis === 'use_the_ugly_trade' && par >= 11 && index % 2 === 0 ? 1 : 0;
 
   switch (startEconomy) {
     case 'bulk_heap':
@@ -1477,24 +1475,41 @@ function candidateScore(
   puzzle: BarterPuzzle,
   report: ReturnType<typeof validateBarterQuality>
 ): number {
-  const openingSharpness = report.optimalFirstMoveCount === 2 ? 180 : 0;
-  const regretPressure = report.maxEarlyRegret * 8;
-  const routeSeparation = report.routeDistance * 4;
+  const openingSharpness =
+    report.optimalFirstMoveCount === 2
+      ? 240
+      : report.optimalFirstMoveCount === 3
+      ? 170
+      : report.optimalFirstMoveCount === 4
+      ? -70
+      : report.optimalFirstMoveCount >= 5
+      ? -160
+      : 0;
+  const regretPressure = report.maxEarlyRegret * 12;
+  const routeSeparation = report.routeDistance * 5;
   const hiddenTexture =
     report.hiddenVendorUsage === 'recovery_only'
-      ? 8
+      ? 70
+      : report.hiddenVendorUsage === 'alternate_route'
+      ? 42
       : report.hiddenVendorUsage === 'par_route'
-      ? 4
-      : 2;
-  const signatureSpike = report.signatureTurnValue >= 3 ? 10 : 0;
-  const compactBonus = puzzle.trades.length === 9 ? 4 : puzzle.trades.length === 10 ? 2 : 0;
+      ? -140
+      : -30;
+  const signatureSpike = report.signatureTurnValue >= 3 ? 18 : 0;
+  const compactBonus = puzzle.trades.length === 9 ? 16 : puzzle.trades.length === 10 ? 10 : 0;
   const repeatPenalty = report.bestRouteMaxRepeat > 2 ? 62 : report.bestRouteMaxRepeat * 3;
-  const nightDiversityBonus = report.bestRouteNightRoleDiversity >= 3 ? 8 : 0;
+  const nightDiversityBonus = report.bestRouteNightRoleDiversity >= 3 ? 80 : -35;
   const repeatedCashoutPenalty = Math.max(0, report.repeatedGoalCashoutCount - 2) * 52;
-  const twoCashInBonus = report.bestRouteCashInCount === 2 ? 22 : 0;
+  const twoCashInBonus = report.bestRouteCashInCount === 2 ? 52 : 0;
   const cashInPenalty =
     Math.max(0, report.bestRouteCashInCount - 2) * 44 +
     Math.max(0, report.nearRouteMaxCashInCount - 3) * 150;
+  const dayWindowSpecialist =
+    report.playerSolveFeel === 'liquefy_heap' ||
+    report.playerSolveFeel === 'stop_production' ||
+    puzzle.startEconomy === 'messy_pantry';
+  const dayWindowBonus =
+    puzzle.earlyWindowTrades === 4 ? 95 : dayWindowSpecialist ? 12 : -80;
   const intendedParFit =
     report.shortestPathLength === puzzle.par
       ? 22
@@ -1527,6 +1542,7 @@ function candidateScore(
     compactBonus +
     nightDiversityBonus +
     twoCashInBonus +
+    dayWindowBonus +
     startEconomyBonus +
     parSweetSpot +
     intendedParFit +

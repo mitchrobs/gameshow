@@ -636,12 +636,12 @@ function pickBestRoute(puzzle: BarterPuzzle, routes: RouteResult[]): RouteResult
       .sort((a, b) => {
         const cashInDiff = routeCashInCount(puzzle, a) - routeCashInCount(puzzle, b);
         if (cashInDiff !== 0) return cashInDiff;
-        const cashoutDiff =
-          repeatedGoalCashoutCount(puzzle, a) - repeatedGoalCashoutCount(puzzle, b);
-        if (cashoutDiff !== 0) return cashoutDiff;
         const diversityDiff =
           routeNightRoleDiversity(puzzle, b) - routeNightRoleDiversity(puzzle, a);
         if (diversityDiff !== 0) return diversityDiff;
+        const cashoutDiff =
+          repeatedGoalCashoutCount(puzzle, a) - repeatedGoalCashoutCount(puzzle, b);
+        if (cashoutDiff !== 0) return cashoutDiff;
         const repeatDiff = routeResultMaxRepeat(a) - routeResultMaxRepeat(b);
         if (repeatDiff !== 0) return repeatDiff;
         const hiddenDiff =

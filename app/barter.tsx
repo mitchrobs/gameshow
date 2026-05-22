@@ -1366,7 +1366,7 @@ export default function BarterScreen() {
                   4. You can peek at Night early. One mystery stall appears later.
                 </Text>
                 <Text style={styles.marketReadBoxText}>
-                  5. Tap a good to move useful trades upward. No trades are hidden.
+                  5. Tap a good to move useful trades upward. Visible trades stay visible.
                 </Text>
               </View>
               <Text style={styles.tutorialModalHint}>

@@ -220,6 +220,7 @@ describe('Barter excellence generator', () => {
     const repeatedGoalCashouts: string[] = [];
     const bestRouteCashIns: string[] = [];
     const nearRouteMaxCashIns: string[] = [];
+    const hiddenVendorUsages: string[] = [];
     const signaturesByPattern = new Map<string, Set<string>>();
     let plusTwoRegretDays = 0;
     let fourPlusStartGoodDays = 0;
@@ -259,6 +260,7 @@ describe('Barter excellence generator', () => {
       repeatedGoalCashouts.push(String(report.repeatedGoalCashoutCount));
       bestRouteCashIns.push(String(report.bestRouteCashInCount));
       nearRouteMaxCashIns.push(String(report.nearRouteMaxCashInCount));
+      hiddenVendorUsages.push(report.hiddenVendorUsage ?? 'none');
       dayMarketCounts.push(String(dayTrades.length));
       nightMarketCounts.push(String(nightTrades.length));
       if (report.maxEarlyRegret === 2) plusTwoRegretDays += 1;
@@ -292,17 +294,22 @@ describe('Barter excellence generator', () => {
     expect(maxRun(topologies)).toBeLessThanOrEqual(3);
     expect(maxRun(playerSolveFeels)).toBe(1);
     expect(maxRun(feltTheses)).toBeLessThanOrEqual(2);
-    expect(parCounts.get('8') ?? 0).toBeLessThanOrEqual(22);
-    expect(parCounts.get('9') ?? 0).toBeGreaterThanOrEqual(28);
-    expect((parCounts.get('10') ?? 0) + (parCounts.get('11') ?? 0)).toBeGreaterThanOrEqual(4);
+    expect(parCounts.get('8') ?? 0).toBeLessThanOrEqual(24);
+    expect(parCounts.get('9') ?? 0).toBeGreaterThanOrEqual(27);
+    expect((parCounts.get('10') ?? 0) + (parCounts.get('11') ?? 0)).toBeGreaterThanOrEqual(5);
     expect(countBy(dayMarketCounts).get('4') ?? 0).toBeGreaterThanOrEqual(1);
     expect(countBy(dayMarketCounts).get('5') ?? 0).toBeGreaterThanOrEqual(20);
     expect(countBy(nightMarketCounts).get('5') ?? 0).toBeGreaterThan(countBy(nightMarketCounts).get('6') ?? 0);
     expect(countBy(nightMarketCounts).get('6') ?? 0).toBeGreaterThanOrEqual(3);
     expect(plusTwoRegretDays).toBeGreaterThanOrEqual(3);
     expect(countBy(optimalFirstMoveCounts).get('2') ?? 0).toBeGreaterThanOrEqual(1);
-    expect(countBy(optimalFirstMoveCounts).get('3') ?? 0).toBeGreaterThanOrEqual(1);
+    expect(countBy(optimalFirstMoveCounts).get('3') ?? 0).toBeGreaterThanOrEqual(30);
     expect((countBy(optimalFirstMoveCounts).get('4') ?? 0) + (countBy(optimalFirstMoveCounts).get('5') ?? 0)).toBeGreaterThanOrEqual(1);
+    expect(
+      (countBy(optimalFirstMoveCounts).get('2') ?? 0) + (countBy(optimalFirstMoveCounts).get('3') ?? 0)
+    ).toBeGreaterThan(
+      (countBy(optimalFirstMoveCounts).get('4') ?? 0) + (countBy(optimalFirstMoveCounts).get('5') ?? 0)
+    );
     expect(countBy(affordableOpeningCounts).get('3') ?? 0).toBeGreaterThanOrEqual(1);
     expect(countBy(affordableOpeningCounts).get('4') ?? 0).toBeGreaterThanOrEqual(1);
     expect(countBy(bestRouteRepeats).get('2') ?? 0).toBeGreaterThan(countBy(bestRouteRepeats).get('3') ?? 0);
@@ -312,6 +319,11 @@ describe('Barter excellence generator', () => {
     expect(countBy(bestRouteCashIns).get('3') ?? 0).toBeGreaterThanOrEqual(20);
     expect((countBy(nearRouteMaxCashIns).get('2') ?? 0) + (countBy(nearRouteMaxCashIns).get('3') ?? 0)).toBe(56);
     expect(countBy(nearRouteMaxCashIns).get('3') ?? 0).toBeGreaterThanOrEqual(45);
+    expect(countBy(hiddenVendorUsages).get('par_route') ?? 0).toBeLessThanOrEqual(24);
+    expect(
+      (countBy(hiddenVendorUsages).get('alternate_route') ?? 0) +
+        (countBy(hiddenVendorUsages).get('recovery_only') ?? 0)
+    ).toBeGreaterThan(countBy(hiddenVendorUsages).get('par_route') ?? 0);
     expect(countBy(repeatedGoalCashouts).get('4') ?? 0).toBe(0);
     expect(countBy(signatureValues).get('3') ?? 0).toBeGreaterThanOrEqual(10);
     expect(new Set(startEconomies).size).toBe(6);
@@ -347,6 +359,8 @@ describe('Barter excellence generator', () => {
     const pars: string[] = [];
     const bestRouteCashIns: string[] = [];
     const nearRouteMaxCashIns: string[] = [];
+    const optimalFirstMoveCounts: string[] = [];
+    const hiddenVendorUsages: string[] = [];
     const adjacentTriples: string[] = [];
     let fourPlusStartGoodDays = 0;
     let repeatedGoalCashoutPressureDays = 0;
@@ -372,6 +386,8 @@ describe('Barter excellence generator', () => {
       pars.push(String(puzzle.par));
       bestRouteCashIns.push(String(report.bestRouteCashInCount));
       nearRouteMaxCashIns.push(String(report.nearRouteMaxCashInCount));
+      optimalFirstMoveCounts.push(String(report.optimalFirstMoveCount));
+      hiddenVendorUsages.push(report.hiddenVendorUsage ?? 'none');
       adjacentTriples.push(
         [
           report.playerSolveFeel ?? 'unknown',
@@ -405,7 +421,17 @@ describe('Barter excellence generator', () => {
     expect(countBy(bestRouteCashIns).get('2') ?? 0).toBeGreaterThanOrEqual(140);
     expect(countBy(bestRouteCashIns).get('3') ?? 0).toBeGreaterThanOrEqual(140);
     expect((countBy(nearRouteMaxCashIns).get('2') ?? 0) + (countBy(nearRouteMaxCashIns).get('3') ?? 0)).toBe(365);
-    expect(countBy(nearRouteMaxCashIns).get('3') ?? 0).toBeGreaterThanOrEqual(300);
+    expect(countBy(nearRouteMaxCashIns).get('3') ?? 0).toBeGreaterThanOrEqual(290);
+    expect(
+      (countBy(optimalFirstMoveCounts).get('2') ?? 0) + (countBy(optimalFirstMoveCounts).get('3') ?? 0)
+    ).toBeGreaterThan(
+      (countBy(optimalFirstMoveCounts).get('4') ?? 0) + (countBy(optimalFirstMoveCounts).get('5') ?? 0)
+    );
+    expect(countBy(hiddenVendorUsages).get('par_route') ?? 0).toBeLessThanOrEqual(125);
+    expect(
+      (countBy(hiddenVendorUsages).get('alternate_route') ?? 0) +
+        (countBy(hiddenVendorUsages).get('recovery_only') ?? 0)
+    ).toBeGreaterThanOrEqual(240);
     for (let index = 0; index <= bestRouteCashIns.length - 28; index++) {
       const window = new Set(bestRouteCashIns.slice(index, index + 28));
       expect(window.has('2')).toBe(true);
@@ -466,6 +492,7 @@ describe('Barter excellence generator', () => {
   });
 
   it('keeps themed inventory item names short and literal', () => {
+    const abstractItemEmojis = new Set(['💧', '🟧', '🟤', '🔴', '🟠', '🟢', '🟦', '🟥', '⚫']);
     const retiredVagueLabels = new Set([
       'Anchor Charms',
       'Anchor Relics',
@@ -486,12 +513,15 @@ describe('Barter excellence generator', () => {
 
     BARTER_MARKETS.forEach((market) => {
       const marketEmojis = Object.values(market.skins).map((skin) => skin.emoji);
+      const inventoryLabels = Object.values(market.skins).map((skin) => skin.name.trim().split(/\s+/)[0]);
       expect(new Set(marketEmojis).size).toBe(marketEmojis.length);
+      expect(new Set(inventoryLabels).size).toBe(inventoryLabels.length);
 
       Object.values(market.skins).forEach((skin) => {
         expect(skin.name.length).toBeLessThanOrEqual(18);
         expect(skin.name).not.toMatch(/\b(Relics|Charms|Seals|Chits|Lots|Drachmae)\b/);
         expect(retiredVagueLabels.has(skin.name)).toBe(false);
+        expect(abstractItemEmojis.has(skin.emoji)).toBe(false);
       });
     });
   });

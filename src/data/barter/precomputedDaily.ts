@@ -10,14 +10,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -34,7 +34,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -478,7 +478,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -502,7 +502,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Tea Tokens",
+      "name": "Road Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -1019,6 +1019,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 9
         }
@@ -1037,28 +1057,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -1082,6 +1080,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -1114,48 +1131,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "salt",
           "qty": 2
         },
@@ -1170,6 +1145,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": false
     },
     {
       "give": [
@@ -1197,25 +1195,47 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 3
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": false
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     }
   ],
   "solution": [
@@ -1266,6 +1286,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": false
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": false
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 1
         },
@@ -1284,52 +1350,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": false
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": false
     },
     {
       "give": [
@@ -1542,6 +1562,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -1718,10 +1742,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "silk",
           "qty": 1
         }
       ],
@@ -1755,25 +1775,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 5,
       "role": "variant",
       "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
       "variant": true
     },
     {
@@ -1823,6 +1824,47 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -1858,30 +1900,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "shared",
       "variant": true,
       "vendorRole": "loop_finisher"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -1941,7 +1959,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -2419,8 +2437,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -2498,16 +2516,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 7
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -2515,6 +2533,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -2537,6 +2578,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -2564,30 +2624,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 1
         },
@@ -2611,25 +2647,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 4
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -2662,15 +2695,20 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 2
+        },
+        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -3039,11 +3077,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "spice",
-          "qty": 1
+          "qty": 2
         },
         {
           "good": "tea",
-          "qty": 4
+          "qty": 5
         }
       ],
       "receive": [
@@ -3153,7 +3191,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -3167,25 +3209,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "tea",
-          "qty": 4
+          "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -3257,12 +3298,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "tea",
-          "qty": 3
+          "qty": 4
         }
       ],
       "receive": [
         {
-          "good": "spice",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -3271,9 +3312,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -3363,8 +3405,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -3418,21 +3460,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 3
+          "good": "salt",
+          "qty": 7
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -3460,6 +3505,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -3480,44 +3571,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 4
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -3566,47 +3635,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         },
         {
           "good": "silk",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
         {
-          "good": "spice",
+          "good": "porcelain",
           "qty": 1
-        },
-        {
-          "good": "tea",
-          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     }
   ],
   "solution": [
@@ -3636,6 +3702,51 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "tea",
           "qty": 3
         }
@@ -3680,12 +3791,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
           "good": "spice",
           "qty": 1
         },
@@ -3694,10 +3799,17 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -3712,14 +3824,15 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
+          "good": "gold",
           "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -3739,52 +3852,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -3832,8 +3899,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -3850,7 +3917,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -4048,6 +4115,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -4060,16 +4131,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -4180,6 +4251,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -4192,22 +4267,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -4310,7 +4385,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -4765,8 +4840,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -4820,22 +4895,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
+          "good": "silk",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 3
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
       "variant": true,
-      "vendorRole": "reserve_payoff"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -4867,41 +4942,20 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "tea",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
       "receive": [
         {
-          "good": "spice",
+          "good": "porcelain",
           "qty": 2
         }
       ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -4926,23 +4980,64 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "spice",
-          "qty": 1
-        },
+          "qty": 2
+        }
+      ],
+      "receive": [
         {
-          "good": "silk",
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
+          "good": "spice",
           "qty": 2
         }
       ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "tea",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -5253,8 +5348,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -5783,7 +5878,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -5796,7 +5891,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "gems",
       "name": "Amber Beads",
-      "emoji": "🟠",
+      "emoji": "📿",
       "tier": "rare"
     }
   ],
@@ -5932,6 +6027,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 4
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
@@ -5975,10 +6074,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -6062,7 +6157,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
           "qty": 4
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
@@ -6075,29 +6196,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 3,
       "role": "variant",
       "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 4
-        },
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
       "variant": true
     },
     {
@@ -6148,19 +6246,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
       "vendorRole": "bridge_vendor"
     },
     {
@@ -6233,13 +6326,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Yard Tokens",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -6696,13 +6789,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -6720,13 +6813,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -6909,7 +7002,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "timber",
-          "qty": 3
+          "qty": 4
         }
       ],
       "receive": [
@@ -6932,6 +7025,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
@@ -6992,6 +7089,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
           "good": "tea",
           "qty": 1
         },
@@ -7000,71 +7103,23 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
         {
-          "good": "tea",
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
           "qty": 1
         },
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
         {
           "good": "porcelain",
           "qty": 1
@@ -7079,21 +7134,47 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "timber",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 6
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -7161,8 +7242,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "delayed_multiplier",
   "topology": "delayed_multiplier",
@@ -7201,7 +7282,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -7213,7 +7294,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Opal Gems",
+      "name": "Opal Stones",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -7348,12 +7429,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -7463,15 +7548,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "salt",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -7674,7 +7762,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -7686,7 +7774,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -7704,7 +7792,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Gate Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -7729,6 +7817,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -7736,10 +7844,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "silk",
           "qty": 1
         }
       ],
@@ -7775,21 +7879,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "jade",
           "qty": 3
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -7824,12 +7932,58 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -7859,52 +8013,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
         },
         {
           "good": "timber",
@@ -7913,8 +8021,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -7934,7 +8042,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
         },
         {
@@ -7943,10 +8051,75 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 8
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -7969,74 +8142,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -8629,7 +8734,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -8641,8 +8746,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -9108,8 +9213,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -9145,25 +9250,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
-        },
-        {
-          "good": "timber",
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -9191,22 +9292,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "salt",
+          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "timber",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
       "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "variant": true
     },
     {
       "give": [
@@ -9234,24 +9338,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
+          "good": "timber",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
         },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -9303,35 +9427,36 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "timber",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
         {
-          "good": "timber",
+          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 3
+          "good": "timber",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
       "variant": true,
-      "vendorRole": "reserve_payoff"
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -9423,6 +9548,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 1
         },
@@ -9442,25 +9586,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -9534,8 +9659,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -9583,48 +9708,41 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
         {
           "good": "silk",
-          "qty": 4
-        },
-        {
-          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 4
+          "good": "wool",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -9647,6 +9765,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 5,
       "role": "variant",
       "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
       "variant": true
     },
     {
@@ -9724,15 +9865,43 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "timber",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 4
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -9756,30 +9925,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
     }
   ],
   "solution": [
@@ -9936,29 +10081,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -9979,6 +10101,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -10049,8 +10194,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -10073,7 +10218,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -10533,13 +10678,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -10653,7 +10798,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -10715,13 +10864,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "wool",
-          "qty": 3
+          "qty": 4
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -10847,83 +10996,65 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "silk",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 2
         },
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
         {
           "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -10991,8 +11122,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -11222,6 +11353,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 7
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -11333,6 +11468,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 7
+        },
+        {
+          "good": "tea",
+          "qty": 1
         }
       ],
       "receive": [
@@ -11342,9 +11481,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -11528,7 +11667,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Compass Coins",
+      "name": "Travel Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -11537,7 +11676,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "spice": 0,
     "wool": 6,
     "tea": 0,
-    "salt": 9,
+    "salt": 10,
     "timber": 3,
     "silk": 2,
     "porcelain": 0,
@@ -11688,16 +11827,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 4
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -11843,33 +11982,32 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "salt",
-          "qty": 4
+          "qty": 3
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
         {
           "good": "timber",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 4
+        },
+        {
+          "good": "timber",
           "qty": 1
         }
       ],
@@ -11880,9 +12018,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -11984,7 +12123,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -12008,7 +12147,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     }
   ],
   "inventory": {
-    "spice": 9,
+    "spice": 8,
     "wool": 0,
     "tea": 0,
     "salt": 3,
@@ -12027,11 +12166,38 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 8
         }
       ],
       "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
@@ -12073,25 +12239,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "salt",
           "qty": 1
         }
@@ -12102,29 +12249,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -12216,6 +12340,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     }
   ],
   "solution": [
@@ -12244,11 +12407,38 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 8
         }
       ],
       "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
@@ -12258,28 +12448,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -12306,25 +12474,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        },
-        {
           "good": "salt",
           "qty": 1
-        }
-      ],
-      "receive": [
+        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -12437,8 +12604,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -13368,14 +13535,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
-      "emoji": "🐪",
+      "name": "Blanket Rolls",
+      "emoji": "🧶",
       "tier": "common"
     },
     {
@@ -13425,6 +13592,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
         }
       ],
       "receive": [
@@ -13446,22 +13636,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
+          "good": "silk",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 3
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
       "variant": true,
-      "vendorRole": "reserve_payoff"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -13510,22 +13700,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "salt",
-          "qty": 2
+          "good": "gold",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -13552,25 +13745,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -13594,48 +13807,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        },
-        {
           "good": "salt",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     }
   ],
   "solution": [
@@ -13754,6 +13941,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -13775,52 +13985,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
           "qty": 2
         }
       ],
@@ -13836,6 +14000,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "engine",
       "variant": true,
       "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
   "par": 9,
@@ -13860,8 +14047,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -13878,7 +14065,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -14377,8 +14564,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Dust",
-      "emoji": "🟤",
+      "name": "Cinnamon Jars",
+      "emoji": "🫙",
       "tier": "common"
     },
     {
@@ -14858,7 +15045,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -14870,7 +15057,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -15333,7 +15520,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   ],
   "inventory": {
     "spice": 3,
-    "wool": 9,
+    "wool": 8,
     "tea": 5,
     "salt": 0,
     "timber": 0,
@@ -15507,6 +15694,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -15594,15 +15785,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -15612,39 +15806,41 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
         {
           "good": "spice",
           "qty": 1
         },
         {
-          "good": "wool",
-          "qty": 3
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 5
         }
       ],
       "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -15781,7 +15977,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -15793,8 +15989,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -15832,12 +16028,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -16287,8 +16487,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -16763,8 +16963,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -17254,8 +17454,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -17278,7 +17478,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -17716,7 +17916,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -17771,6 +17971,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "tea",
           "qty": 2
         }
@@ -17807,6 +18029,68 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -17856,46 +18140,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
+          "qty": 4
         },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
         {
           "good": "tea",
           "qty": 1
-        },
+        }
+      ],
+      "receive": [
         {
           "good": "silk",
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -17924,66 +18186,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "wool",
-          "qty": 4
-        },
-        {
-          "good": "tea",
-          "qty": 1
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "silk",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
+        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     }
   ],
   "solution": [
@@ -18013,6 +18233,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "wool",
           "qty": 3
         }
@@ -18029,6 +18271,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -18058,96 +18322,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -18164,6 +18338,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -18263,30 +18483,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
           "good": "salt",
           "qty": 8
         }
@@ -18305,6 +18501,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -18332,28 +18550,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 5
         },
@@ -18373,6 +18569,49 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -18406,6 +18645,30 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "silk",
           "qty": 3
         }
@@ -18415,29 +18678,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -18578,6 +18818,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -18598,29 +18861,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -18961,16 +19201,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -19203,7 +19443,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Bags",
+      "name": "Cloth Bags",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -19645,8 +19885,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -19729,8 +19969,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -19877,10 +20117,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -19916,29 +20152,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     }
   ],
   "solution": [
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "tea",
-          "qty": 6
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
     {
       "give": [
         {
@@ -20024,6 +20237,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -20231,16 +20466,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 4
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -20302,6 +20537,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
         {
           "good": "silk",
           "qty": 1
@@ -20458,6 +20697,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "wool",
+          "qty": 1
+        },
+        {
           "good": "silk",
           "qty": 1
         }
@@ -20466,28 +20709,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -20508,6 +20729,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -20599,8 +20842,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -20629,7 +20872,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Stone Markers",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -20651,94 +20894,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "qty": 9
   },
   "trades": [
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
     {
       "give": [
         {
@@ -20770,7 +20925,53 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -20780,6 +20981,72 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -20806,22 +21073,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -21071,8 +21338,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -21083,13 +21350,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Green Tea",
+      "name": "Leaf Tea",
       "emoji": "🍵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -21562,8 +21829,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Dust",
-      "emoji": "🟤",
+      "name": "Cinnamon Jars",
+      "emoji": "🫙",
       "tier": "common"
     },
     {
@@ -21574,7 +21841,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -22029,8 +22296,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -22284,16 +22551,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 2
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
       "stage": 11,
-      "role": "engine_payoff",
+      "role": "variant",
       "line": "shared",
       "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -22537,8 +22804,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -22586,32 +22853,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gems",
-    "qty": 10
+    "qty": 9
   },
   "trades": [
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 3
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
     {
       "give": [
         {
@@ -22633,6 +22877,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -22659,47 +22942,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 2
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gems",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -22733,6 +22994,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "salt",
           "qty": 1
         }
@@ -22747,44 +23050,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
+          "good": "salt",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     }
   ],
   "solution": [
@@ -22836,6 +23119,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "wool",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
           "qty": 3
         }
       ],
@@ -22853,98 +23174,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -22968,8 +23197,54 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 2
+        },
+        {
           "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
           "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
         },
         {
           "good": "porcelain",
@@ -23029,7 +23304,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -23180,10 +23455,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -23222,7 +23493,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "spice",
-          "qty": 4
+          "qty": 3
         },
         {
           "good": "salt",
@@ -23295,6 +23566,47 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
           "good": "salt",
           "qty": 1
         },
@@ -23311,29 +23623,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "salt",
           "qty": 1
         },
@@ -23362,10 +23651,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -23375,28 +23660,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -23510,13 +23773,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Yard Tokens",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -23629,7 +23892,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "tea",
-          "qty": 3
+          "qty": 4
         },
         {
           "good": "timber",
@@ -23741,8 +24004,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -23753,28 +24020,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     }
   ],
   "solution": [
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
     {
       "give": [
         {
@@ -23824,35 +24069,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 3
-        },
-        {
-          "good": "timber",
-          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "silk",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
+        },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -23864,21 +24090,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -23946,8 +24199,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -23968,19 +24221,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Scale Pads",
+      "name": "Wool Pads",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -23992,13 +24245,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -24471,7 +24724,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -24483,7 +24736,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Opal Gems",
+      "name": "Opal Stones",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -24619,6 +24872,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -24773,6 +25030,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 1
         }
       ],
       "receive": [
@@ -24782,9 +25043,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -24943,7 +25204,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -24955,7 +25216,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -25474,7 +25735,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   ],
   "inventory": {
     "spice": 3,
-    "wool": 8,
+    "wool": 9,
     "tea": 5,
     "salt": 0,
     "timber": 0,
@@ -25672,7 +25933,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "wool",
-          "qty": 3
+          "qty": 4
         }
       ],
       "receive": [
@@ -25712,28 +25973,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     }
   ],
   "solution": [
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
     {
       "give": [
         {
@@ -25827,21 +26066,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "wool",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 3
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -25909,8 +26152,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "compression_route",
   "topology": "compression_route",
@@ -25943,14 +26186,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -26393,8 +26636,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Blue Dye",
-      "emoji": "🔵",
+      "name": "Dye Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -26411,8 +26654,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -26540,16 +26783,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 2
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
       "stage": 11,
-      "role": "engine_payoff",
+      "role": "variant",
       "line": "shared",
       "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -26960,6 +27203,51 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -26975,25 +27263,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo_bailout",
       "line": "tempo",
       "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
       "vendorRole": "bridge_vendor"
     },
     {
@@ -27021,24 +27290,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 1
+          "good": "spice",
+          "qty": 3
         },
         {
-          "good": "porcelain",
+          "good": "tea",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -27066,25 +27336,41 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "tea",
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
           "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 5,
+      "window": "late",
+      "stage": 11,
       "role": "variant",
       "line": "shared",
-      "variant": true
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -27105,29 +27391,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -27271,6 +27534,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -27351,29 +27637,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     }
   ],
   "par": 10,
@@ -27398,14 +27661,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -27422,13 +27685,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -27903,7 +28166,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Tea Tokens",
+      "name": "Road Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -29333,8 +29596,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -29373,7 +29636,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "wool": 0,
     "tea": 0,
     "salt": 4,
-    "timber": 9,
+    "timber": 8,
     "silk": 0,
     "porcelain": 0,
     "gold": 0,
@@ -29392,20 +29655,63 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "gems",
           "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -29434,29 +29740,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 7
         }
@@ -29465,158 +29748,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
         },
         {
           "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    }
-  ],
-  "solution": [
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
           "qty": 1
         }
       ],
@@ -29673,6 +29807,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 3
         }
@@ -29689,6 +29846,139 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    }
+  ],
+  "solution": [
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -29821,7 +30111,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -29910,6 +30200,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -30021,10 +30315,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
         }
       ],
       "window": "early",
@@ -30127,7 +30417,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "timber",
+          "qty": 1
+        },
+        {
           "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
           "qty": 1
         },
         {
@@ -30136,10 +30448,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -30162,29 +30473,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
     },
     {
       "give": [
@@ -30298,13 +30586,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Yard Tokens",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -30736,13 +31024,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -30760,7 +31048,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -31242,7 +31530,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -31279,6 +31567,72 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 3
         }
@@ -31298,48 +31652,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo",
       "line": "tempo",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -31366,25 +31678,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 4
+          "good": "tea",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -31433,45 +31742,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "tea",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "tea",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     }
   ],
   "solution": [
@@ -31716,7 +32024,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -31796,16 +32104,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -31974,6 +32282,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -31983,51 +32295,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     }
   ],
   "solution": [
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
     {
       "give": [
         {
@@ -32049,6 +32316,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -32083,12 +32373,38 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -32246,7 +32562,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -32337,7 +32653,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 3
         },
         {
           "good": "porcelain",
@@ -32366,6 +32682,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -32489,6 +32809,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 3
         }
@@ -32496,6 +32838,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -32516,6 +32862,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -32527,35 +32877,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "timber",
           "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "spice",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -32564,9 +32892,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -32591,7 +32920,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 3
         },
         {
           "good": "porcelain",
@@ -32613,8 +32942,31 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 3
         },
         {
           "good": "porcelain",
@@ -32634,8 +32986,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 8,
-  "maxTrades": 10,
+  "par": 9,
+  "maxTrades": 11,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -32656,7 +33008,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -32674,8 +33026,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -32705,7 +33057,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 8
+    "qty": 7
   },
   "trades": [
     {
@@ -32718,10 +33070,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
-          "qty": 2
-        },
-        {
-          "good": "silk",
           "qty": 1
         }
       ],
@@ -32763,8 +33111,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -32892,8 +33244,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -32952,6 +33304,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
           "good": "salt",
           "qty": 1
         },
@@ -32960,16 +33318,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -32998,28 +33373,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
         },
         {
           "good": "salt",
@@ -33028,8 +33381,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -33060,71 +33413,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 5
+        },
+        {
           "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
           "good": "jade",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "delayed_multiplier",
   "topology": "delayed_multiplier",
@@ -33145,8 +33479,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Blue Dye",
-      "emoji": "🔵",
+      "name": "Dye Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -33163,8 +33497,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -33642,8 +33976,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -33691,44 +34025,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gems",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -33755,6 +34070,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -33762,6 +34099,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "spice",
+          "qty": 2
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -33785,14 +34126,35 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
+          "good": "gems",
           "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -33808,7 +34170,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -33842,25 +34204,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 5
-        },
-        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 4
+          "good": "silk",
+          "qty": 5
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -33875,8 +34233,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -33900,8 +34258,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -33989,8 +34347,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -33998,6 +34356,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 5
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -34025,41 +34402,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
           "good": "gems",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -34110,8 +34468,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -34134,7 +34492,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -34297,12 +34655,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "silk",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -34408,6 +34770,74 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
         }
       ],
       "receive": [
@@ -34422,66 +34852,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -34585,7 +34955,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -35582,52 +35952,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 8
         }
@@ -35646,6 +35970,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -35679,6 +36026,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
           "good": "timber",
           "qty": 1
         },
@@ -35691,6 +36084,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -35710,25 +36123,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo_bailout",
       "line": "tempo",
       "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
       "vendorRole": "bridge_vendor"
     },
     {
@@ -35756,25 +36150,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
-        },
-        {
-          "good": "timber",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     }
   ],
   "solution": [
@@ -35803,6 +36193,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 8
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 3
         }
@@ -35822,28 +36234,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo",
       "line": "tempo",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 8
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
     },
     {
       "give": [
@@ -36049,7 +36439,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Dawn Coins",
+      "name": "Trade Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -36461,8 +36851,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -37015,8 +37405,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -37119,6 +37509,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -37412,8 +37806,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -37442,7 +37836,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Stone Markers",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -37917,7 +38311,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -37958,14 +38352,79 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
           "good": "salt",
           "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -37973,6 +38432,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -37999,68 +38478,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
+      "stage": 11,
       "role": "variant",
       "line": "shared",
-      "variant": true
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -38088,29 +38521,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "salt",
           "qty": 3
         }
@@ -38141,6 +38551,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -38163,35 +38577,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
       "line": "shared",
       "variant": true
@@ -38243,6 +38634,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 8
         }
@@ -38251,31 +38664,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -38299,6 +38697,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -38381,7 +38798,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -38840,8 +39257,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -39302,8 +39719,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -39812,7 +40229,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -39825,7 +40242,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "gems",
       "name": "Amber Beads",
-      "emoji": "🟠",
+      "emoji": "📿",
       "tier": "rare"
     }
   ],
@@ -39855,60 +40272,20 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 1
         },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -39932,6 +40309,67 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -40003,26 +40441,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "wool",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -40169,6 +40606,30 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "porcelain",
           "qty": 3
         }
@@ -40220,30 +40681,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -40338,7 +40775,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -40792,13 +41229,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -40816,13 +41253,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -41280,7 +41717,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -41311,7 +41748,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 8
+    "qty": 7
   },
   "trades": [
     {
@@ -41452,8 +41889,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -41497,8 +41938,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -41517,10 +41958,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "silk",
           "qty": 1
         }
       ],
@@ -41533,28 +41970,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     }
   ],
   "solution": [
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
     {
       "give": [
         {
@@ -41602,25 +42017,47 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "tea",
           "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -41635,8 +42072,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -41690,48 +42127,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "delayed_multiplier",
   "topology": "delayed_multiplier",
@@ -41764,7 +42182,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -42254,41 +42672,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
-          "qty": 3
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -42316,8 +42718,32 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -42331,28 +42757,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -42379,25 +42783,67 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 5
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
         },
         {
           "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 4
+          "good": "timber",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -42424,25 +42870,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
-        },
-        {
-          "good": "timber",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     }
   ],
   "solution": [
@@ -42673,7 +43115,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -42685,8 +43127,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -42859,6 +43301,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -42918,16 +43364,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -42991,7 +43437,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "tea",
           "qty": 1
         },
         {
@@ -43000,19 +43446,40 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
+        {
+          "good": "timber",
+          "qty": 7
+        }
+      ],
+      "receive": [
         {
           "good": "tea",
           "qty": 1
         },
         {
           "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        },
+        {
+          "good": "tea",
           "qty": 1
         }
       ],
@@ -43023,31 +43490,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -43156,8 +43601,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -43656,6 +44101,67 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 3
         },
@@ -43699,28 +44205,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 5
         },
@@ -43744,29 +44228,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "salt",
           "qty": 3
         }
@@ -43774,7 +44235,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -43782,25 +44247,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -43821,6 +44267,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -43877,30 +44346,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 1
         },
         {
           "good": "porcelain",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
         }
       ],
       "window": "early",
@@ -43930,6 +44381,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -43978,52 +44452,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -44040,6 +44468,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -44133,11 +44607,17 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 9
+    "qty": 10
   },
   "trades": [
     {
       "give": [
+        {
+          "good": "salt",
+          "qty": 9
+        }
+      ],
+      "receive": [
         {
           "good": "timber",
           "qty": 1
@@ -44147,35 +44627,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
+          "good": "gold",
           "qty": 3
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -44204,6 +44682,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "wool",
           "qty": 3
         }
@@ -44226,6 +44723,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 2
         },
@@ -44242,29 +44761,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -44295,24 +44791,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 9
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "timber",
           "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -44323,8 +44817,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -44360,28 +44858,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "salt",
           "qty": 9
         }
@@ -44410,8 +44886,34 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -44429,8 +44931,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -44438,6 +44944,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -44503,33 +45051,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 10,
+  "maxTrades": 12,
   "earlyWindowTrades": 5,
   "archetype": "scarce_bridge",
   "topology": "scarce_bridge",
@@ -44550,8 +45075,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
-      "emoji": "🐪",
+      "name": "Blanket Rolls",
+      "emoji": "🧶",
       "tier": "common"
     },
     {
@@ -45034,7 +45559,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Green Tea",
+      "name": "Leaf Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -45046,7 +45571,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -45515,8 +46040,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Dust",
-      "emoji": "🟤",
+      "name": "Cinnamon Jars",
+      "emoji": "🫙",
       "tier": "common"
     },
     {
@@ -45527,7 +46052,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -45570,41 +46095,38 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 4
+          "good": "timber",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
         {
           "good": "spice",
           "qty": 7
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -45612,6 +46134,30 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -45702,30 +46248,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
           "good": "timber",
           "qty": 1
         },
@@ -45742,6 +46264,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -45904,6 +46449,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
           "qty": 2
         },
         {
@@ -45922,25 +46486,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -46051,6 +46596,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -46110,12 +46659,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -46137,8 +46682,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -46246,19 +46791,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -46270,6 +46814,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -46287,12 +46835,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -46310,19 +46854,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -46435,8 +46978,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -46490,6 +47033,72 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 1
         },
@@ -46512,71 +47121,20 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
           "qty": 3
-        },
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
       "vendorRole": "bridge_vendor"
     },
     {
@@ -46590,6 +47148,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -46602,16 +47164,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -46651,35 +47213,36 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "timber",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     },
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -46695,7 +47258,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
         },
         {
@@ -46704,7 +47267,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
       "role": "variant",
       "line": "shared",
       "variant": true
@@ -46734,25 +47319,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
+          "good": "tea",
+          "qty": 8
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -46775,29 +47359,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -46928,7 +47489,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -46941,7 +47502,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "gems",
       "name": "Amber Beads",
-      "emoji": "🟠",
+      "emoji": "📿",
       "tier": "rare"
     }
   ],
@@ -47405,7 +47966,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -47843,13 +48404,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Scale Pads",
+      "name": "Wool Pads",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -47867,13 +48428,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -47898,22 +48459,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "silk",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "salt",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -47936,49 +48520,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -48007,24 +48548,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 4
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "jade",
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -48047,6 +48585,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "timber",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -48079,35 +48659,36 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "salt",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -48228,22 +48809,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "salt",
-          "qty": 2
+          "good": "jade",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -48268,25 +48852,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 3
+          "good": "salt",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -48349,7 +48930,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -48361,7 +48942,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Blue Vases",
+      "name": "Ceramic Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -48826,7 +49407,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -48875,7 +49456,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -49059,12 +49640,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -49172,12 +49749,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -49189,22 +49762,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
+          "good": "spice",
+          "qty": 3
         }
       ],
       "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -49273,21 +49846,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
+          "qty": 4
+        },
+        {
+          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 2
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 11,
-      "role": "engine_payoff",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "bundle_payoff"
     }
   ],
   "par": 9,
@@ -49342,7 +49918,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Stamped Fees",
+      "name": "Fee Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -49756,7 +50332,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -49768,8 +50344,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -50238,8 +50814,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Blue Dye",
-      "emoji": "🔵",
+      "name": "Dye Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -50256,8 +50832,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -50317,7 +50893,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "wool",
-          "qty": 1
+          "qty": 2
         }
       ],
       "receive": [
@@ -50365,6 +50941,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -50586,7 +51166,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "wool",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -50595,12 +51175,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
+        {
+          "good": "tea",
+          "qty": 8
+        }
+      ],
+      "receive": [
         {
           "good": "wool",
           "qty": 1
@@ -50610,35 +51197,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -50706,8 +51268,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "night_pivot",
   "topology": "night_pivot",
@@ -50783,6 +51345,49 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -50802,25 +51407,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "salt",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "gems",
+          "qty": 4
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -50868,48 +51473,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
           "qty": 3
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -50921,6 +51502,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -50954,24 +51539,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
+          "good": "spice",
+          "qty": 3
         },
         {
-          "good": "silk",
+          "good": "salt",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     }
   ],
   "solution": [
@@ -51000,52 +51586,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "timber",
           "qty": 8
         }
@@ -51053,6 +51593,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -51080,6 +51624,50 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -51194,8 +51782,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -51218,13 +51806,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gems",
-      "name": "Dew Glass",
+      "name": "Glass Beads",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -51675,7 +52263,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -51699,7 +52287,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Tea Tokens",
+      "name": "Road Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -52187,11 +52775,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
+          "qty": 2
         }
       ],
       "receive": [
@@ -52201,10 +52785,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -52215,15 +52800,39 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "salt",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 4
+        },
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -52273,45 +52882,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "salt",
-          "qty": 2
+          "good": "silk",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 4
-        },
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -52361,22 +52969,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
+          "good": "silk",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 3
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
       "variant": true,
-      "vendorRole": "reserve_payoff"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -52516,6 +53124,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -52532,46 +53160,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -52595,6 +53183,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     }
   ],
   "par": 9,
@@ -52649,7 +53257,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Compass Coins",
+      "name": "Travel Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -52674,11 +53282,31 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
           "good": "timber",
           "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
         },
         {
-          "good": "porcelain",
+          "good": "timber",
           "qty": 1
         }
       ],
@@ -52689,32 +53317,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 5,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true
     },
     {
       "give": [
@@ -52725,14 +53331,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "timber",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     },
     {
@@ -52757,6 +53368,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -52805,6 +53438,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 2
         },
@@ -52834,43 +53490,15 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     }
   ],
   "solution": [
@@ -52899,6 +53527,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 1
         },
@@ -52927,52 +53601,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "timber",
           "qty": 1
         },
@@ -52985,67 +53613,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -53098,6 +53665,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
           "qty": 2
         },
         {
@@ -53113,6 +53718,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -53152,7 +53780,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -54313,6 +54941,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 7
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -54423,51 +55055,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "salt",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
           "qty": 7
+        },
+        {
+          "good": "timber",
+          "qty": 1
         }
       ],
       "receive": [
@@ -54477,10 +55069,54 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -54589,8 +55225,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -54619,7 +55255,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Stone Markers",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -55076,8 +55712,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -55094,7 +55730,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -55128,6 +55764,67 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "qty": 9
   },
   "trades": [
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
     {
       "give": [
         {
@@ -55243,47 +55940,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 3
         }
@@ -55331,6 +55987,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 1
         },
@@ -55360,37 +56038,37 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
           "good": "spice",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -55414,25 +56092,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -55503,8 +56162,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Dust",
-      "emoji": "🟤",
+      "name": "Cinnamon Jars",
+      "emoji": "🫙",
       "tier": "common"
     },
     {
@@ -55515,7 +56174,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -55994,8 +56653,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -56461,8 +57120,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -56510,7 +57169,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gems",
-    "qty": 8
+    "qty": 9
   },
   "trades": [
     {
@@ -56532,29 +57191,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -56646,22 +57282,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
+          "good": "spice",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "spice",
-          "qty": 1
+          "good": "gems",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 11,
-      "role": "variant",
-      "line": "shared",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
       "variant": true,
-      "vendorRole": "recycler"
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -56733,47 +57369,72 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gems",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
   "solution": [
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
           "good": "spice",
           "qty": 1
         },
         {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -56784,7 +57445,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "spice",
           "qty": 1
         },
         {
@@ -56793,33 +57454,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -56883,6 +57520,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -56910,41 +57567,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
           "good": "gems",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -56990,7 +57628,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -57027,28 +57665,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 5
         }
@@ -57067,67 +57683,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
     },
     {
       "give": [
@@ -57151,6 +57706,109 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -57197,22 +57855,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 5
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -57326,6 +57984,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -57341,52 +58022,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -57407,6 +58042,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -57458,7 +58116,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -57483,7 +58141,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -57518,10 +58176,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -57712,24 +58366,20 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 1
-        },
-        {
           "good": "salt",
           "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "wool",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
     },
     {
@@ -57742,10 +58392,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -57843,6 +58489,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        },
+        {
           "good": "porcelain",
           "qty": 2
         }
@@ -57850,15 +58500,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "jade",
-          "qty": 2
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 11,
-      "role": "engine_payoff",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -57906,13 +58555,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -57930,7 +58579,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -58012,8 +58661,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -58220,10 +58873,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 2
-        },
-        {
           "good": "tea",
           "qty": 3
         }
@@ -58232,25 +58881,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
+        },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -58262,43 +58896,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 3
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -58366,8 +59005,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -58406,7 +59045,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -58472,10 +59111,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -58601,6 +59236,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "silk",
           "qty": 1
         }
@@ -58708,10 +59347,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
         {
           "good": "porcelain",
           "qty": 1
@@ -58904,7 +59539,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Tea Tokens",
+      "name": "Road Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -58923,7 +59558,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -59047,6 +59682,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -59124,7 +59763,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 3
         },
         {
           "good": "porcelain",
@@ -59170,24 +59809,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
+          "good": "tea",
+          "qty": 7
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
         {
           "good": "salt",
           "qty": 1
@@ -59197,16 +59823,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -59218,6 +59838,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -59236,7 +59860,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "salt",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -59245,9 +59869,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -59272,7 +59920,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 3
         },
         {
           "good": "porcelain",
@@ -59295,7 +59943,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 3
         },
         {
           "good": "porcelain",
@@ -59313,10 +59961,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 8,
-  "maxTrades": 10,
+  "par": 9,
+  "maxTrades": 11,
   "earlyWindowTrades": 5,
   "archetype": "night_pivot",
   "topology": "night_pivot",
@@ -59392,21 +60063,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "silk",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "tea",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -59434,44 +60128,41 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 1
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -59498,22 +60189,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 5
+          "good": "tea",
+          "qty": 1
         },
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -60268,7 +60959,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -61262,25 +61953,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
+          "good": "porcelain",
           "qty": 1
-        },
-        {
-          "good": "salt",
-          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "tea",
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -61299,49 +61987,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 6,
       "role": "engine_payoff",
       "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     },
     {
@@ -61392,6 +62037,75 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 8
         }
@@ -61437,24 +62151,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 4
+          "good": "tea",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -61699,8 +62410,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -61729,8 +62440,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Amber Stones",
-      "emoji": "🟠",
+      "name": "Amber Beads",
+      "emoji": "📿",
       "tier": "rare"
     }
   ],
@@ -62162,13 +62873,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Green Tea",
+      "name": "Leaf Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -62180,7 +62891,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -62373,7 +63084,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -62454,28 +63169,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 6
         }
@@ -62500,22 +63193,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 3
-        },
-        {
-          "good": "salt",
-          "qty": 2
         }
       ],
       "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
     },
     {
@@ -62528,7 +63221,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -62540,21 +63237,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 3
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -62622,8 +63323,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -62789,8 +63490,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -62899,6 +63600,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -62924,8 +63629,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -62943,21 +63648,47 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "salt",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
           "good": "porcelain",
           "qty": 2
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 5
+          "good": "wool",
+          "qty": 2
         }
       ],
       "receive": [
@@ -62966,36 +63697,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -63126,8 +63835,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -63316,12 +64025,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -63452,15 +64165,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -63618,8 +64334,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -63673,26 +64389,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 3
         },
@@ -63726,47 +64422,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "jade",
           "qty": 3
         }
@@ -63780,35 +64435,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 8
-        }
-      ],
-      "receive": [
-        {
           "good": "timber",
           "qty": 1
         },
@@ -63817,10 +64443,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -63848,6 +64480,49 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "tea",
           "qty": 3
         }
@@ -63866,6 +64541,67 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 8
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     }
   ],
   "solution": [
@@ -63894,6 +64630,50 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 8
         }
@@ -63932,50 +64712,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -64108,7 +64844,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -64242,7 +64978,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -64386,50 +65126,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 5
         }
@@ -64459,7 +65155,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -64471,21 +65171,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -64553,8 +65280,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "compression_route",
   "topology": "compression_route",
@@ -64599,13 +65326,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Yard Tokens",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -65037,19 +65764,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Scale Pads",
+      "name": "Wool Pads",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -65061,13 +65788,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -65086,7 +65813,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 8
+    "qty": 9
   },
   "trades": [
     {
@@ -65311,24 +66038,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "wool",
           "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
     },
     {
@@ -65356,25 +66083,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "wool",
           "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -65442,25 +66168,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 5
         },
@@ -65484,22 +66191,42 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
+          "good": "spice",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -65545,7 +66272,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -65557,7 +66284,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Blue Vases",
+      "name": "Ceramic Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -65582,6 +66309,67 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 4
         }
@@ -65601,6 +66389,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo",
       "line": "tempo",
       "variant": false
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "salt",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -65629,51 +66440,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "salt",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
           "qty": 2
         },
         {
@@ -65692,30 +66458,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -65770,15 +66512,20 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "tea",
+          "qty": 2
+        },
+        {
           "good": "silk",
-          "qty": 3
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -65896,6 +66643,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "tea",
           "qty": 2
         },
@@ -65943,40 +66728,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "jade",
           "qty": 3
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -65997,29 +66767,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -66047,7 +66794,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -66059,7 +66806,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -66077,7 +66824,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Gate Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -66096,7 +66843,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -66150,16 +66897,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 4
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -66371,12 +67118,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "timber",
-          "qty": 4
+          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "tea",
           "qty": 1
         },
         {
@@ -66385,10 +67132,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -66458,20 +67204,23 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 2
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 11,
-      "role": "engine_payoff",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -66549,7 +67298,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Seal Stones",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -67015,7 +67764,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -67027,8 +67776,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -67058,7 +67807,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 8
+    "qty": 7
   },
   "trades": [
     {
@@ -67093,7 +67842,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -67157,8 +67910,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -67177,10 +67930,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -67305,28 +68054,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 3
         }
@@ -67334,7 +68061,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -67348,6 +68079,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 7
         }
       ],
       "receive": [
@@ -67356,14 +68110,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -67410,70 +68164,51 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "delayed_multiplier",
   "topology": "delayed_multiplier",
@@ -67494,8 +68229,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Blue Dye",
-      "emoji": "🔵",
+      "name": "Dye Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -67512,8 +68247,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -67656,12 +68391,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -67994,8 +68733,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -68043,6 +68782,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -68059,6 +68840,51 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -68086,89 +68912,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 1
-        },
-        {
           "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 1
+          "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 5
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -68180,6 +68942,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -68213,25 +68979,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 4
+          "good": "wool",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -68244,19 +69007,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "wool",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -68267,19 +69029,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "wool",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -68290,19 +69051,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "wool",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -68314,6 +69074,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -68455,8 +69219,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -68479,7 +69243,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -68894,7 +69658,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -68906,7 +69670,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -69434,21 +70198,65 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "timber",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -69468,26 +70276,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -69520,39 +70308,35 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
-          "qty": 2
+          "good": "silk",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
+          "good": "timber",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -69733,52 +70517,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -69815,6 +70553,49 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "engine",
       "variant": true,
       "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
   "par": 9,
@@ -70331,7 +71112,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Pack Bags",
+      "name": "Cloth Bags",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -70803,8 +71584,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -71353,6 +72134,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -71441,8 +72226,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -71750,14 +72535,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
-      "emoji": "🐪",
+      "name": "Blanket Rolls",
+      "emoji": "🧶",
       "tier": "common"
     },
     {
@@ -71780,8 +72565,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Amber Stones",
-      "emoji": "🟠",
+      "name": "Amber Beads",
+      "emoji": "📿",
       "tier": "rare"
     }
   ],
@@ -72236,8 +73021,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -72248,13 +73033,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Green Tea",
+      "name": "Leaf Tea",
       "emoji": "🍵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -72274,7 +73059,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "inventory": {
     "spice": 3,
     "wool": 5,
-    "tea": 9,
+    "tea": 8,
     "salt": 0,
     "timber": 0,
     "silk": 0,
@@ -72288,6 +73073,53 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "qty": 9
   },
   "trades": [
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
     {
       "give": [
         {
@@ -72336,25 +73168,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 3
         }
@@ -72377,25 +73190,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
+          "good": "porcelain",
           "qty": 1
-        },
-        {
-          "good": "tea",
-          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -72408,12 +73217,36 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -72460,56 +73293,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
     }
   ],
   "solution": [
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
     {
       "give": [
         {
@@ -72588,12 +73374,38 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -72718,7 +73530,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -73175,7 +73987,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Stamped Fees",
+      "name": "Fee Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -73613,7 +74425,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -73625,8 +74437,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -73656,9 +74468,32 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 8
+    "qty": 9
   },
   "trades": [
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
     {
       "give": [
         {
@@ -73672,15 +74507,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 3
+          "good": "porcelain",
+          "qty": 2
         }
       ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -73692,11 +74526,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -73730,22 +74560,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "tea",
-          "qty": 2
+          "good": "gold",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -73772,47 +74605,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
+          "good": "tea",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -73840,22 +74648,42 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
+          "good": "silk",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 3
+          "good": "tea",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
       "variant": true,
-      "vendorRole": "reserve_payoff"
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -73887,7 +74715,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "tea",
           "qty": 1
         },
         {
@@ -73896,10 +74724,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -73911,11 +74738,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -73923,6 +74746,50 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 9
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -73959,120 +74826,77 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 5
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
           "good": "porcelain",
           "qty": 2
         }
       ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
         {
           "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
+      "stage": 10,
       "role": "engine_payoff",
       "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     }
   ],
   "par": 9,
@@ -74115,8 +74939,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -74146,9 +74970,32 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 9
+    "qty": 10
   },
   "trades": [
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
     {
       "give": [
         {
@@ -74170,6 +75017,96 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -74200,32 +75137,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
         },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
         {
           "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
           "qty": 1
         }
       ],
@@ -74236,27 +75150,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -74280,71 +75177,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 2
-        },
-        {
           "good": "silk",
           "qty": 2
         }
       ],
       "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 4
-        },
         {
           "good": "tea",
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
+      "window": "late",
+      "stage": 11,
       "role": "variant",
       "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -74446,6 +75294,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "tea",
+          "qty": 1
+        },
+        {
           "good": "silk",
           "qty": 1
         }
@@ -74458,6 +75310,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -74492,52 +75367,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -74558,6 +75387,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -75075,8 +75927,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -75099,13 +75951,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gems",
-      "name": "Dew Glass",
+      "name": "Glass Beads",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -75541,7 +76393,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -75553,7 +76405,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -76521,120 +77373,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "timber",
           "qty": 5
         }
@@ -76671,6 +77409,140 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 6,
       "role": "engine_payoff",
       "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     },
     {
@@ -76747,6 +77619,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
           "good": "spice",
           "qty": 1
         },
@@ -76755,16 +77633,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -76791,12 +77663,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
           "good": "spice",
           "qty": 1
         },
@@ -76805,10 +77671,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -76955,7 +77827,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -76973,7 +77845,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Dawn Coins",
+      "name": "Trade Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -76981,7 +77853,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "inventory": {
     "spice": 4,
     "wool": 0,
-    "tea": 8,
+    "tea": 9,
     "salt": 0,
     "timber": 6,
     "silk": 2,
@@ -77092,7 +77964,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "tea",
-          "qty": 3
+          "qty": 4
         }
       ],
       "receive": [
@@ -77265,28 +78137,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 3
         }
@@ -77333,21 +78183,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 3
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -77415,8 +78269,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "compression_route",
   "topology": "compression_route",
@@ -78391,8 +79245,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -78421,8 +79275,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Amber Stones",
-      "emoji": "🟠",
+      "name": "Amber Beads",
+      "emoji": "📿",
       "tier": "rare"
     }
   ],
@@ -78907,8 +79761,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -78925,7 +79779,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -79385,8 +80239,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Dust",
-      "emoji": "🟤",
+      "name": "Cinnamon Jars",
+      "emoji": "🫙",
       "tier": "common"
     },
     {
@@ -79470,6 +80324,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -79546,16 +80404,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -79677,6 +80535,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 3
         }
@@ -79705,39 +80585,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "salt",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -79746,22 +80603,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 3
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -79914,6 +80771,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -80088,8 +80949,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -80166,47 +81027,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 1
         },
@@ -80225,6 +81045,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 5
+        },
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 5
+        },
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -80838,7 +81704,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -80872,6 +81738,137 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "qty": 9
   },
   "trades": [
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
     {
       "give": [
         {
@@ -80926,48 +81923,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "porcelain",
           "qty": 3
         }
@@ -80977,75 +81932,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -81080,96 +81966,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "timber",
           "qty": 1
         },
@@ -81180,6 +81976,96 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -81318,7 +82204,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -81785,19 +82671,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Scale Pads",
+      "name": "Wool Pads",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -81809,13 +82695,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -82265,7 +83151,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -82277,7 +83163,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Opal Gems",
+      "name": "Opal Stones",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -82303,21 +83189,43 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 3
+          "good": "wool",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
       "variant": true,
-      "vendorRole": "reserve_payoff"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -82328,15 +83236,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "wool",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -82368,20 +83277,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "salt",
+          "qty": 4
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -82431,22 +83341,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "wool",
           "qty": 2
         }
       ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -82496,25 +83406,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
+          "good": "silk",
           "qty": 1
-        },
-        {
-          "good": "salt",
-          "qty": 4
         }
       ],
       "receive": [
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     }
   ],
   "solution": [
@@ -82572,18 +83478,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "wool",
+          "good": "silk",
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -82632,26 +83539,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 1
         }
@@ -82668,6 +83555,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -82747,7 +83657,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -82787,53 +83697,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "qty": 8
   },
   "trades": [
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
     {
       "give": [
         {
@@ -82905,6 +83768,68 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "tea",
           "qty": 5
         }
@@ -82949,22 +83874,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 5
         }
       ],
       "receive": [
         {
           "good": "gems",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -82978,14 +83903,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "timber",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     }
   ],
@@ -83126,6 +84056,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
           "qty": 2
         },
         {
@@ -83144,25 +84093,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -83240,7 +84170,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Stamped Fees",
+      "name": "Fee Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -83259,54 +84189,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 4
-        },
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
     {
       "give": [
         {
@@ -83336,40 +84221,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 1
-        }
-      ],
-      "receive": [
+        },
         {
-          "good": "gold",
+          "good": "silk",
           "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 11,
-      "role": "engine_payoff",
-      "line": "shared",
-      "variant": true,
-      "vendorRole": "loop_finisher"
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -83393,6 +84260,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 6
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "engine_payoff",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "loop_finisher"
     },
     {
       "give": [
@@ -83442,21 +84348,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "spice",
+          "qty": 4
+        },
+        {
+          "good": "salt",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 6
+          "good": "tea",
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -83640,20 +84550,23 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 2
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 11,
-      "role": "engine_payoff",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -83719,8 +84632,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -83956,8 +84869,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -83968,28 +84885,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     }
   ],
   "solution": [
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
     {
       "give": [
         {
@@ -84039,35 +84934,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
-        },
-        {
-          "good": "salt",
-          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "silk",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
+        },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -84079,21 +84955,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "wool",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -84161,8 +85064,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -84183,8 +85086,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Blue Dye",
-      "emoji": "🔵",
+      "name": "Dye Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -84201,8 +85104,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -84679,8 +85582,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -84722,7 +85625,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -84802,8 +85705,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -84821,8 +85724,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -84969,58 +85876,63 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "salt",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "porcelain",
           "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -85134,10 +86046,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 10,
+  "maxTrades": 12,
   "earlyWindowTrades": 5,
   "archetype": "night_pivot",
   "topology": "night_pivot",
@@ -85158,14 +86093,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -85182,13 +86117,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -85213,8 +86148,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
@@ -85224,11 +86159,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -85252,6 +86187,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -85301,37 +86275,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
         },
         {
           "good": "porcelain",
           "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -85393,6 +86348,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
@@ -85479,6 +86438,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
@@ -85634,7 +86597,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -85652,7 +86615,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Tea Tokens",
+      "name": "Road Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -86607,139 +87570,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 4
-        },
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "timber",
           "qty": 2
         }
@@ -86789,14 +87619,145 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 4
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -86811,12 +87772,34 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
           "good": "jade",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -86938,6 +87921,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -86954,52 +87983,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -87056,7 +88039,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -87099,25 +88082,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 4
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -87140,6 +88143,76 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 2
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -87182,76 +88255,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -87330,50 +88333,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
           "qty": 1
         },
@@ -87387,6 +88346,50 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -87540,8 +88543,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -88024,7 +89027,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -88043,7 +89046,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   ],
   "inventory": {
     "spice": 6,
-    "wool": 8,
+    "wool": 9,
     "tea": 0,
     "salt": 0,
     "timber": 4,
@@ -88214,7 +89217,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "wool",
-          "qty": 3
+          "qty": 4
         },
         {
           "good": "timber",
@@ -88348,6 +89351,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 6
         }
@@ -88366,47 +89392,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -88474,8 +89459,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -88520,13 +89505,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Yard Tokens",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -88751,6 +89736,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 6
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -88814,6 +89803,51 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 6
+        },
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 1
         },
@@ -88832,44 +89866,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 6
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 6
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
     },
     {
       "give": [
@@ -88978,13 +89974,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -89002,13 +89998,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -89483,7 +90479,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -89521,24 +90517,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 4
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -89558,71 +90551,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -89651,6 +90579,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 5
         }
@@ -89669,6 +90643,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -89721,6 +90737,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 1
         }
       ],
       "receive": [
@@ -89730,7 +90750,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
       "line": "shared",
       "variant": true
@@ -89740,6 +90760,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 1
         }
       ],
       "receive": [
@@ -89749,7 +90773,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
       "line": "shared",
       "variant": true
@@ -89899,7 +90923,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -90391,7 +91415,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Stamped Fees",
+      "name": "Fee Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -90841,8 +91865,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -90900,22 +91924,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "silk",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "timber",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -90938,52 +91985,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 3,
       "role": "variant",
       "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        },
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
       "variant": true
     },
     {
@@ -91030,6 +92031,49 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
         }
       ],
       "receive": [
@@ -91050,22 +92094,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -91209,6 +92253,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -91230,52 +92297,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
           "qty": 2
         }
       ],
@@ -91291,6 +92312,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "engine",
       "variant": true,
       "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
   "par": 9,
@@ -91333,8 +92377,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -91832,8 +92876,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -91881,7 +92925,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -92087,16 +93131,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -92116,7 +93160,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
         },
         {
@@ -92125,10 +93169,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -92156,28 +93199,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 6
         }
@@ -92196,6 +93217,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -92243,20 +93286,23 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 2
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 11,
-      "role": "engine_payoff",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -92304,14 +93350,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -92328,13 +93374,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gems",
-      "name": "Dew Glass",
+      "name": "Glass Beads",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -92799,7 +93845,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -92865,7 +93911,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 5
+          "qty": 4
         },
         {
           "good": "porcelain",
@@ -93046,6 +94092,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -93083,25 +94133,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "salt",
-          "qty": 3
+          "good": "timber",
+          "qty": 5
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -93134,6 +94183,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -93153,6 +94206,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -93186,7 +94243,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 5
+          "qty": 4
         },
         {
           "good": "porcelain",
@@ -93208,27 +94265,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
+          "qty": 4
         },
         {
           "good": "porcelain",
@@ -93248,8 +94286,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "delayed_multiplier",
   "topology": "delayed_multiplier",
@@ -93794,7 +94832,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Compass Coins",
+      "name": "Travel Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -93816,6 +94854,247 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "qty": 9
   },
   "trades": [
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        },
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    }
+  ],
+  "solution": [
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
     {
       "give": [
         {
@@ -93864,64 +95143,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "tea",
+          "qty": 1
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
       "line": "shared",
       "variant": true
@@ -93937,191 +95174,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    }
-  ],
-  "solution": [
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -94246,7 +95308,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -94264,7 +95326,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Dawn Coins",
+      "name": "Trade Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -94313,12 +95375,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -94536,15 +95602,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "tea",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -94555,15 +95624,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "tea",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -95221,39 +96293,58 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
-          "qty": 2
+          "good": "silk",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
       "vendorRole": "recycler"
     },
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "timber",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "jade",
+          "qty": 4
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -95264,15 +96355,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "timber",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -95302,11 +96394,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 9
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
           "qty": 1
         },
         {
@@ -95315,10 +96448,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -95349,59 +96481,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "silk",
-          "qty": 5
+          "qty": 1
         },
         {
           "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 9
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     }
   ],
   "solution": [
@@ -95431,57 +96523,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 9
         }
       ],
       "receive": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -95493,21 +96541,67 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "timber",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -95598,8 +96692,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
-      "emoji": "🐪",
+      "name": "Blanket Rolls",
+      "emoji": "🧶",
       "tier": "common"
     },
     {
@@ -95628,7 +96722,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Stone Markers",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -95650,6 +96744,112 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "qty": 9
   },
   "trades": [
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
     {
       "give": [
         {
@@ -95702,94 +96902,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 1
         },
         {
           "good": "porcelain",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
         }
       ],
       "window": "early",
@@ -95831,10 +96949,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
           "qty": 1
         }
       ],
@@ -95899,7 +97013,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -95918,7 +97036,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -95938,39 +97060,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
         }
       ],
       "window": "early",
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -95994,22 +97089,41 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "silk",
-          "qty": 5
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -96036,10 +97150,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 10,
+  "maxTrades": 12,
   "earlyWindowTrades": 5,
   "archetype": "scarce_bridge",
   "topology": "scarce_bridge",
@@ -96060,7 +97197,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "tea",
-      "name": "Green Tea",
+      "name": "Leaf Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -96078,7 +97215,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -96526,8 +97663,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Dust",
-      "emoji": "🟤",
+      "name": "Cinnamon Jars",
+      "emoji": "🫙",
       "tier": "common"
     },
     {
@@ -96997,8 +98134,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -97479,8 +98616,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -97580,12 +98717,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -97804,15 +98945,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -97989,7 +99133,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -98030,78 +99174,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "salt",
           "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
         }
       ],
       "window": "early",
@@ -98123,37 +99203,34 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "gold",
+          "good": "silk",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "tea",
           "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -98187,20 +99264,103 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "tea",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
         },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -98212,6 +99372,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -98235,35 +99399,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
       "line": "shared",
       "variant": true
@@ -98315,6 +99456,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 6
         }
@@ -98322,6 +99485,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -98465,13 +99632,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Yard Tokens",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -98611,8 +99778,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -98743,7 +99914,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "wool",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -98752,9 +99923,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -98765,7 +99937,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "wool",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -98774,9 +99946,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -98787,8 +99960,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -98818,25 +99995,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -98904,8 +100062,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "compression_route",
   "topology": "compression_route",
@@ -98926,19 +100084,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Scale Pads",
+      "name": "Wool Pads",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -98950,13 +100108,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -99411,7 +100569,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -99458,8 +100616,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -99472,11 +100630,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
+          "qty": 2
         }
       ],
       "receive": [
@@ -99486,51 +100640,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -99577,6 +100691,49 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -99598,7 +100755,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "spice",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -99608,11 +100769,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -99726,6 +100904,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 1
         },
@@ -99745,25 +100942,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -99861,7 +101039,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Gate Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -99908,24 +101086,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -99953,25 +101128,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 3
+          "good": "wool",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -100028,25 +101222,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "wool",
           "qty": 2
         },
@@ -100061,6 +101236,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -100200,29 +101398,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 1
         }
@@ -100281,6 +101456,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -100400,7 +101598,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -100516,16 +101714,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 4
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -100653,44 +101851,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "salt",
-          "qty": 4
+          "qty": 3
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
         {
           "good": "wool",
           "qty": 1
         },
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -100741,6 +101916,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -100760,6 +101957,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        },
+        {
           "good": "porcelain",
           "qty": 2
         }
@@ -100767,15 +101968,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "jade",
-          "qty": 2
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 11,
-      "role": "engine_payoff",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -100841,8 +102041,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -100872,7 +102072,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gold",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -100908,6 +102108,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -101051,7 +102255,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 3
         }
       ],
       "receive": [
@@ -101115,28 +102319,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
+          "good": "wool",
+          "qty": 5
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
         {
           "good": "timber",
           "qty": 1
@@ -101146,16 +102333,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -101189,18 +102370,42 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -101229,7 +102434,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 3
         }
       ],
       "receive": [
@@ -101252,7 +102457,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 3
         }
       ],
       "receive": [
@@ -101266,10 +102471,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 8,
-  "maxTrades": 10,
+  "par": 9,
+  "maxTrades": 11,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -101308,8 +102536,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -101784,8 +103012,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -101827,7 +103055,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -101857,16 +103085,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 3
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -101883,7 +103111,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 3
         }
       ],
       "receive": [
@@ -102106,25 +103334,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "spice",
+          "good": "silk",
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
         {
           "good": "tea",
           "qty": 3
@@ -102133,21 +103358,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
     },
     {
       "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
         {
           "good": "tea",
           "qty": 3
@@ -102156,14 +103381,41 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -102192,7 +103444,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 3
         }
       ],
       "receive": [
@@ -102210,29 +103462,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "spice",
+          "qty": 1
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 3
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 8,
-  "maxTrades": 10,
+  "par": 9,
+  "maxTrades": 11,
   "earlyWindowTrades": 5,
   "archetype": "night_pivot",
   "topology": "night_pivot",
@@ -102253,8 +103505,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -102283,7 +103535,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Stone Markers",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -102308,25 +103560,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "tea",
+          "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -102349,6 +103598,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -102390,6 +103662,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -102436,26 +103728,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -102725,8 +103997,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -102743,7 +104015,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -103168,8 +104440,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Dust",
-      "emoji": "🟤",
+      "name": "Cinnamon Jars",
+      "emoji": "🫙",
       "tier": "common"
     },
     {
@@ -103180,7 +104452,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -103630,8 +104902,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -103685,26 +104957,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 1
         },
@@ -103773,6 +105025,49 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "wool",
           "qty": 3
         }
@@ -103818,29 +105113,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 1
         }
@@ -103856,6 +105128,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -103882,22 +105174,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
+          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 3
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
       "variant": true,
-      "vendorRole": "reserve_payoff"
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -104015,6 +105307,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -104031,6 +105343,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -104054,46 +105386,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
     }
   ],
   "par": 9,
@@ -104118,8 +105410,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -104173,69 +105465,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         },
         {
-          "good": "porcelain",
+          "good": "timber",
           "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 3
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 5,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 10
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "variant": true
     },
     {
       "give": [
@@ -104262,21 +105510,66 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
-          "qty": 3
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 10
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -104301,29 +105594,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": false
     },
     {
       "give": [
@@ -104353,23 +105623,65 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 3
-        },
-        {
-          "good": "timber",
-          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 3
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": false
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     }
   ],
   "solution": [
@@ -104398,6 +105710,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 1
         },
@@ -104426,28 +105760,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
           "qty": 1
         },
@@ -104484,44 +105796,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo",
       "line": "tempo",
       "variant": false
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -104573,25 +105847,40 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "jade",
+          "good": "porcelain",
           "qty": 3
         }
       ],
       "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -104612,6 +105901,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -104657,7 +105969,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -104811,6 +106123,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -104845,16 +106161,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -104936,51 +106252,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
+          "good": "tea",
+          "qty": 6
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
         {
           "good": "wool",
           "qty": 1
@@ -104990,14 +106266,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
       "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
         {
           "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -105135,7 +106449,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -105574,13 +106888,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Scale Pads",
+      "name": "Wool Pads",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -105598,7 +106912,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -106082,7 +107396,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -106094,14 +107408,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Opal Gems",
+      "name": "Opal Stones",
       "emoji": "💎",
       "tier": "rare"
     }
   ],
   "inventory": {
     "spice": 0,
-    "wool": 9,
+    "wool": 10,
     "tea": 0,
     "salt": 6,
     "timber": 1,
@@ -106210,16 +107524,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 4
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -106288,8 +107602,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -106343,12 +107657,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "wool",
-          "qty": 4
+          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
         },
         {
@@ -106357,10 +107671,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -106409,11 +107722,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
           "good": "timber",
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 4
+        },
+        {
+          "good": "timber",
           "qty": 1
         }
       ],
@@ -106424,32 +107759,34 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
-        {
-          "good": "wool",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
       "line": "tempo",
-      "variant": true
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -106517,8 +107854,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 8,
-  "maxTrades": 10,
+  "par": 9,
+  "maxTrades": 11,
   "earlyWindowTrades": 5,
   "archetype": "night_pivot",
   "topology": "night_pivot",
@@ -106539,7 +107876,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -106594,20 +107931,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     },
     {
@@ -106657,6 +108018,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 1
         },
@@ -106679,21 +108063,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
+        {
+          "good": "gems",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -106721,68 +108128,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 4
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -106795,15 +108156,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "salt",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -106830,6 +108194,50 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 1
         },
@@ -106848,44 +108256,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -107028,7 +108398,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Stamped Fees",
+      "name": "Fee Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -107507,8 +108877,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -107519,7 +108889,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Star Shards",
+      "name": "Glass Shards",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -107969,8 +109339,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -108138,16 +109508,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 2
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
       "stage": 11,
-      "role": "engine_payoff",
+      "role": "variant",
       "line": "shared",
       "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -108465,8 +109835,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -108514,6 +109884,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 6
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 3
         }
@@ -108536,11 +109924,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 6
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
         }
       ],
       "receive": [
+        {
+          "good": "gems",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
         {
           "good": "salt",
           "qty": 1
@@ -108550,10 +109955,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -108581,67 +109992,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
+          "good": "spice",
+          "qty": 4
+        },
+        {
+          "good": "salt",
           "qty": 1
         }
       ],
       "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
         {
           "good": "porcelain",
           "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 4
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -108675,6 +110064,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "porcelain",
           "qty": 3
         }
@@ -108684,29 +110093,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 4
-        },
-        {
-          "good": "salt",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     }
   ],
   "solution": [
@@ -108735,59 +110121,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 6
         }
       ],
       "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
         {
           "good": "porcelain",
           "qty": 1
@@ -108797,6 +110135,50 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -108951,8 +110333,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -108975,13 +110357,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gems",
-      "name": "Dew Glass",
+      "name": "Glass Beads",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -109443,7 +110825,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -109467,7 +110849,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Tea Tokens",
+      "name": "Road Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -110418,7 +111800,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Compass Coins",
+      "name": "Travel Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -110895,7 +112277,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -110938,6 +112320,74 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 6
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 1
         },
@@ -110956,6 +112406,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -110984,51 +112457,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 6
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -111048,48 +112476,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
-        },
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
         {
           "good": "timber",
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
+      "window": "late",
+      "stage": 11,
       "role": "variant",
       "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -111164,28 +112566,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 6
         }
@@ -111204,6 +112584,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -111360,8 +112762,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -111397,7 +112799,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   ],
   "inventory": {
     "spice": 6,
-    "wool": 8,
+    "wool": 9,
     "tea": 0,
     "salt": 0,
     "timber": 3,
@@ -111568,7 +112970,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "wool",
-          "qty": 3
+          "qty": 4
         },
         {
           "good": "timber",
@@ -111683,7 +113085,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
           "qty": 1
         },
         {
@@ -111691,16 +113099,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -111711,18 +113114,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -111745,25 +113149,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -111831,8 +113216,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "compression_route",
   "topology": "compression_route",
@@ -112575,8 +113960,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -112596,16 +113985,39 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "tea",
+          "good": "silk",
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -112634,28 +114046,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "timber",
           "qty": 3
         }
@@ -112684,8 +114074,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -112693,6 +114087,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -112713,26 +114130,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -112800,8 +114197,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -112818,7 +114215,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -112855,25 +114252,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "good": "gems",
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -112896,28 +114293,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 9
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
     },
     {
       "give": [
@@ -112945,6 +114320,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -112961,6 +114359,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 9
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -112984,29 +114404,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 5
         },
@@ -113026,6 +114423,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -113166,6 +114583,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -113200,52 +114640,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -113266,6 +114660,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -113305,7 +114722,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -114336,16 +115753,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 6
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -114387,6 +115804,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -114542,6 +115963,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -114556,8 +115981,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "timber",
-          "qty": 6
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -114567,10 +115992,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -114741,7 +116165,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -115234,7 +116658,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -115706,19 +117130,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Scale Pads",
+      "name": "Wool Pads",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -115730,7 +117154,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -115854,8 +117278,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -115919,13 +117347,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "salt",
-          "qty": 3
+          "qty": 4
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -116008,7 +117436,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "tea",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -116017,39 +117445,36 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
     },
     {
       "give": [
         {
-          "good": "tea",
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
           "qty": 1
         },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
         {
           "good": "salt",
           "qty": 3
@@ -116057,14 +117482,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
     },
     {
@@ -116088,25 +117517,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -116174,8 +117584,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "compression_route",
   "topology": "compression_route",
@@ -116214,7 +117624,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -116226,7 +117636,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Opal Gems",
+      "name": "Opal Stones",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -116663,7 +118073,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -116693,7 +118103,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Gate Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -116718,6 +118128,51 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 3
+        },
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 9
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "tea",
           "qty": 1
         },
@@ -116736,6 +118191,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -116763,26 +118238,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 1
         },
@@ -116806,64 +118261,41 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        },
-        {
-          "good": "tea",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
+          "good": "silk",
           "qty": 3
         }
       ],
-      "receive": [
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
         {
           "good": "silk",
           "qty": 2
         }
       ],
-      "window": "early",
-      "stage": 3,
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
       "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -116896,15 +118328,64 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "tea",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    }
+  ],
+  "solution": [
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -116927,49 +118408,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    }
-  ],
-  "solution": [
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
     },
     {
       "give": [
@@ -117018,11 +118456,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 9
+          "good": "wool",
+          "qty": 3
         }
       ],
       "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
         {
           "good": "tea",
           "qty": 1
@@ -117032,10 +118487,40 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -117056,52 +118541,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -117201,6 +118640,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": false
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 6
         }
@@ -117219,30 +118681,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -117270,6 +118708,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 3
         }
@@ -117286,28 +118744,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -117333,6 +118769,30 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -117379,13 +118839,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
+          "good": "wool",
           "qty": 1
         },
         {
@@ -117393,11 +118847,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": false
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     }
   ],
   "solution": [
@@ -117422,6 +118881,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": false
     },
     {
       "give": [
@@ -117492,25 +118974,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 4
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "good": "gems",
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": false
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -117535,29 +119017,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -117672,7 +119131,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Pack Bags",
+      "name": "Cloth Bags",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -118315,6 +119774,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -118653,7 +120116,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "wool": 0,
     "tea": 6,
     "salt": 0,
-    "timber": 8,
+    "timber": 9,
     "silk": 2,
     "porcelain": 0,
     "gold": 0,
@@ -118871,7 +120334,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "timber",
-          "qty": 3
+          "qty": 4
         }
       ],
       "receive": [
@@ -118935,94 +120398,70 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
+          "good": "timber",
+          "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -119090,8 +120529,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "delayed_multiplier",
   "topology": "delayed_multiplier",
@@ -119112,8 +120551,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
-      "emoji": "🐪",
+      "name": "Blanket Rolls",
+      "emoji": "🧶",
       "tier": "common"
     },
     {
@@ -119613,7 +121052,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Green Tea",
+      "name": "Leaf Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -119625,7 +121064,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -119662,30 +121101,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 8
         }
@@ -119693,6 +121108,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -119708,21 +121127,20 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "timber",
-          "qty": 3
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 3
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -119743,6 +121161,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -119776,6 +121236,139 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    }
+  ],
+  "solution": [
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 8
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -119788,6 +121381,50 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -119809,163 +121446,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    }
-  ],
-  "solution": [
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 8
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -119989,25 +121469,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -120078,8 +121539,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Dust",
-      "emoji": "🟤",
+      "name": "Cinnamon Jars",
+      "emoji": "🫙",
       "tier": "common"
     },
     {
@@ -120090,7 +121551,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -120569,8 +122030,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -121031,8 +122492,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -121090,29 +122551,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -121127,6 +122565,71 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -121154,8 +122657,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 7
+          "good": "timber",
+          "qty": 3
         }
       ],
       "receive": [
@@ -121164,37 +122667,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -121225,41 +122705,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "spice",
+          "good": "silk",
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
         {
           "good": "spice",
           "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 11,
-      "role": "variant",
-      "line": "shared",
-      "variant": true,
-      "vendorRole": "recycler"
-    },
-    {
-      "give": [
+        },
         {
           "good": "timber",
           "qty": 3
@@ -121267,14 +122732,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 2
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -121295,26 +122760,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -121327,29 +122772,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
           "qty": 1
         },
         {
@@ -121358,9 +122781,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -121387,6 +122811,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 3
         }
@@ -121415,20 +122861,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -121436,17 +122869,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -121510,6 +122937,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "engine",
       "variant": true,
       "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
   "par": 9,
@@ -121552,7 +123002,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -121589,9 +123039,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
+          "good": "silk",
           "qty": 2
         },
+        {
+          "good": "porcelain",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
         {
           "good": "porcelain",
           "qty": 2
@@ -121599,15 +123068,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 3
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -121628,28 +123098,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -121678,22 +123126,64 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
           "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 4
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -121721,32 +123211,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
+          "good": "spice",
           "qty": 1
         },
         {
@@ -121754,11 +123219,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -121832,6 +123302,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 1
         },
@@ -121854,48 +123370,40 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 3
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 3
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -121923,40 +123431,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "spice",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
+          "good": "gold",
           "qty": 3
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -121977,29 +123470,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -122051,7 +123521,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -122469,13 +123939,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Scale Pads",
+      "name": "Wool Pads",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -122493,13 +123963,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -122974,7 +124444,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -122986,7 +124456,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Blue Vases",
+      "name": "Ceramic Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -123188,6 +124658,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 5
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -123274,6 +124748,51 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 5
+        },
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "wool",
           "qty": 1
         },
@@ -123292,44 +124811,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
     },
     {
       "give": [
@@ -123438,7 +124919,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -123450,7 +124931,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -123503,8 +124984,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -123674,12 +125155,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 4
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -123722,8 +125207,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -123757,22 +125242,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "spice",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 1,
+      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -123963,25 +125448,68 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "spice",
+          "qty": 1
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -124004,26 +125532,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -124058,81 +125566,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -124151,6 +125594,72 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 6,
       "role": "engine_payoff",
       "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     }
   ],
@@ -124231,22 +125740,27 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "spice",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
+        {
+          "good": "salt",
+          "qty": 8
+        }
+      ],
+      "receive": [
         {
           "good": "spice",
           "qty": 1
@@ -124256,35 +125770,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -124308,6 +125797,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -124396,8 +125904,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -124408,7 +125916,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Star Shards",
+      "name": "Glass Shards",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -124853,8 +126361,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Blue Dye",
-      "emoji": "🔵",
+      "name": "Dye Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -124871,8 +126379,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -125392,6 +126900,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 3
         }
@@ -125414,25 +126945,110 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
+          "good": "silk",
+          "qty": 5
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
           "qty": 3
         }
       ],
       "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -125481,29 +127097,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "silk",
           "qty": 1
         }
@@ -125518,71 +127111,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
     }
   ],
   "solution": [
@@ -125656,28 +127184,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "salt",
           "qty": 3
         }
@@ -125697,6 +127203,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -125807,14 +127335,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -125831,13 +127359,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -125856,32 +127384,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 9
+    "qty": 10
   },
   "trades": [
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "salt",
-          "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
     {
       "give": [
         {
@@ -125904,116 +127409,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "tempo",
       "line": "tempo",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "wool",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
     },
     {
       "give": [
@@ -126055,6 +127450,163 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 2
+        },
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "salt",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     }
   ],
   "solution": [
@@ -126156,6 +127708,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
@@ -126164,29 +127720,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -126271,6 +127804,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
   "par": 10,
@@ -126307,7 +127863,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -126325,7 +127881,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Tea Tokens",
+      "name": "Road Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -126835,7 +128391,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "spice",
-          "qty": 3
+          "qty": 4
         },
         {
           "good": "salt",
@@ -126924,8 +128480,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -127029,51 +128589,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "salt",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 6
         }
@@ -127102,8 +128617,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -127115,21 +128634,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "spice",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -127197,8 +128743,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -127303,12 +128849,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -127460,6 +129002,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -127590,6 +129136,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -127716,7 +129266,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -127734,7 +129284,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Dawn Coins",
+      "name": "Trade Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -127894,12 +129444,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -127984,15 +129538,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "tea",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -128195,8 +129752,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -128233,7 +129790,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "inventory": {
     "spice": 3,
     "wool": 0,
-    "tea": 9,
+    "tea": 8,
     "salt": 0,
     "timber": 5,
     "silk": 0,
@@ -128247,6 +129804,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "qty": 9
   },
   "trades": [
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
     {
       "give": [
         {
@@ -128265,29 +129845,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -128341,21 +129898,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 3
+          "good": "porcelain",
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true
     },
     {
       "give": [
@@ -128376,28 +129933,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -128425,11 +129960,57 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 5
         }
       ],
       "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
@@ -128445,22 +130026,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "tea",
           "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
       "line": "shared",
       "variant": true
@@ -128512,8 +130093,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 3
+          "good": "timber",
+          "qty": 5
         }
       ],
       "receive": [
@@ -128521,24 +130102,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "good": "spice",
           "qty": 1
         },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 5
-        }
-      ],
-      "receive": [
         {
           "good": "porcelain",
           "qty": 1
@@ -128548,6 +130111,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -128698,7 +130283,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "inventory": {
     "spice": 4,
     "wool": 0,
-    "tea": 8,
+    "tea": 9,
     "salt": 0,
     "timber": 6,
     "silk": 0,
@@ -128836,10 +130421,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -129135,8 +130716,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -129597,13 +131178,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Green Tea",
+      "name": "Leaf Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -129615,7 +131196,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -129652,22 +131233,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 3
+        },
+        {
           "good": "tea",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 3
+          "good": "tea",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
       "variant": true,
-      "vendorRole": "reserve_payoff"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -129701,6 +131305,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "tea",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "silk",
           "qty": 3
         }
@@ -129714,25 +131338,40 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        },
+          "good": "timber",
+          "qty": 7
+        }
+      ],
+      "receive": [
         {
           "good": "tea",
           "qty": 1
         }
       ],
-      "receive": [
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
         {
-          "good": "porcelain",
+          "good": "tea",
           "qty": 2
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -129756,44 +131395,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -130047,7 +131648,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -130073,9 +131674,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "inventory": {
     "spice": 0,
     "wool": 0,
-    "tea": 10,
+    "tea": 9,
     "salt": 9,
-    "timber": 3,
+    "timber": 2,
     "silk": 0,
     "porcelain": 1,
     "gold": 0,
@@ -130091,35 +131692,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 4
         }
       ],
       "receive": [
@@ -130133,28 +131710,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -130178,6 +131733,67 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -130256,21 +131872,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "timber",
+          "qty": 2
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     },
     {
       "give": [
         {
           "good": "tea",
-          "qty": 10
+          "qty": 9
         }
       ],
       "receive": [
@@ -130290,28 +131911,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     }
   ],
   "solution": [
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 10
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
     {
       "give": [
         {
@@ -130366,19 +131965,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -130401,6 +131999,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 9
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -130471,7 +132091,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 4
         }
       ],
       "receive": [
@@ -130532,8 +132152,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -131010,8 +132630,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -131511,7 +133131,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -131748,12 +133368,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "tea",
           "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -131840,18 +133464,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
         {
           "good": "tea",
           "qty": 5
@@ -131860,13 +133491,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -131994,8 +133625,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -132208,16 +133839,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 4
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -132450,8 +134081,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -132505,6 +134136,35 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 8
+        }
+      ],
+      "receive": [
+        {
           "good": "salt",
           "qty": 1
         },
@@ -132513,36 +134173,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "wool",
+          "qty": 3
+        },
+        {
+          "good": "salt",
           "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 3
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -132569,25 +134226,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 5
-        },
-        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 4
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -132614,8 +134268,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 8
+          "good": "silk",
+          "qty": 2
         }
       ],
       "receive": [
@@ -132624,26 +134278,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -132655,49 +134311,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
-        },
-        {
-          "good": "salt",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "salt",
-          "qty": 2
+          "qty": 1
         },
         {
           "good": "silk",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
   "solution": [
@@ -132726,6 +134377,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 8
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
           "good": "wool",
           "qty": 3
         }
@@ -132748,31 +134421,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 8
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "salt",
           "qty": 1
         },
         {
@@ -132781,10 +134436,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -132919,8 +134573,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -132943,13 +134597,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gems",
-      "name": "Dew Glass",
+      "name": "Glass Beads",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -133405,7 +135059,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -133942,21 +135596,20 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "porcelain",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -133976,6 +135629,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -134006,20 +135679,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "salt",
+          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -134046,25 +135720,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 4
+          "good": "tea",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -134089,22 +135760,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
+          "good": "silk",
           "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
         }
       ],
       "receive": [
         {
           "good": "gems",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -134157,13 +135831,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
+          "good": "tea",
           "qty": 1
         },
         {
@@ -134171,11 +135839,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -134202,22 +135875,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "good": "salt",
+          "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "tea",
+          "qty": 1
+        },
+        {
           "good": "silk",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
+      "stage": 1,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -134246,6 +135919,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -134262,29 +135955,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -134859,7 +136529,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -135083,7 +136753,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "salt",
           "qty": 1
         }
       ],
@@ -135333,8 +137003,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -135835,7 +137505,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 4
         }
       ],
       "receive": [
@@ -135863,8 +137533,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -135927,10 +137597,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "tea",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -135992,7 +137658,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -136093,8 +137763,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
+          "good": "wool",
+          "qty": 5
         }
       ],
       "receive": [
@@ -136103,36 +137773,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -136144,7 +137792,34 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -136180,7 +137855,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 4
         }
       ],
       "receive": [
@@ -136199,30 +137874,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 4
         }
       ],
       "receive": [
@@ -136238,8 +137894,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "delayed_multiplier",
   "topology": "delayed_multiplier",
@@ -136401,12 +138057,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -136755,8 +138415,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -136773,7 +138433,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -136832,6 +138492,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 1
         },
@@ -136851,72 +138557,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
     },
     {
       "give": [
@@ -136962,6 +138602,53 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "wool",
           "qty": 8
         }
@@ -136984,25 +138671,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 4
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -137019,8 +138703,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "silk",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -137064,8 +138748,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "silk",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -137073,28 +138757,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -137131,15 +138793,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "gold",
+          "good": "silk",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -137163,22 +138824,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "spice",
+          "qty": 1
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -137229,8 +138913,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Dust",
-      "emoji": "🟤",
+      "name": "Cinnamon Jars",
+      "emoji": "🫙",
       "tier": "common"
     },
     {
@@ -137334,8 +139018,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -137525,24 +139209,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 7
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 3
         },
@@ -137553,8 +139219,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -137562,6 +139228,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -137716,8 +139404,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -138178,8 +139866,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -138233,43 +139921,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
           "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
           "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "timber",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
       "vendorRole": "recycler"
     },
     {
@@ -138321,28 +139987,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "timber",
           "qty": 2
         }
@@ -138387,23 +140031,42 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
-        },
+        }
+      ],
+      "receive": [
         {
           "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "timber",
+          "qty": 2
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -138427,6 +140090,51 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -138475,72 +140183,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 9
         }
@@ -138563,22 +140205,69 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "wool",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
           "qty": 2
         }
       ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -138606,6 +140295,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 2
         }
@@ -138627,7 +140336,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "timber",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -138637,11 +140350,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
   "par": 9,
@@ -138684,7 +140396,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -138721,45 +140433,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "salt",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -138810,22 +140502,65 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "salt",
           "qty": 2
         },
         {
           "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
           "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -138855,25 +140590,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 4
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -139036,6 +140768,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -139094,29 +140849,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "recycler"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -139211,7 +140943,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -139682,13 +141414,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -139706,7 +141438,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -140138,7 +141870,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -140150,7 +141882,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Opal Gems",
+      "name": "Opal Stones",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -140249,6 +141981,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "tea",
+          "qty": 2
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -140272,8 +142008,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -140400,8 +142136,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -140599,7 +142335,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -140611,7 +142347,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -140629,7 +142365,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Gate Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -140813,15 +142549,15 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 4
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -140900,45 +142636,23 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
+          "qty": 4
+        },
         {
           "good": "timber",
           "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 4
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -140984,6 +142698,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -141103,7 +142839,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Seal Stones",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -141128,29 +142864,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 5
         }
@@ -141169,28 +142882,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -141237,25 +142928,46 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
-        },
-        {
           "good": "timber",
           "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -141267,6 +142979,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
@@ -141276,6 +142992,49 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -141307,20 +143066,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "timber",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "porcelain",
-          "qty": 3
+          "qty": 2
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     }
   ],
   "solution": [
@@ -141371,6 +143131,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 3
         }
@@ -141390,28 +143172,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -141564,8 +143324,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -141576,7 +143336,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Star Shards",
+      "name": "Glass Shards",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -141586,7 +143346,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "wool": 6,
     "tea": 0,
     "salt": 0,
-    "timber": 8,
+    "timber": 9,
     "silk": 0,
     "porcelain": 2,
     "gold": 0,
@@ -141628,7 +143388,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "timber",
-          "qty": 3
+          "qty": 4
         }
       ],
       "receive": [
@@ -141846,28 +143606,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 6
         }
@@ -141936,21 +143674,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "timber",
+          "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 3
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -142018,8 +143760,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "compression_route",
   "topology": "compression_route",
@@ -142058,8 +143800,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -142672,16 +144414,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 2
+          "good": "timber",
+          "qty": 1
         }
       ],
       "window": "late",
       "stage": 11,
-      "role": "engine_payoff",
+      "role": "variant",
       "line": "shared",
       "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -143014,14 +144756,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -143038,13 +144780,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gems",
-      "name": "Dew Glass",
+      "name": "Glass Beads",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -143069,29 +144811,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 1
         }
@@ -143106,6 +144825,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 6,
       "role": "engine_payoff",
       "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     },
     {
@@ -143134,6 +144873,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 3
         }
@@ -143152,26 +144913,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 1,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -143199,24 +144940,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 1
         },
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -143243,25 +145008,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 4
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -143513,13 +145275,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -143556,7 +145318,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gems",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -143740,16 +145502,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -143858,19 +145620,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "spice",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -143916,6 +145677,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        },
+        {
           "good": "porcelain",
           "qty": 2
         }
@@ -143923,15 +145688,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "gems",
-          "qty": 2
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 11,
-      "role": "engine_payoff",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -144511,7 +146275,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gems",
-    "qty": 8
+    "qty": 7
   },
   "trades": [
     {
@@ -144523,8 +146287,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -144566,8 +146334,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -144608,10 +146376,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
-          "qty": 2
-        },
-        {
-          "good": "silk",
           "qty": 1
         }
       ],
@@ -144758,24 +146522,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
-        },
-        {
           "good": "timber",
           "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
     },
     {
@@ -144791,8 +146555,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -144826,6 +146590,70 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "wool",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 5
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 1
         },
@@ -144836,102 +146664,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
           "good": "gems",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 5
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "delayed_multiplier",
   "topology": "delayed_multiplier",
@@ -144958,13 +146703,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Pack Bags",
+      "name": "Cloth Bags",
       "emoji": "🎒",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -144992,7 +146737,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     "wool": 7,
     "tea": 0,
     "salt": 0,
-    "timber": 8,
+    "timber": 9,
     "silk": 0,
     "porcelain": 1,
     "gold": 0,
@@ -145001,7 +146746,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "gems",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -145121,7 +146866,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 3
         }
       ],
       "receive": [
@@ -145320,7 +147065,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
           "qty": 1
         },
         {
@@ -145328,16 +147079,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -145366,7 +147112,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 3
         }
       ],
       "receive": [
@@ -145384,12 +147130,35 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 3
         }
       ],
       "receive": [
@@ -145405,8 +147174,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 8,
-  "maxTrades": 10,
+  "par": 9,
+  "maxTrades": 11,
   "earlyWindowTrades": 5,
   "archetype": "night_pivot",
   "topology": "night_pivot",
@@ -145427,13 +147196,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -145451,13 +147220,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Urns",
+      "name": "Stone Urns",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -145574,6 +147343,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "silk",
           "qty": 1
         }
@@ -145615,25 +147407,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "tea",
-          "qty": 3
+          "good": "silk",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "spice",
           "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 5,
+      "window": "late",
+      "stage": 11,
       "role": "variant",
       "line": "shared",
-      "variant": true
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -145730,28 +147519,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
           "good": "tea",
           "qty": 3
         }
@@ -145767,6 +147534,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -145919,7 +147708,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -146392,7 +148181,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -146404,7 +148193,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -146422,7 +148211,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Gate Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -146884,7 +148673,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Seal Stones",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -146931,7 +148720,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
           "qty": 1
         },
         {
@@ -146939,17 +148734,30 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
       "receive": [
         {
-          "good": "gems",
+          "good": "porcelain",
           "qty": 3
         }
       ],
       "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -146978,23 +148786,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "gems",
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -147021,32 +148827,27 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
+          "good": "salt",
           "qty": 1
         },
         {
@@ -147054,11 +148855,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -147087,7 +148893,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "salt",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
@@ -147097,11 +148907,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -147172,7 +148981,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
           "qty": 1
         },
         {
@@ -147180,16 +148995,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -147216,13 +149026,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
+          "good": "salt",
           "qty": 1
         },
         {
@@ -147230,11 +149034,36 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -147258,26 +149087,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -147360,8 +149169,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -147403,14 +149212,15 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     },
     {
@@ -147461,28 +149271,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 1
         },
@@ -147506,22 +149294,66 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "timber",
+          "qty": 3
         }
       ],
       "receive": [
         {
           "good": "spice",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -147548,25 +149380,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 4
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -147696,25 +149525,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 2
         },
@@ -147734,6 +149544,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -147822,8 +149651,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -148267,8 +150096,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -148436,7 +150265,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -148559,50 +150392,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "timber",
           "qty": 6
         }
@@ -148632,7 +150421,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -148644,21 +150437,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "salt",
+          "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -148726,8 +150546,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -148748,14 +150568,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -148772,13 +150592,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gems",
-      "name": "Dew Glass",
+      "name": "Glass Beads",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -148894,8 +150714,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -148935,10 +150759,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
         {
           "good": "porcelain",
           "qty": 1
@@ -149018,22 +150838,40 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 5
+          "good": "spice",
+          "qty": 4
         }
       ],
       "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
         {
           "good": "timber",
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
       "window": "early",
-      "stage": 1,
+      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -149046,8 +150884,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -149055,50 +150897,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
     },
     {
       "give": [
@@ -149119,6 +150917,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -149229,7 +151049,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -149241,7 +151061,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -149771,6 +151591,72 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 5
         }
@@ -149793,8 +151679,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
+          "good": "wool",
+          "qty": 3
         },
         {
           "good": "porcelain",
@@ -149804,13 +151690,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 3
+          "qty": 2
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -149839,67 +151726,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
-        },
-        {
           "good": "timber",
           "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
+          "qty": 3
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -149926,22 +151770,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
+          "good": "silk",
+          "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 5
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -149976,12 +151820,38 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "timber",
+          "qty": 1
+        },
+        {
           "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
       "role": "variant",
       "line": "shared",
       "variant": true
@@ -150039,34 +151909,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
-        }
-      ],
-      "receive": [
+        },
         {
           "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -150648,13 +152502,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Pack Bags",
+      "name": "Cloth Bags",
       "emoji": "🎒",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Pack Frames",
+      "name": "Wood Frames",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -151654,29 +153508,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 3
         },
         {
           "good": "salt",
@@ -151698,51 +153529,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 8
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
           "qty": 3
         }
@@ -151759,28 +153545,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -151816,16 +153580,125 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 8
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
           "good": "salt",
           "qty": 1
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -151836,14 +153709,15 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     }
   ],
@@ -151919,25 +153793,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 3
-        },
-        {
-          "good": "salt",
-          "qty": 1
+          "good": "tea",
+          "qty": 8
         }
       ],
       "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -152068,14 +153941,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
-      "emoji": "🐪",
+      "name": "Blanket Rolls",
+      "emoji": "🧶",
       "tier": "common"
     },
     {
@@ -152098,7 +153971,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Stone Markers",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -152557,8 +154430,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
-      "emoji": "⚫",
+      "name": "Ink Pots",
+      "emoji": "🖋️",
       "tier": "common"
     },
     {
@@ -152575,7 +154448,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -153039,7 +154912,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -153517,8 +155390,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Threads",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -153625,6 +155498,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -153724,7 +155601,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "timber",
-          "qty": 1
+          "qty": 2
         }
       ],
       "receive": [
@@ -153865,7 +155742,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -153874,12 +155751,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
+        {
+          "good": "spice",
+          "qty": 7
+        }
+      ],
+      "receive": [
         {
           "good": "timber",
           "qty": 1
@@ -153889,35 +155773,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -153985,8 +155844,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "night_pivot",
   "topology": "night_pivot",
@@ -154062,6 +155921,136 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 3
+        },
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -154098,116 +156087,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        },
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -154373,6 +156252,52 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gems",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 1
         }
@@ -154388,52 +156313,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gems",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -154499,7 +156378,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -154976,13 +156855,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Yard Tokens",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -155414,13 +157293,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -155438,7 +157317,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -155920,7 +157799,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -155932,7 +157811,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Opal Gems",
+      "name": "Opal Stones",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -155957,29 +157836,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": false
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 5
         },
@@ -155999,6 +157855,49 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": false
     },
     {
       "give": [
@@ -156053,6 +157952,30 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "silk",
           "qty": 3
         }
@@ -156085,30 +158008,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -156278,6 +158177,30 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "silk",
           "qty": 3
         }
@@ -156329,30 +158252,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -156423,7 +158322,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -156480,6 +158379,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -156595,10 +158498,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
-          "qty": 2
-        },
-        {
-          "good": "silk",
           "qty": 1
         }
       ],
@@ -156703,15 +158602,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "salt",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -156767,20 +158669,35 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "salt",
-          "qty": 2
-        },
-        {
           "good": "silk",
-          "qty": 1
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "engine_payoff",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "loop_finisher"
     },
     {
       "give": [
@@ -156823,26 +158740,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 11,
-      "role": "engine_payoff",
-      "line": "shared",
-      "variant": true,
-      "vendorRole": "loop_finisher"
     }
   ],
   "par": 8,
@@ -156916,7 +158813,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   },
   "goal": {
     "good": "jade",
-    "qty": 6
+    "qty": 7
   },
   "trades": [
     {
@@ -157053,16 +158950,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
-        },
-        {
-          "good": "silk",
-          "qty": 1
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -157075,7 +158972,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 3
         },
         {
           "good": "porcelain",
@@ -157191,7 +159088,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -157200,9 +159097,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -157213,7 +159111,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "timber",
+          "good": "silk",
           "qty": 1
         },
         {
@@ -157222,32 +159120,56 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
         {
           "good": "wool",
           "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
         },
         {
-          "good": "timber",
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
           "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
+          "good": "jade",
           "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
       "line": "shared",
-      "variant": true
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -157271,22 +159193,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "timber",
+          "qty": 1
         },
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 3
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -157295,7 +159217,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 3
         },
         {
           "good": "porcelain",
@@ -157315,8 +159237,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 8,
-  "maxTrades": 10,
+  "par": 9,
+  "maxTrades": 11,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -157343,7 +159265,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -157355,8 +159277,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -157818,8 +159740,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Blue Dye",
-      "emoji": "🔵",
+      "name": "Dye Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -157836,8 +159758,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -157854,7 +159776,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     }
   ],
   "inventory": {
-    "spice": 12,
+    "spice": 11,
     "wool": 0,
     "tea": 0,
     "salt": 2,
@@ -158013,6 +159935,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -158093,24 +160019,23 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "spice",
-          "qty": 4
+          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "salt",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -158190,6 +160115,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
@@ -158471,16 +160400,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
-          "qty": 1
+          "qty": 2
         }
       ],
       "window": "early",
@@ -158547,6 +160476,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "salt",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -158602,6 +160535,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 3
         }
@@ -158624,25 +160580,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 3
+          "good": "spice",
+          "qty": 6
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "salt",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -158665,24 +160620,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 6
-        }
-      ],
-      "receive": [
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
     },
     {
       "give": [
@@ -158795,14 +160732,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -158819,13 +160756,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -158972,6 +160909,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -159050,10 +160991,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
-        },
-        {
           "good": "porcelain",
           "qty": 1
         }
@@ -159122,6 +161059,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -159136,8 +161077,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "timber",
-          "qty": 3
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -159147,10 +161088,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -159160,10 +161100,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
         {
           "good": "porcelain",
           "qty": 1
@@ -159269,13 +161205,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Cloth Towels",
       "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -160225,7 +162161,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -160268,24 +162204,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 5
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "timber",
           "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
         }
       ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -160312,8 +162246,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "salt",
+          "qty": 5
         }
       ],
       "receive": [
@@ -160322,11 +162256,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
       "vendorRole": "bridge_vendor"
     },
     {
@@ -160355,25 +162306,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 3
         }
@@ -160381,36 +162313,17 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
       "stage": 3,
       "role": "tempo",
       "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        },
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
       "variant": true
     },
     {
@@ -160439,6 +162352,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 1
         },
@@ -160457,6 +162390,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 4,
       "role": "engine_setup",
       "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        },
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     }
   ],
   "solution": [
@@ -160485,28 +162441,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
           "good": "tea",
           "qty": 3
         }
@@ -160529,63 +162463,66 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 3
+          "good": "salt",
+          "qty": 5
         }
       ],
       "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
         {
           "good": "timber",
-          "qty": 2
-        },
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "gold",
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -160609,22 +162546,41 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
           "good": "silk",
-          "qty": 5
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 2
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 2
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -160651,10 +162607,33 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 5
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 10,
+  "maxTrades": 12,
   "earlyWindowTrades": 5,
   "archetype": "scarce_bridge",
   "topology": "scarce_bridge",
@@ -160736,7 +162715,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 1
         }
       ],
@@ -161161,8 +163140,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -161644,7 +163623,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -162140,7 +164119,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -162198,7 +164177,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -162307,8 +164286,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -162375,56 +164354,55 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "wool",
           "qty": 1
         }
       ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -162451,21 +164429,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "gems",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -162512,22 +164494,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "wool",
+          "qty": 1
         },
         {
           "good": "porcelain",
-          "qty": 4
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "gems",
-          "qty": 3
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -162555,19 +164537,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "tea",
-      "name": "Mint Tea",
+      "name": "Herb Tea",
       "emoji": "🍵",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -162579,7 +164561,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -162610,39 +164592,47 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
+          "good": "gold",
           "qty": 3
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 5
-        }
-      ],
-      "receive": [
+          "good": "tea",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
         }
       ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
       "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -162663,29 +164653,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "line": "tempo",
       "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -162713,18 +164680,60 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
+          "good": "salt",
+          "qty": 5
         }
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "tea",
           "qty": 1
         },
         {
           "good": "porcelain",
           "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -162736,24 +164745,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 1
+          "good": "spice",
+          "qty": 3
         },
         {
-          "good": "porcelain",
+          "good": "tea",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
@@ -162780,25 +164790,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "spice",
-          "qty": 3
-        },
-        {
-          "good": "tea",
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     }
   ],
   "solution": [
@@ -162811,19 +164817,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
+          "good": "tea",
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -162833,6 +164838,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
         {
           "good": "porcelain",
           "qty": 1
@@ -163038,7 +165047,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -163050,7 +165059,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Opal Gems",
+      "name": "Opal Stones",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -163190,12 +165199,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
@@ -163318,18 +165331,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "tea",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -163337,19 +165354,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "wool",
           "qty": 3
+        },
+        {
+          "good": "tea",
+          "qty": 1
         }
       ],
       "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
         {
           "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "tempo",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -163370,28 +165413,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "early",
       "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 4,
       "role": "engine_setup",
       "line": "engine"
     },
@@ -163495,7 +165516,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Gate Beams",
+      "name": "Wood Beams",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -163975,7 +165996,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Seal Stones",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -164134,7 +166155,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "timber",
-          "qty": 3
+          "qty": 4
         }
       ],
       "receive": [
@@ -164181,16 +166202,16 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "gems",
-          "qty": 2
+          "good": "spice",
+          "qty": 1
         }
       ],
       "window": "late",
       "stage": 11,
-      "role": "engine_payoff",
+      "role": "variant",
       "line": "shared",
       "variant": true,
-      "vendorRole": "loop_finisher"
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -164463,7 +166484,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "tea",
-      "name": "Agora Tea",
+      "name": "Stall Tea",
       "emoji": "🍵",
       "tier": "common"
     },
@@ -164475,8 +166496,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
-      "emoji": "✨",
+      "name": "Star Flags",
+      "emoji": "🚩",
       "tier": "uncommon"
     },
     {
@@ -164487,7 +166508,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Star Shards",
+      "name": "Glass Shards",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -164512,8 +166533,30 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
-          "qty": 5
+          "qty": 4
         },
         {
           "good": "porcelain",
@@ -164531,28 +166574,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 9
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
     },
     {
       "give": [
@@ -164580,8 +166601,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 3
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 9
         }
       ],
       "receive": [
@@ -164590,14 +166631,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -164633,7 +166674,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -164733,6 +166778,50 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "tea",
           "qty": 9
         }
@@ -164761,52 +166850,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -164880,7 +166929,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 5
+          "qty": 4
         },
         {
           "good": "porcelain",
@@ -164963,8 +167012,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Tarps",
-      "emoji": "🟦",
+      "name": "Canvas Tarps",
+      "emoji": "⛺",
       "tier": "uncommon"
     },
     {
@@ -165441,8 +167490,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
-      "emoji": "🧶",
+      "name": "Rope Ties",
+      "emoji": "🪢",
       "tier": "common"
     },
     {
@@ -165539,7 +167588,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -165668,8 +167721,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -165749,10 +167802,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 2
-        },
-        {
           "good": "tea",
           "qty": 3
         }
@@ -165760,78 +167809,64 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
           "qty": 1
         },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
         {
           "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -165899,8 +167934,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
@@ -165921,8 +167956,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Water Pouches",
-      "emoji": "💧",
+      "name": "Water Flasks",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -165945,13 +167980,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Water Jars",
+      "name": "Clay Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Oasis Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -166422,7 +168457,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tea Crates",
+      "name": "Wood Crates",
       "emoji": "📦",
       "tier": "common"
     },
@@ -166486,6 +168521,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "timber",
           "qty": 3
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
@@ -166685,20 +168724,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "spice",
+          "qty": 1
+        },
+        {
           "good": "timber",
           "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 3,
+      "stage": 5,
       "role": "variant",
-      "line": "tempo",
+      "line": "shared",
       "variant": true
     },
     {
@@ -166767,41 +168810,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "porcelain",
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
           "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 3
+          "good": "gems",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 4
+          "good": "spice",
+          "qty": 1
         },
         {
-          "good": "porcelain",
-          "qty": 2
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "gems",
-          "qty": 3
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -166929,47 +168976,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 1
         },
@@ -167003,26 +169009,64 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "gold",
+          "good": "silk",
           "qty": 3
         }
       ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
+          "good": "silk",
+          "qty": 1
         }
       ],
       "receive": [
         {
+          "good": "spice",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 6
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
           "qty": 1
         },
         {
@@ -167031,10 +169075,9 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -167062,26 +169105,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 6
-        }
-      ],
-      "receive": [
-        {
-          "good": "spice",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 2,
-      "role": "tempo",
-      "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
+          "good": "porcelain",
+          "qty": 2
         }
       ],
       "receive": [
@@ -167091,11 +169116,57 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     }
   ],
   "solution": [
@@ -167125,6 +169196,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 1
         },
@@ -167147,52 +169240,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
           "good": "timber",
           "qty": 6
         }
@@ -167201,12 +169248,38 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "spice",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
+    },
+    {
+      "give": [
+        {
+          "good": "spice",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -167793,7 +169866,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Pack Bags",
+      "name": "Cloth Bags",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -168249,8 +170322,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Pinches",
-      "emoji": "🟧",
+      "name": "Saffron Tins",
+      "emoji": "🥫",
       "tier": "common"
     },
     {
@@ -168332,51 +170405,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 4
-        }
-      ],
-      "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
           "qty": 1
         },
@@ -168394,21 +170422,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
         }
       ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -168476,6 +170507,68 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "wool",
           "qty": 1
         },
@@ -168498,22 +170591,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 1
+          "good": "silk",
+          "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 1
+          "qty": 5
         }
       ],
       "receive": [
         {
           "good": "jade",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -168574,28 +170667,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
           "good": "silk",
           "qty": 1
         },
@@ -168609,6 +170680,28 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "tempo",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -168796,6 +170889,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 3
         }
@@ -168818,25 +170934,21 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
+          "good": "silk",
           "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 4
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "porcelain",
+          "qty": 3
         }
       ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -168869,8 +170981,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         },
         {
-          "good": "porcelain",
-          "qty": 1
+          "good": "timber",
+          "qty": 4
         }
       ],
       "receive": [
@@ -168880,51 +170992,56 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
     },
     {
       "give": [
         {
           "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 2
+          "qty": 4
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 3
+          "qty": 4
         }
       ],
       "window": "late",
-      "stage": 8,
+      "stage": 9,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -168951,44 +171068,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 4
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "porcelain",
+          "good": "silk",
           "qty": 2
         }
       ],
       "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 2
-        },
-        {
           "good": "porcelain",
-          "qty": 5
+          "qty": 2
         }
       ],
       "receive": [
         {
-          "good": "gold",
-          "qty": 4
+          "good": "salt",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
+      "stage": 11,
+      "role": "variant",
       "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "variant": true,
+      "vendorRole": "recycler"
     }
   ],
   "solution": [
@@ -169061,6 +171178,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "timber",
+          "qty": 4
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "wool",
           "qty": 7
         }
@@ -169083,115 +171223,73 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
+          "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
           "qty": 4
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "salt",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
         }
       ],
       "receive": [
@@ -169202,6 +171300,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -169229,8 +171350,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
-      "emoji": "🐪",
+      "name": "Blanket Rolls",
+      "emoji": "🧶",
       "tier": "common"
     },
     {
@@ -169259,14 +171380,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Amber Stones",
-      "emoji": "🟠",
+      "name": "Amber Beads",
+      "emoji": "📿",
       "tier": "rare"
     }
   ],
   "inventory": {
     "spice": 0,
-    "wool": 11,
+    "wool": 12,
     "tea": 0,
     "salt": 7,
     "timber": 3,
@@ -169312,10 +171433,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
         }
       ],
       "window": "early",
@@ -169533,10 +171650,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
         }
       ],
       "window": "early",
@@ -169556,10 +171669,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
         }
       ],
       "window": "early",
@@ -169571,6 +171680,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "salt",
+          "qty": 7
+        }
+      ],
+      "receive": [
+        {
           "good": "timber",
           "qty": 1
         },
@@ -169579,16 +171694,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
           "qty": 1
         }
       ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -169737,7 +171846,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Jade Cords",
+      "name": "Green Cords",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -170169,7 +172278,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Kiln Wood",
+      "name": "Firing Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -170289,6 +172398,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         {
           "good": "silk",
           "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -170349,7 +172462,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 4
         }
       ],
       "receive": [
@@ -170481,25 +172594,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "salt",
+          "good": "silk",
           "qty": 1
         },
         {
-          "good": "silk",
+          "good": "porcelain",
           "qty": 1
         }
       ],
       "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
-        {
-          "good": "salt",
-          "qty": 1
-        },
         {
           "good": "timber",
           "qty": 3
@@ -170508,37 +172618,40 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "receive": [
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
+      "stage": 3,
       "role": "variant",
-      "line": "shared",
+      "line": "tempo",
       "variant": true
     },
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 1
-        },
-        {
-          "good": "timber",
-          "qty": 3
+          "good": "wool",
+          "qty": 6
         }
       ],
       "receive": [
         {
-          "good": "silk",
-          "qty": 2
+          "good": "salt",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "stage": 2,
+      "role": "tempo",
+      "line": "tempo"
     },
     {
       "give": [
@@ -170567,7 +172680,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 4
         }
       ],
       "receive": [
@@ -170586,30 +172699,11 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "give": [
         {
           "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 5
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
           "qty": 2
         },
         {
           "good": "porcelain",
-          "qty": 5
+          "qty": 4
         }
       ],
       "receive": [
@@ -170625,8 +172719,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "delayed_multiplier",
   "topology": "delayed_multiplier",
@@ -171142,8 +173236,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Dye",
-      "emoji": "🔴",
+      "name": "Dye Bottles",
+      "emoji": "🧴",
       "tier": "common"
     },
     {
@@ -171197,6 +173291,45 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "salt",
           "qty": 3
         },
@@ -171216,6 +173349,73 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "variant",
       "line": "shared",
       "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "salt",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 1,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -171266,93 +173466,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "salt",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 1,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
-    },
-    {
-      "give": [
-        {
           "good": "spice",
           "qty": 6
         }
@@ -171381,14 +173494,15 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
-          "good": "porcelain",
-          "qty": 3
+          "good": "timber",
+          "qty": 1
         }
       ],
       "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
       "vendorRole": "bridge_vendor"
     }
   ],
@@ -171632,7 +173746,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Amber Cord",
+      "name": "Cord Rolls",
       "emoji": "🧶",
       "tier": "uncommon"
     },
@@ -171645,7 +173759,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "gems",
       "name": "Amber Beads",
-      "emoji": "🟠",
+      "emoji": "📿",
       "tier": "rare"
     }
   ],
@@ -172113,7 +174227,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Pitch Jars",
+      "name": "Tar Jars",
       "emoji": "🏺",
       "tier": "uncommon"
     },
@@ -172551,13 +174665,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Verdigris Powder",
-      "emoji": "🟢",
+      "name": "Green Vials",
+      "emoji": "🧪",
       "tier": "common"
     },
     {
       "id": "salt",
-      "name": "Assay Salt",
+      "name": "Test Salt",
       "emoji": "🧂",
       "tier": "common"
     },
@@ -172575,7 +174689,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -172606,6 +174720,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 2
+        },
+        {
+          "good": "porcelain",
+          "qty": 5
+        }
+      ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 4
+        }
+      ],
+      "window": "late",
+      "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
           "good": "spice",
           "qty": 7
         }
@@ -172628,8 +174765,32 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
+          "good": "porcelain",
           "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
@@ -172639,31 +174800,10 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "timber",
-          "qty": 2
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
     },
     {
       "give": [
@@ -172713,29 +174853,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "timber",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
           "good": "silk",
           "qty": 1
         }
@@ -172751,6 +174868,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "engine_payoff",
       "line": "engine",
       "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
     },
     {
       "give": [
@@ -172800,25 +174937,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
+          "good": "timber",
           "qty": 2
-        },
-        {
-          "good": "porcelain",
-          "qty": 5
         }
       ],
       "receive": [
         {
           "good": "gold",
-          "qty": 4
+          "qty": 3
         }
       ],
       "window": "late",
-      "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     }
   ],
   "solution": [
@@ -172936,6 +175070,26 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "timber",
+          "qty": 2
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
           "good": "timber",
           "qty": 2
         }
@@ -172956,22 +175110,22 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
           "good": "timber",
           "qty": 2
         }
       ],
+      "receive": [
+        {
+          "good": "gold",
+          "qty": 3
+        }
+      ],
       "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "recycler"
+      "stage": 10,
+      "role": "engine_payoff",
+      "line": "engine",
+      "variant": true,
+      "vendorRole": "reserve_payoff"
     },
     {
       "give": [
@@ -172995,26 +175149,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "timber",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "gold",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 10,
-      "role": "engine_payoff",
-      "line": "engine",
-      "variant": true,
-      "vendorRole": "reserve_payoff"
     }
   ],
   "par": 9,
@@ -173057,7 +175191,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Cloth Veils",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -173069,7 +175203,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Blue Vases",
+      "name": "Ceramic Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -173094,12 +175228,35 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
           "good": "wool",
           "qty": 1
         },
         {
-          "good": "silk",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
@@ -173109,9 +175266,54 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 5,
+      "role": "variant",
+      "line": "shared",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 11,
+      "role": "variant",
+      "line": "shared",
+      "variant": true,
+      "vendorRole": "recycler"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "salt",
+          "qty": 1
+        }
+      ],
+      "window": "late",
+      "stage": 7,
+      "role": "tempo_bailout",
+      "line": "tempo",
+      "hiddenUntilNight": true,
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -173132,48 +175334,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "silk",
-          "qty": 2
-        }
-      ],
-      "receive": [
-        {
-          "good": "jade",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -173203,72 +175363,66 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
+          "good": "wool",
+          "qty": 1
+        },
+        {
+          "good": "silk",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "porcelain",
+          "qty": 2
+        }
+      ],
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
           "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "receive": [
         {
           "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "wool",
-          "qty": 2
-        },
-        {
-          "good": "salt",
-          "qty": 1
-        }
-      ],
-      "window": "late",
-      "stage": 7,
-      "role": "tempo_bailout",
-      "line": "tempo",
-      "hiddenUntilNight": true,
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "tea",
           "qty": 3
         }
       ],
-      "receive": [
-        {
-          "good": "porcelain",
-          "qty": 2
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -173319,24 +175473,48 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "wool",
-          "qty": 1
-        },
-        {
-          "good": "silk",
-          "qty": 1
+          "good": "tea",
+          "qty": 3
         }
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
-      "stage": 4,
-      "role": "engine_setup",
-      "line": "engine"
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "tea",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "tempo",
+      "line": "tempo",
+      "variant": true
     },
     {
       "give": [
@@ -173363,109 +175541,24 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "tea",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        },
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 3,
-      "role": "tempo",
-      "line": "tempo",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
-    },
-    {
-      "give": [
-        {
           "good": "wool",
-          "qty": 2
+          "qty": 1
         },
         {
           "good": "silk",
-          "qty": 2
+          "qty": 1
         }
       ],
       "receive": [
         {
-          "good": "jade",
-          "qty": 3
+          "good": "porcelain",
+          "qty": 2
         }
       ],
-      "window": "late",
-      "stage": 8,
-      "role": "compound_gate",
-      "line": "shared",
-      "vendorRole": "bundle_payoff"
+      "window": "early",
+      "stage": 4,
+      "role": "engine_setup",
+      "line": "engine"
     },
     {
       "give": [
@@ -173517,6 +175610,44 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "give": [
         {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
+          "good": "porcelain",
+          "qty": 1
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 6,
+      "role": "engine_payoff",
+      "line": "engine",
+      "vendorRole": "bridge_vendor"
+    },
+    {
+      "give": [
+        {
           "good": "silk",
           "qty": 4
         },
@@ -173533,6 +175664,29 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "window": "late",
       "stage": 9,
+      "role": "compound_gate",
+      "line": "shared",
+      "vendorRole": "bundle_payoff"
+    },
+    {
+      "give": [
+        {
+          "good": "wool",
+          "qty": 2
+        },
+        {
+          "good": "silk",
+          "qty": 2
+        }
+      ],
+      "receive": [
+        {
+          "good": "jade",
+          "qty": 3
+        }
+      ],
+      "window": "late",
+      "stage": 8,
       "role": "compound_gate",
       "line": "shared",
       "vendorRole": "bundle_payoff"
@@ -173560,7 +175714,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "River Herbs",
+      "name": "Herb Bundles",
       "emoji": "🌿",
       "tier": "common"
     },
@@ -173590,7 +175744,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Gate Stones",
+      "name": "Marker Stones",
       "emoji": "🪨",
       "tier": "rare"
     }
@@ -174068,7 +176222,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Stamped Fees",
+      "name": "Fee Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -174099,8 +176253,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -174336,8 +176494,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
         }
       ],
       "window": "early",
@@ -174355,8 +176517,35 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       ],
       "receive": [
         {
+          "good": "silk",
+          "qty": 1
+        },
+        {
           "good": "porcelain",
-          "qty": 2
+          "qty": 1
+        }
+      ],
+      "window": "early",
+      "stage": 3,
+      "role": "variant",
+      "line": "tempo",
+      "variant": true
+    },
+    {
+      "give": [
+        {
+          "good": "timber",
+          "qty": 3
+        }
+      ],
+      "receive": [
+        {
+          "good": "silk",
+          "qty": 1
+        },
+        {
+          "good": "porcelain",
+          "qty": 1
         }
       ],
       "window": "early",
@@ -174386,48 +176575,6 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "stage": 2,
       "role": "tempo",
       "line": "tempo"
-    },
-    {
-      "give": [
-        {
-          "good": "spice",
-          "qty": 2
-        },
-        {
-          "good": "timber",
-          "qty": 3
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 1
-        }
-      ],
-      "window": "early",
-      "stage": 5,
-      "role": "variant",
-      "line": "shared",
-      "variant": true
-    },
-    {
-      "give": [
-        {
-          "good": "porcelain",
-          "qty": 1
-        }
-      ],
-      "receive": [
-        {
-          "good": "silk",
-          "qty": 3
-        }
-      ],
-      "window": "late",
-      "stage": 6,
-      "role": "engine_payoff",
-      "line": "engine",
-      "vendorRole": "bridge_vendor"
     },
     {
       "give": [
@@ -174495,8 +176642,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
       "vendorRole": "bundle_payoff"
     }
   ],
-  "par": 9,
-  "maxTrades": 11,
+  "par": 8,
+  "maxTrades": 10,
   "earlyWindowTrades": 5,
   "archetype": "overproduction_trap",
   "topology": "overproduction_trap",
