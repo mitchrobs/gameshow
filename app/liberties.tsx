@@ -76,7 +76,7 @@ const LIBERTIES_VISUAL_THEME_IDS = ['pebble', 'knob', 'neoCity', 'softCeramic'] 
 const LIBERTIES_VISUAL_THEME_LABELS: Record<LibertiesVisualThemeId, string> = {
   pebble: 'Pebble',
   knob: 'Knob',
-  neoCity: 'Neo',
+  neoCity: 'Deco',
   softCeramic: 'Soft',
 };
 const THEMED_PIECE_ASSETS = {
@@ -460,7 +460,7 @@ function getThemePieceImageStyle(
   };
   const scaleByTheme: Partial<Record<LibertiesVisualThemeId, number>> = {
     knob: 0.98,
-    neoCity: 0.97,
+    neoCity: 1.08,
     softCeramic: 0.98,
   };
   const scale = scaleByTheme[visualTheme.id] ?? 1;
