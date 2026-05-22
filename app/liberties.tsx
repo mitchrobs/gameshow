@@ -53,6 +53,7 @@ type DemoMode = 'intro' | 'select' | 'stage0' | 'stage1' | 'stage2' | 'complete'
 type HowToCell = 'black' | 'white' | 'frozen' | null;
 type LibertiesVisualThemeId = 'pebble' | 'knob' | 'neoCity' | 'softCeramic';
 type LibertiesPieceKind = 'black' | 'white' | 'blocker' | 'release';
+type LibertiesAssetPieceKind = Exclude<LibertiesPieceKind, 'release'>;
 type LibertiesMetricTone = 'default' | 'success';
 
 interface PersistedLibertiesState {
@@ -436,26 +437,41 @@ function getThemeMarkerRadius(size: number, visualTheme: LibertiesVisualTheme): 
   return size / 2;
 }
 
-function getThemePieceImageStyle(size: number, visualTheme: LibertiesVisualTheme) {
-  if (visualTheme.id === 'neoCity') {
-    return {
-      width: size,
-      height: size,
-      transform: [{ translateY: -size * 0.1 }, { scale: 0.97 }],
-    };
-  }
-
-  if (visualTheme.id === 'knob') {
-    return {
-      width: size,
-      height: size,
-      transform: [{ translateY: -size * 0.07 }, { scale: 0.98 }],
-    };
-  }
+function getThemePieceImageStyle(
+  size: number,
+  visualTheme: LibertiesVisualTheme,
+  assetKind: LibertiesAssetPieceKind
+) {
+  const anchorByTheme: Partial<Record<LibertiesVisualThemeId, Record<LibertiesAssetPieceKind, number>>> = {
+    knob: {
+      black: -0.39,
+      white: -0.39,
+      blocker: -0.31,
+    },
+    neoCity: {
+      black: -0.38,
+      white: -0.39,
+      blocker: -0.34,
+    },
+    softCeramic: {
+      black: -0.34,
+      white: -0.33,
+      blocker: -0.34,
+    },
+  };
+  const scaleByTheme: Partial<Record<LibertiesVisualThemeId, number>> = {
+    knob: 0.98,
+    neoCity: 0.97,
+    softCeramic: 0.98,
+  };
+  const scale = scaleByTheme[visualTheme.id] ?? 1;
+  const renderedSize = size * scale;
+  const translateY = size * (anchorByTheme[visualTheme.id]?.[assetKind] ?? 0);
 
   return {
-    width: size,
-    height: size,
+    width: renderedSize,
+    height: renderedSize,
+    transform: translateY === 0 ? undefined : [{ translateY }],
   };
 }
 
@@ -474,7 +490,7 @@ function ThemedLibertiesPiece({
   preview?: boolean;
   invalid?: boolean;
 }) {
-  const assetKind = kind === 'release' ? 'blocker' : kind;
+  const assetKind: LibertiesAssetPieceKind = kind === 'release' ? 'blocker' : kind;
 
   return (
     <View
@@ -492,7 +508,7 @@ function ThemedLibertiesPiece({
         source={THEMED_PIECE_ASSETS[visualTheme.id][visualTheme.mode][assetKind]}
         style={[
           styles.pieceImage,
-          getThemePieceImageStyle(size, visualTheme),
+          getThemePieceImageStyle(size, visualTheme, assetKind),
         ]}
         resizeMode="contain"
       />
