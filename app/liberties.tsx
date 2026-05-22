@@ -211,11 +211,11 @@ function getLibertiesVisualTheme(mode: ThemeTokens['mode'], id: LibertiesVisualT
     return {
       ...shared,
       boardColor: dark ? '#091b1d' : '#f1eee4',
-      boardLine: dark ? 'rgba(209, 158, 87, 0.32)' : 'rgba(90, 78, 64, 0.27)',
-      boardEdge: dark ? 'rgba(209, 158, 87, 0.22)' : 'rgba(130, 99, 56, 0.28)',
-      pointHover: dark ? 'rgba(209, 158, 87, 0.1)' : 'rgba(255, 255, 255, 0.7)',
-      pointSelected: dark ? 'rgba(209, 158, 87, 0.18)' : 'rgba(148, 100, 42, 0.14)',
-      tileColor: dark ? 'rgba(209, 158, 87, 0.06)' : 'rgba(255,255,255,0.62)',
+      boardLine: dark ? 'rgba(190, 170, 132, 0.22)' : 'rgba(90, 82, 68, 0.22)',
+      boardEdge: dark ? 'rgba(190, 170, 132, 0.16)' : 'rgba(122, 101, 72, 0.22)',
+      pointHover: dark ? 'rgba(190, 170, 132, 0.09)' : 'rgba(255, 255, 255, 0.7)',
+      pointSelected: dark ? 'rgba(190, 170, 132, 0.14)' : 'rgba(148, 100, 42, 0.12)',
+      tileColor: dark ? 'rgba(190, 170, 132, 0.045)' : 'rgba(255,255,255,0.62)',
       markerRadius: 'deco',
     };
   }
@@ -436,6 +436,29 @@ function getThemeMarkerRadius(size: number, visualTheme: LibertiesVisualTheme): 
   return size / 2;
 }
 
+function getThemePieceImageStyle(size: number, visualTheme: LibertiesVisualTheme) {
+  if (visualTheme.id === 'neoCity') {
+    return {
+      width: size,
+      height: size,
+      transform: [{ translateY: -size * 0.1 }, { scale: 0.97 }],
+    };
+  }
+
+  if (visualTheme.id === 'knob') {
+    return {
+      width: size,
+      height: size,
+      transform: [{ translateY: -size * 0.07 }, { scale: 0.98 }],
+    };
+  }
+
+  return {
+    width: size,
+    height: size,
+  };
+}
+
 function ThemedLibertiesPiece({
   kind,
   size,
@@ -443,7 +466,6 @@ function ThemedLibertiesPiece({
   styles,
   preview = false,
   invalid = false,
-  connected = false,
 }: {
   kind: LibertiesPieceKind;
   size: number;
@@ -451,7 +473,6 @@ function ThemedLibertiesPiece({
   styles: ReturnType<typeof createStyles>;
   preview?: boolean;
   invalid?: boolean;
-  connected?: boolean;
 }) {
   const assetKind = kind === 'release' ? 'blocker' : kind;
 
@@ -471,14 +492,10 @@ function ThemedLibertiesPiece({
         source={THEMED_PIECE_ASSETS[visualTheme.id][visualTheme.mode][assetKind]}
         style={[
           styles.pieceImage,
-          {
-            width: size,
-            height: size,
-          },
+          getThemePieceImageStyle(size, visualTheme),
         ]}
         resizeMode="contain"
       />
-      {connected && visualTheme.id === 'neoCity' && <View style={styles.neoConnectedGlint} />}
     </View>
   );
 }
@@ -832,14 +849,6 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
               highlightedGroupIndexes.has(releaseGroupIndex);
             const isActiveOpenSide = cell === null && activeOpenSideKeys.has(pointKeyValue);
             const recentlyResponded = recentResponseKeys.has(pointKeyValue);
-            const connectedBlack =
-              cell === 'black' &&
-              [
-                { row: rowIndex - 1, col: colIndex },
-                { row: rowIndex + 1, col: colIndex },
-                { row: rowIndex, col: colIndex - 1 },
-                { row: rowIndex, col: colIndex + 1 },
-              ].some((neighbor) => board[neighbor.row]?.[neighbor.col] === 'black');
 
             return (
               <Pressable
@@ -946,7 +955,6 @@ const LibertiesBoardCard = memo(function LibertiesBoardCard({
                     size={stoneSize}
                     styles={styles}
                     visualTheme={visualTheme}
-                    connected={connectedBlack}
                   />
                 )}
                 {selected && cell === null && (
@@ -2620,15 +2628,7 @@ const createStyles = (
     pieceStage: {
       alignItems: 'center',
       justifyContent: 'center',
-    },
-    neoConnectedGlint: {
-      position: 'absolute',
-      bottom: 7,
-      width: '44%',
-      height: 2,
-      borderRadius: 999,
-      backgroundColor: '#d6a453',
-      opacity: 0.82,
+      overflow: 'visible',
     },
     blockerPiece: {
       opacity: 0.98,
