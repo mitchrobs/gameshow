@@ -74,8 +74,16 @@ export { THREADLINE_REJECTED_COPY_ANSWERS } from './threadlineQualityRules.ts';
 
 const THREADLINE_SHIPPED_REJECTED_DATE_KEY_SET = new Set<string>(THREADLINE_SHIPPED_REJECTED_DATE_KEYS);
 
-const GRID_SIZE = 8;
+export const THREADLINE_GRID_SIZE = 9;
+const GRID_SIZE = THREADLINE_GRID_SIZE;
 const PACK_SEED = 19337;
+const THREADLINE_GRID_PLACEMENT_ATTEMPTS = 4;
+const THREADLINE_GRID_SEARCH_NODE_LIMIT = 2_500;
+const THREADLINE_GRID_SEARCH_BREADTH = 16;
+const THREADLINE_GRID_IDEAL_PRESENTATION_SCORE = 4.75;
+export const THREADLINE_MIN_GRID_PRESENTATION_SCORE = 4.25;
+const GRID_CENTER_MIN = Math.floor(GRID_SIZE / 4);
+const GRID_CENTER_MAX = GRID_SIZE - 1 - GRID_CENTER_MIN;
 const TITLE_REVIEW_STOP_WORDS = new Set([
   'ABOVE',
   'AFTER',
@@ -119,6 +127,7 @@ export interface ThreadlineReviewScores {
   copyEditor: number;
   safetyEditor: number;
   gridEditor: number;
+  gridPresentationScore: number;
   grammarScore: number;
   titleCoherenceScore: number;
   payoffBridgeScore: number;
@@ -222,6 +231,18 @@ interface SelectedWord {
   answer: string;
   pool: WordPool;
   roles: ThreadlineWordRole[];
+}
+
+interface GridPresentationReview {
+  score: number;
+  flags: string[];
+  note: string;
+}
+
+interface ThreadlinePlacement {
+  grid: string[];
+  paths: ThreadlineCoord[][];
+  presentation: GridPresentationReview;
 }
 
 interface CopyScoreSummary {
@@ -2076,40 +2097,292 @@ function pathIsInside(path: ThreadlineCoord[]): boolean {
   );
 }
 
-function placeWords(answers: string[], seed: number): { grid: string[]; paths: ThreadlineCoord[][] } {
+function gridCoordKey(coord: ThreadlineCoord): string {
+  return `${coord.row}:${coord.col}`;
+}
+
+function pathOrientation(path: ThreadlineCoord[]): 'horizontal' | 'vertical' | 'diagonal-down' | 'diagonal-up' {
+  if (path.length < 2) return 'horizontal';
+
+  const rowStep = Math.sign(path[1].row - path[0].row);
+  const colStep = Math.sign(path[1].col - path[0].col);
+  if (rowStep === 0) return 'horizontal';
+  if (colStep === 0) return 'vertical';
+  return rowStep === colStep ? 'diagonal-down' : 'diagonal-up';
+}
+
+function pathEdgeCellCount(path: ThreadlineCoord[]): number {
+  return path.filter(
+    (coord) =>
+      coord.row === 0 ||
+      coord.row === GRID_SIZE - 1 ||
+      coord.col === 0 ||
+      coord.col === GRID_SIZE - 1
+  ).length;
+}
+
+function pathUsesOuterRail(path: ThreadlineCoord[]): boolean {
+  return (
+    path.every((coord) => coord.row === 0) ||
+    path.every((coord) => coord.row === GRID_SIZE - 1) ||
+    path.every((coord) => coord.col === 0) ||
+    path.every((coord) => coord.col === GRID_SIZE - 1)
+  );
+}
+
+function scorePlacementCandidate(
+  path: ThreadlineCoord[],
+  answer: string,
+  wordIndex: number,
+  cells: readonly string[][],
+  placedPaths: readonly { wordIndex: number; path: ThreadlineCoord[] }[],
+  random: () => number
+): number {
+  const orientation = pathOrientation(path);
+  const diagonalBonus = orientation.startsWith('diagonal') ? 3.2 : 0.1;
+  const sameOrientationCount = placedPaths.filter(
+    (placedPath) => pathOrientation(placedPath.path) === orientation
+  ).length;
+  const edgeRatio = pathEdgeCellCount(path) / path.length;
+  const centerRatio =
+    path.filter(
+      (coord) =>
+        coord.row >= GRID_CENTER_MIN &&
+        coord.row <= GRID_CENTER_MAX &&
+        coord.col >= GRID_CENTER_MIN &&
+        coord.col <= GRID_CENTER_MAX
+    ).length / path.length;
+  const crossingCount = path.filter(
+    (coord, letterIndex) => cells[coord.row][coord.col] === answer[letterIndex]
+  ).length;
+  const candidateThread = wordIndex < 3 ? 'thread-a' : 'thread-b';
+  const oppositeThreadCells = new Set(
+    placedPaths.flatMap((placedPath) => {
+      const placedThread = placedPath.wordIndex < 3 ? 'thread-a' : 'thread-b';
+      return placedThread === candidateThread ? [] : placedPath.path.map(gridCoordKey);
+    })
+  );
+  const crossThreadTouchCount = path.reduce((count, coord) => {
+    for (let rowDelta = -1; rowDelta <= 1; rowDelta += 1) {
+      for (let colDelta = -1; colDelta <= 1; colDelta += 1) {
+        if (rowDelta === 0 && colDelta === 0) continue;
+        if (oppositeThreadCells.has(`${coord.row + rowDelta}:${coord.col + colDelta}`)) return count + 1;
+      }
+    }
+    return count;
+  }, 0);
+
+  return (
+    diagonalBonus +
+    centerRatio * 1.5 +
+    crossingCount * 0.7 +
+    Math.min(0.8, crossThreadTouchCount * 0.06) -
+    sameOrientationCount * 0.18 -
+    edgeRatio * 1.1 -
+    (pathUsesOuterRail(path) ? 2.4 : 0) +
+    random() * 0.08
+  );
+}
+
+function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresentationReview {
+  const flags: string[] = [];
+  const totalCells = paths.reduce((total, path) => total + path.length, 0);
+  const orientationCounts = paths.reduce<Record<string, number>>((counts, path) => {
+    const orientation = pathOrientation(path);
+    counts[orientation] = (counts[orientation] ?? 0) + 1;
+    return counts;
+  }, {});
+  const diagonalCount = (orientationCounts['diagonal-down'] ?? 0) + (orientationCounts['diagonal-up'] ?? 0);
+  const dominantOrientationCount = Math.max(0, ...Object.values(orientationCounts));
+  const edgeCellCount = paths.reduce((total, path) => total + pathEdgeCellCount(path), 0);
+  const edgeCellRatio = totalCells === 0 ? 0 : edgeCellCount / totalCells;
+  const edgeHeavyWordCount = paths.filter((path) => pathEdgeCellCount(path) / path.length >= 0.66).length;
+  const outerRailWordCount = paths.filter(pathUsesOuterRail).length;
+  const cellCounts = new Map<string, number>();
+  const rowLoads = Array.from({ length: GRID_SIZE }, () => 0);
+  const colLoads = Array.from({ length: GRID_SIZE }, () => 0);
+  let centerCellCount = 0;
+
+  paths.forEach((path) => {
+    path.forEach((coord) => {
+      const key = gridCoordKey(coord);
+      cellCounts.set(key, (cellCounts.get(key) ?? 0) + 1);
+      rowLoads[coord.row] += 1;
+      colLoads[coord.col] += 1;
+      if (
+        coord.row >= GRID_CENTER_MIN &&
+        coord.row <= GRID_CENTER_MAX &&
+        coord.col >= GRID_CENTER_MIN &&
+        coord.col <= GRID_CENTER_MAX
+      ) {
+        centerCellCount += 1;
+      }
+    });
+  });
+
+  const crossingCellCount = Array.from(cellCounts.values()).filter((count) => count > 1).length;
+  const centerCellRatio = totalCells === 0 ? 0 : centerCellCount / totalCells;
+  const maxRowLoad = Math.max(...rowLoads);
+  const maxColLoad = Math.max(...colLoads);
+  const threadSplitIndex = Math.floor(paths.length / 2);
+  const threadACells = new Set(paths.slice(0, threadSplitIndex).flatMap((path) => path.map(gridCoordKey)));
+  const threadBCells = new Set(paths.slice(threadSplitIndex).flatMap((path) => path.map(gridCoordKey)));
+  const crossThreadTouches = new Set<string>();
+
+  threadACells.forEach((key) => {
+    const [row, col] = key.split(':').map(Number);
+    for (let rowDelta = -1; rowDelta <= 1; rowDelta += 1) {
+      for (let colDelta = -1; colDelta <= 1; colDelta += 1) {
+        if (rowDelta === 0 && colDelta === 0) continue;
+        const neighborKey = `${row + rowDelta}:${col + colDelta}`;
+        if (threadBCells.has(neighborKey)) {
+          crossThreadTouches.add(`${key}|${neighborKey}`);
+        }
+      }
+    }
+  });
+
+  let score = 5;
+  if (diagonalCount < 2) {
+    flags.push('too-few-diagonals');
+    score -= (2 - diagonalCount) * 0.7;
+  }
+  if (dominantOrientationCount > 3) {
+    flags.push('dominant-orientation');
+    score -= (dominantOrientationCount - 3) * 0.42;
+  }
+  if (outerRailWordCount > 0) {
+    flags.push('outer-rail-word');
+    score -= outerRailWordCount * 0.4;
+  }
+  if (edgeHeavyWordCount > 1) {
+    flags.push('edge-heavy-words');
+    score -= (edgeHeavyWordCount - 1) * 0.25;
+  }
+  if (edgeCellRatio > 0.42) {
+    flags.push('edge-heavy-board');
+    score -= 0.25;
+  }
+  if (crossingCellCount === 0) {
+    flags.push('no-letter-crossings');
+    score -= 0.28;
+  } else if (crossingCellCount <= 4) {
+    score += Math.min(0.18, crossingCellCount * 0.06);
+  } else {
+    score -= Math.min(0.25, (crossingCellCount - 4) * 0.04);
+  }
+  if (centerCellRatio < 0.3) {
+    flags.push('thin-center');
+    score -= 0.2;
+  }
+  if (maxRowLoad > 10) {
+    flags.push('row-banding');
+    score -= (maxRowLoad - 10) * 0.14;
+  }
+  if (maxColLoad > 10) {
+    flags.push('column-banding');
+    score -= (maxColLoad - 10) * 0.14;
+  }
+  if (crossThreadTouches.size < 6) {
+    flags.push('themes-visually-separated');
+    score -= 0.25;
+  }
+
+  const finalScore = Math.max(1, Math.min(5, Math.round(score * 100) / 100));
+  return {
+    score: finalScore,
+    flags,
+    note:
+      flags.length === 0
+        ? `Grid presentation clears visual weave checks: ${diagonalCount} diagonal word(s), ${crossingCellCount} crossing cell(s), ${crossThreadTouches.size} cross-thread touch(es).`
+        : `Grid presentation needs attention: ${flags.join(', ')} (${diagonalCount} diagonal word(s), ${crossingCellCount} crossing cell(s), ${crossThreadTouches.size} cross-thread touch(es)).`,
+  };
+}
+
+function placeWords(answers: string[], seed: number): ThreadlinePlacement {
   const random = mulberry32(seed);
-  const cells: string[][] = Array.from({ length: GRID_SIZE }, () =>
+  const emptyCells: string[][] = Array.from({ length: GRID_SIZE }, () =>
     Array.from({ length: GRID_SIZE }, () => '')
   );
   const starts = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => ({
     row: Math.floor(index / GRID_SIZE),
     col: index % GRID_SIZE,
   }));
-  const paths: ThreadlineCoord[][] = [];
   const placementOrder = answers
     .map((answer, wordIndex) => ({ answer, wordIndex }))
     .sort((a, b) => b.answer.length - a.answer.length || a.wordIndex - b.wordIndex);
+  const candidatePools = new Map<number, ThreadlineCoord[][]>();
 
   placementOrder.forEach(({ answer, wordIndex }) => {
-    const candidates = shuffled(starts, random).flatMap((start) =>
-      shuffled(DIRECTIONS, random).map((direction) => buildPath(start, direction, answer.length))
-    );
-    const path = candidates.find((candidate) => {
-      if (!pathIsInside(candidate)) return false;
-      return candidate.every((coord, letterIndex) => {
-        const existing = cells[coord.row][coord.col];
-        return existing === '' || existing === answer[letterIndex];
-      });
-    });
+    const candidates = shuffled(starts, random)
+      .flatMap((start) =>
+        shuffled(DIRECTIONS, random).map((direction) => buildPath(start, direction, answer.length))
+      )
+      .filter(pathIsInside);
+    candidatePools.set(wordIndex, candidates);
+  });
 
-    if (!path) {
-      throw new Error(`Could not place Threadline shipped answer ${answer}`);
+  let bestPaths: ThreadlineCoord[][] | null = null;
+  let bestPresentation: GridPresentationReview | null = null;
+  let searchedNodes = 0;
+
+  function search(orderIndex: number, cells: string[][], paths: ThreadlineCoord[][]): void {
+    if (searchedNodes >= THREADLINE_GRID_SEARCH_NODE_LIMIT) return;
+    searchedNodes += 1;
+
+    if (orderIndex >= placementOrder.length) {
+      const presentation = scoreGridPresentation(paths);
+      if (!bestPresentation || presentation.score > bestPresentation.score) {
+        bestPresentation = presentation;
+        bestPaths = paths;
+      }
+      return;
     }
 
-    path.forEach((coord, letterIndex) => {
-      cells[coord.row][coord.col] = answer[letterIndex];
+    if (bestPresentation && bestPresentation.score >= THREADLINE_GRID_IDEAL_PRESENTATION_SCORE) return;
+
+    const { answer, wordIndex } = placementOrder[orderIndex];
+    const placedPaths = paths
+      .map((path, placedWordIndex) => (path ? { wordIndex: placedWordIndex, path } : null))
+      .filter((entry): entry is { wordIndex: number; path: ThreadlineCoord[] } => Boolean(entry));
+    const candidates = (candidatePools.get(wordIndex) ?? [])
+      .map((candidate) => {
+        const isViable = candidate.every((coord, letterIndex) => {
+          const existing = cells[coord.row][coord.col];
+          return existing === '' || existing === answer[letterIndex];
+        });
+        if (!isViable) return null;
+        return {
+          path: candidate,
+          score: scorePlacementCandidate(candidate, answer, wordIndex, cells, placedPaths, random),
+        };
+      })
+      .filter((candidate): candidate is { path: ThreadlineCoord[]; score: number } => Boolean(candidate))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, THREADLINE_GRID_SEARCH_BREADTH);
+
+    candidates.forEach((candidate) => {
+      const nextCells = cells.map((row) => [...row]);
+      candidate.path.forEach((coord, letterIndex) => {
+        nextCells[coord.row][coord.col] = answer[letterIndex];
+      });
+      const nextPaths = [...paths];
+      nextPaths[wordIndex] = candidate.path;
+      search(orderIndex + 1, nextCells, nextPaths);
     });
-    paths[wordIndex] = path;
+  }
+
+  search(0, emptyCells, []);
+
+  if (!bestPaths || !bestPresentation) {
+    throw new Error(`Could not place Threadline shipped answers ${answers.join(', ')}`);
+  }
+
+  const cells = emptyCells.map((row) => [...row]);
+  bestPaths.forEach((path, wordIndex) => {
+    path.forEach((coord, letterIndex) => {
+      cells[coord.row][coord.col] = answers[wordIndex][letterIndex];
+    });
   });
 
   const grid = cells.map((row) =>
@@ -2118,18 +2391,27 @@ function placeWords(answers: string[], seed: number): { grid: string[]; paths: T
       .join('')
   );
 
-  return { grid, paths };
+  return { grid, paths: bestPaths, presentation: bestPresentation };
 }
 
-function placeWordsWithRetries(answers: string[], seed: number): { grid: string[]; paths: ThreadlineCoord[][] } {
+function placeWordsWithRetries(answers: string[], seed: number): ThreadlinePlacement {
   let lastError: unknown = null;
-  for (let attempt = 0; attempt < 120; attempt += 1) {
+  let bestPlacement: ThreadlinePlacement | null = null;
+
+  for (let attempt = 0; attempt < THREADLINE_GRID_PLACEMENT_ATTEMPTS; attempt += 1) {
     try {
-      return placeWords(answers, seed + attempt * 7_919);
+      const placement = placeWords(answers, seed + attempt * 7_919);
+      if (!bestPlacement || placement.presentation.score > bestPlacement.presentation.score) {
+        bestPlacement = placement;
+      }
+      if (placement.presentation.score >= THREADLINE_GRID_IDEAL_PRESENTATION_SCORE) {
+        return placement;
+      }
     } catch (error) {
       lastError = error;
     }
   }
+  if (bestPlacement) return bestPlacement;
   throw lastError;
 }
 
@@ -2455,7 +2737,10 @@ function buildPuzzle(
       if (!answerSetIsFresh(copyFreshness, answers)) continue;
 
       const wordIds = answers.map(answerId);
-      const { grid, paths } = placeWordsWithRetries(answers, PACK_SEED + dayIndex * 97 + selectionAttempt * 193);
+      const { grid, paths } = placeWordsWithRetries(
+        answers,
+        PACK_SEED + dayIndex * 97 + selectionAttempt * 193
+      );
       const threads: [ThreadlineThread, ThreadlineThread] = [
         { id: 'thread-a', name: blueprint.threads[0].name, clue: blueprint.threads[0].clue },
         { id: 'thread-b', name: blueprint.threads[1].name, clue: blueprint.threads[1].clue },
@@ -2761,6 +3046,7 @@ function reviewForPuzzle(
   const avg = averageLength(puzzle);
   const longCount = puzzle.words.filter((word) => word.answer.length >= 6).length;
   const copy = copyScoresForPuzzle(puzzle, blueprint, dayIndex);
+  const gridPresentation = scoreGridPresentation(puzzle.words.map((word) => word.path));
   const qualityBump = avg >= THREADLINE_SHIPPED_MIN_AVERAGE_LENGTH && avg <= THREADLINE_SHIPPED_MAX_AVERAGE_LENGTH ? 0.08 : 0;
   const longBump = longCount >= 4 ? 0.08 : longCount >= 3 ? 0.04 : 0;
   const weekendBump = dayIndex % 7 === 5 || dayIndex % 7 === 6 ? 0.03 : 0;
@@ -2777,7 +3063,8 @@ function reviewForPuzzle(
     calendarEditor: roundScore(base + (blueprint.tags.includes('holiday-adjacent') ? 0.05 : 0.02)),
     copyEditor: roundScore((copy.grammarScore + copy.titleCoherenceScore + copy.payoffBridgeScore) / 3),
     safetyEditor: 5,
-    gridEditor: roundScore(base + 0.02),
+    gridEditor: gridPresentation.score,
+    gridPresentationScore: gridPresentation.score,
     grammarScore: copy.grammarScore,
     titleCoherenceScore: copy.titleCoherenceScore,
     payoffBridgeScore: copy.payoffBridgeScore,
@@ -2796,6 +3083,7 @@ function reviewForPuzzle(
     scores.copyEditor,
     scores.safetyEditor,
     scores.gridEditor,
+    scores.gridPresentationScore,
     scores.grammarScore,
     scores.titleCoherenceScore,
     scores.payoffBridgeScore,
@@ -2835,7 +3123,9 @@ function reviewForPuzzle(
             96
           )}"; weave lands as "${puzzle.weave}".`,
     playerNote: `Simulated NYT-style player checks read this as a word-first puzzle: draw answers, notice the two families, finish the sentence.`,
-    freshnessNote: `Calendar editor tags: ${blueprint.tags.join(', ')}; length profile ${lengthProfile(puzzle)}; difficulty index ${difficultyIndex(puzzle).toFixed(2)}.`,
+    freshnessNote: `Calendar editor tags: ${blueprint.tags.join(', ')}; length profile ${lengthProfile(
+      puzzle
+    )}; difficulty index ${difficultyIndex(puzzle).toFixed(2)}. ${gridPresentation.note}`,
     tags: [...blueprint.tags, blueprint.domain, blueprint.season],
     scores,
   };
@@ -3573,6 +3863,43 @@ export function formatThreadlineShippedPackMarkdown(): string {
     `| Over-floor thread-trio failures | ${overusedThreadTripleCount} |`,
     `| Audit failures | ${copyAudit.criticalIssues.filter((issue) => issue.code === 'thread-triple-reuse').length} |`,
   ].join('\n');
+  const gridPresentationEntries = scheduledPuzzles.map((puzzle) => {
+    const review = THREADLINE_EDITOR_REVIEW[puzzle.id];
+    return {
+      puzzle,
+      review,
+      score: review.scores.gridPresentationScore,
+      presentation: scoreGridPresentation(puzzle.words.map((word) => word.path)),
+    };
+  });
+  const gridPresentationAverage =
+    gridPresentationEntries.reduce((total, entry) => total + entry.score, 0) / gridPresentationEntries.length;
+  const gridPresentationMinimum = Math.min(...gridPresentationEntries.map((entry) => entry.score));
+  const gridPresentationFloorFailures = gridPresentationEntries.filter(
+    (entry) => entry.score < THREADLINE_MIN_GRID_PRESENTATION_SCORE
+  );
+  const weakestGridRows = gridPresentationEntries
+    .slice()
+    .sort((a, b) => a.score - b.score || (a.review.dateKey ?? '').localeCompare(b.review.dateKey ?? ''))
+    .slice(0, 12)
+    .map(
+      ({ puzzle, review, score, presentation }) =>
+        `| ${review.dateKey ?? 'unscheduled'} | ${markdownCell(puzzle.title)} | ${score.toFixed(
+          2
+        )} | ${markdownCell(
+          puzzle.words.map((word) => `${word.answer}:${pathOrientation(word.path)}`).join(', ')
+        )} | ${markdownCell(presentation.flags.length === 0 ? 'clears visual weave gate' : presentation.flags.join(', '))} |`
+    )
+    .join('\n');
+  const gridPresentationRows = [
+    `| Average grid presentation score | ${gridPresentationAverage.toFixed(2)} |`,
+    `| Lowest grid presentation score | ${gridPresentationMinimum.toFixed(2)} |`,
+    `| Grid presentation floor | >= ${THREADLINE_MIN_GRID_PRESENTATION_SCORE.toFixed(2)} |`,
+    `| Floor failures | ${gridPresentationFloorFailures.length} |`,
+    `| Review dimension failures | ${
+      copyAudit.criticalIssues.filter((issue) => issue.code === 'score-below-threshold' && issue.message.includes('gridPresentationScore')).length
+    } |`,
+  ].join('\n');
   const difficultyRows = copyAudit.difficultyBands
     .map(
       (band) =>
@@ -3776,6 +4103,16 @@ export function formatThreadlineShippedPackMarkdown(): string {
     '| Check | Result |',
     '| --- | ---: |',
     threadTripleAuditRows,
+    '',
+    '## Grid Presentation Audit',
+    '',
+    '| Check | Result |',
+    '| --- | ---: |',
+    gridPresentationRows,
+    '',
+    '| Date | Puzzle | Score | Word presentation | Reason |',
+    '| --- | --- | ---: | --- | --- |',
+    weakestGridRows,
     '',
     '## Difficulty Matrix',
     '',

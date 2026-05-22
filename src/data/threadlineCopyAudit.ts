@@ -215,7 +215,7 @@ export const THREADLINE_COPY_SCORE_THRESHOLDS: Readonly<Record<string, number>> 
   calendarEditor: 4.45,
   copyEditor: 4.5,
   safetyEditor: 4,
-  gridEditor: 4,
+  gridEditor: 4.25,
   grammarScore: 4.5,
   titleCoherenceScore: 4.5,
   payoffBridgeScore: 4.6,

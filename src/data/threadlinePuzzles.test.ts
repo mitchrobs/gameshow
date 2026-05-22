@@ -13,6 +13,8 @@ import {
   THREADLINE_DATED_SCHEDULE,
   THREADLINE_EDITOR_REVIEW,
   THREADLINE_HOLIDAY_NODS,
+  THREADLINE_GRID_SIZE,
+  THREADLINE_MIN_GRID_PRESENTATION_SCORE,
   THREADLINE_PUZZLE_BANK,
   THREADLINE_PUZZLE_BY_ID,
   THREADLINE_RESERVES,
@@ -221,6 +223,13 @@ describe('threadline puzzles', () => {
     expect(errors).toEqual([]);
   });
 
+  it('ships Threadline on the roomier 9x9 board', () => {
+    getThreadlinePuzzles().forEach((puzzle) => {
+      expect(puzzle.grid).toHaveLength(THREADLINE_GRID_SIZE);
+      puzzle.grid.forEach((row) => expect(row).toHaveLength(THREADLINE_GRID_SIZE));
+    });
+  });
+
   it('uses every blank reference as a playable hidden word', () => {
     getThreadlinePuzzles().forEach((puzzle) => {
       const wordIds = new Set(puzzle.words.map((word) => word.id));
@@ -295,6 +304,18 @@ describe('threadline puzzles', () => {
         expect(pathToLetters(puzzle, word.path)).toBe(word.answer);
       });
     });
+  });
+
+  it('keeps shipped word presentation from collapsing into shelf-like rows or columns', () => {
+    THREADLINE_DATED_SCHEDULE.forEach((entry) => {
+      const review = THREADLINE_EDITOR_REVIEW[entry.puzzleId];
+
+      expect(review.scores.gridPresentationScore).toBeGreaterThanOrEqual(THREADLINE_MIN_GRID_PRESENTATION_SCORE);
+      expect(review.freshnessNote).toContain('Grid presentation');
+    });
+    expect(THREADLINE_EDITOR_REVIEW['threadline-2026-05-22-harbor'].scores.gridPresentationScore).toBeGreaterThanOrEqual(
+      THREADLINE_MIN_GRID_PRESENTATION_SCORE
+    );
   });
 
   it('generates a valid 365-day plus reserve review calendar', () => {
