@@ -71,6 +71,7 @@ import {
   summarizeThreadlineDifficultyBands,
 } from './threadlineCopyAudit';
 import {
+  THREADLINE_READY_RESERVE_RETIRED_COPY,
   THREADLINE_RECENTLY_RETIRED_LEAD_COPY,
   isThreadlineMechanicalWeave,
   isThreadlineRoboticLead,
@@ -469,6 +470,13 @@ describe('threadline puzzles', () => {
     });
   });
 
+  it('keeps harbor copy in dock and marina language instead of false rail shorthand', () => {
+    THREADLINE_PUZZLE_BANK.filter((puzzle) => puzzle.id.endsWith('-harbor')).forEach((puzzle) => {
+      const fullCopy = `${puzzle.title} ${renderThreadlineCompletedLead(puzzle)} ${puzzle.weave}`;
+      expect(fullCopy).not.toMatch(/\brail\b/i);
+    });
+  });
+
   it('keeps weave copy exceptional and free of puzzle-meta scaffolding', () => {
     const bannedWeaveCopy = /\b(theme|clue|hidden turn|line land|same thread|final line|in miniature|hiding between|need each other|opposite sides|make .+ click|works because|works? (?:where|when)|meets?|where [^.?!]+ meet|(?:begins|lives|settles|pauses|wakes|gathers|improves) where|feels human where|becomes? [^.?!]+ through|makes? [^.?!]+ feel|are the handoff|resolves when|lands when|shared place|appears between|make the connection visible|what you can point to|still detail|live one|scene turns on|has a voice|start with|listen for|now you are at|first .+ then)\b/i;
 
@@ -573,6 +581,16 @@ describe('threadline puzzles', () => {
     expect(THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'needs-tightening')).toHaveLength(
       THREADLINE_SHIPPED_TIGHTENING_RESERVE_DAYS
     );
+  });
+
+  it('keeps ready reserves clear of retired fallback-copy patterns', () => {
+    THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'ready').forEach((entry) => {
+      const puzzle = THREADLINE_PUZZLE_BY_ID[entry.puzzleId];
+      const completedLead = renderThreadlineCompletedLead(puzzle);
+      const combinedCopy = `${puzzle.title} ${completedLead} ${puzzle.weave}`;
+
+      expect(combinedCopy).not.toMatch(THREADLINE_READY_RESERVE_RETIRED_COPY);
+    });
   });
 
   it('keeps shipped copy audit free of critical title, lead, payoff, and review issues', () => {

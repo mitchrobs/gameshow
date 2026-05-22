@@ -800,7 +800,7 @@ const BLUEPRINTS: Blueprint[] = [
   {
     domain: 'harbor',
     title: 'Harbor Bell',
-    place: 'the harbor rail',
+    place: 'the marina',
     deck: 'Dock objects and boat motions share a bright edge of water.',
     season: 'summer',
     threads: [
@@ -1676,7 +1676,7 @@ const PAYOFF_SEMANTIC_BRIDGE_TOKENS: Readonly<Record<string, readonly string[]>>
   firehouse: ['alarm', 'answer', 'bay', 'brave', 'courage', 'help', 'public', 'ready', 'rest', 'urgency'],
   gallery: ['art', 'attention', 'body', 'conversation', 'eye', 'frame', 'gallery', 'looking', 'memory', 'patience', 'room', 'silence', 'visitor', 'wall'],
   garden: ['attention', 'beds', 'care', 'green', 'growth', 'hands', 'kept', 'morning', 'path', 'patience', 'season', 'soil', 'yard'],
-  harbor: ['boat', 'departure', 'distance', 'edge', 'harbor', 'leaving', 'mooring', 'morning', 'open', 'rail', 'still', 'water'],
+  harbor: ['boat', 'departure', 'distance', 'edge', 'harbor', 'leaving', 'mooring', 'morning', 'open', 'still', 'water'],
   kitchen: ['anticipation', 'care', 'counter', 'dinner', 'fragrant', 'heat', 'hunger', 'kitchen', 'meal', 'room', 'smell', 'supper', 'touch'],
   laboratory: ['answer', 'care', 'curiosity', 'doubt', 'evidence', 'method', 'precise', 'precision', 'proof', 'question', 'wonder'],
   library: ['book', 'borrowed', 'chair', 'hush', 'library', 'page', 'private', 'public', 'quiet', 'reader', 'reading', 'room', 'shelf', 'silence', 'solitude', 'stacks', 'voice'],

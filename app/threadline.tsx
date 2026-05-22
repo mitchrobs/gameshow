@@ -257,17 +257,6 @@ export default function ThreadlineScreen() {
     return map;
   }, [puzzle.words]);
 
-  const completedLeadText = useMemo(
-    () =>
-      puzzle.lead
-        .map((segment) => {
-          if (segment.type === 'text') return segment.text;
-          return wordById.get(segment.wordId)?.answer ?? '';
-        })
-        .join(''),
-    [puzzle.lead, wordById]
-  );
-
   const foundCellKeys = useMemo(() => {
     const keys = new Set<string>();
     puzzle.words.forEach((word) => {
@@ -1155,23 +1144,14 @@ export default function ThreadlineScreen() {
         <Text style={styles.resultSubtitle}>
           Solved in {formatTime(elapsedSeconds)} · {hasUsedHint ? 'Hint used' : 'No hint'}
         </Text>
-        <Text style={[styles.resultSectionLabel, compact && styles.mobileResultSectionLabel]}>
-          The line
-        </Text>
-        <Text style={[styles.completedLineText, compact && styles.mobileCompletedLineText]}>
-          {completedLeadText}
-        </Text>
         <Text style={[styles.weaveText, compact && styles.mobileWeaveText]}>
           {puzzle.weave}
         </Text>
-        <Text style={[styles.note, compact && styles.mobileNote]}>{puzzle.note}</Text>
-        {!compact && (
-          <View style={styles.shareBox}>
-            <Text selectable style={styles.shareText}>
-              {shareText}
-            </Text>
-          </View>
-        )}
+        <View style={[styles.shareBox, compact && styles.mobileShareBox]}>
+          <Text selectable style={[styles.shareText, compact && styles.mobileShareText]}>
+            {shareText}
+          </Text>
+        </View>
         <View style={[styles.resultActions, compact && styles.mobileResultActions]}>
           {Platform.OS === 'web' && (
             <Pressable
@@ -1974,35 +1954,6 @@ const createStyles = (
       fontSize: FontSize.sm,
       color: Colors.textSecondary,
     },
-    resultSectionLabel: {
-      marginTop: Spacing.md,
-      fontSize: 11,
-      fontWeight: '800',
-      letterSpacing: 0.8,
-      textTransform: 'uppercase',
-      color: Colors.textMuted,
-    },
-    mobileResultSectionLabel: {
-      marginTop: Spacing.sm,
-      fontSize: 10,
-    },
-    completedLineText: {
-      marginTop: 6,
-      padding: Spacing.md,
-      borderRadius: BorderRadius.md,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: Colors.surfaceLight,
-      color: Colors.text,
-      fontSize: FontSize.sm,
-      lineHeight: 21,
-      fontWeight: '700',
-    },
-    mobileCompletedLineText: {
-      padding: Spacing.sm,
-      fontSize: 12,
-      lineHeight: 17,
-    },
     weaveText: {
       marginTop: Spacing.md,
       padding: Spacing.md,
@@ -2019,16 +1970,6 @@ const createStyles = (
       padding: Spacing.sm,
       fontSize: 13,
       lineHeight: 18,
-    },
-    note: {
-      marginTop: Spacing.sm,
-      fontSize: FontSize.sm,
-      color: Colors.textMuted,
-      lineHeight: 20,
-    },
-    mobileNote: {
-      fontSize: 12,
-      lineHeight: 16,
     },
     shareBox: {
       marginTop: Spacing.md,
