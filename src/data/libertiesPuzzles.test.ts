@@ -241,6 +241,8 @@ describe('liberties puzzle engine', () => {
     expect(new Set(libertiesReservePuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesReservePuzzles.length);
     expect(new Set(libertiesHardPuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesHardPuzzles.length);
     expect(new Set(libertiesHardReservePuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesHardReservePuzzles.length);
+    expect(new Set(libertiesHardPuzzles.map((puzzle) => puzzle.layout.join('/'))).size).toBe(libertiesHardPuzzles.length);
+    expect(new Set(libertiesHardReservePuzzles.map((puzzle) => puzzle.layout.join('/'))).size).toBe(libertiesHardReservePuzzles.length);
 
     libertiesPreviewPuzzles.forEach((puzzle) => {
       const replay = replayLibertiesMoves(puzzle, puzzle.solution);
@@ -292,6 +294,8 @@ describe('liberties puzzle engine', () => {
 
   it('audits the two-year pack for varied puzzle families', () => {
     const audit = getLibertiesPackAudit();
+    const hardAudit = getLibertiesPackAudit(libertiesHardPuzzles);
+    const hardReserveAudit = getLibertiesPackAudit(libertiesHardReservePuzzles);
 
     expect(audit.puzzleCount).toBe(730);
     expect(audit.difficultyCounts.Easy).toBe(90);
@@ -319,6 +323,16 @@ describe('liberties puzzle engine', () => {
     expect(audit.delayedMoveCount).toBeGreaterThanOrEqual(500);
     expect(audit.maxUnlockDepth).toBeGreaterThanOrEqual(3);
     expect(audit.averageFillerMoveRatio).toBeLessThan(0.25);
+    expect(hardAudit.puzzleCount).toBe(730);
+    expect(hardAudit.difficultyCounts.Easy).toBe(0);
+    expect(hardAudit.difficultyCounts.Standard).toBe(326);
+    expect(hardAudit.difficultyCounts.Hard).toBe(404);
+    expect(hardAudit.minMinimumMoves).toBeGreaterThanOrEqual(13);
+    expect(hardAudit.averageMinimumMoves).toBeGreaterThan(audit.averageMinimumMoves + 2);
+    expect(hardAudit.averageTargetMoves).toBeGreaterThan(audit.averageTargetMoves + 5);
+    expect(hardAudit.pureOpeningFillCount).toBe(0);
+    expect(hardReserveAudit.difficultyCounts.Easy).toBe(0);
+    expect(hardReserveAudit.difficultyCounts.Standard).toBe(92);
 
     (Object.keys(LIBERTIES_TAG_LABELS) as Array<keyof typeof LIBERTIES_TAG_LABELS>).forEach((tag) => {
       expect(audit.tagCounts[tag], tag).toBeGreaterThan(tag === 'response-pressure' ? 25 : 40);
@@ -361,6 +375,7 @@ describe('liberties puzzle engine', () => {
     expect(firstSixtyMix.Hard).toBeGreaterThanOrEqual(20);
     expect(reserveIds.has(firstDaily.puzzle.id)).toBe(false);
     expect(libertiesReservePuzzles.every((puzzle) => typeof puzzle.reserveRank === 'number')).toBe(true);
+    expect(libertiesHardReservePuzzles.every((puzzle) => typeof puzzle.reserveRank === 'number')).toBe(true);
   });
 
   it('recalculates hints from off-path boards', () => {
@@ -454,10 +469,16 @@ describe('liberties puzzle engine', () => {
 
   it('selects a dated daily puzzle', () => {
     const entry = getDailyLibertiesEntry(new Date('2026-05-18T12:00:00.000Z'));
+    const hardEntry = getDailyLibertiesEntry(new Date('2026-05-18T12:00:00.000Z'), 'hard');
 
     expect(entry.date).toBe('2026-05-18');
     expect(entry.puzzle.id).toBe('liberties-clock-square');
     expect(entry.puzzle.difficulty).toBe('Standard');
+    expect(hardEntry.date).toBe('2026-05-18');
+    expect(hardEntry.puzzle.id).not.toBe(entry.puzzle.id);
+    expect(hardEntry.puzzle.difficulty).toBe('Hard');
+    expect(hardEntry.puzzle.size).toBeGreaterThanOrEqual(9);
+    expect(hardEntry.puzzle.minMoves).toBeGreaterThanOrEqual(18);
   });
 
   it('formats share text without exposing the internal clean light', () => {

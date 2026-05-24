@@ -86,6 +86,8 @@ const allHardPuzzles = [...libertiesHardPuzzles, ...libertiesHardReservePuzzles]
 const allModePuzzles = [...allPuzzles, ...libertiesHardPuzzles, ...libertiesHardReservePuzzles];
 const publicAudit = getLibertiesPackAudit(libertiesPuzzles);
 const reserveAudit = getLibertiesPackAudit(libertiesReservePuzzles);
+const hardPublicAudit = getLibertiesPackAudit(libertiesHardPuzzles);
+const hardReserveAudit = getLibertiesPackAudit(libertiesHardReservePuzzles);
 const publicFailed = libertiesPuzzles.filter((puzzle) => puzzleFailsGate(puzzle, 'standard'));
 const reserveFailed = libertiesReservePuzzles.filter((puzzle) => puzzleFailsGate(puzzle, 'standard'));
 const hardPublicFailed = libertiesHardPuzzles.filter((puzzle) => puzzleFailsGate(puzzle, 'hard'));
@@ -127,9 +129,14 @@ if (
   allHardLayouts.size !== allHardPuzzles.length ||
   publicAudit.standardMedianTargetSeconds < 240 ||
   publicAudit.standardMedianTargetSeconds > 420 ||
-    publicAudit.minMinimumMoves < 7 ||
+  publicAudit.minMinimumMoves < 7 ||
   publicAudit.averageTargetToMinimumMoveGap > 10 ||
   publicAudit.maxTargetToMinimumMoveGap > 20 ||
+  hardPublicAudit.difficultyCounts.Easy > 0 ||
+  hardPublicAudit.difficultyCounts.Hard < 390 ||
+  hardPublicAudit.averageMinimumMoves < 17 ||
+  hardPublicAudit.averageTargetMoves < 28 ||
+  hardReserveAudit.difficultyCounts.Easy > 0 ||
   publicAudit.pureOpeningFillCount > 0 ||
   reserveAudit.pureOpeningFillCount > 0 ||
   startingBlackPuzzles.length > 0 ||

@@ -179,7 +179,7 @@ const LIBERTIES_GENERATION_POOL_LENGTH = LIBERTIES_PACK_LENGTH + LIBERTIES_RESER
 // Play mode controls which daily rotation is used (standard vs hard mode),
 // while each puzzle keeps its own fixed difficulty label (Easy / Standard / Hard).
 const LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID = 'liberties-clock-square';
-const LIBERTIES_HARD_MODE_DAILY_START_PUZZLE_ID = 'liberties-clock-square'; // placeholder for a dedicated hard-mode pack
+const LIBERTIES_HARD_MODE_DAILY_START_PUZZLE_ID = 'liberties-hard-mode-first';
 const LIBERTIES_PACK_START_ORDINAL = dateKeyToUtcOrdinal(LIBERTIES_PACK_START_DATE);
 const LIBERTIES_DAILY_PUZZLE_START_IDS_BY_MODE: Record<LibertiesPlayMode, string> = {
   standard: LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID,
@@ -1623,8 +1623,14 @@ function chooseScheduledDifficulty(
   return candidates[0]!;
 }
 
-function orderLibertiesPublicPuzzles(puzzles: LibertiesPuzzle[]): LibertiesPuzzle[] {
-  const forcedPuzzle = puzzles.find((puzzle) => puzzle.id === LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID) ?? puzzles[0]!;
+function orderLibertiesPublicPuzzles(
+  puzzles: LibertiesPuzzle[],
+  mode: LibertiesPlayMode = 'standard'
+): LibertiesPuzzle[] {
+  const forcedPuzzle =
+    mode === 'hard'
+      ? puzzles.find((puzzle) => puzzle.difficulty === 'Hard') ?? puzzles[0]!
+      : puzzles.find((puzzle) => puzzle.id === LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID) ?? puzzles[0]!;
   const pools: Record<LibertiesDifficulty, LibertiesPuzzle[]> = {
     Easy: orderLibertiesDifficultyPool(
       puzzles.filter((puzzle) => puzzle.difficulty === 'Easy' && puzzle.id !== forcedPuzzle.id)
@@ -1646,22 +1652,25 @@ function orderLibertiesPublicPuzzles(puzzles: LibertiesPuzzle[]): LibertiesPuzzl
     Standard: 0,
     Hard: 0,
   };
-  const openingCadence: LibertiesDifficulty[] = [
-    'Easy',
-    'Easy',
-    'Standard',
-    'Easy',
-    'Standard',
-    'Easy',
-    'Standard',
-    'Hard',
-    'Easy',
-    'Standard',
-    'Standard',
-    'Easy',
-    'Hard',
-    'Standard',
-  ];
+  const openingCadence: LibertiesDifficulty[] =
+    mode === 'hard'
+      ? ['Hard', 'Standard', 'Hard', 'Hard', 'Standard', 'Hard', 'Hard', 'Standard', 'Hard', 'Hard']
+      : [
+          'Easy',
+          'Easy',
+          'Standard',
+          'Easy',
+          'Standard',
+          'Easy',
+          'Standard',
+          'Hard',
+          'Easy',
+          'Standard',
+          'Standard',
+          'Easy',
+          'Hard',
+          'Standard',
+        ];
   const ordered: LibertiesPuzzle[] = [forcedPuzzle];
   let previousDifficulty: LibertiesDifficulty | null = forcedPuzzle.difficulty;
 
@@ -1677,7 +1686,7 @@ function orderLibertiesPublicPuzzles(puzzles: LibertiesPuzzle[]): LibertiesPuzzl
   openingCadence.forEach((difficulty) => {
     if (ordered.length >= puzzles.length) return;
     if (addNextDifficulty(difficulty)) return;
-    chooseScheduledDifficulty(ordered.length, targets, used, previousDifficulty);
+    addNextDifficulty(chooseScheduledDifficulty(ordered.length, targets, used, previousDifficulty));
   });
 
   while (ordered.length < puzzles.length) {
@@ -1733,7 +1742,7 @@ function buildLibertiesPacks(
     true,
     profile.packLength,
     profile
-  )));
+  ), profile.mode));
   const reservePuzzles = withLibertiesMinimumRoutes(selectLibertiesPuzzlesByQuota(
     scoredCandidates,
     profile.reserveDifficultyQuotas,
@@ -1835,14 +1844,67 @@ function buildDailyScheduleFromGeneratedPack(
   };
 }
 
+function scoreHardSchedulePuzzle(puzzle: LibertiesPuzzle): number {
+  const minMoves = puzzle.minMoves ?? puzzle.targetMoves;
+  return (
+    (puzzle.difficulty === 'Hard' ? 800 : puzzle.difficulty === 'Standard' ? 250 : -1000) +
+    puzzle.targetSeconds * 2 +
+    minMoves * 48 +
+    puzzle.targetMoves * 28 +
+    puzzle.size * 30
+  );
+}
+
+function buildHardDailyScheduleFromGeneratedPacks(): {
+  publicPuzzles: LibertiesPuzzle[];
+  reservePuzzles: LibertiesPuzzle[];
+} {
+  const targetLength =
+    LIBERTIES_DAILY_SCHEDULE_LENGTH +
+    LIBERTIES_RESERVE_PACK_LENGTH +
+    (LIBERTIES_PACK_LENGTH - LIBERTIES_DAILY_SCHEDULE_LENGTH);
+  const seenIds = new Set<string>();
+  const seenLayouts = new Set<string>();
+  const candidates = [
+    ...generatedLibertiesHardPack,
+    ...generatedLibertiesHardReservePack,
+    ...generatedLibertiesPack,
+    ...generatedLibertiesReservePack,
+  ]
+    .filter((puzzle) => puzzle.difficulty !== 'Easy')
+    .filter((puzzle) => {
+      const layoutKey = puzzle.layout.join('/');
+      if (seenIds.has(puzzle.id) || seenLayouts.has(layoutKey)) return false;
+      seenIds.add(puzzle.id);
+      seenLayouts.add(layoutKey);
+      return true;
+    })
+    .sort((a, b) => scoreHardSchedulePuzzle(b) - scoreHardSchedulePuzzle(a) || a.id.localeCompare(b.id));
+
+  if (candidates.length < targetLength) {
+    throw new Error(`Liberties hard schedule has ${candidates.length} candidates, expected ${targetLength}`);
+  }
+
+  const selected = candidates.slice(0, targetLength);
+  const publicCandidates = selected.slice(0, LIBERTIES_DAILY_SCHEDULE_LENGTH);
+  const publicPuzzles = orderLibertiesPublicPuzzles(publicCandidates, 'hard');
+  const publicIds = new Set(publicPuzzles.map((puzzle) => puzzle.id));
+  const reservePuzzles = selected
+    .filter((puzzle) => !publicIds.has(puzzle.id))
+    .slice(0, targetLength - LIBERTIES_DAILY_SCHEDULE_LENGTH)
+    .map((puzzle, index) => ({ ...puzzle, reserveRank: index + 1 }));
+
+  return {
+    publicPuzzles,
+    reservePuzzles,
+  };
+}
+
 const libertiesScheduleStandard = buildDailyScheduleFromGeneratedPack(
   generatedLibertiesPack,
   generatedLibertiesReservePack
 );
-const libertiesScheduleHard = buildDailyScheduleFromGeneratedPack(
-  generatedLibertiesHardPack ?? generatedLibertiesPack,
-  generatedLibertiesHardReservePack ?? generatedLibertiesReservePack
-);
+const libertiesScheduleHard = buildHardDailyScheduleFromGeneratedPacks();
 const libertiesPuzzlesStandard = libertiesScheduleStandard.publicPuzzles;
 const libertiesPuzzlesHard = libertiesScheduleHard.publicPuzzles;
 const libertiesReservePuzzlesStandard = libertiesScheduleStandard.reservePuzzles;
@@ -2751,8 +2813,15 @@ function solveLibertiesGreedyFromBoard(
   return attemptGreedySolve(targetResponses) ?? attemptGreedySolve(0);
 }
 
-function getLiveHintRouteCacheKey(puzzle: Pick<LibertiesPuzzle, 'id'>, board: LibertiesBoard): string {
-  return `${puzzle.id}:${serializeLibertiesBoard(board)}`;
+function getLibertiesPuzzleCacheKey(puzzle: Pick<LibertiesPuzzle, 'id' | 'layout' | 'size'>): string {
+  return `${puzzle.id}:${puzzle.size}:${puzzle.layout.join('/')}`;
+}
+
+function getLiveHintRouteCacheKey(
+  puzzle: Pick<LibertiesPuzzle, 'id' | 'layout' | 'size'>,
+  board: LibertiesBoard
+): string {
+  return `${getLibertiesPuzzleCacheKey(puzzle)}:${serializeLibertiesBoard(board)}`;
 }
 
 function cloneHintRoute(route: LibertiesPoint[]): LibertiesPoint[] {
@@ -2920,7 +2989,8 @@ function routeSolvesLibertiesPuzzle(puzzle: LibertiesPuzzle, route: LibertiesPoi
 }
 
 function getGeneratedLibertiesMinimumRoute(puzzle: LibertiesPuzzle): LibertiesPoint[] {
-  const cached = generatedMinimumRouteCache.get(puzzle.id);
+  const cacheKey = getLibertiesPuzzleCacheKey(puzzle);
+  const cached = generatedMinimumRouteCache.get(cacheKey);
   if (cached) return cloneHintRoute(cached);
 
   const route = findMoveOptimizedLibertiesRoute(
@@ -2936,11 +3006,11 @@ function getGeneratedLibertiesMinimumRoute(puzzle: LibertiesPuzzle): LibertiesPo
     route.length <= puzzle.solution.length &&
     routeSolvesLibertiesPuzzle(puzzle, route)
   ) {
-    generatedMinimumRouteCache.set(puzzle.id, cloneHintRoute(route));
+    generatedMinimumRouteCache.set(cacheKey, cloneHintRoute(route));
     return cloneHintRoute(route);
   }
 
-  generatedMinimumRouteCache.set(puzzle.id, cloneHintRoute(puzzle.solution));
+  generatedMinimumRouteCache.set(cacheKey, cloneHintRoute(puzzle.solution));
   return cloneHintRoute(puzzle.solution);
 }
 
@@ -2979,13 +3049,14 @@ function withLibertiesMinimumRoutes(puzzles: LibertiesPuzzle[]): LibertiesPuzzle
 }
 
 function getInitialMoveOptimizedLibertiesRoute(puzzle: LibertiesPuzzle): LibertiesPoint[] | null {
-  const cached = lowestMoveRouteCache.get(puzzle.id);
+  const cacheKey = getLibertiesPuzzleCacheKey(puzzle);
+  const cached = lowestMoveRouteCache.get(cacheKey);
   if (cached) return cloneHintRoute(cached);
 
   if (Array.isArray(puzzle.minSolution) && puzzle.minSolution.length > 0) {
     const route = cloneHintRoute(puzzle.minSolution);
-    lowestMoveRouteCache.set(puzzle.id, cloneHintRoute(route));
-    lowestMoveCountCache.set(puzzle.id, route.length);
+    lowestMoveRouteCache.set(cacheKey, cloneHintRoute(route));
+    lowestMoveCountCache.set(cacheKey, route.length);
     cacheLiveHintRoute(puzzle, createLibertiesBoard(puzzle), route);
     return cloneHintRoute(route);
   }
@@ -3000,8 +3071,8 @@ function getInitialMoveOptimizedLibertiesRoute(puzzle: LibertiesPuzzle): Liberti
 
   if (!route || route.length === 0) return route;
 
-  lowestMoveRouteCache.set(puzzle.id, cloneHintRoute(route));
-  lowestMoveCountCache.set(puzzle.id, route.length);
+  lowestMoveRouteCache.set(cacheKey, cloneHintRoute(route));
+  lowestMoveCountCache.set(cacheKey, route.length);
   cacheLiveHintRoute(puzzle, board, route);
   return cloneHintRoute(route);
 }
@@ -3127,12 +3198,13 @@ export function getLowestLibertiesMoveCount(puzzle: LibertiesPuzzle): number {
     return puzzle.minMoves;
   }
 
-  const cached = lowestMoveCountCache.get(puzzle.id);
+  const cacheKey = getLibertiesPuzzleCacheKey(puzzle);
+  const cached = lowestMoveCountCache.get(cacheKey);
   if (cached !== undefined) return cached;
 
   const route = getInitialMoveOptimizedLibertiesRoute(puzzle);
   const moveCount = route?.length ?? puzzle.targetMoves;
-  lowestMoveCountCache.set(puzzle.id, moveCount);
+  lowestMoveCountCache.set(cacheKey, moveCount);
   return moveCount;
 }
 

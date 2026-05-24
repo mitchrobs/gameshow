@@ -209,17 +209,17 @@ writeFileSync(
     `Hard public puzzles tested: ${libertiesHardPuzzles.length}`,
     `Hard reserve puzzles tested: ${libertiesHardReservePuzzles.length}`,
     '',
-    '| Pool | Persona | Solve rate | Median Standard | Avg hints | Avg resets | Unclear-rule flags | Frustration flags |',
-    '|---|---|---:|---:|---:|---:|---:|---:|',
+    '| Pool | Persona | Solve rate | Median solve | Median Standard | Avg hints | Avg resets | Unclear-rule flags | Frustration flags |',
+    '|---|---|---:|---:|---:|---:|---:|---:|---:|',
     ...summaries.map(
       (summary) =>
-        `| ${summary.pool} | ${summary.label} | ${Math.round(summary.solveRate * 100)}% | ${formatTime(summary.medianStandardSeconds)} | ${summary.averageHints.toFixed(2)} | ${summary.averageResets.toFixed(2)} | ${summary.unclearRuleFlags} | ${summary.frustrationFlags} |`
+        `| ${summary.pool} | ${summary.label} | ${Math.round(summary.solveRate * 100)}% | ${formatTime(summary.medianSeconds)} | ${formatTime(summary.medianStandardSeconds)} | ${summary.averageHints.toFixed(2)} | ${summary.averageResets.toFixed(2)} | ${summary.unclearRuleFlags} | ${summary.frustrationFlags} |`
     ),
     '',
     '## Interpretation',
     '',
     '- The agent gate models Daybreak newcomers, LinkedIn-style daily players, NYT Pips visual solvers, existing logic optimizers, Go-aware players, impatient mobile players, and accessibility review.',
-    '- The pass target for this build is a Standard median between 4:00 and 7:00, high solve rate, and no repeated rule-confusion concentration in one persona.',
+    '- The pass target for this build is a Standard median between 4:00 and 7:00, a Hard public median above 7:30, high solve rate, and no repeated rule-confusion concentration in one persona.',
     '- These are simulated player agents, not a substitute for real external human testing.',
     '',
   ].join('\n')
@@ -230,7 +230,7 @@ summaries.forEach((summary) => {
   console.log(
     `${summary.pool} ${summary.label}: solve=${Math.round(summary.solveRate * 100)}% standardMedian=${formatTime(
       summary.medianStandardSeconds
-    )} hints=${summary.averageHints.toFixed(2)} resets=${summary.averageResets.toFixed(2)}`
+    )} median=${formatTime(summary.medianSeconds)} hints=${summary.averageHints.toFixed(2)} resets=${summary.averageResets.toFixed(2)}`
   );
 });
 
@@ -247,8 +247,8 @@ const hardFailing = hardSummaries.filter(
   (summary) =>
     summary.pool === 'hard-public' &&
     (summary.solveRate < 0.94 ||
-      summary.medianStandardSeconds < 240 ||
-      summary.medianStandardSeconds > 420 ||
+      summary.medianSeconds < 450 ||
+      summary.medianSeconds > 780 ||
       summary.frustrationFlags > 30)
 );
 
