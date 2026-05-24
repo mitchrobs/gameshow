@@ -2243,6 +2243,7 @@ const createStyles = (
       fontWeight: '900',
       textTransform: 'uppercase',
       letterSpacing: 0.6,
+    },
     modeSection: {
       marginTop: Spacing.md,
       gap: Spacing.sm,
