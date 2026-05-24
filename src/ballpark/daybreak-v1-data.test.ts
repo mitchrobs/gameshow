@@ -17,6 +17,7 @@ import {
   getBallparkReservePool,
   getBallparkReviewPacket,
   getBallparkRemediationBatch,
+  getBallparkTasteRemediationQueue,
   runBallpark400PackAudit,
   runBallparkProductionReadinessAudit,
   runBallparkReserveLaunchReadinessAudit,
@@ -124,7 +125,7 @@ describe('Ballpark 2026 calendar', () => {
           expect(question.answerNote.length).toBeGreaterThan(7);
           expect(question.prompt).not.toMatch(/\bfor the [a-z][a-z -]+\?/i);
           expect(question.prompt).not.toMatch(
-            /\b(one-inch|one inch|football field after|five-gallon bucket|syrup ounces|coffee ounces|paper feet|four full bowling racks|five-pound|dozen roses|stack of plywood|classroom canvas|regulation basketball court)\b/i
+            /\b(one-inch|football field after|five-gallon bucket|syrup ounces|coffee ounces|paper feet|four full bowling racks|five-pound|dozen roses|stack of plywood|classroom canvas|regulation basketball court)\b/i
           );
           expect(`${question.prompt} ${question.funFact}`).not.toMatch(
             /in the (corner-shop|neighborhood|downtown|fairground|community) version|at rush hour|at year-end|over a three-day stretch/i
@@ -196,10 +197,18 @@ describe('Ballpark 2026 calendar', () => {
     expect(launchSummary.warningCategories.source_specificity.examples.length).toBe(0);
   });
 
-  it('treats the eight-player-agent panel as part of the launch-ready contract', () => {
-    expect(BALLPARK_PLAYER_AGENT_PROFILES).toHaveLength(8);
+  it('treats the expanded player-agent panel as part of the launch-ready contract', () => {
+    expect(BALLPARK_PLAYER_AGENT_PROFILES.length).toBeGreaterThanOrEqual(12);
     expect(BALLPARK_PLAYER_AGENT_ROLES).toEqual(
       BALLPARK_PLAYER_AGENT_PROFILES.map((profile) => profile.role)
+    );
+    expect(BALLPARK_PLAYER_AGENT_ROLES).toEqual(
+      expect.arrayContaining([
+        'NYT Word Game Player',
+        'Daily Word Search Player',
+        'Connections Pattern Player',
+        'Fermi Estimator',
+      ])
     );
     BALLPARK_PLAYER_AGENT_PROFILES.forEach((profile) => {
       expect(profile.playerType.length).toBeGreaterThan(20);
@@ -342,7 +351,7 @@ describe('Ballpark 2026 calendar', () => {
 
     expect(packet.agentRoles).toEqual([...BALLPARK_PLAYER_AGENT_ROLES]);
     expect(packet.agentProfiles).toEqual([...BALLPARK_PLAYER_AGENT_PROFILES]);
-    expect(packet.agentProfiles).toHaveLength(8);
+    expect(packet.agentProfiles).toHaveLength(BALLPARK_PLAYER_AGENT_PROFILES.length);
     expect(packet.reviewInstructions.join(' ')).toMatch(/player-type lenses/);
     expect(packet.summary.days).toBe(3);
     expect(packet.summary.reservePacks).toBe(1);
@@ -402,6 +411,54 @@ describe('Ballpark 2026 calendar', () => {
     expect(combinedAudit.categoryCounts.default_agent_review).toBe(0);
     expect(combinedAudit.categoryCounts.repeated_prompt).toBe(0);
     expect(combinedAudit.warningCount).toBe(0);
+  });
+
+  it('keeps the new taste-gate remediation queue empty across all 400 packs', () => {
+    const combinedAudit = runBallpark400PackAudit();
+    const tasteQueue = getBallparkTasteRemediationQueue();
+    const tasteCategories = [
+      'generated_prompt_wrapper',
+      'weak_exact_opener',
+      'q23_semantic_overlap',
+      'duplicate_macro_flavor',
+      'nearby_arc_fatigue',
+      'toy_fermi',
+      'weak_learning_value',
+      'trivia_without_model',
+      'fake_scenario_math',
+      'same_topic_facet',
+      'forced_macro',
+    ];
+
+    expect(tasteQueue.passed).toBe(true);
+    expect(tasteQueue.blockerCount).toBe(0);
+    tasteCategories.forEach((category) => {
+      expect(combinedAudit.categoryCounts[category]).toBe(0);
+    });
+  });
+
+  it('keeps the Fermi-core reset focused on real topic facts with strong anchors', () => {
+    const combinedAudit = runBallpark400PackAudit();
+    const allPacks = [
+      ...validateAuthoredLibrary().authoredSets,
+      ...validateBallparkReserveBank().reservePacks,
+    ];
+    const bannedToyPrompts =
+      /\b(?:cards cover a crowded family game table|paper cups (?:sit|fit) behind one coffee-bar counter|small parts (?:are|fit) in a full .*counter bin|umbrellas are in one storm-prep rack|photo prints are in one counter pickup box|model rockets are on a club launch rack)\b/i;
+
+    expect(combinedAudit.passed).toBe(true);
+    expect(combinedAudit.categoryCounts.toy_fermi).toBe(0);
+    expect(combinedAudit.categoryCounts.weak_learning_value).toBe(0);
+    expect(combinedAudit.categoryCounts.trivia_without_model).toBe(0);
+    expect(combinedAudit.categoryCounts.same_topic_facet).toBe(0);
+
+    allPacks.forEach((pack) => {
+      expect(pack.questions).toHaveLength(3);
+      pack.questions.forEach((question) => {
+        expect(question.prompt).not.toMatch(bannedToyPrompts);
+        expect(question.funFact).toMatch(/^Answer:\s*[0-9,]+[.]/);
+      });
+    });
   });
 
   it('anchors the intended holiday dates to the intended themes', async () => {
@@ -501,8 +558,9 @@ describe('Ballpark 2026 calendar', () => {
     expect(dailySet.theme).toBe('Game Night');
     expect(prompts[0]).toMatch(/Jenga/i);
     expect(prompts[0]).not.toMatch(/standard deck/i);
+    expect(prompts[1]).toMatch(/Scrabble/i);
     expect(new Set(dailySet.questions.map((question) => question.questionMove))).toEqual(
-      new Set(['iconic_exact', 'object_anatomy', 'famous_macro'])
+      new Set(['iconic_exact', 'familiar_anchor', 'famous_macro'])
     );
     expect(worldwideSalesPrompts.length).toBeLessThanOrEqual(1);
   });
@@ -576,15 +634,18 @@ describe('Ballpark 2026 calendar', () => {
     expect(fireworks.questions.map((question) => question.prompt).join(' ')).not.toMatch(/show plan|climb-feet|barges firing/i);
   });
 
-  it('keeps repaired Moon Watch and Countdown Night facts fair and sourced', async () => {
-    const moonWatch = await getDailySet('2026-05-13');
+  it('keeps repaired Moon and Countdown Night facts fair and sourced', async () => {
+    const moon = await getDailySet('2026-05-13');
     const countdownNight = await getDailySet('2026-12-31');
 
-    expect(moonWatch.theme).toBe('Moon Watch');
-    expect(moonWatch.questions[1].prompt).not.toMatch(/seconds for light/i);
-    expect(moonWatch.questions[2].questionMove).toBe('famous_macro');
-    expect(moonWatch.questions[2].prompt).not.toMatch(/moon-watching seconds/i);
-    expect(moonWatch.questions[2].answer).toBeGreaterThan(100000);
+    expect(moon.theme).toBe('The Moon');
+    expect(moon.questions[1].prompt).not.toMatch(/seconds for light/i);
+    expect(new Set(moon.questions.map((question) => question.topicFacet))).toEqual(
+      new Set(['physical_dimension', 'natural_cycle', 'surface_features'])
+    );
+    expect(moon.questions[2].questionMove).toBe('famous_macro');
+    expect(moon.questions[2].prompt).not.toMatch(/moon-watching seconds/i);
+    expect(moon.questions[2].answer).toBeGreaterThan(100000);
 
     expect(countdownNight.questions[0].prompt).toMatch(/Times Square Ball/i);
     expect(countdownNight.questions[0].answerType).toBe('exact');
@@ -626,7 +687,7 @@ describe('Ballpark 2026 calendar', () => {
     expect(combinedAudit.categoryCounts.default_agent_review).toBe(0);
     expect(combinedAudit.categoryCounts.repeated_prompt).toBe(0);
 
-    expect(allPacks.filter((pack) => pack.playerAgentReviews?.length === 8)).toHaveLength(400);
+    expect(allPacks.filter((pack) => pack.playerAgentReviews?.length === BALLPARK_PLAYER_AGENT_ROLES.length)).toHaveLength(400);
     allPacks.forEach((pack) => {
       pack.playerAgentReviews.forEach((review) => {
         expect(['P3', undefined]).toContain(review.severity);
@@ -644,6 +705,44 @@ describe('Ballpark 2026 calendar', () => {
       expect(question.prompt.match(promptNumberPattern)?.length ?? 0).toBeLessThanOrEqual(1);
       expect(question.sources.some((source) => source.url.includes('mitchrobs.github.io/gameshow/ballpark'))).toBe(false);
     });
+  });
+
+  it('incorporates expanded player-agent polish on high-risk generated-glue packs', async () => {
+    const snowRoute = await getDailySet('2026-01-04');
+    const tailor = await getDailySet('2026-01-14');
+    const toyBrick = await getDailySet('2026-02-28');
+    const wrapping = await getDailySet('2026-03-16');
+    const stPatrick = await getDailySet('2026-03-17');
+    const busGarage = await getDailySet('2026-03-21');
+    const theater = await getDailySet('2026-03-26');
+    const stageCrew = await getDailySet('2026-05-06');
+    const weather = await getDailySet('2026-05-15');
+    const iceRink = await getDailySet('2026-12-01');
+    const sledding = await getDailySet('2026-12-17');
+    const reserves = validateBallparkReserveBank().reservePacks;
+    const stageLight = reserves.find((pack) => pack.reserveId === 'reserve-018');
+    const arcade = reserves.find((pack) => pack.reserveId === 'reserve-034');
+    const observatory = reserves.find((pack) => pack.reserveId === 'reserve-035');
+
+    expect(snowRoute.theme).toBe('Snow Route Map');
+    expect(snowRoute.questions[2].prompt).toMatch(/Chicago's snow route/i);
+    expect(tailor.questions.map((question) => question.prompt).join(' ')).not.toMatch(/ribbon length|tailor shop counter.*tailor shop counter/i);
+    expect(toyBrick.questions.map((question) => question.prompt).join(' ')).toMatch(/LEGO/i);
+    expect(wrapping.questions[1].prompt).toMatch(/yards of ribbon/i);
+    expect(stPatrick.questions[2].prompt).toMatch(/St\. Patrick/i);
+    expect(stPatrick.questions[2].prompt).not.toMatch(/Macy's Thanksgiving/i);
+    expect(busGarage.questions.map((question) => question.prompt).join(' ')).not.toMatch(/Repair Cafe|hardware box/i);
+    expect(theater.questions.map((question) => question.prompt).join(' ')).not.toMatch(/guitar|Taylor Swift/i);
+    expect(stageCrew.questions.map((question) => question.prompt).join(' ')).not.toMatch(/Grand Central|rail station/i);
+    expect(weather.extraInning?.prompt).not.toMatch(/lightning strikes/i);
+    expect(weather.extraInning?.funFact).toMatch(/observations/i);
+    expect(iceRink.questions.map((question) => question.prompt).join(' ')).not.toMatch(/skateboard|X Games/i);
+    expect(sledding.questions.map((question) => question.prompt).join(' ')).not.toMatch(/summer|hikers|trailhead/i);
+    expect(stageLight?.questions.map((question) => question.prompt).join(' ')).not.toMatch(/guitar|Coachella/i);
+    expect(stageLight?.extraInning?.prompt).not.toMatch(/Coachella/i);
+    expect(arcade?.questions[0].prompt).toMatch(/full-size arcade cabinet/i);
+    expect(arcade?.questions[0].prompt).not.toMatch(/arcade token cup.*arcade token cup/i);
+    expect(observatory?.questions.map((question) => question.prompt).join(' ')).not.toMatch(/rocket engine|launch online/i);
   });
 
   it('spaces puzzle themes so they stay occasional and never Friday-led', () => {

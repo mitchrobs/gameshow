@@ -1,7 +1,7 @@
 import {
-  buildRebuiltCalendarFromLegacy,
-  buildRebuiltReservePacksFromLegacy,
-} from "./rebuilt-content.mjs";
+  AUTHORED_BALLPARK_CALENDAR as FULL_AUTHORED_BALLPARK_CALENDAR,
+  AUTHORED_BALLPARK_RESERVE_PACKS as FULL_AUTHORED_BALLPARK_RESERVE_PACKS,
+} from "./authored-content.mjs";
 
 export const CYCLE_START_KEY = "2026-01-01";
 export const CALENDAR_END_KEY = "2026-12-31";
@@ -99,6 +99,30 @@ export const BALLPARK_PLAYER_AGENT_PROFILES = Object.freeze([
     playerType: "Long-haul player sensitive to repeats, seasonality, holiday fit, and reskin fatigue.",
     qualityLens: "Does this day feel fresh in the surrounding week and appropriate to the calendar moment?",
     blocksOn: "P1/P2 for repeated question moves, weak holiday specificity, seasonal mismatch, or obvious reskins.",
+  },
+  {
+    role: "NYT Word Game Player",
+    playerType: "Polished daily-games player who expects elegant wording, a clean aha, and no rough generated seams.",
+    qualityLens: "Would this clue feel crisp enough for a premium daily puzzle, with the answer fact landing cleanly?",
+    blocksOn: "P1/P2 for clunky syntax, duplicate theme glue, overlong clue setup, or reveals that feel less polished than the prompt.",
+  },
+  {
+    role: "Daily Word Search Player",
+    playerType: "Calm theme-first player who enjoys scanning a familiar topic and finding approachable entries.",
+    qualityLens: "Does the day stay cohesive and recognizable while giving three pleasantly different things to notice?",
+    blocksOn: "P1/P2 for theme drift, obscure nouns, too many adjacent-feeling prompts, or topics that feel noisy instead of relaxing.",
+  },
+  {
+    role: "Connections Pattern Player",
+    playerType: "Pattern-sensitive daily puzzle player who notices category repetition and wants each clue to shift the mental model.",
+    qualityLens: "Do Q1, Q2, and Q3 reveal different facets of the topic rather than three versions of the same thought?",
+    blocksOn: "P1/P2 for same-facet pairs, repeated macro flavor, or a day arc where the back half feels interchangeable.",
+  },
+  {
+    role: "Fermi Estimator",
+    playerType: "Reasoning-first player who wants decomposable anchors, rough scale sense, and a satisfying modeled reveal.",
+    qualityLens: "Can I build a plausible estimate before feedback, and did the answer teach a real quantity about the topic?",
+    blocksOn: "P1/P2 for trivia without a model, arbitrary toy estimates, forced macros, or facts that are interesting but unguessable.",
   },
 ]);
 export const BALLPARK_PLAYER_AGENT_ROLES = Object.freeze(
@@ -220,9 +244,13 @@ const FAMOUS_SCALE_PATTERN =
 const VAGUE_MACRO_PROMPT_PATTERN =
   /\b(?:major|large|famous|top|busy|citywide|national)\s+(?:city|public|state|water|ski|park|resort|library|museum|aquarium|event|festival|show|district|region|county|landmark|attraction|tournament|chain|network|system|shelter|hotel|fair|beach|ride|food|health|climbing|sports|game|toy|arcade|parcel|distribution|repair|shop|market|holiday)\b/i;
 const NAMED_MACRO_ANCHOR_PATTERN =
-  /\b(?:U\.S\.|United States|USPS|FDNY|NYPL|ASPCA|MLB|Macy's|Times Square|Library of Congress|WorldCat|Toy Fair New York|Gen Con|Monopoly|Uno|Barbie|LEGO|Taco Bell|Starbucks|Waffle House|Domino's|Yankee Stadium|Pike Place|Rose Parade|Rockefeller Center|Dyker Heights|Las Vegas Sphere|Sphere|M&M's|Reese's|X Games|Vail|Vail Mountain|Killington|Coney Island|Great Smoky Mountains|Yellowstone|Redwood National Park|Big Ben|Galveston|Houston|Iowa|Washington|Wisconsin|Niagara Falls|BirdCast|San Diego Zoo|Georgia Aquarium|Monterey Bay Aquarium|Dodger Stadium|Five Boro Bike Tour|Citi Bike|Schlitterbahn|Minnesota State Fair|National Memorial Day Parade|Arlington|National Museum of African American History and Culture|Smithsonian|Smithsonian National Museum of Natural History|Science Museum of Minnesota|Coachella|Taylor Swift|Boundary Waters|Staten Island Ferry|Wimbledon|Feeding America|UPS Worldport|Grand Central Terminal|Cape Hatteras|Google|Oriental Trading|IFSC|MGM Grand|Dutch flower auction|Art Basel Miami Beach|Statue of Liberty|Japan's Sushi Festival|Operation Santa|Toys for Tots|Clear the Shelters|Grand Canyon|U\.S\. national seashores|Marvel|New York City|New York City Transit|New York City public schools)\b/i;
+  /\b(?:U\.S\.|United States|USPS|FDNY|NYPL|ASPCA|MLB|Macy's|Times Square|Library of Congress|WorldCat|Toy Fair New York|Gen Con|Monopoly|Uno|Barbie|LEGO|Taco Bell|Starbucks|Waffle House|Domino's|Home Depot|Yankee Stadium|Pike Place|Rose Parade|Rockefeller Center|Dyker Heights|Las Vegas Sphere|Sphere|M&M's|Reese's|X Games|Vail|Vail Mountain|Killington|Coney Island|Great Smoky Mountains|Yellowstone|Redwood National Park|National Park Service|U\.S\. national parks|Big Ben|Galveston|Houston|Iowa|Washington|Wisconsin|Niagara Falls|BirdCast|San Diego Zoo|Georgia Aquarium|Monterey Bay Aquarium|Dodger Stadium|Five Boro Bike Tour|Citi Bike|Schlitterbahn|Minnesota State Fair|National Memorial Day Parade|Arlington|National Museum of African American History and Culture|Smithsonian|Smithsonian National Museum of Natural History|Science Museum of Minnesota|Coachella|Taylor Swift|Boundary Waters|Staten Island Ferry|Wimbledon|Feeding America|UPS Worldport|Grand Central Terminal|Cape Hatteras|Google|Oriental Trading|IFSC|MGM Grand|Dutch flower auction|Art Basel Miami Beach|Statue of Liberty|Japan's Sushi Festival|Operation Santa|Toys for Tots|Clear the Shelters|Grand Canyon|U\.S\. national seashores|Marvel|New York City|New York City Transit|New York City public schools)\b/i;
 const RECOGNIZABLE_STANDARD_ANCHOR_PATTERN =
-  /\b(?:standard backyard swimming pool|standard home rain barrel|common party pack|full-size school bus|five-gallon bucket|gallon jug|bushel basket|major-league baseball|standard deck|full-size piano|regulation bowling|regulation golf|Olympic pool|Olympic swimming)\b/i;
+  /\b(?:average American public library branch|NYC city bus route|city bus route|standard backyard swimming pool|standard home rain barrel|common party pack|full-size school bus|five-gallon bucket|gallon jug|one-gallon storage bin|bushel basket|apple bushel|jumbo laundromat washer|plastic arcade cup|full golf bag|major-league baseball|standard deck|full-size piano|regulation bowling|regulation golf|Olympic pool|Olympic swimming)\b/i;
+const NATURAL_TOPIC_GENERATED_GLUE_PATTERN =
+  /\b(?:starter anchor|regular operation|public scale|bonus scale|counted for|use as its starter anchor|uses .* as its starter anchor|can .* handle in a busy run|rough total|rough count|in (?:a|an) [^?.]+ context)\b/i;
+const WEAK_UNIT_RELEVANCE_PATTERN =
+  /\b(?:one big classroom library|big classroom library|classroom library hold|classroom's worth|full holds cart|library hold shelf|library return cart)\b/i;
 const UNSTABLE_PLAYER_UNIT_PATTERN = /\bHow many\s+(?:runs)\b/i;
 const HIDDEN_HOMEWORK_PROMPT_PATTERN =
   /\b(?:line a long .*block|row of .*coolers|one acre|bushel basket|beach block|pitcher's mound|display box|feet of extension cord|feet of ribbon|pounds of salsa fit|prep cooler|show plan|years passed between|years has .* been an? U\.S\. holiday|times can Big Ben (?:strike|ring) in one year|scoops are in one gallon|raindrops can fall on a city block|with \d[\d,]* .*each|at \d[\d,]* .*each)\b/i;
@@ -247,11 +275,12 @@ const EXTRA_INNING_ENTITY_ANCHORS = [
   "Vail",
   "Big Ben",
   "Citi Bike",
+  "Coachella",
 ];
 const CANNED_REVEAL_COPY_PATTERN =
-  /\b(starts with|middle question shifts|closer turns|closer widens|scene widens|ordinary setup|hides in plain sight|surprise is how quickly|bonus keeps the same world|by arithmetic|lands around|can reach)\b/i;
+  /\b(starts with|middle question shifts|closer turns|closer widens|scene widens|ordinary setup|hides in plain sight|surprise is how quickly|bonus keeps the same world|by arithmetic|lands around|can reach|concrete starting anchor|regular operation|public scale|tougher public-scale estimate)\b/i;
 const MALFORMED_PLAYER_PROMPT_PATTERN =
-  /\b[a-z]+-\s|\b(move through|show up across|stretch through)\b|\bcould fit in [A-Z][A-Za-z ]+\?|\b(?:rise|climb|lap|player|reader|drummer|course|lane)-feet\b|\bshow plan\b|\bthe in the\b|\bfull the\b|\ba art\b|\bsupply cart supply cart\b|\bvisitors visit\b|\bitems hold\b|\bhelmets store\b|\bfeet of hose carry\b|\bbuttons hold\b|\bdraw for a major public event\b|\bmoviegoers\b.*\battend\b|\bcarry Earth around the Sun\b|\bseparate Earth and the Moon\b.*\bwould\b|\bnear a (?:weather|storm|thunderstorm)\b|\b(?:library|school bus|laundry|ferry|bike|climbing|sled|snow globe|candy|prank) (?:year|week|day)\b|\b(?:school bus|ferry|bike|climbing|sled|snow globe|candy|prank) (?:library|warehouse|box truck|practice balls|tournament|road salt|visitor passes|check-in)\b|\bferry dock lines dock door\b|\blaundry cart laundry cart\b|\bkitchen drawer counter bin\b|\bmajor (?:train|produce|candle|ice cream|garden hose|public art) [a-z ]+(?:travel hub|region|season|market|relief week)\b|\bpublic art (?:market|season|harvest|produce)\b|\bwrapping paper (?:cart|public library|reading room)\b|\bclock bells clock tower\b|\bdiner clock tower\b|\btrain platform wall\b|\btrain switches vehicle\b|\bbirdwatching minute\b|\brecord birdwatching migration night\b/i;
+  /\b[a-z]+-\s|\b(move through|show up across|stretch through)\b|\bcould fit in [A-Z][A-Za-z ]+\?|\b(?:rise|climb|lap|player|reader|drummer|course|lane)-feet\b|\bshow plan\b|\bribbon length\b|\bthe in the\b|\bfull the\b|\ba art\b|\ba X Games\b|\bsupply cart supply cart\b|\bvisitors visit\b|\bitems hold\b|\bhelmets store\b|\bfeet of hose carry\b|\bbuttons hold\b|\bdraw for a major public event\b|\bmoviegoers\b.*\battend\b|\bcarry Earth around the Sun\b|\bseparate Earth and the Moon\b.*\bwould\b|\bnear a (?:weather|storm|thunderstorm)\b|\b(?:library|school bus|laundry|ferry|bike|climbing|sled|snow globe|candy|prank) (?:year|week|day)\b|\b(?:school bus|ferry|bike|climbing|sled|snow globe|candy|prank) (?:library|warehouse|box truck|practice balls|tournament|road salt|visitor passes|check-in)\b|\bferry dock lines dock door\b|\blaundry cart laundry cart\b|\bkitchen drawer counter bin\b|\bmajor (?:train|produce|candle|ice cream|garden hose|public art) [a-z ]+(?:travel hub|region|season|market|relief week)\b|\bpublic art (?:market|season|harvest|produce)\b|\bwrapping paper (?:cart|public library|reading room)\b|\bclock bells clock tower\b|\bdiner clock tower\b|\btrain platform wall\b|\btrain switches vehicle\b|\bbirdwatching minute\b|\brecord birdwatching migration night\b/i;
 const DEFAULT_AGENT_REVIEW_PATTERN =
   /\b(?:Approved for broader-player Ballpark testing with no P1\/P2 findings|reviewed resolved prompts for .+; no P1\/P2 issues recorded in this local review pass)\b/i;
 const PLACEHOLDER_SOURCE_PATTERN = /mitchrobs\.github\.io\/gameshow\/ballpark/i;
@@ -727,13 +756,7 @@ const BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY = {
   },
 };
 
-const BALLPARK_QUESTION_KEY_OVERRIDES_BY_DATE = {
-  "2026-05-05": ["school-book-fair-checkout-q1", "school-book-fair-checkout-q2", "school-book-fair-checkout-q3"],
-  "2026-09-15": ["baseball-dugout-fall-q1", "baseball-dugout-fall-q2", "baseball-dugout-fall-q3"],
-  "2026-07-06": ["summer-parade-route-q1", "summer-parade-route-q2", "summer-parade-route-q3"],
-  "2026-08-01": ["august-workshop-bench-q1", "august-workshop-bench-q2", "august-workshop-bench-q3"],
-  "2026-12-29": ["pegboard-wall-q1", "pegboard-wall-q2", "pegboard-wall-q3"],
-};
+const BALLPARK_QUESTION_KEY_OVERRIDES_BY_DATE = {};
 
 const CALENDAR_DATE_KEYS = buildCalendarDateKeys(CYCLE_START_KEY, CALENDAR_END_KEY);
 const EXPECTED_AUTHORED_QUESTION_COUNT =
@@ -2969,7 +2992,7 @@ const LEGACY_REJECTED_BALLPARK_THEME_SCAFFOLD = Object.freeze({
 });
 
 export const AUTHORED_BALLPARK_CALENDAR = Object.freeze(
-  buildRebuiltCalendarFromLegacy(LEGACY_REJECTED_BALLPARK_THEME_SCAFFOLD)
+  FULL_AUTHORED_BALLPARK_CALENDAR
 );
 
 const LEGACY_REJECTED_BALLPARK_RESERVE_SCAFFOLD = Object.freeze([
@@ -3151,7 +3174,7 @@ const LEGACY_REJECTED_BALLPARK_RESERVE_SCAFFOLD = Object.freeze([
 ]);
 
 export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze(
-  buildRebuiltReservePacksFromLegacy(LEGACY_REJECTED_BALLPARK_RESERVE_SCAFFOLD)
+  FULL_AUTHORED_BALLPARK_RESERVE_PACKS
 );
 
 const FALLBACK_ENTRY = pack("Starter Numbers", "tactile", [
@@ -3649,6 +3672,7 @@ function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = 
     calibrationAnchor: defaultCalibrationAnchor(resolvedQuestionEntry),
     questionMove,
     anchorType,
+    ...(resolvedQuestionEntry.topicFacet ? { topicFacet: resolvedQuestionEntry.topicFacet } : {}),
     iconicExact,
     agentDifficultyTarget,
     ...(resolvedQuestionEntry.rebuiltPrompt === true ? { rebuiltPrompt: true } : {}),
@@ -3673,6 +3697,7 @@ function createContentFingerprint(themeName, questions, extraInning = null) {
     calibrationAnchor: questionEntry.calibrationAnchor ?? null,
     questionMove: questionEntry.questionMove ?? null,
     anchorType: questionEntry.anchorType ?? null,
+    topicFacet: questionEntry.topicFacet ?? null,
     iconicExact: questionEntry.iconicExact ?? false,
     agentDifficultyTarget: questionEntry.agentDifficultyTarget ?? null,
     recognizableExact: questionEntry.recognizableExact ?? false,
@@ -3845,6 +3870,7 @@ function validateQuestion(questionEntry, index, seenPrompts, label = `Question $
     calibrationAnchor: questionEntry.calibrationAnchor.trim(),
     questionMove,
     anchorType,
+    ...(questionEntry.topicFacet ? { topicFacet: questionEntry.topicFacet } : {}),
     iconicExact,
     agentDifficultyTarget,
     ...(iconicExact ? { recognizableExact: true } : {}),
@@ -4269,6 +4295,17 @@ const LAUNCH_READINESS_CATEGORIES = [
   "answer_value_repetition",
   "flat_arc",
   "visible_generated_glue",
+  "generated_prompt_wrapper",
+  "weak_exact_opener",
+  "q23_semantic_overlap",
+  "duplicate_macro_flavor",
+  "nearby_arc_fatigue",
+  "toy_fermi",
+  "weak_learning_value",
+  "trivia_without_model",
+  "fake_scenario_math",
+  "same_topic_facet",
+  "forced_macro",
 ];
 const LAUNCH_READINESS_WARNING_CATEGORIES = ["source_specificity", "source_review"];
 
@@ -4365,6 +4402,14 @@ function findSharedExtraInningEntity(coreQuestion, extraQuestion) {
   );
 }
 
+function hasDuplicativeThemeTail(prompt, theme) {
+  const promptText = normalizePrompt(prompt);
+  const themeText = normalizePrompt(theme);
+  if (!themeText || themeText.length < 8) return false;
+  const themeOccurrences = promptText.split(themeText).length - 1;
+  return themeOccurrences > 1 && new RegExp(`\\b(?:in|during) (?:a|an|the) ${themeText}$`, "i").test(promptText);
+}
+
 function suggestQuestionRewriteType(category, questionEntry) {
   if (category === "arbitrary_container") {
     return "replace_with_named_or_famous_anchor";
@@ -4387,6 +4432,18 @@ function suggestQuestionRewriteType(category, questionEntry) {
   if (category === "placeholder_source") {
     return "replace_placeholder_with_defensible_external_source";
   }
+  if (category === "toy_fermi" || category === "weak_learning_value") {
+    return "replace_with_real_topic_fact";
+  }
+  if (category === "trivia_without_model") {
+    return "add_strong_estimation_anchor_or_replace";
+  }
+  if (category === "same_topic_facet") {
+    return "rewrite_day_to_three_distinct_topic_facets";
+  }
+  if (category === "forced_macro") {
+    return "replace_with_modelable_topic_breadth";
+  }
   return "manual_editorial_review";
 }
 
@@ -4398,6 +4455,243 @@ function hasRecognizableResolvedAnchor(questionEntry, combinedText) {
     return true;
   }
   return false;
+}
+
+const GENERATED_PROMPT_WRAPPER_PATTERN =
+  /^(?:For\s+[^,]+,\s*)?(?:use your gut:|take a swing:|in ballpark terms,|for a quick estimate,|what(?: is the)? rough (?:count|total) of|what (?:number|count) of|guess how many|estimate how many|ballpark how many|at a glance, how many)/i;
+const VISUAL_EXACT_OPENER_PATTERN =
+  /\b(Jenga tower|wooden blocks|Crayola box|crayons|full-size piano|piano keys|quarter|ridges|golf ball|dimples|baseball|stitches|bowling|pins|school bus|U\.S\. flag|flag stars|Olympic|pool lanes|skateboard|wheels|Uno deck|Scrabble|Pac-Man|maze dots|basketball|panels|egg carton|standard carton|pizza|slices|bike wheel|road-bike|spokes|photo-booth strip|clock face|standard clock|teeth|die|dice|pips|violin|guitar|frets|Monopoly|Rubik|roulette|checkers|backgammon|cribbage|face cards|card suits|suits are in|recorder|grand piano|pool table|billiards|tennis ball|soccer|Olympic symbol|Olympic rings|Mahjong|domino|chessboard|chess game)\b/i;
+const TASTE_STOP_WORDS = new Set(
+  "how many about are is in on one the a an of to with for from can do does did have has by at into across during through and standard typical common full size estimate estimated rough number count ballpark terms glance quick".split(" ")
+);
+
+function getTastePromptTokens(value) {
+  return new Set(
+    String(value)
+      .toLowerCase()
+      .replace(/\s+(?:in|during)\s+(?:a|an|the)\s+[^?]+(?=\?)/g, "")
+      .replace(/[^a-z0-9 ]+/g, " ")
+      .split(/\s+/)
+      .filter((token) => token.length > 2 && !TASTE_STOP_WORDS.has(token))
+  );
+}
+
+function getTastePromptSimilarity(firstPrompt, secondPrompt) {
+  const firstTokens = getTastePromptTokens(firstPrompt);
+  const secondTokens = getTastePromptTokens(secondPrompt);
+  const sharedCount = [...firstTokens].filter((token) => secondTokens.has(token)).length;
+  const totalCount = new Set([...firstTokens, ...secondTokens]).size || 1;
+  return sharedCount / totalCount;
+}
+
+function getTasteMacroFlavor(questionEntry) {
+  if (questionEntry.questionMove !== "famous_macro" && questionEntry.anchorType !== "famous_event") return null;
+  const prompt = String(questionEntry.prompt).replace(/\s+(?:in|during)\s+(?:a|an|the)\s+[^?]+(?=\?)/gi, "");
+  const combined = `${prompt} ${questionEntry.answerNote ?? ""} ${questionEntry.calibrationAnchor ?? ""}`.toLowerCase();
+  if (/\b(sold|sales|sell|selling|retail)\b/.test(combined)) return "sales";
+  if (/\b(visitors|people|fans|spectators|riders|students|attendees|passengers|viewers|crowd)\b/.test(combined)) return "crowd";
+  if (/\b(harvest|produce|production|grow|grown|bushels|crop|factory|make|made)\b/.test(combined)) return "production";
+  if (/\b(gallons|water|flow|rain|tank|pool|barrel)\b/.test(combined)) return "water";
+  if (/\b(miles|feet|distance|route|trail|steps)\b/.test(combined)) return "distance";
+  if (/\b(area|acres|square)\b/.test(combined)) return "area";
+  if (/\b(weight|pounds|tons)\b/.test(combined)) return "weight";
+  return null;
+}
+
+function getTasteQuestionFlavor(questionEntry) {
+  const macroFlavor = getTasteMacroFlavor(questionEntry);
+  if (macroFlavor) return macroFlavor;
+  const prompt = String(questionEntry.prompt).replace(/\s+(?:in|during)\s+(?:a|an|the)\s+[^?]+(?=\?)/gi, "");
+  const combined = `${prompt} ${questionEntry.estimationMode} ${questionEntry.questionMove}`.toLowerCase();
+  if (/\b(sold|sales|sell|selling|retail)\b/.test(combined)) return "sales";
+  if (/\b(harvest|produce|production|grow|grown|bushels|crop|factory|make|made)\b/.test(combined)) return "production";
+  if (/\b(miles|feet|distance|route|trail|steps)\b/.test(combined)) return "distance";
+  if (/\b(area|acres|square)\b/.test(combined)) return "area";
+  if (/\b(weight|pounds|tons)\b/.test(combined)) return "weight";
+  if (/\b(per|hour|minute|day|week|serve|pour|collect|process|rate)\b/.test(combined)) return "rate";
+  if (/\b(fit|hold|holds|inside|case|box|bag|rack|cart|table|display|capacity)\b/.test(combined)) return "capacity";
+  if (/\b(pieces|tiles|cards|keys|ridges|dimples|pins|lanes|blocks|sheets|pips|wheels)\b/.test(combined)) return "object_count";
+  return questionEntry.estimationMode ?? "other";
+}
+
+function hasWeakExactOpener(questionEntry) {
+  if (questionEntry.answerType !== "exact") return false;
+  if (Number(questionEntry.answer) > 100) return false;
+  return !VISUAL_EXACT_OPENER_PATTERN.test(`${questionEntry.prompt} ${questionEntry.calibrationAnchor ?? ""}`);
+}
+
+const TOY_FERMI_PROMPT_PATTERN =
+  /\b(?:cover|covers|fit|fits|sit|sits|stack|stacks|hang|hangs|line|lines)\b[^?]*\b(?:crowded family game table|behind one coffee-bar counter|coffee-bar counter|counter stack|display wall|supply cart|gear wall|counter bin|cleanup station|throw bag|loaner case|rack wall|big party bowl|prep setup|junk-drawer jar|pickup box|store-window display|club launch rack|storm-prep rack)\b/i;
+const WEAK_LEARNING_VALUE_PATTERN =
+  /\b(?:cards cover a crowded family game table|paper cups (?:fit|sit) behind|small parts (?:fit|are) in a full|instrument strings hang on a full|umbrellas (?:fit|are) in one storm-prep rack|model rockets (?:fit|stand) on a club launch rack|photo prints (?:fit|are) in one counter pickup box)\b/i;
+const REAL_TOPIC_FACT_SIGNAL_PATTERN =
+  /\b(?:standard|regulation|official|average|typical|common|midsize|packed|full-size|one-year|year|daily|per day|average day|one day|one year|season|weekend|U\.S\.|United States|USPS|FDNY|NYC|New York|Arlington|Library of Congress|Smithsonian|Monopoly|Jenga|Scrabble|Pac-Man|Uno|Waffle House|Domino's|Yankee Stadium|Grand Central|Times Square|Georgia Aquarium|Olympic|Macy's|X Games|Yellowstone|Vail|Big Ben|Staten Island Ferry|Las Vegas Sphere|Citi Bike|Pike Place|San Diego Zoo|Feeding America|UPS Worldport)\b/i;
+const FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN =
+  /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|riders|visitors|students|vehicles|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|petals|bows|cranberries|tortillas|records|campers|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|tiles|dots)\b/i;
+const SINGLE_OBJECT_FACETS = new Set(["object_structure", "small_capacity", "physical_size"]);
+const BREADTH_FACETS = new Set([
+  "usage",
+  "audience",
+  "operations",
+  "production",
+  "manufacturing",
+  "sales",
+  "market_footprint",
+  "institution_scale",
+  "collection_scale",
+  "cultural_scale",
+  "natural_scale",
+  "natural_population",
+  "area_extent",
+  "harvest",
+  "infrastructure",
+  "economics",
+]);
+
+const FERMI_FACET_KEY_PATTERNS = [
+  ["mail", /\b(mail|letters|packages|post office|usps|carrier tray)\b/],
+  ["vehicles", /\b(vehicles|buses|school bus|cars|ferry|subway|train|rail|fleet)\b/],
+  ["books", /\b(books|library|pages|paper|ream|checkout|circulate)\b/],
+  ["coffee", /\b(coffee|beans|cups|starbucks|waffle house)\b/],
+  ["pizza", /\b(pizza|pepperoni|domino|yankee stadium concession)\b/],
+  ["candy", /\b(candy|m&m|jelly beans|mars|chocolate)\b/],
+  ["plants", /\b(plants|seed|greenhouse|garden|flowers|bouquets|stems)\b/],
+  ["museum", /\b(museum|smithsonian|objects|collection|gallery|exhibit)\b/],
+  ["water", /\b(water|gallons|pool|aquarium|rain barrel|reservoir|tank)\b/],
+  ["animals", /\b(dogs|cats|birds|fish|butterflies|bees|monarchs|zoo|shelter)\b/],
+  ["music", /\b(music|guitar|piano|orchestra|concert|festival|strings|choir)\b/],
+  ["tools", /\b(tools|parts|hardware|repair|screws|plywood|workbench|pegboard)\b/],
+  ["weather", /\b(weather|storm|lightning|snow|salt|snowplow|thermometer)\b/],
+  ["sports", /\b(baseball|basketball|golf|skate|halfpipe|stadium|wimbledon|x games)\b/],
+  ["space", /\b(space|moon|earth|rocket|planetarium|milky way|stars|telescope)\b/],
+  ["food", /\b(pancakes|eggs|diner|meals|kitchen|bakery|taco|ice cream)\b/],
+  ["transit", /\b(riders|passengers|station|route|grand central|citi bike|staten island)\b/],
+];
+
+function getFermiFacetKey(combined) {
+  return FERMI_FACET_KEY_PATTERNS.find(([, pattern]) => pattern.test(combined))?.[0] ?? null;
+}
+
+function qualifyFermiFacet(baseFacet, combined) {
+  const facetKey = getFermiFacetKey(combined);
+  return facetKey ? `${baseFacet}:${facetKey}` : baseFacet;
+}
+
+function getFermiFacetBase(facet) {
+  return String(facet).split(":")[0];
+}
+
+function questionProvidesModelableBreadth(questionEntry, facet) {
+  const facetBase = getFermiFacetBase(facet);
+  if (BREADTH_FACETS.has(facetBase)) return true;
+  if (questionEntry.questionMove === "famous_macro" && hasStrongFermiAnchor(questionEntry)) return true;
+  if (
+    ["famous_event", "natural_scale"].includes(questionEntry.anchorType) &&
+    Number(questionEntry.answer) >= 10000 &&
+    hasStrongFermiAnchor(questionEntry)
+  ) {
+    return true;
+  }
+  if (
+    ["rate", "crowd"].includes(questionEntry.estimationMode) &&
+    Number(questionEntry.answer) >= 1000 &&
+    hasStrongFermiAnchor(questionEntry)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function hasModelableTopicBreadth(coreQuestions, coreFacets) {
+  return coreQuestions.some((questionEntry, index) => questionProvidesModelableBreadth(questionEntry, coreFacets[index]));
+}
+
+function getSameTopicFacetBlockerMessage(dailySet, coreFacets) {
+  const coreQuestions = dailySet.questions;
+  const uniqueFacets = new Set(coreFacets);
+  const hasBreadth = hasModelableTopicBreadth(coreQuestions, coreFacets);
+  const q12Similarity = getTastePromptSimilarity(coreQuestions[0]?.prompt ?? "", coreQuestions[1]?.prompt ?? "");
+  const q13Similarity = getTastePromptSimilarity(coreQuestions[0]?.prompt ?? "", coreQuestions[2]?.prompt ?? "");
+  const q23Similarity = getTastePromptSimilarity(coreQuestions[1]?.prompt ?? "", coreQuestions[2]?.prompt ?? "");
+  const maxPairSimilarity = Math.max(q12Similarity, q13Similarity, q23Similarity);
+  if (uniqueFacets.size === 1) {
+    const q3 = coreQuestions[2];
+    const largestEarlyAnswer = Math.max(Number(coreQuestions[0]?.answer ?? 0), Number(coreQuestions[1]?.answer ?? 0));
+    if (
+      hasBreadth &&
+      q3?.questionMove === "famous_macro" &&
+      Number(q3.answer) > largestEarlyAnswer * 10
+    ) {
+      return null;
+    }
+    if (hasBreadth && maxPairSimilarity < 0.3) return null;
+    return `Core questions repeat the same learnable topic facet (${coreFacets.join(
+      " > "
+    )}); Ballpark days should teach distinct real dimensions of the topic.`;
+  }
+
+  const q2Facet = coreFacets[1];
+  const q3Facet = coreFacets[2];
+  if (q2Facet === q3Facet && q23Similarity >= 0.3 && !questionProvidesModelableBreadth(coreQuestions[2], q3Facet)) {
+    return `Q2 and Q3 repeat the ${q2Facet} facet too closely; the back half should teach two different things about the topic.`;
+  }
+
+  const baseFacetCounts = coreFacets.reduce((counts, facet) => {
+    const baseFacet = getFermiFacetBase(facet);
+    counts[baseFacet] = (counts[baseFacet] ?? 0) + 1;
+    return counts;
+  }, {});
+  const repeatedBaseFacet = Object.entries(baseFacetCounts).find(([, count]) => count === CORE_QUESTION_COUNT)?.[0];
+  if (repeatedBaseFacet && !hasBreadth) {
+    return `All three questions stay in ${repeatedBaseFacet}; the day needs one broader, modelable topic fact.`;
+  }
+
+  return null;
+}
+
+function hasStrongFermiAnchor(questionEntry) {
+  const combinedText = `${questionEntry.prompt} ${questionEntry.answerNote ?? ""} ${questionEntry.calibrationAnchor ?? ""} ${questionEntry.funFact ?? ""}`;
+  if (questionEntry.iconicExact === true && VISUAL_EXACT_OPENER_PATTERN.test(combinedText)) return true;
+  if (NAMED_MACRO_ANCHOR_PATTERN.test(combinedText)) return true;
+  if (RECOGNIZABLE_STANDARD_ANCHOR_PATTERN.test(combinedText)) return true;
+  if (REAL_TOPIC_FACT_SIGNAL_PATTERN.test(combinedText) && FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN.test(combinedText)) return true;
+  if (["regulation", "named_standard", "natural_scale", "famous_event"].includes(questionEntry.anchorType)) return true;
+  if (questionEntry.anchorType === "sourced_typical" && FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN.test(combinedText)) return true;
+  if (questionEntry.anchorType === "iconic_object" && FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN.test(combinedText)) return true;
+  return false;
+}
+
+function getFermiTopicFacet(questionEntry) {
+  if (typeof questionEntry.topicFacet === "string" && questionEntry.topicFacet.trim().length > 0) {
+    return questionEntry.topicFacet.trim();
+  }
+  const combined = `${questionEntry.prompt} ${questionEntry.funFact ?? ""} ${questionEntry.answerNote ?? ""}`.toLowerCase();
+  if (/\b(?:spend|cost|sales dollars|revenue|budget)\b/.test(combined)) return qualifyFermiFacet("economics", combined);
+  if (/\b(?:library of congress|smithsonian collection|collection|archive|hold tens of millions|items are in)\b/.test(combined)) return qualifyFermiFacet("collection_scale", combined);
+  if (/\b(?:restaurants|stores|locations|branches|are open|operate across|worldwide)\b/.test(combined)) return qualifyFermiFacet("market_footprint", combined);
+  if (/\b(?:visitors|spectators|fans|attendees|viewers|people watched|people gather|crowds?|audience)\b/.test(combined)) return qualifyFermiFacet("audience", combined);
+  if (/\b(?:lane miles|route|routes|fleet|vehicles|delivery vehicles|stations|stops|subway|rail|ferry|buses|school buses|bridges|roads|water tower|reservoir|engine carry|hose)\b/.test(combined)) {
+    return qualifyFermiFacet("infrastructure", combined);
+  }
+  if (/\b(?:riders|students|commuters|passengers|calls|mail pieces|letters|packages|deliver|delivers|handle|handles|serve|serves|process|processes|operate|operates|vehicles|restaurants|stores|cups|pours|crack|uses|wash loads|check out|circulate)\b/.test(combined)) {
+    return qualifyFermiFacet("operations", combined);
+  }
+  if (/\b(?:sold|sells|sell|sales|copies|tickets)\b/.test(combined)) return qualifyFermiFacet("sales", combined);
+  if (/\b(?:made|make|makes|manufacture|factory|m&m|mars)\b/.test(combined)) return qualifyFermiFacet("manufacturing", combined);
+  if (/\b(?:produce|produces|production|harvest|grow|grown|crop|bushels|pounds of strawberries|pounds of milk)\b/.test(combined)) return qualifyFermiFacet("harvest", combined);
+  if (/\b(?:library of congress|smithsonian|national cemetery|school district|fdny|usps|subway|aquarium|museum|zoo)\b/.test(combined)) {
+    return qualifyFermiFacet("institution_scale", combined);
+  }
+  if (/\b(?:birds|fish|dogs|cats|butterflies|monarchs|bees|trees|stars|lightning strikes)\b/.test(combined)) return qualifyFermiFacet("natural_population", combined);
+  if (/\b(?:earth|moon|milky way|migration|redwood|river|ocean|national park)\b/.test(combined)) return qualifyFermiFacet("natural_scale", combined);
+  if (/\b(?:acres|square feet|square inches|area|covers|cover)\b/.test(combined)) return qualifyFermiFacet("area_extent", combined);
+  if (/\b(?:gallons|water|holds|capacity|tank|pool|barrel|bushel)\b/.test(combined)) return qualifyFermiFacet("liquid_capacity", combined);
+  if (/\b(?:weigh|weight|pounds|tons)\b/.test(combined)) return qualifyFermiFacet("weight", combined);
+  if (/\b(?:feet|miles|long|tall|wide|height|distance)\b/.test(combined)) return qualifyFermiFacet("physical_dimension", combined);
+  if (/\b(?:tray|cart|rack|bin|bucket|case|counter|table|wall|shelf|display|freezer|tub)\b/.test(combined)) return qualifyFermiFacet("storage_capacity", combined);
+  if (/\b(?:keys|blocks|stitches|dimples|panels|wheels|spokes|sheets|stars|lanes|cards)\b/.test(combined)) return qualifyFermiFacet("object_structure", combined);
+  if (/\b(?:fit|fits|cover|covers|sit|sits|stack|stacks|hang|hangs)\b/.test(combined)) return "small_capacity";
+  return questionEntry.estimationMode ?? "other";
 }
 
 function auditLaunchReadinessSet(dailySet, record, recordWarning) {
@@ -4487,12 +4781,20 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
     });
   }
 
-  const coreMoves = new Set(dailySet.questions.map((questionEntry) => questionEntry.questionMove));
-  if (coreMoves.size < CORE_QUESTION_COUNT) {
-    record("question_move_repetition", {
+  const coreFacets = dailySet.questions.map((questionEntry) => getFermiTopicFacet(questionEntry));
+  const sameTopicFacetMessage = getSameTopicFacetBlockerMessage(dailySet, coreFacets);
+  if (sameTopicFacetMessage) {
+    record("same_topic_facet", {
       date: auditPackId,
       theme: dailySet.theme,
-      message: "Daily set needs three distinct core question moves so it does not feel like one repeated template.",
+      message: sameTopicFacetMessage,
+    });
+  }
+  if (!hasModelableTopicBreadth(dailySet.questions, coreFacets)) {
+    record("same_topic_facet", {
+      date: auditPackId,
+      theme: dailySet.theme,
+      message: "Daily set needs at least one modelable breadth question beyond a single object or small container.",
     });
   }
   const worldwideSalesQuestions = dailySet.questions.filter((questionEntry) =>
@@ -4505,19 +4807,48 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
       message: "Only one core question may use a worldwide-sales shape; repeated sales macros make Q2/Q3 feel interchangeable.",
     });
   }
-  if (!dailySet.questions.some((questionEntry) => questionEntry.questionMove === "famous_macro")) {
-    record("missing_macro", {
-      date: auditPackId,
-      theme: dailySet.theme,
-      message: "Daily set needs at least one macro-scale question with a famous, natural, cultural, event, or world-scale anchor.",
-    });
+  const q2 = dailySet.questions[1];
+  const q3 = dailySet.questions[2];
+  if (q2 && q3) {
+    const q2Flavor = getTasteQuestionFlavor(q2);
+    const q3Flavor = getTasteQuestionFlavor(q3);
+    const q23Similarity = getTastePromptSimilarity(q2.prompt, q3.prompt);
+    const q2MacroFlavor = getTasteMacroFlavor(q2);
+    const q3MacroFlavor = getTasteMacroFlavor(q3);
+    if (q2MacroFlavor && q2MacroFlavor === q3MacroFlavor) {
+      record("duplicate_macro_flavor", {
+        date: auditPackId,
+        theme: dailySet.theme,
+        message: `Q2 and Q3 both use a ${q2MacroFlavor} macro flavor; one should become a different guessing move.`,
+      });
+    }
+    if (q2Flavor === q3Flavor && (q23Similarity >= 0.28 || (q2MacroFlavor && q2MacroFlavor === q3MacroFlavor))) {
+      record("q23_semantic_overlap", {
+        date: auditPackId,
+        theme: dailySet.theme,
+        message: `Q2 and Q3 share the ${q2Flavor} flavor too closely; the back half needs two distinct estimation hooks.`,
+      });
+    }
   }
+  const forcedMacroQuestions = dailySet.questions.filter(
+    (questionEntry) => questionEntry.questionMove === "famous_macro" && !hasStrongFermiAnchor(questionEntry)
+  );
+  forcedMacroQuestions.forEach((questionEntry, index) => {
+    recordQuestionLaunchBlocker(
+      record,
+      "forced_macro",
+      dailySet,
+      `Q${dailySet.questions.indexOf(questionEntry) + 1 || index + 1}`,
+      questionEntry,
+      "Broad-scale question looks included for size rather than because it gives players a modelable fact about the topic."
+    );
+  });
   const exactQuestions = getDailySetQuestions(dailySet).filter(({ question }) => question.answerType === "exact");
   if (exactQuestions.length > 1) {
     record("non_iconic_exact", {
       date: auditPackId,
       theme: dailySet.theme,
-      message: "No pack should lean on more than one exact fact unless it has explicit iconic agent approval.",
+      message: "Multiple exact facts need explicit iconic agent approval; otherwise the day starts to feel like trivia recall.",
     });
   }
   const coreAnswers = dailySet.questions.map((questionEntry) => Number(questionEntry.answer));
@@ -4557,6 +4888,16 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         );
       }
     }
+    if (/\blightning strikes\b/i.test(questionEntry.prompt) && /\braindrops\b/i.test(questionEntry.funFact)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "answer_fact_mismatch",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt asks for lightning, but the reveal explains raindrops; player-facing target and answer fact must match."
+      );
+    }
     if (/\bsatellites orbit Earth\b/i.test(questionEntry.prompt)) {
       recordQuestionLaunchBlocker(
         record,
@@ -4575,6 +4916,46 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         label,
         questionEntry,
         "A standard-deck opener is too recall-first for Ballpark; use a richer tabletop object with a real estimating path."
+      );
+    }
+    if (GENERATED_PROMPT_WRAPPER_PATTERN.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "generated_prompt_wrapper",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt still uses generated wrapper language instead of a natural player-facing question."
+      );
+    }
+    if (NATURAL_TOPIC_GENERATED_GLUE_PATTERN.test(combinedText)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "generated_prompt_wrapper",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt, reveal, or note still exposes generated glue instead of a natural topic fact."
+      );
+    }
+    if (WEAK_UNIT_RELEVANCE_PATTERN.test(combinedText)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_anchor",
+        dailySet,
+        label,
+        questionEntry,
+        "Unit of measurement is not naturally relevant enough for Ballpark; replace the day with a natural topic anchor."
+      );
+    }
+    if (label === "Q1" && hasWeakExactOpener(questionEntry)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_exact_opener",
+        dailySet,
+        label,
+        questionEntry,
+        "Exact Q1 needs a visible estimating path; low-answer memory facts alone are not strong Ballpark openers."
       );
     }
     const canonicalChecks = [
@@ -4650,6 +5031,14 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
     ) {
       recordQuestionLaunchBlocker(
         record,
+        "fake_scenario_math",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt gives players an invented formula or fake scenario instead of a real estimable fact about the topic."
+      );
+      recordQuestionLaunchBlocker(
+        record,
         "clue_arithmetic",
         dailySet,
         label,
@@ -4657,12 +5046,49 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         "Prompt exposes arithmetic or fake group math instead of asking for a calibratable Ballpark estimate."
       );
     }
+    if (TOY_FERMI_PROMPT_PATTERN.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "toy_fermi",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt is modelable but feels like a toy estimation exercise rather than a real fact players learn about the topic."
+      );
+    }
+    if (WEAK_LEARNING_VALUE_PATTERN.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_learning_value",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt has a guessable shape but teaches a low-value or arbitrary fact about the topic."
+      );
+    }
+    if (!hasStrongFermiAnchor(questionEntry)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "trivia_without_model",
+        dailySet,
+        label,
+        questionEntry,
+        "Question needs a named standard, familiar physical anchor, real operating rate, or decomposable model before it is fair Ballpark."
+      );
+    }
     const recognizableAnchor = hasRecognizableResolvedAnchor(questionEntry, combinedText);
     const arbitraryContainerPrompt = ARBITRARY_CONTAINER_PROMPT_PATTERN.test(questionEntry.prompt);
     const genericThroughputPrompt = GENERIC_THROUGHPUT_PROMPT_PATTERN.test(questionEntry.prompt);
+    const naturalSpecificTypicalPrompt =
+      questionEntry.anchorType === "named_standard" &&
+      !WEAK_UNIT_RELEVANCE_PATTERN.test(combinedText) &&
+      /\b(?:average|typical|busy|standard|common|U\.S\.|United States|American|NYC|New York|one day|one year|season)\b/i.test(
+        combinedText
+      );
     if (
       (arbitraryContainerPrompt || genericThroughputPrompt) &&
-      !recognizableAnchor
+      !recognizableAnchor &&
+      !naturalSpecificTypicalPrompt
     ) {
       recordQuestionLaunchBlocker(
         record,
@@ -4909,9 +5335,12 @@ function auditLaunchQuestionMoveRepetition(authoredSets, record) {
     if (rollingSets.length < rollingWindowSize) return;
     const moveCounts = {};
     const signatureCounts = {};
+    const tasteSignatureCounts = {};
     rollingSets.forEach((rollingSet) => {
       const signature = rollingSet.questions.map((questionEntry) => questionEntry.questionMove).join(">");
+      const tasteSignature = rollingSet.questions.map((questionEntry) => getTasteQuestionFlavor(questionEntry)).join(">");
       signatureCounts[signature] = (signatureCounts[signature] ?? 0) + 1;
+      tasteSignatureCounts[tasteSignature] = (tasteSignatureCounts[tasteSignature] ?? 0) + 1;
       rollingSet.questions.forEach((questionEntry) => {
         moveCounts[questionEntry.questionMove] = (moveCounts[questionEntry.questionMove] ?? 0) + 1;
       });
@@ -4932,12 +5361,19 @@ function auditLaunchQuestionMoveRepetition(authoredSets, record) {
         message: `The last ${rollingWindowSize} days repeat the ${signature} arc ${count} times; vary the daily guessing rhythm.`,
       });
     });
+    Object.entries(tasteSignatureCounts).forEach(([signature, count]) => {
+      if (count <= 3) return;
+      record("nearby_arc_fatigue", {
+        date: dailySet.date,
+        theme: dailySet.theme,
+        message: `The last ${rollingWindowSize} days repeat the ${signature} taste arc ${count} times; vary the player-facing rhythm.`,
+      });
+    });
   });
 }
 
 function auditLaunchResolvedOutputRepetition(authoredSets, record) {
   const promptMap = new Map();
-  const answerMap = new Map();
 
   authoredSets.forEach((dailySet) => {
     const allQuestions = [
@@ -4949,10 +5385,6 @@ function auditLaunchResolvedOutputRepetition(authoredSets, record) {
       const normalizedPrompt = normalizePrompt(question.prompt);
       promptMap.set(normalizedPrompt, [
         ...(promptMap.get(normalizedPrompt) ?? []),
-        { dailySet, question, label },
-      ]);
-      answerMap.set(Number(question.answer), [
-        ...(answerMap.get(Number(question.answer)) ?? []),
         { dailySet, question, label },
       ]);
     });
@@ -4972,19 +5404,6 @@ function auditLaunchResolvedOutputRepetition(authoredSets, record) {
     });
   });
 
-  answerMap.forEach((entries, answer) => {
-    if (answer < 10000 || entries.length <= 3) return;
-    entries.slice(3).forEach(({ dailySet, question, label }) => {
-      recordQuestionLaunchBlocker(
-        record,
-        "answer_value_repetition",
-        dailySet,
-        label,
-        question,
-        "Large answer value repeats too often inside this review window, creating answer-memory advantages."
-      );
-    });
-  });
 }
 
 function auditLaunchHolidayAlignment(authoredSetMap, record) {
@@ -5151,7 +5570,6 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
   const themeMap = new Map();
   const promptMap = new Map();
   const questionKeyMap = new Map();
-  const answerMap = new Map();
 
   [...datedSets, ...reserveSets].forEach((packEntry) => {
     const packId = packEntry.reserveId ?? packEntry.date;
@@ -5163,10 +5581,6 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
     promptMap.set(normalizedPrompt, [...(promptMap.get(normalizedPrompt) ?? []), { packId, theme, label, prompt: question.prompt }]);
     questionKeyMap.set(question.questionKey, [
       ...(questionKeyMap.get(question.questionKey) ?? []),
-      { packId, theme, label, prompt: question.prompt },
-    ]);
-    answerMap.set(question.answer, [
-      ...(answerMap.get(question.answer) ?? []),
       { packId, theme, label, prompt: question.prompt },
     ]);
   });
@@ -5196,15 +5610,6 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
       });
     }
   });
-  answerMap.forEach((entries, answer) => {
-    if (entries.length > 35) {
-      recordDuplicate("answer_value_repetition", `Answer value ${Number(answer).toLocaleString("en-US")} appears ${entries.length} times across the 400-pack bank.`, {
-        answer,
-        packs: entries.slice(0, 20).map((entry) => `${entry.packId} ${entry.label} ${entry.theme}`),
-      });
-    }
-  });
-
   return blockers;
 }
 
@@ -5283,6 +5688,47 @@ export function runBallpark400PackAudit() {
         packEntry.warnings.map((warning) => ({ ...warning, packId: packEntry.reserveId, theme: packEntry.theme }))
       ),
     ],
+  };
+}
+
+export function getBallparkTasteRemediationQueue() {
+  const tasteCategories = new Set([
+    "generated_prompt_wrapper",
+    "weak_exact_opener",
+    "q23_semantic_overlap",
+    "duplicate_macro_flavor",
+    "nearby_arc_fatigue",
+    "toy_fermi",
+    "weak_learning_value",
+    "trivia_without_model",
+    "fake_scenario_math",
+    "same_topic_facet",
+    "forced_macro",
+  ]);
+  const audit = runBallpark400PackAudit();
+  const blockers = audit.blockers.filter((blocker) => tasteCategories.has(blocker.category));
+  const groupedByCategory = {};
+  blockers.forEach((blocker) => {
+    groupedByCategory[blocker.category] = [...(groupedByCategory[blocker.category] ?? []), blocker];
+  });
+  const groupedByPack = {};
+  blockers.forEach((blocker) => {
+    const packId = blocker.packId ?? blocker.date ?? "combined";
+    groupedByPack[packId] = [...(groupedByPack[packId] ?? []), blocker];
+  });
+  return {
+    passed: blockers.length === 0,
+    blockerCount: blockers.length,
+    groupedByCategory,
+    groupedByPack,
+    orderedPacks: Object.entries(groupedByPack)
+      .map(([packId, packBlockers]) => ({
+        packId,
+        blockerCount: packBlockers.length,
+        categories: [...new Set(packBlockers.map((blocker) => blocker.category))],
+        theme: packBlockers[0]?.theme ?? null,
+      }))
+      .sort((first, second) => second.blockerCount - first.blockerCount || first.packId.localeCompare(second.packId)),
   };
 }
 
