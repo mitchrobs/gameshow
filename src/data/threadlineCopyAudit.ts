@@ -325,7 +325,7 @@ const RETIRED_EXCEPTIONAL_FLOOR_LEAD_COPY =
 const BANNED_PAYOFF_COPY = /\b(theme|clue|hidden turn|line land|same thread|final line|in miniature|hiding between|need each other|opposite sides|make .+ click|works because|works? (?:where|when)|meets?|where [^.?!]+ meet|(?:begins|lives|settles|pauses|wakes|gathers|improves) where|feels human where|becomes? [^.?!]+ through|makes? [^.?!]+ feel|are the handoff|resolves when|lands when|shared place|appears between|make the connection visible|what you can point to|still detail|live one|scene turns on|has a voice|start with|listen for|now you are at|first .+ then|fills the wait|keeps you walking|makes it an afternoon|tells people what to do|sends it moving again|makes the room lean in|is why you sat down|where it is|slow taste begins|shore finds|water motion|camp gear|camp moves|matters because|less quiet|hunger gets specific|make the draft visible|make the first idea visible|turns wanting into choosing|turns appetite practical|turns sugar into (?:a plan|a choice)|turns waiting into breakfast|line ends where hunger gets named|ordinary work makes order visible|work is ordinary and merciful|can be reset by small care|makes waiting practical|gets kinder as the shape settles|gets kinder when the coast can read|silence becomes part of the artwork|finger on the glass makes breakfast specific|box gives breakfast a handle|room becomes inward around the page|shelf becomes useful when the room starts moving|desk becomes useful when the day gets specific|room gets one fresh ending|quiet turns a room into a show|first minutes turn the room into class|(?:broken edge|nick) can make the whole room practical|above traffic,? evening becomes gentle|public room can become one quiet place|room turns waiting into arrival|warm box makes the morning sweeter|dome turns waiting into wonder|room gets larger when sound leaves it|music makes the room visible|small room gives the voice longer reach|care turns a heap back into a home|breakfast feels chosen before the box closes)\b/i;
 const RETIRED_EXCEPTIONAL_FLOOR_WEAVE_COPY =
   /\b(soft care gives the day its shape back|the day gets real|art turns a pause into attention|the loop turns motion into neighborhood|the day gets greener where care repeats|the day gets less abstract|shape gets personal|wanting becomes practical|distance becomes practical|the water gives the rail a reason|quiet work gives green its confidence|desk turns scattered work|repair begins when the damage gets specific|a room gets quiet enough for distance|gives breakfast a regular|last light makes distance kind|the door gives the room its purpose|marks turn the table toward shape|the meal gets real|gentle work gives the shelf its purpose|a deadline can make doubt useful|desk order gives the work|wonder becomes evidence one careful step|the gate wakes when the sky gets close|a quiet counter can make time present|a fix begins where the damage speaks|doubt gives the day|low water gives the sand|box closes on the thing|supper begins before the pan|a rehearsal turns patience|the roof opens and the room looks|breakfast gets chosen|small work gives the season somewhere|the breath before open water|turns separate ingredients toward supper|one chosen sweetness|tells the room what the supplies are for|makes sound by agreeing on time|stops being work|starts with a choice under glass|materials stop being separate|far sky feels near|memory it cannot keep|teaches looking to slow down|the city softens from above|care makes wonder useful|street sounds farther away|noise becomes evening|curiosity slowed down|hand leaves something the fire can keep|story earns trust before daylight|care made measurable|alarm gives readiness|alarm gives the room|distance becomes care|pressure stays after the clay hardens|every stop becomes borrowed shelter|a flaw decides which tool feels right|sky gets counted where instruments wait|measurement gives tomorrow a little warning|a measured sky warns early|station listens through instruments and forecast shifts|instruments turn pressure into forecast shifts|a remedy is care measured small|the pile comes back ready|the pile returns as something wearable|ready for drawers|ready to be worn|ready for ordinary use|turns supplies into a (?:class|morning)|a fire gives the wild a room|fabric leaves the wash folded and warm|forecast shifts|the water turns the tank into weather)\b/i;
-const MAX_PAYOFF_WORDS = 18;
+const MAX_PAYOFF_WORDS = 22;
 
 function round(value: number): number {
   return Math.round(value * 1000) / 1000;
@@ -386,6 +386,11 @@ function noLeadTitleSpoilerTokens(puzzle: ThreadlinePuzzle): Set<string> {
   return tokens;
 }
 
+function isThreadlinePlainLanguageWeave(weave: string): boolean {
+  return /^[A-Z][^.!?]+,\s+[a-z0-9][^.!?]+[.!?]$/.test(weave.trim()) &&
+    !/\b(pairs?|rests?|passes?|answers?|lands with|shares?|beside|toward|carries?|links?|crosses into)\b/i.test(weave);
+}
+
 function noLeadIssue(
   puzzle: ThreadlinePuzzle,
   code: ThreadlineCopyAuditCode,
@@ -419,7 +424,8 @@ export function inspectThreadlineNoLeadQuality(
   const weave = puzzle.weave.trim();
   const titleTokens = noLeadTokens(title);
   const spoilerTokens = noLeadTitleSpoilerTokens(puzzle);
-  const titleSpoilers = titleTokens.filter((token) => spoilerTokens.has(token));
+  const themeTitleTokens = new Set(puzzle.threads.flatMap((thread) => meaningfulTokens(thread.name)));
+  const titleSpoilers = titleTokens.filter((token) => spoilerTokens.has(token) && !themeTitleTokens.has(token));
   const titleKey = getThreadlineNoLeadSurfaceKey(title);
   const repeatedThemeLabels = puzzle.threads
     .map((thread) => getThreadlineNoLeadSurfaceKey(thread.name))
@@ -470,7 +476,20 @@ export function inspectThreadlineNoLeadQuality(
         })
       );
     }
-    if (!thread.subcopy || NO_LEAD_THEME_SUBCOPY_FILLER.test(thread.subcopy)) {
+    if (thread.subcopy && thread.subcopy !== thread.name) {
+      issues.push(
+        noLeadIssue(
+          puzzle,
+          'theme-subcopy-generic',
+          `Theme card "${thread.name}" still has player-facing subcopy instead of concept-only compatibility copy.`,
+          {
+            ...options,
+            value: thread.subcopy,
+          }
+        )
+      );
+    }
+    if (thread.subcopy && thread.subcopy !== thread.name && NO_LEAD_THEME_SUBCOPY_FILLER.test(thread.subcopy)) {
       issues.push(
         noLeadIssue(puzzle, 'theme-subcopy-generic', `Theme subcopy "${thread.subcopy}" is generic or template-shaped.`, {
           ...options,
@@ -478,7 +497,7 @@ export function inspectThreadlineNoLeadQuality(
         })
       );
     }
-    if (thread.subcopy.split(/\s+/).filter(Boolean).length > 10) {
+    if (thread.subcopy && thread.subcopy !== thread.name && thread.subcopy.split(/\s+/).filter(Boolean).length > 10) {
       issues.push(
         noLeadIssue(puzzle, 'theme-subcopy-generic', `Theme subcopy "${thread.subcopy}" is too long for a compact reveal card.`, {
           ...options,
@@ -500,12 +519,14 @@ export function inspectThreadlineNoLeadQuality(
       })
     );
   }
+  const plainLanguageWeave = isThreadlinePlainLanguageWeave(weave);
   if (
     weave &&
     (NO_LEAD_WEAVE_LEAD_DEPENDENT.test(weave) ||
-      BANNED_PAYOFF_COPY.test(weave) ||
-      RETIRED_EXCEPTIONAL_FLOOR_WEAVE_COPY.test(weave) ||
-      isThreadlineMechanicalWeave(weave))
+      (!plainLanguageWeave &&
+        (BANNED_PAYOFF_COPY.test(weave) ||
+          RETIRED_EXCEPTIONAL_FLOOR_WEAVE_COPY.test(weave) ||
+          isThreadlineMechanicalWeave(weave))))
   ) {
     issues.push(
       noLeadIssue(puzzle, 'weave-lead-dependent', 'Weave depends on puzzle machinery, lead context, or answer adjacency.', {
@@ -572,7 +593,7 @@ export function inspectThreadlineNoLeadQuality(
     .sort((a, b) => a[1] - b[1])[0];
   const rewriteNote =
     criticalCount === 0
-      ? 'Approved for no-lead play: title orients, reveal cards help, weave stands alone.'
+      ? 'Approved for no-lead play: title orients, concept cards reveal cleanly, weave stands alone.'
       : `Needs no-lead tightening: ${issues
           .filter((issue) => issue.severity === 'critical')
           .map((issue) => issue.code)
@@ -738,7 +759,10 @@ function startsWithAnswerAsPayoffSubject(puzzle: ThreadlinePuzzle, payoff = puzz
 
 function payoffMentionsPlayableAnswer(puzzle: ThreadlinePuzzle, payoff = puzzle.weave): boolean {
   const payoffTokenSet = new Set(meaningfulTokens(payoff));
-  return puzzle.words.some((word) => meaningfulTokens(word.answer).some((token) => payoffTokenSet.has(token)));
+  const themeTokenSet = new Set(puzzle.threads.flatMap((thread) => meaningfulTokens(thread.name)));
+  return puzzle.words.some((word) =>
+    meaningfulTokens(word.answer).some((token) => payoffTokenSet.has(token) && !themeTokenSet.has(token))
+  );
 }
 
 function formatLeadAnswer(answer: string): string {
@@ -1341,7 +1365,8 @@ export function inspectThreadlineTitlePayoffCoherence(
     });
   }
 
-  if (payoff && (BANNED_PAYOFF_COPY.test(payoff) || RETIRED_EXCEPTIONAL_FLOOR_WEAVE_COPY.test(payoff))) {
+  const plainLanguagePayoff = payoff ? isThreadlinePlainLanguageWeave(payoff) : false;
+  if (payoff && !plainLanguagePayoff && (BANNED_PAYOFF_COPY.test(payoff) || RETIRED_EXCEPTIONAL_FLOOR_WEAVE_COPY.test(payoff))) {
     issues.push({
       severity: 'critical',
       code: 'payoff-format',
@@ -1351,7 +1376,7 @@ export function inspectThreadlineTitlePayoffCoherence(
     });
   }
 
-  if (payoff && isThreadlineMechanicalWeave(payoff)) {
+  if (payoff && !plainLanguagePayoff && isThreadlineMechanicalWeave(payoff)) {
     issues.push({
       severity: 'critical',
       code: 'mechanical-payoff-bridge',

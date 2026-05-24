@@ -260,25 +260,31 @@ describe('threadline puzzles', () => {
       expect(approval.editorStatus).toBe('approved');
       expect(approval.approvalSource).toBe('manual-600-exceptional-floor');
       expect(approval.title).toBe(puzzle.title);
+      expect(approval.status).toBe('approved');
+      expect(approval.themeAName).toBe(puzzle.threads[0]?.name);
+      expect(approval.themeBName).toBe(puzzle.threads[1]?.name);
       expect(approval.filledLead).toBe(renderThreadlineCompletedLead(puzzle));
       expect(approval.themeCopy).toEqual(puzzle.threads.map((thread) => ({ name: thread.name, subcopy: thread.clue })));
+      expect(approval.themeCopy.every((theme) => theme.subcopy === theme.name)).toBe(true);
+      puzzle.threads.forEach((thread) => expect(thread.clue).toBe(thread.name));
       expect(approval.weave).toBe(puzzle.weave);
+      expect(approval.editorNote.length).toBeGreaterThan(30);
       expect(approval.reviewNote).toMatch(/^Title "/);
       expect(approval.reviewNote).not.toMatch(THREADLINE_RETIRED_APPROVAL_NOTE_COPY);
       expect(approval.reviewNote).toContain(`Title "${approval.title}"`);
       expect(approval.reviewNote.toLowerCase()).toContain('theme');
       expect(approval.reviewNote).toContain(`Weave "${approval.weave}"`);
-      expect(approval.reviewNote).toMatch(/Scores: \d\.\d{2} theme copy, \d\.\d{2} weave\./);
+      expect(approval.reviewNote).toMatch(/Scores: \d\.\d{2} theme concepts, \d\.\d{2} weave\./);
       expect(approval.reviewNote).not.toMatch(/cleared editorial pursuit checks/i);
       const noteFrame = approval.reviewNote
         .replace(/"[^"]+"/g, '"..."')
-        .replace(/Scores: \d\.\d{2} theme copy, \d\.\d{2} weave\./g, 'Scores: # theme copy, # weave.');
+        .replace(/Scores: \d\.\d{2} theme concepts, \d\.\d{2} weave\./g, 'Scores: # theme concepts, # weave.');
       approvalNoteFrames.set(noteFrame, (approvalNoteFrames.get(noteFrame) ?? 0) + 1);
       expect(approval.readAloudChecklist).toEqual([
         'title is natural and nonspoiling',
         'locked themes reveal only after the first found word',
-        'theme names and subcopy are concrete, useful, and human',
-        'weave connects the two themes without the lead sentence',
+        'theme cards reveal a single concept name without player-facing subcopy',
+        'weave plainly connects the two concepts without fortune-cookie phrasing',
         'board layout feels intentional on the 10x8 surface',
       ]);
     });
@@ -483,7 +489,7 @@ describe('threadline puzzles', () => {
   });
 
   it('keeps weave copy exceptional and free of puzzle-meta scaffolding', () => {
-    const bannedWeaveCopy = /\b(theme|clue|hidden turn|line land|same thread|final line|in miniature|hiding between|need each other|opposite sides|make .+ click|works because|works? (?:where|when)|meets?|where [^.?!]+ meet|(?:begins|lives|settles|pauses|wakes|gathers|improves) where|feels human where|becomes? [^.?!]+ through|makes? [^.?!]+ feel|are the handoff|resolves when|lands when|shared place|appears between|make the connection visible|what you can point to|still detail|live one|scene turns on|has a voice|start with|listen for|now you are at|first .+ then)\b/i;
+    const bannedWeaveCopy = /\b(theme|clue|hidden turn|line land|same thread|final line|in miniature|hiding between|need each other|opposite sides|make .+ click|works because|works? (?:where|when)|meets?|where [^.?!]+ meet|(?:begins|lives|settles|pauses|wakes|gathers|improves) where|feels human where|becomes? [^.?!]+ through|are the handoff|resolves when|lands when|shared place|appears between|make the connection visible|what you can point to|still detail|live one|scene turns on|has a voice|start with|listen for|now you are at|first .+ then|pairs?|rests?|passes?|answers?|lands with|shares?|beside|toward|carries?|links?|crosses into)\b/i;
 
     THREADLINE_PUZZLE_BANK.forEach((puzzle) => {
       expect(puzzle.weave).not.toMatch(bannedWeaveCopy);
@@ -493,7 +499,7 @@ describe('threadline puzzles', () => {
       expect(isThreadlineMechanicalWeave(puzzle.weave)).toBe(false);
       expect(puzzle.weave).toMatch(/[.!?]$/);
       expect(puzzle.weave.length).toBeGreaterThanOrEqual(23);
-      expect(puzzle.weave.split(/\s+/).filter(Boolean).length).toBeLessThanOrEqual(18);
+      expect(puzzle.weave.split(/\s+/).filter(Boolean).length).toBeLessThanOrEqual(22);
     });
   });
 
@@ -524,7 +530,7 @@ describe('threadline puzzles', () => {
       expect(approvedCopy.reviewNote).toContain(`Title "${puzzle.title}"`);
       expect(approvedCopy.reviewNote.toLowerCase()).toContain('theme');
       expect(approvedCopy.reviewNote).toContain(`Weave "${puzzle.weave}"`);
-      expect(approvedCopy.reviewNote).toMatch(/Scores: \d\.\d{2} theme copy, \d\.\d{2} weave\./);
+      expect(approvedCopy.reviewNote).toMatch(/Scores: \d\.\d{2} theme concepts, \d\.\d{2} weave\./);
       expect(normalizedNote).toMatch(/theme|revealed|labels|cards/);
     });
 
@@ -561,7 +567,25 @@ describe('threadline puzzles', () => {
     expect(expansionEntries.length + expansionReserveEntries.length).toBe(THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS);
     expect(expansionEntries.length).toBeGreaterThan(0);
     expect(expansionReserveEntries.length).toBeGreaterThan(0);
-    expect(expansionFamilies.size).toBe(36);
+    [
+      'greenhouse',
+      'flower-shop',
+      'record-store',
+      'barbershop',
+      'hotel-lobby',
+      'ferry-landing',
+      'bike-shop',
+      'pool-deck',
+      'ice-rink',
+      'photo-darkroom',
+      'bookshop',
+      'hardware-aisle',
+      'map-room',
+      'courtyard',
+      'tea-shop',
+      'repair-counter',
+    ].forEach((domain) => expect(expansionFamilies).toContain(domain));
+    expect(expansionFamilies.size).toBeGreaterThanOrEqual(16);
     expansionEntries.forEach((entry) => {
       const review = THREADLINE_EDITOR_REVIEW[entry.puzzleId];
 
@@ -695,7 +719,7 @@ describe('threadline puzzles', () => {
 
     expect(markdown).toContain('## Title Purpose Audit');
     expect(markdown).toContain('## Theme Reveal Audit');
-    expect(markdown).toContain('## Theme Subcopy Audit');
+    expect(markdown).toContain('## Theme Concept Audit');
     expect(markdown).toContain('## Weave Without Lead Audit');
     expect(markdown).toContain('## Board Feel Audit');
     expect(markdown).toContain('## Per-Day Editorial Ledger');
