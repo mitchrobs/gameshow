@@ -491,6 +491,22 @@ describe('Ballpark 2026 calendar', () => {
     });
   });
 
+  it('keeps today Game Night from becoming recall-first or two repeated sales macros', async () => {
+    const dailySet = await getDailySet('2026-05-23');
+    const prompts = dailySet.questions.map((question) => question.prompt);
+    const worldwideSalesPrompts = prompts.filter((prompt) =>
+      /\b(?:sold|sales|sell|selling)\b/i.test(prompt) && /\bworldwide\b/i.test(prompt)
+    );
+
+    expect(dailySet.theme).toBe('Game Night');
+    expect(prompts[0]).toMatch(/Jenga/i);
+    expect(prompts[0]).not.toMatch(/standard deck/i);
+    expect(new Set(dailySet.questions.map((question) => question.questionMove))).toEqual(
+      new Set(['iconic_exact', 'object_anatomy', 'famous_macro'])
+    );
+    expect(worldwideSalesPrompts.length).toBeLessThanOrEqual(1);
+  });
+
   it('includes source metadata in the content fingerprint', async () => {
     const baseSet = await getDailySet('2026-05-17');
     const revisedRawSet = JSON.parse(JSON.stringify(AUTHORED_BALLPARK_CALENDAR['2026-05-17']));

@@ -4495,6 +4495,16 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
       message: "Daily set needs three distinct core question moves so it does not feel like one repeated template.",
     });
   }
+  const worldwideSalesQuestions = dailySet.questions.filter((questionEntry) =>
+    /\b(?:sold|sales|sell|selling)\b/i.test(questionEntry.prompt) && /\bworldwide\b/i.test(questionEntry.prompt)
+  );
+  if (worldwideSalesQuestions.length > 1) {
+    record("question_move_repetition", {
+      date: auditPackId,
+      theme: dailySet.theme,
+      message: "Only one core question may use a worldwide-sales shape; repeated sales macros make Q2/Q3 feel interchangeable.",
+    });
+  }
   if (!dailySet.questions.some((questionEntry) => questionEntry.questionMove === "famous_macro")) {
     record("missing_macro", {
       date: auditPackId,
@@ -4555,6 +4565,16 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         label,
         questionEntry,
         "Earth-satellite counts are volatile and have already produced answer/fact contradictions; use a stable space macro instead."
+      );
+    }
+    if (label === "Q1" && /\bhow many cards are in a standard deck\b/i.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_anchor",
+        dailySet,
+        label,
+        questionEntry,
+        "A standard-deck opener is too recall-first for Ballpark; use a richer tabletop object with a real estimating path."
       );
     }
     const canonicalChecks = [

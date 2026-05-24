@@ -1175,8 +1175,8 @@ const SPECIAL_PACKS = {
   "Game Night": {
     source: SOURCE.britannicaScience,
     questions: [
-      specialQuestion("How many cards are in a standard deck?", 52, "A standard deck has 52 cards.", "iconic_exact", "count", "iconic_object", true),
-      specialQuestion("How many Scrabble sets have sold worldwide?", 150000000, "Scrabble sales have passed 150 million sets.", "production_scale", "count", "famous_event"),
+      specialQuestion("How many wooden blocks are in a classic Jenga tower?", 54, "A classic Jenga tower starts with 54 wooden blocks.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many edge pieces are in a typical 1,000-piece jigsaw puzzle?", 126, "A 25-by-40 puzzle grid has about 126 edge pieces.", "object_anatomy", "count", "named_standard"),
       specialQuestion("How many Monopoly sets have sold worldwide?", 300000000, "Monopoly sales have reached hundreds of millions.", "famous_macro", "count", "famous_event"),
     ],
   },
