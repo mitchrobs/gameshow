@@ -513,7 +513,10 @@ describe('Barter excellence generator', () => {
 
     BARTER_MARKETS.forEach((market) => {
       const marketEmojis = Object.values(market.skins).map((skin) => skin.emoji);
-      const inventoryLabels = Object.values(market.skins).map((skin) => skin.name.trim().split(/\s+/)[0]);
+      const inventoryLabels = Object.values(market.skins).map((skin) => {
+        const words = skin.name.trim().split(/\s+/).filter(Boolean);
+        return words[words.length - 1] ?? skin.name;
+      });
       expect(new Set(marketEmojis).size).toBe(marketEmojis.length);
       expect(new Set(inventoryLabels).size).toBe(inventoryLabels.length);
 

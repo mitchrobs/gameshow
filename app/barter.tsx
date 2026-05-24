@@ -149,7 +149,8 @@ function formatMissingLine(
 }
 
 function shortGoodName(name: string): string {
-  return name.trim().split(/\s+/)[0] || name;
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  return words[words.length - 1] || name;
 }
 
 function getShareRouteEmojis(
@@ -197,7 +198,7 @@ interface MarketIdentity {
 }
 
 const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
-  'Silk Road Bazaar': {
+  'Silk Market': {
     dayScene: 'Silk awnings split the lane into color and shadow.',
     nightScene: 'Night lamps warm the fabric stalls as the cloth lanes reopen.',
     sceneMarks: ['🧵', '🏮', '🤝'],
@@ -207,7 +208,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Lantern Draper', 'Quiet Broker', 'Silk Appraiser', 'Back-Lane Weaver'],
     },
   },
-  'Spice Wharf': {
+  'Pepper Exchange': {
     dayScene: 'Sacks thump onto wet boards while gulls circle the scales.',
     nightScene: 'Braziers glow near the quay while covered spice lots come forward.',
     sceneMarks: ['🌶️', '⚓️', '🔥'],
@@ -217,7 +218,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Brazier Cook', 'Tide Broker', 'Red-Sack Agent', 'Midnight Porter'],
     },
   },
-  'Golden Caravan': {
+  'Gold Exchange': {
     dayScene: 'Camel bells mark each offer before the shade disappears.',
     nightScene: 'The caravan circle tightens and lantern-lit bundles change hands.',
     sceneMarks: ['🐪', '🪙', '⛺'],
@@ -227,7 +228,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Camp Appraiser', 'Dune Broker', 'Chest Keeper', 'Lamp Merchant'],
     },
   },
-  'Jade Exchange': {
+  'Jade Market': {
     dayScene: 'Quiet counters shine while clerks compare every weight twice.',
     nightScene: 'The polished room quiets as green weights settle on the tables.',
     sceneMarks: ['🏺', '⚖️', '🫖'],
@@ -237,7 +238,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Seal Appraiser', 'Gallery Broker', 'Ledger Keeper', 'Lamp Counter'],
     },
   },
-  'Porcelain Court': {
+  'Porcelain House': {
     dayScene: 'Tea steam softens the shelves, but the offers stay precise.',
     nightScene: 'Porcelain bells ring while the screened tables open for night.',
     sceneMarks: ['🫖', '🍵', '🏺'],
@@ -247,14 +248,14 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Screen Steward', 'Bell Broker', 'Moon Cupper', 'Court Appraiser'],
     },
   },
-  'Saffron Arcade': {
+  'Saffron Market': {
     dayScene: 'Saffron dust catches in the arcade light around every bargain.',
     nightScene: 'Red-gold lamps narrow the arcade around late spice offers.',
     sceneMarks: ['🟧', '🌶️', '🏮'],
     hiddenStall: 'A side shutter is opening for one late spice offer.',
     vendors: {
       day: ['Dust Clerk', 'Arcade Runner', 'Saffron Scale', 'Tin Keeper'],
-      night: ['Lamp Painter', 'Side-Stall Broker', 'Red-Gold Clerk', 'Night Sifter'],
+      night: ['Lamp Painter', 'Side Broker', 'Red-Gold Clerk', 'Night Sifter'],
     },
   },
   'Lantern Market': {
@@ -264,10 +265,10 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
     hiddenStall: 'A covered lantern stall is being lit for night.',
     vendors: {
       day: ['Frame Maker', 'Paper Clerk', 'Wick Runner', 'Dawn Lighter'],
-      night: ['Lantern Keeper', 'Shadow Broker', 'Paper Appraiser', 'Glow Stall'],
+      night: ['Lantern Keeper', 'Shadow Broker', 'Paper Appraiser', 'Glow Broker'],
     },
   },
-  'Amber Row': {
+  'Amber Market': {
     dayScene: 'Amber beads click across counters while merchants test your patience.',
     nightScene: 'Candlelight warms the row and makes every kept bead count.',
     sceneMarks: ['🟠', '🕯️', '🪙'],
@@ -277,7 +278,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Candle Appraiser', 'Private Strand', 'Night Counter', 'Warm Ledger'],
     },
   },
-  'Salt & Timber Yard': {
+  'Salt & Timber Depot': {
     dayScene: 'Salt blocks and timber stacks make every exchange feel heavy.',
     nightScene: 'Torchlight marks the prepared bundles that can finally move.',
     sceneMarks: ['🧂', '🪵', '🔥'],
@@ -287,7 +288,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Torch Foreman', 'Locked Stack', 'Grain Broker', 'Night Carter'],
     },
   },
-  'Copperstone Square': {
+  'Copper Exchange': {
     dayScene: 'Copper scales ring across the square as traders weigh every shortcut.',
     nightScene: 'Stone arches echo with late offers for anyone who kept balance.',
     sceneMarks: ['🪙', '⚖️', '🏛️'],
@@ -297,7 +298,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Arch Appraiser', 'Coin Keeper', 'Late Minter', 'Square Notary'],
     },
   },
-  'Moonlit Souk': {
+  'Date Market': {
     dayScene: 'Canvas awnings hide cool shade and hotter arguments.',
     nightScene: 'Moonlight quiets the souk as one covered stall joins the market.',
     sceneMarks: ['🌙', '🏮', '🐪'],
@@ -307,7 +308,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Moon Clerk', 'Blue Awning', 'Lamp Broker', 'Silent Carter'],
     },
   },
-  'Rivergate Trades': {
+  'River Pearl Exchange': {
     dayScene: 'Barges arrive in pairs and the gate clerks move goods by rhythm.',
     nightScene: 'The river gate narrows, rewarding cargo that still matches.',
     sceneMarks: ['🌊', '🚪', '⚓️'],
@@ -317,7 +318,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Night Lock', 'Tide Appraiser', 'Gate Broker', 'Moon Porter'],
     },
   },
-  'Crimson Ledger': {
+  'Ink House': {
     dayScene: 'Red ink dries fast, and every overpay stays on the page.',
     nightScene: 'The ledger closes around the goods left on the page.',
     sceneMarks: ['🟥', '🖋️', '📕'],
@@ -327,7 +328,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Closing Clerk', 'Night Auditor', 'Hidden Line', 'Ledger Broker'],
     },
   },
-  'Starlit Agora': {
+  'Fig Market': {
     dayScene: 'Open stalls price the future before the stars are visible.',
     nightScene: 'Starlight picks out the contracts that were waiting in plain sight.',
     sceneMarks: ['✨', '🏛️', '🌙'],
@@ -337,7 +338,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Star Speaker', 'Moon Appraiser', 'Pillar Broker', 'Late Caller'],
     },
   },
-  'Indigo Harbor': {
+  'Indigo Market': {
     dayScene: 'Indigo tarps snap above crates while the harbor wind keeps score.',
     nightScene: 'Blue lamps swing over the docks as prepared cargo comes due.',
     sceneMarks: ['⚓️', '🟦', '🌊'],
@@ -347,7 +348,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Blue Lamp', 'Night Dockhand', 'Tide Appraiser', 'Hidden Crate'],
     },
   },
-  'Windmill Exchange': {
+  'Rye Depot': {
     dayScene: 'Canvas sails turn above the stalls, pushing every deal into motion.',
     nightScene: 'The sails slow at dusk, and the right goods finally catch the wind.',
     sceneMarks: ['🌬️', '🪽', '🧵'],
@@ -357,7 +358,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Shutter Miller', 'Dusk Broker', 'Wind Appraiser', 'Night Sail'],
     },
   },
-  'Oasis Ledger': {
+  'Oasis Water Market': {
     dayScene: 'Water sellers and caravan clerks count promises before the heat peaks.',
     nightScene: 'Cool lamps make the oasis ledger count what survived the heat.',
     sceneMarks: ['🌴', '💧', '📒'],
@@ -367,7 +368,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Night Reserve', 'Lamp Scribe', 'Oasis Appraiser', 'Cool Ledger'],
     },
   },
-  'Tea Road Arcade': {
+  'Tea House': {
     dayScene: 'Tea tins pass from stall to stall while the arcade keeps its rhythm.',
     nightScene: 'The final cups pour only for warmth kept from the day.',
     sceneMarks: ['🍵', '🫖', '🏮'],
@@ -377,7 +378,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Night Brewer', 'Hidden Blend', 'Cup Appraiser', 'Lamp Steeper'],
     },
   },
-  "Mariner's Market": {
+  'Rope & Salt Exchange': {
     dayScene: 'Ropes, tide charts, and salt air crowd the tables.',
     nightScene: 'The tide turns, and prepared cargo finds its harbor.',
     sceneMarks: ['⚓️', '🪢', '🌊'],
@@ -387,7 +388,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Night Mooring', 'Lamp Pilot', 'Dock Appraiser', 'Moon Chart'],
     },
   },
-  'Atlas Bazaar': {
+  'Map Market': {
     dayScene: 'Mapmakers argue over paths while the first marks go down.',
     nightScene: 'The maps fold smaller at night, leaving only the marked paths.',
     sceneMarks: ['🗺️', '📍', '🧭'],
@@ -397,7 +398,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Night Cartographer', 'Hidden Route', 'Atlas Appraiser', 'Lamp Surveyor'],
     },
   },
-  'Sunrise Caravan': {
+  'Pack Depot': {
     dayScene: 'Sunrise opens the caravan gates with every bargain pointed at dusk.',
     nightScene: 'The camp settles into lamplight and the tied packs matter most.',
     sceneMarks: ['🌅', '🐪', '⛺'],
@@ -405,6 +406,56 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
     vendors: {
       day: ['Gate Caller', 'Pack Clerk', 'Sun Broker', 'Dawn Carter'],
       night: ['Pack Master', 'Camp Appraiser', 'Lamp Carter', 'Hidden Bundle'],
+    },
+  },
+  'Antarctic Supply Depot': {
+    dayScene: 'Ration crates and field gear move between wind-bent expedition tents.',
+    nightScene: 'The temperature drops, and the sealed supply cache finally opens.',
+    sceneMarks: ['❄️', '🧊', '📻'],
+    hiddenStall: 'A weatherproof cache is opening for the night shift.',
+    vendors: {
+      day: ['Field Quartermaster', 'Radio Clerk', 'Sledge Runner', 'Sample Keeper'],
+      night: ['Cache Keeper', 'Night Surveyor', 'Ice Appraiser', 'Weather Clerk'],
+    },
+  },
+  'London Royal Arcade': {
+    dayScene: 'London merchants call prices beneath the royal arcade.',
+    nightScene: 'The arcade lamps catch the contracts that survived the day.',
+    sceneMarks: ['👑', '🧶', '🪙'],
+    hiddenStall: 'A covered arcade desk is opening for night business.',
+    vendors: {
+      day: ['Royal Clerk', 'Wool Factor', 'Arcade Broker', 'Pepper Runner'],
+      night: ['Lamp Notary', 'Covered Desk', 'Coin Appraiser', 'Night Factor'],
+    },
+  },
+  'Amsterdam Spice Exchange': {
+    dayScene: 'Canal credit and spice cargo make every held good negotiable.',
+    nightScene: 'Canal lamps settle over the ledgers and the best balances show.',
+    sceneMarks: ['⚓️', '🌷', '📒'],
+    hiddenStall: 'A canal-side ledger is being balanced for night.',
+    vendors: {
+      day: ['VOC Clerk', 'Canal Broker', 'Cargo Factor', 'Ledger Runner'],
+      night: ['Canal Notary', 'Night Ledger', 'Cargo Appraiser', 'Lamp Broker'],
+    },
+  },
+  'Osaka Rice Exchange': {
+    dayScene: 'Rice scrip and warehouse seals move faster than the sacks themselves.',
+    nightScene: 'Broker calls fade while the late certificates find their price.',
+    sceneMarks: ['🍚', '🧮', '🪙'],
+    hiddenStall: 'A rice broker is posting one night certificate.',
+    vendors: {
+      day: ['Rice Broker', 'Scrip Clerk', 'Abacus Reader', 'Warehouse Runner'],
+      night: ['Night Broker', 'Certificate Clerk', 'Seal Appraiser', 'Ledger Caller'],
+    },
+  },
+  'Chicago Grain Exchange': {
+    dayScene: 'Grain pits and rail receipts make bulk goods move fast.',
+    nightScene: 'The board quiets down and the late grain tickets matter most.',
+    sceneMarks: ['🌽', '🚂', '🧾'],
+    hiddenStall: 'A rail clerk is releasing one late grain ticket.',
+    vendors: {
+      day: ['Pit Clerk', 'Grain Broker', 'Rail Runner', 'Board Caller'],
+      night: ['Rail Clerk', 'Late Caller', 'Ticket Broker', 'Grain Appraiser'],
     },
   },
 };
@@ -417,8 +468,8 @@ function getMarketIdentity(marketName: string, marketEmoji: string): MarketIdent
     sceneMarks: [marketEmoji, '🤝', '🌙'],
     hiddenStall: 'One night stall is still setting up.',
     vendors: {
-      day: ['Day Offer', 'Market Offer', 'Table Offer', 'Stall Offer'],
-      night: ['Night Offer', 'Late Offer', 'Moon Offer', 'Hidden Stall'],
+      day: ['Day Offer', 'Market Offer', 'Trade Offer', 'Open Offer'],
+      night: ['Night Offer', 'Late Offer', 'Moon Offer', 'Hidden Offer'],
     },
   };
   return {
@@ -499,7 +550,7 @@ export default function BarterScreen() {
   const goalGood = getDisplayGood(puzzle.goal.good);
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
   const resultTier = getResultTier(gameState, tradesUsed, puzzle);
-  const isMarinerMarket = marketName === "Mariner's Market";
+  const isMarinerMarket = marketName === 'Rope & Salt Exchange';
   const earlyWindowTrades = puzzle.earlyWindowTrades ?? 4;
   const lateWindowTrigger = earlyWindowTrades;
   const barterUxColors = useMemo(
@@ -567,7 +618,7 @@ export default function BarterScreen() {
     () => shouldShowHiddenNightPlaceholder(puzzle, activeTab, lateWindowOpen),
     [activeTab, lateWindowOpen, puzzle]
   );
-  const activeTabTitle = activeTab === 'night' ? 'Night Trades' : 'Day Trades';
+  const activeTabTitle = activeTab === 'night' ? 'Night Trades' : "Today's Trades";
   const activeTabSubtitle =
     activeTab === 'night'
       ? lateWindowOpen
@@ -1035,7 +1086,7 @@ export default function BarterScreen() {
                 {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
               </Text>
             </View>
-            <View style={[styles.goalPips, isCompact && styles.goalPipsCompact]}>
+            <View style={styles.goalPips}>
               {Array.from({ length: puzzle.goal.qty }).map((_, index) => {
                 const filled = index < Math.min(inventory[puzzle.goal.good], puzzle.goal.qty);
                 return (
@@ -1043,18 +1094,13 @@ export default function BarterScreen() {
                     key={`goal-pip-${index}`}
                     style={[
                       styles.goalPip,
-                      isCompact && styles.goalPipCompact,
                       filled && {
                         borderColor: activePhaseAccent,
                         backgroundColor: filledGoalPipBackground,
                       },
                     ]}
                   >
-                    {filled && (
-                      <Text style={[styles.goalPipEmoji, isCompact && styles.goalPipEmojiCompact]}>
-                        {goalGood.emoji}
-                      </Text>
-                    )}
+                    {filled && <Text style={styles.goalPipEmoji}>{goalGood.emoji}</Text>}
                   </View>
                 );
               })}
@@ -1072,28 +1118,22 @@ export default function BarterScreen() {
                 <Text style={styles.marketIntroFlavor}>{marketIdentity.flavor}</Text>
                 <View style={styles.marketIntroGoal}>
                   <Text style={styles.marketIntroGoalText}>
-                    Make {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
+                    Collect {puzzle.goal.qty} {goalGood.name} {goalGood.emoji}
                   </Text>
                   <Text style={styles.marketIntroGoalMeta}>
-                    Use {earlyWindowTrades} Day trades first. Then Night opens.
+                    Day has {earlyWindowTrades} trades. Night opens after that.
                   </Text>
                 </View>
                 <View style={styles.marketIntroStock}>
                   <Text style={styles.marketIntroStockTitle}>You start with</Text>
                   <Text style={styles.marketIntroStockText}>{openingStock}</Text>
                 </View>
-                <View
-                  style={[
-                    styles.marketIntroActions,
-                    isCompact && styles.marketIntroActionsCompact,
-                  ]}
-                >
+                <View style={styles.marketIntroActions}>
                   <Pressable
                     accessibilityRole="button"
                     onPress={handleStartDayMarket}
                     style={({ pressed }) => [
                       styles.marketIntroPrimaryButton,
-                      isCompact && styles.marketIntroButtonCompact,
                       pressed && styles.marketIntroPrimaryButtonPressed,
                     ]}
                   >
@@ -1104,7 +1144,6 @@ export default function BarterScreen() {
                     onPress={handleOpenTutorial}
                     style={({ pressed }) => [
                       styles.marketIntroSecondaryButton,
-                      isCompact && styles.marketIntroButtonCompact,
                       pressed && styles.marketIntroSecondaryButtonPressed,
                     ]}
                   >
@@ -1334,43 +1373,28 @@ export default function BarterScreen() {
           <View style={styles.modalOverlay}>
             <View style={[styles.modalCard, styles.tutorialModalCard]}>
               <Text style={styles.tutorialModalKicker}>How to play</Text>
-              <Text style={styles.tutorialModalTitle}>How to play Barter</Text>
+              <Text style={styles.tutorialModalTitle}>
+                {marketName} {marketEmoji}
+              </Text>
               <Text style={styles.tutorialModalBody}>
-                Trade what you have for what you need. Win by making {goalShort} before
-                you run out of trades.
+                {marketIdentity.flavor}
               </Text>
               <View style={styles.marketReadBox}>
-                <Text style={styles.marketReadBoxTitle}>
-                  {marketName} {marketEmoji}
-                </Text>
-                <Text style={styles.marketReadBoxText}>You start with: {openingStock}</Text>
+                <Text style={styles.marketReadBoxTitle}>Today</Text>
+                <Text style={styles.marketReadBoxText}>Start: {openingStock}</Text>
                 <Text style={styles.marketReadBoxText}>
-                  Goal: make {goalShort}.
+                  Goal: collect {goalShort} within {puzzle.maxTrades} trades.
                 </Text>
                 <Text style={styles.marketReadBoxText}>
-                  You have {puzzle.maxTrades} total trades.
+                  Day Market closes after trade {earlyWindowTrades}. Night Market opens after that.
                 </Text>
               </View>
-              <Text style={styles.tutorialModalSectionTitle}>What to do</Text>
-              <View style={styles.tutorialModalSteps}>
-                <Text style={styles.marketReadBoxText}>
-                  1. Look at your stall. These are the goods you can spend.
-                </Text>
-                <Text style={styles.marketReadBoxText}>
-                  2. Pick a trade. The left side is what you pay. The right side is what you get.
-                </Text>
-                <Text style={styles.marketReadBoxText}>
-                  3. Use {earlyWindowTrades} Day trades first. Then the Night Market opens.
-                </Text>
-                <Text style={styles.marketReadBoxText}>
-                  4. You can peek at Night early. One mystery stall appears later.
-                </Text>
-                <Text style={styles.marketReadBoxText}>
-                  5. Tap a good to move useful trades upward. Visible trades stay visible.
-                </Text>
-              </View>
+              <Text style={styles.tutorialModalSectionTitle}>Rules</Text>
+              <Text style={styles.tutorialModalBody}>
+                Tap a good in your stall to bring matching trades upward. Other trades stay visible.
+              </Text>
               <Text style={styles.tutorialModalHint}>
-                Tip: plan for Night before you spend everything in Day.
+                The Night tab can be previewed before it opens. One hidden stall joins at night.
               </Text>
               <Pressable
                 style={({ pressed }) => [
@@ -1521,7 +1545,6 @@ const createStyles = (
   topNav: {
     width: '100%',
     maxWidth: 520,
-    minWidth: 0,
     paddingHorizontal: Spacing.md,
     paddingTop: 8,
     paddingBottom: 8,
@@ -1596,7 +1619,6 @@ const createStyles = (
   goalBar: {
     width: '100%',
     maxWidth: 520,
-    minWidth: 0,
     paddingHorizontal: Spacing.md,
     paddingVertical: 8,
     backgroundColor: paper,
@@ -1631,10 +1653,6 @@ const createStyles = (
     flexShrink: 0,
     maxWidth: 180,
   },
-  goalPipsCompact: {
-    gap: 2,
-    maxWidth: 174,
-  },
   goalPip: {
     width: 23,
     height: 23,
@@ -1645,16 +1663,8 @@ const createStyles = (
     alignItems: 'center',
     justifyContent: 'center',
   },
-  goalPipCompact: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
-  },
   goalPipEmoji: {
     fontSize: 12,
-  },
-  goalPipEmojiCompact: {
-    fontSize: 11,
   },
   stickyHeader: {
     backgroundColor: canvas,
@@ -1681,21 +1691,17 @@ const createStyles = (
   marketIntroPage: {
     width: '100%',
     maxWidth: 520,
-    minWidth: 0,
     alignSelf: 'center',
     paddingHorizontal: Spacing.md,
     paddingTop: Spacing.lg,
   },
   marketIntroCard: {
-    width: '100%',
-    maxWidth: '100%',
     backgroundColor: paper,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: borderSoft,
     padding: Spacing.xl,
     alignItems: 'center',
-    overflow: 'hidden',
   },
   marketIntroEmoji: {
     fontSize: 42,
@@ -1709,9 +1715,6 @@ const createStyles = (
     textTransform: 'uppercase',
   },
   marketIntroTitle: {
-    width: '100%',
-    maxWidth: '100%',
-    flexShrink: 1,
     marginTop: 5,
     color: inkStrong,
     fontSize: 24,
@@ -1719,9 +1722,6 @@ const createStyles = (
     textAlign: 'center',
   },
   marketIntroFlavor: {
-    width: '100%',
-    maxWidth: '100%',
-    flexShrink: 1,
     marginTop: Spacing.sm,
     color: inkMuted,
     fontSize: 13,
@@ -1738,16 +1738,12 @@ const createStyles = (
     padding: Spacing.md,
   },
   marketIntroGoalText: {
-    width: '100%',
-    maxWidth: '100%',
     color: inkStrong,
     fontSize: 16,
     fontWeight: '900',
     textAlign: 'center',
   },
   marketIntroGoalMeta: {
-    width: '100%',
-    maxWidth: '100%',
     marginTop: 4,
     color: inkMuted,
     fontSize: 12,
@@ -1771,9 +1767,6 @@ const createStyles = (
     textTransform: 'uppercase',
   },
   marketIntroStockText: {
-    width: '100%',
-    maxWidth: '100%',
-    flexShrink: 1,
     marginTop: 5,
     color: inkStrong,
     fontSize: 13,
@@ -1786,18 +1779,12 @@ const createStyles = (
     flexDirection: 'row',
     gap: Spacing.sm,
   },
-  marketIntroActionsCompact: {
-    flexDirection: 'column',
-  },
   marketIntroPrimaryButton: {
     flex: 1,
     borderRadius: 14,
     backgroundColor: '#FFA41F',
     paddingVertical: 13,
     alignItems: 'center',
-  },
-  marketIntroButtonCompact: {
-    width: '100%',
   },
   marketIntroPrimaryButtonPressed: {
     backgroundColor: '#e99116',
