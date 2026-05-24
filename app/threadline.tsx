@@ -36,10 +36,10 @@ type FrameSize = { width: number; height: number };
 
 const STORAGE_PREFIX = 'threadline';
 const HOW_TO_STEPS = [
-  'Draw through the missing words in the grid.',
+  'Use the title to start; theme cards stay locked until you find a word.',
   'Words run in straight lines: across, down, or diagonal.',
-  'Each found word belongs to one of two hidden themes.',
-  'You get one hint. Complete both themes to reveal the final line.',
+  'Find one word in a thread to reveal that theme card.',
+  'Complete both themes to reveal the weave.',
 ];
 
 const WEB_NO_SELECT =
@@ -69,10 +69,6 @@ function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m}:${String(s).padStart(2, '0')}`;
-}
-
-function blankFor(answer: string): string {
-  return Array.from({ length: answer.length }, () => '_').join('');
 }
 
 function sameCoord(a: ThreadlineCoord, b: ThreadlineCoord): boolean {
@@ -251,12 +247,6 @@ export default function ThreadlineScreen() {
     selectedPathRef.current = selectedPath;
   }, [selectedPath]);
 
-  const wordById = useMemo(() => {
-    const map = new Map<string, ThreadlineWord>();
-    puzzle.words.forEach((word) => map.set(word.id, word));
-    return map;
-  }, [puzzle.words]);
-
   const foundCellKeys = useMemo(() => {
     const keys = new Set<string>();
     puzzle.words.forEach((word) => {
@@ -280,9 +270,10 @@ export default function ThreadlineScreen() {
           foundCount,
           totalCount: words.length,
           isComplete: foundCount === words.length,
+          isRevealed: foundCount > 0 || foundIds.length === puzzle.words.length,
         };
       }),
-    [foundIdSet, puzzle.threads, puzzle.words]
+    [foundIdSet, foundIds.length, puzzle.threads, puzzle.words]
   );
 
   const completedCount = foundIds.length;
@@ -849,23 +840,6 @@ export default function ThreadlineScreen() {
     </View>
   );
 
-  const renderLeadSegments = () =>
-    puzzle.lead.map((segment, index) => {
-      if (segment.type === 'text') {
-        return <Text key={`text-${index}`}>{segment.text}</Text>;
-      }
-      const word = wordById.get(segment.wordId);
-      const found = word ? foundIdSet.has(word.id) : false;
-      return (
-        <Text
-          key={`blank-${segment.wordId}-${index}`}
-          style={found ? styles.leadWordFound : styles.leadWordBlank}
-        >
-          {word ? (found ? word.answer : blankFor(word.answer)) : '_____'}
-        </Text>
-      );
-    });
-
   const renderPuzzleDock = (compact = false) => {
     if (compact) {
       return (
@@ -881,33 +855,40 @@ export default function ThreadlineScreen() {
                 </Text>
               </View>
             </View>
-            <Text style={styles.mobileDockLead}>
-              {renderLeadSegments()}
-            </Text>
             <View style={styles.mobileThemeMiniRow}>
               {threadStats.map((thread) => {
-                const isRevealed = thread.foundCount > 0 || isSolved;
-                const themeName = isRevealed ? thread.name : 'Theme hidden';
                 return (
                   <View
                     key={thread.id}
                     style={[
                       styles.mobileThemeMiniCard,
-                      isRevealed && styles.mobileThemeMiniCardRevealed,
+                      !thread.isRevealed && styles.mobileThemeMiniCardLocked,
+                      thread.isRevealed && styles.mobileThemeMiniCardRevealed,
                       thread.isComplete && styles.mobileThemeMiniCardComplete,
                     ]}
+                    accessibilityLabel={
+                      thread.isRevealed
+                        ? `${thread.name}, ${thread.foundCount} of ${thread.totalCount}. ${thread.clue}`
+                        : `${thread.foundCount} of ${thread.totalCount} words found in locked theme`
+                    }
                   >
                     <View style={styles.mobileThemeMiniHeader}>
-                      <Text style={styles.mobileThemeMiniName} numberOfLines={1}>
-                        {themeName}
-                      </Text>
+                      {thread.isRevealed ? (
+                        <Text style={styles.mobileThemeMiniName} numberOfLines={1}>
+                          {thread.name}
+                        </Text>
+                      ) : (
+                        <View style={styles.mobileThemeMiniLockedSpacer} />
+                      )}
                       <Text style={styles.mobileThemeMiniCount}>
                         {thread.foundCount}/{thread.totalCount}
                       </Text>
                     </View>
-                    <Text style={styles.mobileThemeMiniClue} numberOfLines={2}>
-                      {isRevealed ? thread.clue : 'Find one to reveal theme'}
-                    </Text>
+                    {thread.isRevealed && (
+                      <Text style={styles.mobileThemeMiniClue} numberOfLines={2}>
+                        {thread.clue}
+                      </Text>
+                    )}
                     <View style={styles.mobileThemeMiniMeter}>
                       {Array.from({ length: thread.totalCount }).map((_, index) => (
                         <View
@@ -942,12 +923,6 @@ export default function ThreadlineScreen() {
               </Text>
             </View>
           </View>
-          <Text
-            style={[styles.leadText, compact && styles.mobileLeadText]}
-            numberOfLines={compact ? 3 : undefined}
-          >
-            {renderLeadSegments()}
-          </Text>
         </View>
 
         <View style={[styles.threadRow, compact && styles.mobileThreadRow]}>
@@ -957,26 +932,38 @@ export default function ThreadlineScreen() {
               style={[
                 styles.threadCard,
                 compact && styles.mobileThreadCard,
+                !thread.isRevealed && styles.threadCardLocked,
                 thread.isComplete && styles.threadCardComplete,
               ]}
+              accessibilityLabel={
+                thread.isRevealed
+                  ? `${thread.name}, ${thread.foundCount} of ${thread.totalCount}. ${thread.clue}`
+                  : `${thread.foundCount} of ${thread.totalCount} words found in locked theme`
+              }
             >
               <View style={styles.threadHeader}>
-                <Text
-                  style={[styles.threadName, compact && styles.mobileThreadName]}
-                  numberOfLines={1}
-                >
-                  {thread.foundCount > 0 || isSolved ? thread.name : 'Theme hidden'}
-                </Text>
+                {thread.isRevealed ? (
+                  <Text
+                    style={[styles.threadName, compact && styles.mobileThreadName]}
+                    numberOfLines={1}
+                  >
+                    {thread.name}
+                  </Text>
+                ) : (
+                  <View style={styles.threadLockedSpacer} />
+                )}
                 <Text style={[styles.threadCount, compact && styles.mobileThreadCount]}>
                   {thread.foundCount}/{thread.totalCount}
                 </Text>
               </View>
-              <Text
-                style={[styles.threadClue, compact && styles.mobileThreadClue]}
-                numberOfLines={compact ? 1 : undefined}
-              >
-                {thread.foundCount > 0 || isSolved ? thread.clue : 'Find one to reveal theme'}
-              </Text>
+              {thread.isRevealed && (
+                <Text
+                  style={[styles.threadClue, compact && styles.mobileThreadClue]}
+                  numberOfLines={compact ? 1 : undefined}
+                >
+                  {thread.clue}
+                </Text>
+              )}
               <View style={[styles.threadMeter, compact && styles.mobileThreadMeter]}>
                 {Array.from({ length: thread.totalCount }).map((_, index) => (
                   <View
@@ -1162,12 +1149,6 @@ export default function ThreadlineScreen() {
     if (gameState !== 'won') return null;
     return (
       <View style={[styles.resultCard, compact && styles.mobileResultCard]}>
-        <Text style={[styles.resultTitle, compact && styles.mobileResultTitle]}>
-          Threadline complete
-        </Text>
-        <Text style={styles.resultSubtitle}>
-          Solved in {formatTime(elapsedSeconds)} · {hasUsedHint ? 'Hint used' : 'No hint'}
-        </Text>
         <Text style={[styles.weaveText, compact && styles.mobileWeaveText]}>
           {puzzle.weave}
         </Text>
@@ -1617,15 +1598,6 @@ const createStyles = (
       fontWeight: '800',
       color: Colors.textMuted,
     },
-    mobileDockLead: {
-      width: '100%',
-      maxWidth: '100%',
-      flexShrink: 1,
-      fontSize: 16,
-      lineHeight: 22,
-      fontWeight: '700',
-      color: Colors.text,
-    },
     mobileThemeMiniRow: {
       width: '100%',
       maxWidth: '100%',
@@ -1636,7 +1608,7 @@ const createStyles = (
     mobileThemeMiniCard: {
       flex: 1,
       minWidth: 0,
-      minHeight: 74,
+      minHeight: 62,
       borderRadius: BorderRadius.md,
       borderWidth: 1,
       borderColor: Colors.border,
@@ -1644,6 +1616,10 @@ const createStyles = (
       padding: 8,
       justifyContent: 'space-between',
       overflow: 'hidden',
+    },
+    mobileThemeMiniCardLocked: {
+      minHeight: 52,
+      backgroundColor: Colors.surfaceGlass,
     },
     mobileThemeMiniCardRevealed: {
       borderColor: screenAccent.badgeBorder,
@@ -1666,6 +1642,10 @@ const createStyles = (
       lineHeight: 14,
       fontWeight: '800',
       color: Colors.text,
+    },
+    mobileThemeMiniLockedSpacer: {
+      flex: 1,
+      minHeight: 14,
     },
     mobileThemeMiniCount: {
       fontSize: 11,
@@ -1740,26 +1720,6 @@ const createStyles = (
     mobileDifficultyText: {
       fontSize: 9,
     },
-    leadText: {
-      marginTop: Spacing.sm,
-      fontSize: 17,
-      lineHeight: 25,
-      fontWeight: '700',
-      color: Colors.text,
-    },
-    mobileLeadText: {
-      marginTop: 4,
-      fontSize: 12,
-      lineHeight: 16,
-    },
-    leadWordBlank: {
-      color: Colors.textMuted,
-      letterSpacing: 1,
-    },
-    leadWordFound: {
-      color: screenAccent.main,
-      fontWeight: '800',
-    },
     threadRow: {
       flexDirection: 'row',
       gap: Spacing.xs,
@@ -1778,6 +1738,10 @@ const createStyles = (
       backgroundColor: Colors.surfaceGlass,
       padding: Spacing.sm,
       justifyContent: 'space-between',
+    },
+    threadCardLocked: {
+      minHeight: 64,
+      backgroundColor: Colors.surfaceGlass,
     },
     mobileThreadCard: {
       minHeight: 54,
@@ -1799,6 +1763,10 @@ const createStyles = (
       fontSize: 13,
       fontWeight: '800',
       color: Colors.text,
+    },
+    threadLockedSpacer: {
+      flex: 1,
+      minHeight: 16,
     },
     mobileThreadName: {
       fontSize: 11,
@@ -1977,7 +1945,7 @@ const createStyles = (
       color: Colors.textSecondary,
     },
     weaveText: {
-      marginTop: Spacing.md,
+      marginTop: 0,
       padding: Spacing.md,
       borderRadius: BorderRadius.md,
       overflow: 'hidden',
@@ -1988,7 +1956,7 @@ const createStyles = (
       lineHeight: 22,
     },
     mobileWeaveText: {
-      marginTop: Spacing.sm,
+      marginTop: 0,
       padding: Spacing.sm,
       fontSize: 13,
       lineHeight: 18,

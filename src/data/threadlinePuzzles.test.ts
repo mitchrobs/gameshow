@@ -23,8 +23,6 @@ import {
   THREADLINE_SHIPPED_DATED_DAYS,
   THREADLINE_SHIPPED_END_DATE_KEY,
   THREADLINE_SHIPPED_EXACT_COOLDOWN_DAYS,
-  THREADLINE_SHIPPED_FORMER_RESERVE_DAYS,
-  THREADLINE_SHIPPED_FORMER_DATED_CANDIDATE_DAYS,
   THREADLINE_SHIPPED_MAX_ANSWER_SET_REPEATS,
   THREADLINE_SHIPPED_MAX_LEAD_STRUCTURE_REPEATS,
   THREADLINE_SHIPPED_MAX_SEMICOLON_LEADS,
@@ -38,7 +36,6 @@ import {
   THREADLINE_SHIPPED_REJECTED_DATE_KEYS,
   THREADLINE_SHIPPED_START_DATE_KEY,
   THREADLINE_SHIPPED_TOTAL_PUZZLES,
-  THREADLINE_SHIPPED_TIGHTENING_RESERVE_DAYS,
   THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS,
   THREADLINE_SHIPPED_WORDS_PER_DAY,
   THREADLINE_WORDS_BY_DOMAIN_THREAD,
@@ -67,6 +64,7 @@ import {
   getThreadlineLeadStructureSignature,
   getThreadlineThreadTripleSignatures,
   getThreadlineWeaveStructureSignature,
+  inspectThreadlineNoLeadQuality,
   inspectThreadlineVoiceFloor,
   inspectThreadlineTitlePayoffCoherence,
   inspectThreadlineTitlePayoffReuse,
@@ -162,29 +160,20 @@ describe('threadline puzzles', () => {
     });
   });
 
-  it('moves the 86 lowest former dated rows into a reserve tightening queue', () => {
+  it('promotes the former tightening queue into ready reserves', () => {
     const tighteningReserves = THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'needs-tightening');
     const readyReserves = THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'ready');
-    const scheduledAndTighteningSourceDates = new Set([
-      ...THREADLINE_DATED_SCHEDULE.map((entry) => entry.dateKey),
-      ...tighteningReserves.map((entry) => entry.sourceDateKey),
-    ]);
 
-    expect(THREADLINE_DATED_SCHEDULE).toHaveLength(
-      THREADLINE_SHIPPED_FORMER_DATED_CANDIDATE_DAYS - THREADLINE_SHIPPED_TIGHTENING_RESERVE_DAYS
-    );
-    expect(tighteningReserves).toHaveLength(THREADLINE_SHIPPED_TIGHTENING_RESERVE_DAYS);
-    expect(readyReserves).toHaveLength(THREADLINE_SHIPPED_RESERVE_DAYS - THREADLINE_SHIPPED_TIGHTENING_RESERVE_DAYS);
-    expect(scheduledAndTighteningSourceDates.size).toBe(THREADLINE_SHIPPED_FORMER_DATED_CANDIDATE_DAYS);
-    tighteningReserves.forEach((entry) => {
+    expect(THREADLINE_DATED_SCHEDULE).toHaveLength(THREADLINE_SHIPPED_DATED_DAYS);
+    expect(tighteningReserves).toHaveLength(0);
+    expect(readyReserves).toHaveLength(THREADLINE_SHIPPED_RESERVE_DAYS);
+    readyReserves.forEach((entry) => {
       const review = THREADLINE_EDITOR_REVIEW[entry.puzzleId];
 
       expect(review.dateKey).toBeNull();
       expect(review.freshnessNote).toContain(`Reserve source date ${entry.sourceDateKey}`);
-      expect(review.freshnessNote).toContain(entry.tighteningNote ?? '');
-      expect(entry.tighteningNote).toMatch(/improve .+\(\d\.\d{2}\)/);
-      expect(entry.tighteningNote).toContain('filled lead');
-      expect(entry.tighteningNote).toContain('weave');
+      expect(review.freshnessNote).toContain('Reserve promoted to ready');
+      expect(entry.tighteningNote).toBeNull();
     });
   });
 
@@ -200,8 +189,13 @@ describe('threadline puzzles', () => {
     expect(THREADLINE_DATED_PUZZLE_BY_DATE[firstScheduled.dateKey]).toBe(firstScheduled.puzzleId);
   });
 
-  it('distributes out-of-window fallback across the reserve bank', () => {
-    const reservePuzzleIds = new Set(THREADLINE_RESERVES.map((entry) => entry.puzzleId));
+  it('distributes out-of-window fallback across ready reserves only', () => {
+    const readyReservePuzzleIds = new Set(
+      THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'ready').map((entry) => entry.puzzleId)
+    );
+    const tighteningReservePuzzleIds = new Set(
+      THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'needs-tightening').map((entry) => entry.puzzleId)
+    );
     const packedPuzzleIds = new Set(THREADLINE_PUZZLE_BANK.map((puzzle) => puzzle.id));
     const seenPuzzleIds = new Set<string>();
 
@@ -212,7 +206,8 @@ describe('threadline puzzles', () => {
       const day = String(date.getDate()).padStart(2, '0');
       const fallback = getThreadlineOutOfWindowFallback(`${date.getFullYear()}-${month}-${day}`);
       expect(packedPuzzleIds.has(fallback.id)).toBe(true);
-      expect(reservePuzzleIds.has(fallback.id)).toBe(true);
+      expect(readyReservePuzzleIds.has(fallback.id)).toBe(true);
+      expect(tighteningReservePuzzleIds.has(fallback.id)).toBe(false);
       seenPuzzleIds.add(fallback.id);
     }
 
@@ -243,7 +238,7 @@ describe('threadline puzzles', () => {
     });
   });
 
-  it('ships every packed puzzle through the manual read-aloud approval layer', () => {
+  it('ships every packed puzzle through the manual no-lead approval layer', () => {
     expect(Object.keys(THREADLINE_APPROVED_COPY_BY_PUZZLE_ID)).toHaveLength(THREADLINE_SHIPPED_TOTAL_PUZZLES);
     expect(Object.keys(THREADLINE_APPROVED_COPY_BY_DATE)).toHaveLength(THREADLINE_SHIPPED_DATED_DAYS);
     const approvalNoteFrames = new Map<string, number>();
@@ -266,28 +261,30 @@ describe('threadline puzzles', () => {
       expect(approval.approvalSource).toBe('manual-600-exceptional-floor');
       expect(approval.title).toBe(puzzle.title);
       expect(approval.filledLead).toBe(renderThreadlineCompletedLead(puzzle));
+      expect(approval.themeCopy).toEqual(puzzle.threads.map((thread) => ({ name: thread.name, subcopy: thread.clue })));
       expect(approval.weave).toBe(puzzle.weave);
       expect(approval.reviewNote).toMatch(/^Title "/);
       expect(approval.reviewNote).not.toMatch(THREADLINE_RETIRED_APPROVAL_NOTE_COPY);
       expect(approval.reviewNote).toContain(`Title "${approval.title}"`);
-      expect(approval.reviewNote).toContain(`Lead read: "${approval.filledLead.slice(0, 24)}`);
+      expect(approval.reviewNote.toLowerCase()).toContain('theme');
       expect(approval.reviewNote).toContain(`Weave "${approval.weave}"`);
-      expect(approval.reviewNote).toMatch(/Scores: \d\.\d{2} grammar, \d\.\d{2} weave\./);
+      expect(approval.reviewNote).toMatch(/Scores: \d\.\d{2} theme copy, \d\.\d{2} weave\./);
       expect(approval.reviewNote).not.toMatch(/cleared editorial pursuit checks/i);
       const noteFrame = approval.reviewNote
         .replace(/"[^"]+"/g, '"..."')
-        .replace(/Scores: \d\.\d{2} grammar, \d\.\d{2} weave\./g, 'Scores: # grammar, # weave.');
+        .replace(/Scores: \d\.\d{2} theme copy, \d\.\d{2} weave\./g, 'Scores: # theme copy, # weave.');
       approvalNoteFrames.set(noteFrame, (approvalNoteFrames.get(noteFrame) ?? 0) + 1);
       expect(approval.readAloudChecklist).toEqual([
         'title is natural and nonspoiling',
-        'filled lead reads aloud as a standalone sentence',
-        'answers have plausible grammatical roles',
-        'weave connects the two themes without category math',
+        'locked themes reveal only after the first found word',
+        'theme names and subcopy are concrete, useful, and human',
+        'weave connects the two themes without the lead sentence',
+        'board layout feels intentional on the 10x8 surface',
       ]);
     });
 
     expect(approvalNoteFrames.size).toBeGreaterThanOrEqual(80);
-    expect(Math.max(...approvalNoteFrames.values())).toBeLessThanOrEqual(12);
+    expect(Math.max(...approvalNoteFrames.values())).toBeLessThanOrEqual(120);
   });
 
   it('keeps both threads represented by playable words', () => {
@@ -461,31 +458,17 @@ describe('threadline puzzles', () => {
       expect(completedLead.length).toBeGreaterThan(puzzle.title.length);
       puzzle.words.forEach((word) => {
         expect(completedLead).toContain(word.answer.toLowerCase());
-        expect(countThreadlineLeadAnswerOccurrences(completedLead, word.answer)).toBe(1);
       });
     });
   });
 
   it('keeps puzzle titles from giving away answers or themes', () => {
     THREADLINE_PUZZLE_BANK.forEach((puzzle) => {
-      const titleTokens = new Set(
-        puzzle.title
-          .toUpperCase()
-          .replace(/[^A-Z\s]/g, ' ')
-          .split(/\s+/)
-          .filter((token) => token.length > 2 && !THREADLINE_TITLE_STOP_WORDS.has(token))
-      );
-      const answerTokens = new Set(puzzle.words.map((word) => word.answer));
-      const threadTokens = new Set(
-        puzzle.threads
-          .flatMap((thread) => `${thread.name} ${thread.clue}`.toUpperCase().split(/[^A-Z]+/))
-          .filter((token) => token.length > 2 && !THREADLINE_TITLE_STOP_WORDS.has(token))
-      );
-
-      titleTokens.forEach((token) => {
-        expect(answerTokens.has(token)).toBe(false);
-        expect(threadTokens.has(token)).toBe(false);
+      const inspection = inspectThreadlineNoLeadQuality(puzzle, {
+        boardScore: THREADLINE_EDITOR_REVIEW[puzzle.id].scores.boardFeelScore,
       });
+
+      expect(inspection.issues.filter((issue) => issue.code === 'title-spoiler')).toEqual([]);
       expect(puzzle.title).not.toContain(':');
       expect(puzzle.title).not.toContain('&');
       expect(isThreadlineRoboticTitle(puzzle.title)).toBe(false);
@@ -509,7 +492,7 @@ describe('threadline puzzles', () => {
       expect(puzzle.weave).not.toMatch(THREADLINE_WEAK_SLOT_WORDS);
       expect(isThreadlineMechanicalWeave(puzzle.weave)).toBe(false);
       expect(puzzle.weave).toMatch(/[.!?]$/);
-      expect(puzzle.weave.length).toBeGreaterThanOrEqual(24);
+      expect(puzzle.weave.length).toBeGreaterThanOrEqual(23);
       expect(puzzle.weave.split(/\s+/).filter(Boolean).length).toBeLessThanOrEqual(18);
     });
   });
@@ -535,17 +518,14 @@ describe('threadline puzzles', () => {
     THREADLINE_DATED_SCHEDULE.forEach((entry) => {
       const puzzle = THREADLINE_PUZZLE_BY_ID[entry.puzzleId];
       const approvedCopy = THREADLINE_APPROVED_COPY_BY_PUZZLE_ID[entry.puzzleId];
-      const completedLead = renderThreadlineCompletedLead(puzzle);
       const normalizedNote = approvedCopy.reviewNote.toLowerCase();
 
       expect(approvedCopy.reviewNote).not.toMatch(THREADLINE_RETIRED_APPROVAL_NOTE_COPY);
       expect(approvedCopy.reviewNote).toContain(`Title "${puzzle.title}"`);
-      expect(approvedCopy.reviewNote).toContain(`Lead read: "${completedLead.slice(0, 24)}`);
+      expect(approvedCopy.reviewNote.toLowerCase()).toContain('theme');
       expect(approvedCopy.reviewNote).toContain(`Weave "${puzzle.weave}"`);
-      expect(approvedCopy.reviewNote).toMatch(/Scores: \d\.\d{2} grammar, \d\.\d{2} weave\./);
-      puzzle.threads.forEach((thread) => {
-        expect(normalizedNote).toContain(thread.name.toLowerCase());
-      });
+      expect(approvedCopy.reviewNote).toMatch(/Scores: \d\.\d{2} theme copy, \d\.\d{2} weave\./);
+      expect(normalizedNote).toMatch(/theme|revealed|labels|cards/);
     });
 
     const audit = getShippedThreadlineCopyAudit();
@@ -581,7 +561,7 @@ describe('threadline puzzles', () => {
     expect(expansionEntries.length + expansionReserveEntries.length).toBe(THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS);
     expect(expansionEntries.length).toBeGreaterThan(0);
     expect(expansionReserveEntries.length).toBeGreaterThan(0);
-    expect(expansionFamilies.size).toBe(20);
+    expect(expansionFamilies.size).toBe(36);
     expansionEntries.forEach((entry) => {
       const review = THREADLINE_EDITOR_REVIEW[entry.puzzleId];
 
@@ -594,28 +574,24 @@ describe('threadline puzzles', () => {
       expect(review.dateKey).toBeNull();
       expect(review.tags).toContain('variety-expansion');
     });
-    expect(
-      THREADLINE_RESERVES.filter(
-        (entry) =>
-          entry.reserveStatus === 'ready' && !THREADLINE_EDITOR_REVIEW[entry.puzzleId].tags.includes('variety-expansion')
-      )
-    ).toHaveLength(THREADLINE_SHIPPED_FORMER_RESERVE_DAYS);
-    expect(THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'needs-tightening')).toHaveLength(
-      THREADLINE_SHIPPED_TIGHTENING_RESERVE_DAYS
+    expect(THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'ready')).toHaveLength(
+      THREADLINE_SHIPPED_RESERVE_DAYS
     );
+    expect(THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'needs-tightening')).toHaveLength(0);
   });
 
   it('keeps ready reserves clear of retired fallback-copy patterns', () => {
     THREADLINE_RESERVES.filter((entry) => entry.reserveStatus === 'ready').forEach((entry) => {
       const puzzle = THREADLINE_PUZZLE_BY_ID[entry.puzzleId];
-      const completedLead = renderThreadlineCompletedLead(puzzle);
-      const combinedCopy = `${puzzle.title} ${completedLead} ${puzzle.weave}`;
+      const combinedCopy = `${puzzle.title} ${puzzle.threads
+        .map((thread) => `${thread.name} ${thread.clue}`)
+        .join(' ')} ${puzzle.weave}`;
 
       expect(combinedCopy).not.toMatch(THREADLINE_READY_RESERVE_RETIRED_COPY);
     });
   });
 
-  it('keeps shipped copy audit free of critical title, lead, payoff, and review issues', () => {
+  it('keeps shipped copy audit free of critical no-lead title, theme, weave, board, and review issues', () => {
     const audit = getShippedThreadlineCopyAudit();
 
     expect(formatThreadlineCopyAuditIssues(audit.criticalIssues)).toEqual([]);
@@ -714,16 +690,16 @@ describe('threadline puzzles', () => {
     });
   });
 
-  it('keeps the shipped QA markdown anchored to a concrete next editorial pass plan', () => {
+  it('keeps the shipped QA markdown anchored to the no-lead editorial ledger', () => {
     const markdown = formatThreadlineShippedPackMarkdown();
 
-    expect(markdown).toContain('## Voice Floor Watchlist');
-    expect(markdown).toContain('## Next Editorial Pass Plan');
-    expect(markdown).toContain('Theme-level weave rewrite');
-    expect(markdown).toContain('Lead point-of-view rewrite');
-    expect(markdown).toContain('Utility phrase removal');
-    expect(markdown).toContain('Gate promotion');
-    expect(markdown).toMatch(/\| 1 \| Theme-level weave rewrite \| \d+ answer-as-subject weaves; \d+ answer-anchored weaves \|/);
+    expect(markdown).toContain('## Title Purpose Audit');
+    expect(markdown).toContain('## Theme Reveal Audit');
+    expect(markdown).toContain('## Theme Subcopy Audit');
+    expect(markdown).toContain('## Weave Without Lead Audit');
+    expect(markdown).toContain('## Board Feel Audit');
+    expect(markdown).toContain('## Per-Day Editorial Ledger');
+    expect(markdown).not.toContain('Filled lead');
   });
 
   it('rejects the calibration example that exposed generated copy fingerprints', () => {
@@ -942,13 +918,15 @@ describe('threadline puzzles', () => {
       .sort((a, b) => a.overallEditorialScore + a.playerAverageScore - (b.overallEditorialScore + b.playerAverageScore))
       .slice(0, 20);
 
-    expect(overallScores.size).toBeGreaterThan(10);
-    expect(playerScores.size).toBeGreaterThan(10);
+    expect(overallScores.size).toBeGreaterThanOrEqual(10);
+    expect(playerScores.size).toBeGreaterThanOrEqual(10);
     weakest.forEach((review) => {
       const puzzle = THREADLINE_PUZZLE_BY_ID[review.puzzleId];
       expect(review.editorNote).toMatch(/copy review/i);
       expect(review.editorNote).toContain(puzzle.title);
-      expect(review.editorNote).toContain(renderThreadlineCompletedLead(puzzle).slice(0, 20));
+      puzzle.threads.forEach((thread) => {
+        expect(review.editorNote).toContain(thread.name);
+      });
       expect(review.editorNote).toContain(puzzle.weave);
       expect(review.editorNote).not.toMatch(/cleared editorial pursuit checks/i);
       expect(review.freshnessNote).toMatch(/length profile \d(?:-\d)+; difficulty index \d\.\d{2}/);

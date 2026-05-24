@@ -39,6 +39,7 @@
     "preview:dawn-art": "tsx scripts/dawn_tile_art_contact_sheet.ts",
     "preview:dawn-art-html": "tsx scripts/dawn_tile_art_gallery.ts",
     "threadline:review": "node --experimental-strip-types scripts/review_threadline_calendar.ts",
+    "threadline:editorial-team": "node --experimental-strip-types scripts/review_threadline_editorial_team.ts --write=docs/threadline-editorial-team-review.md",
     "test": "vitest run",
     "test:barter": "vitest run src/data/barter/*.test.ts",
     "studio": "cd tools/moji-mash-studio && npm run dev"
