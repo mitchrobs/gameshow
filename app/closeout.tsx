@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Image,
   Modal,
@@ -22,12 +31,16 @@ import { incrementGlobalPlayCount } from '../src/globalPlayCount';
 import { formatUtcDateLabel } from '../src/utils/dailyUtc';
 import {
   formatLibertiesShareText,
+  getBestLibertiesHintMove,
   getDailyLibertiesEntry,
   getLibertiesPuzzleAudit,
+  getLowestLibertiesMoveCount,
   getRemainingLibertiesLights,
   isLibertiesSolved,
   libertiesPreviewPuzzles,
   libertiesPuzzles,
+  libertiesPuzzlesHard,
+  type LibertiesPlayMode,
   playLibertiesMove,
   pointKey,
   replayLibertiesMoves,
@@ -54,6 +67,7 @@ const STORAGE_PREFIX = 'liberties';
 const PLAY_COUNT_KEY = 'liberties';
 const PUBLIC_GAME_TITLE = 'Liberties';
 const PROGRESS_STORAGE_VERSION = 1 as const;
+const MODE_STORAGE_KEY = `${STORAGE_PREFIX}:mode`;
 const STANDARD_PLAYTEST_PUZZLE_ID = 'liberties-clock-square';
 const HARD_PLAYTEST_PUZZLE_ID = 'liberties-ladder-garden';
 const PEBBLE_ASSETS = {
@@ -87,34 +101,19 @@ const HOW_TO_CLOSED_GRID: HowToCell[][] = [
   [null, null, null, null],
 ];
 const QUICK_START_RULES = [
-  'This is a pebble-trapping puzzle. The light pebbles are trying to stay on the board.',
-  'Your job is to place dark pebbles so the light pebbles get trapped and disappear.',
-  'Pebbles sit on crossings where grid lines meet. The squares between the lines are only background.',
-  'A light pebble checks the four crossings touching it: above, below, left, and right.',
-  'When all touching crossings are filled, blocked, or outside the board, that light pebble clears.',
-  'Clearing is the reward: if your move clears light pebbles, the light does not stretch and you get the next move.',
-  'Tap an empty crossing once to preview a dark pebble. Tap that same crossing again to place it.',
+  'Tap an empty crossing once to preview. Tap again to place a black pebble.',
+  'White pebbles that touch side-to-side are one white group.',
+  'Only side crossings count: up, down, left, and right. Diagonals do not count.',
+  'Black pebbles, red blockers, and board edges close empty side crossings.',
+  'A white group clears when every side crossing around that white group is closed.',
+  'If your move clears a white group, you move again before white moves.',
+  'Black pebbles also need one empty side crossing. If white closes the last one, those black pebbles disappear.',
 ];
-const LIBERTIES_RULES = [
-  'If light pebbles touch side-to-side, they move and clear together. Trap the outside of the whole connected shape.',
-  'A board edge already closes that direction because there is no crossing beyond the edge.',
-  'A red pebble is a blocked crossing. It already counts as closed for nearby light pebbles, but you cannot play there.',
-  'Diagonal crossings never count. Corners do not connect light pebbles and do not close them.',
-  'Your dark pebbles do not all need to connect. Separate dark groups are allowed.',
-  'After you place a dark pebble, that pebble or its connected dark shape must still touch at least one empty neighboring crossing.',
-];
-const SCORING_RULES = [
-  'Every dark pebble you place counts as one move.',
-  'A strong move can close touching crossings for more than one light shape at once.',
-  'The share result shows your time, move count, and hint count. The puzzle never shows an internal target number.',
-];
-const PUZZLE_PATTERN_RULES = [
-  'If your move clears at least one light pebble, the light pebbles do not move. You get to place again before any stretch.',
-  'If your move clears nothing, one connected light shape stretches into one empty touching crossing.',
-  'The stretch is not random. First, the most trapped light shape gets a chance to stretch.',
-  'If several shapes are equally trapped, the one with the longest straight escape lane stretches.',
-  'If there is still a tie, the game uses a fixed top-to-bottom, left-to-right order.',
-  'The preview tells you where a quiet move will stretch before you place it.',
+const WHITE_STRETCH_RULES = [
+  'First, white saves a white group with only one empty side crossing.',
+  'If no white group is in trouble, white checks every empty side crossing beside a white group.',
+  'White chooses the empty crossing with the longest straight open path.',
+  'If two paths are tied, white chooses the topmost crossing, then the leftmost crossing.',
 ];
 
 function getStorage(): Storage | null {
@@ -140,15 +139,26 @@ function writeStorageItem(key: string, value: string): void {
   }
 }
 
-function getProgressStorageKey(dateKey: string): string {
-  return `${STORAGE_PREFIX}:progress:${dateKey}`;
+function isLibertiesPlayMode(value: string | null): value is LibertiesPlayMode {
+  return value === 'standard' || value === 'hard';
 }
 
-function markDailySolved(dateKey: string): boolean {
+function getInitialLibertiesPlayMode(): LibertiesPlayMode {
+  const rawQueryMode = readSearchParam('mode');
+  if (isLibertiesPlayMode(rawQueryMode)) return rawQueryMode;
+  const storedMode = readStorageItem(MODE_STORAGE_KEY);
+  return storedMode === 'hard' ? 'hard' : 'standard';
+}
+
+function getProgressStorageKey(dateKey: string, mode: LibertiesPlayMode): string {
+  return `${STORAGE_PREFIX}:progress:${mode}:${dateKey}`;
+}
+
+function markDailySolved(dateKey: string, mode: LibertiesPlayMode): boolean {
   const storage = getStorage();
   if (!storage) return true;
   try {
-    const key = `${STORAGE_PREFIX}:daily:${dateKey}`;
+    const key = `${STORAGE_PREFIX}:${mode}:daily:${dateKey}`;
     const alreadySolved = storage.getItem(key) === '1';
     storage.setItem(key, '1');
     return !alreadySolved;
@@ -170,13 +180,13 @@ function getIllegalMoveMessage(reason: LibertiesIllegalReason): string {
     case 'outside-board':
       return 'That spot is outside the board.';
     case 'suicide':
-      return 'That dark pebble would leave its connected dark shape with no empty neighboring crossing. Clear a light pebble first or choose a different crossing.';
+      return 'A black group needs one open side crossing, so this crossing is not allowed yet.';
   }
 }
 
 function getOccupiedCellMessage(cell: LibertiesBoard[number][number], linkedGroupIndex?: number): string {
-  if (cell === 'white') return 'Light pebbles cannot be covered. Close their adjacent empty crossings instead.';
-  if (cell === 'black') return 'That crossing already has a dark pebble.';
+  if (cell === 'white') return 'White pebbles cannot be covered. Block their side crossings instead.';
+  if (cell === 'black') return 'That crossing already has a black pebble.';
   if (cell === 'frozen') return 'Red pebbles are already blocked. You cannot place there.';
   if (cell === 'release') return 'That crossing is blocked in this puzzle.';
   return 'Choose an empty crossing.';
@@ -188,8 +198,8 @@ function getCellAccessibilityLabel(
   cell: LibertiesBoard[number][number]
 ): string {
   const position = `Row ${row + 1}, column ${col + 1}`;
-  if (cell === 'white') return `${position}, light pebble`;
-  if (cell === 'black') return `${position}, dark pebble`;
+  if (cell === 'white') return `${position}, white pebble`;
+  if (cell === 'black') return `${position}, black pebble`;
   if (cell === 'frozen') return `${position}, red pebble, blocked crossing`;
   if (cell === 'release') return `${position}, blocked crossing`;
   return `${position}, empty crossing`;
@@ -259,28 +269,39 @@ function formatPreviewStatus(
 ): string {
   const targetText =
     groupIndexes.length === 0
-      ? 'Does not touch a light pebble yet.'
+      ? 'Does not touch a white pebble yet.'
       : groupIndexes.length === 1
-        ? 'Touches a light shape.'
-        : `Touches ${groupIndexes.length} light shapes.`;
+        ? 'Touches a white group.'
+        : `Touches ${groupIndexes.length} white groups.`;
   let resultText = '';
   if (captureCount > 0 && responsePoints.length > 0) {
-    resultText = ` Quiet move: the most trapped light shape will stretch to ${formatPointLabel(responsePoints[0]!)} and clear.`;
+    resultText = ` Standard move: white will stretch to ${formatPointLabel(responsePoints[0]!)} using the stretch order, then clear.`;
   } else if (captureCount > 0) {
-    resultText = ` Clears ${captureCount} light pebble${captureCount === 1 ? '' : 's'}. You get the next move before light stretches.`;
+    resultText = ` Clears ${captureCount} white pebble${captureCount === 1 ? '' : 's'}. You get the next move before white stretches.`;
   } else if (responsePoints.length > 0) {
-    resultText = ` Quiet move: the most trapped light shape will stretch to ${formatPointLabel(responsePoints[0]!)}.`;
+    resultText = ` Standard move: white will stretch to ${formatPointLabel(responsePoints[0]!)} using the stretch order.`;
   }
   const actionText = legal ? `Tap again to place.${resultText}` : 'That move is not legal yet.';
   return `${formatPointLabel(point)}. ${targetText} ${actionText}`;
 }
 
-function getShareUrl(): string {
+function formatDarkClearStatus(count: number): string {
+  if (count <= 0) return '';
+  const pebbleText = `black pebble${count === 1 ? '' : 's'}`;
+  const ending = count === 1 ? 'it disappeared' : 'they disappeared';
+  return ` White boxed in ${count} ${pebbleText}, so ${ending}.`;
+}
+
+function getShareUrl(mode: LibertiesPlayMode): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       const basePath = window.location.pathname.startsWith('/gameshow') ? '/gameshow' : '';
-      return `${window.location.origin}${basePath}/liberties`;
+      const suffix = mode === 'hard' ? '?mode=hard' : '';
+      return `${window.location.origin}${basePath}/liberties${suffix}`;
     }
+  }
+  if (mode === 'hard') {
+    return 'https://mitchrobs.github.io/gameshow/liberties?mode=hard';
   }
   return 'https://mitchrobs.github.io/gameshow/liberties';
 }
@@ -315,8 +336,8 @@ function getPreviewPuzzleFromOverride(value: string | null): typeof libertiesPuz
   if (!value) return null;
   if (value === 'hard') {
     return (
-      libertiesPuzzles.find((entry) => entry.id === HARD_PLAYTEST_PUZZLE_ID) ??
-      libertiesPuzzles
+      libertiesPuzzlesHard.find((entry) => entry.id === HARD_PLAYTEST_PUZZLE_ID) ??
+      libertiesPuzzlesHard
         .filter((entry) => entry.difficulty === 'Hard')
         .sort((a, b) => {
           const auditA = getLibertiesPuzzleAudit(a);
@@ -330,7 +351,7 @@ function getPreviewPuzzleFromOverride(value: string | null): typeof libertiesPuz
             b.solution.length - a.solution.length
           );
         })[0] ??
-      libertiesPuzzles.find((entry) => entry.difficulty === 'Hard') ??
+      libertiesPuzzlesHard.find((entry) => entry.difficulty === 'Hard') ??
       libertiesPuzzles.find((entry) => entry.id === STANDARD_PLAYTEST_PUZZLE_ID) ??
       null
     );
@@ -484,6 +505,91 @@ function HowToLessonRow({
   );
 }
 
+function HowToStretchOrderBoard({ styles }: { styles: ReturnType<typeof createStyles> }) {
+  const miniSize = 176;
+  const miniPadding = 24;
+  const miniGridSpan = miniSize - miniPadding * 2;
+  const miniGap = miniGridSpan / 4;
+  const miniHitSize = 34;
+  const pointStyle = (row: number, col: number) => ({
+    left: miniPadding + col * miniGap - miniHitSize / 2,
+    top: miniPadding + row * miniGap - miniHitSize / 2,
+    width: miniHitSize,
+    height: miniHitSize,
+    borderRadius: miniHitSize / 2,
+  });
+
+  return (
+    <View style={styles.howToStretchPanel}>
+      <Text style={styles.howToMiniBoardLabel}>How white chooses</Text>
+      <View style={styles.howToStretchBoard}>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <View
+            key={`stretch-vertical-${index}`}
+            style={[
+              styles.howToMiniGridLine,
+              {
+                left: miniPadding + index * miniGap,
+                top: miniPadding,
+                width: 1,
+                height: miniGridSpan,
+              },
+            ]}
+          />
+        ))}
+        {Array.from({ length: 5 }).map((_, index) => (
+          <View
+            key={`stretch-horizontal-${index}`}
+            style={[
+              styles.howToMiniGridLine,
+              {
+                left: miniPadding,
+                top: miniPadding + index * miniGap,
+                width: miniGridSpan,
+                height: 1,
+              },
+            ]}
+          />
+        ))}
+        <View
+          style={[
+            styles.howToStretchPath,
+            {
+              left: miniPadding + 3 * miniGap,
+              top: miniPadding + 2 * miniGap - 3,
+              width: miniGap,
+            },
+          ]}
+        />
+        <View style={[styles.howToStretchCandidate, styles.howToStretchShortCandidate, pointStyle(1, 2)]}>
+          <Text style={styles.howToStretchCandidateText}>1</Text>
+        </View>
+        <View style={[styles.howToStretchCandidate, styles.howToStretchChosenCandidate, pointStyle(2, 3)]}>
+          <Text style={styles.howToStretchChosenText}>2</Text>
+        </View>
+        <View style={[styles.howToStretchDot, pointStyle(2, 4)]} />
+        <View style={[styles.howToMiniPoint, pointStyle(0, 2)]}>
+          <Image source={PEBBLE_ASSETS.blocker} style={styles.howToBlockerPiece} resizeMode="contain" />
+        </View>
+        <View style={[styles.howToMiniPoint, pointStyle(2, 1)]}>
+          <Image source={PEBBLE_ASSETS.seal} style={styles.howToPiece} resizeMode="contain" />
+        </View>
+        <View style={[styles.howToMiniPoint, pointStyle(3, 2)]}>
+          <Image source={PEBBLE_ASSETS.seal} style={styles.howToPiece} resizeMode="contain" />
+        </View>
+        <View style={[styles.howToMiniPoint, pointStyle(2, 2)]}>
+          <Image source={PEBBLE_ASSETS.target} style={styles.howToPiece} resizeMode="contain" />
+        </View>
+        <Text style={[styles.howToStretchLabel, styles.howToStretchShortLabel]}>short</Text>
+        <Text style={[styles.howToStretchLabel, styles.howToStretchLongLabel]}>longer</Text>
+      </View>
+      <Text style={styles.howToMiniBoardCaption}>
+        White compares the empty side crossings beside white groups. Longer straight path wins.
+      </Text>
+    </View>
+  );
+}
+
 function HowToRuleItem({ text, styles }: { text: string; styles: ReturnType<typeof createStyles> }) {
   return (
     <View style={styles.ruleItem}>
@@ -492,6 +598,378 @@ function HowToRuleItem({ text, styles }: { text: string; styles: ReturnType<type
     </View>
   );
 }
+
+function HowToNumberedItem({
+  index,
+  text,
+  styles,
+}: {
+  index: number;
+  text: string;
+  styles: ReturnType<typeof createStyles>;
+}) {
+  return (
+    <View style={styles.numberedRuleItem}>
+      <Text style={styles.numberedRuleIndex}>{index + 1}</Text>
+      <Text style={styles.numberedRuleText}>{text}</Text>
+    </View>
+  );
+}
+
+type LibertiesBoardCardProps = {
+  activeGroupIndex: number | null;
+  activeOpenSideKeys: Set<string>;
+  board: LibertiesBoard;
+  boardPadding: number;
+  boardSize: number;
+  dailyLabel: string;
+  gameState: GameState;
+  gridLineThickness: number;
+  gridSpan: number;
+  groupIndexByPoint: Map<string, number>;
+  guideStoneSize: number;
+  handlePointPress: (point: LibertiesPoint) => void;
+  highlightedGroupIndexes: Set<number>;
+  hintPoint: LibertiesPoint | null;
+  hitSize: number;
+  hoverPoint: LibertiesPoint | null;
+  pointGap: number;
+  previewStoneSize: number;
+  puzzle: typeof libertiesPuzzles[number];
+  recentResponseKeys: Set<string>;
+  releaseIndexByPoint: Map<string, number>;
+  selectedPoint: LibertiesPoint | null;
+  setActiveGroupIndex: Dispatch<SetStateAction<number | null>>;
+  setHoverPoint: Dispatch<SetStateAction<LibertiesPoint | null>>;
+  stoneSize: number;
+  styles: ReturnType<typeof createStyles>;
+  width: number;
+};
+
+const LibertiesBoardCard = memo(function LibertiesBoardCard({
+  activeGroupIndex,
+  activeOpenSideKeys,
+  board,
+  boardPadding,
+  boardSize,
+  dailyLabel,
+  gameState,
+  gridLineThickness,
+  gridSpan,
+  groupIndexByPoint,
+  guideStoneSize,
+  handlePointPress,
+  highlightedGroupIndexes,
+  hintPoint,
+  hitSize,
+  hoverPoint,
+  pointGap,
+  previewStoneSize,
+  puzzle,
+  recentResponseKeys,
+  releaseIndexByPoint,
+  selectedPoint,
+  setActiveGroupIndex,
+  setHoverPoint,
+  stoneSize,
+  styles,
+  width,
+}: LibertiesBoardCardProps) {
+  return (
+    <View style={[styles.boardCard, width < 420 && styles.boardCardCompact, WEB_BORDER_BOX]}>
+      <View style={styles.boardHeader}>
+        <View>
+          <Text style={styles.puzzleTitle}>{dailyLabel}</Text>
+        </View>
+        {gameState === 'won' && (
+          <View style={[styles.statePill, styles.statePillWon]}>
+            <Text style={[styles.statePillText, styles.statePillTextWon]}>Solved</Text>
+          </View>
+        )}
+      </View>
+
+      <View
+        style={[
+          styles.board,
+          {
+            width: boardSize,
+            height: boardSize,
+          },
+        ]}
+      >
+        {Array.from({ length: puzzle.size }).map((_, index) => (
+          <View
+            key={`grid-vertical-${index}`}
+            style={[
+              styles.boardGridLine,
+              {
+                left: boardPadding + index * pointGap - gridLineThickness / 2,
+                top: boardPadding,
+                width: gridLineThickness,
+                height: gridSpan,
+              },
+            ]}
+          />
+        ))}
+        {Array.from({ length: puzzle.size }).map((_, index) => (
+          <View
+            key={`grid-horizontal-${index}`}
+            style={[
+              styles.boardGridLine,
+              {
+                left: boardPadding,
+                top: boardPadding + index * pointGap - gridLineThickness / 2,
+                width: gridSpan,
+                height: gridLineThickness,
+              },
+            ]}
+          />
+        ))}
+        {puzzle.releaseLinks.map((release, index) => {
+          if (board[release.point.row]?.[release.point.col] !== 'release') return null;
+          const group = puzzle.lightGroups[release.groupIndex] ?? [];
+          const active = activeGroupIndex === release.groupIndex;
+          return (
+            <View
+              key={`release-link-${index}-${pointKey(release.point)}`}
+              style={[
+                styles.releaseConnector,
+                {
+                  ...getReleaseConnectorStyle(
+                    release.point,
+                    getGroupCenter(group),
+                    boardPadding,
+                    pointGap
+                  ),
+                  backgroundColor: getGroupAccent(release.groupIndex),
+                  opacity: active ? 0.6 : 0.22,
+                },
+                active && styles.releaseConnectorActive,
+              ]}
+            />
+          );
+        })}
+        {board.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            const point = { row: rowIndex, col: colIndex };
+            const pointKeyValue = pointKey(point);
+            const pointLeft = boardPadding + colIndex * pointGap;
+            const pointTop = boardPadding + rowIndex * pointGap;
+            const hinted = hintPoint ? samePoint(hintPoint, point) : false;
+            const selected = selectedPoint ? samePoint(selectedPoint, point) : false;
+            const hovered = hoverPoint ? samePoint(hoverPoint, point) : false;
+            const previewing = cell === null && (selected || hovered);
+            const previewResult = previewing
+              ? playLibertiesMove(board, puzzle.size, point, 'black', puzzle)
+              : null;
+            const previewLegal = previewResult?.legal ?? false;
+            const groupIndex = cell === 'white' ? groupIndexByPoint.get(pointKeyValue) : undefined;
+            const releaseGroupIndex = cell === 'release' ? releaseIndexByPoint.get(pointKeyValue) : undefined;
+            const releaseHighlighted =
+              cell === 'release' &&
+              releaseGroupIndex !== undefined &&
+              highlightedGroupIndexes.has(releaseGroupIndex);
+            const isActiveOpenSide = cell === null && activeOpenSideKeys.has(pointKeyValue);
+            const recentlyResponded = recentResponseKeys.has(pointKeyValue);
+
+            return (
+              <Pressable
+                key={pointKeyValue}
+                accessibilityRole="button"
+                accessibilityLabel={getCellAccessibilityLabel(rowIndex, colIndex, cell)}
+                disabled={gameState === 'won'}
+                onPress={() => {
+                  if (cell === 'white' && groupIndex !== undefined) {
+                    setActiveGroupIndex(groupIndex);
+                  }
+                  if (cell === 'release' && releaseGroupIndex !== undefined) {
+                    setActiveGroupIndex(releaseGroupIndex);
+                  }
+                  handlePointPress(point);
+                }}
+                onHoverIn={() => {
+                  if (Platform.OS !== 'web') return;
+                  if (cell === null) setHoverPoint(point);
+                  if (cell === 'white' && groupIndex !== undefined) setActiveGroupIndex(groupIndex);
+                  if (cell === 'release' && releaseGroupIndex !== undefined) {
+                    setActiveGroupIndex(releaseGroupIndex);
+                  }
+                }}
+                onHoverOut={() => {
+                  if (Platform.OS !== 'web') return;
+                  if (hoverPoint && samePoint(hoverPoint, point)) {
+                    setHoverPoint(null);
+                  }
+                  if (cell === 'white' && groupIndex !== undefined) {
+                    setActiveGroupIndex((current) => (current === groupIndex ? null : current));
+                  }
+                  if (cell === 'release' && releaseGroupIndex !== undefined) {
+                    setActiveGroupIndex((current) => (current === releaseGroupIndex ? null : current));
+                  }
+                }}
+                style={({ pressed }) => [
+                  styles.cell,
+                  {
+                    left: pointLeft - hitSize / 2,
+                    top: pointTop - hitSize / 2,
+                    width: hitSize,
+                    height: hitSize,
+                    borderRadius: hitSize / 2,
+                  },
+                  cell === 'frozen' && styles.frozenCell,
+                  cell === 'release' && styles.releaseCell,
+                  hinted && styles.cellHinted,
+                  hovered && cell === null && styles.cellHovered,
+                  selected && styles.cellSelected,
+                  previewing && !previewLegal && styles.cellInvalid,
+                  pressed && cell === null && styles.cellPressed,
+                ]}
+              >
+                {cell === 'frozen' && (
+                  <Image
+                    source={PEBBLE_ASSETS.blocker}
+                    style={[
+                      styles.pieceImage,
+                      styles.blockerPiece,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                )}
+                {cell === 'release' && releaseGroupIndex !== undefined && (
+                  <View
+                    style={[
+                      styles.releaseHalo,
+                      {
+                        width: stoneSize * 1.18,
+                        height: stoneSize * 1.18,
+                        borderRadius: stoneSize,
+                        borderColor: getGroupAccent(releaseGroupIndex),
+                        opacity: releaseHighlighted ? 0.78 : 0.22,
+                      },
+                      releaseHighlighted && styles.releaseHaloActive,
+                    ]}
+                  />
+                )}
+                {cell === 'release' && (
+                  <Image
+                    source={PEBBLE_ASSETS.guide}
+                    style={[
+                      styles.pieceImage,
+                      styles.releasePiece,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                )}
+                {cell === 'white' && groupIndex !== undefined && (
+                  <View
+                    style={[
+                      styles.lightGroupHalo,
+                      {
+                        width: stoneSize * 1.22,
+                        height: stoneSize * 1.22,
+                        borderRadius: stoneSize,
+                        borderColor: getGroupAccent(groupIndex),
+                        opacity: highlightedGroupIndexes.has(groupIndex) ? 0.72 : 0.3,
+                      },
+                      highlightedGroupIndexes.has(groupIndex) && styles.lightGroupHaloActive,
+                    ]}
+                  />
+                )}
+                {(cell === 'black' || cell === 'white') && (
+                  <Image
+                    source={cell === 'black' ? PEBBLE_ASSETS.seal : PEBBLE_ASSETS.target}
+                    style={[
+                      styles.pieceImage,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                )}
+                {selected && cell === null && (
+                  <View
+                    style={[
+                      styles.previewRing,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                        borderRadius: stoneSize / 2,
+                      },
+                    ]}
+                  />
+                )}
+                {hovered && cell === null && !selected && (
+                  <View
+                    style={[
+                      styles.hoverRing,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                        borderRadius: stoneSize / 2,
+                      },
+                    ]}
+                  />
+                )}
+                {isActiveOpenSide && !previewing && (
+                  <View style={[styles.openSideMarker, { borderColor: getGroupAccent(activeGroupIndex ?? 0) }]} />
+                )}
+                {recentlyResponded && !previewing && (
+                  <View
+                    style={[
+                      styles.releasedPulse,
+                      {
+                        width: stoneSize,
+                        height: stoneSize,
+                        borderRadius: stoneSize / 2,
+                      },
+                    ]}
+                  />
+                )}
+                {previewing && (
+                  <Image
+                    source={PEBBLE_ASSETS.seal}
+                    style={[
+                      styles.pieceImage,
+                      styles.previewPiece,
+                      !previewLegal && styles.invalidPreviewPiece,
+                      {
+                        width: previewStoneSize,
+                        height: previewStoneSize,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                )}
+                {hinted && !previewing && cell === null && (
+                  <View
+                    style={[
+                      styles.hintRing,
+                      {
+                        width: guideStoneSize,
+                        height: guideStoneSize,
+                        borderRadius: guideStoneSize / 2,
+                      },
+                    ]}
+                  />
+                )}
+              </Pressable>
+            );
+          })
+        )}
+      </View>
+    </View>
+  );
+});
 
 function sanitizeMoves(value: unknown, size: number): LibertiesPoint[] {
   if (!Array.isArray(value)) return [];
@@ -509,14 +987,6 @@ function sanitizeMoves(value: unknown, size: number): LibertiesPoint[] {
       candidate.col < size
     );
   });
-}
-
-function isSolutionMoveAvailable(
-  board: LibertiesBoard,
-  point: LibertiesPoint | undefined
-): point is LibertiesPoint {
-  if (!point) return false;
-  return board[point.row]?.[point.col] === null;
 }
 
 function getDemoMoveCount(mode: DemoMode): number {
@@ -552,8 +1022,16 @@ export default function LibertiesScreen() {
   const { width } = useWindowDimensions();
   const demoMode = useMemo(() => readDemoMode(), []);
   const puzzleOverride = useMemo(() => getPreviewPuzzleFromOverride(readPuzzleOverride()), []);
+  const queryMode = useMemo(() => {
+    const value = readSearchParam('mode');
+    return isLibertiesPlayMode(value) ? value : null;
+  }, []);
   const isPreviewMode = demoMode !== null || puzzleOverride !== null || readSearchParam('howTo') === '1';
-  const dailyEntry = useMemo(() => getDailyLibertiesEntry(), []);
+  const [playMode, setPlayMode] = useState<LibertiesPlayMode>(() => {
+    return queryMode ?? getInitialLibertiesPlayMode();
+  });
+  const activeMode: LibertiesPlayMode = isPreviewMode ? 'standard' : playMode;
+  const dailyEntry = useMemo(() => getDailyLibertiesEntry(new Date(), activeMode), [activeMode]);
   const demoPuzzle = useMemo(
     () => libertiesPuzzles.find((entry) => entry.id === 'liberties-shared-court') ?? null,
     []
@@ -630,9 +1108,9 @@ export default function LibertiesScreen() {
   const hitSize = Math.max(stoneSize * 1.1, Math.min(pointGap * 0.98, width < 420 ? 54 : 78));
   const gridLineThickness = width < 420 ? 1 : 2;
   const dailyLabel = useMemo(() => formatUtcDateLabel(dateKey), [dateKey]);
-  const nextHint = useMemo(
-    () => puzzle.solution.find((point) => isSolutionMoveAvailable(board, point)) ?? null,
-    [board, puzzle.solution]
+  const lowestMoveCount = useMemo(
+    () => (gameState === 'won' ? getLowestLibertiesMoveCount(puzzle) : null),
+    [gameState, puzzle]
   );
   const shareText = useMemo(
     () =>
@@ -641,9 +1119,19 @@ export default function LibertiesScreen() {
         moves: moves.length,
         elapsedSeconds,
         hintsUsed,
-        url: getShareUrl(),
+        url: getShareUrl(playMode),
       }),
-    [dateKey, elapsedSeconds, hintsUsed, moves.length]
+    [dateKey, elapsedSeconds, hintsUsed, moves.length, playMode]
+  );
+  const modeIsLocked = isPreviewMode;
+  const isHardMode = activeMode === 'hard';
+  const isStandardMode = activeMode === 'standard';
+  const handleModeChange = useCallback(
+    (nextMode: LibertiesPlayMode) => {
+      if (modeIsLocked || nextMode === activeMode) return;
+      setPlayMode(nextMode);
+    },
+    [activeMode, modeIsLocked]
   );
   const getLightImpactsForPoint = useCallback((point: LibertiesPoint) => {
     const selectedKey = pointKey(point);
@@ -682,6 +1170,11 @@ export default function LibertiesScreen() {
   }, [demoMode]);
 
   useEffect(() => {
+    if (isPreviewMode) return;
+    writeStorageItem(MODE_STORAGE_KEY, playMode);
+  }, [isPreviewMode, playMode]);
+
+  useEffect(() => {
     if (demoMode || puzzleOverride) {
       const demoMoves = demoMode ? puzzle.solution.slice(0, getDemoMoveCount(demoMode)) : [];
       hasCountedRef.current = true;
@@ -703,7 +1196,7 @@ export default function LibertiesScreen() {
     }
 
     setHasRestoredProgress(false);
-    const raw = readStorageItem(getProgressStorageKey(dateKey));
+    const raw = readStorageItem(getProgressStorageKey(dateKey, activeMode));
     if (!raw) {
       hasCountedRef.current = false;
       setMoves([]);
@@ -777,8 +1270,8 @@ export default function LibertiesScreen() {
       elapsedSeconds,
       hintsUsed,
     };
-    writeStorageItem(getProgressStorageKey(dateKey), JSON.stringify(payload));
-  }, [dateKey, elapsedSeconds, gameState, hasRestoredProgress, hintsUsed, isPreviewMode, moves]);
+    writeStorageItem(getProgressStorageKey(dateKey, activeMode), JSON.stringify(payload));
+  }, [activeMode, dateKey, elapsedSeconds, gameState, hasRestoredProgress, hintsUsed, isPreviewMode, moves]);
 
   useEffect(() => {
     if (gameState !== 'playing' || !solved) return;
@@ -788,11 +1281,11 @@ export default function LibertiesScreen() {
   useEffect(() => {
     if (gameState !== 'won' || hasCountedRef.current || isPreviewMode) return;
     hasCountedRef.current = true;
-    const shouldCount = markDailySolved(dateKey);
+    const shouldCount = markDailySolved(dateKey, activeMode);
     if (shouldCount) {
       incrementGlobalPlayCount(PLAY_COUNT_KEY);
     }
-  }, [dateKey, gameState, isPreviewMode]);
+  }, [activeMode, dateKey, gameState, isPreviewMode]);
 
   useEffect(() => {
     if (!hasRestoredProgress || gameState !== 'playing' || isPreviewMode) return;
@@ -843,18 +1336,21 @@ export default function LibertiesScreen() {
       setHoverPoint(null);
       setActiveGroupIndex(null);
       setMoves((previous) => [...previous, point]);
+      const darkClearStatus = formatDarkClearStatus(result.capturedDark.length);
       if (result.captured.length > 0 && result.responses.length > 0) {
         setStatusMessage(
-          `Quiet move: light stretched to ${formatPointLabel(result.responses[0]!)} and cleared ${result.captured.length} light pebble${result.captured.length === 1 ? '' : 's'}.`
+          `Standard move: white stretched to ${formatPointLabel(result.responses[0]!)} and cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}.${darkClearStatus}`
         );
       } else if (result.captured.length > 0) {
         setStatusMessage(
-          `Cleared ${result.captured.length} light pebble${result.captured.length === 1 ? '' : 's'}. Your turn again before light stretches.`
+          `Cleared ${result.captured.length} white pebble${result.captured.length === 1 ? '' : 's'}. Your turn again before white stretches.${darkClearStatus}`
         );
       } else if (result.responses.length > 0) {
         setStatusMessage(
-          `Quiet move: light stretched to ${formatPointLabel(result.responses[0]!)}.`
+          `Standard move: white stretched to ${formatPointLabel(result.responses[0]!)}.${darkClearStatus}`
         );
+      } else if (darkClearStatus) {
+        setStatusMessage(darkClearStatus.trim());
       }
     },
     [board, gameState, puzzle]
@@ -921,16 +1417,31 @@ export default function LibertiesScreen() {
 
   const handleHint = useCallback(() => {
     if (gameState !== 'playing') return;
+    if (
+      hintPoint &&
+      selectedPoint &&
+      samePoint(hintPoint, selectedPoint) &&
+      board[hintPoint.row]?.[hintPoint.col] === null
+    ) {
+      commitMove(hintPoint);
+      return;
+    }
+
+    const nextHint = getBestLibertiesHintMove(puzzle, board);
     if (!nextHint) {
       setStatusMessage('No useful hint is available from this position.');
       return;
     }
-    setHintPoint(nextHint);
-    setSelectedPoint(nextHint);
+    setHintPoint(nextHint.point);
+    setSelectedPoint(nextHint.point);
     setHintsUsed((previous) => previous + 1);
     setShareStatus(null);
-    setStatusMessage('Hint ring marks a useful empty crossing. Tap it again to place.');
-  }, [gameState, nextHint]);
+    setStatusMessage(
+      nextHint.movesToSolve <= 1
+        ? 'Hint marks the clearing move. Tap the crossing or press Hint again to place.'
+        : `Hint marks the move floor from here: ${nextHint.movesToSolve} moves left. Tap the crossing or press Hint again to place.`
+    );
+  }, [board, commitMove, gameState, hintPoint, puzzle, selectedPoint]);
 
   const handleShare = useCallback(async () => {
     setShareStatus(null);
@@ -974,7 +1485,7 @@ export default function LibertiesScreen() {
               <View style={styles.howToHeader}>
                 <View>
                   <Text style={styles.howToKicker}>How to play</Text>
-                  <Text style={styles.howToTitle}>Clear the light pebbles</Text>
+                  <Text accessibilityRole="header" style={styles.howToTitle}>Clear the white groups</Text>
                 </View>
                 <Pressable
                   accessibilityRole="button"
@@ -987,106 +1498,39 @@ export default function LibertiesScreen() {
               </View>
 
               <View style={styles.objectiveCard}>
-                <Text style={styles.objectiveTitle}>Objective</Text>
+                <Text style={styles.objectiveTitle}>Goal</Text>
                 <Text style={styles.objectiveText}>
-                  Trap every light pebble. A light pebble looks at the crossings directly above, below, left, and right.
-                  Place dark pebbles on those touching crossings until the light pebble has no empty way out. If your move
-                  clears light pebbles, the board stays still and you get the next move before any stretch. If your move
-                  clears nothing, the most trapped connected light shape stretches into one empty touching crossing. Red
-                  pebbles are blocked crossings. Your dark pebbles do not need to form one connected chain.
+                  Place black pebbles on empty crossings. Clear each white group by closing every
+                  empty side crossing directly beside that white group.
                 </Text>
               </View>
 
-              <Text style={styles.modalTitle}>Start Here</Text>
+              <Text accessibilityRole="header" style={styles.modalTitle}>Your move</Text>
               <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>The board, from scratch</Text>
+                <HowToMiniBoard
+                  grid={HOW_TO_OPEN_GRID}
+                  label="Board example"
+                  caption="Pebbles sit where grid lines meet. White pebbles touching side-to-side are one white group."
+                  styles={styles}
+                />
+                <Text style={styles.ruleListTitle}>Rules</Text>
                 {QUICK_START_RULES.map((rule) => (
                   <HowToRuleItem key={rule} text={rule} styles={styles} />
                 ))}
               </View>
 
-              <View style={styles.howToDiagram}>
-                <HowToMiniBoard
-                  grid={HOW_TO_OPEN_GRID}
-                  label="Before"
-                  caption="The two light pebbles touch side-to-side, so they act as one shape. The empty crossings directly around the shape are the ones you care about."
-                  styles={styles}
-                />
-                <HowToMiniBoard
-                  grid={HOW_TO_CLOSED_GRID}
-                  label="Stretch"
-                  caption="If your move clears nothing, the most trapped light shape stretches into an open side crossing. Clear urgent shapes before they grow."
-                  styles={styles}
-                />
-              </View>
-
-              <Text style={styles.modalTitle}>Pieces</Text>
-              <HowToLessonRow
-                kind="target"
-                title="Light Pebble"
-                badge="Clear"
-                text="Clear all light pebbles to finish the puzzle."
-                styles={styles}
-              />
-              <HowToLessonRow
-                kind="seal"
-                title="Dark Pebble"
-                badge="Place"
-                text="A dark pebble closes the neighboring crossings around light pebbles. Black pebbles do not all need to touch each other. Some dark pebbles are already set at the start."
-                styles={styles}
-              />
-              <HowToLessonRow
-                kind="response"
-                title="Light Stretch"
-                badge="Stretch"
-                text="After a quiet move, one connected light shape stretches into one open side crossing. A clear move skips this, so finishing a light shape earns you the next move."
-                styles={styles}
-              />
-              <HowToLessonRow
-                kind="blocker"
-                title="Red Pebble"
-                badge="Blocked"
-                text="A red pebble marks a crossing that is already blocked. It helps close nearby light pebbles, but you cannot place a dark pebble there."
-                styles={styles}
-              />
-
-              <Text style={styles.modalTitle}>Playing a Move</Text>
-              <View style={styles.howToActionGrid}>
-                <View style={styles.howToActionCard}>
-                  <Text style={styles.howToActionNumber}>1</Text>
-                  <Text style={styles.howToActionTitle}>Find</Text>
-                  <Text style={styles.howToActionText}>Pick a light pebble or connected light shape and look at the crossings touching it.</Text>
+              <Text accessibilityRole="header" style={styles.modalTitle}>When white moves</Text>
+              <View style={[styles.rulesList, styles.rulesListSecondary]}>
+                <Text style={styles.ruleListIntro}>
+                  White moves only after a standard move: a black pebble that clears no white group.
+                  White adds one white pebble beside an existing white group.
+                </Text>
+                <HowToStretchOrderBoard styles={styles} />
+                <View style={styles.whiteMoveSteps}>
+                  {WHITE_STRETCH_RULES.map((rule, index) => (
+                    <HowToNumberedItem key={rule} index={index} text={rule} styles={styles} />
+                  ))}
                 </View>
-                <View style={styles.howToActionCard}>
-                  <Text style={styles.howToActionNumber}>2</Text>
-                  <Text style={styles.howToActionTitle}>Preview</Text>
-                  <Text style={styles.howToActionText}>Tap an empty crossing to test it. The dark pebble appears as a preview, and the message below the board tells you if it is legal.</Text>
-                </View>
-                <View style={styles.howToActionCard}>
-                  <Text style={styles.howToActionNumber}>3</Text>
-                  <Text style={styles.howToActionTitle}>Place</Text>
-                  <Text style={styles.howToActionText}>Tap that same crossing again to place the pebble. If a light shape has no empty touching crossings left, it disappears.</Text>
-                </View>
-              </View>
-
-              <Text style={styles.modalTitle}>Rules That Matter</Text>
-              <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>Shapes and closed crossings</Text>
-                {LIBERTIES_RULES.map((rule) => (
-                  <HowToRuleItem key={rule} text={rule} styles={styles} />
-                ))}
-              </View>
-              <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>Finish and score</Text>
-                {SCORING_RULES.map((rule) => (
-                  <HowToRuleItem key={rule} text={rule} styles={styles} />
-                ))}
-              </View>
-              <View style={styles.rulesList}>
-                <Text style={styles.ruleListTitle}>What changes day to day</Text>
-                {PUZZLE_PATTERN_RULES.map((rule) => (
-                  <HowToRuleItem key={rule} text={rule} styles={styles} />
-                ))}
               </View>
 
               <Pressable
@@ -1133,298 +1577,35 @@ export default function LibertiesScreen() {
             </View>
           </View>
 
-          <View style={[styles.boardCard, width < 420 && styles.boardCardCompact, WEB_BORDER_BOX]}>
-            <View style={styles.boardHeader}>
-              <View>
-                <Text style={styles.puzzleTitle}>{dailyLabel}</Text>
-              </View>
-              <View style={[styles.statePill, gameState === 'won' && styles.statePillWon]}>
-                <Text style={[styles.statePillText, gameState === 'won' && styles.statePillTextWon]}>
-                  {gameState === 'won'
-                    ? 'Solved'
-                    : `${remainingGroups.length} shape${remainingGroups.length === 1 ? '' : 's'}`}
-                </Text>
-              </View>
-            </View>
-
-            <View
-              style={[
-                styles.board,
-                {
-                  width: boardSize,
-                  height: boardSize,
-                },
-              ]}
-            >
-              {Array.from({ length: puzzle.size }).map((_, index) => (
-                <View
-                  key={`grid-vertical-${index}`}
-                  style={[
-                    styles.boardGridLine,
-                    {
-                      left: boardPadding + index * pointGap - gridLineThickness / 2,
-                      top: boardPadding,
-                      width: gridLineThickness,
-                      height: gridSpan,
-                    },
-                  ]}
-                />
-              ))}
-              {Array.from({ length: puzzle.size }).map((_, index) => (
-                <View
-                  key={`grid-horizontal-${index}`}
-                  style={[
-                    styles.boardGridLine,
-                    {
-                      left: boardPadding,
-                      top: boardPadding + index * pointGap - gridLineThickness / 2,
-                      width: gridSpan,
-                      height: gridLineThickness,
-                    },
-                  ]}
-                />
-              ))}
-              {puzzle.releaseLinks.map((release, index) => {
-                if (board[release.point.row]?.[release.point.col] !== 'release') return null;
-                const group = puzzle.lightGroups[release.groupIndex] ?? [];
-                const active = activeGroupIndex === release.groupIndex;
-                return (
-                  <View
-                    key={`release-link-${index}-${pointKey(release.point)}`}
-                    style={[
-                      styles.releaseConnector,
-                      {
-                        ...getReleaseConnectorStyle(
-                          release.point,
-                          getGroupCenter(group),
-                          boardPadding,
-                          pointGap
-                        ),
-                        backgroundColor: getGroupAccent(release.groupIndex),
-                        opacity: active ? 0.6 : 0.22,
-                      },
-                      active && styles.releaseConnectorActive,
-                    ]}
-                  />
-                );
-              })}
-              {board.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    const point = { row: rowIndex, col: colIndex };
-                    const pointKeyValue = pointKey(point);
-                    const pointLeft = boardPadding + colIndex * pointGap;
-                    const pointTop = boardPadding + rowIndex * pointGap;
-                    const hinted = hintPoint ? samePoint(hintPoint, point) : false;
-                    const selected = selectedPoint ? samePoint(selectedPoint, point) : false;
-                    const hovered = hoverPoint ? samePoint(hoverPoint, point) : false;
-                    const previewing = cell === null && (selected || hovered);
-                    const previewResult = previewing
-                      ? playLibertiesMove(board, puzzle.size, point, 'black', puzzle)
-                      : null;
-                    const previewLegal = previewResult?.legal ?? false;
-                    const groupIndex = cell === 'white' ? groupIndexByPoint.get(pointKeyValue) : undefined;
-                    const releaseGroupIndex = cell === 'release' ? releaseIndexByPoint.get(pointKeyValue) : undefined;
-                    const releaseHighlighted =
-                      cell === 'release' &&
-                      releaseGroupIndex !== undefined &&
-                      highlightedGroupIndexes.has(releaseGroupIndex);
-                    const isActiveOpenSide = cell === null && activeOpenSideKeys.has(pointKeyValue);
-                    const recentlyResponded = recentResponseKeys.has(pointKeyValue);
-                    return (
-                      <Pressable
-                        key={pointKeyValue}
-                        accessibilityRole="button"
-                        accessibilityLabel={getCellAccessibilityLabel(rowIndex, colIndex, cell)}
-                        disabled={gameState === 'won'}
-                        onPress={() => {
-                          if (cell === 'white' && groupIndex !== undefined) {
-                            setActiveGroupIndex(groupIndex);
-                          }
-                          if (cell === 'release' && releaseGroupIndex !== undefined) {
-                            setActiveGroupIndex(releaseGroupIndex);
-                          }
-                          handlePointPress(point);
-                        }}
-                        onHoverIn={() => {
-                          if (Platform.OS !== 'web') return;
-                          if (cell === null) setHoverPoint(point);
-                          if (cell === 'white' && groupIndex !== undefined) setActiveGroupIndex(groupIndex);
-                          if (cell === 'release' && releaseGroupIndex !== undefined) setActiveGroupIndex(releaseGroupIndex);
-                        }}
-                        onHoverOut={() => {
-                          if (Platform.OS !== 'web') return;
-                          if (hoverPoint && samePoint(hoverPoint, point)) {
-                            setHoverPoint(null);
-                          }
-                          if (cell === 'white' && groupIndex !== undefined) {
-                            setActiveGroupIndex((current) => (current === groupIndex ? null : current));
-                          }
-                          if (cell === 'release' && releaseGroupIndex !== undefined) {
-                            setActiveGroupIndex((current) => (current === releaseGroupIndex ? null : current));
-                          }
-                        }}
-                        style={({ pressed }) => [
-                          styles.cell,
-                          {
-                            left: pointLeft - hitSize / 2,
-                            top: pointTop - hitSize / 2,
-                            width: hitSize,
-                            height: hitSize,
-                            borderRadius: hitSize / 2,
-                          },
-                          cell === 'frozen' && styles.frozenCell,
-                          cell === 'release' && styles.releaseCell,
-                          hinted && styles.cellHinted,
-                          hovered && cell === null && styles.cellHovered,
-                          selected && styles.cellSelected,
-                          previewing && !previewLegal && styles.cellInvalid,
-                          pressed && cell === null && styles.cellPressed,
-                        ]}
-                      >
-                        {cell === 'frozen' && (
-                          <Image
-                            source={PEBBLE_ASSETS.blocker}
-                            style={[
-                              styles.pieceImage,
-                              styles.blockerPiece,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                              },
-                            ]}
-                            resizeMode="contain"
-                          />
-                        )}
-                        {cell === 'release' && releaseGroupIndex !== undefined && (
-                          <View
-                            style={[
-                              styles.releaseHalo,
-                              {
-                                width: stoneSize * 1.18,
-                                height: stoneSize * 1.18,
-                                borderRadius: stoneSize,
-                                borderColor: getGroupAccent(releaseGroupIndex),
-                                opacity: releaseHighlighted ? 0.78 : 0.22,
-                              },
-                              releaseHighlighted && styles.releaseHaloActive,
-                            ]}
-                          />
-                        )}
-                        {cell === 'release' && (
-                          <Image
-                            source={PEBBLE_ASSETS.guide}
-                            style={[
-                              styles.pieceImage,
-                              styles.releasePiece,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                              },
-                            ]}
-                            resizeMode="contain"
-                          />
-                        )}
-                        {cell === 'white' && groupIndex !== undefined && (
-                          <View
-                            style={[
-                              styles.lightGroupHalo,
-                              {
-                                width: stoneSize * 1.22,
-                                height: stoneSize * 1.22,
-                                borderRadius: stoneSize,
-                                borderColor: getGroupAccent(groupIndex),
-                                opacity: highlightedGroupIndexes.has(groupIndex) ? 0.72 : 0.3,
-                              },
-                              highlightedGroupIndexes.has(groupIndex) && styles.lightGroupHaloActive,
-                            ]}
-                          />
-                        )}
-                        {(cell === 'black' || cell === 'white') && (
-                          <Image
-                            source={cell === 'black' ? PEBBLE_ASSETS.seal : PEBBLE_ASSETS.target}
-                            style={[
-                              styles.pieceImage,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                              },
-                            ]}
-                            resizeMode="contain"
-                          />
-                        )}
-                        {selected && cell === null && (
-                          <View
-                            style={[
-                              styles.previewRing,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                                borderRadius: stoneSize / 2,
-                              },
-                            ]}
-                          />
-                        )}
-                        {hovered && cell === null && !selected && (
-                          <View
-                            style={[
-                              styles.hoverRing,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                                borderRadius: stoneSize / 2,
-                              },
-                            ]}
-                          />
-                        )}
-                        {isActiveOpenSide && !previewing && (
-                          <View style={[styles.openSideMarker, { borderColor: getGroupAccent(activeGroupIndex ?? 0) }]} />
-                        )}
-                        {recentlyResponded && !previewing && (
-                          <View
-                            style={[
-                              styles.releasedPulse,
-                              {
-                                width: stoneSize,
-                                height: stoneSize,
-                                borderRadius: stoneSize / 2,
-                              },
-                            ]}
-                          />
-                        )}
-                        {previewing && (
-                          <Image
-                            source={PEBBLE_ASSETS.seal}
-                            style={[
-                              styles.pieceImage,
-                              styles.previewPiece,
-                              !previewLegal && styles.invalidPreviewPiece,
-                              {
-                                width: previewStoneSize,
-                                height: previewStoneSize,
-                              },
-                            ]}
-                            resizeMode="contain"
-                          />
-                        )}
-                        {hinted && !previewing && cell === null && (
-                          <View
-                            style={[
-                              styles.hintRing,
-                              {
-                                width: guideStoneSize,
-                                height: guideStoneSize,
-                                borderRadius: guideStoneSize / 2,
-                              },
-                            ]}
-                          />
-                        )}
-                      </Pressable>
-                    );
-                  })
-              )}
-            </View>
-
-          </View>
+          <LibertiesBoardCard
+            activeGroupIndex={activeGroupIndex}
+            activeOpenSideKeys={activeOpenSideKeys}
+            board={board}
+            boardPadding={boardPadding}
+            boardSize={boardSize}
+            dailyLabel={dailyLabel}
+            gameState={gameState}
+            gridLineThickness={gridLineThickness}
+            gridSpan={gridSpan}
+            groupIndexByPoint={groupIndexByPoint}
+            guideStoneSize={guideStoneSize}
+            handlePointPress={handlePointPress}
+            highlightedGroupIndexes={highlightedGroupIndexes}
+            hintPoint={hintPoint}
+            hitSize={hitSize}
+            hoverPoint={hoverPoint}
+            pointGap={pointGap}
+            previewStoneSize={previewStoneSize}
+            puzzle={puzzle}
+            recentResponseKeys={recentResponseKeys}
+            releaseIndexByPoint={releaseIndexByPoint}
+            selectedPoint={selectedPoint}
+            setActiveGroupIndex={setActiveGroupIndex}
+            setHoverPoint={setHoverPoint}
+            stoneSize={stoneSize}
+            styles={styles}
+            width={width}
+          />
 
           {statusMessage && (
             <View style={styles.statusCard}>
@@ -1467,9 +1648,71 @@ export default function LibertiesScreen() {
             </Pressable>
           </View>
 
+          <View style={[styles.settingsPanel, WEB_BORDER_BOX]}>
+            <View style={styles.settingsHeaderRow}>
+              <Text style={styles.settingsLabel}>Difficulty</Text>
+              {modeIsLocked && <Text style={styles.settingsNote}>Preview locked</Text>}
+            </View>
+            <View style={styles.modeSectionControls}>
+              <Pressable
+                accessibilityRole="button"
+                disabled={modeIsLocked || isStandardMode}
+                style={({ pressed }) => [
+                  styles.modeSectionButton,
+                  isStandardMode ? styles.modeSectionButtonActive : styles.modeSectionButtonInactive,
+                  modeIsLocked && styles.modeSectionButtonDisabled,
+                  pressed && !modeIsLocked && !isStandardMode && styles.modeSectionButtonPressed,
+                ]}
+                onPress={() => handleModeChange('standard')}
+              >
+                <Text
+                  style={[
+                    styles.modeSectionButtonText,
+                    isStandardMode && styles.modeSectionButtonTextActive,
+                  ]}
+                >
+                  Standard
+                </Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                disabled={modeIsLocked || isHardMode}
+                style={({ pressed }) => [
+                  styles.modeSectionButton,
+                  isHardMode ? styles.modeSectionButtonActive : styles.modeSectionButtonInactive,
+                  modeIsLocked && styles.modeSectionButtonDisabled,
+                  pressed && !modeIsLocked && !isHardMode && styles.modeSectionButtonPressed,
+                ]}
+                onPress={() => handleModeChange('hard')}
+              >
+                <Text
+                  style={[
+                    styles.modeSectionButtonText,
+                    isHardMode && styles.modeSectionButtonTextActive,
+                  ]}
+                >
+                  Hard
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+
           {gameState === 'won' && (
             <View style={styles.winCard}>
               <Text style={styles.winTitle}>Cleared in {moves.length} moves</Text>
+              {lowestMoveCount !== null && (
+                <View style={styles.bestScoreCard}>
+                  <Text style={styles.bestScoreLabel}>Lowest possible today</Text>
+                  <Text style={styles.bestScoreValue}>
+                    {lowestMoveCount} move{lowestMoveCount === 1 ? '' : 's'}
+                  </Text>
+                  <Text style={styles.bestScoreNote}>
+                    {moves.length === lowestMoveCount
+                      ? 'You hit the move floor. Time breaks ties.'
+                      : 'Score is moves first. Time breaks ties.'}
+                  </Text>
+                </View>
+              )}
               <Text style={styles.winCopy}>
                 {hintsUsed > 0 ? `${hintsUsed} hint${hintsUsed === 1 ? '' : 's'} used.` : 'No hints used.'}
               </Text>
@@ -1569,6 +1812,65 @@ const createStyles = (
       fontSize: FontSize.sm,
       fontWeight: '800',
     },
+    settingsPanel: {
+      ...ui.glassCard,
+      padding: Spacing.md,
+      gap: Spacing.sm,
+    },
+    settingsHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.sm,
+      flexWrap: 'wrap',
+    },
+    settingsLabel: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.9,
+    },
+    settingsNote: {
+      color: Colors.textSecondary,
+      fontSize: FontSize.xs,
+      fontWeight: '700',
+    },
+    modeSectionControls: {
+      flexDirection: 'row',
+      gap: Spacing.sm,
+      flexWrap: 'wrap',
+    },
+    modeSectionButton: {
+      ...ui.pill,
+      minWidth: 122,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#f2f6fb',
+    },
+    modeSectionButtonActive: {
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.soft,
+    },
+    modeSectionButtonInactive: {
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.56)',
+    },
+    modeSectionButtonDisabled: {
+      opacity: 0.55,
+    },
+    modeSectionButtonPressed: {
+      opacity: 0.86,
+      transform: [{ scale: 0.98 }],
+    },
+    modeSectionButtonText: {
+      color: Colors.textMuted,
+      fontSize: FontSize.sm,
+      fontWeight: '800',
+    },
+    modeSectionButtonTextActive: {
+      color: screenAccent.badgeText,
+    },
     modalOverlay: {
       flex: 1,
       alignItems: 'center',
@@ -1644,9 +1946,9 @@ const createStyles = (
       letterSpacing: 0.8,
     },
     objectiveText: {
-      color: Colors.textSecondary,
-      fontSize: FontSize.sm,
-      lineHeight: 20,
+      color: Colors.text,
+      fontSize: FontSize.md,
+      lineHeight: 22,
       fontWeight: '800',
     },
     modalTitle: {
@@ -1664,6 +1966,12 @@ const createStyles = (
       backgroundColor: modalAccentPanel,
       padding: Spacing.md,
     },
+    rulesListSecondary: {
+      borderColor: Colors.border,
+      backgroundColor: modalPanelSurface,
+      paddingTop: Spacing.md,
+      gap: Spacing.md,
+    },
     ruleListTitle: {
       color: screenAccent.main,
       fontSize: FontSize.sm,
@@ -1671,6 +1979,13 @@ const createStyles = (
       textTransform: 'uppercase',
       letterSpacing: 0.8,
       marginBottom: 2,
+    },
+    ruleListIntro: {
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 20,
+      fontWeight: '700',
+      marginTop: -4,
     },
     ruleItem: {
       flexDirection: 'row',
@@ -1685,6 +2000,33 @@ const createStyles = (
       marginTop: 7,
     },
     ruleText: {
+      flex: 1,
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 20,
+      fontWeight: '700',
+    },
+    numberedRuleItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: Spacing.xs,
+    },
+    numberedRuleIndex: {
+      width: 22,
+      height: 22,
+      borderRadius: 999,
+      overflow: 'hidden',
+      color: screenAccent.badgeText,
+      backgroundColor: screenAccent.soft,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      textAlign: 'center',
+      fontSize: 11,
+      lineHeight: 20,
+      fontWeight: '900',
+      marginTop: 0,
+    },
+    numberedRuleText: {
       flex: 1,
       color: Colors.textSecondary,
       fontSize: FontSize.sm,
@@ -1763,6 +2105,91 @@ const createStyles = (
       fontWeight: '800',
       textAlign: 'center',
       maxWidth: 220,
+    },
+    howToStretchPanel: {
+      alignItems: 'center',
+      gap: Spacing.sm,
+      paddingVertical: Spacing.xs,
+    },
+    howToStretchBoard: {
+      width: 176,
+      height: 176,
+      overflow: 'hidden',
+      borderRadius: BorderRadius.sm,
+      borderWidth: 1,
+      borderColor: boardEdge,
+      backgroundColor: boardColor,
+      position: 'relative',
+      shadowColor: '#000',
+      shadowOpacity: theme.mode === 'dark' ? 0.2 : 0.08,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 6 },
+      ...WEB_NO_SELECT,
+    },
+    howToStretchPath: {
+      position: 'absolute',
+      height: 6,
+      borderRadius: 999,
+      backgroundColor: screenAccent.main,
+      opacity: theme.mode === 'dark' ? 0.72 : 0.58,
+    },
+    howToStretchCandidate: {
+      position: 'absolute',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(17, 29, 35, 0.84)' : 'rgba(255, 255, 255, 0.78)',
+    },
+    howToStretchShortCandidate: {
+      borderColor: theme.mode === 'dark' ? 'rgba(215, 154, 51, 0.72)' : 'rgba(172, 111, 20, 0.62)',
+    },
+    howToStretchChosenCandidate: {
+      borderColor: screenAccent.main,
+      backgroundColor: screenAccent.soft,
+    },
+    howToStretchCandidateText: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      fontWeight: '900',
+    },
+    howToStretchChosenText: {
+      color: screenAccent.badgeText,
+      fontSize: 12,
+      fontWeight: '900',
+    },
+    howToStretchDot: {
+      position: 'absolute',
+      borderWidth: 2,
+      borderColor: screenAccent.main,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(99, 210, 178, 0.18)' : 'rgba(30, 143, 112, 0.12)',
+    },
+    howToStretchLabel: {
+      position: 'absolute',
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 999,
+      overflow: 'hidden',
+      color: Colors.textMuted,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(7, 13, 18, 0.78)' : 'rgba(255, 255, 255, 0.78)',
+      fontSize: 10,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0,
+    },
+    howToStretchShortLabel: {
+      top: 42,
+      left: 104,
+    },
+    howToStretchLongLabel: {
+      top: 80,
+      right: 10,
+      color: screenAccent.badgeText,
+    },
+    whiteMoveSteps: {
+      gap: Spacing.sm,
+      paddingTop: Spacing.xs,
+      borderTopWidth: 1,
+      borderTopColor: Colors.border,
     },
     howToLessonRow: {
       flexDirection: 'row',
@@ -2149,6 +2576,31 @@ const createStyles = (
       fontWeight: '800',
     },
     winCopy: {
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 20,
+    },
+    bestScoreCard: {
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.badgeBg,
+      padding: Spacing.md,
+      gap: 2,
+    },
+    bestScoreLabel: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      fontWeight: '900',
+      letterSpacing: 0.8,
+      textTransform: 'uppercase',
+    },
+    bestScoreValue: {
+      color: Colors.text,
+      fontSize: FontSize.lg,
+      fontWeight: '900',
+    },
+    bestScoreNote: {
       color: Colors.textSecondary,
       fontSize: FontSize.sm,
       lineHeight: 20,

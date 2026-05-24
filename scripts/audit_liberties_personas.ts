@@ -2,7 +2,9 @@ import { writeFileSync } from 'node:fs';
 import {
   getLibertiesPuzzleAudit,
   libertiesReservePuzzles,
+  libertiesReservePuzzlesHard,
   libertiesPuzzles,
+  libertiesPuzzlesHard,
   type LibertiesDifficulty,
   type LibertiesPuzzle,
 } from '../src/data/libertiesPuzzles';
@@ -112,7 +114,7 @@ function median(values: number[]): number {
 }
 
 function difficultyLoad(difficulty: LibertiesDifficulty): number {
-  if (difficulty === 'Hard') return 1.18;
+  if (difficulty === 'Hard') return 1;
   if (difficulty === 'Standard') return 1;
   return 0.78;
 }
@@ -124,18 +126,22 @@ function simulatePersona(persona: Persona, puzzles: LibertiesPuzzle[], pool: str
       audit.responseEventCount +
       audit.dynamicMoveCount * 0.8 +
       audit.captureOrderDependencyScore * 0.65 +
+      audit.decisionPointCount * 1.1 +
+      audit.stretchPressureCount * 0.7 +
+      Math.max(0, audit.naivePenalty - 2) * 0.8 +
       audit.blockerImpactScore * 0.22 +
       Math.max(0, puzzle.targetMoves - 22) * 0.5;
     const sharedHelp = audit.sharedOpenSideCount * persona.sharedMoveBonus;
     const stress = Math.max(0, complexity - persona.responseTolerance - sharedHelp);
     const predictedSeconds = Math.round(
-      puzzle.targetSeconds * persona.speedMultiplier * difficultyLoad(puzzle.difficulty) + stress * 0.6
+      puzzle.targetSeconds * persona.speedMultiplier * difficultyLoad(puzzle.difficulty) + stress * 0.18
     );
-    const hints = Math.max(0, Math.round(stress * persona.hintBias * 0.08));
-    const resets = Math.max(0, Math.round(stress * persona.resetBias * 0.03));
-    const solved = stress <= persona.responseTolerance * 6 || puzzle.difficulty !== 'Hard';
+    const hints = Math.max(0, Math.round(stress * persona.hintBias * 0.06));
+    const resets = Math.max(0, Math.round(stress * persona.resetBias * 0.02));
+    const solved =
+      stress <= persona.responseTolerance * (puzzle.playMode === 'hard' ? 10 : 8) || puzzle.difficulty !== 'Hard';
     const unclearRule = hints > 2 && stress > persona.responseTolerance * 2 ? 1 : 0;
-    const frustration = predictedSeconds > (puzzle.difficulty === 'Hard' ? 780 : 540) || resets > 1 ? 1 : 0;
+    const frustration = predictedSeconds > (puzzle.playMode === 'hard' ? 780 : 540) || resets > 1 ? 1 : 0;
     return { puzzle, predictedSeconds, hints, resets, solved, unclearRule, frustration };
   });
 
@@ -162,16 +168,38 @@ function formatTime(seconds: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
-const publicSummaries = PERSONAS.map((persona) => simulatePersona(persona, libertiesPuzzles, 'Public'));
-const reserveSummaries = PERSONAS.map((persona) => simulatePersona(persona, libertiesReservePuzzles, 'Reserve'));
-const allPuzzles = [...libertiesPuzzles, ...libertiesReservePuzzles];
-const combinedSummaries = PERSONAS.map((persona) => simulatePersona(persona, allPuzzles, 'Combined'));
-const summaries = [...publicSummaries, ...reserveSummaries, ...combinedSummaries];
+const standardPublicPuzzles = libertiesPuzzles;
+const standardReservePuzzles = libertiesReservePuzzles;
+const hardPublicPuzzles = libertiesPuzzlesHard;
+const hardReservePuzzles = libertiesReservePuzzlesHard;
+const standardCombinedPuzzles = [...standardPublicPuzzles, ...standardReservePuzzles];
+const hardCombinedPuzzles = [...hardPublicPuzzles, ...hardReservePuzzles];
+
+const standardPublicSummaries = PERSONAS.map((persona) => simulatePersona(persona, standardPublicPuzzles, 'standard-public'));
+const standardReserveSummaries = PERSONAS.map((persona) =>
+  simulatePersona(persona, standardReservePuzzles, 'standard-reserve')
+);
+const standardCombinedSummaries = PERSONAS.map((persona) => simulatePersona(persona, standardCombinedPuzzles, 'standard-combined'));
+const hardPublicSummaries = PERSONAS.map((persona) => simulatePersona(persona, hardPublicPuzzles, 'hard-public'));
+const hardReserveSummaries = PERSONAS.map((persona) => simulatePersona(persona, hardReservePuzzles, 'hard-reserve'));
+const hardCombinedSummaries = PERSONAS.map((persona) => simulatePersona(persona, hardCombinedPuzzles, 'hard-combined'));
+
+const summaries = [
+  ...standardPublicSummaries,
+  ...standardReserveSummaries,
+  ...standardCombinedSummaries,
+  ...hardPublicSummaries,
+  ...hardReserveSummaries,
+  ...hardCombinedSummaries,
+];
 const payload = {
   generatedAt: new Date().toISOString(),
-  publicPuzzleCount: libertiesPuzzles.length,
-  reservePuzzleCount: libertiesReservePuzzles.length,
-  puzzleCount: allPuzzles.length,
+  standardPublicPuzzleCount: standardPublicPuzzles.length,
+  standardReservePuzzleCount: standardReservePuzzles.length,
+  hardPublicPuzzleCount: hardPublicPuzzles.length,
+  hardReservePuzzleCount: hardReservePuzzles.length,
+  standardPuzzleCount: standardCombinedPuzzles.length,
+  hardPuzzleCount: hardCombinedPuzzles.length,
   personas: PERSONAS,
   summaries,
 };
@@ -182,21 +210,24 @@ writeFileSync(
   [
     '# Liberties Player-Agent Report',
     '',
-    `Public puzzles tested: ${libertiesPuzzles.length}`,
-    `Reserve puzzles tested: ${libertiesReservePuzzles.length}`,
-    `Combined pool tested: ${allPuzzles.length}`,
+    `Standard public puzzles tested: ${standardPublicPuzzles.length}`,
+    `Standard reserve puzzles tested: ${standardReservePuzzles.length}`,
+    `Standard combined pool tested: ${standardCombinedPuzzles.length}`,
+    `Hard public puzzles tested: ${hardPublicPuzzles.length}`,
+    `Hard reserve puzzles tested: ${hardReservePuzzles.length}`,
+    `Hard combined pool tested: ${hardCombinedPuzzles.length}`,
     '',
-    '| Pool | Persona | Solve rate | Median Standard | Avg hints | Avg resets | Unclear-rule flags | Frustration flags |',
+    '| Pool | Persona | Solve rate | Median solve | Avg hints | Avg resets | Unclear-rule flags | Frustration flags |',
     '|---|---|---:|---:|---:|---:|---:|---:|',
     ...summaries.map(
       (summary) =>
-        `| ${summary.pool} | ${summary.label} | ${Math.round(summary.solveRate * 100)}% | ${formatTime(summary.medianStandardSeconds)} | ${summary.averageHints.toFixed(2)} | ${summary.averageResets.toFixed(2)} | ${summary.unclearRuleFlags} | ${summary.frustrationFlags} |`
+        `| ${summary.pool} | ${summary.label} | ${Math.round(summary.solveRate * 100)}% | ${formatTime(summary.medianSeconds)} | ${summary.averageHints.toFixed(2)} | ${summary.averageResets.toFixed(2)} | ${summary.unclearRuleFlags} | ${summary.frustrationFlags} |`
     ),
     '',
     '## Interpretation',
     '',
     '- The agent gate models Daybreak newcomers, LinkedIn-style daily players, NYT Pips visual solvers, existing logic optimizers, Go-aware players, impatient mobile players, and accessibility review.',
-    '- The pass target for this build is a Standard median between 4:00 and 7:00, high solve rate, and no repeated rule-confusion concentration in one persona.',
+    '- The pass target for this build is a Standard median near 4:45-5:45, a Hard median near 9:00-12:00, high solve rate, and no repeated rule-confusion concentration in one persona.',
     '- These are simulated player agents, not a substitute for real external human testing.',
     '',
   ].join('\n')
@@ -205,19 +236,27 @@ writeFileSync(
 console.log('Liberties player-agent audit');
 summaries.forEach((summary) => {
   console.log(
-    `${summary.pool} ${summary.label}: solve=${Math.round(summary.solveRate * 100)}% standardMedian=${formatTime(
-      summary.medianStandardSeconds
+    `${summary.pool} ${summary.label}: solve=${Math.round(summary.solveRate * 100)}% median=${formatTime(
+      summary.medianSeconds
     )} hints=${summary.averageHints.toFixed(2)} resets=${summary.averageResets.toFixed(2)}`
   );
 });
 
-const failing = publicSummaries.filter(
+const failingStandard = standardPublicSummaries.filter(
   (summary) =>
-    summary.solveRate < 0.94 ||
-    summary.medianStandardSeconds < 240 ||
-    summary.medianStandardSeconds > 420 ||
+    summary.solveRate < 0.98 ||
+    summary.medianSeconds < 285 ||
+    summary.medianSeconds > 360 ||
     summary.frustrationFlags > 30
 );
+const failingHard = hardPublicSummaries.filter(
+  (summary) =>
+    summary.solveRate < 0.94 ||
+    summary.medianSeconds < 540 ||
+    summary.medianSeconds > 780 ||
+    summary.frustrationFlags > 45
+);
+const failing = [...failingStandard, ...failingHard];
 
 if (failing.length > 0) {
   console.error(`Player-agent gate failed: ${failing.map((summary) => summary.label).join(', ')}`);

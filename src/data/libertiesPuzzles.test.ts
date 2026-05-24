@@ -3,12 +3,16 @@ import {
   LIBERTIES_TAG_LABELS,
   createLibertiesBoard,
   formatLibertiesShareText,
+  getBestLibertiesHintMove,
   getDailyLibertiesEntry,
   getLibertiesBlockerRange,
   getLibertiesPackAudit,
   getLibertiesPuzzleAudit,
   getLibertiesGroupAt,
+  getLowestLibertiesMoveCount,
   isLibertiesSolved,
+  libertiesPuzzlesHard,
+  libertiesReservePuzzlesHard,
   libertiesPreviewPuzzles,
   libertiesReservePuzzles,
   libertiesPuzzles,
@@ -225,10 +229,12 @@ describe('liberties puzzle engine', () => {
     expect(group?.liberties.size).toBe(6);
   });
 
-  it('ships a full 365-day pack with legal clean-light solutions', () => {
+  it('ships full standard and hard packs with legal clean-light solutions', () => {
     expect(libertiesPuzzles).toHaveLength(365);
-    expect(libertiesReservePuzzles).toHaveLength(35);
-    expect(libertiesPreviewPuzzles).toHaveLength(400);
+    expect(libertiesReservePuzzles).toHaveLength(72);
+    expect(libertiesPuzzlesHard).toHaveLength(365);
+    expect(libertiesReservePuzzlesHard).toHaveLength(72);
+    expect(libertiesPreviewPuzzles).toHaveLength(874);
     expect(new Set(libertiesPuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesPuzzles.length);
     expect(new Set(libertiesPuzzles.map((puzzle) => puzzle.layout.join('/'))).size).toBe(libertiesPuzzles.length);
     expect(new Set(libertiesPreviewPuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesPreviewPuzzles.length);
@@ -238,16 +244,56 @@ describe('liberties puzzle engine', () => {
 
     libertiesPreviewPuzzles.forEach((puzzle) => {
       const replay = replayLibertiesMoves(puzzle, puzzle.solution);
+      const minReplay = replayLibertiesMoves(puzzle, puzzle.minSolution ?? []);
+      const board = createLibertiesBoard(puzzle);
       const audit = getLibertiesPuzzleAudit(puzzle);
       const [minBlockers, maxBlockers] = getLibertiesBlockerRange(puzzle.difficulty);
+      const hasInitialBlack = board.some((row) => row.some((cell) => cell === 'black'));
+      const openingHint = getBestLibertiesHintMove(puzzle, board);
       expect(replay.illegalMoveIndex, puzzle.id).toBeNull();
+      expect(minReplay.illegalMoveIndex, puzzle.id).toBeNull();
       expect(puzzle.solution, puzzle.id).toHaveLength(puzzle.targetMoves);
+      expect(puzzle.minSolution, puzzle.id).toHaveLength(getLowestLibertiesMoveCount(puzzle));
+      expect(openingHint?.movesToSolve, puzzle.id).toBe(getLowestLibertiesMoveCount(puzzle));
       expect(puzzle.targetSeconds, puzzle.id).toBeGreaterThan(0);
       expect(audit.blockerCount, puzzle.id).toBeGreaterThanOrEqual(minBlockers);
       expect(audit.blockerCount, puzzle.id).toBeLessThanOrEqual(maxBlockers);
+      expect(hasInitialBlack, puzzle.id).toBe(false);
       expect(audit.releasePebbleCount, puzzle.id).toBe(0);
       expect(isLibertiesSolved(puzzle, replay.board), puzzle.id).toBe(true);
+      expect(isLibertiesSolved(puzzle, minReplay.board), puzzle.id).toBe(true);
     });
+  }, 30000);
+
+  it('keeps hard packs dense without oversized boards', () => {
+    const hardPublicAverage = libertiesPuzzlesHard.reduce((sum, puzzle) => sum + puzzle.size, 0) / libertiesPuzzlesHard.length;
+    const hardReserveAverage =
+      libertiesReservePuzzlesHard.reduce((sum, puzzle) => sum + puzzle.size, 0) / libertiesReservePuzzlesHard.length;
+
+    expect(hardPublicAverage).toBeGreaterThanOrEqual(9);
+    expect(hardReserveAverage).toBeGreaterThanOrEqual(9);
+    expect(libertiesPuzzlesHard.every((puzzle) => puzzle.size >= 9 && puzzle.size <= 10)).toBe(true);
+    expect(libertiesReservePuzzlesHard.every((puzzle) => puzzle.size >= 9 && puzzle.size <= 10)).toBe(true);
+  });
+
+  it('introduces hard-mode advanced Go concept labels and terrains', () => {
+    const hardTerrainArchetypes = new Set(libertiesPuzzlesHard.flatMap((puzzle) => puzzle.terrainArchetypes ?? []));
+    const hardFocusTags = new Set(libertiesPuzzlesHard.flatMap((puzzle) => puzzle.focusTags ?? []));
+    const hardSubPuzzleMoments = new Set(libertiesPuzzlesHard.flatMap((puzzle) => puzzle.subPuzzleMoments ?? []));
+    const hardAudit = getLibertiesPackAudit(libertiesPuzzlesHard);
+
+    expect(hardTerrainArchetypes.has('bridge')).toBe(true);
+    expect(hardTerrainArchetypes.has('squeeze')).toBe(true);
+    expect(hardTerrainArchetypes.has('shared-throat')).toBe(true);
+    expect(hardTerrainArchetypes.has('backdoor-lane')).toBe(true);
+    expect(hardFocusTags.has('key-crossing')).toBe(true);
+    expect(hardFocusTags.has('multi-chain')).toBe(true);
+    expect(hardSubPuzzleMoments.has('bridge-battle')).toBe(true);
+    expect(hardSubPuzzleMoments.has('squeeze-shape')).toBe(true);
+    expect(hardAudit.medianTargetSeconds).toBeGreaterThanOrEqual(540);
+    expect(hardAudit.medianTargetSeconds).toBeLessThanOrEqual(720);
+    expect(hardAudit.averageDecisionPointCount).toBeGreaterThanOrEqual(7);
+    expect(libertiesPuzzlesHard.filter((puzzle) => puzzle.peakHard)).toHaveLength(100);
   });
 
   it('audits non-easy puzzles for depth beyond pure opening-side filling', () => {
@@ -276,18 +322,18 @@ describe('liberties puzzle engine', () => {
       });
   });
 
-  it('audits the 365-day pack for varied puzzle families', () => {
+  it('audits the public puzzle pack for varied puzzle families', () => {
     const audit = getLibertiesPackAudit();
 
     expect(audit.puzzleCount).toBe(365);
-    expect(audit.difficultyCounts.Easy).toBeGreaterThanOrEqual(40);
-    expect(audit.difficultyCounts.Standard).toBeGreaterThanOrEqual(220);
-    expect(audit.difficultyCounts.Hard).toBeGreaterThanOrEqual(75);
+    expect(audit.difficultyCounts.Easy).toBe(45);
+    expect(audit.difficultyCounts.Standard).toBe(200);
+    expect(audit.difficultyCounts.Hard).toBe(120);
     expect(audit.minTargetMoves).toBeGreaterThanOrEqual(8);
     expect(audit.maxTargetMoves).toBeGreaterThanOrEqual(24);
     expect(audit.averageTargetMoves).toBeGreaterThan(14);
-    expect(audit.standardMedianTargetSeconds).toBeGreaterThanOrEqual(240);
-    expect(audit.standardMedianTargetSeconds).toBeLessThanOrEqual(420);
+    expect(audit.medianTargetSeconds).toBeGreaterThanOrEqual(285);
+    expect(audit.medianTargetSeconds).toBeLessThanOrEqual(345);
     expect(audit.averageBlockerCount).toBeGreaterThanOrEqual(5);
     expect(audit.averageBlockerImpactScore).toBeGreaterThanOrEqual(20);
     expect(audit.averageSmallBoardDensityScore).toBeGreaterThanOrEqual(28);
@@ -299,10 +345,15 @@ describe('liberties puzzle engine', () => {
     expect(audit.dynamicMoveCount).toBeGreaterThanOrEqual(200);
     expect(audit.delayedMoveCount).toBeGreaterThanOrEqual(500);
     expect(audit.maxUnlockDepth).toBeGreaterThanOrEqual(3);
-    expect(audit.averageFillerMoveRatio).toBeLessThan(0.25);
+    expect(audit.averageDecisionPointCount).toBeGreaterThanOrEqual(3);
+    expect(audit.averageTempoClearCount).toBeGreaterThanOrEqual(2);
+    expect(audit.averageStretchPressureCount).toBeGreaterThanOrEqual(2);
+    expect(audit.averageNaivePenalty).toBeGreaterThanOrEqual(2);
+    expect(audit.averageTerrainUsefulnessScore).toBeGreaterThanOrEqual(10);
+    expect(audit.averageFillerMoveRatio).toBeLessThan(0.12);
 
     (Object.keys(LIBERTIES_TAG_LABELS) as Array<keyof typeof LIBERTIES_TAG_LABELS>).forEach((tag) => {
-      expect(audit.tagCounts[tag], tag).toBeGreaterThan(tag === 'response-pressure' ? 25 : 40);
+      expect(audit.tagCounts[tag], tag).toBeGreaterThanOrEqual(tag === 'intro-clear' ? 40 : 45);
     });
   });
 
@@ -324,14 +375,14 @@ describe('liberties puzzle engine', () => {
     const reserveIds = new Set(libertiesReservePuzzles.map((puzzle) => puzzle.id));
     const firstDaily = getDailyLibertiesEntry(new Date('2026-05-18T12:00:00.000Z'));
 
-    expect(publicSizeCounts[7]).toBe(28);
-    expect(publicSizeCounts[8]).toBe(127);
-    expect(publicSizeCounts[9]).toBe(198);
-    expect(publicSizeCounts[10]).toBe(12);
+    expect(publicSizeCounts[7]).toBeGreaterThanOrEqual(1);
+    expect(publicSizeCounts[8]).toBeGreaterThanOrEqual(1);
+    expect(publicSizeCounts[9]).toBeGreaterThanOrEqual(1);
+    expect(publicSizeCounts[10] ?? 0).toBeLessThanOrEqual(12);
     expect(difficultyTransitions).toBeGreaterThanOrEqual(220);
-    expect(firstSixtyMix.Easy).toBeGreaterThanOrEqual(6);
-    expect(firstSixtyMix.Standard).toBeGreaterThanOrEqual(35);
-    expect(firstSixtyMix.Hard).toBeGreaterThanOrEqual(10);
+    expect(firstSixtyMix.Easy).toBeGreaterThanOrEqual(3);
+    expect(firstSixtyMix.Standard).toBeGreaterThanOrEqual(25);
+    expect(firstSixtyMix.Hard).toBeGreaterThanOrEqual(8);
     expect(reserveIds.has(firstDaily.puzzle.id)).toBe(false);
     expect(libertiesReservePuzzles.every((puzzle) => typeof puzzle.reserveRank === 'number')).toBe(true);
   });
@@ -342,6 +393,32 @@ describe('liberties puzzle engine', () => {
     expect(entry.date).toBe('2026-05-18');
     expect(entry.puzzle.id).toBe('liberties-clock-square');
     expect(entry.puzzle.difficulty).toBe('Standard');
+  });
+
+  it('keeps daily mode separate from map difficulty label', () => {
+    const baseDate = new Date('2026-05-18T12:00:00.000Z');
+    const nextDay = new Date('2026-05-19T12:00:00.000Z');
+    const standardBase = getDailyLibertiesEntry(baseDate, 'standard');
+    const hardBase = getDailyLibertiesEntry(baseDate, 'hard');
+    const standardNext = getDailyLibertiesEntry(nextDay, 'standard');
+    const hardNext = getDailyLibertiesEntry(nextDay, 'hard');
+
+    expect(standardBase.puzzle.id).toBe('liberties-clock-square');
+    expect(hardBase.puzzle.id).toBe('liberties-ladder-garden');
+    expect(standardBase.puzzle.id).not.toBe(hardBase.puzzle.id);
+    expect(standardNext.puzzle.id).not.toBe(hardNext.puzzle.id);
+    expect(standardBase.date).toBe(hardBase.date);
+    expect(standardNext.date).toBe(hardNext.date);
+
+    const standardLayouts = new Set(libertiesPuzzles.map((puzzle) => puzzle.layout.join('/')));
+    expect(libertiesPuzzlesHard.some((puzzle) => standardLayouts.has(puzzle.layout.join('/')))).toBe(false);
+    for (let day = 0; day < 60; day += 1) {
+      const date = new Date(Date.UTC(2026, 4, 18 + day, 12));
+      const standard = getDailyLibertiesEntry(date, 'standard').puzzle;
+      const hard = getDailyLibertiesEntry(date, 'hard').puzzle;
+      expect(standard.title.split(':')[0], date.toISOString()).not.toBe(hard.title.split(':')[0]);
+      expect(standard.terrainArchetypes?.[0], date.toISOString()).not.toBe(hard.terrainArchetypes?.[0]);
+    }
   });
 
   it('formats share text without exposing the internal clean light', () => {

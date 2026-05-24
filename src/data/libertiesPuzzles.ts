@@ -1,9 +1,15 @@
 import { dateKeyToUtcOrdinal, getUtcDateKey } from '../utils/dailyUtc';
-import { generatedLibertiesPack, generatedLibertiesReservePack } from './libertiesPack.generated';
+import {
+  generatedLibertiesPack,
+  generatedLibertiesPackHard,
+  generatedLibertiesReservePack,
+  generatedLibertiesReservePackHard,
+} from './libertiesPack.generated';
 
 export type LibertiesStoneColor = 'black' | 'white';
 export type LibertiesDifficulty = 'Easy' | 'Standard' | 'Hard';
-export type LibertiesVariant = 'chase';
+export type LibertiesVariant = 'chase' | 'responsive-lights' | 'capture-race';
+export type LibertiesPlayMode = 'standard' | 'hard';
 export type LibertiesTerrainArchetype =
   | 'corner-pocket'
   | 'tight-room'
@@ -12,7 +18,11 @@ export type LibertiesTerrainArchetype =
   | 'lane-stopper'
   | 'split-gate'
   | 'tempo-pocket'
-  | 'fake-room';
+  | 'fake-room'
+  | 'bridge'
+  | 'squeeze'
+  | 'shared-throat'
+  | 'backdoor-lane';
 export type LibertiesPuzzleTag =
   | 'intro-clear'
   | 'shared-move'
@@ -22,6 +32,19 @@ export type LibertiesPuzzleTag =
   | 'multi-chain'
   | 'edge-pressure'
   | 'locked-lane';
+export type LibertiesSubPuzzleMoment =
+  | 'capture-burst'
+  | 'response-choreography'
+  | 'shared-momentum'
+  | 'release-timing'
+  | 'release-chain'
+  | 'forced-sequence'
+  | 'edge-rush'
+  | 'filler-avoid'
+  | 'capture-wave'
+  | 'squeeze-shape'
+  | 'tempo-pressure'
+  | 'bridge-battle';
 
 export const LIBERTIES_TAG_LABELS: Record<LibertiesPuzzleTag, string> = {
   'intro-clear': 'First clears',
@@ -32,6 +55,20 @@ export const LIBERTIES_TAG_LABELS: Record<LibertiesPuzzleTag, string> = {
   'multi-chain': 'Multi-chain',
   'edge-pressure': 'Edge pressure',
   'locked-lane': 'Locked lanes',
+};
+export const LIBERTIES_SUB_PUZZLE_MOMENT_LABELS: Record<LibertiesSubPuzzleMoment, string> = {
+  'capture-burst': 'Capture burst',
+  'response-choreography': 'Response choreography',
+  'shared-momentum': 'Shared momentum',
+  'release-timing': 'Release timing',
+  'release-chain': 'Release chain',
+  'forced-sequence': 'Forced sequence',
+  'edge-rush': 'Edge rush',
+  'filler-avoid': 'No filler',
+  'capture-wave': 'Capture wave',
+  'squeeze-shape': 'Squeeze shape',
+  'tempo-pressure': 'Tempo pressure',
+  'bridge-battle': 'Bridge battle',
 };
 
 export interface LibertiesPoint {
@@ -53,15 +90,29 @@ export interface LibertiesPuzzle {
   difficulty: LibertiesDifficulty;
   size: number;
   targetMoves: number;
+  minMoves?: number;
   targetSeconds: number;
   variant: LibertiesVariant;
   layout: string[];
   solution: LibertiesPoint[];
+  minSolution?: LibertiesPoint[];
   releaseLinks: LibertiesReleaseLink[];
   lightGroups: LibertiesPoint[][];
   motif: string;
   focusTags: LibertiesPuzzleTag[];
+  subPuzzleMoments?: LibertiesSubPuzzleMoment[];
   terrainArchetypes?: LibertiesTerrainArchetype[];
+  playMode?: LibertiesPlayMode;
+  calendarIndex?: number;
+  peakHard?: boolean;
+  optimalMoveCount?: number;
+  qualityScore?: number;
+  decisionPointCount?: number;
+  tempoClearCount?: number;
+  stretchPressureCount?: number;
+  naivePenalty?: number;
+  terrainUsefulnessScore?: number;
+  calendarNoveltyScore?: number;
   reserveRank?: number;
 }
 
@@ -105,6 +156,12 @@ export interface LibertiesReplayResult {
   responses: LibertiesPoint[];
 }
 
+export interface LibertiesHintResult {
+  point: LibertiesPoint;
+  route: LibertiesPoint[];
+  movesToSolve: number;
+}
+
 export interface LibertiesShareTextOptions {
   date: string;
   moves: number;
@@ -114,13 +171,58 @@ export interface LibertiesShareTextOptions {
 }
 
 const LIBERTIES_PACK_START_DATE = '2026-05-18';
-const LIBERTIES_PACK_LENGTH = 365;
-const LIBERTIES_RESERVE_PACK_LENGTH = 35;
-const LIBERTIES_GENERATION_POOL_LENGTH = LIBERTIES_PACK_LENGTH + LIBERTIES_RESERVE_PACK_LENGTH;
+const LIBERTIES_STANDARD_PACK_LENGTH = 365;
+const LIBERTIES_STANDARD_RESERVE_PACK_LENGTH = 72;
+const LIBERTIES_STANDARD_GENERATION_POOL_LENGTH = LIBERTIES_STANDARD_PACK_LENGTH + LIBERTIES_STANDARD_RESERVE_PACK_LENGTH;
+const LIBERTIES_HARD_PACK_LENGTH = 365;
+const LIBERTIES_HARD_RESERVE_PACK_LENGTH = 72;
+const LIBERTIES_HARD_GENERATION_POOL_LENGTH = LIBERTIES_HARD_PACK_LENGTH + LIBERTIES_HARD_RESERVE_PACK_LENGTH;
 const LIBERTIES_STANDARD_DAILY_PUZZLE_ID = 'liberties-clock-square';
-const LIBERTIES_FORCED_PUZZLE_IDS = new Set([
-  LIBERTIES_STANDARD_DAILY_PUZZLE_ID,
-]);
+const LIBERTIES_HARD_DAILY_PUZZLE_ID = 'liberties-ladder-garden';
+const LIBERTIES_PACK_START_ORDINAL = dateKeyToUtcOrdinal(LIBERTIES_PACK_START_DATE);
+const LIBERTIES_FORCED_PUZZLE_IDS: Record<LibertiesPlayMode, string> = {
+  standard: LIBERTIES_STANDARD_DAILY_PUZZLE_ID,
+  hard: LIBERTIES_HARD_DAILY_PUZZLE_ID,
+};
+
+interface LibertiesPlayModeGenerationProfile {
+  playMode: LibertiesPlayMode;
+  dailyPuzzleId: string;
+  publicPackLength: number;
+  reservePackLength: number;
+  generationPoolLength: number;
+  publicDifficultyQuotas: Record<LibertiesDifficulty, number>;
+  reserveDifficultyQuotas: Record<LibertiesDifficulty, number>;
+  publicSizeQuotas: LibertiesSizeQuotas;
+  reserveSizeQuotas: LibertiesSizeQuotas;
+}
+
+function getLibertiesGenerationProfile(playMode: LibertiesPlayMode): LibertiesPlayModeGenerationProfile {
+  if (playMode === 'standard') {
+    return {
+      playMode: 'standard',
+      dailyPuzzleId: LIBERTIES_STANDARD_DAILY_PUZZLE_ID,
+      publicPackLength: LIBERTIES_STANDARD_PACK_LENGTH,
+      reservePackLength: LIBERTIES_STANDARD_RESERVE_PACK_LENGTH,
+      generationPoolLength: LIBERTIES_STANDARD_GENERATION_POOL_LENGTH,
+      publicDifficultyQuotas: LIBERTIES_STANDARD_PUBLIC_DIFFICULTY_QUOTAS,
+      reserveDifficultyQuotas: LIBERTIES_STANDARD_RESERVE_DIFFICULTY_QUOTAS,
+      publicSizeQuotas: LIBERTIES_STANDARD_PUBLIC_SIZE_QUOTAS,
+      reserveSizeQuotas: LIBERTIES_STANDARD_RESERVE_SIZE_QUOTAS,
+    };
+  }
+  return {
+    playMode: 'hard',
+    dailyPuzzleId: LIBERTIES_HARD_DAILY_PUZZLE_ID,
+    publicPackLength: LIBERTIES_HARD_PACK_LENGTH,
+    reservePackLength: LIBERTIES_HARD_RESERVE_PACK_LENGTH,
+    generationPoolLength: LIBERTIES_HARD_GENERATION_POOL_LENGTH,
+    publicDifficultyQuotas: LIBERTIES_HARD_PUBLIC_DIFFICULTY_QUOTAS,
+    reserveDifficultyQuotas: LIBERTIES_HARD_RESERVE_DIFFICULTY_QUOTAS,
+    publicSizeQuotas: LIBERTIES_HARD_PUBLIC_SIZE_QUOTAS,
+    reserveSizeQuotas: LIBERTIES_HARD_RESERVE_SIZE_QUOTAS,
+  };
+}
 
 type LibertiesPointSpec = readonly [number, number];
 
@@ -717,30 +819,54 @@ interface ScoredLibertiesCandidate {
   ordinal: number;
 }
 
-const LIBERTIES_PUBLIC_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
+const LIBERTIES_STANDARD_PUBLIC_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
   Easy: 45,
-  Standard: 240,
-  Hard: 80,
+  Standard: 200,
+  Hard: 120,
 };
 
-const LIBERTIES_RESERVE_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
-  Easy: 5,
-  Standard: 23,
-  Hard: 7,
+const LIBERTIES_STANDARD_RESERVE_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
+  Easy: 8,
+  Standard: 42,
+  Hard: 22,
+};
+
+const LIBERTIES_HARD_PUBLIC_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
+  Easy: 0,
+  Standard: 0,
+  Hard: 365,
+};
+
+const LIBERTIES_HARD_RESERVE_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
+  Easy: 0,
+  Standard: 0,
+  Hard: 72,
 };
 
 type LibertiesSizeQuotas = Record<LibertiesDifficulty, Record<number, number>>;
 
-const LIBERTIES_PUBLIC_SIZE_QUOTAS: LibertiesSizeQuotas = {
-  Easy: { 7: 28, 8: 17 },
-  Standard: { 8: 110, 9: 130 },
-  Hard: { 9: 68, 10: 12 },
+const LIBERTIES_STANDARD_PUBLIC_SIZE_QUOTAS: LibertiesSizeQuotas = {
+  Easy: { 7: 36, 8: 9 },
+  Standard: { 8: 90, 9: 110 },
+  Hard: { 9: 108, 10: 12 },
 };
 
-const LIBERTIES_RESERVE_SIZE_QUOTAS: LibertiesSizeQuotas = {
-  Easy: { 7: 3, 8: 2 },
-  Standard: { 8: 10, 9: 13 },
-  Hard: { 9: 6, 10: 1 },
+const LIBERTIES_STANDARD_RESERVE_SIZE_QUOTAS: LibertiesSizeQuotas = {
+  Easy: { 7: 6, 8: 2 },
+  Standard: { 8: 21, 9: 21 },
+  Hard: { 9: 18, 10: 4 },
+};
+
+const LIBERTIES_HARD_PUBLIC_SIZE_QUOTAS: LibertiesSizeQuotas = {
+  Easy: {},
+  Standard: {},
+  Hard: { 9: 240, 10: 125 },
+};
+
+const LIBERTIES_HARD_RESERVE_SIZE_QUOTAS: LibertiesSizeQuotas = {
+  Easy: {},
+  Standard: {},
+  Hard: { 9: 48, 10: 24 },
 };
 
 const LIBERTIES_TERRAIN_ARCHETYPE_LABELS: Record<LibertiesTerrainArchetype, string> = {
@@ -752,6 +878,10 @@ const LIBERTIES_TERRAIN_ARCHETYPE_LABELS: Record<LibertiesTerrainArchetype, stri
   'split-gate': 'Split gate',
   'tempo-pocket': 'Tempo pocket',
   'fake-room': 'Fake room',
+  bridge: 'Bridge',
+  squeeze: 'Squeeze',
+  'shared-throat': 'Shared throat',
+  'backdoor-lane': 'Backdoor lane',
 };
 
 interface LibertiesTerrainTemplate {
@@ -779,6 +909,11 @@ export interface LibertiesPackGenerationResult {
   reservePuzzles: LibertiesPuzzle[];
   allPuzzles: LibertiesPuzzle[];
   report: LibertiesGenerationReport;
+}
+
+export interface LibertiesPackGenerationOptions {
+  excludedPublicLayouts?: Set<string>;
+  excludedPublicIds?: Set<string>;
 }
 
 const LIBERTIES_TERRAIN_TEMPLATES: readonly LibertiesTerrainTemplate[] = [
@@ -819,6 +954,30 @@ const LIBERTIES_TERRAIN_TEMPLATES: readonly LibertiesTerrainTemplate[] = [
     pressure: 3,
   },
   {
+    id: 'bridge-chain',
+    archetypes: ['bridge', 'fake-room'],
+    difficulty: ['Hard'],
+    pressure: 3,
+  },
+  {
+    id: 'squeeze-net',
+    archetypes: ['squeeze', 'soft-net', 'chase-lane'],
+    difficulty: ['Hard'],
+    pressure: 3,
+  },
+  {
+    id: 'shared-throat',
+    archetypes: ['shared-throat', 'split-gate', 'tempo-pocket'],
+    difficulty: ['Standard', 'Hard'],
+    pressure: 2,
+  },
+  {
+    id: 'backdoor-lane',
+    archetypes: ['backdoor-lane', 'chase-lane', 'lane-stopper'],
+    difficulty: ['Standard', 'Hard'],
+    pressure: 2,
+  },
+  {
     id: 'split-gate',
     archetypes: ['split-gate', 'lane-stopper'],
     difficulty: ['Standard', 'Hard'],
@@ -843,8 +1002,28 @@ function getDefaultLibertiesVariant(difficulty: LibertiesDifficulty): LibertiesV
   return 'chase';
 }
 
+function isChaseLikeLibertiesVariant(variant: LibertiesVariant): boolean {
+  return variant === 'chase' || variant === 'responsive-lights' || variant === 'capture-race';
+}
+
+function estimateLibertiesVariantByPuzzleMomentum(
+  difficulty: LibertiesDifficulty,
+  responseEventCount: number,
+  dynamicMoveCount: number,
+  captureOrderDependencyScore: number,
+  raceResponseCount: number
+): LibertiesVariant {
+  if (difficulty === 'Hard' && (responseEventCount >= 3 || raceResponseCount >= 2 || captureOrderDependencyScore >= 12)) {
+    return 'capture-race';
+  }
+  if (responseEventCount >= 3 || dynamicMoveCount >= 2) {
+    return 'responsive-lights';
+  }
+  return getDefaultLibertiesVariant(difficulty);
+}
+
 export function getLibertiesBlockerRange(difficulty: LibertiesDifficulty): [number, number] {
-  if (difficulty === 'Hard') return [5, 9];
+  if (difficulty === 'Hard') return [5, 12];
   if (difficulty === 'Standard') return [4, 7];
   return [2, 4];
 }
@@ -858,7 +1037,7 @@ function isGeneratedSizeAllowed(difficulty: LibertiesDifficulty, size: number): 
 function getPreferredSizeScore(difficulty: LibertiesDifficulty, size: number): number {
   if (difficulty === 'Easy') return size === 7 ? 34 : size === 8 ? 28 : -80;
   if (difficulty === 'Standard') return size === 8 ? 36 : size === 9 ? 31 : -90;
-  return size === 9 ? 38 : size === 10 ? 18 : -100;
+  return size === 9 ? 34 : size === 10 ? 28 : -100;
 }
 
 function pointSpecKey(point: LibertiesPointSpec): string {
@@ -909,12 +1088,13 @@ function isPointSpecOnBoard(point: LibertiesPointSpec, size: number): boolean {
 }
 
 function getPointSpecNeighbors(point: LibertiesPointSpec, size: number): LibertiesPointSpec[] {
-  return [
+  const candidates: LibertiesPointSpec[] = [
     [point[0] - 1, point[1]],
     [point[0] + 1, point[1]],
     [point[0], point[1] - 1],
     [point[0], point[1] + 1],
-  ].filter((candidate): candidate is LibertiesPointSpec => isPointSpecOnBoard(candidate, size));
+  ];
+  return candidates.filter((candidate) => isPointSpecOnBoard(candidate, size));
 }
 
 function addTerrainCandidate(
@@ -975,7 +1155,7 @@ function getTerrainCandidatesForArchetype(
 
     if (archetype === 'soft-net' || archetype === 'fake-room') {
       group.stones.forEach(([row, col]) => {
-        [
+        const diagonalAndLanePoints: LibertiesPointSpec[] = [
           [row - 1, col - 1],
           [row - 1, col + 1],
           [row + 1, col - 1],
@@ -984,7 +1164,8 @@ function getTerrainCandidatesForArchetype(
           [row + 2, col],
           [row, col - 2],
           [row, col + 2],
-        ].forEach((point) => addTerrainCandidate(candidates, spec, protectedKeys, point as LibertiesPointSpec));
+        ];
+        diagonalAndLanePoints.forEach((point) => addTerrainCandidate(candidates, spec, protectedKeys, point));
       });
     }
 
@@ -1009,7 +1190,7 @@ function getTerrainCandidatesForArchetype(
       });
     }
 
-    if (archetype === 'split-gate') {
+    if (archetype === 'split-gate' || archetype === 'shared-throat') {
       spec.groups.slice(groupIndex + 1).forEach((otherGroup) => {
         group.stones.forEach((stone) => {
           otherGroup.stones.forEach((otherStone) => {
@@ -1021,7 +1202,69 @@ function getTerrainCandidatesForArchetype(
             addTerrainCandidate(candidates, spec, protectedKeys, [gate[0] + 1, gate[1]]);
             addTerrainCandidate(candidates, spec, protectedKeys, [gate[0], gate[1] - 1]);
             addTerrainCandidate(candidates, spec, protectedKeys, [gate[0], gate[1] + 1]);
+            if (archetype === 'shared-throat') {
+              addTerrainCandidate(candidates, spec, protectedKeys, [gate[0] - Math.sign(colDistance), gate[1] - Math.sign(rowDistance)]);
+              addTerrainCandidate(candidates, spec, protectedKeys, [gate[0] + Math.sign(colDistance), gate[1] + Math.sign(rowDistance)]);
+            }
           });
+        });
+      });
+    }
+
+    if (archetype === 'bridge') {
+      keys.forEach((key) => {
+        const keyRow = key[0];
+        const keyCol = key[1];
+        group.stones.forEach((stone) => {
+          const rowDelta = stone[0] - keyRow;
+          const colDelta = stone[1] - keyCol;
+          if (rowDelta === 0 && colDelta === 0) return;
+          const rowStep = Math.sign(rowDelta) || 1;
+          const colStep = Math.sign(colDelta) || 1;
+          addTerrainCandidate(candidates, spec, protectedKeys, [keyRow + rowStep, keyCol + colStep]);
+          addTerrainCandidate(candidates, spec, protectedKeys, [keyRow + rowStep * 2, keyCol + colStep * 2]);
+          addTerrainCandidate(candidates, spec, protectedKeys, [keyRow - colStep, keyCol + rowStep]);
+          addTerrainCandidate(candidates, spec, protectedKeys, [keyRow + colStep, keyCol - rowStep]);
+        });
+      });
+    }
+
+    if (archetype === 'squeeze') {
+      spec.groups.slice(groupIndex + 1).forEach((otherGroup) => {
+        group.stones.forEach((stone) => {
+          otherGroup.stones.forEach((otherStone) => {
+            const sameRow = stone[0] === otherStone[0];
+            const sameCol = stone[1] === otherStone[1];
+            if (!sameRow && !sameCol) return;
+            if (sameRow && Math.abs(stone[1] - otherStone[1]) === 2) {
+              const row = stone[0];
+              const minCol = Math.min(stone[1], otherStone[1]);
+              const midCol = minCol + 1;
+              addTerrainCandidate(candidates, spec, protectedKeys, [row, minCol - 1]);
+              addTerrainCandidate(candidates, spec, protectedKeys, [row, midCol]);
+              addTerrainCandidate(candidates, spec, protectedKeys, [row, midCol + 1]);
+            }
+            if (sameCol && Math.abs(stone[0] - otherStone[0]) === 2) {
+              const col = stone[1];
+              const minRow = Math.min(stone[0], otherStone[0]);
+              const midRow = minRow + 1;
+              addTerrainCandidate(candidates, spec, protectedKeys, [minRow - 1, col]);
+              addTerrainCandidate(candidates, spec, protectedKeys, [midRow, col]);
+              addTerrainCandidate(candidates, spec, protectedKeys, [midRow + 1, col]);
+            }
+          });
+        });
+      });
+    }
+
+    if (archetype === 'backdoor-lane') {
+      keys.forEach((key) => {
+        getPointSpecNeighbors(key, spec.size).forEach((neighbor) => {
+          const exits = getPointSpecNeighbors(neighbor, spec.size).filter((exit) => {
+            if (pointSpecKey(exit) === pointSpecKey(key)) return false;
+            return getNearestSpecLightDistance(spec, exit) <= 3;
+          });
+          exits.forEach((exit) => addTerrainCandidate(candidates, spec, protectedKeys, exit));
         });
       });
     }
@@ -1132,7 +1375,23 @@ function getDefaultTerrainTemplate(base: LibertiesPuzzleSpec, index: number): Li
 function getGenerationSizeDeltas(spec: LibertiesPuzzleSpec): number[] {
   if (spec.difficulty === 'Easy') return spec.size <= 7 ? [0, 1] : [0];
   if (spec.difficulty === 'Standard') return spec.size <= 7 ? [1, 2] : [0, 1];
-  return spec.size <= 8 ? [1, 2] : [0, 1];
+  return spec.size <= 9 ? [0, 1] : [0];
+}
+
+function getGenerationOffsets(sizeDelta: number): Array<readonly [number, number]> {
+  if (sizeDelta <= 0) return [[0, 0]];
+  return [
+    [0, 0],
+    [sizeDelta, 0],
+    [0, sizeDelta],
+    [sizeDelta, sizeDelta],
+  ];
+}
+
+function getGenerationTransforms(): readonly LibertiesTransform[] {
+  return LIBERTIES_TRANSFORMS.filter((transform) =>
+    transform.id === 'turn-right' || transform.id === 'mirror-wide' || transform.id === 'swap-diagonal'
+  );
 }
 
 function scoreLibertiesCandidate(puzzle: LibertiesPuzzle, audit: LibertiesPuzzleAudit): number {
@@ -1155,6 +1414,12 @@ function scoreLibertiesCandidate(puzzle: LibertiesPuzzle, audit: LibertiesPuzzle
     audit.dynamicMoveCount * 28 +
     audit.delayedMoveCount * 20 +
     audit.captureOrderDependencyScore * 16 +
+    audit.decisionPointCount * 48 +
+    audit.tempoClearCount * 36 +
+    audit.stretchPressureCount * 24 +
+    audit.sharedCrossingMoveCount * 34 +
+    audit.naivePenalty * 42 +
+    audit.terrainUsefulnessScore * 6 +
     audit.solutionCaptureMoves * 18 +
     audit.multiStoneCaptureMoves * 10 +
     audit.sharedOpenSideCount * 34 +
@@ -1165,7 +1430,7 @@ function scoreLibertiesCandidate(puzzle: LibertiesPuzzle, audit: LibertiesPuzzle
   );
 }
 
-function candidatePassesQualityGate(candidate: ScoredLibertiesCandidate): boolean {
+function candidatePassesQualityGate(candidate: ScoredLibertiesCandidate, playMode: LibertiesPlayMode): boolean {
   const { puzzle, audit } = candidate;
   const captureMinimum = puzzle.difficulty === 'Hard' ? 3 : 2;
   const responseMinimum = puzzle.difficulty === 'Hard' ? 3 : puzzle.difficulty === 'Standard' ? 2 : 0;
@@ -1173,6 +1438,13 @@ function candidatePassesQualityGate(candidate: ScoredLibertiesCandidate): boolea
   const [minBlockers, maxBlockers] = getLibertiesBlockerRange(puzzle.difficulty);
   const blockerImpactMinimum = puzzle.difficulty === 'Hard' ? 13 : puzzle.difficulty === 'Standard' ? 10 : 5;
   const reverseReplay = replayLibertiesMoves(puzzle, [...puzzle.solution].reverse());
+  const isHardMode = playMode === 'hard';
+  const decisionMinimum = isHardMode ? 7 : puzzle.difficulty === 'Easy' ? 1 : 3;
+  const tempoMinimum = isHardMode ? 4 : puzzle.difficulty === 'Easy' ? 1 : 2;
+  const stretchMinimum = isHardMode ? 5 : puzzle.difficulty === 'Easy' ? 0 : 2;
+  const naivePenaltyMinimum = isHardMode ? 4 : puzzle.difficulty === 'Easy' ? 1 : 2;
+  const terrainMinimum = isHardMode ? 18 : puzzle.difficulty === 'Easy' ? 6 : 10;
+  const fillerMaximum = isHardMode ? 0.08 : puzzle.difficulty === 'Easy' ? 0.18 : 0.12;
 
   return (
     isGeneratedSizeAllowed(puzzle.difficulty, puzzle.size) &&
@@ -1182,7 +1454,12 @@ function candidatePassesQualityGate(candidate: ScoredLibertiesCandidate): boolea
     audit.solutionCaptureMoves >= captureMinimum &&
     audit.responseEventCount >= responseMinimum &&
     audit.dynamicMoveCount >= dynamicMinimum &&
-    audit.fillerMoveRatio < 0.25 &&
+    audit.decisionPointCount >= decisionMinimum &&
+    audit.tempoClearCount >= tempoMinimum &&
+    audit.stretchPressureCount >= stretchMinimum &&
+    audit.naivePenalty >= naivePenaltyMinimum &&
+    audit.terrainUsefulnessScore >= terrainMinimum &&
+    audit.fillerMoveRatio < fillerMaximum &&
     !audit.isPureOpeningFill &&
     (puzzle.difficulty === 'Easy' || reverseReplay.illegalMoveIndex !== null)
   );
@@ -1216,29 +1493,27 @@ function buildLibertiesCandidateSpecs(tuning: LibertiesGenerationTuning): Libert
   });
 
   terrainSpecs.forEach((spec) => {
-    if (spec.difficulty === 'Easy' || LIBERTIES_FORCED_PUZZLE_IDS.has(spec.id)) {
+    if (spec.difficulty === 'Easy' || Object.values(LIBERTIES_FORCED_PUZZLE_IDS).includes(spec.id)) {
       addSpec(spec);
     }
   });
 
   terrainSpecs.forEach((base) => {
     getGenerationSizeDeltas(base).forEach((sizeDelta) => {
-      for (let rowOffset = 0; rowOffset <= sizeDelta; rowOffset += 1) {
-        for (let colOffset = 0; colOffset <= sizeDelta; colOffset += 1) {
-          LIBERTIES_TRANSFORMS.forEach((transform) => {
-            const variant = makeLibertiesVariantSpec(
-              base,
-              transform,
-              sizeDelta,
-              rowOffset,
-              colOffset,
-              variantIndex
-            );
-            addSpec(variant);
-            variantIndex += 1;
-          });
-        }
-      }
+      getGenerationOffsets(sizeDelta).forEach(([rowOffset, colOffset]) => {
+        getGenerationTransforms().forEach((transform) => {
+          const variant = makeLibertiesVariantSpec(
+            base,
+            transform,
+            sizeDelta,
+            rowOffset,
+            colOffset,
+            variantIndex
+          );
+          addSpec(variant);
+          variantIndex += 1;
+        });
+      });
     });
   });
 
@@ -1279,6 +1554,9 @@ function addCandidateToPuzzleSelection(
   if (selected.length >= targetLength || selectedIds.has(puzzle.id)) return false;
   const layoutFingerprint = puzzle.layout.join('/');
   if (selectedLayouts.has(layoutFingerprint)) return false;
+  if (!candidatePassesMoveFloorGate(puzzle)) {
+    return false;
+  }
   selectedLayouts.add(layoutFingerprint);
   selectedIds.add(puzzle.id);
   selectedDifficultyCounts[puzzle.difficulty] += 1;
@@ -1293,7 +1571,11 @@ function selectLibertiesPuzzlesByQuota(
   selectedLayouts: Set<string>,
   selectedIds: Set<string>,
   includeForced: boolean,
-  targetLength: number
+  targetLength: number,
+  forcedPuzzleId: string,
+  playMode: LibertiesPlayMode,
+  excludedLayouts: Set<string> = new Set(),
+  excludedIds: Set<string> = new Set()
 ): LibertiesPuzzle[] {
   const selected: LibertiesPuzzle[] = [];
   const selectedDifficultyCounts: Record<LibertiesDifficulty, number> = {
@@ -1304,7 +1586,7 @@ function selectLibertiesPuzzlesByQuota(
 
   if (includeForced) {
     scoredCandidates
-      .filter((candidate) => LIBERTIES_FORCED_PUZZLE_IDS.has(candidate.puzzle.id))
+      .filter((candidate) => candidate.puzzle.id === forcedPuzzleId)
       .forEach((candidate) => {
         addCandidateToPuzzleSelection(
           candidate,
@@ -1325,7 +1607,9 @@ function selectLibertiesPuzzlesByQuota(
           (candidate) =>
             candidate.puzzle.difficulty === difficulty &&
             candidate.puzzle.size === size &&
-            candidatePassesQualityGate(candidate)
+            !excludedLayouts.has(candidate.puzzle.layout.join('/')) &&
+            !excludedIds.has(candidate.puzzle.id) &&
+            candidatePassesQualityGate(candidate, playMode)
         )
         .forEach((candidate) => {
           const currentSizeCount = selected.filter(
@@ -1347,7 +1631,13 @@ function selectLibertiesPuzzlesByQuota(
   (Object.keys(quotas) as LibertiesDifficulty[]).forEach((difficulty) => {
     const quota = quotas[difficulty];
     scoredCandidates
-      .filter((candidate) => candidate.puzzle.difficulty === difficulty && candidatePassesQualityGate(candidate))
+      .filter(
+        (candidate) =>
+          candidate.puzzle.difficulty === difficulty &&
+          !excludedLayouts.has(candidate.puzzle.layout.join('/')) &&
+          !excludedIds.has(candidate.puzzle.id) &&
+          candidatePassesQualityGate(candidate, playMode)
+      )
       .forEach((candidate) => {
         if (selectedDifficultyCounts[difficulty] >= quota) return;
         addCandidateToPuzzleSelection(
@@ -1425,11 +1715,17 @@ function chooseScheduledDifficulty(
   slot: number,
   targets: Record<LibertiesDifficulty, number>,
   used: Record<LibertiesDifficulty, number>,
-  previousDifficulty: LibertiesDifficulty | null
+  previousDifficulty: LibertiesDifficulty | null,
+  previousStreak: number
 ): LibertiesDifficulty {
-  const candidates = (Object.keys(targets) as LibertiesDifficulty[]).filter(
+  const streakLimit = slot < 60 ? 2 : 3;
+  let candidates = (Object.keys(targets) as LibertiesDifficulty[]).filter(
     (difficulty) => used[difficulty] < targets[difficulty]
   );
+  if (previousDifficulty && previousStreak >= streakLimit) {
+    const withoutRepeat = candidates.filter((difficulty) => difficulty !== previousDifficulty);
+    if (withoutRepeat.length > 0) candidates = withoutRepeat;
+  }
   const total = Object.values(targets).reduce((sum, count) => sum + count, 0);
 
   candidates.sort((a, b) => {
@@ -1446,8 +1742,11 @@ function chooseScheduledDifficulty(
   return candidates[0]!;
 }
 
-function orderLibertiesPublicPuzzles(puzzles: LibertiesPuzzle[]): LibertiesPuzzle[] {
-  const forcedPuzzle = puzzles.find((puzzle) => puzzle.id === LIBERTIES_STANDARD_DAILY_PUZZLE_ID) ?? puzzles[0]!;
+function orderLibertiesPublicPuzzles(
+  puzzles: LibertiesPuzzle[],
+  forcedPuzzleId: string
+): LibertiesPuzzle[] {
+  const forcedPuzzle = puzzles.find((puzzle) => puzzle.id === forcedPuzzleId) ?? puzzles[0]!;
   const pools: Record<LibertiesDifficulty, LibertiesPuzzle[]> = {
     Easy: orderLibertiesDifficultyPool(
       puzzles.filter((puzzle) => puzzle.difficulty === 'Easy' && puzzle.id !== forcedPuzzle.id)
@@ -1487,12 +1786,14 @@ function orderLibertiesPublicPuzzles(puzzles: LibertiesPuzzle[]): LibertiesPuzzl
   ];
   const ordered: LibertiesPuzzle[] = [forcedPuzzle];
   let previousDifficulty: LibertiesDifficulty | null = forcedPuzzle.difficulty;
+  let previousStreak = 1;
 
   const addNextDifficulty = (difficulty: LibertiesDifficulty): boolean => {
     const next = pools[difficulty].shift();
     if (!next) return false;
     ordered.push(next);
     used[difficulty] += 1;
+    previousStreak = previousDifficulty === difficulty ? previousStreak + 1 : 1;
     previousDifficulty = difficulty;
     return true;
   };
@@ -1500,11 +1801,11 @@ function orderLibertiesPublicPuzzles(puzzles: LibertiesPuzzle[]): LibertiesPuzzl
   openingCadence.forEach((difficulty) => {
     if (ordered.length >= puzzles.length) return;
     if (addNextDifficulty(difficulty)) return;
-    chooseScheduledDifficulty(ordered.length, targets, used, previousDifficulty);
+    addNextDifficulty(chooseScheduledDifficulty(ordered.length, targets, used, previousDifficulty, previousStreak));
   });
 
   while (ordered.length < puzzles.length) {
-    const difficulty = chooseScheduledDifficulty(ordered.length, targets, used, previousDifficulty);
+    const difficulty = chooseScheduledDifficulty(ordered.length, targets, used, previousDifficulty, previousStreak);
     if (addNextDifficulty(difficulty)) continue;
     const fallback = (Object.keys(pools) as LibertiesDifficulty[]).find((candidate) => pools[candidate].length > 0);
     if (!fallback || !addNextDifficulty(fallback)) break;
@@ -1513,7 +1814,124 @@ function orderLibertiesPublicPuzzles(puzzles: LibertiesPuzzle[]): LibertiesPuzzl
   return ordered;
 }
 
-function generationPassesPlaytestGate(publicPuzzles: LibertiesPuzzle[]): boolean {
+function getDominantTerrainArchetype(puzzle: LibertiesPuzzle): LibertiesTerrainArchetype | null {
+  return puzzle.terrainArchetypes?.[0] ?? null;
+}
+
+function getLibertiesAuditQualityScore(puzzle: LibertiesPuzzle, audit: LibertiesPuzzleAudit): number {
+  return (
+    audit.decisionPointCount * 70 +
+    audit.tempoClearCount * 52 +
+    audit.stretchPressureCount * 34 +
+    audit.sharedCrossingMoveCount * 42 +
+    audit.naivePenalty * 58 +
+    audit.terrainUsefulnessScore * 10 +
+    audit.responseEventCount * 12 +
+    audit.dynamicMoveCount * 10 -
+    audit.fillerMoveRatio * 200 -
+    Math.max(0, puzzle.targetMoves - audit.optimalMoveCount) * 15
+  );
+}
+
+function getModeTargetSeconds(
+  puzzle: LibertiesPuzzle,
+  playMode: LibertiesPlayMode,
+  isPeakHard: boolean
+): number {
+  if (playMode === 'hard') {
+    return puzzle.targetSeconds;
+  }
+  if (puzzle.difficulty === 'Easy') {
+    return Math.min(puzzle.targetSeconds, 260);
+  }
+  if (puzzle.difficulty === 'Standard') {
+    return Math.min(puzzle.targetSeconds, 330);
+  }
+  return isPeakHard ? 390 : 360;
+}
+
+function markPeakHardPuzzles(puzzles: LibertiesPuzzle[], peakCount: number): Set<string> {
+  const selected = new Set<string>();
+  if (peakCount <= 0) return selected;
+  const candidates = puzzles
+    .map((puzzle, index) => ({ puzzle, index, audit: getLibertiesPuzzleAudit(puzzle) }))
+    .filter(({ puzzle }) => puzzle.difficulty === 'Hard')
+    .sort(
+      (a, b) =>
+        getLibertiesAuditQualityScore(b.puzzle, b.audit) - getLibertiesAuditQualityScore(a.puzzle, a.audit) ||
+        b.audit.optimalMoveCount - a.audit.optimalMoveCount ||
+        a.index - b.index
+    );
+  const spacing = peakCount <= 20 ? 14 : 2;
+
+  candidates.forEach(({ puzzle, index }) => {
+    if (selected.size >= peakCount) return;
+    const tooClose = [...selected].some((id) => {
+      const selectedIndex = puzzles.findIndex((candidate) => candidate.id === id);
+      return selectedIndex >= 0 && Math.abs(selectedIndex - index) < spacing;
+    });
+    if (!tooClose) selected.add(puzzle.id);
+  });
+
+  candidates.forEach(({ puzzle }) => {
+    if (selected.size < peakCount) selected.add(puzzle.id);
+  });
+
+  return selected;
+}
+
+function getCalendarNoveltyScore(puzzles: LibertiesPuzzle[], index: number): number {
+  const puzzle = puzzles[index]!;
+  const recent = puzzles.slice(Math.max(0, index - 14), index);
+  const family = getLibertiesFamilyId(puzzle);
+  const terrain = getDominantTerrainArchetype(puzzle);
+  let score = 20;
+
+  recent.forEach((entry, offset) => {
+    const distanceWeight = 14 - (recent.length - offset - 1);
+    if (getLibertiesFamilyId(entry) === family) score -= distanceWeight;
+    if (terrain && getDominantTerrainArchetype(entry) === terrain) score -= Math.max(1, Math.floor(distanceWeight / 2));
+    if (entry.size === puzzle.size && entry.difficulty === puzzle.difficulty) score -= 1;
+  });
+
+  return Math.max(0, score);
+}
+
+function annotateLibertiesPuzzles(
+  puzzles: LibertiesPuzzle[],
+  playMode: LibertiesPlayMode,
+  peakCount = 0
+): LibertiesPuzzle[] {
+  const peakIds = markPeakHardPuzzles(puzzles, peakCount);
+  const annotatedBase = puzzles.map((puzzle, index) => ({
+    ...puzzle,
+    targetSeconds: getModeTargetSeconds(puzzle, playMode, peakIds.has(puzzle.id)),
+    playMode,
+    calendarIndex: index,
+    peakHard: peakIds.has(puzzle.id) || undefined,
+  }));
+
+  return annotatedBase.map((puzzle, index) => {
+    const audit = getLibertiesPuzzleAudit(puzzle);
+    return {
+      ...puzzle,
+      optimalMoveCount: audit.optimalMoveCount,
+      qualityScore: getLibertiesAuditQualityScore(puzzle, audit),
+      decisionPointCount: audit.decisionPointCount,
+      tempoClearCount: audit.tempoClearCount,
+      stretchPressureCount: audit.stretchPressureCount,
+      naivePenalty: audit.naivePenalty,
+      terrainUsefulnessScore: audit.terrainUsefulnessScore,
+      calendarNoveltyScore: getCalendarNoveltyScore(annotatedBase, index),
+    };
+  });
+}
+
+function generationPassesPlaytestGate(
+  publicPuzzles: LibertiesPuzzle[],
+  targetLength: number,
+  playMode: LibertiesPlayMode
+): boolean {
   const audit = getLibertiesPackAudit(publicPuzzles);
   const standardPuzzles = publicPuzzles.filter((puzzle) => puzzle.difficulty === 'Standard');
   const standardPersonaMedian = medianLibertiesSeconds(
@@ -1527,40 +1945,79 @@ function generationPassesPlaytestGate(publicPuzzles: LibertiesPuzzle[]): boolean
       return Math.round(puzzle.targetSeconds * 0.92 + Math.max(0, stress - 18) * 0.6);
     })
   );
+  const medianMinimum = playMode === 'hard' ? 540 : 285;
+  const medianMaximum = playMode === 'hard' ? 720 : 345;
+  const personaMedianIsInRange =
+    playMode === 'hard' ||
+    (standardPersonaMedian >= 285 && standardPersonaMedian <= 360);
 
   return (
-    audit.puzzleCount === LIBERTIES_PACK_LENGTH &&
-    audit.standardMedianTargetSeconds >= 240 &&
-    audit.standardMedianTargetSeconds <= 420 &&
-    standardPersonaMedian >= 240 &&
-    standardPersonaMedian <= 420 &&
+    audit.puzzleCount === targetLength &&
+    audit.medianTargetSeconds >= medianMinimum &&
+    audit.medianTargetSeconds <= medianMaximum &&
+    personaMedianIsInRange &&
     audit.averageBlockerImpactScore >= 10 &&
+    audit.averageDecisionPointCount >= (playMode === 'hard' ? 7 : 3) &&
+    audit.averageTempoClearCount >= (playMode === 'hard' ? 4 : 2) &&
+    audit.averageStretchPressureCount >= (playMode === 'hard' ? 5 : 2) &&
+    audit.averageNaivePenalty >= (playMode === 'hard' ? 4 : 2) &&
     audit.pureOpeningFillCount === 0
   );
 }
 
-function buildLibertiesPacks(tuning: LibertiesGenerationTuning): LibertiesPackGenerationResult {
+function buildLibertiesPacks(
+  tuning: LibertiesGenerationTuning,
+  playMode: LibertiesPlayMode,
+  options: LibertiesPackGenerationOptions = {}
+): LibertiesPackGenerationResult {
+  const profile = getLibertiesGenerationProfile(playMode);
   const scoredCandidates = scoreLibertiesCandidates(tuning);
   const selectedLayouts = new Set<string>();
   const selectedIds = new Set<string>();
-  const publicPuzzles = orderLibertiesPublicPuzzles(selectLibertiesPuzzlesByQuota(
+  const selectPublicPuzzles = selectLibertiesPuzzlesByQuota(
     scoredCandidates,
-    LIBERTIES_PUBLIC_DIFFICULTY_QUOTAS,
-    LIBERTIES_PUBLIC_SIZE_QUOTAS,
+    profile.publicDifficultyQuotas,
+    profile.publicSizeQuotas,
     selectedLayouts,
     selectedIds,
     true,
-    LIBERTIES_PACK_LENGTH
-  ));
-  const reservePuzzles = selectLibertiesPuzzlesByQuota(
+    profile.publicPackLength,
+    profile.dailyPuzzleId,
+    playMode,
+    options.excludedPublicLayouts,
+    options.excludedPublicIds
+  );
+  const publicPuzzles =
+    process.env.LIBERTIES_FAST_GEN === '1'
+      ? orderLibertiesPublicPuzzles(selectPublicPuzzles, profile.dailyPuzzleId)
+      : annotateLibertiesPuzzles(
+          orderLibertiesPublicPuzzles(withLibertiesMinimumRoutes(selectPublicPuzzles), profile.dailyPuzzleId),
+          playMode,
+          playMode === 'hard' ? 100 : 12
+        );
+  const reservePuzzlesSource = selectLibertiesPuzzlesByQuota(
     scoredCandidates,
-    LIBERTIES_RESERVE_DIFFICULTY_QUOTAS,
-    LIBERTIES_RESERVE_SIZE_QUOTAS,
+    profile.reserveDifficultyQuotas,
+    profile.reserveSizeQuotas,
     selectedLayouts,
     selectedIds,
     false,
-    LIBERTIES_RESERVE_PACK_LENGTH
-  ).map((puzzle, index) => ({ ...puzzle, reserveRank: index + 1 }));
+    profile.reservePackLength,
+    profile.dailyPuzzleId,
+    playMode,
+    options.excludedPublicLayouts,
+    options.excludedPublicIds
+  );
+  const reservePuzzles =
+    process.env.LIBERTIES_FAST_GEN === '1'
+      ? reservePuzzlesSource.map((puzzle, index) => ({ ...puzzle, reserveRank: index + 1, minMoves: puzzle.targetMoves }))
+      : annotateLibertiesPuzzles(
+          withLibertiesMinimumRoutes(
+            reservePuzzlesSource.map((puzzle, index) => ({ ...puzzle, reserveRank: index + 1 }))
+          ),
+          playMode,
+          playMode === 'hard' ? 18 : 4
+        );
 
   return {
     publicPuzzles,
@@ -1574,12 +2031,16 @@ function buildLibertiesPacks(tuning: LibertiesGenerationTuning): LibertiesPackGe
   };
 }
 
-export function buildLibertiesPacksForGeneration(): LibertiesPackGenerationResult {
+export function buildLibertiesPacksForGeneration(
+  playMode: LibertiesPlayMode = 'standard',
+  options: LibertiesPackGenerationOptions = {}
+): LibertiesPackGenerationResult {
   const attempts: LibertiesPackGenerationResult[] = [];
+  const profile = getLibertiesGenerationProfile(playMode);
 
   for (let index = 0; index < LIBERTIES_GENERATION_TUNINGS.length; index += 1) {
     try {
-      const result = buildLibertiesPacks(LIBERTIES_GENERATION_TUNINGS[index]!);
+      const result = buildLibertiesPacks(LIBERTIES_GENERATION_TUNINGS[index]!, playMode, options);
       attempts.push({
         ...result,
         report: {
@@ -1587,11 +2048,16 @@ export function buildLibertiesPacksForGeneration(): LibertiesPackGenerationResul
           iterationCount: index + 1,
         },
       });
-      if (generationPassesPlaytestGate(result.publicPuzzles)) {
+      if (generationPassesPlaytestGate(result.publicPuzzles, profile.publicPackLength, playMode)) {
         return attempts.at(-1)!;
       }
-    } catch {
-      // Try the next deterministic retune preset.
+    } catch (error) {
+      if (process.env.LIBERTIES_VERBOSE_GENERATION === '1') {
+        const message = error instanceof Error ? error.message : String(error);
+        console.log(
+          `Liberties ${playMode} generation attempt ${index + 1} failed: ${message}`
+        );
+      }
     }
   }
 
@@ -1604,8 +2070,8 @@ export function buildLibertiesPacksForGeneration(): LibertiesPackGenerationResul
       const auditA = getLibertiesPackAudit(a.publicPuzzles);
       const auditB = getLibertiesPackAudit(b.publicPuzzles);
       return (
-        Number(generationPassesPlaytestGate(b.publicPuzzles)) -
-          Number(generationPassesPlaytestGate(a.publicPuzzles)) ||
+        Number(generationPassesPlaytestGate(b.publicPuzzles, profile.publicPackLength, playMode)) -
+          Number(generationPassesPlaytestGate(a.publicPuzzles, profile.publicPackLength, playMode)) ||
         auditB.averageBlockerImpactScore - auditA.averageBlockerImpactScore ||
         auditB.standardMedianTargetSeconds - auditA.standardMedianTargetSeconds
       );
@@ -1613,14 +2079,20 @@ export function buildLibertiesPacksForGeneration(): LibertiesPackGenerationResul
 }
 
 export function buildLibertiesPuzzlesForGeneration(): LibertiesPuzzle[] {
-  return buildLibertiesPacksForGeneration().publicPuzzles;
+  return buildLibertiesPacksForGeneration('standard').publicPuzzles;
 }
 
-export const libertiesPuzzles: LibertiesPuzzle[] = generatedLibertiesPack;
-export const libertiesReservePuzzles: LibertiesPuzzle[] = generatedLibertiesReservePack;
+export const libertiesPuzzlesStandard: LibertiesPuzzle[] = generatedLibertiesPack;
+export const libertiesReservePuzzlesStandard: LibertiesPuzzle[] = generatedLibertiesReservePack;
+export const libertiesPuzzlesHard: LibertiesPuzzle[] = generatedLibertiesPackHard;
+export const libertiesReservePuzzlesHard: LibertiesPuzzle[] = generatedLibertiesReservePackHard;
+export const libertiesPuzzles: LibertiesPuzzle[] = libertiesPuzzlesStandard;
+export const libertiesReservePuzzles: LibertiesPuzzle[] = libertiesReservePuzzlesStandard;
 export const libertiesPreviewPuzzles: LibertiesPuzzle[] = [
-  ...generatedLibertiesPack,
-  ...generatedLibertiesReservePack,
+  ...libertiesPuzzlesStandard,
+  ...libertiesReservePuzzlesStandard,
+  ...libertiesPuzzlesHard,
+  ...libertiesReservePuzzlesHard,
 ];
 
 export interface LibertiesPuzzleAudit {
@@ -1647,6 +2119,18 @@ export interface LibertiesPuzzleAudit {
   delayedMoveCount: number;
   maxUnlockDepth: number;
   captureOrderDependencyScore: number;
+  optimalMoveCount: number;
+  naiveFillMoveCount: number;
+  greedyClearMoveCount: number;
+  naivePenalty: number;
+  decisionPointCount: number;
+  tempoClearCount: number;
+  stretchPressureCount: number;
+  sharedCrossingMoveCount: number;
+  whitePunishCount: number;
+  recoveryMargin: number;
+  terrainUsefulnessScore: number;
+  calendarNoveltyScore: number;
   fillerMoveRatio: number;
   isPureOpeningFill: boolean;
 }
@@ -1659,6 +2143,11 @@ export interface LibertiesPackAudit {
   minTargetMoves: number;
   maxTargetMoves: number;
   averageTargetMoves: number;
+  minMinimumMoves: number;
+  maxMinimumMoves: number;
+  averageMinimumMoves: number;
+  averageTargetToMinimumMoveGap: number;
+  maxTargetToMinimumMoveGap: number;
   standardMedianTargetSeconds: number;
   averageBlockerCount: number;
   minimumBlockerImpactScore: number;
@@ -1672,6 +2161,15 @@ export interface LibertiesPackAudit {
   requiredReleaseMoveCount: number;
   delayedMoveCount: number;
   maxUnlockDepth: number;
+  averageOptimalMoveCount: number;
+  averageNaivePenalty: number;
+  averageDecisionPointCount: number;
+  averageTempoClearCount: number;
+  averageStretchPressureCount: number;
+  averageSharedCrossingMoveCount: number;
+  averageWhitePunishCount: number;
+  averageTerrainUsefulnessScore: number;
+  medianTargetSeconds: number;
   averageFillerMoveRatio: number;
 }
 
@@ -1703,7 +2201,7 @@ function makeLibertiesLayout(
 
   spec.blocks?.forEach((point) => {
     const { row, col } = toPoint(point);
-    grid[row]![col] = 'B';
+    grid[row]![col] = 'X';
   });
 
   spec.groups.forEach((group) => {
@@ -1797,10 +2295,12 @@ function deriveAutomaticReleaseSpecs(spec: LibertiesPuzzleSpec): LibertiesReleas
     difficulty: spec.difficulty,
     size: spec.size,
     targetMoves: 0,
+    minMoves: 0,
     targetSeconds: 0,
     variant: spec.variant ?? getDefaultLibertiesVariant(spec.difficulty),
     layout: baseLayout,
     solution: [],
+    minSolution: [],
     releaseLinks: [],
     lightGroups: spec.groups.map((group) => group.stones.map(toPoint)),
     motif: spec.motif,
@@ -1845,10 +2345,12 @@ function defineLibertiesPuzzle(spec: LibertiesPuzzleSpec): LibertiesPuzzle {
     difficulty: spec.difficulty,
     size: spec.size,
     targetMoves: 0,
+    minMoves: 0,
     targetSeconds: 0,
     variant: spec.variant ?? getDefaultLibertiesVariant(spec.difficulty),
     layout,
     solution: [],
+    minSolution: [],
     releaseLinks: releaseSpecs.map(toReleaseLink),
     lightGroups: spec.groups.map((group) => group.stones.map(toPoint)),
     motif: spec.motif,
@@ -1863,13 +2365,36 @@ function defineLibertiesPuzzle(spec: LibertiesPuzzleSpec): LibertiesPuzzle {
   const auditPuzzle = {
     ...definedPuzzle,
     targetMoves: solution.length,
+    minMoves: solution.length,
+    minSolution: solution,
     targetSeconds: 0,
   };
   const audit = getLibertiesPuzzleAudit(auditPuzzle);
+  const intermediatePuzzle = {
+    ...definedPuzzle,
+    targetMoves: solution.length,
+    minMoves: solution.length,
+    minSolution: solution,
+    targetSeconds: estimateLibertiesSolveSeconds(spec.difficulty, solution.length, audit),
+  };
+  const subPuzzleMoments = deriveLibertiesSubPuzzleMoments(intermediatePuzzle, {
+    responseEventCount: audit.responseEventCount,
+    dynamicMoveCount: audit.dynamicMoveCount,
+    captureOrderDependencyScore: audit.captureOrderDependencyScore,
+    sharedOpenSideCount: audit.sharedOpenSideCount,
+    maxSharedOpenSideTouches: audit.maxSharedOpenSideTouches,
+    solutionCaptureMoves: audit.solutionCaptureMoves,
+    multiStoneCaptureMoves: audit.multiStoneCaptureMoves,
+    requiredReleaseMoveCount: audit.requiredReleaseMoveCount,
+    fillerMoveRatio: audit.fillerMoveRatio,
+  });
   const finalPuzzle = {
     ...definedPuzzle,
     targetMoves: solution.length,
+    minMoves: solution.length,
+    minSolution: solution,
     targetSeconds: estimateLibertiesSolveSeconds(spec.difficulty, solution.length, audit),
+    subPuzzleMoments,
   };
   return {
     ...finalPuzzle,
@@ -1885,19 +2410,19 @@ function estimateLibertiesSolveSeconds(
     'groupCount' | 'responseEventCount' | 'dynamicMoveCount' | 'sharedOpenSideCount' | 'captureOrderDependencyScore'
   >
 ): number {
-  const base = difficulty === 'Easy' ? 95 : difficulty === 'Standard' ? 135 : 250;
+  const base = difficulty === 'Easy' ? 105 : difficulty === 'Standard' ? 185 : 410;
   const raw =
     base +
-    moves * 4 +
-    audit.groupCount * 7 +
-    audit.responseEventCount +
-    audit.dynamicMoveCount +
+    moves * (difficulty === 'Hard' ? 6 : 4) +
+    audit.groupCount * (difficulty === 'Hard' ? 10 : 7) +
+    audit.responseEventCount * (difficulty === 'Hard' ? 2 : 1) +
+    audit.dynamicMoveCount * (difficulty === 'Hard' ? 2 : 1) +
     audit.sharedOpenSideCount * 4 +
-    audit.captureOrderDependencyScore;
-  const targetScale = difficulty === 'Standard' ? 0.7 : 1;
+    audit.captureOrderDependencyScore * (difficulty === 'Hard' ? 2 : 1);
+  const targetScale = difficulty === 'Standard' ? 0.9 : 1;
   const scaledRaw = raw * targetScale;
-  const min = difficulty === 'Easy' ? 90 : difficulty === 'Standard' ? 265 : 360;
-  const max = difficulty === 'Easy' ? 270 : difficulty === 'Standard' ? 420 : 600;
+  const min = difficulty === 'Easy' ? 120 : difficulty === 'Standard' ? 285 : 540;
+  const max = difficulty === 'Easy' ? 260 : difficulty === 'Standard' ? 345 : 720;
   return Math.max(min, Math.min(max, Math.round(scaledRaw / 5) * 5));
 }
 
@@ -1909,6 +2434,92 @@ function countEdgeSolutionMoves(puzzle: LibertiesPuzzle): number {
       point.row === puzzle.size - 1 ||
       point.col === puzzle.size - 1
   ).length;
+}
+
+interface LibertiesSolutionMomentum {
+  maxReleaseRun: number;
+  maxForcedRun: number;
+  releaseMoveCount: number;
+}
+
+function analyzeLibertiesSolutionMomentum(puzzle: LibertiesPuzzle): LibertiesSolutionMomentum {
+  const releasePoints = new Set(puzzle.releaseLinks.map((release) => pointKey(release.point)));
+  let board = createLibertiesBoard(puzzle);
+  let maxReleaseRun = 0;
+  let currentReleaseRun = 0;
+  let maxForcedRun = 0;
+  let currentForcedRun = 0;
+  let releaseMoveCount = 0;
+
+  puzzle.solution.forEach((move) => {
+    const key = pointKey(move);
+    const result = playLibertiesMove(board, puzzle.size, move, 'black', puzzle);
+    if (!result.legal) {
+      currentReleaseRun = 0;
+      currentForcedRun = 0;
+      return;
+    }
+
+    const isReleaseMove = releasePoints.has(key);
+    const isForcedMove =
+      isReleaseMove || result.captured.length > 0 || result.responses.length > 0 || result.capturedDark.length > 0;
+
+    currentReleaseRun = isReleaseMove ? currentReleaseRun + 1 : 0;
+    maxReleaseRun = Math.max(maxReleaseRun, currentReleaseRun);
+    if (isReleaseMove) releaseMoveCount += 1;
+
+    currentForcedRun = isForcedMove ? currentForcedRun + 1 : 0;
+    maxForcedRun = Math.max(maxForcedRun, currentForcedRun);
+    board = result.board;
+  });
+
+  return { maxReleaseRun, maxForcedRun, releaseMoveCount };
+}
+
+function deriveLibertiesSubPuzzleMoments(
+  puzzle: LibertiesPuzzle,
+  audit: Pick<
+    LibertiesPuzzleAudit,
+    | 'responseEventCount'
+    | 'dynamicMoveCount'
+    | 'captureOrderDependencyScore'
+    | 'sharedOpenSideCount'
+    | 'maxSharedOpenSideTouches'
+    | 'solutionCaptureMoves'
+    | 'multiStoneCaptureMoves'
+    | 'requiredReleaseMoveCount'
+    | 'fillerMoveRatio'
+  >
+): LibertiesSubPuzzleMoment[] {
+  const moments: LibertiesSubPuzzleMoment[] = [];
+
+  const addMoment = (moment: LibertiesSubPuzzleMoment) => {
+    if (!moments.includes(moment)) moments.push(moment);
+  };
+
+  if (audit.solutionCaptureMoves >= 2 || audit.dynamicMoveCount >= 3) addMoment('capture-burst');
+  if (audit.responseEventCount >= 3) addMoment('response-choreography');
+  if (audit.maxSharedOpenSideTouches >= 3 || audit.sharedOpenSideCount >= 4) addMoment('shared-momentum');
+  if (audit.multiStoneCaptureMoves >= 2 || audit.captureOrderDependencyScore >= 8) {
+    addMoment('release-timing');
+  }
+  if (countEdgeSolutionMoves(puzzle) >= 3) addMoment('edge-rush');
+  if (audit.requiredReleaseMoveCount > 0 || puzzle.solution.length >= 18) addMoment('filler-avoid');
+  const momentum = analyzeLibertiesSolutionMomentum(puzzle);
+  if (momentum.maxReleaseRun >= 2 || momentum.releaseMoveCount >= 2) {
+    addMoment('release-chain');
+  }
+  if (momentum.maxForcedRun >= 4 || (puzzle.difficulty === 'Hard' && momentum.maxForcedRun >= 3)) {
+    addMoment('forced-sequence');
+  }
+  if (puzzle.terrainArchetypes?.includes('bridge')) {
+    addMoment('bridge-battle');
+  }
+  if (puzzle.terrainArchetypes?.includes('squeeze')) {
+    addMoment('squeeze-shape');
+  }
+
+  return moments;
 }
 
 function addFocusTag(tags: LibertiesPuzzleTag[], tag: LibertiesPuzzleTag): void {
@@ -1935,6 +2546,8 @@ function deriveLibertiesFocusTags(
   if (audit.solutionCaptureMoves >= 3 || audit.groupCount >= 4) addFocusTag(tags, 'multi-chain');
   if (countEdgeSolutionMoves(puzzle) >= 3) addFocusTag(tags, 'edge-pressure');
   if ((spec.blocks?.length ?? 0) + (spec.frozen?.length ?? 0) > 0) addFocusTag(tags, 'locked-lane');
+  if ((spec.terrainArchetypes ?? []).includes('bridge')) addFocusTag(tags, 'key-crossing');
+  if ((spec.terrainArchetypes ?? []).includes('squeeze')) addFocusTag(tags, 'multi-chain');
   if (tags.length === 0 && audit.openingIllegalSolutionMoves > 0) addFocusTag(tags, 'empty-neighbor');
   if (tags.length === 0) addFocusTag(tags, 'key-crossing');
 
@@ -2110,7 +2723,7 @@ export function cloneLibertiesBoard(board: LibertiesBoard): LibertiesBoard {
 export function createLibertiesBoard(puzzle: LibertiesPuzzle): LibertiesBoard {
   return puzzle.layout.map((row) =>
     row.split('').map((cell) => {
-      if (cell === 'B') return 'black';
+      if (cell === 'B') return 'frozen';
       if (cell === 'W') return 'white';
       if (cell === 'X') return 'frozen';
       if (cell === 'G') return 'release';
@@ -2374,6 +2987,520 @@ export function replayLibertiesMoves(
   return { board, illegalMoveIndex: null, captured, capturedDark, released, responses };
 }
 
+type LegalLibertiesMoveResult = Extract<LibertiesMoveResult, { legal: true }>;
+
+interface LiveHintCandidate {
+  point: LibertiesPoint;
+  result: LegalLibertiesMoveResult;
+  score: number;
+  captureCount: number;
+  progressCount: number;
+  responseCount: number;
+  touchCount: number;
+  whiteCountAfter: number;
+  solutionRank: number;
+}
+
+const MISSING_SOLUTION_RANK = Number.MAX_SAFE_INTEGER;
+const LIVE_HINT_CANDIDATE_LIMIT = 10;
+const LIVE_HINT_ROUTE_CACHE_LIMIT = 600;
+
+const liveHintRouteCache = new Map<string, LibertiesHintResult>();
+const lowestMoveCountCache = new Map<string, number>();
+const lowestMoveRouteCache = new Map<string, LibertiesPoint[]>();
+const generatedMinimumRouteCache = new Map<string, LibertiesPoint[]>();
+const libertiesPuzzleAuditCache = new Map<string, LibertiesPuzzleAudit>();
+
+function getSolutionRankMap(puzzle: Pick<LibertiesPuzzle, 'solution'>): Map<string, number> {
+  const ranks = new Map<string, number>();
+  puzzle.solution.forEach((point, index) => {
+    if (!ranks.has(pointKey(point))) ranks.set(pointKey(point), index);
+  });
+  return ranks;
+}
+
+function getSolutionRank(ranks: Map<string, number>, point: LibertiesPoint): number {
+  return ranks.get(pointKey(point)) ?? MISSING_SOLUTION_RANK;
+}
+
+function getLiveHintCandidates(
+  puzzle: LibertiesPuzzle,
+  board: LibertiesBoard,
+  desiredResponses: number,
+  responseCount: number,
+  solutionRanks: Map<string, number>,
+  limit = Number.POSITIVE_INFINITY
+): LiveHintCandidate[] {
+  const beforeWhiteCount = countLibertiesBoardCells(board, 'white');
+
+  return Array.from(getLightOpenSideEntries(puzzle, board).values())
+    .map((entry): LiveHintCandidate | null => {
+      const result = playLibertiesMove(board, puzzle.size, entry.point, 'black', puzzle);
+      if (!result.legal) return null;
+      const afterWhiteCount = countLibertiesBoardCells(result.board, 'white');
+      const ownGroup = getLibertiesGroupAt(result.board, puzzle.size, entry.point);
+      const wantsResponse = responseCount < desiredResponses;
+      const captureScore = result.captured.length * 28;
+      const sharedScore = entry.groupTouches * 13;
+      const responseScore = result.responses.length * (wantsResponse ? 18 : -18);
+      const progressScore = (beforeWhiteCount - afterWhiteCount) * 16;
+      const breathScore = Math.min(3, ownGroup?.liberties.size ?? 0) * 2;
+      const whitePenalty = Math.max(0, afterWhiteCount - beforeWhiteCount) * 5;
+
+      return {
+        point: entry.point,
+        result,
+        score: captureScore + sharedScore + responseScore + progressScore + breathScore - whitePenalty - 1,
+        captureCount: result.captured.length,
+        progressCount: beforeWhiteCount - afterWhiteCount,
+        responseCount: result.responses.length,
+        touchCount: entry.groupTouches,
+        whiteCountAfter: afterWhiteCount,
+        solutionRank: getSolutionRank(solutionRanks, entry.point),
+      };
+    })
+    .filter((candidate): candidate is LiveHintCandidate => candidate !== null)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.captureCount - a.captureCount ||
+        b.progressCount - a.progressCount ||
+        b.responseCount - a.responseCount ||
+        b.touchCount - a.touchCount ||
+        a.solutionRank - b.solutionRank ||
+        pointKey(a.point).localeCompare(pointKey(b.point))
+    )
+    .slice(0, limit);
+}
+
+function solveLibertiesGreedyFromBoard(
+  puzzle: LibertiesPuzzle,
+  startBoard: LibertiesBoard,
+  solutionRanks: Map<string, number>,
+  maxDepth: number
+): LibertiesPoint[] | null {
+  if (isLibertiesSolved(puzzle, startBoard)) return [];
+
+  const targetResponses = puzzle.difficulty === 'Hard' ? 4 : puzzle.difficulty === 'Standard' ? 3 : 1;
+
+  const attemptGreedySolve = (desiredResponses: number): LibertiesPoint[] | null => {
+    let board = cloneLibertiesBoard(startBoard);
+    const solution: LibertiesPoint[] = [];
+    let responseCount = 0;
+    const seen = new Set<string>();
+
+    for (let depth = 0; depth < maxDepth; depth += 1) {
+      if (isLibertiesSolved(puzzle, board)) return solution;
+
+      const boardKey = serializeLibertiesBoard(board);
+      if (seen.has(boardKey)) return null;
+      seen.add(boardKey);
+
+      const selected = getLiveHintCandidates(
+        puzzle,
+        board,
+        desiredResponses,
+        responseCount,
+        solutionRanks,
+        1
+      )[0];
+      if (!selected) return null;
+
+      board = selected.result.board;
+      solution.push(selected.point);
+      responseCount += selected.responseCount;
+    }
+
+    return isLibertiesSolved(puzzle, board) ? solution : null;
+  };
+
+  return attemptGreedySolve(targetResponses) ?? attemptGreedySolve(0);
+}
+
+function getLiveHintRouteCacheKey(puzzle: Pick<LibertiesPuzzle, 'id'>, board: LibertiesBoard): string {
+  return `${puzzle.id}:${serializeLibertiesBoard(board)}`;
+}
+
+function cloneHintRoute(route: LibertiesPoint[]): LibertiesPoint[] {
+  return route.map((point) => ({ ...point }));
+}
+
+function cacheLiveHintRoute(
+  puzzle: LibertiesPuzzle,
+  startBoard: LibertiesBoard,
+  route: LibertiesPoint[]
+): void {
+  let board = cloneLibertiesBoard(startBoard);
+
+  for (let index = 0; index < route.length; index += 1) {
+    const suffix = cloneHintRoute(route.slice(index));
+    const key = getLiveHintRouteCacheKey(puzzle, board);
+    liveHintRouteCache.set(key, {
+      point: suffix[0]!,
+      route: suffix,
+      movesToSolve: suffix.length,
+    });
+
+    const result = playLibertiesMove(board, puzzle.size, route[index]!, 'black', puzzle);
+    if (!result.legal) break;
+    board = result.board;
+  }
+
+  if (liveHintRouteCache.size > LIVE_HINT_ROUTE_CACHE_LIMIT) {
+    Array.from(liveHintRouteCache.keys())
+      .slice(0, liveHintRouteCache.size - LIVE_HINT_ROUTE_CACHE_LIMIT)
+      .forEach((key) => liveHintRouteCache.delete(key));
+  }
+}
+
+function scoreLibertiesHintBoard(
+  puzzle: LibertiesPuzzle,
+  board: LibertiesBoard,
+  routeLength: number
+): number {
+  const groups = getRemainingLibertiesLights(puzzle, board);
+  const whiteCount = countLibertiesBoardCells(board, 'white');
+  const totalOpenSides = groups.reduce((total, group) => total + group.liberties.size, 0);
+  const minimumOpenSides = Math.min(...groups.map((group) => group.liberties.size));
+  const urgentBonus = minimumOpenSides === 1 ? 20 : 0;
+
+  return (
+    urgentBonus -
+    groups.length * 80 -
+    whiteCount * 15 -
+    totalOpenSides * 8 -
+    routeLength * 2
+  );
+}
+
+function scoreLibertiesHintCandidate(candidate: LiveHintCandidate): number {
+  return (
+    candidate.captureCount * 120 +
+    candidate.progressCount * 40 +
+    candidate.touchCount * 20 -
+    candidate.responseCount * 10 -
+    candidate.whiteCountAfter * 2 +
+    candidate.score
+  );
+}
+
+function getLiveHintBeamWidth(difficulty: LibertiesDifficulty): number {
+  if (difficulty === 'Hard') return 90;
+  if (difficulty === 'Standard') return 60;
+  return 40;
+}
+
+function getLiveHintTimeBudgetMs(difficulty: LibertiesDifficulty): number {
+  if (difficulty === 'Hard') return 800;
+  if (difficulty === 'Standard') return 500;
+  return 250;
+}
+
+function getGenerationMoveFloorBudgetMs(difficulty: LibertiesDifficulty): number {
+  if (process.env.LIBERTIES_FAST_GEN === '1') {
+    if (difficulty === 'Hard') return 140;
+    if (difficulty === 'Standard') return 100;
+    return 60;
+  }
+  if (difficulty === 'Hard') return 450;
+  if (difficulty === 'Standard') return 320;
+  return 180;
+}
+
+function getMoveFloorTimeBudgetMs(difficulty: LibertiesDifficulty): number {
+  return getGenerationMoveFloorBudgetMs(difficulty);
+}
+
+function findMoveOptimizedLibertiesRoute(
+  puzzle: LibertiesPuzzle,
+  startBoard: LibertiesBoard,
+  solutionRanks: Map<string, number>,
+  timeBudgetMs = getLiveHintTimeBudgetMs(puzzle.difficulty)
+): LibertiesPoint[] | null {
+  if (isLibertiesSolved(puzzle, startBoard)) return [];
+
+  const startedAt = Date.now();
+  const deadline = startedAt + timeBudgetMs;
+  const beamWidth = getLiveHintBeamWidth(puzzle.difficulty);
+  const maxDepth = getSolutionSearchDepth(puzzle);
+  const targetResponses = puzzle.difficulty === 'Hard' ? 4 : puzzle.difficulty === 'Standard' ? 3 : 1;
+  const seen = new Map<string, number>([[serializeLibertiesBoard(startBoard), 0]]);
+  let frontier: Array<{
+    board: LibertiesBoard;
+    route: LibertiesPoint[];
+    responseCount: number;
+    score: number;
+  }> = [
+    {
+      board: cloneLibertiesBoard(startBoard),
+      route: [],
+      responseCount: 0,
+      score: scoreLibertiesHintBoard(puzzle, startBoard, 0),
+    },
+  ];
+
+  for (let depth = 0; depth < maxDepth; depth += 1) {
+    const nextFrontier: typeof frontier = [];
+
+    for (const state of frontier) {
+      if (Date.now() > deadline) return null;
+
+      const candidates = getLiveHintCandidates(
+        puzzle,
+        state.board,
+        targetResponses,
+        state.responseCount,
+        solutionRanks
+      );
+
+      for (const candidate of candidates) {
+        const route = [...state.route, candidate.point];
+        if (isLibertiesSolved(puzzle, candidate.result.board)) {
+          return route;
+        }
+
+        const boardKey = serializeLibertiesBoard(candidate.result.board);
+        const previousDepth = seen.get(boardKey);
+        if (previousDepth !== undefined && previousDepth <= route.length) continue;
+        seen.set(boardKey, route.length);
+
+        nextFrontier.push({
+          board: candidate.result.board,
+          route,
+          responseCount: state.responseCount + candidate.responseCount,
+          score:
+            scoreLibertiesHintBoard(puzzle, candidate.result.board, route.length) +
+            scoreLibertiesHintCandidate(candidate),
+        });
+      }
+    }
+
+    if (nextFrontier.length === 0) return null;
+    nextFrontier.sort((a, b) => b.score - a.score || a.route.length - b.route.length);
+    frontier = nextFrontier.slice(0, beamWidth);
+  }
+
+  return null;
+}
+
+function getMoveFloorGenerationTimeBudgetMs(difficulty: LibertiesDifficulty): number {
+  return getGenerationMoveFloorBudgetMs(difficulty);
+}
+
+function routeSolvesLibertiesPuzzle(puzzle: LibertiesPuzzle, route: LibertiesPoint[]): boolean {
+  const replay = replayLibertiesMoves(puzzle, route);
+  return replay.illegalMoveIndex === null && isLibertiesSolved(puzzle, replay.board);
+}
+
+function getGeneratedLibertiesMinimumRoute(puzzle: LibertiesPuzzle): LibertiesPoint[] {
+  const cached = generatedMinimumRouteCache.get(puzzle.id);
+  if (cached) return cloneHintRoute(cached);
+
+  const route = findMoveOptimizedLibertiesRoute(
+    puzzle,
+    createLibertiesBoard(puzzle),
+    getSolutionRankMap(puzzle),
+    getMoveFloorGenerationTimeBudgetMs(puzzle.difficulty)
+  );
+
+  if (route && route.length > 0 && route.length <= puzzle.solution.length && routeSolvesLibertiesPuzzle(puzzle, route)) {
+    generatedMinimumRouteCache.set(puzzle.id, cloneHintRoute(route));
+    return cloneHintRoute(route);
+  }
+
+  generatedMinimumRouteCache.set(puzzle.id, cloneHintRoute(puzzle.solution));
+  return cloneHintRoute(puzzle.solution);
+}
+
+function getMinimumMoveFloorThreshold(puzzle: LibertiesPuzzle): number {
+  if (puzzle.difficulty === 'Hard') return puzzle.size >= 10 ? 18 : 13;
+  if (puzzle.difficulty === 'Standard') return 9;
+  return 6;
+}
+
+function getMaximumGeneratedToFloorGap(puzzle: LibertiesPuzzle): number {
+  if (puzzle.difficulty === 'Hard') return puzzle.size >= 10 ? 20 : 16;
+  if (puzzle.difficulty === 'Standard') return 16;
+  return 12;
+}
+
+function candidatePassesMoveFloorGate(puzzle: LibertiesPuzzle): boolean {
+  const minMoves = puzzle.minMoves ?? puzzle.targetMoves;
+  const generatedToFloorGap = Math.max(0, puzzle.targetMoves - minMoves);
+  return minMoves >= getMinimumMoveFloorThreshold(puzzle) && generatedToFloorGap <= getMaximumGeneratedToFloorGap(puzzle);
+}
+
+function withLibertiesMinimumRoute(puzzle: LibertiesPuzzle): LibertiesPuzzle {
+  const minSolution = getGeneratedLibertiesMinimumRoute(puzzle);
+  return {
+    ...puzzle,
+    minMoves: minSolution.length,
+    minSolution,
+  };
+}
+
+function withLibertiesMinimumRoutes(puzzles: LibertiesPuzzle[]): LibertiesPuzzle[] {
+  return puzzles.map(withLibertiesMinimumRoute);
+}
+
+function getInitialMoveOptimizedLibertiesRoute(puzzle: LibertiesPuzzle): LibertiesPoint[] | null {
+  const cached = lowestMoveRouteCache.get(puzzle.id);
+  if (cached) return cloneHintRoute(cached);
+
+  if (Array.isArray(puzzle.minSolution) && puzzle.minSolution.length > 0) {
+    const route = cloneHintRoute(puzzle.minSolution);
+    lowestMoveRouteCache.set(puzzle.id, cloneHintRoute(route));
+    lowestMoveCountCache.set(puzzle.id, route.length);
+    cacheLiveHintRoute(puzzle, createLibertiesBoard(puzzle), route);
+    return cloneHintRoute(route);
+  }
+
+  const board = createLibertiesBoard(puzzle);
+  const route = findMoveOptimizedLibertiesRoute(
+    puzzle,
+    board,
+    getSolutionRankMap(puzzle),
+    getMoveFloorTimeBudgetMs(puzzle.difficulty)
+  );
+
+  if (!route || route.length === 0) return route;
+
+  lowestMoveRouteCache.set(puzzle.id, cloneHintRoute(route));
+  lowestMoveCountCache.set(puzzle.id, route.length);
+  cacheLiveHintRoute(puzzle, board, route);
+  return cloneHintRoute(route);
+}
+
+function getPackedSolutionRouteFromBoard(
+  puzzle: LibertiesPuzzle,
+  board: LibertiesBoard
+): LibertiesPoint[] | null {
+  const targetBoardKey = serializeLibertiesBoard(board);
+  let cursor = createLibertiesBoard(puzzle);
+
+  for (let index = 0; index <= puzzle.solution.length; index += 1) {
+    if (serializeLibertiesBoard(cursor) === targetBoardKey) {
+      return puzzle.solution.slice(index);
+    }
+
+    const move = puzzle.solution[index];
+    if (!move) break;
+    const result = playLibertiesMove(cursor, puzzle.size, move, 'black', puzzle);
+    if (!result.legal) return null;
+    cursor = result.board;
+  }
+
+  return null;
+}
+
+export function getBestLibertiesHintMove(
+  puzzle: LibertiesPuzzle,
+  board: LibertiesBoard
+): LibertiesHintResult | null {
+  if (isLibertiesSolved(puzzle, board)) return null;
+
+  const initialBoardKey = serializeLibertiesBoard(createLibertiesBoard(puzzle));
+  const currentBoardKey = serializeLibertiesBoard(board);
+  if (currentBoardKey === initialBoardKey) {
+    const route = getInitialMoveOptimizedLibertiesRoute(puzzle);
+    if (route && route.length > 0) {
+      return liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board)) ?? {
+        point: route[0]!,
+        route,
+        movesToSolve: route.length,
+      };
+    }
+  }
+
+  const cached = liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board));
+  if (cached) return cached;
+
+  const solutionRanks = getSolutionRankMap(puzzle);
+  const optimizedRoute = findMoveOptimizedLibertiesRoute(puzzle, board, solutionRanks);
+  if (optimizedRoute && optimizedRoute.length > 0) {
+    cacheLiveHintRoute(puzzle, board, optimizedRoute);
+    return liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board)) ?? null;
+  }
+
+  const packedRoute = getPackedSolutionRouteFromBoard(puzzle, board);
+  if (packedRoute && packedRoute.length > 0) {
+    return {
+      point: packedRoute[0]!,
+      route: packedRoute,
+      movesToSolve: packedRoute.length,
+    };
+  }
+
+  const maxDepth = getSolutionSearchDepth(puzzle);
+  const targetResponses = puzzle.difficulty === 'Hard' ? 4 : puzzle.difficulty === 'Standard' ? 3 : 1;
+  const candidates = getLiveHintCandidates(
+    puzzle,
+    board,
+    targetResponses,
+    0,
+    solutionRanks,
+    LIVE_HINT_CANDIDATE_LIMIT
+  );
+  let best: LibertiesHintResult | undefined;
+  let bestCandidate: LiveHintCandidate | null = null;
+
+  candidates.forEach((candidate) => {
+    const rest = solveLibertiesGreedyFromBoard(
+      puzzle,
+      candidate.result.board,
+      solutionRanks,
+      maxDepth - 1
+    );
+    if (!rest) return;
+
+    const route = [candidate.point, ...rest];
+    const result: LibertiesHintResult = {
+      point: candidate.point,
+      route,
+      movesToSolve: route.length,
+    };
+
+    if (
+      !best ||
+      result.movesToSolve < best.movesToSolve ||
+      (result.movesToSolve === best.movesToSolve &&
+        (candidate.solutionRank < (bestCandidate?.solutionRank ?? MISSING_SOLUTION_RANK) ||
+          (candidate.solutionRank === (bestCandidate?.solutionRank ?? MISSING_SOLUTION_RANK) &&
+            candidate.score > (bestCandidate?.score ?? Number.NEGATIVE_INFINITY))))
+    ) {
+      best = result;
+      bestCandidate = candidate;
+    }
+  });
+
+  if (best !== undefined) {
+    cacheLiveHintRoute(puzzle, board, best.route);
+    return liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board)) ?? best;
+  }
+  const fallback = candidates[0];
+  if (!fallback) return null;
+
+  return {
+    point: fallback.point,
+    route: [fallback.point],
+    movesToSolve: 1,
+  };
+}
+
+export function getLowestLibertiesMoveCount(puzzle: LibertiesPuzzle): number {
+  if (typeof puzzle.minMoves === 'number' && (puzzle.minMoves > 0 || puzzle.solution.length === 0)) {
+    return puzzle.minMoves;
+  }
+
+  const cached = lowestMoveCountCache.get(puzzle.id);
+  if (cached !== undefined) return cached;
+
+  const route = getInitialMoveOptimizedLibertiesRoute(puzzle);
+  const moveCount = route?.length ?? puzzle.targetMoves;
+  lowestMoveCountCache.set(puzzle.id, moveCount);
+  return moveCount;
+}
+
 export function isLibertiesSolved(puzzle: LibertiesPuzzle, board: LibertiesBoard): boolean {
   return getLibertiesGroups(board, puzzle.size, 'white').length === 0;
 }
@@ -2446,7 +3573,133 @@ function getBlockedStretchPathCount(board: LibertiesBoard, size: number): number
   return blockedPathCount;
 }
 
+function getLegalLibertiesCandidateMoves(
+  puzzle: LibertiesPuzzle,
+  board: LibertiesBoard
+): Array<{
+  point: LibertiesPoint;
+  result: Extract<LibertiesMoveResult, { legal: true }>;
+  groupTouches: number;
+  whiteCountAfter: number;
+}> {
+  return Array.from(getLightOpenSideEntries(puzzle, board).values())
+    .map((entry) => {
+      const result = playLibertiesMove(board, puzzle.size, entry.point, 'black', puzzle);
+      if (!result.legal) return null;
+      return {
+        point: entry.point,
+        result,
+        groupTouches: entry.groupTouches,
+        whiteCountAfter: countLibertiesBoardCells(result.board, 'white'),
+      };
+    })
+    .filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null);
+}
+
+function solveLibertiesBySimplePolicy(
+  puzzle: LibertiesPuzzle,
+  policy: 'naive-fill' | 'greedy-clear'
+): number {
+  let board = createLibertiesBoard(puzzle);
+  const maxDepth = Math.max(getSolutionSearchDepth(puzzle), puzzle.solution.length + 12);
+  const seen = new Set<string>();
+
+  for (let depth = 0; depth < maxDepth; depth += 1) {
+    if (isLibertiesSolved(puzzle, board)) return depth;
+    const boardKey = serializeLibertiesBoard(board);
+    if (seen.has(boardKey)) return maxDepth + 1;
+    seen.add(boardKey);
+
+    const candidates = getLegalLibertiesCandidateMoves(puzzle, board);
+    if (candidates.length === 0) return maxDepth + 1;
+
+    if (policy === 'naive-fill') {
+      candidates.sort((a, b) => a.point.row - b.point.row || a.point.col - b.point.col);
+    } else {
+      candidates.sort(
+        (a, b) =>
+          b.result.captured.length - a.result.captured.length ||
+          b.groupTouches - a.groupTouches ||
+          a.whiteCountAfter - b.whiteCountAfter ||
+          a.result.responses.length - b.result.responses.length ||
+          a.point.row - b.point.row ||
+          a.point.col - b.point.col
+      );
+    }
+
+    board = candidates[0]!.result.board;
+  }
+
+  return maxDepth + 1;
+}
+
+function analyzeLibertiesRouteQuality(
+  puzzle: LibertiesPuzzle,
+  initialOpenSideKeys: Set<string>
+): {
+  decisionPointCount: number;
+  tempoClearCount: number;
+  stretchPressureCount: number;
+  sharedCrossingMoveCount: number;
+  whitePunishCount: number;
+  fillerMoves: number;
+} {
+  let board = createLibertiesBoard(puzzle);
+  let decisionPointCount = 0;
+  let tempoClearCount = 0;
+  let stretchPressureCount = 0;
+  let sharedCrossingMoveCount = 0;
+  let whitePunishCount = 0;
+  let fillerMoves = 0;
+
+  puzzle.solution.forEach((move) => {
+    const moveKey = pointKey(move);
+    const openSideEntries = getLightOpenSideEntries(puzzle, board);
+    const preMoveTouches = openSideEntries.get(moveKey)?.groupTouches ?? 0;
+    const candidates = getLegalLibertiesCandidateMoves(puzzle, board);
+    const moveCandidate = candidates.find((candidate) => samePoint(candidate.point, move));
+    if (candidates.length >= 3 && moveCandidate) {
+      const bestCapture = Math.max(...candidates.map((candidate) => candidate.result.captured.length));
+      const bestTouches = Math.max(...candidates.map((candidate) => candidate.groupTouches));
+      if (moveCandidate.result.captured.length < bestCapture || moveCandidate.groupTouches < bestTouches || candidates.length >= 4) {
+        decisionPointCount += 1;
+      }
+    }
+
+    const result = playLibertiesMove(board, puzzle.size, move, 'black', puzzle);
+    if (!result.legal) return;
+    if (result.captured.length > 0 && result.responses.length === 0) tempoClearCount += result.captured.length;
+    if (result.responses.length > 0) stretchPressureCount += result.responses.length;
+    if (preMoveTouches > 1) sharedCrossingMoveCount += 1;
+    if (result.capturedDark.length > 0) whitePunishCount += result.capturedDark.length;
+    if (result.captured.length === 0 && result.responses.length === 0 && preMoveTouches === 0) {
+      fillerMoves += 1;
+    }
+    board = result.board;
+  });
+
+  return {
+    decisionPointCount,
+    tempoClearCount,
+    stretchPressureCount,
+    sharedCrossingMoveCount,
+    whitePunishCount,
+    fillerMoves,
+  };
+}
+
 export function getLibertiesPuzzleAudit(puzzle: LibertiesPuzzle): LibertiesPuzzleAudit {
+  const auditCacheKey = [
+    puzzle.id,
+    puzzle.layout.join('/'),
+    puzzle.targetMoves,
+    puzzle.minMoves ?? '',
+    puzzle.solution.length,
+    puzzle.minSolution?.length ?? '',
+  ].join('::');
+  const cachedAudit = libertiesPuzzleAuditCache.get(auditCacheKey);
+  if (cachedAudit) return cachedAudit;
+
   const initialBoard = createLibertiesBoard(puzzle);
   const initialGroups = getRemainingLibertiesLights(puzzle, initialBoard);
   const openSideEntries = getInitialLightOpenSideEntries(puzzle);
@@ -2477,9 +3730,9 @@ export function getLibertiesPuzzleAudit(puzzle: LibertiesPuzzle): LibertiesPuzzl
   let responseEventCount = 0;
   let raceResponseCount = 0;
   let dynamicMoveCount = 0;
-  let fillerMoves = 0;
   const releasePointKeys = new Set(puzzle.releaseLinks.map((release) => pointKey(release.point)));
   const initialOpenSideKeys = new Set(openSideEntries.keys());
+  const routeQuality = analyzeLibertiesRouteQuality(puzzle, initialOpenSideKeys);
 
   puzzle.solution.forEach((move, moveIndex) => {
     const preMoveTouches = getLightOpenSideEntries(puzzle, board).get(pointKey(move))?.groupTouches ?? 0;
@@ -2504,9 +3757,6 @@ export function getLibertiesPuzzleAudit(puzzle: LibertiesPuzzle): LibertiesPuzzl
     if (!initialOpenSideKeys.has(pointKey(move))) {
       dynamicMoveCount += 1;
     }
-    if (result.captured.length === 0 && result.responses.length === 0 && preMoveTouches === 0) {
-      fillerMoves += 1;
-    }
     maxCaptureSize = Math.max(maxCaptureSize, result.captured.length);
     board = result.board;
   });
@@ -2518,9 +3768,30 @@ export function getLibertiesPuzzleAudit(puzzle: LibertiesPuzzle): LibertiesPuzzl
   const requiredReleaseMoveCount = puzzle.solution.filter((move) => releasePointKeys.has(pointKey(move))).length;
   const delayedMoveCount = openingIllegalSolutionMoves + dynamicMoveCount;
   const maxUnlockDepth = dynamicMoveCount > 0 ? Math.max(1, Math.min(4, responseEventCount)) : 0;
-  const fillerMoveRatio = puzzle.solution.length > 0 ? fillerMoves / puzzle.solution.length : 0;
+  const fillerMoveRatio = puzzle.solution.length > 0 ? routeQuality.fillerMoves / puzzle.solution.length : 0;
+  const optimalMoveCount = puzzle.optimalMoveCount ?? puzzle.minMoves ?? puzzle.minSolution?.length ?? puzzle.solution.length;
+  const estimatedNaivePenalty = Math.max(
+    0,
+    Math.min(
+      30,
+      Math.floor(routeQuality.decisionPointCount / 2) +
+        Math.floor(routeQuality.stretchPressureCount / 3) +
+        routeQuality.sharedCrossingMoveCount -
+        Math.floor(routeQuality.tempoClearCount / 2)
+    )
+  );
+  const naivePenalty = estimatedNaivePenalty;
+  const naiveFillMoveCount = optimalMoveCount + estimatedNaivePenalty;
+  const recoveryMargin = Math.max(0, Math.min(20, Math.floor(estimatedNaivePenalty / 2) + routeQuality.whitePunishCount));
+  const greedyClearMoveCount = optimalMoveCount + recoveryMargin;
+  const terrainUsefulnessScore =
+    blockerImpactScore +
+    blockedStretchPathCount * 2 +
+    blockerAdjacencyToLight +
+    routeQuality.stretchPressureCount * 2 +
+    routeQuality.sharedCrossingMoveCount * 3;
 
-  return {
+  const audit: LibertiesPuzzleAudit = {
     groupCount: initialGroups.length,
     initialOpenSideCount: openSideEntries.size,
     sharedOpenSideCount: Array.from(openSideEntries.values()).filter((entry) => entry.groupTouches > 1).length,
@@ -2549,9 +3820,23 @@ export function getLibertiesPuzzleAudit(puzzle: LibertiesPuzzle): LibertiesPuzzl
       responseEventCount +
       solutionCaptureMoves +
       Math.min(3, maxUnlockDepth),
+    optimalMoveCount,
+    naiveFillMoveCount,
+    greedyClearMoveCount,
+    naivePenalty,
+    decisionPointCount: routeQuality.decisionPointCount,
+    tempoClearCount: routeQuality.tempoClearCount,
+    stretchPressureCount: routeQuality.stretchPressureCount,
+    sharedCrossingMoveCount: routeQuality.sharedCrossingMoveCount,
+    whitePunishCount: routeQuality.whitePunishCount,
+    recoveryMargin,
+    terrainUsefulnessScore,
+    calendarNoveltyScore: puzzle.calendarNoveltyScore ?? 0,
     fillerMoveRatio,
     isPureOpeningFill: isSameOpenSideSet && responseEventCount === 0 && dynamicMoveCount === 0 && openingIllegalSolutionMoves === 0,
   };
+  libertiesPuzzleAuditCache.set(auditCacheKey, audit);
+  return audit;
 }
 
 export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzzles): LibertiesPackAudit {
@@ -2572,6 +3857,11 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
   let minTargetMoves = Number.POSITIVE_INFINITY;
   let maxTargetMoves = 0;
   let targetMoveTotal = 0;
+  let minMinimumMoves = Number.POSITIVE_INFINITY;
+  let maxMinimumMoves = 0;
+  let minimumMoveTotal = 0;
+  let targetToMinimumMoveGapTotal = 0;
+  let maxTargetToMinimumMoveGap = 0;
   let blockerCountTotal = 0;
   let blockerImpactTotal = 0;
   let minimumBlockerImpactScore = Number.POSITIVE_INFINITY;
@@ -2584,6 +3874,14 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
   let requiredReleaseMoveCount = 0;
   let delayedMoveCount = 0;
   let maxUnlockDepth = 0;
+  let optimalMoveCountTotal = 0;
+  let naivePenaltyTotal = 0;
+  let decisionPointCountTotal = 0;
+  let tempoClearCountTotal = 0;
+  let stretchPressureCountTotal = 0;
+  let sharedCrossingMoveCountTotal = 0;
+  let whitePunishCountTotal = 0;
+  let terrainUsefulnessScoreTotal = 0;
   let fillerMoveRatioTotal = 0;
 
   puzzles.forEach((puzzle) => {
@@ -2598,6 +3896,13 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
     minTargetMoves = Math.min(minTargetMoves, puzzle.targetMoves);
     maxTargetMoves = Math.max(maxTargetMoves, puzzle.targetMoves);
     targetMoveTotal += puzzle.targetMoves;
+    const minimumMoves = getLowestLibertiesMoveCount(puzzle);
+    const targetToMinimumMoveGap = Math.max(0, puzzle.targetMoves - minimumMoves);
+    minMinimumMoves = Math.min(minMinimumMoves, minimumMoves);
+    maxMinimumMoves = Math.max(maxMinimumMoves, minimumMoves);
+    minimumMoveTotal += minimumMoves;
+    targetToMinimumMoveGapTotal += targetToMinimumMoveGap;
+    maxTargetToMinimumMoveGap = Math.max(maxTargetToMinimumMoveGap, targetToMinimumMoveGap);
     blockerCountTotal += puzzleAudit.blockerCount;
     blockerImpactTotal += puzzleAudit.blockerImpactScore;
     minimumBlockerImpactScore = Math.min(minimumBlockerImpactScore, puzzleAudit.blockerImpactScore);
@@ -2609,6 +3914,14 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
     requiredReleaseMoveCount += puzzleAudit.requiredReleaseMoveCount;
     delayedMoveCount += puzzleAudit.delayedMoveCount;
     maxUnlockDepth = Math.max(maxUnlockDepth, puzzleAudit.maxUnlockDepth);
+    optimalMoveCountTotal += puzzleAudit.optimalMoveCount;
+    naivePenaltyTotal += puzzleAudit.naivePenalty;
+    decisionPointCountTotal += puzzleAudit.decisionPointCount;
+    tempoClearCountTotal += puzzleAudit.tempoClearCount;
+    stretchPressureCountTotal += puzzleAudit.stretchPressureCount;
+    sharedCrossingMoveCountTotal += puzzleAudit.sharedCrossingMoveCount;
+    whitePunishCountTotal += puzzleAudit.whitePunishCount;
+    terrainUsefulnessScoreTotal += puzzleAudit.terrainUsefulnessScore;
     fillerMoveRatioTotal += puzzleAudit.fillerMoveRatio;
     if (puzzleAudit.isPureOpeningFill) {
       pureOpeningFillCount += 1;
@@ -2623,6 +3936,9 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
     standardTargetSeconds.length === 0
       ? 0
       : standardTargetSeconds[Math.floor(standardTargetSeconds.length / 2)]!;
+  const allTargetSeconds = puzzles.map((puzzle) => puzzle.targetSeconds).sort((a, b) => a - b);
+  const medianTargetSeconds =
+    allTargetSeconds.length === 0 ? 0 : allTargetSeconds[Math.floor(allTargetSeconds.length / 2)]!;
 
   return {
     puzzleCount: puzzles.length,
@@ -2632,6 +3948,11 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
     minTargetMoves: Number.isFinite(minTargetMoves) ? minTargetMoves : 0,
     maxTargetMoves,
     averageTargetMoves: puzzles.length > 0 ? targetMoveTotal / puzzles.length : 0,
+    minMinimumMoves: Number.isFinite(minMinimumMoves) ? minMinimumMoves : 0,
+    maxMinimumMoves,
+    averageMinimumMoves: puzzles.length > 0 ? minimumMoveTotal / puzzles.length : 0,
+    averageTargetToMinimumMoveGap: puzzles.length > 0 ? targetToMinimumMoveGapTotal / puzzles.length : 0,
+    maxTargetToMinimumMoveGap,
     standardMedianTargetSeconds,
     averageBlockerCount: puzzles.length > 0 ? blockerCountTotal / puzzles.length : 0,
     minimumBlockerImpactScore: Number.isFinite(minimumBlockerImpactScore) ? minimumBlockerImpactScore : 0,
@@ -2645,22 +3966,41 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
     requiredReleaseMoveCount,
     delayedMoveCount,
     maxUnlockDepth,
+    averageOptimalMoveCount: puzzles.length > 0 ? optimalMoveCountTotal / puzzles.length : 0,
+    averageNaivePenalty: puzzles.length > 0 ? naivePenaltyTotal / puzzles.length : 0,
+    averageDecisionPointCount: puzzles.length > 0 ? decisionPointCountTotal / puzzles.length : 0,
+    averageTempoClearCount: puzzles.length > 0 ? tempoClearCountTotal / puzzles.length : 0,
+    averageStretchPressureCount: puzzles.length > 0 ? stretchPressureCountTotal / puzzles.length : 0,
+    averageSharedCrossingMoveCount: puzzles.length > 0 ? sharedCrossingMoveCountTotal / puzzles.length : 0,
+    averageWhitePunishCount: puzzles.length > 0 ? whitePunishCountTotal / puzzles.length : 0,
+    averageTerrainUsefulnessScore: puzzles.length > 0 ? terrainUsefulnessScoreTotal / puzzles.length : 0,
+    medianTargetSeconds,
     averageFillerMoveRatio: puzzles.length > 0 ? fillerMoveRatioTotal / puzzles.length : 0,
   };
 }
 
-export function getDailyLibertiesEntry(date: Date = new Date()): LibertiesDailyEntry {
+function getLibertiesPuzzlesForMode(mode: LibertiesPlayMode): {
+  profile: LibertiesPlayModeGenerationProfile;
+  publicPuzzles: LibertiesPuzzle[];
+} {
+  const profile = getLibertiesGenerationProfile(mode);
+  const publicPuzzles = mode === 'hard' ? libertiesPuzzlesHard : libertiesPuzzlesStandard;
+  return { profile, publicPuzzles };
+}
+
+export function getDailyLibertiesEntry(
+  date: Date = new Date(),
+  playerFacingMode: LibertiesPlayMode = 'standard'
+): LibertiesDailyEntry {
   const dateKey = getUtcDateKey(date);
-  const startOrdinal = dateKeyToUtcOrdinal(LIBERTIES_PACK_START_DATE);
-  const dayOffset = dateKeyToUtcOrdinal(dateKey) - startOrdinal;
-  const standardStartIndex = libertiesPuzzles.findIndex(
-    (puzzle) => puzzle.id === LIBERTIES_STANDARD_DAILY_PUZZLE_ID
-  );
-  const startIndex = standardStartIndex >= 0 ? standardStartIndex : 0;
-  const index = positiveModulo(startIndex + dayOffset, libertiesPuzzles.length);
+  const dayOffset = dateKeyToUtcOrdinal(dateKey) - LIBERTIES_PACK_START_ORDINAL;
+  const { profile, publicPuzzles } = getLibertiesPuzzlesForMode(playerFacingMode);
+  const startIndex = publicPuzzles.findIndex((puzzle) => puzzle.id === profile.dailyPuzzleId);
+  const baseIndex = positiveModulo((startIndex >= 0 ? startIndex : 0) + dayOffset, publicPuzzles.length);
+
   return {
     date: dateKey,
-    puzzle: libertiesPuzzles[index]!,
+    puzzle: publicPuzzles[baseIndex] ?? publicPuzzles[0]!,
   };
 }
 
