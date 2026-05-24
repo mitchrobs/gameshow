@@ -385,8 +385,7 @@ function recordPassportEntry(
 }
 
 function getMuseumLabel(artwork: MuseumArtwork): string {
-  if (artwork.source.institution === 'met') return 'The Met';
-  return 'Museum';
+  return artwork.source.collectionLabel || 'Museum';
 }
 
 function getResultHeadline(score: number): string {
@@ -457,7 +456,7 @@ function getPassportPreview(
 function getRevealHintText(contextUnlocked: boolean, elapsedSeconds: number): string {
   if (contextUnlocked) return 'View notes';
   const remaining = Math.max(0, REVEAL_CONTEXT_SECONDS - elapsedSeconds);
-  return remaining > 0 ? 'View notes' : 'View notes';
+  return remaining > 0 ? `Notes in ${remaining}s` : 'View notes';
 }
 
 function getQuestionKindLabel(question: MuseumQuestion): string {
@@ -467,7 +466,12 @@ function getQuestionKindLabel(question: MuseumQuestion): string {
 }
 
 function splitPeriodTag(periodTag: string): [string, string, string] {
-  const [movement = periodTag, place = '', date = ''] = periodTag.split(' - ');
+  const [first = periodTag, second = '', date = ''] = periodTag.split(' - ');
+  if (second) {
+    return [second, first, date];
+  }
+  const movement = first;
+  const place = '';
   return [movement, place, date];
 }
 
@@ -737,21 +741,38 @@ function MuseumArtworkStage({
   artwork,
   height,
   onInteraction,
+  onImageAvailabilityChange,
   styles,
 }: {
   artwork: MuseumArtwork;
   height: number;
   onInteraction: () => void;
+  onImageAvailabilityChange?: (available: boolean) => void;
   styles: MuseumStyles;
 }) {
   const { width } = useWindowDimensions();
   const aspectRatio = useArtworkAspectRatio(artwork.images.displayUrl, 1.25);
+  const imageSources = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          [
+            artwork.images.displayUrl,
+            artwork.images.fullUrl,
+            artwork.images.thumbnailUrl,
+          ].filter(Boolean)
+        )
+      ),
+    [artwork.images.displayUrl, artwork.images.fullUrl, artwork.images.thumbnailUrl]
+  );
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [showControls, setShowControls] = useState(false);
   const [displayLoaded, setDisplayLoaded] = useState(false);
   const [highResLoaded, setHighResLoaded] = useState(false);
   const [displayFailed, setDisplayFailed] = useState(false);
+  const [fullResFailed, setFullResFailed] = useState(false);
+  const [displaySourceIndex, setDisplaySourceIndex] = useState(0);
   const zoomRef = useRef(zoom);
   const panRef = useRef(pan);
   const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -830,7 +851,14 @@ function MuseumArtworkStage({
     setDisplayLoaded(false);
     setHighResLoaded(false);
     setDisplayFailed(false);
+    setFullResFailed(false);
+    setDisplaySourceIndex(0);
   }, [artwork.id]);
+
+  useEffect(() => {
+    setDisplayLoaded(false);
+    setDisplayFailed(false);
+  }, [displaySourceIndex]);
 
   useEffect(() => {
     Image.prefetch(artwork.images.displayUrl);
@@ -885,6 +913,30 @@ function MuseumArtworkStage({
     [markInteraction, updatePan, updateZoom]
   );
 
+  const activeDisplayUri = imageSources[Math.min(displaySourceIndex, imageSources.length - 1)] ?? artwork.images.displayUrl;
+  const retryImageLoad = useCallback(() => {
+    setDisplaySourceIndex(0);
+    setDisplayLoaded(false);
+    setHighResLoaded(false);
+    setDisplayFailed(false);
+    setFullResFailed(false);
+  }, []);
+  const handleDisplayLoad = useCallback(() => {
+    setDisplayLoaded(true);
+    setDisplayFailed(false);
+    onImageAvailabilityChange?.(true);
+  }, [onImageAvailabilityChange]);
+  const handleDisplayError = useCallback(() => {
+    setDisplayLoaded(false);
+    setHighResLoaded(false);
+    if (displaySourceIndex < imageSources.length - 1) {
+      setDisplaySourceIndex((index) => index + 1);
+      return;
+    }
+    setDisplayFailed(true);
+    onImageAvailabilityChange?.(false);
+  }, [displaySourceIndex, imageSources.length, onImageAvailabilityChange]);
+
   const preferredMaxWidth = aspectRatio > 1.3 ? Math.min(width - 32, 760) : Math.min(width - 32, 560);
   const maxHeight = height * 0.52;
   const cardPadding = aspectRatio > 1.3 ? 14 : 18;
@@ -925,21 +977,23 @@ function MuseumArtworkStage({
         <View style={styles.stageArtworkInset} {...panResponder.panHandlers}>
           {!displayFailed ? (
             <ArtworkLayer
-              uri={artwork.images.displayUrl}
+              key={activeDisplayUri}
+              uri={activeDisplayUri}
               styles={styles}
               transformStyle={transformStyle}
               opacity={displayLoaded && !(showFullRes && highResLoaded) ? 1 : 0.01}
-              onLoad={() => setDisplayLoaded(true)}
-              onError={() => setDisplayFailed(true)}
+              onLoad={handleDisplayLoad}
+              onError={handleDisplayError}
             />
           ) : null}
-          {showFullRes ? (
+          {showFullRes && !fullResFailed ? (
             <ArtworkLayer
               uri={artwork.images.fullUrl}
               styles={styles}
               transformStyle={transformStyle}
               opacity={highResLoaded ? 1 : 0.01}
               onLoad={() => setHighResLoaded(true)}
+              onError={() => setFullResFailed(true)}
             />
           ) : null}
         </View>
@@ -1013,8 +1067,25 @@ function MuseumArtworkStage({
 
       {hardFailure ? (
         <View style={styles.fallbackArtwork}>
+          <Text style={styles.fallbackLabel}>Image unavailable</Text>
           <Text style={styles.fallbackTitle}>{artwork.title}</Text>
-          <Text style={styles.loadingMeta}>{artwork.artist}</Text>
+          <Text style={styles.fallbackMeta}>
+            The museum image did not load. You can retry the image or open the source record.
+          </Text>
+          <View style={styles.fallbackActionRow}>
+            <Pressable
+              style={({ pressed }) => [styles.fallbackButton, pressed && styles.fallbackButtonPressed]}
+              onPress={retryImageLoad}
+            >
+              <Text style={styles.fallbackButtonText}>Retry image</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.fallbackButton, pressed && styles.fallbackButtonPressed]}
+              onPress={() => Linking.openURL(artwork.source.objectUrl)}
+            >
+              <Text style={styles.fallbackButtonText}>Source record</Text>
+            </Pressable>
+          </View>
         </View>
       ) : null}
     </View>
@@ -1057,6 +1128,7 @@ export default function MuseumScreen() {
   const [museumStreak, setMuseumStreak] = useState(0);
   const [passport, setPassport] = useState<MuseumPassport>(createEmptyPassport());
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [imageUnavailable, setImageUnavailable] = useState(false);
 
   const hasRecordedRef = useRef(false);
   const hasCountedRef = useRef(false);
@@ -1084,7 +1156,7 @@ export default function MuseumScreen() {
       [
         `Museum · ${dateLabel}`,
         `${artwork.title} — ${artwork.artist} (${artwork.objectDate})`,
-        `Today's visit: ${score}/3 · Day ${museumStreak}`,
+        `Today's visit: ${score}/3 · Streak: ${museumStreak} day${museumStreak === 1 ? '' : 's'}`,
         `${getMuseumLabel(artwork)} · ${movement}`,
       ].join('\n'),
     [
@@ -1130,6 +1202,7 @@ export default function MuseumScreen() {
   }, [palette.bg]);
 
   useEffect(() => {
+    setImageUnavailable(false);
     const storage = getStorage();
     if (!storage) return;
     setPassport(readPassport(storage));
@@ -1187,6 +1260,11 @@ export default function MuseumScreen() {
     },
     [currentQuestionIndex, selectedAnswers]
   );
+
+  const skipVisualQuestion = useCallback(() => {
+    if (currentQuestion.kind !== 'observation') return;
+    answerQuestion(currentQuestion.answerIndex);
+  }, [answerQuestion, currentQuestion]);
 
   const goToNextQuestion = useCallback(() => {
     if (currentQuestionIndex >= artwork.questions.length - 1) {
@@ -1248,6 +1326,7 @@ export default function MuseumScreen() {
               artwork={artwork}
               height={viewerHeight}
               onInteraction={() => {}}
+              onImageAvailabilityChange={(available) => setImageUnavailable(!available)}
               styles={styles}
             />
 
@@ -1455,6 +1534,24 @@ export default function MuseumScreen() {
               <Text style={styles.questionKind}>{getQuestionKindLabel(currentQuestion)}</Text>
               <Text style={styles.questionText}>{currentQuestion.prompt}</Text>
 
+              {imageUnavailable && currentQuestion.kind === 'observation' && selectedOption === null ? (
+                <View style={styles.imageUnavailableNotice}>
+                  <Text style={styles.imageUnavailableTitle}>Image did not load</Text>
+                  <Text style={styles.imageUnavailableText}>
+                    This visual question is optional today. You can skip it without losing credit.
+                  </Text>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.secondaryButton,
+                      pressed && styles.secondaryButtonPressed,
+                    ]}
+                    onPress={skipVisualQuestion}
+                  >
+                    <Text style={styles.secondaryButtonText}>Skip visual question</Text>
+                  </Pressable>
+                </View>
+              ) : null}
+
               <View style={styles.optionsList}>
                 {currentQuestion.options.map((option, index) => {
                   const showResult = selectedOption !== null;
@@ -1579,7 +1676,7 @@ export default function MuseumScreen() {
                   You have now seen {periodSeen} work{periodSeen === 1 ? '' : 's'} in{' '}
                   {passportSummary.currentLabel}
                   {passportSummary.currentAccuracy !== null
-                    ? ` and remembered ${passportSummary.currentAccuracy}% of the details here.`
+                    ? ` and answered ${passportSummary.currentAccuracy}% correctly here.`
                     : '.'}
                 </Text>
               </View>
@@ -1593,7 +1690,7 @@ export default function MuseumScreen() {
                   <View style={styles.passportBadge}>
                     <Text style={styles.passportBadgeText}>
                       {passportSummary.currentAccuracy !== null
-                        ? `${passportSummary.currentAccuracy}% remembered here`
+                        ? `${passportSummary.currentAccuracy}% correct here`
                         : 'First work here'}
                     </Text>
                   </View>
@@ -1603,7 +1700,7 @@ export default function MuseumScreen() {
                     ? `${passportSummary.currentLabel}: ${passportSummary.currentSeen} work${passportSummary.currentSeen === 1 ? '' : 's'} seen`
                     : `Today begins your ${passportSummary.currentLabel} collection`}
                   {passportSummary.currentAccuracy !== null
-                    ? ` · ${passportSummary.currentAccuracy}% remembered`
+                    ? ` · ${passportSummary.currentAccuracy}% correct`
                     : ''}
                 </Text>
 
@@ -1633,7 +1730,7 @@ export default function MuseumScreen() {
                         {item.label}
                       </Text>
                       <Text style={[styles.passportTileNote, item.active && styles.passportTileNoteActive]}>
-                        {item.accuracy !== null ? `${item.accuracy}% remembered` : 'First work'}
+                        {item.accuracy !== null ? `${item.accuracy}% correct` : 'First work'}
                       </Text>
                     </View>
                   ))}
@@ -1656,7 +1753,9 @@ export default function MuseumScreen() {
                     <Text style={styles.sharePreviewMeta}>
                       {artwork.artist} ({artwork.objectDate})
                     </Text>
-                    <Text style={styles.sharePreviewVisit}>Today's visit: {score}/3 · Day {museumStreak}</Text>
+                    <Text style={styles.sharePreviewVisit}>
+                      Today's visit: {score}/3 · Streak: {museumStreak} day{museumStreak === 1 ? '' : 's'}
+                    </Text>
                     <Text style={styles.sharePreviewQuote}>
                       {getMuseumLabel(artwork)} · {movement}
                     </Text>
@@ -1670,7 +1769,7 @@ export default function MuseumScreen() {
                   ]}
                   onPress={handleShare}
                 >
-                  <Text style={styles.primaryButtonText}>Copy share text</Text>
+                  <Text style={styles.primaryButtonText}>Share result</Text>
                 </Pressable>
                 {shareStatus ? <Text style={styles.shareStatus}>{shareStatus}</Text> : null}
               </View>
@@ -1894,8 +1993,36 @@ const createStyles = (COLORS: MuseumPalette) =>
   fallbackMeta: {
     color: COLORS.textDim,
     fontSize: 15,
+    lineHeight: 22,
     fontFamily: FONT_SANS,
     textAlign: 'center',
+    maxWidth: 360,
+  },
+  fallbackActionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    justifyContent: 'center',
+    marginTop: 18,
+  },
+  fallbackButton: {
+    minHeight: 42,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    backgroundColor: COLORS.panelSoft,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fallbackButtonPressed: {
+    backgroundColor: COLORS.controlPressed,
+  },
+  fallbackButtonText: {
+    color: COLORS.textDim,
+    fontSize: 13,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
   },
   zoomLauncherWrap: {
     position: 'absolute',
@@ -2444,6 +2571,28 @@ const createStyles = (COLORS: MuseumPalette) =>
     lineHeight: 36,
     fontFamily: FONT_SERIF,
     marginBottom: 22,
+  },
+  imageUnavailableNotice: {
+    backgroundColor: COLORS.panelSoft,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+    padding: 14,
+    gap: 10,
+    marginBottom: 16,
+  },
+  imageUnavailableTitle: {
+    color: COLORS.text,
+    fontSize: 15,
+    lineHeight: 20,
+    fontFamily: FONT_SANS,
+    fontWeight: '700',
+  },
+  imageUnavailableText: {
+    color: COLORS.textDim,
+    fontSize: 14,
+    lineHeight: 21,
+    fontFamily: FONT_SANS,
   },
   optionsList: {
     gap: 10,

@@ -2,6 +2,7 @@ import curatedData from './museum/curatedArtworks.json';
 import scheduleData from './museum/schedule.json';
 
 export type MuseumQuestionKind = 'observation' | 'context' | 'connection';
+export type MuseumInstitution = 'met' | 'aic' | 'rijks' | 'nga' | 'smithsonian' | 'ycba';
 
 export interface MuseumQuestion {
   kind: MuseumQuestionKind;
@@ -33,20 +34,70 @@ export interface MuseumArtwork {
     connection: string;
   };
   questions: MuseumQuestion[];
-  source: {
-    institution: 'met';
-    objectId: number;
-    objectUrl: string;
-    license: 'CC0';
-  };
+  source: MuseumArtworkSource;
   presentation?: {
     preferredFrameId?: string;
     allowSpecialShapes?: boolean;
   };
+  review: MuseumArtworkReview;
+}
+
+export interface MuseumArtworkSource {
+  institution: MuseumInstitution;
+  collectionLabel: string;
+  objectId: number | string;
+  objectUrl: string;
+  license: string;
+}
+
+export interface MuseumArtworkReview {
+  status: 'approved';
+  approvedAt: string;
+  factCheckSources: string[];
+  safetyFlags: string[];
+}
+
+export interface MuseumEditorialRecord {
+  id: string;
+  source: MuseumArtworkSource;
+  rawSource: {
+    title: string;
+    artist: string;
+    objectDate: string;
+    medium: string;
+    department: string;
+    culture: string;
+    period: string;
+    country: string;
+    place: string;
+    classification: string;
+    collection: string;
+    subjectTerms: string[];
+    images: MuseumArtwork['images'];
+  };
+  artwork: Omit<MuseumArtwork, 'source' | 'review'> | null;
+  workflow: {
+    status: 'sourced' | 'drafted' | 'fact-checked' | 'copy-edited' | 'approved';
+    copyScope: string[];
+    sourcedAt: string;
+    draftedAt?: string | null;
+    factCheckedAt?: string | null;
+    copyEditedAt?: string | null;
+    approvedAt?: string | null;
+    approvedBy?: string;
+    blockers: string[];
+  };
   review: {
-    status: 'reviewed';
+    status: 'sourced' | 'drafted' | 'fact-checked' | 'copy-edited' | 'approved';
+    approvedAt?: string | null;
     factCheckSources: string[];
     safetyFlags: string[];
+    notes?: string;
+  };
+  qa: {
+    structuralPass: boolean;
+    checklist: Record<string, boolean>;
+    blockers: string[];
   };
 }
 
@@ -122,6 +173,12 @@ function prepareArtwork(artwork: MuseumArtwork): MuseumArtwork {
 const ARTWORKS = CURATED.artworks.map(prepareArtwork);
 const ARTWORK_BY_ID = new Map(ARTWORKS.map((artwork) => [artwork.id, artwork]));
 const SCHEDULE_BY_DATE = new Map(SCHEDULE.entries.map((entry) => [entry.date, entry.artworkId]));
+const FIRST_SCHEDULED_ARTWORK = SCHEDULE.entries[0]
+  ? ARTWORK_BY_ID.get(SCHEDULE.entries[0].artworkId)
+  : undefined;
+const LAST_SCHEDULED_ARTWORK = SCHEDULE.entries.length
+  ? ARTWORK_BY_ID.get(SCHEDULE.entries[SCHEDULE.entries.length - 1].artworkId)
+  : undefined;
 
 function getLocalDayIndex(date: Date): number {
   return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS);
@@ -137,15 +194,39 @@ export function getMuseumArtworkById(id: string): MuseumArtwork | undefined {
   return ARTWORK_BY_ID.get(id);
 }
 
+export function isMuseumPackDateCovered(date: Date = new Date()): boolean {
+  const dateKey = getMuseumLocalDateKey(date);
+  return dateKey >= SCHEDULE.start && dateKey <= SCHEDULE.through;
+}
+
+export function getMuseumPackMetadata(): Pick<MuseumSchedulePayload, 'start' | 'through' | 'days'> {
+  return {
+    start: SCHEDULE.start,
+    through: SCHEDULE.through,
+    days: SCHEDULE.days,
+  };
+}
+
 export function getDailyMuseumArtwork(date: Date = new Date()): MuseumArtwork {
   if (ARTWORKS.length === 0) {
     throw new Error('Museum requires at least one curated artwork.');
   }
 
   const dateKey = getMuseumLocalDateKey(date);
-  const scheduledId = SCHEDULE_BY_DATE.get(dateKey);
-  const scheduledArtwork = scheduledId ? ARTWORK_BY_ID.get(scheduledId) : undefined;
-  if (scheduledArtwork) return scheduledArtwork;
+  if (isMuseumPackDateCovered(date)) {
+    const scheduledId = SCHEDULE_BY_DATE.get(dateKey);
+    if (!scheduledId) {
+      throw new Error(`Museum annual pack is missing an entry for ${dateKey}.`);
+    }
+    const scheduledArtwork = ARTWORK_BY_ID.get(scheduledId);
+    if (!scheduledArtwork) {
+      throw new Error(`Museum annual pack references unknown artwork ${scheduledId}.`);
+    }
+    return scheduledArtwork;
+  }
+
+  if (dateKey < SCHEDULE.start && FIRST_SCHEDULED_ARTWORK) return FIRST_SCHEDULED_ARTWORK;
+  if (dateKey > SCHEDULE.through && LAST_SCHEDULED_ARTWORK) return LAST_SCHEDULED_ARTWORK;
 
   return ARTWORKS[getLocalDayIndex(date) % ARTWORKS.length];
 }
