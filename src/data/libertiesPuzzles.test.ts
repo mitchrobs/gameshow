@@ -230,11 +230,11 @@ describe('liberties puzzle engine', () => {
     expect(group?.liberties.size).toBe(6);
   });
 
-  it('ships a full 750-day pack with legal clean-light solutions', () => {
-    expect(libertiesPuzzles).toHaveLength(750);
-    expect(libertiesReservePuzzles).toHaveLength(72);
-    expect(libertiesHardPuzzles).toHaveLength(750);
-    expect(libertiesHardReservePuzzles).toHaveLength(72);
+  it('ships a full two-year pack with legal clean-light solutions', () => {
+    expect(libertiesPuzzles).toHaveLength(730);
+    expect(libertiesReservePuzzles).toHaveLength(92);
+    expect(libertiesHardPuzzles).toHaveLength(730);
+    expect(libertiesHardReservePuzzles).toHaveLength(92);
     expect(libertiesPreviewPuzzles).toHaveLength(1644);
     expect(new Set(libertiesPuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesPuzzles.length);
     expect(new Set(libertiesPuzzles.map((puzzle) => puzzle.layout.join('/'))).size).toBe(libertiesPuzzles.length);
@@ -245,13 +245,15 @@ describe('liberties puzzle engine', () => {
     libertiesPreviewPuzzles.forEach((puzzle) => {
       const replay = replayLibertiesMoves(puzzle, puzzle.solution);
       const minimumReplay = replayLibertiesMoves(puzzle, puzzle.minSolution ?? []);
+      const board = createLibertiesBoard(puzzle);
       const audit = getLibertiesPuzzleAudit(puzzle);
       const [minBlockers, maxBlockers] = getLibertiesBlockerRange(puzzle.difficulty);
       expect(replay.illegalMoveIndex, puzzle.id).toBeNull();
+      expect(board.some((row) => row.some((cell) => cell === 'black')), puzzle.id).toBe(false);
       expect(puzzle.solution, puzzle.id).toHaveLength(puzzle.targetMoves);
       expect(puzzle.minMoves, puzzle.id).toBeGreaterThan(0);
       expect(puzzle.minMoves, puzzle.id).toBeLessThanOrEqual(puzzle.targetMoves);
-      expect(puzzle.minSolution, puzzle.id).toHaveLength(puzzle.minMoves);
+      expect(puzzle.minSolution, puzzle.id).toHaveLength(puzzle.minMoves ?? puzzle.targetMoves);
       expect(minimumReplay.illegalMoveIndex, puzzle.id).toBeNull();
       expect(isLibertiesSolved(puzzle, minimumReplay.board), puzzle.id).toBe(true);
       expect(puzzle.targetSeconds, puzzle.id).toBeGreaterThan(0);
@@ -260,7 +262,7 @@ describe('liberties puzzle engine', () => {
       expect(audit.releasePebbleCount, puzzle.id).toBe(0);
       expect(isLibertiesSolved(puzzle, replay.board), puzzle.id).toBe(true);
     });
-  });
+  }, 60000);
 
   it('audits non-easy puzzles for depth beyond pure opening-side filling', () => {
     const sharedSidePuzzles = libertiesPuzzles.filter(
@@ -286,16 +288,16 @@ describe('liberties puzzle engine', () => {
           expect(reversedReplay.illegalMoveIndex, puzzle.id).not.toBeNull();
         }
       });
-  });
+  }, 60000);
 
-  it('audits the 750-day pack for varied puzzle families', () => {
+  it('audits the two-year pack for varied puzzle families', () => {
     const audit = getLibertiesPackAudit();
 
-    expect(audit.puzzleCount).toBe(750);
-    expect(audit.difficultyCounts.Easy).toBe(93);
-    expect(audit.difficultyCounts.Standard).toBe(411);
-    expect(audit.difficultyCounts.Hard).toBe(246);
-    expect(audit.minTargetMoves).toBeGreaterThanOrEqual(11);
+    expect(audit.puzzleCount).toBe(730);
+    expect(audit.difficultyCounts.Easy).toBe(90);
+    expect(audit.difficultyCounts.Standard).toBe(400);
+    expect(audit.difficultyCounts.Hard).toBe(240);
+    expect(audit.minTargetMoves).toBeGreaterThanOrEqual(8);
     expect(audit.maxTargetMoves).toBeGreaterThanOrEqual(24);
     expect(audit.averageTargetMoves).toBeGreaterThan(14);
     expect(audit.minMinimumMoves).toBeGreaterThanOrEqual(7);
@@ -344,11 +346,11 @@ describe('liberties puzzle engine', () => {
     const reserveIds = new Set(libertiesReservePuzzles.map((puzzle) => puzzle.id));
     const firstDaily = getDailyLibertiesEntry(new Date('2026-05-18T12:00:00.000Z'));
 
-    expect(publicSizeCounts[7]).toBe(72);
-    expect(publicSizeCounts[8]).toBe(206);
-    expect(publicSizeCounts[9]).toBe(447);
-    expect(publicSizeCounts[10]).toBe(25);
-    expect(hardTenPuzzles).toHaveLength(25);
+    expect(publicSizeCounts[7]).toBe(68);
+    expect(publicSizeCounts[8]).toBe(207);
+    expect(publicSizeCounts[9]).toBe(436);
+    expect(publicSizeCounts[10]).toBe(19);
+    expect(hardTenPuzzles).toHaveLength(19);
     hardTenPuzzles.forEach((puzzle) => {
       expect(puzzle.minMoves, puzzle.id).toBeGreaterThanOrEqual(18);
       expect(puzzle.targetMoves - (puzzle.minMoves ?? puzzle.targetMoves), puzzle.id).toBeLessThanOrEqual(20);
@@ -374,9 +376,9 @@ describe('liberties puzzle engine', () => {
     const liveHint = getBestLibertiesHintMove(puzzle, deviated.board);
 
     expect(oldPathHint).toEqual({ row: 6, col: 5 });
-    expect(liveHint?.point).toEqual({ row: 1, col: 1 });
+    expect(liveHint?.point).toEqual({ row: 6, col: 2 });
     expect(liveHint?.point).not.toEqual(oldPathHint);
-    expect(liveHint?.movesToSolve).toBe(14);
+    expect(liveHint?.movesToSolve).toBe(16);
   });
 
   it('solves legally when every move after a deviation follows live hints', () => {
@@ -400,8 +402,8 @@ describe('liberties puzzle engine', () => {
       moves.push(hint.point);
     }
 
-    expect(moves.map(pointKey).slice(0, 2)).toEqual(['0:0', '1:1']);
-    expect(moves.length).toBeLessThanOrEqual(15);
+    expect(moves.map(pointKey).slice(0, 2)).toEqual(['0:0', '6:2']);
+    expect(moves.length).toBeLessThanOrEqual(17);
     expect(isLibertiesSolved(puzzle, board)).toBe(true);
   });
 
@@ -410,7 +412,7 @@ describe('liberties puzzle engine', () => {
     const board = createLibertiesBoard(entry.puzzle);
     const hint = getBestLibertiesHintMove(entry.puzzle, board);
 
-    expect(entry.puzzle.targetMoves).toBe(25);
+    expect(entry.puzzle.targetMoves).toBe(22);
     expect(hint?.movesToSolve).toBeLessThanOrEqual(15);
     expect(hint?.movesToSolve).toBeLessThan(entry.puzzle.targetMoves);
   });

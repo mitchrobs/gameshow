@@ -4,7 +4,7 @@ Baseline: HEAD:src/data/libertiesPack.generated.ts
 
 ## Method
 
-Automated player-facing checks are run for each puzzle by validating generated routes, minimum-route solvability, move-floor bounds, blocker bounds, response-pressure requirements, and release legality.
+Automated play checks are run for each puzzle by validating generated routes, minimum-route solvability, move-floor bounds, blocker bounds, response-pressure requirements, and release legality.
 
 ## Standard mode comparison
 

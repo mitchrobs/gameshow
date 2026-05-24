@@ -749,6 +749,7 @@ async function main(): Promise<void> {
 
     modeSummaries.push({
       modeLabel: modePair.modeLabel,
+      mode: modePair.mode,
       oldPublicSummary,
       oldReserveSummary,
       oldCombinedSummary,
@@ -819,7 +820,7 @@ async function main(): Promise<void> {
     '',
     '## Method',
     '',
-    'Automated player-facing checks are run for each puzzle by validating generated routes, minimum-route solvability, move-floor bounds, blocker bounds, response-pressure requirements, and release legality.',
+    'Automated play checks are run for each puzzle by validating generated routes, minimum-route solvability, move-floor bounds, blocker bounds, response-pressure requirements, and release legality.',
     '',
     ...reportSections,
     '## Dimension comparison',
