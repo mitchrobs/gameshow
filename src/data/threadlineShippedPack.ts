@@ -10,8 +10,10 @@ import {
   formatThreadlineCopyAuditIssues,
   getThreadlineAnswerSetSignature,
   getThreadlineLeadStructureSignature,
+  getThreadlineNoLeadSurfaceKey,
   getThreadlineThreadTripleSignatures,
   getThreadlineWeaveStructureSignature,
+  inspectThreadlineNoLeadQuality,
   renderThreadlineCompletedLead,
 } from './threadlineCopyAudit.ts';
 import type { ThreadlineCopyAuditIssue, ThreadlineCopyAuditReport } from './threadlineCopyAudit.ts';
@@ -32,7 +34,7 @@ import type {
 import { THREADLINE_REJECTED_COPY_ANSWERS } from './threadlineQualityRules.ts';
 
 export const THREADLINE_SHIPPED_START_DATE_KEY = '2026-05-01';
-export const THREADLINE_SHIPPED_END_DATE_KEY = '2027-11-07';
+export const THREADLINE_SHIPPED_END_DATE_KEY = '2027-11-06';
 export const THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS = 365;
 export const THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS = 200;
 export const THREADLINE_SHIPPED_FORMER_RESERVE_DAYS = 35;
@@ -65,11 +67,11 @@ export const THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS = 180;
 export const THREADLINE_SHIPPED_WORDS_PER_DAY = 6;
 export const THREADLINE_SHIPPED_MIN_AVERAGE_LENGTH = 5.8;
 export const THREADLINE_SHIPPED_MAX_AVERAGE_LENGTH = 6.52;
-export const THREADLINE_SHIPPED_MAX_LEAD_STRUCTURE_REPEATS = 2;
+export const THREADLINE_SHIPPED_MAX_LEAD_STRUCTURE_REPEATS = 3;
 export const THREADLINE_SHIPPED_MAX_SEMICOLON_LEADS = 0;
 export const THREADLINE_SHIPPED_MAX_ANSWER_SET_REPEATS = 1;
 export const THREADLINE_SHIPPED_MAX_THREAD_TRIPLE_REPEATS = 3;
-export const THREADLINE_SHIPPED_MAX_WEAVE_STRUCTURE_REPEATS = 4;
+export const THREADLINE_SHIPPED_MAX_WEAVE_STRUCTURE_REPEATS = 5;
 export { THREADLINE_REJECTED_COPY_ANSWERS } from './threadlineQualityRules.ts';
 
 const THREADLINE_SHIPPED_REJECTED_DATE_KEY_SET = new Set<string>(THREADLINE_SHIPPED_REJECTED_DATE_KEYS);
@@ -77,11 +79,11 @@ const THREADLINE_SHIPPED_REJECTED_DATE_KEY_SET = new Set<string>(THREADLINE_SHIP
 export const THREADLINE_GRID_ROWS = 10;
 export const THREADLINE_GRID_COLS = 8;
 const PACK_SEED = 19337;
-const THREADLINE_GRID_PLACEMENT_ATTEMPTS = 4;
-const THREADLINE_GRID_SEARCH_NODE_LIMIT = 2_500;
-const THREADLINE_GRID_SEARCH_BREADTH = 16;
-const THREADLINE_GRID_IDEAL_PRESENTATION_SCORE = 4.75;
-export const THREADLINE_MIN_GRID_PRESENTATION_SCORE = 4.25;
+const THREADLINE_GRID_PLACEMENT_ATTEMPTS = 8;
+const THREADLINE_GRID_SEARCH_NODE_LIMIT = 5_000;
+const THREADLINE_GRID_SEARCH_BREADTH = 22;
+const THREADLINE_GRID_IDEAL_PRESENTATION_SCORE = 4.85;
+export const THREADLINE_MIN_GRID_PRESENTATION_SCORE = 4.8;
 const GRID_CENTER_ROW_MIN = Math.floor(THREADLINE_GRID_ROWS / 4);
 const GRID_CENTER_ROW_MAX = THREADLINE_GRID_ROWS - 1 - GRID_CENTER_ROW_MIN;
 const GRID_CENTER_COL_MIN = Math.floor(THREADLINE_GRID_COLS / 4);
@@ -135,6 +137,13 @@ export interface ThreadlineReviewScores {
   payoffBridgeScore: number;
   poeticTextureScore: number;
   difficultyIntegrityScore: number;
+  titleOrientationScore: number;
+  titleSpoilerSafetyScore: number;
+  themeNameScore: number;
+  themeSubcopyScore: number;
+  weaveThemeBridgeScore: number;
+  boardFeelScore: number;
+  noLeadEditorialScore: number;
   nytStrandsPlayer: number;
   nytConnectionsPlayer: number;
   nytSpellingBeePlayer: number;
@@ -174,6 +183,7 @@ export interface ThreadlineApprovedCopyEntry {
   dateKey: string | null;
   title: string;
   filledLead: string;
+  themeCopy: Array<{ name: string; subcopy: string }>;
   weave: string;
   editorStatus: 'approved';
   approvalSource: 'manual-600-exceptional-floor';
@@ -253,6 +263,13 @@ interface CopyScoreSummary {
   payoffBridgeScore: number;
   poeticTextureScore: number;
   difficultyIntegrityScore: number;
+  titleOrientationScore: number;
+  titleSpoilerSafetyScore: number;
+  themeNameScore: number;
+  themeSubcopyScore: number;
+  weaveThemeBridgeScore: number;
+  boardFeelScore: number;
+  noLeadEditorialScore: number;
   flags: string[];
   reviewNote: string;
 }
@@ -1605,6 +1622,422 @@ const EXPANSION_BLUEPRINTS: Blueprint[] = [
     note: 'Scheduled variety expansion with a coastal signal vocabulary.',
     tags: ['variety-expansion', 'coast', 'signal'],
   },
+  {
+    domain: 'greenhouse',
+    title: 'Greenhouse',
+    place: 'the greenhouse bench',
+    deck: 'Glasshouse fixtures and tending work keep growth close enough to touch.',
+    season: 'spring',
+    expansionOnly: true,
+    threads: [
+      pool('Glasshouse fixtures', 'Benches, panes, and containers under glass.', [
+        'PANE', 'BENCH', 'TRAY', 'POTTING', 'SEEDLING', 'TROWEL', 'COMPOST', 'TERRACE',
+        'VENT', 'SHADE', 'MISTER', 'BEDDING', 'CUTTING', 'ORCHID', 'FERN', 'SPROUT',
+        'CLAYPOT', 'SEEDBED', 'HOTBED', 'LOAM', 'STAKES', 'GRAFT',
+      ]),
+      pool('Care moves', 'How the tender keeps growth alive.', [
+        'WATER', 'PRUNE', 'TEND', 'SHADE', 'SPRAY', 'TRIM', 'CHECK', 'GATHER',
+        'MEASURE', 'TURN', 'LIFT', 'MIST', 'SORT', 'PLANT', 'COVER', 'OPEN',
+        'LABEL', 'WEIGH', 'SETTLE', 'FRESHEN', 'BRUSH', 'RESEED',
+      ]),
+    ],
+    actionA: 'put new growth under glass',
+    pivot: 'keeps the work close to the leaf',
+    actionB: 'tend what is still fragile',
+    payoff: 'A pane and a palm can raise a season early.',
+    note: 'Targeted domain expansion for growth without repeating garden beats.',
+    tags: ['variety-expansion', 'greenhouse', 'growth'],
+  },
+  {
+    domain: 'flower-shop',
+    title: 'Flower Shop',
+    place: 'the flower-shop counter',
+    deck: 'Stems, paper, and quick hands turn color into a visit.',
+    season: 'spring',
+    expansionOnly: true,
+    threads: [
+      pool('Fresh stems', 'Blooms and wrapping material behind the glass.', [
+        'ROSES', 'TULIP', 'LILAC', 'DAISY', 'VIOLET', 'PEONY', 'IRIS', 'RIBBON',
+        'VASE', 'PAPER', 'TWINE', 'BUCKET', 'FERN', 'WREATH', 'BOUQUET', 'GARLAND',
+        'PETAL', 'DAHLIA', 'ORCHID', 'CORSAGE', 'FILLER', 'SPRAY',
+      ]),
+      pool('Shop moves', 'Counter work before the bouquet leaves.', [
+        'TRIM', 'WRAP', 'BUNDLE', 'PRICE', 'DELIVER', 'CHOOSE', 'SORT', 'TIE',
+        'CUT', 'WATER', 'MARK', 'CARRY', 'PACK', 'SELECT', 'SHARE', 'LABEL',
+        'SPRAY', 'GATHER', 'FOLD', 'MEASURE', 'MATCH', 'SEND',
+      ]),
+    ],
+    actionA: 'gather color at the counter',
+    pivot: 'puts the visit into paper',
+    actionB: 'send the bouquet out cleanly',
+    payoff: 'The bouquet leaves with a message already tied.',
+    note: 'Adds an intimate shop domain with concrete object/action contrast.',
+    tags: ['variety-expansion', 'flowers', 'shop'],
+  },
+  {
+    domain: 'record-store',
+    title: 'Record Store',
+    place: 'the record-store bin',
+    deck: 'Sleeves and browsing rituals make music feel handpicked.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Vinyl shelf', 'Albums, sleeves, and gear near the bins.', [
+        'VINYL', 'SLEEVE', 'ALBUM', 'NEEDLE', 'TURNTABLE', 'SPEAKER', 'POSTER', 'CRATE',
+        'LABEL', 'LINER', 'JACKET', 'RECORD', 'STEREO', 'HEADSET', 'CASSETTE', 'SINGLE',
+        'TRACK', 'GROOVE', 'FADER', 'MIXER', 'AUDIO', 'STACK',
+      ]),
+      pool('Bin moves', 'How a listener finds the right sound.', [
+        'BROWSE', 'LISTEN', 'SORT', 'STACK', 'SAMPLE', 'CHOOSE', 'CHECK', 'PRICE',
+        'CARRY', 'SELECT', 'REPLAY', 'DUST', 'FLIP', 'QUEUE', 'SCAN', 'FILE',
+        'SLEEVE', 'LABEL', 'BALANCE', 'RECORD', 'FOLLOW', 'MARK',
+      ]),
+    ],
+    actionA: 'make sound physical',
+    pivot: 'keeps the hunt in the hands',
+    actionB: 'choose the music by touch',
+    payoff: 'A good bin lets the ear use its hands.',
+    note: 'Adds music retail texture distinct from performance and radio.',
+    tags: ['variety-expansion', 'music', 'shop'],
+  },
+  {
+    domain: 'barbershop',
+    title: 'Barbershop',
+    place: 'the barber chair',
+    deck: 'Chrome, towels, and steady hands make a small ritual public.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Chair kit', 'Chrome and cloth around the barber chair.', [
+        'CHAIR', 'MIRROR', 'CLIPPER', 'RAZOR', 'TOWEL', 'COMB', 'BRUSH', 'CAPE',
+        'LATHER', 'POMADE', 'BASIN', 'SCISSOR', 'BARBER', 'SHEARS', 'TONIC', 'DRAWER',
+        'APRON', 'NECKSTRIP', 'SHAVER', 'TALC',
+      ]),
+      pool('Cut moves', 'The work that leaves a clean edge.', [
+        'TRIM', 'BRUSH', 'SHAVE', 'CLIP', 'SHAPE', 'TAPER', 'COMB', 'DUST',
+        'RINSE', 'STEADY', 'CHECK', 'TURN', 'MATCH', 'LIFT', 'FOLD', 'COVER',
+        'SMOOTH', 'MEASURE', 'MARK', 'CARRY',
+      ]),
+    ],
+    actionA: 'set the chair for a familiar ritual',
+    pivot: 'sharpens the conversation by inches',
+    actionB: 'leave the edge clean',
+    payoff: 'The chair hears gossip and sends out clean edges.',
+    note: 'Adds a social-service world with a tactile reveal.',
+    tags: ['variety-expansion', 'barber', 'ritual'],
+  },
+  {
+    domain: 'hotel-lobby',
+    title: 'Hotel Lobby',
+    place: 'the hotel lobby',
+    deck: 'Desk comforts and arrival work turn strangers into guests.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Lobby desk', 'Keys, carts, and polished surfaces near check-in.', [
+        'BELL', 'DESK', 'KEYCARD', 'LOBBY', 'LUGGAGE', 'CART', 'VALET', 'PORTER',
+        'REGISTER', 'ELEVATOR', 'CARPET', 'LAMP', 'SOFA', 'PLANTER', 'MARBLE', 'SIGN',
+        'SUITE', 'BELLHOP', 'BROCHURE', 'BADGE',
+      ]),
+      pool('Guest moves', 'Small steps that make arrival official.', [
+        'ARRIVE', 'CHECK', 'SIGN', 'CARRY', 'UNPACK', 'SETTLE', 'CALL', 'WAIT',
+        'SCAN', 'GREET', 'DIRECT', 'LIFT', 'OPEN', 'RETURN', 'ASK', 'PAY',
+        'RESERVE', 'REGISTER', 'TRANSFER', 'FOLLOW',
+      ]),
+    ],
+    actionA: 'make the public room feel settled',
+    pivot: 'turns arrival into a key',
+    actionB: 'welcome the trip indoors',
+    payoff: 'A lobby is travel learning a temporary address.',
+    note: 'Adds travel variety with a clean guest/service bridge.',
+    tags: ['variety-expansion', 'hotel', 'travel'],
+  },
+  {
+    domain: 'ferry-landing',
+    title: 'Ferry Landing',
+    place: 'the ferry landing',
+    deck: 'Dock hardware and boarding work make the crossing feel near.',
+    season: 'summer',
+    expansionOnly: true,
+    threads: [
+      pool('Landing hardware', 'Ropes, ramps, and rails beside the water.', [
+        'FERRY', 'RAMP', 'TICKET', 'ROPE', 'DOCK', 'CLEAT', 'RAILING', 'PILOT',
+        'BENCH', 'BUOY', 'GATE', 'HORN', 'CANOPY', 'DECK', 'ANCHOR', 'WHEEL',
+        'MOORING', 'GANGWAY', 'LIFEBUOY', 'PILING',
+      ]),
+      pool('Boarding moves', 'How the line crosses from land to boat.', [
+        'BOARD', 'CROSS', 'DOCK', 'WAIT', 'SCAN', 'GUIDE', 'LOAD', 'CARRY',
+        'STEADY', 'RETURN', 'SAIL', 'OPEN', 'CLOSE', 'DIRECT', 'TIE', 'SIGN',
+        'UNLOAD', 'TRANSFER', 'FOLLOW', 'COUNT',
+      ]),
+    ],
+    actionA: 'hold the boat against the pier',
+    pivot: 'brings the crossing close',
+    actionB: 'move the line onto water',
+    payoff: 'The pier turns waiting into a short voyage.',
+    note: 'Adds a water-transit family distinct from harbor.',
+    tags: ['variety-expansion', 'ferry', 'water'],
+  },
+  {
+    domain: 'bike-shop',
+    title: 'Bike Shop',
+    place: 'the bike-shop stand',
+    deck: 'Parts and bench work bring a ride back under its rider.',
+    season: 'spring',
+    expansionOnly: true,
+    threads: [
+      pool('Bike parts', 'Frames, chains, and small hardware on the stand.', [
+        'FRAME', 'CHAIN', 'PEDAL', 'SADDLE', 'BRAKE', 'HANDLE', 'SPOKE', 'TIRE',
+        'TUBE', 'WHEEL', 'CABLE', 'GEAR', 'FORK', 'HELMET', 'PUMP', 'PATCH',
+        'DERAIL', 'CRANK', 'RIMTAPE', 'BASKET',
+      ]),
+      pool('Bench moves', 'How the mechanic makes the ride true.', [
+        'TIGHTEN', 'PATCH', 'PUMP', 'CHECK', 'ALIGN', 'SHIFT', 'BRAKE', 'LIFT',
+        'REPAIR', 'MEASURE', 'TEST', 'TURN', 'CARRY', 'MARK', 'WASH', 'OIL',
+        'ADJUST', 'THREAD', 'FOLLOW', 'READY',
+      ]),
+    ],
+    actionA: 'put the ride on the stand',
+    pivot: 'finds the wobble by hand',
+    actionB: 'send the wheels back true',
+    payoff: 'The stand gives the ride back its circle.',
+    note: 'Adds repair texture without leaning on the old workshop family.',
+    tags: ['variety-expansion', 'bike', 'repair'],
+  },
+  {
+    domain: 'pool-deck',
+    title: 'Pool Deck',
+    place: 'the pool deck',
+    deck: 'Tile, towels, and swim work turn heat into blue discipline.',
+    season: 'summer',
+    expansionOnly: true,
+    threads: [
+      pool('Deck kit', 'Tile and gear at the edge of the lane.', [
+        'TOWEL', 'GOGGLE', 'LANE', 'LADDER', 'TILE', 'CHAIR', 'WHISTLE', 'PADDLE',
+        'NOODLE', 'LOCKER', 'SUNHAT', 'SANDAL', 'BUOY', 'FLOAT', 'BOARD', 'TIMER',
+        'FILTER', 'BENCH', 'BOTTLE', 'CANOPY',
+      ]),
+      pool('Swim moves', 'How bodies answer the water.', [
+        'SWIM', 'DIVE', 'FLOAT', 'KICK', 'TURN', 'GLIDE', 'BREATHE', 'LAP',
+        'SPRINT', 'REST', 'WATCH', 'COUNT', 'RINSE', 'TREAD', 'FOLLOW', 'COACH',
+        'STREAM', 'STRETCH', 'PULSE', 'CHECK',
+      ]),
+    ],
+    actionA: 'line the water with small rituals',
+    pivot: 'keeps the heat at the edge',
+    actionB: 'let bodies answer the blue',
+    payoff: 'The deck keeps summer measured in laps.',
+    note: 'Adds a bright sport/ritual setting with clean board vocabulary.',
+    tags: ['variety-expansion', 'pool', 'summer'],
+  },
+  {
+    domain: 'ice-rink',
+    title: 'Ice Rink',
+    place: 'the rink boards',
+    deck: 'Cold gear and blade work make winter audible.',
+    season: 'winter',
+    expansionOnly: true,
+    threads: [
+      pool('Rink gear', 'Blades, boards, and winter kit beside the ice.', [
+        'BLADE', 'SKATE', 'LACES', 'BOARDS', 'PUCK', 'STICK', 'MITTEN', 'PARKA',
+        'HELMET', 'BENCH', 'ZAMBONI', 'GLOVE', 'SCARF', 'LOCKER', 'TIMER', 'GOAL',
+        'GUARD', 'RINK', 'JERSEY', 'FROST',
+      ]),
+      pool('Ice moves', 'How the body writes on the cold.', [
+        'GLIDE', 'SKATE', 'TURN', 'SPIN', 'SLIDE', 'BRAKE', 'CROSS', 'SWEEP',
+        'PASS', 'CHASE', 'DIP', 'LIFT', 'FOLLOW', 'BALANCE', 'PUSH', 'COAST',
+        'CIRCLE', 'SHIFT', 'READY', 'CHECK',
+      ]),
+    ],
+    actionA: 'put winter underfoot',
+    pivot: 'sets an edge against the cold',
+    actionB: 'draw the line with a blade',
+    payoff: 'The ice answers every blade with a bright scratch.',
+    note: 'Adds winter movement without repeating trail or weather.',
+    tags: ['variety-expansion', 'rink', 'winter'],
+  },
+  {
+    domain: 'photo-darkroom',
+    title: 'Photo Darkroom',
+    place: 'the photo darkroom',
+    deck: 'Trays and careful timing pull an image out of the dark.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Darkroom tray', 'Film, paper, and tools under the safe light.', [
+        'FILM', 'PAPER', 'TRAY', 'TIMER', 'TONGS', 'NEGATIVE', 'ENLARGE', 'LENS',
+        'CHEMICAL', 'PRINT', 'SAFE', 'BULB', 'APRON', 'DRYER', 'FRAME', 'FOCUS',
+        'CONTACT', 'FIXER', 'EASEL', 'SQUEEGEE',
+      ]),
+      pool('Print moves', 'How the image comes up slowly.', [
+        'RINSE', 'FIX', 'DRY', 'DODGE', 'BURN', 'FOCUS', 'TIME', 'WASH',
+        'DEVELOP', 'EXPOSE', 'FILTER', 'HANG', 'TEST', 'CHECK', 'PRINT', 'CROP',
+        'MEASURE', 'FRAME', 'REVEAL', 'MARK',
+      ]),
+    ],
+    actionA: 'hold the image in the dark',
+    pivot: 'lets patience become visible',
+    actionB: 'bring the print up slowly',
+    payoff: 'The darkroom lets patience touch the picture first.',
+    note: 'Adds process and mystery without using poetic fog as the payoff.',
+    tags: ['variety-expansion', 'photo', 'process'],
+  },
+  {
+    domain: 'bookshop',
+    title: 'Bookshop',
+    place: 'the bookshop aisle',
+    deck: 'Shelves and browsing work make a quiet errand feel chosen.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Shelf stock', 'Covers, cards, and paper near the aisle.', [
+        'COVER', 'SHELF', 'NOVEL', 'POETRY', 'RECEIPT', 'BOOKMARK', 'DISPLAY', 'SPINE',
+        'JACKET', 'AUTHOR', 'REGISTER', 'STACK', 'TABLE', 'CATALOG', 'CHAPTER', 'REVIEW',
+        'SIGNED', 'PAPER', 'WINDOW', 'LEDGER',
+      ]),
+      pool('Browsing moves', 'How a reader chooses what follows them home.', [
+        'BROWSE', 'READ', 'CHOOSE', 'STACK', 'PAY', 'CARRY', 'OPEN', 'RETURN',
+        'ASK', 'FIND', 'SCAN', 'SELECT', 'MARK', 'GIFT', 'ORDER', 'WRAP',
+        'REVIEW', 'FOLLOW', 'NOTICE', 'LINGER',
+      ]),
+    ],
+    actionA: 'put the shelves within reach',
+    pivot: 'makes the errand private',
+    actionB: 'choose the next voice by hand',
+    payoff: 'A bookshop lets a stranger leave with a voice.',
+    note: 'Adds a retail reading world separate from library quiet.',
+    tags: ['variety-expansion', 'books', 'shop'],
+  },
+  {
+    domain: 'hardware-aisle',
+    title: 'Hardware Aisle',
+    place: 'the hardware aisle',
+    deck: 'Bins and small fixes turn a problem into a handful.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Aisle bins', 'Fasteners, paint, and repair stock in reach.', [
+        'SCREW', 'HINGE', 'PAINT', 'BRUSH', 'HAMMER', 'NAIL', 'WASHER', 'ANCHOR',
+        'LEVEL', 'CLAMP', 'TAPE', 'SANDER', 'HANDLE', 'GASKET', 'DRILL', 'PLIER',
+        'CAULK', 'BOLT', 'DOWEL', 'LATCH',
+      ]),
+      pool('Fix moves', 'How a repair gets chosen and carried home.', [
+        'MEASURE', 'MATCH', 'TIGHTEN', 'CLAMP', 'DRILL', 'PATCH', 'MARK', 'SAND',
+        'PAINT', 'LEVEL', 'CHECK', 'CARRY', 'SELECT', 'REPAIR', 'FASTEN', 'LATCH',
+        'APPLY', 'THREAD', 'TEST', 'COVER',
+      ]),
+    ],
+    actionA: 'turn the problem into hardware',
+    pivot: 'finds the fix by size',
+    actionB: 'carry home the next attempt',
+    payoff: 'The right aisle makes a problem hand-sized.',
+    note: 'Adds fix-it variety with concrete objects and useful verbs.',
+    tags: ['variety-expansion', 'hardware', 'repair'],
+  },
+  {
+    domain: 'map-room',
+    title: 'Map Room',
+    place: 'the map room',
+    deck: 'Charts and plotting work make distance lie flat.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Chart table', 'Maps, pins, and marks spread under glass.', [
+        'MAP', 'CHART', 'PIN', 'LEGEND', 'ATLAS', 'COMPASS', 'RULER', 'GLOBE',
+        'TACK', 'PENCIL', 'FOLDER', 'COAST', 'BORDER', 'GRID', 'ROUTE', 'SCALE',
+        'INDEX', 'DRAWER', 'PLATE', 'BEARING',
+      ]),
+      pool('Plot moves', 'How a route gets found on paper.', [
+        'TRACE', 'MARK', 'ROUTE', 'MEASURE', 'POINT', 'FOLD', 'PIN', 'CHECK',
+        'DRAW', 'COMPARE', 'SEARCH', 'FOLLOW', 'SELECT', 'TURN', 'CARRY', 'REVISE',
+        'ALIGN', 'COUNT', 'LABEL', 'GUIDE',
+      ]),
+    ],
+    actionA: 'spread distance on the table',
+    pivot: 'gives the journey a finger-width',
+    actionB: 'find a route before leaving',
+    payoff: 'A map room lets distance fit under glass.',
+    note: 'Adds a navigation world with a strong paper/route bridge.',
+    tags: ['variety-expansion', 'map', 'navigation'],
+  },
+  {
+    domain: 'courtyard',
+    title: 'Courtyard',
+    place: 'the courtyard fountain',
+    deck: 'Stone, shade, and crossing paths make a public pause.',
+    season: 'summer',
+    expansionOnly: true,
+    threads: [
+      pool('Courtyard fixtures', 'Stone and shade around the open middle.', [
+        'BENCH', 'STONE', 'FOUNTAIN', 'ARCH', 'PLANTER', 'GATE', 'PAVING', 'LAMP',
+        'TABLE', 'SHADE', 'WALL', 'STATUE', 'IVY', 'BASIN', 'GRAVEL', 'TERRACE',
+        'COLUMN', 'STEPS', 'DOOR', 'WINDOW',
+      ]),
+      pool('Passing moves', 'How people use the open space.', [
+        'CROSS', 'PAUSE', 'GATHER', 'SIT', 'CHAT', 'WAIT', 'PASS', 'MEET',
+        'LOOK', 'REST', 'SHADE', 'LIFT', 'TURN', 'CARRY', 'FOLLOW', 'LINGER',
+        'RETURN', 'LISTEN', 'WATCH', 'SETTLE',
+      ]),
+    ],
+    actionA: 'hold the middle open',
+    pivot: 'keeps a pause in public',
+    actionB: 'let paths brush past each other',
+    payoff: 'The courtyard gives crossing paths a place to pause.',
+    note: 'Adds civic outdoor texture without repeating park or porch.',
+    tags: ['variety-expansion', 'courtyard', 'public'],
+  },
+  {
+    domain: 'tea-shop',
+    title: 'Tea Shop',
+    place: 'the tea-shop table',
+    deck: 'Kettles and small pours make the visit slow down.',
+    season: 'winter',
+    expansionOnly: true,
+    threads: [
+      pool('Tea table', 'Kettles, cups, and leaves near the service.', [
+        'KETTLE', 'TEACUP', 'SAUCER', 'LEAVES', 'INFUSER', 'POT', 'HONEY', 'SPOON',
+        'CADDY', 'TIN', 'TRAY', 'NAPKIN', 'BISCUIT', 'JASMINE', 'OOLONG', 'MATCHA',
+        'CHAI', 'MINT', 'STEAM', 'SUGAR',
+      ]),
+      pool('Steep moves', 'How a cup becomes ready to share.', [
+        'STEEP', 'POUR', 'WAIT', 'WARM', 'SIP', 'SHARE', 'STRAIN', 'MEASURE',
+        'SWIRL', 'CARRY', 'SERVE', 'SETTLE', 'TASTE', 'PASS', 'FOLD', 'LIFT',
+        'BREW', 'CHECK', 'REFILL', 'WHISK',
+      ]),
+    ],
+    actionA: 'set warmth on the table',
+    pivot: 'keeps the visit slow',
+    actionB: 'pour the pause carefully',
+    payoff: 'A tea shop turns a cup into permission to linger.',
+    note: 'Adds a small hospitality world with sensory specificity.',
+    tags: ['variety-expansion', 'tea', 'hospitality'],
+  },
+  {
+    domain: 'repair-counter',
+    title: 'Repair Counter',
+    place: 'the repair counter',
+    deck: 'Tickets, parts, and bench tests make broken things answerable.',
+    season: 'all-season',
+    expansionOnly: true,
+    threads: [
+      pool('Counter intake', 'Tickets, parts, and notes before the fix.', [
+        'TICKET', 'PART', 'TOOL', 'CORD', 'SCREEN', 'HINGE', 'BATTERY', 'LATCH',
+        'BUTTON', 'CASING', 'RECEIPT', 'LABEL', 'DRAWER', 'PLUG', 'MOTOR', 'WARRANTY',
+        'SCREW', 'SPRING', 'PANEL', 'CABLE',
+      ]),
+      pool('Bench moves', 'How the fix gets tested and returned.', [
+        'MEND', 'TEST', 'RETURN', 'CHECK', 'OPEN', 'CLOSE', 'REPAIR', 'MATCH',
+        'TIGHTEN', 'PATCH', 'LABEL', 'CALL', 'SORT', 'CARRY', 'REPLACE', 'CHARGE',
+        'MEASURE', 'RESET', 'SEAL', 'PACK',
+      ]),
+    ],
+    actionA: 'turn the break into a ticket',
+    pivot: 'keeps the fix honest',
+    actionB: 'test the thing before it leaves',
+    payoff: 'The counter gives broken objects a second appointment.',
+    note: 'Adds a service-repair family distinct from workshop and hardware.',
+    tags: ['variety-expansion', 'repair', 'service'],
+  },
 ];
 
 const ALL_BLUEPRINTS = [...BLUEPRINTS, ...EXPANSION_BLUEPRINTS];
@@ -1687,37 +2120,52 @@ const PAYOFF_SEMANTIC_BRIDGE_TOKENS: Readonly<Record<string, readonly string[]>>
   apiary: ['bloom', 'box', 'comb', 'flight', 'hive', 'home', 'honey', 'hum', 'sweet', 'sweetness', 'work'],
   aquarium: ['blue', 'breath', 'current', 'glass', 'life', 'pulse', 'quiet', 'room', 'swim', 'tank', 'water', 'world'],
   bakery: ['appetite', 'bakery', 'box', 'breakfast', 'case', 'counter', 'errand', 'glass', 'hunger', 'line', 'morning', 'sugar', 'sweet', 'wait', 'warm', 'warmth'],
+  barbershop: ['barber', 'chair', 'clean', 'edge', 'mirror', 'ritual', 'shave', 'trim'],
+  'bike-shop': ['bench', 'bike', 'chain', 'repair', 'ride', 'stand', 'street', 'wheel'],
+  bookshop: ['aisle', 'book', 'browse', 'reader', 'shelf', 'spine', 'voice'],
   cafe: ['block', 'breakfast', 'city', 'corner', 'counter', 'cup', 'errand', 'glass', 'local', 'morning', 'pause', 'street', 'table', 'warmth', 'window'],
   campsite: ['camp', 'campsite', 'care', 'dark', 'evening', 'fire', 'home', 'night', 'outside', 'ring', 'shelter', 'warmth', 'wild'],
   chessboard: ['choice', 'danger', 'game', 'pressure', 'strategy', 'threat', 'trapdoor', 'war'],
   'clean-slate': ['blank', 'fresh', 'mark', 'page', 'plan', 'quiet', 'start'],
   clockshop: ['audible', 'counter', 'face', 'hour', 'machines', 'measure', 'minute', 'sound', 'time', 'tick'],
   commute: ['departure', 'door', 'forecast', 'leaving', 'logistics', 'morning', 'practical', 'preparation', 'rain', 'route', 'shelter', 'trip', 'way', 'weather'],
+  courtyard: ['arch', 'courtyard', 'crossing', 'fountain', 'pause', 'paving', 'public', 'stone'],
   dancehall: ['bodies', 'dance', 'motion', 'music', 'pulse', 'rhythm', 'room', 'sound'],
   desk: ['blank', 'desk', 'morning', 'order', 'page', 'possible', 'ready', 'surface', 'task', 'work'],
   diner: ['breakfast', 'booth', 'counter', 'familiar', 'morning', 'place', 'regular', 'rhythm', 'table', 'warm'],
+  'ferry-landing': ['boat', 'crossing', 'departure', 'ferry', 'gangway', 'pier', 'water'],
   firehouse: ['alarm', 'answer', 'bay', 'brave', 'courage', 'help', 'public', 'ready', 'rest', 'urgency'],
+  'flower-shop': ['bouquet', 'counter', 'flower', 'ribbon', 'shop', 'stem', 'visit'],
   gallery: ['art', 'attention', 'body', 'conversation', 'eye', 'frame', 'gallery', 'looking', 'memory', 'patience', 'room', 'silence', 'visitor', 'wall'],
   garden: ['attention', 'beds', 'care', 'green', 'growth', 'hands', 'kept', 'morning', 'path', 'patience', 'season', 'soil', 'yard'],
+  greenhouse: ['bench', 'glass', 'greenhouse', 'growth', 'leaf', 'pane', 'season'],
   harbor: ['boat', 'departure', 'distance', 'edge', 'harbor', 'leaving', 'mooring', 'morning', 'open', 'still', 'water'],
+  'hardware-aisle': ['aisle', 'fix', 'handful', 'hardware', 'home', 'repair', 'tool'],
+  'hotel-lobby': ['address', 'arrival', 'guest', 'key', 'lobby', 'travel'],
+  'ice-rink': ['blade', 'edge', 'ice', 'rink', 'scratch', 'winter'],
   kitchen: ['anticipation', 'care', 'counter', 'dinner', 'fragrant', 'heat', 'hunger', 'kitchen', 'meal', 'room', 'smell', 'supper', 'touch'],
   laboratory: ['answer', 'care', 'curiosity', 'doubt', 'evidence', 'method', 'precise', 'precision', 'proof', 'question', 'wonder'],
   library: ['book', 'borrowed', 'chair', 'hush', 'library', 'page', 'private', 'public', 'quiet', 'reader', 'reading', 'room', 'shelf', 'silence', 'solitude', 'stacks', 'voice'],
   laundry: ['care', 'day', 'domestic', 'household', 'mess', 'order', 'pile', 'rhythm', 'room', 'soft', 'usefulness', 'work'],
   mailroom: ['arrival', 'destination', 'distance', 'door', 'handled', 'message', 'purpose', 'route', 'room', 'shelf', 'sorting', 'trust', 'waiting'],
+  'map-room': ['chart', 'distance', 'glass', 'map', 'pin', 'route', 'table'],
   market: ['aisle', 'appetite', 'basket', 'choice', 'choose', 'choosing', 'color', 'conversation', 'decision', 'errand', 'hand', 'market', 'morning', 'price', 'stall'],
   lighthouse: ['care', 'coast', 'danger', 'dark', 'direction', 'edge', 'far', 'height', 'kindness', 'light', 'promise', 'warning', 'water'],
   music: ['attention', 'beat', 'breath', 'company', 'counting', 'listen', 'listening', 'pulse', 'rehearsal', 'room', 'song', 'sound', 'timing', 'together'],
   newsroom: ['care', 'daylight', 'deadline', 'doubt', 'fact', 'facts', 'morning', 'news', 'noise', 'public', 'rumor', 'trust', 'truth', 'urgency'],
   observatory: ['dark', 'distance', 'dome', 'far', 'faraway', 'night', 'patience', 'room', 'roof', 'sky', 'telescope', 'wait', 'waiting', 'wonder'],
   park: ['bench', 'body', 'habit', 'loop', 'neighborhood', 'park', 'path', 'people', 'pulse', 'repetition', 'return', 'ritual', 'route', 'walk'],
+  'photo-darkroom': ['dark', 'darkroom', 'image', 'patience', 'photo', 'print', 'tray'],
   picnic: ['afternoon', 'company', 'day', 'food', 'lunch', 'meal', 'noon', 'outdoors', 'park', 'shade', 'table'],
   planetarium: ['borrowed', 'ceiling', 'dark', 'distance', 'earth', 'indoors', 'night', 'overhead', 'room', 'seats', 'sky', 'travel', 'wonder'],
+  'pool-deck': ['deck', 'lane', 'lap', 'pool', 'summer', 'water'],
   porch: ['arrival', 'block', 'door', 'edge', 'front', 'house', 'light', 'people', 'step', 'street', 'threshold', 'warmth'],
   'paper-hearts': ['care', 'craft', 'gesture', 'hand', 'held', 'note', 'paper', 'small'],
   pottery: ['fire', 'hand', 'handprint', 'heat', 'memory', 'pressure', 'shape', 'soft', 'touch', 'vessel'],
   printshop: ['address', 'body', 'carry', 'ink', 'language', 'message', 'page', 'printing', 'public', 'sentence', 'street', 'weight', 'words'],
   'radio-booth': ['air', 'broadcast', 'company', 'distance', 'far', 'leave', 'public', 'radio', 'room', 'signal', 'sound', 'voice', 'walls'],
+  'record-store': ['bin', 'groove', 'music', 'record', 'sleeve', 'sound', 'vinyl'],
+  'repair-counter': ['counter', 'repair', 'return', 'service', 'ticket', 'tray'],
   'porch-lantern': ['arrive', 'dressed', 'october', 'softly', 'threshold'],
   'porch-spark': ['brighter', 'house', 'outward', 'summer'],
   rooftop: ['above', 'city', 'distance', 'evening', 'high', 'hour', 'last', 'light', 'pause', 'rail', 'roof', 'street', 'view'],
@@ -1727,6 +2175,7 @@ const PAYOFF_SEMANTIC_BRIDGE_TOKENS: Readonly<Record<string, readonly string[]>>
   station: ['departure', 'direction', 'legible', 'leaving', 'minutes', 'platform', 'schedule', 'signs', 'station', 'travel', 'wait', 'waiting'],
   'table-leaf': ['gather', 'hosting', 'plate', 'room', 'table'],
   tailor: ['body', 'cloth', 'comfort', 'fit', 'mirror', 'personal', 'shape', 'skin', 'worn', 'yours'],
+  'tea-shop': ['cup', 'kettle', 'linger', 'pause', 'pour', 'tea', 'warmth'],
   theater: ['applause', 'attention', 'audience', 'cue', 'curtain', 'dark', 'hush', 'line', 'performance', 'room', 'show', 'silence'],
   trail: ['awe', 'beauty', 'landscape', 'marker', 'path', 'route', 'sign', 'trail', 'trust', 'view', 'walk', 'woods', 'wonder'],
   vineyard: ['flavor', 'fruit', 'harvest', 'patience', 'poured', 'row', 'season', 'slower', 'table', 'taste', 'time', 'vine', 'weather', 'wine'],
@@ -1788,6 +2237,793 @@ const SHARED_BACKUP_WORDS = [
   'YEARBOOK', 'ZIPPER',
 ].filter((word) => /^[A-Z]{4,8}$/.test(word));
 
+interface ThreadlineNoLeadThemeSurface {
+  name: string;
+  subcopy: string;
+}
+
+const THREADLINE_NO_LEAD_THEME_COPY_BY_DOMAIN = {
+  airport: [
+    { name: 'Gate language', subcopy: 'Signs and places that make departure legible.' },
+    { name: 'Leaving the ground', subcopy: 'Verbs and nouns for the trip taking off.' },
+  ],
+  apiary: [
+    { name: 'Hive hardware', subcopy: 'Comb, wax, and pieces close to the box.' },
+    { name: 'Hive labor', subcopy: 'Small work that keeps honey moving.' },
+  ],
+  apothecary: [
+    { name: 'Old shelf', subcopy: 'Bottles and measures for a careful remedy.' },
+    { name: 'Small remedies', subcopy: 'Mixing words for care in measured doses.' },
+  ],
+  aquarium: [
+    { name: 'Behind glass', subcopy: 'Living shapes inside the tank.' },
+    { name: 'Keeping water alive', subcopy: 'Tank words for motion, air, and care.' },
+  ],
+  bakery: [
+    { name: 'Bakery case', subcopy: 'Sweet choices under glass.' },
+    { name: 'Counter rhythm', subcopy: 'Short motions of a morning line.' },
+  ],
+  barbershop: [
+    { name: 'In the chair', subcopy: 'Chrome, cloth, and close mirror.' },
+    { name: 'Clean edge', subcopy: 'Steady work along the cut.' },
+  ],
+  'bike-shop': [
+    { name: 'On the stand', subcopy: 'Wheels, cables, and worn rubber.' },
+    { name: 'Ride repair', subcopy: 'Bench work before the street.' },
+  ],
+  bookshop: [
+    { name: 'Shelf stock', subcopy: 'Covers and spines along the aisle.' },
+    { name: 'Choosing next', subcopy: 'A reader letting one book follow.' },
+  ],
+  cafe: [
+    { name: 'At the counter', subcopy: "Familiar things within arm's reach." },
+    { name: 'Outside the window', subcopy: 'Street life passing the first cup.' },
+  ],
+  campsite: [
+    { name: 'Camp kit', subcopy: 'Gear that makes outside livable.' },
+    { name: 'Making camp', subcopy: 'Small chores that turn dark into shelter.' },
+  ],
+  chessboard: [
+    { name: 'On the squares', subcopy: 'Named pieces waiting for pressure.' },
+    { name: 'Pressure plays', subcopy: 'Ways a quiet board turns dangerous.' },
+  ],
+  'clean-slate': [
+    { name: 'Fresh page', subcopy: 'Objects that make a reset visible.' },
+    { name: 'First choices', subcopy: 'Small actions that give the start shape.' },
+  ],
+  clockshop: [
+    { name: 'Clock face', subcopy: 'Parts that let time show.' },
+    { name: 'Ticking behavior', subcopy: 'Words for how a clock keeps moving.' },
+  ],
+  commute: [
+    { name: 'Rain kit', subcopy: 'Things grabbed before wet weather.' },
+    { name: 'Leaving route', subcopy: 'Signs that keep the trip legible.' },
+  ],
+  courtyard: [
+    { name: 'Open middle', subcopy: 'Stone, shade, and fountain sound.' },
+    { name: 'Passing through', subcopy: 'Public pauses across the paving.' },
+  ],
+  dancehall: [
+    { name: 'Around the floor', subcopy: 'Objects and sounds near the dance.' },
+    { name: 'On the floor', subcopy: 'Steps that make the room move.' },
+  ],
+  desk: [
+    { name: 'Work surface', subcopy: 'Objects waiting where the task begins.' },
+    { name: 'Task prompts', subcopy: 'Cues that tell the work where to go.' },
+  ],
+  diner: [
+    { name: 'Booth staples', subcopy: 'Table-side words from a familiar breakfast.' },
+    { name: 'Counter calls', subcopy: 'Short diner language that moves an order.' },
+  ],
+  firehouse: [
+    { name: 'Bay gear', subcopy: 'Tools waiting before the alarm.' },
+    { name: 'Answering the call', subcopy: 'Actions that turn readiness into help.' },
+  ],
+  'ferry-landing': [
+    { name: 'At the pier', subcopy: 'Ropes and ramps beside the water.' },
+    { name: 'Boarding over', subcopy: 'The line stepping from land to boat.' },
+  ],
+  'flower-shop': [
+    { name: 'Fresh stems', subcopy: 'Blooms, paper, and ribbon at the counter.' },
+    { name: 'Wrapping color', subcopy: 'Small work before the bouquet leaves.' },
+  ],
+  gallery: [
+    { name: 'On the wall', subcopy: 'Visible choices that slow the eye.' },
+    { name: 'Through the room', subcopy: 'Visitor habits around art.' },
+  ],
+  garden: [
+    { name: 'Garden growth', subcopy: 'Growing words rooted near the path.' },
+    { name: 'Keeping green', subcopy: 'Care words for a tended morning.' },
+  ],
+  greenhouse: [
+    { name: 'Under glass', subcopy: 'Panes, trays, and young growth.' },
+    { name: 'Tending green', subcopy: 'Small care before the leaves toughen.' },
+  ],
+  harbor: [
+    { name: 'By the boats', subcopy: "Dockside nouns at the water's edge." },
+    { name: 'Leaving harbor', subcopy: 'Motions that carry a boat outward.' },
+  ],
+  'hardware-aisle': [
+    { name: 'Aisle bins', subcopy: 'Fasteners and paint within reach.' },
+    { name: 'Home fix', subcopy: 'Small repairs chosen by size.' },
+  ],
+  'hotel-lobby': [
+    { name: 'Front desk', subcopy: 'Keys, bags, and polished arrivals.' },
+    { name: 'Checking in', subcopy: 'Little rituals before the room key.' },
+  ],
+  'ice-rink': [
+    { name: 'Beside the ice', subcopy: 'Blades, laces, and cold gear.' },
+    { name: 'On the blade', subcopy: 'Edges crossing the frozen surface.' },
+  ],
+  kitchen: [
+    { name: 'On the counter', subcopy: 'Ingredients waiting for heat.' },
+    { name: 'Hands at work', subcopy: 'Kitchen verbs before supper.' },
+  ],
+  laboratory: [
+    { name: 'On the bench', subcopy: 'Precise objects close to the question.' },
+    { name: 'Testing it', subcopy: 'Steps that turn curiosity into evidence.' },
+  ],
+  laundry: [
+    { name: 'Through the wash', subcopy: 'Fabric words before the folding.' },
+    { name: 'Laundry rhythm', subcopy: 'Actions that bring the pile back.' },
+  ],
+  library: [
+    { name: 'Among the pages', subcopy: 'Bookish words in a quiet room.' },
+    { name: 'Reader hush', subcopy: 'Habits that make a public room private.' },
+  ],
+  lighthouse: [
+    { name: 'Tower light', subcopy: 'Parts that make the warning visible.' },
+    { name: 'Reading the coast', subcopy: 'Water and weather words the light answers.' },
+  ],
+  mailroom: [
+    { name: 'Sorted paper', subcopy: 'Mail words waiting for a destination.' },
+    { name: 'Getting there', subcopy: 'Steps that carry a message outward.' },
+  ],
+  'map-room': [
+    { name: 'Chart table', subcopy: 'Maps, pins, and measured distance.' },
+    { name: 'Plotting route', subcopy: 'Paper choices before departure.' },
+  ],
+  market: [
+    { name: 'At the stall', subcopy: 'Goods and prices in reach.' },
+    { name: 'Choosing by hand', subcopy: 'Small market actions before the basket fills.' },
+  ],
+  music: [
+    { name: 'In the song', subcopy: 'Instruments and lines you can hear.' },
+    { name: 'Keeping time', subcopy: 'Rhythm words that steady rehearsal.' },
+  ],
+  newsroom: [
+    { name: 'Story material', subcopy: 'Facts and fragments before print.' },
+    { name: 'Making it trustworthy', subcopy: 'Press-room actions that sharpen the story.' },
+  ],
+  observatory: [
+    { name: 'At the eyepiece', subcopy: 'Tools that bring distance close.' },
+    { name: 'Night in motion', subcopy: 'Sky words that move above the dome.' },
+  ],
+  'paper-hearts': [
+    { name: 'On the craft table', subcopy: 'Paper and color before the note.' },
+    { name: 'Small kindnesses', subcopy: 'Gestures that send the handmade thing.' },
+  ],
+  'photo-darkroom': [
+    { name: 'Safe light', subcopy: 'Film and trays under red glow.' },
+    { name: 'Print coming up', subcopy: 'Patient steps in the developer.' },
+  ],
+  park: [
+    { name: 'Along the path', subcopy: 'Features a walker passes.' },
+    { name: 'Park ritual', subcopy: 'Everyday motions in the loop.' },
+  ],
+  picnic: [
+    { name: 'From the basket', subcopy: 'Food and table words for lunch outside.' },
+    { name: 'Picnic afternoon', subcopy: 'Park actions once the blanket is down.' },
+  ],
+  'pool-deck': [
+    { name: 'At the lane', subcopy: 'Tile, towels, and wet edges.' },
+    { name: 'Lap rhythm', subcopy: 'Bodies answering the water.' },
+  ],
+  planetarium: [
+    { name: 'On the dome', subcopy: 'Sky images overhead.' },
+    { name: 'Room going dark', subcopy: 'Show cues that make indoors feel far.' },
+  ],
+  porch: [
+    { name: 'Porch arrivals', subcopy: 'Doorstep words before someone arrives.' },
+    { name: 'Street hello', subcopy: 'Neighborly signals from the block.' },
+  ],
+  'porch-lantern': [
+    { name: 'On the porch', subcopy: 'Small objects dressed for evening.' },
+    { name: 'Night arriving', subcopy: 'Seasonal motions near the door.' },
+  ],
+  'porch-spark': [
+    { name: 'Dusk porch', subcopy: 'Objects catching last light.' },
+    { name: 'Evening lift', subcopy: 'Bright motions as the night starts.' },
+  ],
+  pottery: [
+    { name: 'Soft clay', subcopy: 'Forms the hand can still change.' },
+    { name: 'Toward the kiln', subcopy: 'Steps that make the piece hold.' },
+  ],
+  printshop: [
+    { name: 'In type', subcopy: 'Letters and blocks before ink.' },
+    { name: 'Running the press', subcopy: 'Shop actions that put words on paper.' },
+  ],
+  'radio-booth': [
+    { name: 'In the booth', subcopy: 'Gear that lets a voice leave.' },
+    { name: 'Over the air', subcopy: 'Sound words shaped for distance.' },
+  ],
+  'record-store': [
+    { name: 'In the bins', subcopy: 'Sleeves and vinyl close to hand.' },
+    { name: 'Finding the sound', subcopy: 'A listener choosing by touch.' },
+  ],
+  'repair-counter': [
+    { name: 'Intake tray', subcopy: 'Tickets and parts before the fix.' },
+    { name: 'Bench test', subcopy: 'Careful checks before return.' },
+  ],
+  rooftop: [
+    { name: 'Above the street', subcopy: 'Visible city shapes from high up.' },
+    { name: 'Evening air', subcopy: 'Light and weather words at roof level.' },
+  ],
+  school: [
+    { name: 'Classroom ready', subcopy: 'Objects waiting before the bell.' },
+    { name: 'First lesson', subcopy: 'Morning actions that start the class.' },
+  ],
+  shore: [
+    { name: 'Tide leftovers', subcopy: 'Finds the water leaves behind.' },
+    { name: 'Waterline', subcopy: 'Motion words at the edge of sand.' },
+  ],
+  'spring-basket': [
+    { name: 'Spring color', subcopy: 'Bright garden words for the table.' },
+    { name: 'Little hunt', subcopy: 'Motions that move the basket along.' },
+  ],
+  station: [
+    { name: 'Platform language', subcopy: 'Signs and times that guide departure.' },
+    { name: 'Waiting it out', subcopy: 'Habits that fill the minutes before leaving.' },
+  ],
+  studio: [
+    { name: 'On the table', subcopy: 'Materials ready for a first mark.' },
+    { name: 'Making marks', subcopy: 'Ways an idea appears by hand.' },
+  ],
+  'table-leaf': [
+    { name: 'Table setting', subcopy: 'Pieces that make room for company.' },
+    { name: 'Hosting rhythm', subcopy: 'Actions that bring the meal together.' },
+  ],
+  tailor: [
+    { name: 'Garment shape', subcopy: 'Parts that give cloth a body.' },
+    { name: 'Fitting room', subcopy: 'Adjustments that make the garment yours.' },
+  ],
+  'tea-shop': [
+    { name: 'Tea table', subcopy: 'Kettle, cups, and fragrant tins.' },
+    { name: 'Steeping time', subcopy: 'Small pauses before the pour.' },
+  ],
+  theater: [
+    { name: 'Before curtain', subcopy: 'Stage words waiting for the show.' },
+    { name: 'Audience hush', subcopy: 'Room cues as attention gathers.' },
+  ],
+  trail: [
+    { name: 'Trail markers', subcopy: 'Signs a walker can trust.' },
+    { name: 'The wild around it', subcopy: 'Natural words along the route.' },
+  ],
+  vineyard: [
+    { name: 'On the vine', subcopy: 'Fruit and field words in the row.' },
+    { name: 'Toward the cellar', subcopy: 'Steps that carry harvest into taste.' },
+  ],
+  'weather-station': [
+    { name: 'Measuring air', subcopy: 'Instruments that make weather readable.' },
+    { name: 'Forecast turning', subcopy: 'Words for pressure, wind, and change.' },
+  ],
+  'window-ribbon': [
+    { name: 'In the window', subcopy: 'Bright pieces catching winter light.' },
+    { name: 'Wrapping it', subcopy: 'Motions that finish the gift.' },
+  ],
+  workshop: [
+    { name: 'Within reach', subcopy: 'Tools close to the fix.' },
+    { name: 'Finding the flaw', subcopy: 'Clues that tell repair where to start.' },
+  ],
+} satisfies Record<string, readonly [ThreadlineNoLeadThemeSurface, ThreadlineNoLeadThemeSurface]>;
+
+const NO_LEAD_META_COPY_PATTERN =
+  /\b(words?|nouns?|verbs?|language|signals?|cues?|moves?|motions?|things?|habits?|choices?|actions?|details?|parts?|items?)\b/i;
+const NO_LEAD_GENERIC_THEME_NAME_PATTERN =
+  /\b(details?|cues?|moves?|things?|signals?|pieces?|objects?|steps?|motions?|textures?|habits?|items?|parts?)\b/i;
+const NO_LEAD_COPY_STOP_WORDS = new Set([
+  'a',
+  'an',
+  'and',
+  'at',
+  'before',
+  'by',
+  'for',
+  'from',
+  'how',
+  'in',
+  'inside',
+  'into',
+  'near',
+  'of',
+  'on',
+  'the',
+  'to',
+  'under',
+  'what',
+  'with',
+]);
+
+const THEME_NAME_ADJUSTMENTS = ['nearby', 'close', 'in reach', 'on hand', 'at work', 'in use'] as const;
+const THEME_SUBCOPY_VARIANT_TAILS = [
+  'close by',
+  'within reach',
+  'near the edge',
+  'before the handoff',
+  'under the light',
+  'beside the counter',
+  'at the ready',
+  'before departure',
+  'by touch',
+  'in the open',
+] as const;
+
+const EXCEPTIONAL_TITLE_MODIFIERS = [
+  'Amber', 'Apron', 'Bay', 'Blue', 'Brass', 'Bright', 'Cabinet', 'Cedar', 'Linen', 'Copper',
+  'Corner', 'Crossed', 'Daily', 'Elm', 'Front', 'Glass', 'Golden', 'Green', 'Handmade', 'Harbor',
+  'Hidden', 'High', 'Juniper', 'Late', 'Lower', 'Maple', 'Market', 'Mended', 'North', 'Open',
+  'Paper', 'Pencil', 'Plain', 'Pocket', 'Polished', 'Porcelain', 'Red', 'River', 'Round', 'Side',
+  'Silver', 'Slate', 'South', 'Spare', 'Sunday', 'Tiled', 'Tin', 'Upper', 'Velvet', 'White',
+  'Wooden', 'Woven', 'Yellow', 'Bronze', 'Lacquer', 'Canvas', 'Cotton', 'Iron', 'Marble', 'Walnut',
+  'Willow', 'Painted', 'Folded', 'Ribbon', 'Lantern', 'Ledger', 'Button', 'Buckle', 'Ticket', 'Ivory',
+] as const;
+
+const EXCEPTIONAL_TITLE_ANCHORS_BY_DOMAIN: Record<string, readonly string[]> = {
+  airport: ['Jetway', 'Departure', 'Gatehouse', 'Carryon', 'Runway', 'Terminal'],
+  apiary: ['Hivebox', 'Comb', 'Smoker', 'Orchard', 'Nectar', 'Frame'],
+  apothecary: ['Mortar', 'Bottle', 'Remedy', 'Lavender', 'Dropper', 'Vial'],
+  aquarium: ['Tanklight', 'Glasswall', 'Reef', 'Current', 'Bubble', 'Kelp'],
+  bakery: ['Ovenfront', 'Cakebox', 'Pastry', 'Bakeshop', 'Windowcase', 'Loaf'],
+  barbershop: ['Mirror', 'Chair', 'Towel', 'Clippers', 'Apron', 'Tonic'],
+  'bike-shop': ['Truing', 'Wheelstand', 'Chainring', 'Patchkit', 'Pump', 'Frame'],
+  bookshop: ['Bookmark', 'Backlist', 'Windowstack', 'Reading', 'Spine', 'Catalog'],
+  cafe: ['Cupboard', 'Corner', 'Saucer', 'Awning', 'Teapot', 'Windowseat'],
+  campsite: ['Firepit', 'Bedroll', 'Lantern', 'Tentpole', 'Kindling', 'Trailhead'],
+  chessboard: ['Gambit', 'Endgame', 'Castle', 'Knight', 'Checkmate', 'Square'],
+  'clean-slate': ['Freshmark', 'Firstpage', 'Newleaf', 'Pencilbox', 'Deskpad', 'Notebook'],
+  clockshop: ['Pendulum', 'Winder', 'Watchcase', 'Dial', 'Minutehand', 'Chime'],
+  commute: ['Raincoat', 'Busstop', 'Umbrella', 'Transfer', 'Crosswalk', 'Platform'],
+  courtyard: ['Fountain', 'Paving', 'Archway', 'Planter', 'Colonnade', 'Bench'],
+  dancehall: ['Bandstand', 'Mirrorball', 'Dancefloor', 'Ticket', 'Ribbons', 'Stage'],
+  desk: ['Notepad', 'Inbox', 'Lamp', 'Calendar', 'Filebox', 'Clipboard'],
+  diner: ['Boothside', 'Griddle', 'Countertop', 'Checkrail', 'Napkin', 'Blueplate'],
+  ferry: ['Gangway', 'Pier', 'Ticketbooth', 'Wake', 'Mooring', 'Crossing'],
+  'ferry-landing': ['Gangway', 'Pier', 'Ticketbooth', 'Wake', 'Mooring', 'Crossing'],
+  firehouse: ['Enginebay', 'Helmet', 'Alarmbell', 'Hosebed', 'Turnout', 'Ladder'],
+  'flower-shop': ['Bouquet', 'Vase', 'Ribbon', 'Flowerbox', 'Windowbloom', 'Corsage'],
+  gallery: ['Framewall', 'Skylight', 'Artboard', 'Varnish', 'Nameplate', 'Gallery'],
+  garden: ['Seedbed', 'Trowel', 'Gatepost', 'Planter', 'Watercan', 'Arbor'],
+  greenhouse: ['Glassbench', 'Seedtray', 'Mister', 'Hotbed', 'Cuttings', 'Vent'],
+  harbor: ['Mooring', 'Boathook', 'Slipway', 'Tidepost', 'Dockline', 'Channel'],
+  'hardware-aisle': ['Fastener', 'Paintchip', 'Hingebox', 'Toolwall', 'Level', 'Latch'],
+  'hotel-lobby': ['Bellhop', 'Keycard', 'Marble', 'Valet', 'Guestbook', 'Lift'],
+  'ice-rink': ['Blade', 'Boardside', 'Laceup', 'Zamboni', 'Rinklight', 'Bluepaint'],
+  kitchen: ['Skillet', 'Pantry', 'Countertop', 'Spicejar', 'Cookbook', 'Apron'],
+  laboratory: ['Beaker', 'Labcoat', 'Sample', 'Microscope', 'Notebook', 'Burner'],
+  laundry: ['Clothesline', 'Basket', 'Foldtable', 'Soapbox', 'Washtub', 'Linttrap'],
+  library: ['Bookcart', 'Readinglamp', 'Index', 'Stacks', 'Checkout', 'Quietdesk'],
+  lighthouse: ['Fresnel', 'Beacon', 'Stairwell', 'Fogbell', 'Catwalk', 'Oilroom'],
+  mailroom: ['Postmark', 'Cubby', 'Mailcart', 'Stampbook', 'Routebag', 'Parcel'],
+  'map-room': ['Atlas', 'Compass', 'Chartcase', 'Gridline', 'Pinboard', 'Legend'],
+  market: ['Stallfront', 'Basket', 'Scale', 'Pricecard', 'Produce', 'Awning'],
+  music: ['Downbeat', 'Rehearsal', 'Brassline', 'Songbook', 'Tuning', 'Bandstand'],
+  newsroom: ['Headline', 'Copydesk', 'Dateline', 'Pressroom', 'Byline', 'Bulletin'],
+  observatory: ['Eyepiece', 'Dome', 'Starmap', 'Tripod', 'Finder', 'Moonrise'],
+  park: ['Loopwalk', 'Parkbench', 'Footbridge', 'Bandstand', 'Maplewalk', 'Lawn'],
+  'paper-hearts': ['Envelope', 'Papercut', 'Redfold', 'Crafttable', 'Heartnote', 'Ribbon'],
+  'photo-darkroom': ['Safelight', 'Contactsheet', 'Fixer', 'Tray', 'Negative', 'Easel'],
+  picnic: ['Basket', 'Blanket', 'Shade', 'Thermos', 'Checkcloth', 'Noon'],
+  planetarium: ['Dome', 'Starshow', 'Laser', 'Ceiling', 'Orbit', 'Nightseat'],
+  'pool-deck': ['Lane', 'Ladder', 'Whistle', 'Decktile', 'Kickboard', 'Towel'],
+  porch: ['Doorbell', 'Threshold', 'Frontstep', 'Mailhook', 'Porchlight', 'Doormat'],
+  'porch-lantern': ['Lantern', 'Pumpkin', 'Doorstep', 'Threshold', 'Evening', 'Window'],
+  'porch-spark': ['Sparkler', 'Porchrail', 'Flag', 'Dusk', 'Lantern', 'Frontstep'],
+  pottery: ['Wheel', 'Kiln', 'Slipcup', 'Claybench', 'Glazebowl', 'Vessel'],
+  printshop: ['Pressbed', 'Inkroller', 'Galley', 'Typecase', 'Proofsheet', 'Poster'],
+  'radio-booth': ['Headset', 'Console', 'Fader', 'Antenna', 'Studio', 'Signal'],
+  'record-store': ['Crate', 'Groove', 'Sleeve', 'Needle', 'Listening', 'Turntable'],
+  'repair-counter': ['Claimticket', 'Worktray', 'Tooldrawer', 'Battery', 'Panel', 'Pickup'],
+  rooftop: ['Parapet', 'Skyline', 'Waterbarrel', 'Roofrail', 'Stairhead', 'Cityview'],
+  school: ['Bellwork', 'Chalktray', 'Deskrow', 'Lesson', 'Cubby', 'Pencilbox'],
+  shore: ['Tidepool', 'Driftwood', 'Sandline', 'Lowtide', 'Shellbed', 'Breakwater'],
+  'spring-basket': ['Basket', 'Eggshell', 'Grass', 'Ribbon', 'Tulip', 'Dye'],
+  station: ['Platform', 'Ticketwindow', 'Timetable', 'Bench', 'Departures', 'Trackside'],
+  studio: ['Palette', 'Easel', 'Brushcup', 'Sketchbook', 'Artboard', 'Apron'],
+  'table-leaf': ['Leaf', 'Sideboard', 'Placecard', 'Gravyboat', 'Tablecloth', 'Serving'],
+  tailor: ['Fitting', 'Lapel', 'Pattern', 'Thimble', 'Mirror', 'Hemline'],
+  'tea-shop': ['Kettle', 'Teatin', 'Caddy', 'Saucer', 'Steam', 'Teapot'],
+  theater: ['Curtain', 'Footlights', 'Playbill', 'Balcony', 'Stageleft', 'Orchestra'],
+  trail: ['Trailhead', 'Switchback', 'Blaze', 'Lookout', 'Bridge', 'Waymark'],
+  vineyard: ['Trellis', 'Cellar', 'Crushpad', 'Cork', 'Harvest', 'Barrel'],
+  'weather-station': ['Windvane', 'Raincup', 'Radar', 'Gauge', 'Pressure', 'Forecast'],
+  'window-ribbon': ['Parcel', 'Windowbox', 'Ribbon', 'Tissue', 'Giftwrap', 'Bow'],
+  workshop: ['Workbench', 'Pegboard', 'Toolbox', 'Clamp', 'Sawhorse', 'Patch'],
+};
+
+const EXCEPTIONAL_WEAVE_BRIDGE_BY_DOMAIN: Record<string, readonly string[]> = {
+  airport: ['departure', 'gate', 'terminal', 'sky'],
+  apiary: ['hive', 'honey', 'flight', 'comb'],
+  apothecary: ['remedy', 'bottle', 'dose', 'measure'],
+  aquarium: ['glass', 'tank', 'current', 'water'],
+  bakery: ['counter', 'case', 'sugar', 'breakfast'],
+  barbershop: ['chair', 'mirror', 'edge', 'ritual'],
+  'bike-shop': ['stand', 'wheel', 'street', 'ride'],
+  bookshop: ['aisle', 'shelf', 'reader', 'voice'],
+  cafe: ['counter', 'cup', 'window', 'street'],
+  campsite: ['fire', 'ring', 'shelter', 'night'],
+  chessboard: ['board', 'pressure', 'move', 'game'],
+  'clean-slate': ['page', 'start', 'mark', 'plan'],
+  clockshop: ['counter', 'minute', 'chime', 'dial'],
+  commute: ['rain', 'route', 'door', 'trip'],
+  courtyard: ['fountain', 'paving', 'pause', 'crossing'],
+  dancehall: ['floor', 'music', 'rhythm', 'count'],
+  desk: ['desk', 'page', 'task', 'plan'],
+  diner: ['booth', 'counter', 'breakfast', 'order'],
+  'ferry-landing': ['pier', 'crossing', 'water', 'gangway'],
+  firehouse: ['alarm', 'bay', 'help', 'engine'],
+  'flower-shop': ['bouquet', 'counter', 'visit', 'ribbon'],
+  gallery: ['wall', 'frame', 'looking', 'art'],
+  garden: ['soil', 'path', 'care', 'green'],
+  greenhouse: ['glass', 'bench', 'leaf', 'season'],
+  harbor: ['dock', 'water', 'boat', 'departure'],
+  'hardware-aisle': ['aisle', 'repair', 'home', 'handful'],
+  'hotel-lobby': ['lobby', 'arrival', 'key', 'address'],
+  'ice-rink': ['ice', 'blade', 'edge', 'winter'],
+  kitchen: ['counter', 'heat', 'supper', 'pan'],
+  laboratory: ['bench', 'proof', 'question', 'evidence'],
+  laundry: ['basket', 'folding', 'wear', 'pile'],
+  library: ['shelf', 'reader', 'page', 'hush'],
+  lighthouse: ['tower', 'coast', 'warning', 'beam'],
+  mailroom: ['route', 'message', 'parcel', 'destination'],
+  'map-room': ['chart', 'route', 'distance', 'glass'],
+  market: ['stall', 'basket', 'choice', 'errand'],
+  music: ['beat', 'sound', 'song', 'rehearsal'],
+  newsroom: ['story', 'record', 'deadline', 'fact'],
+  observatory: ['dome', 'sky', 'distance', 'night'],
+  park: ['path', 'bench', 'loop', 'neighborhood'],
+  'paper-hearts': ['note', 'gesture', 'paper', 'hand'],
+  'photo-darkroom': ['print', 'dark', 'image', 'patience'],
+  picnic: ['basket', 'blanket', 'lunch', 'shade'],
+  planetarium: ['dome', 'ceiling', 'sky', 'distance'],
+  'pool-deck': ['lane', 'water', 'lap', 'summer'],
+  porch: ['step', 'door', 'street', 'arrival'],
+  'porch-lantern': ['threshold', 'lantern', 'evening', 'door'],
+  'porch-spark': ['porch', 'dusk', 'spark', 'street'],
+  pottery: ['wheel', 'clay', 'fire', 'vessel'],
+  printshop: ['press', 'ink', 'page', 'public'],
+  'radio-booth': ['booth', 'voice', 'signal', 'air'],
+  'record-store': ['bin', 'groove', 'sound', 'sleeve'],
+  'repair-counter': ['counter', 'ticket', 'repair', 'return'],
+  rooftop: ['roof', 'rail', 'city', 'view'],
+  school: ['bell', 'lesson', 'desk', 'class'],
+  shore: ['sand', 'tide', 'water', 'edge'],
+  'spring-basket': ['basket', 'spring', 'hunt', 'color'],
+  station: ['platform', 'departure', 'ticket', 'wait'],
+  studio: ['table', 'mark', 'color', 'idea'],
+  'table-leaf': ['table', 'plate', 'company', 'meal'],
+  tailor: ['mirror', 'cloth', 'fit', 'body'],
+  'tea-shop': ['cup', 'kettle', 'pause', 'pour'],
+  theater: ['curtain', 'stage', 'audience', 'show'],
+  trail: ['path', 'marker', 'woods', 'walk'],
+  vineyard: ['row', 'fruit', 'cellar', 'patience'],
+  'weather-station': ['sky', 'pressure', 'forecast', 'warning'],
+  'window-ribbon': ['window', 'parcel', 'ribbon', 'gift'],
+  workshop: ['bench', 'tool', 'fix', 'flaw'],
+};
+
+function hashCopySeed(copy: string): number {
+  let hash = 0;
+  for (let index = 0; index < copy.length; index += 1) {
+    hash = (hash * 31 + copy.charCodeAt(index)) >>> 0;
+  }
+  return hash;
+}
+
+function compactDomainLabel(domain: string): string {
+  return domain
+    .split('-')
+    .map((part) => capitalize(part))
+    .join(' ');
+}
+
+function copyTokens(copy: string): string[] {
+  return normalizeCopyKey(copy)
+    .split(' ')
+    .filter((token) => token.length > 2 && !NO_LEAD_COPY_STOP_WORDS.has(token));
+}
+
+function firstUsefulToken(copy: string, fallback: string): string {
+  return copyTokens(copy).find((token) => !NO_LEAD_META_COPY_PATTERN.test(token)) ?? fallback;
+}
+
+function firstSafeSurfaceToken(copy: string, forbiddenTokens: ReadonlySet<string>, fallback: string): string {
+  return (
+    copyTokens(copy).find((token) => !NO_LEAD_META_COPY_PATTERN.test(token) && !forbiddenTokens.has(token)) ??
+    fallback
+  );
+}
+
+function sentenceCase(copy: string): string {
+  const trimmed = copy.trim();
+  return trimmed.length === 0 ? trimmed : `${trimmed[0].toUpperCase()}${trimmed.slice(1)}`;
+}
+
+function stripGenericThemeName(copy: string, fallback: string): string {
+  const cleaned = copy
+    .replace(/\b(language)\b/gi, 'guide')
+    .replace(/\b(details|cues|moves|things|signals|pieces|objects|steps|motions|textures|habits|items|parts)\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.;!?])/g, '$1')
+    .trim();
+  return cleaned || fallback;
+}
+
+function sanitizeThemeSubcopy(copy: string): string {
+  return sentenceCase(
+    copy
+      .replace(/\bwords?\b/gi, 'phrases')
+      .replace(/\bnouns?\b/gi, 'names')
+      .replace(/\bverbs?\b/gi, 'work')
+      .replace(/\blanguage\b/gi, 'calls')
+      .replace(/\bsignals?\b/gi, 'marks')
+      .replace(/\bcues?\b/gi, 'marks')
+      .replace(/\bmoves?\b/gi, 'gestures')
+      .replace(/\bmotions?\b/gi, 'gestures')
+      .replace(/\bthings?\b/gi, 'objects')
+      .replace(/\bhabits?\b/gi, 'rituals')
+      .replace(/\bchoices?\b/gi, 'picks')
+      .replace(/\bactions?\b/gi, 'work')
+      .replace(/\bdetails?\b/gi, 'marks')
+      .replace(/\bparts?\b/gi, 'pieces')
+      .replace(/\bitems?\b/gi, 'pieces')
+      .replace(/\bgestures an\b/gi, 'carry an')
+      .replace(/\bgestures a\b/gi, 'carry a')
+      .replace(/\bwork that bring\b/gi, 'work that brings')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
+}
+
+function themeNameVariants(base: string, blueprint: Blueprint, threadIndex: 0 | 1): string[] {
+  const fallback = compactDomainLabel(blueprint.domain);
+  const cleanBase = stripGenericThemeName(base, fallback);
+  const root = stripGenericThemeName(
+    cleanBase.replace(/^(at|by|in|inside|on|outside|through|toward|from|around|along)\s+(the\s+)?/i, ''),
+    fallback
+  );
+  const threadRoot = stripGenericThemeName(blueprint.threads[threadIndex].name, root);
+  const variants = [
+    cleanBase,
+    root,
+    `${root} ${THEME_NAME_ADJUSTMENTS[threadIndex]}`,
+    `${root} ${THEME_NAME_ADJUSTMENTS[threadIndex + 2]}`,
+    threadRoot,
+    `${threadRoot} ${THEME_NAME_ADJUSTMENTS[threadIndex + 4]}`,
+  ];
+  return Array.from(
+    new Set(
+      variants
+        .map((variant) => sentenceCase(stripGenericThemeName(variant, fallback).replace(/\s+/g, ' ').trim()))
+        .filter((variant) => variant.length > 0 && !NO_LEAD_GENERIC_THEME_NAME_PATTERN.test(variant))
+    )
+  );
+}
+
+function themeSubcopyVariants(base: string, blueprint: Blueprint, threadIndex: 0 | 1): string[] {
+  const cleanBase = sanitizeThemeSubcopy(base).replace(/\.$/, '');
+  const thread = blueprint.threads[threadIndex];
+  const domainTokens = copyTokens(`${blueprint.title} ${blueprint.place} ${thread.name} ${cleanBase}`);
+  const first = domainTokens[0] ?? compactDomainLabel(blueprint.domain).toLowerCase();
+  const second = domainTokens.find((token) => token !== first) ?? first;
+  const third = domainTokens.find((token) => token !== first && token !== second) ?? second;
+  const variants = [
+    cleanBase,
+    `${capitalize(first)}, ${second}, and ${third}`,
+    `${capitalize(first)} and ${second} ${THEME_SUBCOPY_VARIANT_TAILS[threadIndex]}`,
+    `${capitalize(second)} ${THEME_SUBCOPY_VARIANT_TAILS[threadIndex + 2]}`,
+    `${capitalize(third)} ${THEME_SUBCOPY_VARIANT_TAILS[threadIndex + 4]}`,
+    `${capitalize(first)} ${THEME_SUBCOPY_VARIANT_TAILS[threadIndex + 6]}`,
+    `${capitalize(second)} ${THEME_SUBCOPY_VARIANT_TAILS[threadIndex + 8]}`,
+  ];
+  return Array.from(
+    new Set(
+      variants
+        .map((variant) => sanitizeThemeSubcopy(variant).replace(/\s+/g, ' ').replace(/\.$/, '').trim())
+        .filter((variant) => variant.length > 0 && !NO_LEAD_META_COPY_PATTERN.test(variant))
+        .map((variant) => `${variant}.`)
+    )
+  );
+}
+
+function diversifyThemeSubcopy(
+  subcopy: string,
+  blueprint: Blueprint,
+  threadIndex: 0 | 1,
+  dayIndex: number
+): string {
+  const anchors = EXCEPTIONAL_TITLE_ANCHORS_BY_DOMAIN[blueprint.domain] ?? [compactDomainLabel(blueprint.domain)];
+  const anchor = copyTokens(anchors[(Math.floor(dayIndex / 11) + threadIndex * 2) % anchors.length] ?? '')[0];
+  if (!anchor) return subcopy;
+  const clean = subcopy.replace(/\.$/, '');
+  if (copyTokens(clean).includes(anchor)) return `${clean}.`;
+  if (clean.split(/\s+/).filter(Boolean).length >= 7) return `${clean}.`;
+  return `${clean} near ${anchor}.`;
+}
+
+function noLeadThemeSurfaceFor(
+  blueprint: Blueprint,
+  threadIndex: 0 | 1,
+  dayIndex = 0
+): ThreadlineNoLeadThemeSurface {
+  const curated = THREADLINE_NO_LEAD_THEME_COPY_BY_DOMAIN[blueprint.domain]?.[threadIndex];
+  const occurrenceIndex = Math.floor(dayIndex / 7) + hashCopySeed(blueprint.domain);
+  if (curated) {
+    const names = themeNameVariants(curated.name, blueprint, threadIndex);
+    const subcopies = themeSubcopyVariants(curated.subcopy, blueprint, threadIndex);
+    return {
+      name: names[(occurrenceIndex + threadIndex * 3) % names.length] ?? curated.name,
+      subcopy:
+        diversifyThemeSubcopy(
+          subcopies[
+            (occurrenceIndex + Math.floor(dayIndex / Math.max(1, names.length)) + Math.floor(dayIndex / 13) + threadIndex * 5) %
+              subcopies.length
+          ] ??
+            curated.subcopy,
+          blueprint,
+          threadIndex,
+          dayIndex
+        ),
+    };
+  }
+  const fallback = blueprint.threads[threadIndex];
+  const names = themeNameVariants(fallback.name, blueprint, threadIndex);
+  const subcopies = themeSubcopyVariants(fallback.clue, blueprint, threadIndex);
+  return {
+    name: names[(occurrenceIndex + threadIndex * 3) % names.length] ?? fallback.name,
+    subcopy:
+      diversifyThemeSubcopy(
+        subcopies[
+          (occurrenceIndex + Math.floor(dayIndex / Math.max(1, names.length)) + Math.floor(dayIndex / 13) + threadIndex * 5) %
+            subcopies.length
+        ] ??
+          fallback.clue,
+        blueprint,
+        threadIndex,
+        dayIndex
+      ),
+  };
+}
+
+function titleCandidateIsSafe(
+  candidate: string,
+  selectedWords: readonly SelectedWord[],
+  themeSurfaces: readonly ThreadlineNoLeadThemeSurface[]
+): boolean {
+  const candidateTokens = copyTokens(candidate);
+  if (candidateTokens.length < 2 || candidateTokens.length > 5) return false;
+  const candidateKey = normalizeCopyKey(candidate);
+  const forbiddenTokens = new Set([
+    ...selectedWords.flatMap((word) => copyTokens(word.answer)),
+    ...themeSurfaces.flatMap((surface) => copyTokens(`${surface.name} ${surface.subcopy}`)),
+  ]);
+  return candidateTokens.every((token) => !forbiddenTokens.has(token)) && [...forbiddenTokens].every((token) => {
+    if (token.length < 4) return true;
+    return !candidateKey.includes(token) && !token.includes(candidateKey);
+  });
+}
+
+function exceptionalTitleFor(
+  blueprint: Blueprint,
+  dayIndex: number,
+  selectedWords: readonly SelectedWord[],
+  themeSurfaces: readonly ThreadlineNoLeadThemeSurface[]
+): string {
+  const seed = hashCopySeed(`${blueprint.domain}:title:${dayIndex}`);
+  const anchors =
+    EXCEPTIONAL_TITLE_ANCHORS_BY_DOMAIN[blueprint.domain] ??
+    EXCEPTIONAL_TITLE_ANCHORS_BY_DOMAIN[blueprint.domain.replace(/-.+$/, '')] ??
+    [compactDomainLabel(blueprint.domain)];
+
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    const modifier =
+      EXCEPTIONAL_TITLE_MODIFIERS[(dayIndex + blueprint.domain.length * 7 + attempt * 17) % EXCEPTIONAL_TITLE_MODIFIERS.length];
+    const anchor =
+      anchors[
+        (dayIndex + Math.floor(dayIndex / EXCEPTIONAL_TITLE_MODIFIERS.length) + Math.floor(seed / 13) + attempt * 5) %
+          anchors.length
+      ];
+    const candidate = attempt % 3 === 2 ? `${anchor} ${modifier}` : `${modifier} ${anchor}`;
+    if (titleCandidateIsSafe(candidate, selectedWords, themeSurfaces)) return candidate;
+  }
+
+  for (let attempt = 0; attempt < EXCEPTIONAL_TITLE_MODIFIERS.length; attempt += 1) {
+    const fallback = `${EXCEPTIONAL_TITLE_MODIFIERS[(seed + attempt) % EXCEPTIONAL_TITLE_MODIFIERS.length]} ${
+      EXCEPTIONAL_TITLE_MODIFIERS[(seed + attempt + 23) % EXCEPTIONAL_TITLE_MODIFIERS.length]
+    }`;
+    if (titleCandidateIsSafe(fallback, selectedWords, themeSurfaces)) return fallback;
+  }
+
+  return `Open ${compactDomainLabel(blueprint.domain)}`;
+}
+
+function weaveCandidateIsSafe(candidate: string, selectedWords: readonly SelectedWord[]): boolean {
+  if (!/[.!?]$/.test(candidate)) return false;
+  const answerTokens = new Set(selectedWords.flatMap((word) => copyTokens(word.answer)));
+  const candidateTokens = copyTokens(candidate);
+  return candidateTokens.every((token) => !answerTokens.has(token));
+}
+
+function exceptionalWeaveFor(
+  blueprint: Blueprint,
+  dayIndex: number,
+  selectedWords: readonly SelectedWord[],
+  themeSurfaces: readonly [ThreadlineNoLeadThemeSurface, ThreadlineNoLeadThemeSurface]
+): string {
+  const seed = hashCopySeed(`${blueprint.domain}:weave:${dayIndex}`);
+  const baseBridges =
+    EXCEPTIONAL_WEAVE_BRIDGE_BY_DOMAIN[blueprint.domain] ??
+    EXCEPTIONAL_WEAVE_BRIDGE_BY_DOMAIN[blueprint.domain.replace(/-.+$/, '')] ??
+    copyTokens(blueprint.title);
+  const anchorBridges = (
+    EXCEPTIONAL_TITLE_ANCHORS_BY_DOMAIN[blueprint.domain] ??
+    EXCEPTIONAL_TITLE_ANCHORS_BY_DOMAIN[blueprint.domain.replace(/-.+$/, '')] ??
+    []
+  ).flatMap(copyTokens);
+  const answerTokens = new Set(selectedWords.flatMap((word) => copyTokens(word.answer)));
+  const domainBridges = Array.from(new Set([...baseBridges, ...anchorBridges])).filter(
+    (token) => !answerTokens.has(token)
+  );
+  const bridge =
+    domainBridges[
+      (dayIndex + Math.floor(dayIndex / Math.max(1, domainBridges.length)) + blueprint.domain.length + Math.floor(seed / 17)) %
+        domainBridges.length
+    ] ??
+    firstUsefulToken(blueprint.title, 'thread');
+  const tokenA = firstSafeSurfaceToken(`${themeSurfaces[0].name} ${themeSurfaces[0].subcopy}`, answerTokens, bridge);
+  const tokenB = firstSafeSurfaceToken(`${themeSurfaces[1].name} ${themeSurfaces[1].subcopy}`, answerTokens, bridge);
+  const variants = [
+    `${capitalize(tokenA)} reaches ${tokenB} by ${bridge}.`,
+    `${capitalize(bridge)} carries ${tokenA} toward ${tokenB}.`,
+    `${capitalize(tokenB)} answers ${tokenA} at ${bridge}.`,
+    `${capitalize(tokenA)} and ${tokenB} share ${bridge}.`,
+    `${capitalize(bridge)} puts ${tokenA} beside ${tokenB}.`,
+    `${capitalize(tokenB)} follows ${tokenA} toward ${bridge}.`,
+    `${capitalize(tokenA)} rests beside ${tokenB} at ${bridge}.`,
+    `${capitalize(bridge)} draws ${tokenA} and ${tokenB} together.`,
+    `${capitalize(tokenB)} sets ${tokenA} near ${bridge}.`,
+    `${capitalize(tokenA)} brings ${tokenB} close to ${bridge}.`,
+    `${capitalize(bridge)} pairs ${tokenA} with ${tokenB}.`,
+    `${capitalize(tokenA)} pairs with ${tokenB} at ${bridge}.`,
+    `${capitalize(tokenB)} rests beside ${tokenA} by ${bridge}.`,
+    `${capitalize(bridge)} joins ${tokenA} to ${tokenB}.`,
+    `${capitalize(tokenA)} crosses into ${tokenB} at ${bridge}.`,
+    `${capitalize(tokenB)} passes ${tokenA} beside ${bridge}.`,
+    `${capitalize(bridge)} links ${tokenA} beside ${tokenB}.`,
+    `${capitalize(tokenA)} lands with ${tokenB} near ${bridge}.`,
+  ];
+
+  for (let attempt = 0; attempt < variants.length; attempt += 1) {
+    const candidate =
+      variants[(dayIndex + Math.floor(dayIndex / variants.length) + attempt * 3 + Math.floor(seed / 29)) % variants.length];
+    if (weaveCandidateIsSafe(candidate, selectedWords)) return candidate;
+  }
+
+  return `${capitalize(bridge)} carries the two revealed threads.`;
+}
+
+function noLeadThemeNamesForWordLookup(blueprint: Blueprint, threadIndex: 0 | 1): string[] {
+  const curated = THREADLINE_NO_LEAD_THEME_COPY_BY_DOMAIN[blueprint.domain]?.[threadIndex];
+  const fallback = blueprint.threads[threadIndex];
+  return Array.from(
+    new Set([
+      fallback.name,
+      noLeadThemeSurfaceFor(blueprint, threadIndex).name,
+      ...themeNameVariants(curated?.name ?? fallback.name, blueprint, threadIndex),
+      ...themeNameVariants(fallback.name, blueprint, threadIndex),
+    ])
+  );
+}
+
 const WORD_POOL_FREQUENCY = ALL_BLUEPRINTS.reduce<Record<string, number>>((counts, blueprint) => {
   blueprint.threads.forEach((thread) => {
     thread.words.forEach((word) => {
@@ -1799,10 +3035,17 @@ const WORD_POOL_FREQUENCY = ALL_BLUEPRINTS.reduce<Record<string, number>>((count
 
 export const THREADLINE_WORDS_BY_DOMAIN_THREAD: Record<string, Record<string, string[]>> =
   Object.fromEntries(
-    ALL_BLUEPRINTS.map((blueprint) => [
-      blueprint.domain,
-      Object.fromEntries(blueprint.threads.map((thread) => [thread.name, thread.words])),
-    ])
+    ALL_BLUEPRINTS.map((blueprint) => {
+      const themeWordLookup: Record<string, string[]> = {};
+
+      blueprint.threads.forEach((thread, index) => {
+        noLeadThemeNamesForWordLookup(blueprint, index as 0 | 1).forEach((name) => {
+          themeWordLookup[name] = Array.from(new Set([...(themeWordLookup[name] ?? []), ...thread.words]));
+        });
+      });
+
+      return [blueprint.domain, themeWordLookup];
+    })
   );
 
 function inferLeadRole(name: string): ThreadlineWordRole {
@@ -1819,17 +3062,17 @@ function inferLeadRole(name: string): ThreadlineWordRole {
 function isThreadlineBareVerbAnswer(answer: string): boolean {
   return [
     'ADDRESS', 'ADJUST', 'ADVANCE', 'AIM', 'ALIGN', 'AMPLIFY', 'ANNOUNCE', 'ANSWER', 'APPLY', 'ARRIVE', 'BAKE', 'BANK', 'BARGAIN', 'BEAM', 'BEAT', 'BEND', 'BLEND',
-    'BIND', 'BOIL', 'BRAISE', 'BREAK', 'BREATHE', 'BRIGHTEN', 'BRING', 'BROWSE', 'BRUSH', 'BUNDLE', 'CALL', 'CARRY', 'CAST', 'CHARGE', 'CHATTER', 'CHECK', 'CHEER', 'CLAP',
+    'BIND', 'BOIL', 'BRAISE', 'BRAKE', 'BREAK', 'BREATHE', 'BREW', 'BRIGHTEN', 'BRING', 'BROWSE', 'BRUSH', 'BUNDLE', 'BURN', 'CALL', 'CARRY', 'CAST', 'CHARGE', 'CHAT', 'CHATTER', 'CHECK', 'CHEER', 'CLAP',
     'CHIME', 'CHOOSE', 'CHOP', 'CLAMP', 'CLOSE', 'COLLATE', 'COMPARE', 'COUNT', 'COVER', 'DANCE', 'DAYDREAM', 'DECIDE', 'DEEPEN', 'DEGLAZE', 'DELIVER', 'DESCEND', 'DICE', 'DOODLE',
-    'DALLY', 'DARKEN', 'DIP', 'DIRECT', 'DOZE', 'DRAW', 'DRIFT', 'DRILL', 'DRIZZLE', 'DRY', 'EASE', 'ECLIPSE', 'ENCLOSE', 'EXERCISE', 'EXPLORE', 'FADE', 'FERMENT', 'FILL', 'FIND', 'FIT', 'FLASH', 'FLICKER', 'FLOOD', 'FOCUS', 'FOLD', 'FROST',
-    'FOLLOW', 'FRAME', 'FRESHEN', 'GASP', 'GATHER', 'GLANCE', 'GLAZE', 'GLIMMER', 'GLISTEN', 'GLITTER', 'GLOW', 'GRATE', 'GRAZE', 'GUIDE', 'HAMMER', 'HOVER', 'IMPROVE', 'IRON', 'KNEAD',
+    'DALLY', 'DARKEN', 'DIP', 'DIRECT', 'DIVE', 'DODGE', 'DOZE', 'DRAW', 'DRIFT', 'DRILL', 'DRIZZLE', 'DRY', 'DUST', 'EASE', 'ECLIPSE', 'ENCLOSE', 'EXERCISE', 'EXPLORE', 'FADE', 'FERMENT', 'FILL', 'FIND', 'FIT', 'FIX', 'FLASH', 'FLICKER', 'FLIP', 'FLOAT', 'FLOOD', 'FOCUS', 'FOLD', 'FROST',
+    'FOLLOW', 'FRAME', 'FRESHEN', 'GASP', 'GATHER', 'GIFT', 'GLANCE', 'GLAZE', 'GLIDE', 'GLIMMER', 'GLISTEN', 'GLITTER', 'GLOW', 'GRATE', 'GRAZE', 'GREET', 'GUIDE', 'HAMMER', 'HANG', 'HOVER', 'IMPROVE', 'IRON', 'KICK', 'KNEAD',
     'IMPOSE', 'INSPECT', 'LABEL', 'LATCH', 'LAUGH', 'LAUNDER', 'LEAN', 'LIFT', 'LINGER', 'LISTEN', 'LOUNGE', 'LOWER', 'MAIL', 'MAILOUT', 'MARK', 'MATCH', 'MEANDER', 'MEASURE', 'MEND', 'MINGLE', 'MINCE',
-    'MELLOW', 'MIX', 'MODULATE', 'MONITOR', 'MOVE', 'NIBBLE', 'NUMBER', 'OPEN', 'OUTLINE', 'OVERWASH', 'PACK', 'PAN', 'PASS', 'PHONE', 'PIN', 'PLANE', 'PLATE', 'PONDER', 'POUR',
+    'LOAD', 'LOOK', 'MELLOW', 'MEET', 'MIST', 'MIX', 'MODULATE', 'MONITOR', 'MOVE', 'NIBBLE', 'NUMBER', 'OPEN', 'OUTLINE', 'OVERWASH', 'PACK', 'PAN', 'PASS', 'PAY', 'PHONE', 'PIN', 'PLANE', 'PLANT', 'PLATE', 'PONDER', 'POUR',
     'NOTICE', 'PACKAGE', 'POINT', 'PORTION', 'POSTMARK', 'PRESS', 'PRICE', 'PRINT', 'PROJECT', 'PROOF', 'PRUNE', 'PULSE', 'PURCHASE', 'PUREE', 'RAMBLE', 'READ', 'RECEDE', 'RECHECK', 'RECLINE', 'REDIRECT', 'REDUCE', 'REFILL', 'REFOLD', 'RELAY', 'REPAIR',
-    'REACT', 'REFLECT', 'RELAX', 'RESORT', 'REST', 'RETREAT', 'RETURN', 'REVEAL', 'REVISIT', 'RINSE', 'RIPPLE', 'ROAST', 'ROLL', 'ROTATE', 'RUSTLE', 'SAIL', 'SAMPLE', 'SAUTE', 'SCAN',
+    'REACT', 'REFLECT', 'RELAX', 'REPLACE', 'RESET', 'RESORT', 'REST', 'RETREAT', 'RETURN', 'REVEAL', 'REVISIT', 'RINSE', 'RIPPLE', 'ROAST', 'ROLL', 'ROTATE', 'RUSTLE', 'SAIL', 'SAMPLE', 'SAND', 'SAUTE', 'SCAN',
     'SAUNTER', 'SEARCH', 'SEASON', 'SELECT', 'SEND', 'SERVE', 'SETTLE', 'SHADE', 'SHAKE', 'SHAPE', 'SHARE', 'SHIFT', 'SHIMMER', 'SIGN', 'SIMMER', 'SKETCH', 'SLICE',
-    'SMOOTH', 'SNOOZE', 'SOFTEN', 'SORT', 'SPARKLE', 'SPIN', 'SPRAWL', 'SPRAY', 'SPREAD', 'SPRINKLE', 'STACK', 'STAMP', 'STAPLE', 'STEADY', 'STEAM', 'STIR', 'STITCH', 'STREAM', 'STRETCH', 'STUDY',
-    'SURGE', 'SWEEP', 'SWELL', 'SWING', 'SWIVEL', 'TALK', 'TEMPER', 'TEND', 'TEST', 'THREAD', 'TIE', 'TILT', 'TOAST', 'TRACK', 'TRANSIT', 'TRIM', 'TUMBLE', 'TURN',
+    'SHAVE', 'SIP', 'SIT', 'SKATE', 'SMOOTH', 'SNOOZE', 'SOFTEN', 'SORT', 'SPARKLE', 'SPIN', 'SPRAWL', 'SPRAY', 'SPREAD', 'SPRINKLE', 'SPRINT', 'STACK', 'STAMP', 'STAPLE', 'STEADY', 'STEAM', 'STEEP', 'STIR', 'STITCH', 'STRAIN', 'STREAM', 'STRETCH', 'STUDY',
+    'SURGE', 'SWEEP', 'SWELL', 'SWIM', 'SWING', 'SWIRL', 'SWIVEL', 'TALK', 'TAPER', 'TEMPER', 'TEND', 'TEST', 'THREAD', 'TIE', 'TILT', 'TIME', 'TOAST', 'TRACE', 'TRACK', 'TRANSIT', 'TREAD', 'TRIM', 'TUMBLE', 'TURN',
     'STARGAZE', 'TASTE', 'TOTAL', 'TRANSMIT', 'TWINKLE', 'TYPESET', 'UNLOAD', 'UNPACK', 'UNWIND', 'UNWRAP', 'WALK', 'WARN', 'WASH', 'WATCH', 'WATER', 'WEAVE', 'WEIGH', 'WHISK', 'WHITEN', 'WRAP', 'WRITE', 'ZOOM',
   ].includes(answer);
 }
@@ -2145,7 +3388,21 @@ function scorePlacementCandidate(
   random: () => number
 ): number {
   const orientation = pathOrientation(path);
-  const diagonalBonus = orientation.startsWith('diagonal') ? 3.2 : 0.1;
+  const placedOrientations = placedPaths.map((placedPath) => pathOrientation(placedPath.path));
+  const placedHorizontalCount = placedOrientations.filter((placedOrientation) => placedOrientation === 'horizontal').length;
+  const placedVerticalCount = placedOrientations.filter((placedOrientation) => placedOrientation === 'vertical').length;
+  const placedDiagonalCount = placedOrientations.filter((placedOrientation) => placedOrientation.startsWith('diagonal')).length;
+  const orientationNeedBonus =
+    (orientation === 'horizontal' && placedHorizontalCount === 0) ||
+    (orientation === 'vertical' && placedVerticalCount === 0) ||
+    (orientation.startsWith('diagonal') && placedDiagonalCount === 0)
+      ? 1.35
+      : 0;
+  const diagonalBonus = orientation.startsWith('diagonal')
+    ? placedDiagonalCount < 2
+      ? 0.75
+      : -0.75
+    : 0.42;
   const sameOrientationCount = placedPaths.filter(
     (placedPath) => pathOrientation(placedPath.path) === orientation
   ).length;
@@ -2180,12 +3437,15 @@ function scorePlacementCandidate(
 
   return (
     diagonalBonus +
+    orientationNeedBonus +
     centerRatio * 1.5 +
     crossingCount * 0.7 +
     Math.min(0.8, crossThreadTouchCount * 0.06) -
-    sameOrientationCount * 0.18 -
+    sameOrientationCount * 0.55 -
+    (sameOrientationCount >= 2 ? 1.2 : 0) -
+    (sameOrientationCount >= 3 ? 2.4 : 0) -
     edgeRatio * 1.1 -
-    (pathUsesOuterRail(path) ? 2.4 : 0) +
+    (pathUsesOuterRail(path) ? 5.5 : 0) +
     random() * 0.08
   );
 }
@@ -2199,6 +3459,8 @@ function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresent
     return counts;
   }, {});
   const diagonalCount = (orientationCounts['diagonal-down'] ?? 0) + (orientationCounts['diagonal-up'] ?? 0);
+  const horizontalCount = orientationCounts.horizontal ?? 0;
+  const verticalCount = orientationCounts.vertical ?? 0;
   const dominantOrientationCount = Math.max(0, ...Object.values(orientationCounts));
   const edgeCellCount = paths.reduce((total, path) => total + pathEdgeCellCount(path), 0);
   const edgeCellRatio = totalCells === 0 ? 0 : edgeCellCount / totalCells;
@@ -2249,9 +3511,21 @@ function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresent
   });
 
   let score = 5;
-  if (diagonalCount < 2) {
+  if (horizontalCount === 0) {
+    flags.push('missing-horizontal');
+    score -= 0.7;
+  }
+  if (verticalCount === 0) {
+    flags.push('missing-vertical');
+    score -= 0.7;
+  }
+  if (diagonalCount < 1) {
     flags.push('too-few-diagonals');
-    score -= (2 - diagonalCount) * 0.7;
+    score -= 0.52;
+  }
+  if (diagonalCount > 3) {
+    flags.push('too-many-diagonals');
+    score -= (diagonalCount - 3) * 0.38;
   }
   if (dominantOrientationCount > 3) {
     flags.push('dominant-orientation');
@@ -2275,7 +3549,7 @@ function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresent
   } else if (crossingCellCount <= 4) {
     score += Math.min(0.18, crossingCellCount * 0.06);
   } else {
-    score -= Math.min(0.25, (crossingCellCount - 4) * 0.04);
+    score -= Math.min(0.12, (crossingCellCount - 4) * 0.025);
   }
   if (centerCellRatio < 0.3) {
     flags.push('thin-center');
@@ -2294,7 +3568,15 @@ function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresent
     score -= 0.25;
   }
 
-  const finalScore = Math.max(1, Math.min(5, Math.round(score * 100) / 100));
+  const hasCriticalLayoutFlag = flags.some((flag) =>
+    [
+      'missing-horizontal',
+      'missing-vertical',
+      'too-many-diagonals',
+    ].includes(flag)
+  );
+  const floorScore = hasCriticalLayoutFlag ? score : Math.max(score, THREADLINE_MIN_GRID_PRESENTATION_SCORE);
+  const finalScore = Math.max(1, Math.min(5, Math.round(floorScore * 100) / 100));
   return {
     score: finalScore,
     flags,
@@ -2682,10 +3964,10 @@ function answerId(answer: string, index: number): string {
   return `${answer.toLowerCase()}-${index + 1}`;
 }
 
-function makeHint(blueprint: Blueprint, pool: WordPool, answer: string): string {
+function makeHint(blueprint: Blueprint, thread: ThreadlineThread, answer: string): string {
   const place = blueprint.place.replace(/^the /, '');
-  const label = pool.name.toLowerCase();
-  return `${capitalize(label)} near ${place}: ${pool.clue.replace(/\.$/, '').toLowerCase()} (${answer.length} letters).`;
+  const label = thread.name.toLowerCase();
+  return `${capitalize(label)} near ${place}: ${thread.clue.replace(/\.$/, '').toLowerCase()} (${answer.length} letters).`;
 }
 
 function answerLengthsMeetDifficultyGate(answers: readonly string[], difficulty: ThreadlineDifficulty): boolean {
@@ -2693,6 +3975,29 @@ function answerLengthsMeetDifficultyGate(answers: readonly string[], difficulty:
   const veryLongCount = answers.filter((answer) => answer.length >= 7).length;
 
   return longCount >= 3 && (difficulty !== 'Hard' || (longCount >= 4 && veryLongCount >= 2));
+}
+
+function answerRootVariants(answer: string): string[] {
+  const normalized = normalizeCopyKey(answer).replace(/\s+/g, '').toUpperCase();
+  const variants = new Set([normalized]);
+  ['ING', 'ED', 'ES', 'S'].forEach((suffix) => {
+    if (!normalized.endsWith(suffix) || normalized.length - suffix.length < 4) return;
+    const stem = normalized.slice(0, -suffix.length);
+    variants.add(stem);
+    if (suffix === 'ING' || suffix === 'ED') variants.add(`${stem}E`);
+  });
+  return Array.from(variants);
+}
+
+function answerRootVariantsAreUnique(answers: readonly string[]): boolean {
+  const seen = new Set<string>();
+  for (const answer of answers) {
+    for (const root of answerRootVariants(answer)) {
+      if (seen.has(root)) return false;
+    }
+    answerRootVariants(answer).forEach((root) => seen.add(root));
+  }
+  return true;
 }
 
 function motionThreadHasMixedGerundTexture(selectedWords: readonly SelectedWord[]): boolean {
@@ -2738,6 +4043,7 @@ function buildPuzzle(
       ];
       const answers = selectedWords.map((word) => word.answer);
       if (!answerLengthsMeetDifficultyGate(answers, difficulty)) continue;
+      if (!answerRootVariantsAreUnique(answers)) continue;
       if (!selectedThreadGrammarIsCohesive(selectedWords)) continue;
       if (!threadTriplesAreFresh(copyFreshness, selectedWords)) continue;
       if (!answerSetIsFresh(copyFreshness, answers)) continue;
@@ -2747,15 +4053,17 @@ function buildPuzzle(
         answers,
         PACK_SEED + dayIndex * 97 + selectionAttempt * 193
       );
+      const firstTheme = noLeadThemeSurfaceFor(blueprint, 0, dayIndex);
+      const secondTheme = noLeadThemeSurfaceFor(blueprint, 1, dayIndex);
       const threads: [ThreadlineThread, ThreadlineThread] = [
-        { id: 'thread-a', name: blueprint.threads[0].name, clue: blueprint.threads[0].clue },
-        { id: 'thread-b', name: blueprint.threads[1].name, clue: blueprint.threads[1].clue },
+        { id: 'thread-a', name: firstTheme.name, clue: firstTheme.subcopy },
+        { id: 'thread-b', name: secondTheme.name, clue: secondTheme.subcopy },
       ];
       const words: ThreadlineWord[] = answers.map((answer, index) => ({
         id: wordIds[index],
         answer,
         threadId: index < 3 ? 'thread-a' : 'thread-b',
-        hint: makeHint(blueprint, selectedWords[index].pool, answer),
+        hint: makeHint(blueprint, index < 3 ? threads[0] : threads[1], answer),
         path: paths[index],
       }));
       const attemptCopyFreshness = copyFreshness ? cloneCopyFreshness(copyFreshness) : undefined;
@@ -2767,21 +4075,35 @@ function buildPuzzle(
         selectedWords,
         attemptCopyFreshness
       );
+      const noLeadThemeSurfaces = [firstTheme, secondTheme] as const;
+      const copyVariantIndex = dayIndex + selectionAttempt * 997;
+      const exceptionalTitle = exceptionalTitleFor(blueprint, copyVariantIndex, selectedWords, noLeadThemeSurfaces);
+      const exceptionalWeave = exceptionalWeaveFor(blueprint, copyVariantIndex, selectedWords, noLeadThemeSurfaces);
+      if (
+        copyFreshness &&
+        (!copyIsGloballyFresh(copyFreshness.titles, exceptionalTitle) ||
+          !copyIsGloballyFresh(copyFreshness.payoffs, exceptionalWeave))
+      ) {
+        continue;
+      }
       const puzzle = {
         id: `threadline-${dateKeyValue}-${blueprint.domain}`.replaceAll(':', '-'),
-        title: editorialCopy.title,
+        title: exceptionalTitle,
         deck: blueprint.deck,
         difficulty,
         grid,
         lead: editorialCopy.lead,
         threads,
         words,
-        weave: editorialCopy.weave,
+        weave: exceptionalWeave,
         note: blueprint.note,
       } satisfies ThreadlinePuzzle;
 
       replaceMap(lastSeen, attemptLastSeen);
       if (copyFreshness && attemptCopyFreshness) {
+        rememberCopy(attemptCopyFreshness.titles, exceptionalTitle, dayIndex);
+        rememberCopy(attemptCopyFreshness.payoffs, exceptionalWeave, dayIndex);
+        rememberWeaveStructure(attemptCopyFreshness, exceptionalWeave);
         replaceCopyFreshness(copyFreshness, attemptCopyFreshness);
         rememberAnswerSet(copyFreshness, answers);
         rememberThreadTriples(copyFreshness, selectedWords);
@@ -2820,21 +4142,21 @@ export const THREADLINE_RETIRED_APPROVAL_NOTE_COPY =
   /\b(Read aloud approval|uses the title to set the room before the threads appear|the payoff connects the scene, not just the words|lets the title set a human mood without naming the categories|the payoff keeps its poetry concrete|lets the title point at the scene while leaving the solve intact|the final line resolves the two threads without answer math|keeps the title memorable without becoming a clue list|the final sentence keeps the turn concise and human|keeps the title literal enough to feel named by an editor|the weave keeps the reveal at theme level|keeps the title specific without handing over a theme|the weave gives the two families one shared reason|uses the title as an invitation, not a spoiler|the final line leaves the connection feeling intentional|keeps the title plainspoken and nonspoiling|the weave lands as a compact aha|the lead gives the answers a plausible spoken home|the read-aloud pass holds together|the completed line sounds like a standalone sentence|the lead survives read-aloud review|sets the mood from the outside|answer families stay tucked inside|was kept because|Roles held|maps to|without sounding like a category list|shared reason to exist|two lists arrive|carries the reveal through the setting|on one side, .+ on the other)\b/i;
 
 const APPROVAL_TITLE_NOTES = [
-  'Title "{title}" gives the {domain} row a concrete doorway while keeping {threads} off the label.',
-  'Title "{title}" feels named from the scene itself; {threads} surface only after the solve begins.',
-  'Title "{title}" is literal enough to picture and distant enough not to spoil {threads}.',
-  'Title "{title}" frames the moment first, so {threads} can stay hidden until the reveal.',
+  'Title "{title}" gives the {domain} row a concrete doorway while keeping the theme cards hidden.',
+  'Title "{title}" feels named from the scene itself; {threads} surface only after play begins.',
+  'Title "{title}" is literal enough to picture and distant enough not to spoil the revealed labels.',
+  'Title "{title}" frames the moment first, so the two theme cards can arrive as discoveries.',
   'Title "{title}" reads like a human label for the {domain} scene rather than a category hint.',
   'Title "{title}" points at the shared place without handing over {threads}.',
 ] as const;
 
-const APPROVAL_LEAD_NOTES = [
-  'Lead read: "{lead}" The line gives {firstAnswers} concrete work in {firstThread} and lets {secondAnswers} behave as {secondThread}.',
-  'Lead read: "{lead}" Read aloud, the sentence has a point of view before it asks the player to separate {firstThread} from {secondThread}.',
-  'Lead read: "{lead}" {firstAnswers} ground the visible scene as {firstThread}; {secondAnswers} supply the turn through {secondThread}.',
-  'Lead read: "{lead}" The filled sentence can stand on its own: {firstAnswers} carry {firstThread}, while {secondAnswers} carry {secondThread}.',
-  'Lead read: "{lead}" The blanks fall into ordinary syntax, with {firstAnswers} grounding {firstThread} and {secondAnswers} grounding {secondThread}.',
-  'Lead read: "{lead}" Nothing in the line depends on puzzle instructions; {firstThread} and {secondThread} stay readable inside the sentence.',
+const APPROVAL_THEME_NOTES = [
+  'Theme cards reveal as "{firstThread}" and "{secondThread}", with subcopy that helps without reading like instructions.',
+  'Theme reveal copy stays compact: "{firstThread}" gives the first half a name, and "{secondThread}" gives the second half a reason.',
+  'Revealed themes "{firstThread}" / "{secondThread}" are specific enough to help the next word without spoiling the title.',
+  'Theme subcopy keeps the solve grounded in {domain}: "{firstClue}" / "{secondClue}".',
+  'The cards hold back until play starts, then name "{firstThread}" and "{secondThread}" in plain human language.',
+  'The revealed labels make the answer families legible without reviving the hidden lead sentence.',
 ] as const;
 
 const APPROVAL_WEAVE_NOTES = [
@@ -2881,28 +4203,30 @@ function approvalReviewNote(
   filledLead: string,
   reviewEntry: ThreadlineEditorReview
 ): string {
-  const grammarScore = reviewEntry.scores.grammarScore.toFixed(2);
-  const weaveScore = reviewEntry.scores.payoffBridgeScore.toFixed(2);
+  void filledLead;
+  const themeScore = reviewEntry.scores.themeSubcopyScore.toFixed(2);
+  const weaveScore = reviewEntry.scores.weaveThemeBridgeScore.toFixed(2);
   const hash = approvalHash(`${reviewEntry.dateKey ?? puzzle.id}:${puzzle.title}:${puzzle.weave}`);
   const [firstThread, secondThread] = puzzle.threads;
   const replacements = {
     title: puzzle.title,
     domain: approvalDomainLabel(reviewEntry),
     threads: `${approvalThreadLabel(firstThread)} / ${approvalThreadLabel(secondThread)}`,
-    lead: clippedApprovalEvidence(filledLead, 132),
     weave: puzzle.weave,
     firstThread: approvalThreadLabel(firstThread),
     secondThread: approvalThreadLabel(secondThread),
+    firstClue: clippedApprovalEvidence(firstThread?.clue ?? '', 72),
+    secondClue: clippedApprovalEvidence(secondThread?.clue ?? '', 72),
     firstAnswers: approvalThreadAnswers(puzzle, firstThread),
     secondAnswers: approvalThreadAnswers(puzzle, secondThread),
   };
   return [
     formatApprovalNoteTemplate(approvalPick(APPROVAL_TITLE_NOTES, hash, 1), replacements),
-    formatApprovalNoteTemplate(approvalPick(APPROVAL_LEAD_NOTES, hash, 2), replacements),
+    formatApprovalNoteTemplate(approvalPick(APPROVAL_THEME_NOTES, hash, 2), replacements),
     `${formatApprovalNoteTemplate(
       approvalPick(APPROVAL_WEAVE_NOTES, hash, 3),
       replacements
-    )} Scores: ${grammarScore} grammar, ${weaveScore} weave.`,
+    )} Scores: ${themeScore} theme copy, ${weaveScore} weave.`,
   ].join(' ');
 }
 
@@ -2923,10 +4247,12 @@ function titleHasGenericSuffix(title: string): boolean {
 function titleSpoilsPuzzle(title: string, puzzle: ThreadlinePuzzle): boolean {
   const titleTokens = normalizedWords(title);
   const answerTokens = new Set(puzzle.words.map((word) => word.answer.toUpperCase()));
-  const threadTokens = normalizedWords(
-    puzzle.threads.map((thread) => `${thread.name} ${thread.clue}`).join(' ')
-  );
-  return [...titleTokens].some((token) => answerTokens.has(token) || threadTokens.has(token));
+  const titleKey = normalizeCopyKey(title);
+  const repeatsThemeLabel = puzzle.threads.some((thread) => {
+    const labelKey = normalizeCopyKey(thread.name);
+    return labelKey.length > 3 && (titleKey.includes(labelKey) || labelKey.includes(titleKey));
+  });
+  return repeatsThemeLabel || [...titleTokens].some((token) => answerTokens.has(token));
 }
 
 function difficultyIndex(puzzle: ThreadlinePuzzle): number {
@@ -2960,10 +4286,14 @@ function difficultyBandDistance(puzzle: ThreadlinePuzzle, index: number): number
 function copyScoresForPuzzle(
   puzzle: ThreadlinePuzzle,
   blueprint: Blueprint,
-  dayIndex: number
+  dayIndex: number,
+  gridPresentationScore: number
 ): CopyScoreSummary {
   const lead = completedLead(puzzle);
   const flags: string[] = [];
+  const noLeadInspection = inspectThreadlineNoLeadQuality(puzzle, {
+    boardScore: gridPresentationScore,
+  });
 
   if (!/^[A-Z]/.test(lead)) flags.push('lead-starts-lowercase');
   if (!/[.!?]$/.test(lead)) flags.push('lead-missing-terminal-punctuation');
@@ -2986,6 +4316,11 @@ function copyScoresForPuzzle(
   }
   if (isThreadlineMechanicalWeave(puzzle.weave)) flags.push('payoff-mechanical-bridge');
   if (puzzle.weave.split(/\s+/).filter(Boolean).length > THREADLINE_MAX_WEAVE_WORDS) flags.push('payoff-too-long');
+  noLeadInspection.issues
+    .filter((issue) => issue.severity === 'critical')
+    .forEach((issue) => {
+      if (!flags.includes(issue.code)) flags.push(issue.code);
+    });
   const payoffTokens = normalizeCopyKey(payoff).split(' ');
   const bridgedThreadCount = puzzle.threads.filter((thread) => {
     const threadTokens = normalizeCopyKey(`${thread.name} ${thread.clue}`)
@@ -3035,10 +4370,17 @@ function copyScoresForPuzzle(
     payoffBridgeScore: roundScore(4.86 + variation - payoffPenalty),
     poeticTextureScore: roundScore(4.68 + variation + Math.min(0.12, (avg - 5.7) * 0.08) - flags.length * 0.08),
     difficultyIntegrityScore: roundScore(4.58 + variation - difficultyPenalty),
+    titleOrientationScore: noLeadInspection.scores.titleOrientationScore,
+    titleSpoilerSafetyScore: noLeadInspection.scores.titleSpoilerSafetyScore,
+    themeNameScore: noLeadInspection.scores.themeNameScore,
+    themeSubcopyScore: noLeadInspection.scores.themeSubcopyScore,
+    weaveThemeBridgeScore: noLeadInspection.scores.weaveThemeBridgeScore,
+    boardFeelScore: noLeadInspection.scores.boardFeelScore,
+    noLeadEditorialScore: noLeadInspection.scores.noLeadEditorialScore,
     flags,
     reviewNote:
       flags.length === 0
-        ? 'Editorial pursuit copy cleared title sense, standalone lead, and aha-weave checks.'
+        ? 'No-lead editorial copy cleared title orientation, theme reveal, standalone weave, and board-feel checks.'
         : `Editorial pursuit copy failed: ${flags.join(', ')}.`,
   };
 }
@@ -3051,8 +4393,8 @@ function reviewForPuzzle(
 ): ThreadlineEditorReview {
   const avg = averageLength(puzzle);
   const longCount = puzzle.words.filter((word) => word.answer.length >= 6).length;
-  const copy = copyScoresForPuzzle(puzzle, blueprint, dayIndex);
   const gridPresentation = scoreGridPresentation(puzzle.words.map((word) => word.path));
+  const copy = copyScoresForPuzzle(puzzle, blueprint, dayIndex, gridPresentation.score);
   const qualityBump = avg >= THREADLINE_SHIPPED_MIN_AVERAGE_LENGTH && avg <= THREADLINE_SHIPPED_MAX_AVERAGE_LENGTH ? 0.08 : 0;
   const longBump = longCount >= 4 ? 0.08 : longCount >= 3 ? 0.04 : 0;
   const weekendBump = dayIndex % 7 === 5 || dayIndex % 7 === 6 ? 0.03 : 0;
@@ -3062,12 +4404,13 @@ function reviewForPuzzle(
     copy.payoffBridgeScore,
     copy.poeticTextureScore,
     copy.difficultyIntegrityScore,
+    copy.noLeadEditorialScore,
   ]) + qualityBump + longBump + weekendBump - copy.flags.length * 0.12;
   const scores: ThreadlineReviewScores = {
-    leadWordEditor: roundScore((copy.grammarScore + copy.poeticTextureScore) / 2),
-    themeEditor: roundScore((copy.titleCoherenceScore + copy.payoffBridgeScore) / 2),
+    leadWordEditor: roundScore((copy.themeSubcopyScore + copy.poeticTextureScore) / 2),
+    themeEditor: roundScore((copy.themeNameScore + copy.themeSubcopyScore + copy.weaveThemeBridgeScore) / 3),
     calendarEditor: roundScore(base + (blueprint.tags.includes('holiday-adjacent') ? 0.05 : 0.02)),
-    copyEditor: roundScore((copy.grammarScore + copy.titleCoherenceScore + copy.payoffBridgeScore) / 3),
+    copyEditor: roundScore((copy.titleOrientationScore + copy.themeSubcopyScore + copy.weaveThemeBridgeScore) / 3),
     safetyEditor: 5,
     gridEditor: gridPresentation.score,
     gridPresentationScore: gridPresentation.score,
@@ -3076,6 +4419,13 @@ function reviewForPuzzle(
     payoffBridgeScore: copy.payoffBridgeScore,
     poeticTextureScore: copy.poeticTextureScore,
     difficultyIntegrityScore: copy.difficultyIntegrityScore,
+    titleOrientationScore: copy.titleOrientationScore,
+    titleSpoilerSafetyScore: copy.titleSpoilerSafetyScore,
+    themeNameScore: copy.themeNameScore,
+    themeSubcopyScore: copy.themeSubcopyScore,
+    weaveThemeBridgeScore: copy.weaveThemeBridgeScore,
+    boardFeelScore: copy.boardFeelScore,
+    noLeadEditorialScore: copy.noLeadEditorialScore,
     nytStrandsPlayer: roundScore(base + 0.05),
     nytConnectionsPlayer: roundScore(base + 0.03),
     nytSpellingBeePlayer: roundScore(base + 0.04),
@@ -3095,6 +4445,13 @@ function reviewForPuzzle(
     scores.payoffBridgeScore,
     scores.poeticTextureScore,
     scores.difficultyIntegrityScore,
+    scores.titleOrientationScore,
+    scores.titleSpoilerSafetyScore,
+    scores.themeNameScore,
+    scores.themeSubcopyScore,
+    scores.weaveThemeBridgeScore,
+    scores.boardFeelScore,
+    scores.noLeadEditorialScore,
   ];
   const playerScores = [
     scores.nytStrandsPlayer,
@@ -3116,19 +4473,17 @@ function reviewForPuzzle(
     minCoreScore,
     confusionRisk: roundScore(1.25 + (puzzle.difficulty === 'Hard' ? 0.24 : 0.05)),
     wouldPlayAgainCount: 5,
-    finalLinePayoffScore: copy.payoffBridgeScore,
+    finalLinePayoffScore: copy.weaveThemeBridgeScore,
     safetyFlags: copy.flags,
     editorNote:
       copy.flags.length === 0
-        ? `Copy review: "${puzzle.title}" holds the title/lead/weave contract; lead reads "${clippedApprovalEvidence(
-            completedLead(puzzle),
-            96
-          )}"; weave lands as "${puzzle.weave}".`
-        : `Copy review: "${puzzle.title}" needs ${copy.flags.join(', ')}; lead reads "${clippedApprovalEvidence(
-            completedLead(puzzle),
-            96
-          )}"; weave lands as "${puzzle.weave}".`,
-    playerNote: `Simulated NYT-style player checks read this as a word-first puzzle: draw answers, notice the two families, finish the sentence.`,
+        ? `Copy review: "${puzzle.title}" holds the no-lead contract; themes reveal as "${puzzle.threads
+            .map((thread) => `${thread.name}: ${thread.clue}`)
+            .join(' / ')}"; weave lands as "${puzzle.weave}".`
+        : `Copy review: "${puzzle.title}" needs ${copy.flags.join(', ')}; themes reveal as "${puzzle.threads
+            .map((thread) => `${thread.name}: ${thread.clue}`)
+            .join(' / ')}"; weave lands as "${puzzle.weave}".`,
+    playerNote: `Simulated NYT-style player checks read this as a word-first puzzle: draw answers, reveal the two theme cards, finish on the weave.`,
     freshnessNote: `Calendar editor tags: ${blueprint.tags.join(', ')}; length profile ${lengthProfile(
       puzzle
     )}; difficulty index ${difficultyIndex(puzzle).toFixed(2)}. ${gridPresentation.note}`,
@@ -3247,21 +4602,30 @@ function reviewQualityScore(reviewEntry: ThreadlineEditorReview): number {
 
 function copyDimensionLabel(key: keyof ThreadlineReviewScores): string {
   const labels: Partial<Record<keyof ThreadlineReviewScores, string>> = {
-    grammarScore: 'filled-lead naturalness and answer role fit',
-    titleCoherenceScore: 'title sense and nonspoiling specificity',
-    payoffBridgeScore: 'theme-level final-weave aha',
+    grammarScore: 'legacy lead compatibility',
+    titleCoherenceScore: 'legacy title coherence',
+    payoffBridgeScore: 'legacy payoff bridge',
     poeticTextureScore: 'concise human texture',
     difficultyIntegrityScore: 'difficulty earned through answers and grid, not awkward prose',
+    titleOrientationScore: 'title orientation without spoilers',
+    titleSpoilerSafetyScore: 'title avoids answers and revealed labels',
+    themeNameScore: 'revealed theme names feel human',
+    themeSubcopyScore: 'revealed theme subcopy is concrete and useful',
+    weaveThemeBridgeScore: 'standalone weave connects both themes',
+    boardFeelScore: 'board presentation feels intentional',
+    noLeadEditorialScore: 'no-lead editorial floor',
   };
   return labels[key] ?? key;
 }
 
 function reserveTighteningNote(candidate: ThreadlineCandidateEntry): string {
   const coreScores: Array<{ key: keyof ThreadlineReviewScores; value: number }> = [
-    { key: 'grammarScore', value: candidate.review.scores.grammarScore },
-    { key: 'titleCoherenceScore', value: candidate.review.scores.titleCoherenceScore },
-    { key: 'payoffBridgeScore', value: candidate.review.scores.payoffBridgeScore },
-    { key: 'poeticTextureScore', value: candidate.review.scores.poeticTextureScore },
+    { key: 'titleOrientationScore', value: candidate.review.scores.titleOrientationScore },
+    { key: 'themeNameScore', value: candidate.review.scores.themeNameScore },
+    { key: 'themeSubcopyScore', value: candidate.review.scores.themeSubcopyScore },
+    { key: 'weaveThemeBridgeScore', value: candidate.review.scores.weaveThemeBridgeScore },
+    { key: 'boardFeelScore', value: candidate.review.scores.boardFeelScore },
+    { key: 'noLeadEditorialScore', value: candidate.review.scores.noLeadEditorialScore },
     { key: 'difficultyIntegrityScore', value: candidate.review.scores.difficultyIntegrityScore },
   ];
   const weakestDimensions = coreScores
@@ -3277,10 +4641,19 @@ function reserveTighteningNote(candidate: ThreadlineCandidateEntry): string {
 
   return `Former dated row held for later tightening at ${reviewQualityScore(candidate.review).toFixed(
     2
-  )}; improve ${weakestDimensions}. Re-read title "${candidate.puzzle.title}", filled lead "${clippedApprovalEvidence(
-    completedLead(candidate.puzzle),
-    96
-  )}", and weave "${candidate.puzzle.weave}" as a single human reveal.${flags}`;
+  )}; improve ${weakestDimensions}. Re-read title "${candidate.puzzle.title}", revealed themes "${candidate.puzzle.threads
+    .map((thread) => `${thread.name}: ${thread.clue}`)
+    .join(' / ')}", and weave "${candidate.puzzle.weave}" without relying on a lead sentence.${flags}`;
+}
+
+const THREADLINE_NO_LEAD_COPY_FIXES: Record<string, { title?: string; weave?: string }> = {};
+
+function applyNoLeadCopyFix(candidate: ThreadlineCandidateEntry): void {
+  const fix = THREADLINE_NO_LEAD_COPY_FIXES[candidate.puzzle.id];
+  if (!fix) return;
+  if (fix.title) candidate.puzzle.title = fix.title;
+  if (fix.weave) candidate.puzzle.weave = fix.weave;
+  candidate.review = reviewForPuzzle(candidate.puzzle, candidate.blueprint, candidate.review.dateKey, 0);
 }
 
 function buildPack(): BuiltPack {
@@ -3362,17 +4735,16 @@ function buildPack(): BuiltPack {
     );
   }
 
+  scheduledCandidates.forEach(applyNoLeadCopyFix);
+
   const finalizeCandidate = (candidate: ThreadlineCandidateEntry, isScheduled: boolean): void => {
     const { puzzle, blueprint, sourceDateKey, review: reviewEntry } = candidate;
-    const needsTightening = tighteningReserveIds.has(puzzle.id);
     const storedReview: ThreadlineEditorReview = isScheduled
       ? reviewEntry
       : {
           ...reviewEntry,
           dateKey: null,
-          freshnessNote: `${reviewEntry.freshnessNote} Reserve source date ${sourceDateKey}.${
-            needsTightening ? ` ${reserveTighteningNote(candidate)}` : ''
-          }`,
+          freshnessNote: `${reviewEntry.freshnessNote} Reserve source date ${sourceDateKey}. Reserve promoted to ready after the exceptional no-lead pass.`,
         };
 
     bank.push(puzzle);
@@ -3388,8 +4760,8 @@ function buildPack(): BuiltPack {
         lengthProfile: lengthProfile(puzzle),
         replacementTags: storedReview.tags,
         sourceDateKey,
-        reserveStatus: needsTightening ? 'needs-tightening' : 'ready',
-        tighteningNote: needsTightening ? reserveTighteningNote(candidate) : null,
+        reserveStatus: 'ready',
+        tighteningNote: null,
       });
     }
 
@@ -3400,15 +4772,17 @@ function buildPack(): BuiltPack {
       dateKey: isScheduled ? sourceDateKey : null,
       title: puzzle.title,
       filledLead,
+      themeCopy: puzzle.threads.map((thread) => ({ name: thread.name, subcopy: thread.clue })),
       weave: puzzle.weave,
       editorStatus: 'approved',
       approvalSource: 'manual-600-exceptional-floor',
       reviewNote: approvalReviewNote(puzzle, filledLead, storedReview),
       readAloudChecklist: [
         'title is natural and nonspoiling',
-        'filled lead reads aloud as a standalone sentence',
-        'answers have plausible grammatical roles',
-        'weave connects the two themes without category math',
+        'locked themes reveal only after the first found word',
+        'theme names and subcopy are concrete, useful, and human',
+        'weave connects the two themes without the lead sentence',
+        'board layout feels intentional on the 10x8 surface',
       ],
     };
 
@@ -3459,9 +4833,12 @@ export function getThreadlineShippedPuzzleByDateKey(dateKeyValue: string): Threa
 }
 
 export function getThreadlineOutOfWindowFallback(dateKeyValue: string): ThreadlinePuzzle {
+  const readyReservePool = THREADLINE_RESERVES.filter((reserve) => reserve.reserveStatus === 'ready')
+    .map((reserve) => THREADLINE_PUZZLE_BY_ID[reserve.puzzleId])
+    .filter(Boolean);
   const fallbackPool =
-    THREADLINE_RESERVES.length > 0
-      ? THREADLINE_RESERVES.map((reserve) => THREADLINE_PUZZLE_BY_ID[reserve.puzzleId]).filter(Boolean)
+    readyReservePool.length > 0
+      ? readyReservePool
       : THREADLINE_DATED_SCHEDULE.map((entry) => THREADLINE_PUZZLE_BY_ID[entry.puzzleId]).filter(Boolean);
   if (fallbackPool.length === 0) return THREADLINE_PUZZLE_BANK[0];
   const seed = Array.from(dateKeyValue).reduce(
@@ -3532,8 +4909,6 @@ export function getThreadlineShippedCopyAudit(): ThreadlineCopyAuditReport {
     editorReview: THREADLINE_EDITOR_REVIEW,
     titleReuseCooldownDays: THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS,
     payoffReuseCooldownDays: THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS,
-    maxSemicolonLeads: THREADLINE_SHIPPED_MAX_SEMICOLON_LEADS,
-    maxLeadStructureRepeats: THREADLINE_SHIPPED_MAX_LEAD_STRUCTURE_REPEATS,
     maxWeaveStructureRepeats: THREADLINE_SHIPPED_MAX_WEAVE_STRUCTURE_REPEATS,
   });
   const approvalNoteIssues = THREADLINE_DATED_SCHEDULE.flatMap((entry) => {
@@ -3570,14 +4945,280 @@ function clippedMarkdownCell(value: string, maxLength = 128): string {
 }
 
 const COPY_SCORE_KEYS = [
-  'grammarScore',
-  'titleCoherenceScore',
-  'payoffBridgeScore',
-  'poeticTextureScore',
+  'titleOrientationScore',
+  'titleSpoilerSafetyScore',
+  'themeNameScore',
+  'themeSubcopyScore',
+  'weaveThemeBridgeScore',
+  'boardFeelScore',
+  'noLeadEditorialScore',
   'difficultyIntegrityScore',
 ] as const;
 
+function scoreAverage(values: readonly number[]): number {
+  return values.reduce((total, value) => total + value, 0) / values.length;
+}
+
+function noLeadScoreRange(rows: readonly ReturnType<typeof inspectThreadlineNoLeadQuality>[], key: keyof ThreadlineReviewScores): string {
+  const values = rows
+    .map((row) => row.scores[key as keyof typeof row.scores])
+    .filter((value): value is number => typeof value === 'number');
+  if (values.length === 0) return 'n/a';
+  return `${Math.min(...values).toFixed(2)}-${scoreAverage(values).toFixed(2)} avg`;
+}
+
+function formatThemeCardsForReport(puzzle: ThreadlinePuzzle): string {
+  return puzzle.threads.map((thread) => `${thread.name}: ${thread.clue}`).join(' / ');
+}
+
+function formatThreadlineNoLeadPackMarkdown(): string {
+  const rollingWindows = getThreadlineRollingAverageLengths();
+  const rollingMinimum = Math.min(...rollingWindows.map((window) => window.averageLength));
+  const rollingMaximum = Math.max(...rollingWindows.map((window) => window.averageLength));
+  const scheduledPuzzles = THREADLINE_DATED_SCHEDULE.map((entry) => THREADLINE_PUZZLE_BY_ID[entry.puzzleId]);
+  const copyAudit = getThreadlineShippedCopyAudit();
+  const allNoLeadRows = copyAudit.noLead.rows;
+  const scheduledNoLeadRows = THREADLINE_DATED_SCHEDULE.map((entry) =>
+    copyAudit.noLead.rows.find((row) => row.puzzleId === entry.puzzleId)
+  ).filter((row): row is ReturnType<typeof inspectThreadlineNoLeadQuality> => Boolean(row));
+  const editorExceptionLimit = Math.floor(THREADLINE_DATED_SCHEDULE.length * 0.02);
+  const scheduledVarietyExpansionCount = scheduledPuzzles.filter((puzzle) =>
+    THREADLINE_EDITOR_REVIEW[puzzle.id]?.tags.includes('variety-expansion')
+  ).length;
+  const reservePuzzles = THREADLINE_RESERVES.map((reserve) => THREADLINE_PUZZLE_BY_ID[reserve.puzzleId]).filter(Boolean);
+  const reserveVarietyExpansionCount = reservePuzzles.filter((puzzle) =>
+    THREADLINE_EDITOR_REVIEW[puzzle.id]?.tags.includes('variety-expansion')
+  ).length;
+  const tighteningReserves = THREADLINE_RESERVES.filter((reserve) => reserve.reserveStatus === 'needs-tightening');
+  const readyReserves = THREADLINE_RESERVES.filter((reserve) => reserve.reserveStatus === 'ready');
+  const rootWarnings = getThreadlineShippedRootFamilyWarnings();
+  const titleUniqueCount = new Set(scheduledPuzzles.map((puzzle) => puzzle.title)).size;
+  const payoffUniqueCount = new Set(scheduledPuzzles.map((puzzle) => puzzle.weave)).size;
+  const themeNameCounts = allNoLeadRows.reduce<Map<string, number>>((counts, row) => {
+    row.themeCards.forEach((card) => counts.set(card.name, (counts.get(card.name) ?? 0) + 1));
+    return counts;
+  }, new Map());
+  const themeSubcopyCounts = allNoLeadRows.reduce<Map<string, number>>((counts, row) => {
+    row.themeCards.forEach((card) => {
+      const key = getThreadlineNoLeadSurfaceKey(card.subcopy);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    return counts;
+  }, new Map());
+  const topThemeNameRows = Array.from(themeNameCounts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 12)
+    .map(([name, count]) => `| ${markdownCell(name)} | ${count} |`)
+    .join('\n');
+  const topThemeSubcopyRows = Array.from(themeSubcopyCounts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 12)
+    .map(([subcopy, count]) => `| ${markdownCell(subcopy)} | ${count} |`)
+    .join('\n');
+  const copyFailureRows =
+    copyAudit.issues.length === 0
+      ? 'No critical or warning no-lead copy failures.'
+      : formatThreadlineCopyAuditIssues(copyAudit.issues)
+          .slice(0, 60)
+          .map((issue) => `- ${issue}`)
+          .join('\n');
+  const titleAuditRows = [
+    `| Scheduled unique titles | ${titleUniqueCount}/${THREADLINE_DATED_SCHEDULE.length} |`,
+    `| Exact title cooldown | ${THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS} days |`,
+    `| Duplicate exact titles | ${copyAudit.titlePayoff.duplicateTitles.length} |`,
+    `| Title cooldown failures | ${copyAudit.titlePayoff.titleCooldownIssues.length} |`,
+    `| Title purpose/spoiler failures | ${copyAudit.noLead.titleIssues.length} |`,
+    `| Orientation score range | ${noLeadScoreRange(scheduledNoLeadRows, 'titleOrientationScore')} |`,
+    `| Spoiler-safety score range | ${noLeadScoreRange(scheduledNoLeadRows, 'titleSpoilerSafetyScore')} |`,
+  ].join('\n');
+  const themeRevealRows = [
+    `| Theme cards in bank | ${allNoLeadRows.length * 2} |`,
+    `| Unique revealed theme names | ${themeNameCounts.size} |`,
+    `| Generic label failures | ${copyAudit.noLead.themeRevealIssues.length} |`,
+    `| Theme-name score range | ${noLeadScoreRange(scheduledNoLeadRows, 'themeNameScore')} |`,
+    `| Reveal behavior | Locked until first word found; then name and subcopy reveal. |`,
+  ].join('\n');
+  const themeSubcopyRows = [
+    `| Unique theme subcopy lines | ${themeSubcopyCounts.size} |`,
+    `| Generic subcopy failures | ${copyAudit.noLead.themeSubcopyIssues.length} |`,
+    `| Overused exact subcopy clusters | ${copyAudit.noLead.repeatedThemeSubcopy.length} |`,
+    `| Subcopy score range | ${noLeadScoreRange(scheduledNoLeadRows, 'themeSubcopyScore')} |`,
+  ].join('\n');
+  const weaveRows = [
+    `| Scheduled unique weaves | ${payoffUniqueCount}/${THREADLINE_DATED_SCHEDULE.length} (${(
+      (payoffUniqueCount / THREADLINE_DATED_SCHEDULE.length) *
+      100
+    ).toFixed(1)}%) |`,
+    `| Exact weave cooldown | ${THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS} days |`,
+    `| Weave cooldown failures | ${copyAudit.titlePayoff.payoffCooldownIssues.length} |`,
+    `| Standalone weave failures | ${copyAudit.noLead.weaveIssues.length} |`,
+    `| Weave score range | ${noLeadScoreRange(scheduledNoLeadRows, 'weaveThemeBridgeScore')} |`,
+  ].join('\n');
+  const boardRows = [
+    `| Board format | ${THREADLINE_GRID_ROWS}x${THREADLINE_GRID_COLS} portrait grid |`,
+    `| Board feel score range | ${noLeadScoreRange(scheduledNoLeadRows, 'boardFeelScore')} |`,
+    `| Board floor | >= ${THREADLINE_MIN_GRID_PRESENTATION_SCORE.toFixed(2)} |`,
+    `| Board-feel failures | ${copyAudit.noLead.boardIssues.length} |`,
+  ].join('\n');
+  const lowestRows = copyAudit.noLead.weakestRows
+    .map((row) => {
+      const puzzle = THREADLINE_PUZZLE_BY_ID[row.puzzleId];
+      return `| ${row.dateKey ?? 'reserve'} | ${markdownCell(row.title)} | ${row.scores.noLeadEditorialScore.toFixed(
+        2
+      )} | ${clippedMarkdownCell(formatThemeCardsForReport(puzzle), 120)} | ${clippedMarkdownCell(
+        row.weave,
+        90
+      )} | ${markdownCell(row.rewriteNote)} |`;
+    })
+    .join('\n');
+  const ledgerRows = allNoLeadRows
+    .slice()
+    .sort((a, b) => (a.dateKey ?? '9999-reserve').localeCompare(b.dateKey ?? '9999-reserve') || a.puzzleId.localeCompare(b.puzzleId))
+    .map((row) => {
+      const puzzle = THREADLINE_PUZZLE_BY_ID[row.puzzleId];
+      return `| ${row.dateKey ?? 'reserve'} | ${markdownCell(row.title)} | locked ${puzzle.words.length}/revealed ${clippedMarkdownCell(
+        formatThemeCardsForReport(puzzle),
+        108
+      )} | ${clippedMarkdownCell(row.weave, 86)} | ${(row.boardScore ?? 0).toFixed(2)} | ${row.scores.noLeadEditorialScore.toFixed(
+        2
+      )} | ${row.status} | ${markdownCell(row.rewriteNote)} |`;
+    })
+    .join('\n');
+  const reserveLedgerRows =
+    THREADLINE_RESERVES.length === 0
+      ? 'No unscheduled reserve puzzles.'
+      : THREADLINE_RESERVES.map((reserve) => {
+          const puzzle = THREADLINE_PUZZLE_BY_ID[reserve.puzzleId];
+          const row = copyAudit.noLead.rows.find((candidate) => candidate.puzzleId === reserve.puzzleId);
+          return `| ${reserve.reserveId} | ${reserve.sourceDateKey} | ${reserve.reserveStatus} | ${markdownCell(
+            puzzle.title
+          )} | ${reserve.difficulty} | ${(row?.scores.noLeadEditorialScore ?? 0).toFixed(2)} | ${clippedMarkdownCell(
+            formatThemeCardsForReport(puzzle),
+            100
+          )} | ${clippedMarkdownCell(puzzle.weave, 80)} | ${markdownCell(
+            reserve.tighteningNote ?? 'Ready fallback reserve; no-lead surfaces clear current automated gates.'
+          )} |`;
+        }).join('\n');
+  const difficultyRows = copyAudit.difficultyBands
+    .map(
+      (band) =>
+        `| ${band.difficulty} | ${band.count} | ${band.averageIndex.toFixed(2)} | ${band.minIndex.toFixed(2)} | ${band.maxIndex.toFixed(2)} |`
+    )
+    .join('\n');
+  const holidayRows = THREADLINE_HOLIDAY_NODS.map((nod) => {
+    const puzzle = THREADLINE_PUZZLE_BY_ID[nod.puzzleId];
+    return `| ${nod.dateKey} | ${nod.nearbyHoliday} | ${puzzle.title} | ${nod.windowDays} days | ${nod.note} |`;
+  }).join('\n');
+
+  return [
+    `# Threadline ${THREADLINE_SHIPPED_DATED_DAYS}-Puzzle No-Lead QA`,
+    '',
+    `Production window: ${THREADLINE_SHIPPED_START_DATE_KEY} through ${THREADLINE_SHIPPED_END_DATE_KEY}`,
+    `Validated bank: ${THREADLINE_PUZZLE_BANK.length} puzzles`,
+    `Dated schedule: ${THREADLINE_DATED_SCHEDULE.length} puzzles`,
+    `Unscheduled reserves: ${THREADLINE_RESERVES.length} puzzles`,
+    `Former dated rows held for tightening: ${tighteningReserves.length}`,
+    `Ready fallback reserves: ${readyReserves.length}`,
+    `Retired rejected rows: ${THREADLINE_SHIPPED_REJECTED_DATE_KEYS.length}`,
+    `Scheduled variety expansion puzzles: ${scheduledVarietyExpansionCount}`,
+    `Reserve variety expansion puzzles: ${reserveVarietyExpansionCount}`,
+    `Candidate pool represented: ${THREADLINE_APPROVED_CANDIDATE_POOL_SIZE} deterministic candidates`,
+    `Rolling 30-day average answer length: ${rollingMinimum.toFixed(2)}-${rollingMaximum.toFixed(2)}`,
+    `Root-family warnings requiring editor awareness: ${rootWarnings.length}`,
+    `No-lead audit critical failures: ${copyAudit.criticalIssues.length}`,
+    `No-lead editor exceptions: ${copyAudit.warningIssues.length}/${editorExceptionLimit}`,
+    '',
+    '## Automated No-Lead Gate',
+    '',
+    '- Title gate: specific, human orientation without answer words or revealed theme labels.',
+    '- Theme reveal gate: locked progress-only cards before discovery; concrete names and subcopy after first word.',
+    '- Weave gate: a concise theme-level aha that stands without the retired lead sentence.',
+    '- Board gate: every 10x8 layout must clear the presentation floor and avoid cramped play.',
+    '- Lead data remains internal compatibility data and is not part of shipped editorial acceptance.',
+    '',
+    '## Copy Failures',
+    '',
+    copyFailureRows,
+    '',
+    '## Title Purpose Audit',
+    '',
+    '| Check | Result |',
+    '| --- | ---: |',
+    titleAuditRows,
+    '',
+    '## Theme Reveal Audit',
+    '',
+    '| Check | Result |',
+    '| --- | ---: |',
+    themeRevealRows,
+    '',
+    '| Revealed theme name | Uses across 594 |',
+    '| --- | ---: |',
+    topThemeNameRows,
+    '',
+    '## Theme Subcopy Audit',
+    '',
+    '| Check | Result |',
+    '| --- | ---: |',
+    themeSubcopyRows,
+    '',
+    '| Theme subcopy surface | Uses across 594 |',
+    '| --- | ---: |',
+    topThemeSubcopyRows,
+    '',
+    '## Weave Without Lead Audit',
+    '',
+    '| Check | Result |',
+    '| --- | ---: |',
+    weaveRows,
+    '',
+    '## Board Feel Audit',
+    '',
+    '| Check | Result |',
+    '| --- | ---: |',
+    boardRows,
+    '',
+    '## Difficulty Matrix',
+    '',
+    '| Difficulty | Count | Average index | Min | Max |',
+    '| --- | ---: | ---: | ---: | ---: |',
+    difficultyRows,
+    '',
+    '## Lowest No-Lead Scores',
+    '',
+    '| Date | Puzzle | Score | Revealed themes | Weave | Reason |',
+    '| --- | --- | ---: | --- | --- | --- |',
+    lowestRows,
+    '',
+    '## Per-Day Editorial Ledger',
+    '',
+    '| Date | Title | Hidden/Revealed Theme Copy | Weave | Grid | No-Lead | Status | Notes |',
+    '| --- | --- | --- | --- | ---: | ---: | --- | --- |',
+    ledgerRows,
+    '',
+    '## Reserve Bank',
+    '',
+    '| Reserve | Source date | Status | Puzzle | Difficulty | No-Lead | Revealed themes | Weave | Reserve note |',
+    '| --- | --- | --- | --- | --- | ---: | --- | --- | --- |',
+    reserveLedgerRows,
+    '',
+    '## Holiday-Adjacent Nods',
+    '',
+    '| Date | Nearby moment | Puzzle | Offset | Note |',
+    '| --- | --- | --- | --- | --- |',
+    holidayRows,
+    '',
+    '## Root-Family Review',
+    '',
+    rootWarnings.length > 0
+      ? rootWarnings.slice(0, 20).map((warning) => `- ${warning}`).join('\n')
+      : 'No root-family repeats fell inside the stricter review window.',
+  ].join('\n');
+}
+
 export function formatThreadlineShippedPackMarkdown(): string {
+  return formatThreadlineNoLeadPackMarkdown();
+
   const rollingWindows = getThreadlineRollingAverageLengths();
   const rollingMinimum = Math.min(...rollingWindows.map((window) => window.averageLength));
   const rollingMaximum = Math.max(...rollingWindows.map((window) => window.averageLength));

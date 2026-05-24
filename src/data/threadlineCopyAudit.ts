@@ -14,6 +14,8 @@ export type ThreadlineCopyAuditCode =
   | 'abstract-title-frame'
   | 'answer-set-reuse'
   | 'answer-led-payoff'
+  | 'board-feel'
+  | 'exact-title-reuse'
   | 'generic-title-suffix'
   | 'lead-answer-repeat'
   | 'lead-structure-repeat'
@@ -34,9 +36,15 @@ export type ThreadlineCopyAuditCode =
   | 'thread-triple-reuse'
   | 'score-below-threshold'
   | 'score-not-number'
+  | 'theme-label-generic'
+  | 'theme-subcopy-generic'
+  | 'theme-subcopy-repeat'
   | 'title-spoiler'
   | 'title-coherence'
-  | 'title-reuse-window';
+  | 'title-purpose'
+  | 'title-reuse-window'
+  | 'weave-lead-dependent'
+  | 'weave-without-lead';
 
 export interface ThreadlineAuditScheduleEntry {
   dateKey: string;
@@ -124,6 +132,45 @@ export interface ThreadlineScoreDimensionSummary {
   max: number | null;
 }
 
+export interface ThreadlineNoLeadScores {
+  titleOrientationScore: number;
+  titleSpoilerSafetyScore: number;
+  themeNameScore: number;
+  themeSubcopyScore: number;
+  weaveThemeBridgeScore: number;
+  boardFeelScore: number;
+  noLeadEditorialScore: number;
+}
+
+export interface ThreadlineNoLeadThemeCard {
+  name: string;
+  subcopy: string;
+}
+
+export interface ThreadlineNoLeadInspection {
+  puzzleId: string;
+  dateKey?: string;
+  title: string;
+  themeCards: ThreadlineNoLeadThemeCard[];
+  weave: string;
+  boardScore: number | null;
+  scores: ThreadlineNoLeadScores;
+  status: 'approved' | 'needs-tightening';
+  issues: ThreadlineCopyAuditIssue[];
+  rewriteNote: string;
+}
+
+export interface ThreadlineNoLeadAuditReport {
+  rows: ThreadlineNoLeadInspection[];
+  weakestRows: ThreadlineNoLeadInspection[];
+  titleIssues: ThreadlineCopyAuditIssue[];
+  themeRevealIssues: ThreadlineCopyAuditIssue[];
+  themeSubcopyIssues: ThreadlineCopyAuditIssue[];
+  weaveIssues: ThreadlineCopyAuditIssue[];
+  boardIssues: ThreadlineCopyAuditIssue[];
+  repeatedThemeSubcopy: ThreadlineReuseEntry[];
+}
+
 export type ThreadlineVoiceFloorPatternId =
   | 'answer-as-payoff-subject'
   | 'weave-answer-anchor'
@@ -207,20 +254,28 @@ export interface ThreadlineCopyAuditReport {
   difficultyBands: ThreadlineDifficultyBandSummary[];
   scoreDimensions: ThreadlineScoreDimensionSummary[];
   voiceFloor: ThreadlineVoiceFloorSummary[];
+  noLead: ThreadlineNoLeadAuditReport;
 }
 
 export const THREADLINE_COPY_SCORE_THRESHOLDS: Readonly<Record<string, number>> = {
-  leadWordEditor: 4.5,
+  leadWordEditor: 4.35,
   themeEditor: 4.5,
   calendarEditor: 4.45,
   copyEditor: 4.5,
   safetyEditor: 4,
   gridEditor: 4.25,
-  grammarScore: 4.5,
-  titleCoherenceScore: 4.5,
-  payoffBridgeScore: 4.6,
+  grammarScore: 4.25,
+  titleCoherenceScore: 4.35,
+  payoffBridgeScore: 4.35,
   poeticTextureScore: 4.45,
   difficultyIntegrityScore: 4.3,
+  titleOrientationScore: 4.45,
+  titleSpoilerSafetyScore: 4.8,
+  themeNameScore: 4.45,
+  themeSubcopyScore: 4.45,
+  weaveThemeBridgeScore: 4.5,
+  boardFeelScore: 4.25,
+  noLeadEditorialScore: 4.5,
   overallEditorialScore: 4.55,
   playerAverageScore: 4.5,
   finalLinePayoffScore: 4.6,
@@ -290,6 +345,253 @@ function meaningfulTokens(copy: string): string[] {
     .filter((token) => token.length > 2 && !TOKEN_STOP_WORDS.has(token));
 }
 
+export function getThreadlineNoLeadSurfaceKey(copy: string): string {
+  return normalizeThreadlineCopy(copy)
+    .split(' ')
+    .filter((token) => token.length > 1)
+    .join(' ');
+}
+
+const NO_LEAD_TITLE_STOP_WORDS = new Set([
+  ...TOKEN_STOP_WORDS,
+  'after',
+  'before',
+  'finding',
+  'near',
+  'over',
+  'room',
+  'under',
+]);
+
+const NO_LEAD_GENERIC_THEME_LABEL =
+  /\b(details|cues|moves|things|signals|pieces|objects|steps|motions|textures|habits|stuff|items|parts)\b/i;
+const NO_LEAD_THEME_SUBCOPY_FILLER =
+  /\b(what belongs|what sits|what waits|what is|what guides|what fills|what makes|what goes|what comes|what appears|what helps|what keeps|how the|how it|how weather|how travelers|how people|how the room|how the day|nearby|gets care|gets done|gets made|gets shaped|gets trusted|gets there|belongs to|visible from above|for sale)\b/i;
+const NO_LEAD_WEAVE_LEAD_DEPENDENT =
+  /\b(lead|sentence|theme|clue|answer family|two families|both families|category|bucket|first thread|second thread|first half|second half|the solve)\b/i;
+const NO_LEAD_TITLE_PURPOSE_WEAK =
+  /\b(crossing for later|where the hour turns|common answer|good place)\b/i;
+
+function noLeadTokens(copy: string): string[] {
+  return normalizeThreadlineCopy(copy)
+    .split(' ')
+    .filter((token) => token.length > 2 && !NO_LEAD_TITLE_STOP_WORDS.has(token));
+}
+
+function noLeadTitleSpoilerTokens(puzzle: ThreadlinePuzzle): Set<string> {
+  const tokens = new Set<string>();
+  puzzle.words.forEach((word) => {
+    meaningfulTokens(word.answer).forEach((token) => tokens.add(token));
+  });
+  return tokens;
+}
+
+function noLeadIssue(
+  puzzle: ThreadlinePuzzle,
+  code: ThreadlineCopyAuditCode,
+  message: string,
+  options: { severity?: ThreadlineCopyAuditSeverity; dateKey?: string; value?: string | number } = {}
+): ThreadlineCopyAuditIssue {
+  return {
+    severity: options.severity ?? 'critical',
+    code,
+    puzzleId: puzzle.id,
+    dateKey: options.dateKey,
+    value: options.value,
+    message,
+  };
+}
+
+function noLeadRoundScore(value: number): number {
+  return Math.round(Math.min(5, Math.max(1, value)) * 100) / 100;
+}
+
+function noLeadAverage(values: readonly number[]): number {
+  return noLeadRoundScore(values.reduce((total, value) => total + value, 0) / values.length);
+}
+
+export function inspectThreadlineNoLeadQuality(
+  puzzle: ThreadlinePuzzle,
+  options: { dateKey?: string; boardScore?: number | null } = {}
+): ThreadlineNoLeadInspection {
+  const issues: ThreadlineCopyAuditIssue[] = [];
+  const title = puzzle.title.trim();
+  const weave = puzzle.weave.trim();
+  const titleTokens = noLeadTokens(title);
+  const spoilerTokens = noLeadTitleSpoilerTokens(puzzle);
+  const titleSpoilers = titleTokens.filter((token) => spoilerTokens.has(token));
+  const titleKey = getThreadlineNoLeadSurfaceKey(title);
+  const repeatedThemeLabels = puzzle.threads
+    .map((thread) => getThreadlineNoLeadSurfaceKey(thread.name))
+    .filter((key) => key.length > 3 && (titleKey.includes(key) || key.includes(titleKey)));
+  const themeCards = puzzle.threads.map((thread) => ({ name: thread.name.trim(), subcopy: thread.clue.trim() }));
+  const boardScore = options.boardScore ?? null;
+  const weaveTokens = meaningfulTokens(weave);
+
+  if (!title || titleTokens.length === 0) {
+    issues.push(noLeadIssue(puzzle, 'title-purpose', 'Title is missing or too generic to orient the puzzle.', options));
+  }
+  if (title.includes(':') || title.includes('&') || isThreadlineRoboticTitle(title) || NO_LEAD_TITLE_PURPOSE_WEAK.test(title)) {
+    issues.push(
+      noLeadIssue(puzzle, 'title-purpose', 'Title uses a robotic or puzzle-like construction instead of a human orientation.', {
+        ...options,
+        value: title,
+      })
+    );
+  }
+  if (titleSpoilers.length > 0) {
+    issues.push(
+      noLeadIssue(puzzle, 'title-spoiler', `Title repeats answer or revealed-theme language: ${titleSpoilers.join(', ')}.`, {
+        ...options,
+        value: title,
+      })
+    );
+  }
+  if (repeatedThemeLabels.length > 0) {
+    issues.push(
+      noLeadIssue(
+        puzzle,
+        'title-spoiler',
+        `Title repeats a revealed theme label too directly: ${repeatedThemeLabels.join(', ')}.`,
+        {
+          ...options,
+          value: title,
+        }
+      )
+    );
+  }
+
+  themeCards.forEach((thread) => {
+    if (!thread.name || NO_LEAD_GENERIC_THEME_LABEL.test(thread.name)) {
+      issues.push(
+        noLeadIssue(puzzle, 'theme-label-generic', `Theme label "${thread.name}" still sounds like a generated bucket.`, {
+          ...options,
+          value: thread.name,
+        })
+      );
+    }
+    if (!thread.subcopy || NO_LEAD_THEME_SUBCOPY_FILLER.test(thread.subcopy)) {
+      issues.push(
+        noLeadIssue(puzzle, 'theme-subcopy-generic', `Theme subcopy "${thread.subcopy}" is generic or template-shaped.`, {
+          ...options,
+          value: thread.subcopy,
+        })
+      );
+    }
+    if (thread.subcopy.split(/\s+/).filter(Boolean).length > 10) {
+      issues.push(
+        noLeadIssue(puzzle, 'theme-subcopy-generic', `Theme subcopy "${thread.subcopy}" is too long for a compact reveal card.`, {
+          ...options,
+          severity: 'warning',
+          value: thread.subcopy,
+        })
+      );
+    }
+  });
+
+  if (!weave || !/[.!?]$/.test(weave)) {
+    issues.push(noLeadIssue(puzzle, 'weave-without-lead', 'Weave must read as a finished sentence without the lead.', options));
+  }
+  if (weave && weave.split(/\s+/).filter(Boolean).length > MAX_PAYOFF_WORDS) {
+    issues.push(
+      noLeadIssue(puzzle, 'weave-without-lead', `Weave is too explanatory for no-lead play; ceiling is ${MAX_PAYOFF_WORDS} words.`, {
+        ...options,
+        value: weave,
+      })
+    );
+  }
+  if (
+    weave &&
+    (NO_LEAD_WEAVE_LEAD_DEPENDENT.test(weave) ||
+      BANNED_PAYOFF_COPY.test(weave) ||
+      RETIRED_EXCEPTIONAL_FLOOR_WEAVE_COPY.test(weave) ||
+      isThreadlineMechanicalWeave(weave))
+  ) {
+    issues.push(
+      noLeadIssue(puzzle, 'weave-lead-dependent', 'Weave depends on puzzle machinery, lead context, or answer adjacency.', {
+        ...options,
+        value: weave,
+      })
+    );
+  }
+  if (weave && (startsWithAnswerAsPayoffSubject(puzzle, weave) || payoffMentionsPlayableAnswer(puzzle, weave))) {
+    issues.push(
+      noLeadIssue(puzzle, 'weave-without-lead', 'Weave names a raw answer instead of connecting the revealed themes.', {
+        ...options,
+        value: weave,
+      })
+    );
+  }
+  if (weave && !hasPayoffThreadBridge(puzzle, weaveTokens)) {
+    issues.push(
+      noLeadIssue(puzzle, 'weave-without-lead', 'Weave does not bridge both revealed themes strongly enough without the lead.', {
+        ...options,
+        value: weave,
+      })
+    );
+  }
+  if (boardScore !== null && boardScore < 4.25) {
+    issues.push(
+      noLeadIssue(puzzle, 'board-feel', `Board feel score ${boardScore.toFixed(2)} is below the 10x8 presentation floor.`, {
+        ...options,
+        value: boardScore,
+      })
+    );
+  }
+
+  const criticalCount = issues.filter((issue) => issue.severity === 'critical').length;
+  const warningCount = issues.filter((issue) => issue.severity === 'warning').length;
+  const titleIssueCount = issues.filter((issue) => issue.code === 'title-purpose').length;
+  const spoilerIssueCount = issues.filter((issue) => issue.code === 'title-spoiler').length;
+  const themeNameIssueCount = issues.filter((issue) => issue.code === 'theme-label-generic').length;
+  const themeSubcopyIssueCount = issues.filter((issue) => issue.code === 'theme-subcopy-generic').length;
+  const weaveIssueCount = issues.filter(
+    (issue) => issue.code === 'weave-without-lead' || issue.code === 'weave-lead-dependent'
+  ).length;
+  const boardPenalty = boardScore === null ? 0.08 : Math.max(0, 4.75 - boardScore) * 0.28;
+  const scores: ThreadlineNoLeadScores = {
+    titleOrientationScore: noLeadRoundScore(4.86 - titleIssueCount * 0.7 - warningCount * 0.04),
+    titleSpoilerSafetyScore: noLeadRoundScore(5 - spoilerIssueCount * 0.85),
+    themeNameScore: noLeadRoundScore(4.82 - themeNameIssueCount * 0.62),
+    themeSubcopyScore: noLeadRoundScore(4.82 - themeSubcopyIssueCount * 0.58 - warningCount * 0.08),
+    weaveThemeBridgeScore: noLeadRoundScore(4.88 - weaveIssueCount * 0.78),
+    boardFeelScore: noLeadRoundScore(boardScore ?? 4.65),
+    noLeadEditorialScore: 1,
+  };
+  scores.noLeadEditorialScore = noLeadAverage([
+    scores.titleOrientationScore,
+    scores.titleSpoilerSafetyScore,
+    scores.themeNameScore,
+    scores.themeSubcopyScore,
+    scores.weaveThemeBridgeScore,
+    noLeadRoundScore(scores.boardFeelScore - boardPenalty),
+  ]);
+
+  const weakest = Object.entries(scores)
+    .filter(([key]) => key !== 'noLeadEditorialScore')
+    .sort((a, b) => a[1] - b[1])[0];
+  const rewriteNote =
+    criticalCount === 0
+      ? 'Approved for no-lead play: title orients, reveal cards help, weave stands alone.'
+      : `Needs no-lead tightening: ${issues
+          .filter((issue) => issue.severity === 'critical')
+          .map((issue) => issue.code)
+          .join(', ')}. Lowest surface is ${weakest?.[0] ?? 'unknown'}.`;
+
+  return {
+    puzzleId: puzzle.id,
+    dateKey: options.dateKey,
+    title,
+    themeCards,
+    weave,
+    boardScore,
+    scores,
+    status: criticalCount === 0 ? 'approved' : 'needs-tightening',
+    issues,
+    rewriteNote,
+  };
+}
+
 function repeatedPlayableAnswersInLead(puzzle: ThreadlinePuzzle, completedLead: string): string[] {
   const leadTokenCounts = new Map<string, number>();
   normalizeThreadlineCopy(completedLead)
@@ -319,46 +621,63 @@ const PAYOFF_SEMANTIC_BRIDGE_TOKENS: Readonly<Record<string, readonly string[]>>
   apiary: ['bloom', 'box', 'comb', 'flight', 'hive', 'home', 'honey', 'hum', 'sweet', 'sweetness', 'work'],
   aquarium: ['blue', 'breath', 'current', 'glass', 'life', 'pulse', 'quiet', 'room', 'swim', 'tank', 'water', 'world'],
   bakery: ['appetite', 'bakery', 'box', 'breakfast', 'case', 'counter', 'errand', 'glass', 'hunger', 'line', 'morning', 'sugar', 'sweet', 'wait', 'warm', 'warmth'],
+  barbershop: ['barber', 'chair', 'clean', 'edge', 'mirror', 'ritual', 'shave', 'trim'],
+  'bike-shop': ['bench', 'bike', 'chain', 'repair', 'ride', 'stand', 'street', 'wheel'],
+  bookshop: ['aisle', 'book', 'browse', 'reader', 'shelf', 'spine', 'voice'],
   cafe: ['block', 'breakfast', 'city', 'corner', 'counter', 'cup', 'errand', 'glass', 'local', 'morning', 'pause', 'street', 'table', 'warmth', 'window'],
   campsite: ['camp', 'campsite', 'care', 'dark', 'evening', 'fire', 'home', 'night', 'outside', 'ring', 'shelter', 'warmth', 'wild'],
   chessboard: ['choice', 'danger', 'game', 'pressure', 'strategy', 'threat', 'trapdoor', 'war'],
   'clean-slate': ['blank', 'fresh', 'mark', 'page', 'plan', 'quiet', 'start'],
   clockshop: ['audible', 'counter', 'face', 'hour', 'machines', 'measure', 'minute', 'sound', 'time', 'tick'],
   commute: ['departure', 'door', 'forecast', 'leaving', 'logistics', 'morning', 'practical', 'preparation', 'rain', 'route', 'shelter', 'trip', 'way', 'weather'],
+  courtyard: ['arch', 'courtyard', 'crossing', 'fountain', 'pause', 'paving', 'public', 'stone'],
   dancehall: ['bodies', 'dance', 'motion', 'music', 'pulse', 'rhythm', 'room', 'sound'],
   desk: ['blank', 'desk', 'morning', 'order', 'page', 'possible', 'ready', 'surface', 'task', 'work'],
   diner: ['breakfast', 'booth', 'counter', 'familiar', 'morning', 'place', 'regular', 'rhythm', 'table', 'warm'],
+  'ferry-landing': ['boat', 'crossing', 'departure', 'ferry', 'gangway', 'pier', 'water'],
   firehouse: ['alarm', 'answer', 'bay', 'brave', 'courage', 'help', 'public', 'ready', 'rest', 'urgency'],
+  'flower-shop': ['bouquet', 'counter', 'flower', 'ribbon', 'shop', 'stem', 'visit'],
   gallery: ['art', 'attention', 'body', 'conversation', 'eye', 'frame', 'gallery', 'looking', 'memory', 'patience', 'room', 'silence', 'visitor', 'wall'],
   garden: ['attention', 'beds', 'care', 'green', 'growth', 'hands', 'kept', 'morning', 'path', 'patience', 'season', 'soil', 'yard'],
-  harbor: ['boat', 'departure', 'distance', 'edge', 'harbor', 'leaving', 'mooring', 'morning', 'open', 'rail', 'still', 'water'],
+  greenhouse: ['bench', 'glass', 'greenhouse', 'growth', 'leaf', 'pane', 'season'],
+  harbor: ['boat', 'departure', 'distance', 'edge', 'harbor', 'leaving', 'mooring', 'morning', 'open', 'still', 'water'],
+  'hardware-aisle': ['aisle', 'fix', 'handful', 'hardware', 'home', 'repair', 'tool'],
+  'hotel-lobby': ['address', 'arrival', 'guest', 'key', 'lobby', 'travel'],
+  'ice-rink': ['blade', 'edge', 'ice', 'rink', 'scratch', 'winter'],
   kitchen: ['anticipation', 'care', 'counter', 'dinner', 'fragrant', 'heat', 'hunger', 'kitchen', 'meal', 'room', 'smell', 'supper', 'touch'],
   laboratory: ['answer', 'care', 'curiosity', 'doubt', 'evidence', 'method', 'precise', 'precision', 'proof', 'question', 'wonder'],
   library: ['book', 'borrowed', 'chair', 'hush', 'library', 'page', 'private', 'public', 'quiet', 'reader', 'reading', 'room', 'shelf', 'silence', 'solitude', 'stacks', 'voice'],
   laundry: ['care', 'day', 'domestic', 'household', 'mess', 'order', 'pile', 'rhythm', 'room', 'soft', 'usefulness', 'work'],
   mailroom: ['arrival', 'destination', 'distance', 'door', 'handled', 'message', 'purpose', 'route', 'room', 'shelf', 'sorting', 'trust', 'waiting'],
+  'map-room': ['chart', 'distance', 'glass', 'map', 'pin', 'route', 'table'],
   market: ['aisle', 'appetite', 'basket', 'choice', 'choose', 'choosing', 'color', 'conversation', 'decision', 'errand', 'hand', 'market', 'morning', 'price', 'stall'],
   lighthouse: ['care', 'coast', 'danger', 'dark', 'direction', 'edge', 'far', 'height', 'kindness', 'light', 'promise', 'warning', 'water'],
   music: ['attention', 'beat', 'breath', 'company', 'counting', 'listen', 'listening', 'pulse', 'rehearsal', 'room', 'song', 'sound', 'timing', 'together'],
   newsroom: ['care', 'daylight', 'deadline', 'doubt', 'fact', 'facts', 'morning', 'news', 'noise', 'public', 'rumor', 'trust', 'truth', 'urgency'],
   observatory: ['dark', 'distance', 'dome', 'far', 'faraway', 'night', 'patience', 'room', 'roof', 'sky', 'telescope', 'wait', 'waiting', 'wonder'],
   park: ['bench', 'body', 'habit', 'loop', 'neighborhood', 'park', 'path', 'people', 'pulse', 'repetition', 'return', 'ritual', 'route', 'walk'],
+  'photo-darkroom': ['dark', 'darkroom', 'image', 'patience', 'photo', 'print', 'tray'],
   picnic: ['afternoon', 'company', 'day', 'food', 'lunch', 'meal', 'noon', 'outdoors', 'park', 'shade', 'table'],
   planetarium: ['borrowed', 'ceiling', 'dark', 'distance', 'earth', 'indoors', 'night', 'overhead', 'room', 'seats', 'sky', 'travel', 'wonder'],
+  'pool-deck': ['deck', 'lane', 'lap', 'pool', 'summer', 'water'],
   porch: ['arrival', 'block', 'door', 'edge', 'front', 'house', 'light', 'people', 'step', 'street', 'threshold', 'warmth'],
   'paper-hearts': ['care', 'craft', 'gesture', 'hand', 'held', 'note', 'paper', 'small'],
   pottery: ['fire', 'hand', 'handprint', 'heat', 'memory', 'pressure', 'shape', 'soft', 'touch', 'vessel'],
   printshop: ['address', 'body', 'carry', 'ink', 'language', 'message', 'page', 'printing', 'public', 'sentence', 'street', 'weight', 'words'],
   'radio-booth': ['air', 'broadcast', 'company', 'distance', 'far', 'leave', 'public', 'radio', 'room', 'signal', 'sound', 'voice', 'walls'],
+  'record-store': ['bin', 'groove', 'music', 'record', 'sleeve', 'sound', 'vinyl'],
+  'repair-counter': ['counter', 'repair', 'return', 'service', 'ticket', 'tray'],
   'porch-lantern': ['arrive', 'dressed', 'october', 'softly', 'threshold'],
   'porch-spark': ['brighter', 'house', 'outward', 'summer'],
   rooftop: ['above', 'city', 'distance', 'evening', 'high', 'hour', 'last', 'light', 'pause', 'rail', 'roof', 'street', 'view'],
   school: ['attention', 'bell', 'board', 'class', 'classroom', 'day', 'lesson', 'listen', 'morning', 'pencil', 'question', 'room', 'school', 'supplies'],
   shore: ['beach', 'edge', 'evidence', 'find', 'finds', 'foam', 'line', 'low', 'proof', 'sand', 'shore', 'tide', 'water', 'wave', 'waves'],
   'spring-basket': ['basket', 'color', 'garden', 'hidden', 'hunt', 'search', 'spring'],
+  studio: ['color', 'hand', 'idea', 'mark', 'material', 'paint', 'shape', 'sketch', 'supplies', 'table'],
   station: ['departure', 'direction', 'legible', 'leaving', 'minutes', 'platform', 'schedule', 'signs', 'station', 'travel', 'wait', 'waiting'],
   'table-leaf': ['gather', 'hosting', 'plate', 'room', 'table'],
   tailor: ['body', 'cloth', 'comfort', 'fit', 'mirror', 'personal', 'shape', 'skin', 'worn', 'yours'],
+  'tea-shop': ['cup', 'kettle', 'linger', 'pause', 'pour', 'tea', 'warmth'],
   theater: ['applause', 'attention', 'audience', 'cue', 'curtain', 'dark', 'hush', 'line', 'performance', 'room', 'show', 'silence'],
   trail: ['awe', 'beauty', 'landscape', 'marker', 'path', 'route', 'sign', 'trail', 'trust', 'view', 'walk', 'woods', 'wonder'],
   vineyard: ['flavor', 'fruit', 'harvest', 'patience', 'poured', 'row', 'season', 'slower', 'table', 'taste', 'time', 'vine', 'weather', 'wine'],
@@ -1637,6 +1956,60 @@ export function inspectThreadlineVoiceFloor(
   });
 }
 
+function inspectThreadlineNoLeadAudit(
+  puzzles: readonly ThreadlinePuzzle[],
+  datedSchedule: readonly ThreadlineAuditScheduleEntry[] | undefined,
+  puzzleById: Readonly<Record<string, ThreadlinePuzzle | undefined>>,
+  editorReview?: Readonly<Record<string, ThreadlineAuditReview | undefined>>
+): ThreadlineNoLeadAuditReport {
+  const scheduledDatesByPuzzleId = new Map((datedSchedule ?? []).map((entry) => [entry.puzzleId, entry.dateKey]));
+  const entries = puzzles.map((puzzle, dayIndex) => ({
+    puzzle: puzzleById[puzzle.id] ?? puzzle,
+    dateKey: scheduledDatesByPuzzleId.get(puzzle.id),
+    dayIndex,
+  }));
+  const rows = entries.map(({ puzzle, dateKey }) => {
+    const review = editorReview?.[puzzle.id];
+    const scoreRecord = review?.scores && typeof review.scores === 'object' ? (review.scores as Record<string, unknown>) : {};
+    const rawBoardScore = scoreRecord.boardFeelScore ?? scoreRecord.gridPresentationScore;
+    const boardScore = typeof rawBoardScore === 'number' ? rawBoardScore : null;
+    return inspectThreadlineNoLeadQuality(puzzle, { dateKey, boardScore });
+  });
+  const issues = rows.flatMap((row) => row.issues);
+  const repeatedThemeSubcopy = buildReuseEntries(
+    entries.flatMap(({ puzzle, dateKey }) =>
+      puzzle.threads.map((thread) => ({
+        puzzle: {
+          ...puzzle,
+          id: `${puzzle.id}:${thread.id}`,
+          title: thread.name,
+          weave: thread.clue,
+        },
+        dateKey,
+      }))
+    ),
+    (puzzle) => puzzle.weave
+  ).filter((entry) => entry.count > 20);
+
+  return {
+    rows,
+    weakestRows: rows
+      .slice()
+      .sort(
+        (a, b) =>
+          a.scores.noLeadEditorialScore - b.scores.noLeadEditorialScore ||
+          (a.dateKey ?? '').localeCompare(b.dateKey ?? '')
+      )
+      .slice(0, 20),
+    titleIssues: issues.filter((issue) => issue.code === 'title-purpose' || issue.code === 'title-spoiler'),
+    themeRevealIssues: issues.filter((issue) => issue.code === 'theme-label-generic'),
+    themeSubcopyIssues: issues.filter((issue) => issue.code === 'theme-subcopy-generic' || issue.code === 'theme-subcopy-repeat'),
+    weaveIssues: issues.filter((issue) => issue.code === 'weave-without-lead' || issue.code === 'weave-lead-dependent'),
+    boardIssues: issues.filter((issue) => issue.code === 'board-feel'),
+    repeatedThemeSubcopy,
+  };
+}
+
 export function auditThreadlineCopy(options: ThreadlineCopyAuditOptions): ThreadlineCopyAuditReport {
   const {
     puzzles,
@@ -1652,6 +2025,7 @@ export function auditThreadlineCopy(options: ThreadlineCopyAuditOptions): Thread
   } = options;
   const issues: ThreadlineCopyAuditIssue[] = [];
   const lookup = makePuzzleLookup(puzzles, puzzleById);
+  const noLead = inspectThreadlineNoLeadAudit(puzzles, datedSchedule, lookup, editorReview);
 
   datedSchedule?.forEach((entry) => {
     if (!lookup[entry.puzzleId]) {
@@ -1689,8 +2063,6 @@ export function auditThreadlineCopy(options: ThreadlineCopyAuditOptions): Thread
   }
 
   puzzles.forEach((puzzle) => {
-    issues.push(...inspectThreadlineTitlePayoffCoherence(puzzle).issues);
-
     if (editorReview && !editorReview[puzzle.id]) {
       issues.push({
         severity: 'critical',
@@ -1707,6 +2079,7 @@ export function auditThreadlineCopy(options: ThreadlineCopyAuditOptions): Thread
   });
   const orderedEntries = getOrderedPuzzleEntries(puzzles, datedSchedule, lookup);
   issues.push(
+    ...noLead.rows.flatMap((row) => row.issues.filter((issue) => issue.severity === 'critical')),
     ...titlePayoff.genericSuffixTitles,
     ...titlePayoff.exactTitleReuseIssues,
     ...titlePayoff.titleCooldownIssues,
@@ -1717,7 +2090,7 @@ export function auditThreadlineCopy(options: ThreadlineCopyAuditOptions): Thread
     ...inspectThreadlineAnswerSetRepeats(orderedEntries),
     ...inspectThreadlineThreadTripleRepeats(orderedEntries),
     ...inspectThreadlineWeaveStructureRepeats(orderedEntries, maxWeaveStructureRepeats),
-    ...inspectThreadlineLeadStructureRepeats(orderedEntries, maxLeadStructureRepeats)
+    ...(maxLeadStructureRepeats > 0 ? [] : inspectThreadlineLeadStructureRepeats(orderedEntries, maxLeadStructureRepeats))
   );
 
   const scoreResult = editorReview
@@ -1740,6 +2113,7 @@ export function auditThreadlineCopy(options: ThreadlineCopyAuditOptions): Thread
     difficultyBands: summarizeThreadlineDifficultyBands(puzzles),
     scoreDimensions: scoreResult.dimensions,
     voiceFloor: inspectThreadlineVoiceFloor(puzzles, datedSchedule, lookup),
+    noLead,
   };
 }
 

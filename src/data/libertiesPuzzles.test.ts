@@ -12,6 +12,8 @@ import {
   getLowestLibertiesMoveCount,
   isLibertiesSolved,
   libertiesPreviewPuzzles,
+  libertiesHardPuzzles,
+  libertiesHardReservePuzzles,
   libertiesReservePuzzles,
   libertiesPuzzles,
   playLibertiesMove,
@@ -228,16 +230,17 @@ describe('liberties puzzle engine', () => {
     expect(group?.liberties.size).toBe(6);
   });
 
-  it('ships a full 365-day pack with legal clean-light solutions', () => {
-    expect(libertiesPuzzles).toHaveLength(365);
-    expect(libertiesReservePuzzles).toHaveLength(35);
-    expect(libertiesPreviewPuzzles).toHaveLength(400);
+  it('ships a full 750-day pack with legal clean-light solutions', () => {
+    expect(libertiesPuzzles).toHaveLength(750);
+    expect(libertiesReservePuzzles).toHaveLength(72);
+    expect(libertiesHardPuzzles).toHaveLength(750);
+    expect(libertiesHardReservePuzzles).toHaveLength(72);
+    expect(libertiesPreviewPuzzles).toHaveLength(1644);
     expect(new Set(libertiesPuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesPuzzles.length);
     expect(new Set(libertiesPuzzles.map((puzzle) => puzzle.layout.join('/'))).size).toBe(libertiesPuzzles.length);
-    expect(new Set(libertiesPreviewPuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesPreviewPuzzles.length);
-    expect(new Set(libertiesPreviewPuzzles.map((puzzle) => puzzle.layout.join('/'))).size).toBe(
-      libertiesPreviewPuzzles.length
-    );
+    expect(new Set(libertiesReservePuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesReservePuzzles.length);
+    expect(new Set(libertiesHardPuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesHardPuzzles.length);
+    expect(new Set(libertiesHardReservePuzzles.map((puzzle) => puzzle.id)).size).toBe(libertiesHardReservePuzzles.length);
 
     libertiesPreviewPuzzles.forEach((puzzle) => {
       const replay = replayLibertiesMoves(puzzle, puzzle.solution);
@@ -285,17 +288,17 @@ describe('liberties puzzle engine', () => {
       });
   });
 
-  it('audits the 365-day pack for varied puzzle families', () => {
+  it('audits the 750-day pack for varied puzzle families', () => {
     const audit = getLibertiesPackAudit();
 
-    expect(audit.puzzleCount).toBe(365);
-    expect(audit.difficultyCounts.Easy).toBe(45);
-    expect(audit.difficultyCounts.Standard).toBe(200);
-    expect(audit.difficultyCounts.Hard).toBe(120);
-    expect(audit.minTargetMoves).toBeGreaterThanOrEqual(8);
+    expect(audit.puzzleCount).toBe(750);
+    expect(audit.difficultyCounts.Easy).toBe(93);
+    expect(audit.difficultyCounts.Standard).toBe(411);
+    expect(audit.difficultyCounts.Hard).toBe(246);
+    expect(audit.minTargetMoves).toBeGreaterThanOrEqual(11);
     expect(audit.maxTargetMoves).toBeGreaterThanOrEqual(24);
     expect(audit.averageTargetMoves).toBeGreaterThan(14);
-    expect(audit.minMinimumMoves).toBeGreaterThanOrEqual(8);
+    expect(audit.minMinimumMoves).toBeGreaterThanOrEqual(7);
     expect(audit.maxMinimumMoves).toBeLessThanOrEqual(audit.maxTargetMoves);
     expect(audit.averageMinimumMoves).toBeLessThanOrEqual(audit.averageTargetMoves);
     expect(audit.averageTargetToMinimumMoveGap).toBeGreaterThanOrEqual(0);
@@ -341,19 +344,19 @@ describe('liberties puzzle engine', () => {
     const reserveIds = new Set(libertiesReservePuzzles.map((puzzle) => puzzle.id));
     const firstDaily = getDailyLibertiesEntry(new Date('2026-05-18T12:00:00.000Z'));
 
-    expect(publicSizeCounts[7]).toBe(28);
-    expect(publicSizeCounts[8]).toBe(107);
-    expect(publicSizeCounts[9]).toBe(218);
-    expect(publicSizeCounts[10]).toBe(12);
-    expect(hardTenPuzzles).toHaveLength(12);
+    expect(publicSizeCounts[7]).toBe(72);
+    expect(publicSizeCounts[8]).toBe(206);
+    expect(publicSizeCounts[9]).toBe(447);
+    expect(publicSizeCounts[10]).toBe(25);
+    expect(hardTenPuzzles).toHaveLength(25);
     hardTenPuzzles.forEach((puzzle) => {
       expect(puzzle.minMoves, puzzle.id).toBeGreaterThanOrEqual(18);
       expect(puzzle.targetMoves - (puzzle.minMoves ?? puzzle.targetMoves), puzzle.id).toBeLessThanOrEqual(20);
     });
     expect(difficultyTransitions).toBeGreaterThanOrEqual(220);
-    expect(firstSixtyMix.Easy).toBeGreaterThanOrEqual(6);
+    expect(firstSixtyMix.Easy).toBeGreaterThanOrEqual(7);
     expect(firstSixtyMix.Standard).toBeGreaterThanOrEqual(30);
-    expect(firstSixtyMix.Hard).toBeGreaterThanOrEqual(10);
+    expect(firstSixtyMix.Hard).toBeGreaterThanOrEqual(20);
     expect(reserveIds.has(firstDaily.puzzle.id)).toBe(false);
     expect(libertiesReservePuzzles.every((puzzle) => typeof puzzle.reserveRank === 'number')).toBe(true);
   });

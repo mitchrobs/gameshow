@@ -1,9 +1,58 @@
 import { dateKeyToUtcOrdinal, getUtcDateKey } from '../utils/dailyUtc';
-import { generatedLibertiesPack, generatedLibertiesReservePack } from './libertiesPack.generated';
+import {
+  generatedLibertiesHardPack,
+  generatedLibertiesHardReservePack,
+  generatedLibertiesPack,
+  generatedLibertiesReservePack,
+} from './libertiesPack.generated';
 
 export type LibertiesStoneColor = 'black' | 'white';
 export type LibertiesDifficulty = 'Easy' | 'Standard' | 'Hard';
 export type LibertiesVariant = 'chase';
+export type LibertiesPlayMode = 'standard' | 'hard';
+export type LibertiesFocusMomentType =
+  | 'opening-shape'
+  | 'response-pressure'
+  | 'capture-timing'
+  | 'tempo-keeper'
+  | 'release-constraint';
+interface LibertiesBaseFocusMoment {
+  title: string;
+  type: LibertiesFocusMomentType;
+  detail: string;
+  moveIndex?: number;
+  point?: LibertiesPoint;
+}
+interface LibertiesOpeningShapeMoment extends LibertiesBaseFocusMoment {
+  type: 'opening-shape';
+  anchorShape: 'corner' | 'bridge' | 'l-shape' | 'ladder-setup';
+}
+interface LibertiesResponsePressureMoment extends LibertiesBaseFocusMoment {
+  type: 'response-pressure';
+  responseCount: number;
+  postCaptureMoveIndex?: number;
+}
+interface LibertiesCaptureTimingMoment extends LibertiesBaseFocusMoment {
+  type: 'capture-timing';
+  captureGroupIndices: number[];
+  minimumClearDelay: number;
+}
+interface LibertiesTempoKeeperMoment extends LibertiesBaseFocusMoment {
+  type: 'tempo-keeper';
+  tempoWindow: 'tight' | 'loose';
+  expectedSequenceLength: number;
+}
+interface LibertiesReleaseConstraintMoment extends LibertiesBaseFocusMoment {
+  type: 'release-constraint';
+  linkedReleasePoint: LibertiesPoint;
+  linkedGroupIndex: number;
+}
+export type LibertiesPuzzleFocusMoment =
+  | LibertiesOpeningShapeMoment
+  | LibertiesResponsePressureMoment
+  | LibertiesCaptureTimingMoment
+  | LibertiesTempoKeeperMoment
+  | LibertiesReleaseConstraintMoment;
 export type LibertiesTerrainArchetype =
   | 'corner-pocket'
   | 'tight-room'
@@ -63,6 +112,7 @@ export interface LibertiesPuzzle {
   lightGroups: LibertiesPoint[][];
   motif: string;
   focusTags: LibertiesPuzzleTag[];
+  focusMoments?: LibertiesPuzzleFocusMoment[];
   terrainArchetypes?: LibertiesTerrainArchetype[];
   reserveRank?: number;
 }
@@ -122,12 +172,21 @@ export interface LibertiesShareTextOptions {
 }
 
 const LIBERTIES_PACK_START_DATE = '2026-05-18';
-const LIBERTIES_PACK_LENGTH = 365;
-const LIBERTIES_RESERVE_PACK_LENGTH = 35;
+const LIBERTIES_PACK_LENGTH = 750;
+const LIBERTIES_RESERVE_PACK_LENGTH = 72;
 const LIBERTIES_GENERATION_POOL_LENGTH = LIBERTIES_PACK_LENGTH + LIBERTIES_RESERVE_PACK_LENGTH;
-const LIBERTIES_STANDARD_DAILY_PUZZLE_ID = 'liberties-clock-square';
+// Player-facing mode controls which daily rotation is used (standard vs hard mode),
+// while each puzzle keeps its own fixed difficulty label (Easy / Standard / Hard).
+const LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID = 'liberties-clock-square';
+const LIBERTIES_HARD_MODE_DAILY_START_PUZZLE_ID = 'liberties-clock-square'; // placeholder for a dedicated hard-mode pack
+const LIBERTIES_PACK_START_ORDINAL = dateKeyToUtcOrdinal(LIBERTIES_PACK_START_DATE);
+const LIBERTIES_DAILY_PUZZLE_START_IDS_BY_MODE: Record<LibertiesPlayMode, string> = {
+  standard: LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID,
+  hard: LIBERTIES_HARD_MODE_DAILY_START_PUZZLE_ID,
+};
 const LIBERTIES_FORCED_PUZZLE_IDS = new Set([
-  LIBERTIES_STANDARD_DAILY_PUZZLE_ID,
+  LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID,
+  LIBERTIES_HARD_MODE_DAILY_START_PUZZLE_ID,
 ]);
 
 type LibertiesPointSpec = readonly [number, number];
@@ -725,31 +784,123 @@ interface ScoredLibertiesCandidate {
   ordinal: number;
 }
 
-const LIBERTIES_PUBLIC_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
-  Easy: 45,
-  Standard: 200,
-  Hard: 120,
+const LIBERTIES_STANDARD_MODE_PUBLIC_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
+  Easy: 93,
+  Standard: 411,
+  Hard: 246,
 };
 
-const LIBERTIES_RESERVE_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
-  Easy: 5,
-  Standard: 23,
-  Hard: 7,
+const LIBERTIES_STANDARD_MODE_RESERVE_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> = {
+  Easy: 10,
+  Standard: 48,
+  Hard: 14,
 };
 
 type LibertiesSizeQuotas = Record<LibertiesDifficulty, Record<number, number>>;
 
-const LIBERTIES_PUBLIC_SIZE_QUOTAS: LibertiesSizeQuotas = {
-  Easy: { 7: 28, 8: 17 },
-  Standard: { 8: 90, 9: 110 },
-  Hard: { 9: 108, 10: 12 },
+const LIBERTIES_STANDARD_MODE_PUBLIC_SIZE_QUOTAS: LibertiesSizeQuotas = {
+  Easy: { 7: 72, 8: 21 },
+  Standard: { 8: 185, 9: 226 },
+  Hard: { 9: 221, 10: 25 },
 };
 
-const LIBERTIES_RESERVE_SIZE_QUOTAS: LibertiesSizeQuotas = {
-  Easy: { 7: 3, 8: 2 },
-  Standard: { 8: 10, 9: 13 },
-  Hard: { 9: 6, 10: 1 },
+const LIBERTIES_STANDARD_MODE_RESERVE_SIZE_QUOTAS: LibertiesSizeQuotas = {
+  Easy: { 7: 8, 8: 2 },
+  Standard: { 8: 33, 9: 15 },
+  Hard: { 9: 13, 10: 1 },
 };
+
+const LIBERTIES_HARD_MODE_PUBLIC_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> =
+  LIBERTIES_STANDARD_MODE_PUBLIC_DIFFICULTY_QUOTAS;
+
+const LIBERTIES_HARD_MODE_RESERVE_DIFFICULTY_QUOTAS: Record<LibertiesDifficulty, number> =
+  LIBERTIES_STANDARD_MODE_RESERVE_DIFFICULTY_QUOTAS;
+
+const LIBERTIES_HARD_MODE_PUBLIC_SIZE_QUOTAS: LibertiesSizeQuotas = {
+  Easy: { 9: 93 },
+  Standard: { 8: 40, 9: 80, 10: 181, 11: 106, 12: 4 },
+  Hard: { 9: 90, 10: 87, 11: 59, 12: 10 },
+};
+
+const LIBERTIES_HARD_MODE_RESERVE_SIZE_QUOTAS: LibertiesSizeQuotas = {
+  Easy: { 9: 10 },
+  Standard: { 9: 40, 10: 8 },
+  Hard: { 11: 14 },
+};
+
+interface LibertiesGenerationProfile {
+  mode: LibertiesPlayMode;
+  publicDifficultyQuotas: Record<LibertiesDifficulty, number>;
+  reserveDifficultyQuotas: Record<LibertiesDifficulty, number>;
+  publicSizeQuotas: LibertiesSizeQuotas;
+  reserveSizeQuotas: LibertiesSizeQuotas;
+  packLength: number;
+  reserveLength: number;
+  difficultyScoreBias: number;
+  smallBoardPenalty?: number;
+  allowSize: (difficulty: LibertiesDifficulty, size: number) => boolean;
+  sizeDelta: (spec: LibertiesPuzzleSpec) => number[];
+  sizeScore: (difficulty: LibertiesDifficulty, size: number) => number;
+}
+
+const LIBERTIES_MODE_PROFILES: Record<LibertiesPlayMode, LibertiesGenerationProfile> = {
+  standard: {
+    mode: 'standard',
+    publicDifficultyQuotas: LIBERTIES_STANDARD_MODE_PUBLIC_DIFFICULTY_QUOTAS,
+    reserveDifficultyQuotas: LIBERTIES_STANDARD_MODE_RESERVE_DIFFICULTY_QUOTAS,
+    publicSizeQuotas: LIBERTIES_STANDARD_MODE_PUBLIC_SIZE_QUOTAS,
+    reserveSizeQuotas: LIBERTIES_STANDARD_MODE_RESERVE_SIZE_QUOTAS,
+    packLength: LIBERTIES_PACK_LENGTH,
+    reserveLength: LIBERTIES_RESERVE_PACK_LENGTH,
+    difficultyScoreBias: 0,
+    allowSize: (difficulty, size) => {
+      if (difficulty === 'Easy') return size >= 7 && size <= 8;
+      if (difficulty === 'Standard') return size >= 8 && size <= 9;
+      return size >= 9 && size <= 10;
+    },
+    sizeDelta: (spec) => {
+      if (spec.difficulty === 'Easy') return spec.size <= 7 ? [0, 1] : [0];
+      if (spec.difficulty === 'Standard') return spec.size <= 7 ? [1, 2] : [0, 1];
+      return spec.size <= 8 ? [1, 2] : [0, 1];
+    },
+    sizeScore: (difficulty, size) => {
+      if (difficulty === 'Easy') return size === 7 ? 34 : size === 8 ? 28 : -80;
+      if (difficulty === 'Standard') return size === 8 ? 36 : size === 9 ? 31 : -90;
+      return size === 9 ? 38 : size === 10 ? 18 : -100;
+    },
+  },
+  hard: {
+    mode: 'hard',
+    publicDifficultyQuotas: LIBERTIES_HARD_MODE_PUBLIC_DIFFICULTY_QUOTAS,
+    reserveDifficultyQuotas: LIBERTIES_HARD_MODE_RESERVE_DIFFICULTY_QUOTAS,
+    publicSizeQuotas: LIBERTIES_HARD_MODE_PUBLIC_SIZE_QUOTAS,
+    reserveSizeQuotas: LIBERTIES_HARD_MODE_RESERVE_SIZE_QUOTAS,
+    packLength: LIBERTIES_PACK_LENGTH,
+    reserveLength: LIBERTIES_RESERVE_PACK_LENGTH,
+    difficultyScoreBias: 12,
+    smallBoardPenalty: 8,
+    allowSize: (difficulty, size) => {
+      if (difficulty === 'Easy') return size >= 7 && size <= 9;
+      if (difficulty === 'Standard') return size >= 8 && size <= 10;
+      return size >= 9 && size <= 12;
+    },
+    sizeDelta: (spec) => {
+      if (spec.difficulty === 'Easy') return spec.size <= 8 ? [0, 1] : [0];
+      if (spec.difficulty === 'Standard') return spec.size <= 8 ? [1, 2] : [0, 1, 2];
+      return spec.size <= 9 ? [1, 2] : [0, 1, 2];
+    },
+    sizeScore: (difficulty, size) => {
+      if (difficulty === 'Easy') return size === 7 ? 16 : size === 8 ? 34 : size === 9 ? 40 : -80;
+      if (difficulty === 'Standard')
+        return size === 8 ? 18 : size === 9 ? 34 : size === 10 ? 28 : size === 11 ? 26 : size === 12 ? 22 : -80;
+      return size === 9 ? 24 : size === 10 ? 40 : size === 11 ? 36 : size === 12 ? 32 : -100;
+    },
+  },
+};
+
+function getProfile(mode: LibertiesPlayMode): LibertiesGenerationProfile {
+  return LIBERTIES_MODE_PROFILES[mode];
+}
 
 const LIBERTIES_TERRAIN_ARCHETYPE_LABELS: Record<LibertiesTerrainArchetype, string> = {
   'corner-pocket': 'Corner pocket',
@@ -855,18 +1006,6 @@ export function getLibertiesBlockerRange(difficulty: LibertiesDifficulty): [numb
   if (difficulty === 'Hard') return [5, 9];
   if (difficulty === 'Standard') return [4, 7];
   return [2, 4];
-}
-
-function isGeneratedSizeAllowed(difficulty: LibertiesDifficulty, size: number): boolean {
-  if (difficulty === 'Easy') return size >= 7 && size <= 8;
-  if (difficulty === 'Standard') return size >= 8 && size <= 9;
-  return size >= 9 && size <= 10;
-}
-
-function getPreferredSizeScore(difficulty: LibertiesDifficulty, size: number): number {
-  if (difficulty === 'Easy') return size === 7 ? 34 : size === 8 ? 28 : -80;
-  if (difficulty === 'Standard') return size === 8 ? 36 : size === 9 ? 31 : -90;
-  return size === 9 ? 38 : size === 10 ? 18 : -100;
 }
 
 function pointSpecKey(point: LibertiesPointSpec): string {
@@ -1137,24 +1276,42 @@ function getDefaultTerrainTemplate(base: LibertiesPuzzleSpec, index: number): Li
   return templates[index % templates.length] ?? LIBERTIES_TERRAIN_TEMPLATES[0]!;
 }
 
-function getGenerationSizeDeltas(spec: LibertiesPuzzleSpec): number[] {
-  if (spec.difficulty === 'Easy') return spec.size <= 7 ? [0, 1] : [0];
-  if (spec.difficulty === 'Standard') return spec.size <= 7 ? [1, 2] : [0, 1];
-  return spec.size <= 8 ? [1, 2] : [0, 1];
+function getGenerationSizeDeltas(profile: LibertiesGenerationProfile, spec: LibertiesPuzzleSpec): number[] {
+  return profile.sizeDelta(spec);
 }
 
-function scoreLibertiesCandidate(puzzle: LibertiesPuzzle, audit: LibertiesPuzzleAudit): number {
+function getPreferredSizeScore(profile: LibertiesGenerationProfile, difficulty: LibertiesDifficulty, size: number): number {
+  return profile.sizeScore(difficulty, size);
+}
+
+function isGeneratedSizeAllowed(profile: LibertiesGenerationProfile, difficulty: LibertiesDifficulty, size: number): boolean {
+  return profile.allowSize(difficulty, size);
+}
+
+function scoreLibertiesCandidate(
+  puzzle: LibertiesPuzzle,
+  audit: LibertiesPuzzleAudit,
+  profile: LibertiesGenerationProfile
+): number {
   const reverseReplay = replayLibertiesMoves(puzzle, [...puzzle.solution].reverse());
   const reverseOrderFails = reverseReplay.illegalMoveIndex !== null ? 1 : 0;
   const difficultyBonus = puzzle.difficulty === 'Hard' ? 20 : puzzle.difficulty === 'Standard' ? 10 : 0;
   const [minBlockers, maxBlockers] = getLibertiesBlockerRange(puzzle.difficulty);
   const blockerRangeBonus = audit.blockerCount >= minBlockers && audit.blockerCount <= maxBlockers ? 80 : -180;
-  const smallBoardBonus = getPreferredSizeScore(puzzle.difficulty, puzzle.size);
+  const smallBoardBonus = getPreferredSizeScore(profile, puzzle.difficulty, puzzle.size);
+  const smallBoardPenalty =
+    typeof profile.smallBoardPenalty === 'number' &&
+    puzzle.size <= 8 &&
+    puzzle.difficulty !== 'Easy'
+      ? -profile.smallBoardPenalty
+      : 0;
 
   return (
     difficultyBonus +
+    profile.difficultyScoreBias +
     blockerRangeBonus +
     smallBoardBonus +
+    smallBoardPenalty +
     audit.blockerImpactScore * 14 +
     audit.blockedStretchPathCount * 16 +
     audit.blockerAdjacencyToLight * 8 +
@@ -1173,7 +1330,7 @@ function scoreLibertiesCandidate(puzzle: LibertiesPuzzle, audit: LibertiesPuzzle
   );
 }
 
-function candidatePassesQualityGate(candidate: ScoredLibertiesCandidate): boolean {
+function candidatePassesQualityGate(candidate: ScoredLibertiesCandidate, profile: LibertiesGenerationProfile): boolean {
   const { puzzle, audit } = candidate;
   const captureMinimum = puzzle.difficulty === 'Hard' ? 3 : 2;
   const responseMinimum = puzzle.difficulty === 'Hard' ? 3 : puzzle.difficulty === 'Standard' ? 2 : 0;
@@ -1183,7 +1340,7 @@ function candidatePassesQualityGate(candidate: ScoredLibertiesCandidate): boolea
   const reverseReplay = replayLibertiesMoves(puzzle, [...puzzle.solution].reverse());
 
   return (
-    isGeneratedSizeAllowed(puzzle.difficulty, puzzle.size) &&
+    isGeneratedSizeAllowed(profile, puzzle.difficulty, puzzle.size) &&
     audit.blockerCount >= minBlockers &&
     audit.blockerCount <= maxBlockers &&
     audit.blockerImpactScore >= blockerImpactMinimum &&
@@ -1196,7 +1353,10 @@ function candidatePassesQualityGate(candidate: ScoredLibertiesCandidate): boolea
   );
 }
 
-function buildLibertiesCandidateSpecs(tuning: LibertiesGenerationTuning): LibertiesPuzzleSpec[] {
+function buildLibertiesCandidateSpecs(
+  tuning: LibertiesGenerationTuning,
+  profile: LibertiesGenerationProfile
+): LibertiesPuzzleSpec[] {
   const specs: LibertiesPuzzleSpec[] = [];
   const fingerprints = new Set<string>();
   let variantIndex = 0;
@@ -1230,7 +1390,7 @@ function buildLibertiesCandidateSpecs(tuning: LibertiesGenerationTuning): Libert
   });
 
   terrainSpecs.forEach((base) => {
-    getGenerationSizeDeltas(base).forEach((sizeDelta) => {
+    getGenerationSizeDeltas(profile, base).forEach((sizeDelta) => {
       for (let rowOffset = 0; rowOffset <= sizeDelta; rowOffset += 1) {
         for (let colOffset = 0; colOffset <= sizeDelta; colOffset += 1) {
           LIBERTIES_TRANSFORMS.forEach((transform) => {
@@ -1253,8 +1413,11 @@ function buildLibertiesCandidateSpecs(tuning: LibertiesGenerationTuning): Libert
   return specs;
 }
 
-function scoreLibertiesCandidates(tuning: LibertiesGenerationTuning): ScoredLibertiesCandidate[] {
-  const candidateSpecs = buildLibertiesCandidateSpecs(tuning);
+function scoreLibertiesCandidates(
+  tuning: LibertiesGenerationTuning,
+  profile: LibertiesGenerationProfile
+): ScoredLibertiesCandidate[] {
+  const candidateSpecs = buildLibertiesCandidateSpecs(tuning, profile);
   return candidateSpecs
     .map((spec, ordinal): ScoredLibertiesCandidate | null => {
       try {
@@ -1264,7 +1427,7 @@ function scoreLibertiesCandidates(tuning: LibertiesGenerationTuning): ScoredLibe
           spec,
           puzzle,
           audit,
-          score: scoreLibertiesCandidate(puzzle, audit),
+          score: scoreLibertiesCandidate(puzzle, audit, profile),
           ordinal,
         };
       } catch {
@@ -1303,7 +1466,8 @@ function selectLibertiesPuzzlesByQuota(
   selectedLayouts: Set<string>,
   selectedIds: Set<string>,
   includeForced: boolean,
-  targetLength: number
+  targetLength: number,
+  profile: LibertiesGenerationProfile
 ): LibertiesPuzzle[] {
   const selected: LibertiesPuzzle[] = [];
   const selectedDifficultyCounts: Record<LibertiesDifficulty, number> = {
@@ -1335,7 +1499,7 @@ function selectLibertiesPuzzlesByQuota(
           (candidate) =>
             candidate.puzzle.difficulty === difficulty &&
             candidate.puzzle.size === size &&
-            candidatePassesQualityGate(candidate)
+            candidatePassesQualityGate(candidate, profile)
         )
         .forEach((candidate) => {
           const currentSizeCount = selected.filter(
@@ -1357,7 +1521,7 @@ function selectLibertiesPuzzlesByQuota(
   (Object.keys(quotas) as LibertiesDifficulty[]).forEach((difficulty) => {
     const quota = quotas[difficulty];
     scoredCandidates
-      .filter((candidate) => candidate.puzzle.difficulty === difficulty && candidatePassesQualityGate(candidate))
+      .filter((candidate) => candidate.puzzle.difficulty === difficulty && candidatePassesQualityGate(candidate, profile))
       .forEach((candidate) => {
         if (selectedDifficultyCounts[difficulty] >= quota) return;
         addCandidateToPuzzleSelection(
@@ -1457,7 +1621,7 @@ function chooseScheduledDifficulty(
 }
 
 function orderLibertiesPublicPuzzles(puzzles: LibertiesPuzzle[]): LibertiesPuzzle[] {
-  const forcedPuzzle = puzzles.find((puzzle) => puzzle.id === LIBERTIES_STANDARD_DAILY_PUZZLE_ID) ?? puzzles[0]!;
+  const forcedPuzzle = puzzles.find((puzzle) => puzzle.id === LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID) ?? puzzles[0]!;
   const pools: Record<LibertiesDifficulty, LibertiesPuzzle[]> = {
     Easy: orderLibertiesDifficultyPool(
       puzzles.filter((puzzle) => puzzle.difficulty === 'Easy' && puzzle.id !== forcedPuzzle.id)
@@ -1549,27 +1713,33 @@ function generationPassesPlaytestGate(publicPuzzles: LibertiesPuzzle[]): boolean
   );
 }
 
-function buildLibertiesPacks(tuning: LibertiesGenerationTuning): LibertiesPackGenerationResult {
-  const scoredCandidates = scoreLibertiesCandidates(tuning);
+function buildLibertiesPacks(
+  tuning: LibertiesGenerationTuning,
+  profile: LibertiesGenerationProfile,
+  iteration: number
+): LibertiesPackGenerationResult {
+  const scoredCandidates = scoreLibertiesCandidates(tuning, profile);
   const selectedLayouts = new Set<string>();
   const selectedIds = new Set<string>();
   const publicPuzzles = withLibertiesMinimumRoutes(orderLibertiesPublicPuzzles(selectLibertiesPuzzlesByQuota(
     scoredCandidates,
-    LIBERTIES_PUBLIC_DIFFICULTY_QUOTAS,
-    LIBERTIES_PUBLIC_SIZE_QUOTAS,
+    profile.publicDifficultyQuotas,
+    profile.publicSizeQuotas,
     selectedLayouts,
     selectedIds,
     true,
-    LIBERTIES_PACK_LENGTH
+    profile.packLength,
+    profile
   )));
   const reservePuzzles = withLibertiesMinimumRoutes(selectLibertiesPuzzlesByQuota(
     scoredCandidates,
-    LIBERTIES_RESERVE_DIFFICULTY_QUOTAS,
-    LIBERTIES_RESERVE_SIZE_QUOTAS,
+    profile.reserveDifficultyQuotas,
+    profile.reserveSizeQuotas,
     selectedLayouts,
     selectedIds,
     false,
-    LIBERTIES_RESERVE_PACK_LENGTH
+    profile.reserveLength,
+    profile
   ).map((puzzle, index) => ({ ...puzzle, reserveRank: index + 1 })));
 
   return {
@@ -1579,17 +1749,18 @@ function buildLibertiesPacks(tuning: LibertiesGenerationTuning): LibertiesPackGe
     report: {
       tuningId: tuning.id,
       candidateCount: scoredCandidates.length,
-      iterationCount: 1,
+      iterationCount: iteration,
     },
   };
 }
 
-export function buildLibertiesPacksForGeneration(): LibertiesPackGenerationResult {
+function buildLibertiesPacksForMode(mode: LibertiesPlayMode): LibertiesPackGenerationResult {
+  const profile = getProfile(mode);
   const attempts: LibertiesPackGenerationResult[] = [];
 
   for (let index = 0; index < LIBERTIES_GENERATION_TUNINGS.length; index += 1) {
     try {
-      const result = buildLibertiesPacks(LIBERTIES_GENERATION_TUNINGS[index]!);
+      const result = buildLibertiesPacks(LIBERTIES_GENERATION_TUNINGS[index]!, profile, index + 1);
       attempts.push({
         ...result,
         report: {
@@ -1606,7 +1777,7 @@ export function buildLibertiesPacksForGeneration(): LibertiesPackGenerationResul
   }
 
   if (attempts.length === 0) {
-    throw new Error('Liberties pack generation failed before producing a candidate pack');
+    throw new Error(`Liberties ${profile.mode} pack generation failed before producing a candidate pack`);
   }
 
   return attempts
@@ -1622,15 +1793,41 @@ export function buildLibertiesPacksForGeneration(): LibertiesPackGenerationResul
     })[0]!;
 }
 
-export function buildLibertiesPuzzlesForGeneration(): LibertiesPuzzle[] {
-  return buildLibertiesPacksForGeneration().publicPuzzles;
+export interface LibertiesDualModePackGenerationResult {
+  standard: LibertiesPackGenerationResult;
+  hard: LibertiesPackGenerationResult;
 }
 
-export const libertiesPuzzles: LibertiesPuzzle[] = generatedLibertiesPack;
-export const libertiesReservePuzzles: LibertiesPuzzle[] = generatedLibertiesReservePack;
+export function buildLibertiesPacksForGeneration(): LibertiesPackGenerationResult {
+  return buildLibertiesPacksForMode('standard');
+}
+
+export function buildLibertiesDualPacksForGeneration(): LibertiesDualModePackGenerationResult {
+  return {
+    standard: buildLibertiesPacksForMode('standard'),
+    hard: buildLibertiesPacksForMode('hard'),
+  };
+}
+
+export function buildLibertiesPuzzlesForGeneration(
+  mode: LibertiesPlayMode = 'standard'
+): LibertiesPuzzle[] {
+  return buildLibertiesPacksForMode(mode).publicPuzzles;
+}
+
+const libertiesPuzzlesStandard = generatedLibertiesPack;
+const libertiesPuzzlesHard = generatedLibertiesHardPack ?? generatedLibertiesPack;
+const libertiesReservePuzzlesStandard = generatedLibertiesReservePack;
+const libertiesReservePuzzlesHard = generatedLibertiesHardReservePack ?? generatedLibertiesReservePack;
+export const libertiesPuzzles: LibertiesPuzzle[] = libertiesPuzzlesStandard;
+export const libertiesReservePuzzles: LibertiesPuzzle[] = libertiesReservePuzzlesStandard;
+export const libertiesHardPuzzles: LibertiesPuzzle[] = libertiesPuzzlesHard;
+export const libertiesHardReservePuzzles: LibertiesPuzzle[] = libertiesReservePuzzlesHard;
 export const libertiesPreviewPuzzles: LibertiesPuzzle[] = [
-  ...generatedLibertiesPack,
-  ...generatedLibertiesReservePack,
+  ...libertiesPuzzlesStandard,
+  ...libertiesReservePuzzlesStandard,
+  ...libertiesPuzzlesHard,
+  ...libertiesReservePuzzlesHard,
 ];
 
 export interface LibertiesPuzzleAudit {
@@ -3203,18 +3400,30 @@ export function getLibertiesPackAudit(puzzles: LibertiesPuzzle[] = libertiesPuzz
   };
 }
 
-export function getDailyLibertiesEntry(date: Date = new Date()): LibertiesDailyEntry {
-  const dateKey = getUtcDateKey(date);
-  const startOrdinal = dateKeyToUtcOrdinal(LIBERTIES_PACK_START_DATE);
-  const dayOffset = dateKeyToUtcOrdinal(dateKey) - startOrdinal;
-  const standardStartIndex = libertiesPuzzles.findIndex(
-    (puzzle) => puzzle.id === LIBERTIES_STANDARD_DAILY_PUZZLE_ID
+function getLibertiesPuzzlesForMode(mode: LibertiesPlayMode): LibertiesPuzzle[] {
+  return mode === 'hard' ? libertiesPuzzlesHard : libertiesPuzzlesStandard;
+}
+
+function getDailyPuzzleStartId(mode: LibertiesPlayMode): string {
+  return (
+    LIBERTIES_DAILY_PUZZLE_START_IDS_BY_MODE[mode] ?? LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID
   );
-  const startIndex = standardStartIndex >= 0 ? standardStartIndex : 0;
-  const index = positiveModulo(startIndex + dayOffset, libertiesPuzzles.length);
+}
+
+export function getDailyLibertiesEntry(
+  date: Date = new Date(),
+  playerFacingMode: LibertiesPlayMode = 'standard'
+): LibertiesDailyEntry {
+  const dateKey = getUtcDateKey(date);
+  const dayOffset = dateKeyToUtcOrdinal(dateKey) - LIBERTIES_PACK_START_ORDINAL;
+  const modePuzzles = getLibertiesPuzzlesForMode(playerFacingMode);
+  // Important: mode selects which pack rotation to use; it does not remap puzzle difficulty labels.
+  const modeStartIndex = modePuzzles.findIndex((puzzle) => puzzle.id === getDailyPuzzleStartId(playerFacingMode));
+  const startIndex = modeStartIndex >= 0 ? modeStartIndex : 0;
+  const index = positiveModulo(startIndex + dayOffset, modePuzzles.length);
   return {
     date: dateKey,
-    puzzle: libertiesPuzzles[index]!,
+    puzzle: modePuzzles[index]!,
   };
 }
 

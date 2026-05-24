@@ -14,6 +14,7 @@
     "build:liberties-pack": "tsx scripts/build_liberties_pack.ts",
     "audit:liberties-pack": "tsx scripts/audit_liberties_pack.ts",
     "audit:liberties-personas": "tsx scripts/audit_liberties_personas.ts",
+    "compare:liberties-pack": "tsx scripts/compare_liberties_packs.ts",
     "build:wordie-schedule": "python3 scripts/build_wordie_schedule.py",
     "build:mini-crossword-bank": "python3 scripts/build_mini_crossword_bank.py",
     "build:mini-crossword-seeds": "python3 scripts/build_mini_crossword_variants.py",
@@ -39,6 +40,7 @@
     "preview:dawn-art": "tsx scripts/dawn_tile_art_contact_sheet.ts",
     "preview:dawn-art-html": "tsx scripts/dawn_tile_art_gallery.ts",
     "threadline:review": "node --experimental-strip-types scripts/review_threadline_calendar.ts",
+    "threadline:editorial-team": "node --experimental-strip-types scripts/review_threadline_editorial_team.ts --write=docs/threadline-editorial-team-review.md",
     "test": "vitest run",
     "test:barter": "vitest run src/data/barter/*.test.ts",
     "studio": "cd tools/moji-mash-studio && npm run dev"

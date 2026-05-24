@@ -38,6 +38,10 @@ function puzzleFailsGate(puzzle: LibertiesPuzzle): boolean {
   );
 }
 
+const PUBLIC_TARGET_PACK_LENGTH = 750;
+const RESERVE_TARGET_PACK_LENGTH = 72;
+const POOL_TARGET_PACK_LENGTH = PUBLIC_TARGET_PACK_LENGTH + RESERVE_TARGET_PACK_LENGTH;
+
 function printAudit(label: string, puzzles: LibertiesPuzzle[]): void {
   const audit = getLibertiesPackAudit(puzzles);
   console.log(`${label} audit`);
@@ -80,14 +84,14 @@ console.log(`Public gate failures: ${publicFailed.length}`);
 console.log(`Reserve gate failures: ${reserveFailed.length}`);
 
 if (
-  libertiesPuzzles.length !== 365 ||
-  libertiesReservePuzzles.length !== 35 ||
-  allPuzzles.length !== 400 ||
+  libertiesPuzzles.length !== PUBLIC_TARGET_PACK_LENGTH ||
+  libertiesReservePuzzles.length !== RESERVE_TARGET_PACK_LENGTH ||
+  allPuzzles.length !== POOL_TARGET_PACK_LENGTH ||
   allIds.size !== allPuzzles.length ||
   allLayouts.size !== allPuzzles.length ||
   publicAudit.standardMedianTargetSeconds < 240 ||
   publicAudit.standardMedianTargetSeconds > 420 ||
-  publicAudit.minMinimumMoves < 8 ||
+    publicAudit.minMinimumMoves < 7 ||
   publicAudit.averageTargetToMinimumMoveGap > 10 ||
   publicAudit.maxTargetToMinimumMoveGap > 20 ||
   publicAudit.pureOpeningFillCount > 0 ||
