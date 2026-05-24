@@ -11,6 +11,7 @@ import {
   View,
   useWindowDimensions,
   type PanResponderGestureState,
+  type TextStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack } from "expo-router";
@@ -31,7 +32,7 @@ import {
   type SubsetPuzzleDefinition,
   type SubsetSolvedLines,
   type SubsetTileId,
-  adaptSubsetPuzzleToFirstLinePlacement,
+  adaptSubsetPuzzleToLinePlacement,
   boardIndex,
   canSwapSubsetTiles,
   createEmptySubsetSolvedLines,
@@ -59,9 +60,14 @@ import { incrementGlobalPlayCount } from "../src/globalPlayCount";
 type GamePhase = "intro" | "shuffling" | "playing" | "won" | "lost";
 type PreviewLine = { axis: SubsetAxis; index: number } | null;
 type FeedbackTone = "correct" | "wrong" | "invalid";
+type RailDisplay = {
+  kind: "hidden" | "checking" | "feedback" | "solved";
+  label: string;
+};
 
 const SHUFFLE_DURATION_MS = 900;
 const SHUFFLE_TICK_MS = 90;
+const CHECK_DELAY_MS = 240;
 const GRID_GAP = 6;
 const CATEGORY_RAIL_THICKNESS = 42;
 const MAX_RESHUFFLES = 2;
@@ -164,6 +170,14 @@ function isCellOnLine(
   column: number,
 ): boolean {
   return axis === "row" ? row === lineIndex : column === lineIndex;
+}
+
+function isSamePreviewLine(
+  line: PreviewLine,
+  axis: SubsetAxis,
+  index: number,
+): boolean {
+  return line?.axis === axis && line.index === index;
 }
 
 function getProtectedLineForSwap(
@@ -355,12 +369,16 @@ export default function SubsetScreen() {
   const [solvedLines, setSolvedLines] = useState<SubsetSolvedLines>(() =>
     createEmptySubsetSolvedLines(),
   );
-  const [message, setMessage] = useState("Ready when you are.");
+  const [message, setMessage] = useState("Ready to find the first link?");
   const [reduceMotion, setReduceMotion] = useState(false);
   const [motionReady, setMotionReady] = useState(false);
   const [previewLine, setPreviewLine] = useState<PreviewLine>(null);
+  const [checkingLine, setCheckingLine] = useState<PreviewLine>(null);
   const [feedbackLine, setFeedbackLine] = useState<PreviewLine>(null);
   const [feedbackTone, setFeedbackTone] = useState<FeedbackTone | null>(null);
+  const [railFeedbackLabel, setRailFeedbackLabel] = useState<string | null>(
+    null,
+  );
   const [dragTargetIndex, setDragTargetIndex] = useState<number | null>(null);
   const [pillarPulse, setPillarPulse] = useState(false);
   const [orientation, setOrientation] = useState<SubsetOrientation | null>(
@@ -374,6 +392,7 @@ export default function SubsetScreen() {
   );
   const shuffleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pillarTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const checkTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feedbackAnim = useRef(new Animated.Value(0)).current;
   const winAnim = useRef(new Animated.Value(0)).current;
   const hasCountedRef = useRef(false);
@@ -390,7 +409,8 @@ export default function SubsetScreen() {
   const cellSpan = cellSize + GRID_GAP;
   const tileFontSize = cellSize < 70 ? 12 : 14;
   const hasShufflesRemaining = reshufflesUsed < MAX_RESHUFFLES;
-  const canShuffleAgain = phase !== "shuffling" && hasShufflesRemaining;
+  const canShuffleAgain =
+    phase !== "shuffling" && !checkingLine && hasShufflesRemaining;
 
   const clearShuffleTimers = useCallback(() => {
     if (shuffleIntervalRef.current) {
@@ -404,6 +424,10 @@ export default function SubsetScreen() {
     if (pillarTimeoutRef.current) {
       clearTimeout(pillarTimeoutRef.current);
       pillarTimeoutRef.current = null;
+    }
+    if (checkTimeoutRef.current) {
+      clearTimeout(checkTimeoutRef.current);
+      checkTimeoutRef.current = null;
     }
   }, []);
 
@@ -419,9 +443,10 @@ export default function SubsetScreen() {
   }, [reduceMotion]);
 
   const triggerLineFeedback = useCallback(
-    (line: PreviewLine, tone: FeedbackTone) => {
+    (line: PreviewLine, tone: FeedbackTone, railLabel?: string) => {
       setFeedbackLine(line);
       setFeedbackTone(tone);
+      setRailFeedbackLabel(railLabel ?? null);
       feedbackAnim.stopAnimation();
       feedbackAnim.setValue(0);
       Animated.timing(feedbackAnim, {
@@ -431,6 +456,7 @@ export default function SubsetScreen() {
       }).start(() => {
         setFeedbackLine(null);
         setFeedbackTone(null);
+        setRailFeedbackLabel(null);
       });
     },
     [feedbackAnim],
@@ -450,13 +476,17 @@ export default function SubsetScreen() {
     setSolvedLines(createEmptySubsetSolvedLines());
     setOrientation(null);
     setWrongGuesses(0);
+    setCheckingLine(null);
     setPreviewLine(null);
     setFeedbackLine(null);
     setFeedbackTone(null);
+    setRailFeedbackLabel(null);
     setDragTargetIndex(null);
     setPillarPulse(false);
     setShareStatus(null);
-    setMessage(reduceMotion ? "Find a hidden row or column." : "Shuffling...");
+    setMessage(
+      reduceMotion ? "Find a row or column that clicks." : "Mixing the board...",
+    );
 
     if (reduceMotion) {
       setBoard(finalBoard);
@@ -476,7 +506,7 @@ export default function SubsetScreen() {
       clearShuffleTimers();
       setBoard(finalBoard);
       setPhase("playing");
-      setMessage("Find a hidden row or column.");
+      setMessage("Find a row or column that clicks.");
       pulsePillar();
     }, SHUFFLE_DURATION_MS);
 
@@ -557,7 +587,7 @@ export default function SubsetScreen() {
     }
   }, [shareText]);
 
-  const handleSubmitLine = useCallback(
+  const resolveSubmitLine = useCallback(
     (axis: SubsetAxis, index: number) => {
       if (phase !== "playing") return;
       if (isLineSolved(solvedLines, axis, index)) return;
@@ -570,16 +600,13 @@ export default function SubsetScreen() {
         roundPuzzle,
       );
       if (!lineMatch) {
-        const hasLockedLine =
-          solvedLines.rows.some(Boolean) || solvedLines.columns.some(Boolean);
-        const placementAdaptation = hasLockedLine
-          ? null
-          : adaptSubsetPuzzleToFirstLinePlacement(
-              board,
-              axis,
-              index,
-              orientation,
-              roundPuzzle,
+        const placementAdaptation = adaptSubsetPuzzleToLinePlacement(
+          board,
+          axis,
+          index,
+          orientation,
+          roundPuzzle,
+          solvedLines,
         );
         if (placementAdaptation) {
           setRoundPuzzle(placementAdaptation.puzzle);
@@ -592,9 +619,9 @@ export default function SubsetScreen() {
           setSolvedLines(nextSolvedLines);
           if (isBoardComplete(nextSolvedLines)) {
             setPhase("won");
-            setMessage("Solved. Every word fits two categories.");
+            setMessage("Solved. Every word did double duty.");
           } else {
-            setMessage(`${placementAdaptation.match.category.label} revealed.`);
+            setMessage(`${placementAdaptation.match.category.label} found.`);
           }
           return;
         }
@@ -607,15 +634,19 @@ export default function SubsetScreen() {
           roundPuzzle,
         );
         const missMessage = misplacedLineMatch
-          ? `${misplacedLineMatch.category.label}: wrong places.`
-          : "No link there.";
-        triggerLineFeedback({ axis, index }, "wrong");
+          ? `${misplacedLineMatch.category.label}: right idea, wrong spots.`
+          : "Try a different trio.";
+        triggerLineFeedback(
+          { axis, index },
+          "wrong",
+          misplacedLineMatch ? "Right idea" : "No link",
+        );
         setWrongGuesses((current) => {
           const next = current + 1;
           if (next >= MAX_INCORRECT_GUESSES) {
             setPhase("lost");
             setPreviewLine(null);
-            setMessage(`Game over. ${missMessage}`);
+            setMessage(`Out of misses. ${missMessage}`);
           } else {
             setMessage(missMessage);
           }
@@ -632,9 +663,9 @@ export default function SubsetScreen() {
       setSolvedLines(nextSolvedLines);
       if (isBoardComplete(nextSolvedLines)) {
         setPhase("won");
-        setMessage("Solved. Every word fits two categories.");
+        setMessage("Solved. Every word did double duty.");
       } else {
-        setMessage(`${lineMatch.category.label} revealed.`);
+        setMessage(`${lineMatch.category.label} found.`);
       }
     },
     [
@@ -647,20 +678,57 @@ export default function SubsetScreen() {
     ],
   );
 
+  const handleSubmitLine = useCallback(
+    (axis: SubsetAxis, index: number) => {
+      if (phase !== "playing") return;
+      if (checkingLine) return;
+      if (isLineSolved(solvedLines, axis, index)) return;
+
+      const line = { axis, index };
+      setCheckingLine(line);
+      setPreviewLine(line);
+      setMessage("Checking that link...");
+
+      const finishCheck = () => {
+        setCheckingLine(null);
+        setPreviewLine(null);
+        resolveSubmitLine(axis, index);
+      };
+
+      if (reduceMotion) {
+        finishCheck();
+        return;
+      }
+
+      if (checkTimeoutRef.current) {
+        clearTimeout(checkTimeoutRef.current);
+      }
+      checkTimeoutRef.current = setTimeout(() => {
+        checkTimeoutRef.current = null;
+        finishCheck();
+      }, CHECK_DELAY_MS);
+    },
+    [checkingLine, phase, reduceMotion, resolveSubmitLine, solvedLines],
+  );
+
   const handlePreviewLine = useCallback(
     (axis: SubsetAxis, index: number, active: boolean) => {
+      if (checkingLine) {
+        setPreviewLine(checkingLine);
+        return;
+      }
       if (phase !== "playing" || isLineSolved(solvedLines, axis, index)) {
         setPreviewLine(null);
         return;
       }
       setPreviewLine(active ? { axis, index } : null);
     },
-    [phase, solvedLines],
+    [checkingLine, phase, solvedLines],
   );
 
   const handleSwapAttempt = useCallback(
     (fromIndex: number, targetIndex: number) => {
-      if (phase !== "playing") return;
+      if (phase !== "playing" || checkingLine) return;
       if (fromIndex === targetIndex) return;
       const fixedCellTouched =
         fromIndex === roundPuzzle.fixedCell.index ||
@@ -680,21 +748,22 @@ export default function SubsetScreen() {
           targetIndex,
           solvedLines,
         );
-        triggerLineFeedback(protectedLine, "invalid");
+        triggerLineFeedback(protectedLine, "invalid", "Locked");
         setMessage(
           fixedCellTouched
-            ? "Center word stays locked."
-            : "Solved lines stay together.",
+            ? "The center word stays put."
+            : "Solved links stay locked.",
         );
         return;
       }
       setBoard((currentBoard) =>
         swapBoardTiles(currentBoard, fromIndex, targetIndex),
       );
-      setMessage("Keep looking.");
+      setMessage("Keep hunting.");
     },
     [
       board,
+      checkingLine,
       orientation,
       phase,
       roundPuzzle,
@@ -788,6 +857,53 @@ export default function SubsetScreen() {
     };
   };
 
+  const getRailDisplay = (
+    axis: SubsetAxis,
+    index: number,
+    solved: boolean,
+    label: string,
+  ): RailDisplay => {
+    if (isSamePreviewLine(checkingLine, axis, index)) {
+      return { kind: "checking", label: "Checking" };
+    }
+    if (isSamePreviewLine(feedbackLine, axis, index) && railFeedbackLabel) {
+      return { kind: "feedback", label: railFeedbackLabel };
+    }
+    if (solved) {
+      return { kind: "solved", label };
+    }
+    return { kind: "hidden", label: "Check" };
+  };
+
+  const renderRailDisplay = (
+    display: RailDisplay,
+    labelStyle: TextStyle,
+  ) => {
+    if (display.kind === "hidden") {
+      return (
+        <View style={styles.railPrompt}>
+          <Text style={styles.railQuestion}>?</Text>
+          <Text style={styles.railCheckText}>Check</Text>
+        </View>
+      );
+    }
+
+    return (
+      <Text
+        numberOfLines={2}
+        adjustsFontSizeToFit
+        minimumFontScale={0.6}
+        style={[
+          styles.categoryLabel,
+          labelStyle,
+          display.kind !== "solved" && styles.categoryFeedbackLabel,
+        ]}
+      >
+        {display.label}
+      </Text>
+    );
+  };
+
   return (
     <>
       <Stack.Screen options={{ title: "Subset", headerBackTitle: "Home" }} />
@@ -850,8 +966,8 @@ export default function SubsetScreen() {
                   <View style={styles.instructionRow}>
                     <Text style={styles.instructionNumber}>3</Text>
                     <Text style={styles.instructionsText}>
-                      Tap a ? to check a row or column. Correct lines reveal
-                      and lock; four misses end the round.
+                      Tap a row or column header to check it. Correct lines
+                      reveal and lock; four misses end the round.
                     </Text>
                   </View>
                 </View>
@@ -881,19 +997,19 @@ export default function SubsetScreen() {
 
                 <View style={[primitives.card, styles.boardCard]}>
                   <View style={styles.statusRow}>
-                    <View style={styles.statusPill}>
-                      <Text style={styles.statusText}>
-                        {phase === "shuffling"
-                          ? "Shuffling"
-                          : phase === "won"
-                            ? "Complete"
-                            : phase === "lost"
-                              ? "Game over"
-                              : isDemoPuzzle
-                                ? "Demo"
-                                : "Playing"}
-                      </Text>
-                    </View>
+                    {phase !== "playing" || isDemoPuzzle ? (
+                      <View style={styles.statusPill}>
+                        <Text style={styles.statusText}>
+                          {phase === "shuffling"
+                            ? "Shuffling"
+                            : phase === "won"
+                              ? "Complete"
+                              : phase === "lost"
+                                ? "Game over"
+                                : "Demo"}
+                        </Text>
+                      </View>
+                    ) : null}
                     <View
                       style={styles.missMeter}
                       accessibilityLabel={`${wrongGuesses} of ${MAX_INCORRECT_GUESSES} misses`}
@@ -915,7 +1031,7 @@ export default function SubsetScreen() {
                   </View>
                   {!hasRevealedLine && phase !== "won" && phase !== "lost" ? (
                     <Text style={styles.instructionText}>
-                      Tap a ? to check that row or column.
+                      Tap a row or column header to check it.
                     </Text>
                   ) : null}
 
@@ -932,6 +1048,12 @@ export default function SubsetScreen() {
                         const isPreviewed =
                           previewLine?.axis === "column" &&
                           previewLine.index === column;
+                        const railDisplay = getRailDisplay(
+                          "column",
+                          column,
+                          solved,
+                          label,
+                        );
                         return (
                           <View
                             key={`column-${column}`}
@@ -944,7 +1066,11 @@ export default function SubsetScreen() {
                               style={getRailFeedbackStyle("column", column)}
                             >
                               <Pressable
-                                disabled={phase !== "playing" || solved}
+                                disabled={
+                                  phase !== "playing" ||
+                                  solved ||
+                                  Boolean(checkingLine)
+                                }
                                 onPress={() =>
                                   handleSubmitLine("column", column)
                                 }
@@ -992,17 +1118,10 @@ export default function SubsetScreen() {
                                     : `Check column ${column + 1}`
                                 }
                               >
-                                <Text
-                                  numberOfLines={2}
-                                  adjustsFontSizeToFit
-                                  minimumFontScale={0.72}
-                                  style={[
-                                    styles.categoryLabel,
-                                    styles.columnCategoryLabel,
-                                  ]}
-                                >
-                                  {label}
-                                </Text>
+                                {renderRailDisplay(
+                                  railDisplay,
+                                  styles.columnCategoryLabel,
+                                )}
                               </Pressable>
                             </Animated.View>
                           </View>
@@ -1023,12 +1142,22 @@ export default function SubsetScreen() {
                             const isPreviewed =
                               previewLine?.axis === "row" &&
                               previewLine.index === row;
+                            const railDisplay = getRailDisplay(
+                              "row",
+                              row,
+                              solved,
+                              rowLabels[row],
+                            );
                             return (
                               <Animated.View
                                 style={getRailFeedbackStyle("row", row)}
                               >
                                 <Pressable
-                                  disabled={phase !== "playing" || solved}
+                                  disabled={
+                                    phase !== "playing" ||
+                                    solved ||
+                                    Boolean(checkingLine)
+                                  }
                                   onPress={() => handleSubmitLine("row", row)}
                                   onHoverIn={() =>
                                     handlePreviewLine("row", row, true)
@@ -1075,17 +1204,10 @@ export default function SubsetScreen() {
                                       : `Check row ${row + 1}`
                                   }
                                 >
-                                  <Text
-                                    numberOfLines={2}
-                                    adjustsFontSizeToFit
-                                    minimumFontScale={0.68}
-                                    style={[
-                                      styles.categoryLabel,
-                                      styles.rowCategoryLabel,
-                                    ]}
-                                  >
-                                    {rowLabels[row]}
-                                  </Text>
+                                  {renderRailDisplay(
+                                    railDisplay,
+                                    styles.rowCategoryLabel,
+                                  )}
                                 </Pressable>
                               </Animated.View>
                             );
@@ -1143,7 +1265,11 @@ export default function SubsetScreen() {
                                   cellSize={cellSize}
                                   cellSpan={cellSpan}
                                   fontSize={tileFontSize}
-                                  disabled={phase !== "playing" || pinned}
+                                  disabled={
+                                    phase !== "playing" ||
+                                    pinned ||
+                                    Boolean(checkingLine)
+                                  }
                                   highlighted={highlighted}
                                   fixed={fixed}
                                   pillarPulse={pillarPulse}
@@ -1469,6 +1595,29 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
     categoryRailDisabled: {
       opacity: 0.88,
     },
+    railPrompt: {
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 2,
+    },
+    railQuestion: {
+      color: theme.colors.text,
+      fontSize: 16,
+      lineHeight: 18,
+      fontWeight: "900",
+      textAlign: "center",
+      includeFontPadding: false,
+    },
+    railCheckText: {
+      color: theme.colors.textMuted,
+      fontSize: 9,
+      lineHeight: 10,
+      fontWeight: "900",
+      textAlign: "center",
+      textTransform: "uppercase",
+      letterSpacing: 0.6,
+      includeFontPadding: false,
+    },
     categoryLabel: {
       color: theme.colors.text,
       fontSize: 12,
@@ -1487,6 +1636,12 @@ const createStyles = (theme: ThemeTokens, screenAccent: ScreenAccentTokens) =>
       fontSize: 11,
       lineHeight: 13,
       maxWidth: "100%",
+    },
+    categoryFeedbackLabel: {
+      color: screenAccent.badgeText,
+      fontSize: 10,
+      lineHeight: 12,
+      textTransform: "uppercase",
     },
     gridRow: {
       flexDirection: "row",

@@ -10,10 +10,12 @@ import {
   SUBSET_TILES,
   type SubsetTileId,
   adaptSubsetPuzzleToFirstLinePlacement,
+  adaptSubsetPuzzleToLinePlacement,
   boardIndex,
   canSwapSubsetTiles,
   createEmptySubsetSolvedLines,
   createRandomUnsolvedSubsetBoard,
+  findSubsetCompletableLinePlacement,
   formatSubsetShareText,
   getLineTileIds,
   getMatchingCategory,
@@ -250,6 +252,178 @@ describe("Subset prototype data", () => {
         adaptation!.puzzle,
       )?.category.id,
     ).toBe("workers");
+  });
+
+  it("adapts a later edge row when revealed lines still allow it", () => {
+    const board = [
+      "clink",
+      "whisper",
+      "rustle",
+      "mug",
+      "book",
+      "trowel",
+      "barista",
+      "librarian",
+      "gardener",
+    ];
+    const solvedLines = markLineSolved(
+      createEmptySubsetSolvedLines(),
+      "row",
+      1,
+    );
+
+    expect(getSubsetLineMatch(board, "row", 0, "canonical")).toBeNull();
+    expect(
+      getSubsetMisplacedLineMatch(board, "row", 0, "canonical")?.category.id,
+    ).toBe("sounds");
+
+    const adaptation = adaptSubsetPuzzleToLinePlacement(
+      board,
+      "row",
+      0,
+      "canonical",
+      undefined,
+      solvedLines,
+    );
+
+    expect(adaptation?.adjusted).toBe(false);
+    expect(adaptation?.board).toEqual(board);
+    expect(adaptation?.match.category.id).toBe("sounds");
+    expect(
+      getSubsetLineMatch(
+        board,
+        "row",
+        1,
+        "canonical",
+        adaptation!.puzzle,
+      )?.category.id,
+    ).toBe("handhelds");
+    expect(
+      getSubsetLineMatch(
+        board,
+        "row",
+        0,
+        "canonical",
+        adaptation!.puzzle,
+      )?.category.id,
+    ).toBe("sounds");
+    expect(
+      getSubsetLineMatch(
+        board,
+        "row",
+        2,
+        "canonical",
+        adaptation!.puzzle,
+      )?.category.id,
+    ).toBe("workers");
+  });
+
+  it("accepts a second correct line in an alternate order when the board remains completable", () => {
+    const board = [
+      "gardener",
+      "librarian",
+      "barista",
+      "mug",
+      "book",
+      "trowel",
+      "clink",
+      "whisper",
+      "rustle",
+    ];
+    const solvedLines = markLineSolved(
+      createEmptySubsetSolvedLines(),
+      "column",
+      1,
+    );
+
+    expect(getSubsetLineMatch(board, "row", 0, "canonical")).toBeNull();
+    expect(
+      getSubsetMisplacedLineMatch(board, "row", 0, "canonical")?.category.id,
+    ).toBe("workers");
+
+    const feasibility = findSubsetCompletableLinePlacement(
+      board,
+      "row",
+      0,
+      "canonical",
+      undefined,
+      solvedLines,
+    );
+    const adaptation = adaptSubsetPuzzleToLinePlacement(
+      board,
+      "row",
+      0,
+      "canonical",
+      undefined,
+      solvedLines,
+    );
+
+    expect(feasibility).not.toBeNull();
+    expect(adaptation).not.toBeNull();
+    expect(adaptation?.adjusted).toBe(false);
+    expect(adaptation?.board).toEqual(board);
+    expect(adaptation?.match.category.id).toBe("workers");
+    expect(
+      getSubsetLineMatch(
+        board,
+        "column",
+        1,
+        "canonical",
+        adaptation!.puzzle,
+      )?.category.id,
+    ).toBe("library");
+    expect(
+      getSubsetLineMatch(
+        board,
+        "row",
+        0,
+        "canonical",
+        adaptation!.puzzle,
+      )?.category.id,
+    ).toBe("workers");
+    expect(
+      getSubsetLineMatch(
+        adaptation!.puzzle.solutionBoard,
+        "column",
+        1,
+        "canonical",
+        adaptation!.puzzle,
+      )?.category.id,
+    ).toBe("library");
+  });
+
+  it("keeps wrong-places feedback when a locked row fixes the crossing order", () => {
+    const board = [
+      "barista",
+      "librarian",
+      "gardener",
+      "mug",
+      "book",
+      "trowel",
+      "rustle",
+      "whisper",
+      "clink",
+    ];
+    const solvedLines = markLineSolved(
+      createEmptySubsetSolvedLines(),
+      "row",
+      0,
+    );
+
+    expect(getSubsetLineMatch(board, "row", 2, "canonical")).toBeNull();
+    expect(
+      getSubsetMisplacedLineMatch(board, "row", 2, "canonical")?.category.id,
+    ).toBe("sounds");
+    expect(
+      adaptSubsetPuzzleToLinePlacement(
+        board,
+        "row",
+        2,
+        "canonical",
+        undefined,
+        solvedLines,
+      ),
+    ).toBeNull();
   });
 
   it("supports completing the board under transposed orientation", () => {
