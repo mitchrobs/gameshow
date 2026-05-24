@@ -138,6 +138,6 @@ The strongest next version of Liberties should be:
 4. Scoring shell: small stone bowl, not visible par
 5. Removed or rare: Green Release Locks
 
-The player-facing rule should avoid Go terms:
+The public rule should avoid Go terms:
 
 > Place dark pebbles to clear the light pebbles. A light group clears when all side-touching open crossings are closed. Quiet moves let light stretch into space, so look for shared crossings and clear groups before they run.

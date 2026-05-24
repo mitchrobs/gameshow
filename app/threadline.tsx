@@ -868,7 +868,7 @@ export default function ThreadlineScreen() {
                     ]}
                     accessibilityLabel={
                       thread.isRevealed
-                        ? `${thread.name}, ${thread.foundCount} of ${thread.totalCount}. ${thread.clue}`
+                        ? `${thread.name}, ${thread.foundCount} of ${thread.totalCount}`
                         : `${thread.foundCount} of ${thread.totalCount} words found in locked theme`
                     }
                   >
@@ -884,11 +884,6 @@ export default function ThreadlineScreen() {
                         {thread.foundCount}/{thread.totalCount}
                       </Text>
                     </View>
-                    {thread.isRevealed && (
-                      <Text style={styles.mobileThemeMiniClue} numberOfLines={2}>
-                        {thread.clue}
-                      </Text>
-                    )}
                     <View style={styles.mobileThemeMiniMeter}>
                       {Array.from({ length: thread.totalCount }).map((_, index) => (
                         <View
@@ -937,7 +932,7 @@ export default function ThreadlineScreen() {
               ]}
               accessibilityLabel={
                 thread.isRevealed
-                  ? `${thread.name}, ${thread.foundCount} of ${thread.totalCount}. ${thread.clue}`
+                  ? `${thread.name}, ${thread.foundCount} of ${thread.totalCount}`
                   : `${thread.foundCount} of ${thread.totalCount} words found in locked theme`
               }
             >
@@ -956,14 +951,6 @@ export default function ThreadlineScreen() {
                   {thread.foundCount}/{thread.totalCount}
                 </Text>
               </View>
-              {thread.isRevealed && (
-                <Text
-                  style={[styles.threadClue, compact && styles.mobileThreadClue]}
-                  numberOfLines={compact ? 1 : undefined}
-                >
-                  {thread.clue}
-                </Text>
-              )}
               <View style={[styles.threadMeter, compact && styles.mobileThreadMeter]}>
                 {Array.from({ length: thread.totalCount }).map((_, index) => (
                   <View

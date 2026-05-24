@@ -37,6 +37,8 @@ import {
   getLowestLibertiesMoveCount,
   getRemainingLibertiesLights,
   isLibertiesSolved,
+  libertiesHardPuzzles,
+  libertiesHardReservePuzzles,
   libertiesPreviewPuzzles,
   libertiesPuzzles,
   playLibertiesMove,
@@ -47,6 +49,7 @@ import {
   type LibertiesIllegalReason,
   type LibertiesPoint,
   type LibertiesPlayMode,
+  type LibertiesPuzzle,
 } from '../src/data/libertiesPuzzles';
 
 type GameState = 'playing' | 'won';
@@ -80,6 +83,10 @@ const LIBERTIES_VISUAL_THEME_LABELS: Record<LibertiesVisualThemeId, string> = {
   knob: 'Knob',
   neoCity: 'Deco',
   softCeramic: 'Soft',
+};
+const LIBERTIES_PLAY_MODE_LABELS: Record<LibertiesPlayMode, string> = {
+  standard: 'Standard',
+  hard: 'Hard',
 };
 const THEMED_PIECE_ASSETS = {
   pebble: {
@@ -276,8 +283,8 @@ function isLibertiesPlayMode(value: string | null): value is LibertiesPlayMode {
 }
 
 function getInitialLibertiesPlayMode(): LibertiesPlayMode {
-  const queryMode = isLibertiesPlayMode(readSearchParam('mode')) ? readSearchParam('mode') : null;
-  if (queryMode) return queryMode;
+  const queryMode = readSearchParam('mode');
+  if (isLibertiesPlayMode(queryMode)) return queryMode;
   const storedMode = readStorageItem(MODE_STORAGE_KEY);
   return storedMode === 'hard' ? 'hard' : 'standard';
 }
@@ -417,13 +424,12 @@ function readPuzzleOverride(): string | null {
   return value.trim().toLowerCase();
 }
 
-function getPreviewPuzzleFromOverride(value: string | null): typeof libertiesPuzzles[number] | null {
+function getPreviewPuzzleFromOverride(value: string | null): LibertiesPuzzle | null {
   if (!value) return null;
   if (value === 'hard') {
     return (
-      libertiesPuzzles.find((entry) => entry.id === HARD_PLAYTEST_PUZZLE_ID) ??
-      libertiesPuzzles
-        .filter((entry) => entry.difficulty === 'Hard')
+      libertiesHardPuzzles.find((entry) => entry.id === HARD_PLAYTEST_PUZZLE_ID) ??
+      [...libertiesHardPuzzles]
         .sort((a, b) => {
           const auditA = getLibertiesPuzzleAudit(a);
           const auditB = getLibertiesPuzzleAudit(b);
@@ -436,7 +442,7 @@ function getPreviewPuzzleFromOverride(value: string | null): typeof libertiesPuz
             b.solution.length - a.solution.length
           );
         })[0] ??
-      libertiesPuzzles.find((entry) => entry.difficulty === 'Hard') ??
+      libertiesHardPuzzles[0] ??
       libertiesPuzzles.find((entry) => entry.id === STANDARD_PLAYTEST_PUZZLE_ID) ??
       null
     );
@@ -446,6 +452,17 @@ function getPreviewPuzzleFromOverride(value: string | null): typeof libertiesPuz
     return libertiesPuzzles.find((entry) => entry.difficulty === difficulty) ?? null;
   }
   return libertiesPreviewPuzzles.find((entry) => entry.id.toLowerCase() === value) ?? null;
+}
+
+function getPreviewModeFromOverride(value: string | null, puzzle: LibertiesPuzzle | null): LibertiesPlayMode | null {
+  if (!value || !puzzle) return null;
+  if (value === 'hard') return 'hard';
+  if (value === 'standard' || value === 'easy') return 'standard';
+  const normalizedId = puzzle.id.toLowerCase();
+  return libertiesHardPuzzles.some((entry) => entry.id.toLowerCase() === normalizedId) ||
+    libertiesHardReservePuzzles.some((entry) => entry.id.toLowerCase() === normalizedId)
+    ? 'hard'
+    : 'standard';
 }
 
 function getThemeMarkerRadius(size: number, visualTheme: LibertiesVisualTheme): number {
@@ -1160,7 +1177,12 @@ export default function LibertiesScreen() {
         )
       : width;
   const demoMode = useMemo(() => readDemoMode(), []);
-  const puzzleOverride = useMemo(() => getPreviewPuzzleFromOverride(readPuzzleOverride()), []);
+  const puzzleOverrideValue = useMemo(() => readPuzzleOverride(), []);
+  const puzzleOverride = useMemo(() => getPreviewPuzzleFromOverride(puzzleOverrideValue), [puzzleOverrideValue]);
+  const puzzleOverrideMode = useMemo(
+    () => getPreviewModeFromOverride(puzzleOverrideValue, puzzleOverride),
+    [puzzleOverride, puzzleOverrideValue]
+  );
   const queryMode = useMemo(() => {
     const value = readSearchParam('mode');
     return isLibertiesPlayMode(value) ? value : null;
@@ -1169,7 +1191,8 @@ export default function LibertiesScreen() {
   const [playMode, setPlayMode] = useState<LibertiesPlayMode>(() => {
     return queryMode ?? getInitialLibertiesPlayMode();
   });
-  const activeMode: LibertiesPlayMode = isPreviewMode ? 'standard' : playMode;
+  const activeMode: LibertiesPlayMode = puzzleOverrideMode ?? (demoMode ? 'standard' : playMode);
+  const modeIsLocked = demoMode !== null || puzzleOverride !== null;
   const dailyEntry = useMemo(() => getDailyLibertiesEntry(new Date(), activeMode), [activeMode]);
   const demoPuzzle = useMemo(
     () => libertiesPuzzles.find((entry) => entry.id === 'liberties-shared-court') ?? null,
@@ -1277,11 +1300,6 @@ export default function LibertiesScreen() {
       }),
     [activeMode, dateKey, elapsedSeconds, hintsUsed, moves.length]
   );
-  const modeIsLocked = isPreviewMode;
-  const isHardMode = activeMode === 'hard';
-  const isStandardMode = activeMode === 'standard';
-  const displayedModeLabel = isHardMode ? 'Hard mode' : 'Standard mode';
-  const displayedPuzzleDifficulty = puzzle.difficulty;
   const handleModeChange = useCallback(
     (nextMode: LibertiesPlayMode) => {
       if (modeIsLocked || nextMode === activeMode) return;
@@ -1627,66 +1645,76 @@ export default function LibertiesScreen() {
       ? ({ width: 'calc(100vw - 32px)', maxWidth: phoneChromeWidth, alignSelf: 'center' as const } as const)
       : { width: phoneChromeWidth, maxWidth: phoneChromeWidth, alignSelf: 'center' as const }
     : null;
-  const themeSwitcher = (
-    <View style={[styles.themeSwitcher, isPhoneLayout && styles.themeSwitcherPhone, phoneChromeStyle]}>
-      {LIBERTIES_VISUAL_THEME_IDS.map((themeId) => {
-        const active = themeId === visualThemeId;
-        return (
-          <Pressable
-            key={themeId}
-            accessibilityRole="button"
-            accessibilityState={{ selected: active }}
-            style={({ pressed }) => [
-              styles.themeButton,
-              active && styles.themeButtonActive,
-              pressed && styles.themeButtonPressed,
-            ]}
-            onPress={() => {
-              handleVisualThemeChange(themeId);
-              setIsStyleMenuVisible(false);
-            }}
-          >
-            <Text style={[styles.themeButtonText, active && styles.themeButtonTextActive]}>
-              {LIBERTIES_VISUAL_THEME_LABELS[themeId]}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-
-  const modeSectionSurface = (
-    <View style={[styles.modeSection, isPhoneLayout && styles.modeSectionPhone, phoneChromeStyle]}>
-      <Text style={styles.modeSectionLabel}>Player mode: {displayedModeLabel}</Text>
-      <View style={styles.modeSectionControls}>
-        <Pressable
-          accessibilityRole="button"
-          disabled={modeIsLocked || isStandardMode}
-          style={({ pressed }) => [
-            styles.modeSectionButton,
-            isStandardMode ? styles.modeSectionButtonActive : styles.modeSectionButtonInactive,
-            modeIsLocked && styles.modeSectionButtonDisabled,
-            pressed && !modeIsLocked && !isStandardMode && styles.modeSectionButtonPressed,
-          ]}
-          onPress={() => handleModeChange('standard')}
-        >
-          <Text style={[styles.modeSectionButtonText, isStandardMode && styles.modeSectionButtonTextActive]}>Standard</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          disabled={modeIsLocked || isHardMode}
-          style={({ pressed }) => [
-            styles.modeSectionButton,
-            isHardMode ? styles.modeSectionButtonActive : styles.modeSectionButtonInactive,
-            modeIsLocked && styles.modeSectionButtonDisabled,
-            pressed && !modeIsLocked && !isHardMode && styles.modeSectionButtonPressed,
-          ]}
-          onPress={() => handleModeChange('hard')}
-        >
-          <Text style={[styles.modeSectionButtonText, isHardMode && styles.modeSectionButtonTextActive]}>Hard</Text>
-        </Pressable>
+  const settingsSurface = (
+    <View style={[styles.settingsPanel, isPhoneLayout && styles.settingsPanelPhone, phoneChromeStyle]}>
+      <View style={styles.settingsSection}>
+        <View style={styles.settingsHeaderRow}>
+          <Text style={styles.settingsLabel}>Difficulty</Text>
+          {modeIsLocked && <Text style={styles.settingsNote}>Preview locked</Text>}
+        </View>
+        <View style={styles.settingsSegmentRow}>
+          {(['standard', 'hard'] as const).map((mode) => {
+            const active = mode === activeMode;
+            return (
+              <Pressable
+                key={mode}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active, disabled: modeIsLocked }}
+                disabled={modeIsLocked}
+                style={({ pressed }) => [
+                  styles.themeButton,
+                  active && styles.themeButtonActive,
+                  modeIsLocked && styles.themeButtonDisabled,
+                  pressed && !modeIsLocked && !active && styles.themeButtonPressed,
+                ]}
+                onPress={() => {
+                  handleModeChange(mode);
+                  setIsStyleMenuVisible(false);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.themeButtonText,
+                    active && styles.themeButtonTextActive,
+                    modeIsLocked && !active && styles.themeButtonTextDisabled,
+                  ]}
+                >
+                  {LIBERTIES_PLAY_MODE_LABELS[mode]}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
-      <Text style={styles.modeSectionMapLabel}>Map label: {displayedPuzzleDifficulty}</Text>
+
+      <View style={styles.settingsSection}>
+        <Text style={styles.settingsLabel}>Style</Text>
+        <View style={[styles.themeSwitcher, isPhoneLayout && styles.themeSwitcherPhone]}>
+          {LIBERTIES_VISUAL_THEME_IDS.map((themeId) => {
+            const active = themeId === visualThemeId;
+            return (
+              <Pressable
+                key={themeId}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+                style={({ pressed }) => [
+                  styles.themeButton,
+                  active && styles.themeButtonActive,
+                  pressed && styles.themeButtonPressed,
+                ]}
+                onPress={() => {
+                  handleVisualThemeChange(themeId);
+                  setIsStyleMenuVisible(false);
+                }}
+              >
+                <Text style={[styles.themeButtonText, active && styles.themeButtonTextActive]}>
+                  {LIBERTIES_VISUAL_THEME_LABELS[themeId]}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
     </View>
   );
 
@@ -1723,7 +1751,7 @@ export default function LibertiesScreen() {
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Choose visual style"
+          accessibilityLabel="Game settings"
           accessibilityState={{ expanded: isStyleMenuVisible }}
           style={({ pressed }) => [styles.mobileTopButton, pressed && styles.mobileTopButtonPressed]}
           onPress={() => setIsStyleMenuVisible((current) => !current)}
@@ -1951,8 +1979,7 @@ export default function LibertiesScreen() {
             <>
               {topBarSurface}
               {metricsSurface}
-              {modeSectionSurface}
-              {isStyleMenuVisible && themeSwitcher}
+              {isStyleMenuVisible && settingsSurface}
               {boardSurface}
               {statusSurface}
               {controlsSurface}
@@ -1961,8 +1988,7 @@ export default function LibertiesScreen() {
           ) : (
             <>
               {topBarSurface}
-              {modeSectionSurface}
-              {isStyleMenuVisible && themeSwitcher}
+              {isStyleMenuVisible && settingsSurface}
               {boardSurface}
               {statusSurface}
               {controlsSurface}
@@ -2243,57 +2269,6 @@ const createStyles = (
       fontWeight: '900',
       textTransform: 'uppercase',
       letterSpacing: 0.6,
-    },
-    modeSection: {
-      marginTop: Spacing.md,
-      gap: Spacing.sm,
-    },
-    modeSectionLabel: {
-      color: Colors.textMuted,
-      fontSize: 12,
-      fontWeight: '700',
-      textTransform: 'uppercase',
-      letterSpacing: 0.9,
-    },
-    modeSectionControls: {
-      flexDirection: 'row',
-      gap: Spacing.sm,
-      flexWrap: 'wrap',
-    },
-    modeSectionButton: {
-      ...ui.pill,
-      minWidth: 122,
-      paddingVertical: 8,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#f2f6fb',
-    },
-    modeSectionButtonActive: {
-      borderColor: screenAccent.badgeBorder,
-      backgroundColor: screenAccent.soft,
-    },
-    modeSectionButtonInactive: {
-      backgroundColor: theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.56)',
-    },
-    modeSectionButtonDisabled: {
-      opacity: 0.55,
-    },
-    modeSectionButtonPressed: {
-      opacity: 0.86,
-      transform: [{ scale: 0.98 }],
-    },
-    modeSectionButtonText: {
-      color: Colors.textMuted,
-      fontSize: FontSize.sm,
-      fontWeight: '800',
-    },
-    modeSectionButtonTextActive: {
-      color: screenAccent.badgeText,
-    },
-    modeSectionMapLabel: {
-      color: Colors.textSecondary,
-      fontSize: FontSize.sm,
-      lineHeight: 20,
     },
     modalOverlay: {
       flex: 1,
@@ -2703,26 +2678,56 @@ const createStyles = (
       textTransform: 'uppercase',
       letterSpacing: 0.8,
     },
+    settingsPanel: {
+      alignSelf: 'flex-end',
+      gap: Spacing.sm,
+      borderRadius: BorderRadius.lg,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.035)' : 'rgba(255,255,255,0.62)',
+      padding: Spacing.sm,
+    },
+    settingsPanelPhone: {
+      ...phoneChromeWidth,
+      alignSelf: 'center',
+      backgroundColor: Colors.surfaceGlass,
+    },
+    settingsSection: {
+      gap: Spacing.xs,
+    },
+    settingsHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.sm,
+    },
+    settingsLabel: {
+      color: Colors.textMuted,
+      fontSize: 11,
+      fontWeight: '900',
+      letterSpacing: 0.8,
+      textTransform: 'uppercase',
+    },
+    settingsNote: {
+      color: Colors.textMuted,
+      fontSize: 11,
+      fontWeight: '700',
+    },
+    settingsSegmentRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: Spacing.xs,
+      alignItems: 'center',
+    },
     themeSwitcher: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: Spacing.xs,
-      alignSelf: 'flex-end',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: BorderRadius.full,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.035)' : 'rgba(255,255,255,0.58)',
-      padding: 4,
     },
     themeSwitcherPhone: {
-      ...phoneChromeWidth,
-      alignSelf: 'center',
-      borderRadius: BorderRadius.lg,
       justifyContent: 'space-between',
-      backgroundColor: Colors.surfaceGlass,
-      padding: 5,
     },
     themeButton: {
       minHeight: 34,
@@ -2742,6 +2747,9 @@ const createStyles = (
       borderColor: screenAccent.badgeBorder,
       backgroundColor: screenAccent.soft,
     },
+    themeButtonDisabled: {
+      opacity: 0.72,
+    },
     themeButtonText: {
       color: Colors.textMuted,
       fontSize: 12,
@@ -2750,6 +2758,9 @@ const createStyles = (
     },
     themeButtonTextActive: {
       color: screenAccent.badgeText,
+    },
+    themeButtonTextDisabled: {
+      color: Colors.textMuted,
     },
     boardCard: {
       alignSelf: 'center',

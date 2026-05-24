@@ -3,13 +3,27 @@ import {
   getLibertiesPackAudit,
   getLibertiesPuzzleAudit,
   isLibertiesSolved,
+  createLibertiesBoard,
+  libertiesHardPuzzles,
+  libertiesHardReservePuzzles,
   libertiesReservePuzzles,
   libertiesPuzzles,
   replayLibertiesMoves,
   type LibertiesPuzzle,
+  type LibertiesPlayMode,
 } from '../src/data/libertiesPuzzles';
 
-function puzzleFailsGate(puzzle: LibertiesPuzzle): boolean {
+function getMaximumBoardSize(puzzle: LibertiesPuzzle, mode: LibertiesPlayMode): number {
+  if (mode === 'hard') {
+    if (puzzle.difficulty === 'Easy') return 9;
+    return 10;
+  }
+  if (puzzle.difficulty === 'Hard') return 10;
+  if (puzzle.difficulty === 'Standard') return 9;
+  return 8;
+}
+
+function puzzleFailsGate(puzzle: LibertiesPuzzle, mode: LibertiesPlayMode = 'standard'): boolean {
   const replay = replayLibertiesMoves(puzzle, puzzle.solution);
   const minimumReplay = replayLibertiesMoves(puzzle, puzzle.minSolution ?? []);
   const puzzleAudit = getLibertiesPuzzleAudit(puzzle);
@@ -34,12 +48,12 @@ function puzzleFailsGate(puzzle: LibertiesPuzzle): boolean {
     puzzleAudit.blockerCount < minBlockers ||
     puzzleAudit.blockerCount > maxBlockers ||
     puzzleAudit.blockerImpactScore < (puzzle.difficulty === 'Hard' ? 13 : puzzle.difficulty === 'Standard' ? 10 : 5) ||
-    puzzle.size > (puzzle.difficulty === 'Hard' ? 10 : puzzle.difficulty === 'Standard' ? 9 : 8)
+    puzzle.size > getMaximumBoardSize(puzzle, mode)
   );
 }
 
-const PUBLIC_TARGET_PACK_LENGTH = 750;
-const RESERVE_TARGET_PACK_LENGTH = 72;
+const PUBLIC_TARGET_PACK_LENGTH = 730;
+const RESERVE_TARGET_PACK_LENGTH = 92;
 const POOL_TARGET_PACK_LENGTH = PUBLIC_TARGET_PACK_LENGTH + RESERVE_TARGET_PACK_LENGTH;
 
 function printAudit(label: string, puzzles: LibertiesPuzzle[]): void {
@@ -68,27 +82,49 @@ function printAudit(label: string, puzzles: LibertiesPuzzle[]): void {
 }
 
 const allPuzzles = [...libertiesPuzzles, ...libertiesReservePuzzles];
+const allHardPuzzles = [...libertiesHardPuzzles, ...libertiesHardReservePuzzles];
+const allModePuzzles = [...allPuzzles, ...libertiesHardPuzzles, ...libertiesHardReservePuzzles];
 const publicAudit = getLibertiesPackAudit(libertiesPuzzles);
 const reserveAudit = getLibertiesPackAudit(libertiesReservePuzzles);
-const publicFailed = libertiesPuzzles.filter(puzzleFailsGate);
-const reserveFailed = libertiesReservePuzzles.filter(puzzleFailsGate);
+const publicFailed = libertiesPuzzles.filter((puzzle) => puzzleFailsGate(puzzle, 'standard'));
+const reserveFailed = libertiesReservePuzzles.filter((puzzle) => puzzleFailsGate(puzzle, 'standard'));
+const hardPublicFailed = libertiesHardPuzzles.filter((puzzle) => puzzleFailsGate(puzzle, 'hard'));
+const hardReserveFailed = libertiesHardReservePuzzles.filter((puzzle) => puzzleFailsGate(puzzle, 'hard'));
 const allIds = new Set(allPuzzles.map((puzzle) => puzzle.id));
 const allLayouts = new Set(allPuzzles.map((puzzle) => puzzle.layout.join('/')));
+const allHardIds = new Set(allHardPuzzles.map((puzzle) => puzzle.id));
+const allHardLayouts = new Set(allHardPuzzles.map((puzzle) => puzzle.layout.join('/')));
+const startingBlackPuzzles = allModePuzzles.filter((puzzle) =>
+  createLibertiesBoard(puzzle).some((row) => row.some((cell) => cell === 'black'))
+);
 
 printAudit('Public Liberties pack', libertiesPuzzles);
 printAudit('Reserve Liberties pack', libertiesReservePuzzles);
+printAudit('Hard-mode public Liberties pack', libertiesHardPuzzles);
+printAudit('Hard-mode reserve Liberties pack', libertiesHardReservePuzzles);
 console.log(`Combined pool: ${allPuzzles.length}`);
 console.log(`Unique ids: ${allIds.size}`);
 console.log(`Unique layouts: ${allLayouts.size}`);
+console.log(`Hard combined pool: ${allHardPuzzles.length}`);
+console.log(`Hard unique ids: ${allHardIds.size}`);
+console.log(`Hard unique layouts: ${allHardLayouts.size}`);
 console.log(`Public gate failures: ${publicFailed.length}`);
 console.log(`Reserve gate failures: ${reserveFailed.length}`);
+console.log(`Hard public gate failures: ${hardPublicFailed.length}`);
+console.log(`Hard reserve gate failures: ${hardReserveFailed.length}`);
+console.log(`Starting black pebble failures: ${startingBlackPuzzles.length}`);
 
 if (
   libertiesPuzzles.length !== PUBLIC_TARGET_PACK_LENGTH ||
   libertiesReservePuzzles.length !== RESERVE_TARGET_PACK_LENGTH ||
+  libertiesHardPuzzles.length !== PUBLIC_TARGET_PACK_LENGTH ||
+  libertiesHardReservePuzzles.length !== RESERVE_TARGET_PACK_LENGTH ||
   allPuzzles.length !== POOL_TARGET_PACK_LENGTH ||
+  allHardPuzzles.length !== POOL_TARGET_PACK_LENGTH ||
   allIds.size !== allPuzzles.length ||
   allLayouts.size !== allPuzzles.length ||
+  allHardIds.size !== allHardPuzzles.length ||
+  allHardLayouts.size !== allHardPuzzles.length ||
   publicAudit.standardMedianTargetSeconds < 240 ||
   publicAudit.standardMedianTargetSeconds > 420 ||
     publicAudit.minMinimumMoves < 7 ||
@@ -96,9 +132,17 @@ if (
   publicAudit.maxTargetToMinimumMoveGap > 20 ||
   publicAudit.pureOpeningFillCount > 0 ||
   reserveAudit.pureOpeningFillCount > 0 ||
+  startingBlackPuzzles.length > 0 ||
   publicFailed.length > 0 ||
-  reserveFailed.length > 0
+  reserveFailed.length > 0 ||
+  hardPublicFailed.length > 0 ||
+  hardReserveFailed.length > 0
 ) {
-  console.error([...publicFailed, ...reserveFailed].slice(0, 20).map((puzzle) => puzzle.id).join('\n'));
+  console.error(
+    [...publicFailed, ...reserveFailed, ...hardPublicFailed, ...hardReserveFailed, ...startingBlackPuzzles]
+      .slice(0, 20)
+      .map((puzzle) => puzzle.id)
+      .join('\n')
+  );
   process.exitCode = 1;
 }

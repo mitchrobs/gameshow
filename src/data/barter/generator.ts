@@ -1459,6 +1459,17 @@ function buildAuthoredFallback(seed: number, date: Date): BarterPuzzle {
   return buildPuzzleFromPlan(seed, date, buildMarketPlan(seed, choice));
 }
 
+function withCurrentMarketSkin(puzzle: BarterPuzzle, seed: number): BarterPuzzle {
+  const market = getMarketThemeBySeed(seed);
+  const orderedGoods = orderGoods(puzzle.goods.map((good) => good.id));
+  return {
+    ...puzzle,
+    marketName: market.name,
+    marketEmoji: market.emoji,
+    goods: skinGoodsForMarket(orderedGoods, market),
+  };
+}
+
 function withAnalyzedSolution(
   puzzle: BarterPuzzle,
   report: ReturnType<typeof validateBarterQuality>
@@ -1622,8 +1633,11 @@ export function getDailyBarter(date: Date = new Date()): BarterPuzzle {
   const key = getDateKey(date);
   const cached = DAILY_CACHE.get(key);
   if (cached) return cached;
+  const seed = getDailySeed(date);
   const precomputed = PRECOMPUTED_BARTER_PUZZLES[key];
-  const puzzle = precomputed ?? generateBarterPuzzle(getDailySeed(date), date);
+  const puzzle = precomputed
+    ? withCurrentMarketSkin(precomputed, seed)
+    : generateBarterPuzzle(seed, date);
   DAILY_CACHE.set(key, puzzle);
   return puzzle;
 }
@@ -1667,7 +1681,7 @@ export function getBarterTutorialPuzzle(): BarterPuzzle {
     id: 'barter-tutorial',
     dateKey: 'tutorial',
     difficulty: 'Easy',
-    marketName: 'Training Stall',
+    marketName: 'Training Market',
     marketEmoji: '🏺',
     goods: orderGoods(['spice', 'wool', 'tea', 'silk', 'porcelain', 'gold']),
     inventory,

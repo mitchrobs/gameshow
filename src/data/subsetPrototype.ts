@@ -469,17 +469,75 @@ function countLinePlacementDifferences(
   );
 }
 
-export function adaptSubsetPuzzleToFirstLinePlacement(
+function hasSolvedSubsetLine(solvedLines: SubsetSolvedLines): boolean {
+  return solvedLines.rows.some(Boolean) || solvedLines.columns.some(Boolean);
+}
+
+function preservesSolvedLineCategoriesForPuzzle(
+  board: SubsetBoard,
+  solvedLines: SubsetSolvedLines,
+  previousPuzzle: SubsetPuzzleDefinition,
+  candidatePuzzle: SubsetPuzzleDefinition,
+  orientation: SubsetOrientation,
+): boolean {
+  for (let row = 0; row < SUBSET_GRID_SIZE; row += 1) {
+    if (!solvedLines.rows[row]) continue;
+    const previousMatch = getSubsetLineMatch(
+      board,
+      "row",
+      row,
+      orientation,
+      previousPuzzle,
+    );
+    const candidateMatch = getSubsetLineMatch(
+      board,
+      "row",
+      row,
+      orientation,
+      candidatePuzzle,
+    );
+    if (!previousMatch || previousMatch.category.id !== candidateMatch?.category.id) {
+      return false;
+    }
+  }
+
+  for (let column = 0; column < SUBSET_GRID_SIZE; column += 1) {
+    if (!solvedLines.columns[column]) continue;
+    const previousMatch = getSubsetLineMatch(
+      board,
+      "column",
+      column,
+      orientation,
+      previousPuzzle,
+    );
+    const candidateMatch = getSubsetLineMatch(
+      board,
+      "column",
+      column,
+      orientation,
+      candidatePuzzle,
+    );
+    if (!previousMatch || previousMatch.category.id !== candidateMatch?.category.id) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function findSubsetCompletableLinePlacement(
   board: SubsetBoard,
   axis: SubsetAxis,
   index: number,
   orientation: SubsetOrientation | null,
   puzzle: SubsetPuzzleDefinition = SUBSET_DEMO_PUZZLE,
+  solvedLines: SubsetSolvedLines = createEmptySubsetSolvedLines(),
 ): SubsetPlacementAdaptation | null {
   const tileIds = getLineTileIds(board, axis, index);
   const orientations: SubsetOrientation[] = orientation
     ? [orientation]
     : ["canonical", "transposed"];
+  const hasLockedLine = hasSolvedSubsetLine(solvedLines);
   let nearestAdaptation: SubsetPlacementAdaptation | null = null;
   let nearestDifferenceCount = Number.POSITIVE_INFINITY;
 
@@ -505,6 +563,18 @@ export function adaptSubsetPuzzleToFirstLinePlacement(
           continue;
         }
 
+        if (
+          !preservesSolvedLineCategoriesForPuzzle(
+            board,
+            solvedLines,
+            puzzle,
+            candidatePuzzle,
+            candidateOrientation,
+          )
+        ) {
+          continue;
+        }
+
         const match = getSubsetLineMatch(
           board,
           axis,
@@ -520,6 +590,8 @@ export function adaptSubsetPuzzleToFirstLinePlacement(
             puzzle: candidatePuzzle,
           };
         }
+
+        if (hasLockedLine) continue;
 
         const solutionLine = getOrientedSolutionLineTileIds(
           axis,
@@ -554,6 +626,40 @@ export function adaptSubsetPuzzleToFirstLinePlacement(
   }
 
   return nearestAdaptation;
+}
+
+export function adaptSubsetPuzzleToLinePlacement(
+  board: SubsetBoard,
+  axis: SubsetAxis,
+  index: number,
+  orientation: SubsetOrientation | null,
+  puzzle: SubsetPuzzleDefinition = SUBSET_DEMO_PUZZLE,
+  solvedLines: SubsetSolvedLines = createEmptySubsetSolvedLines(),
+): SubsetPlacementAdaptation | null {
+  return findSubsetCompletableLinePlacement(
+    board,
+    axis,
+    index,
+    orientation,
+    puzzle,
+    solvedLines,
+  );
+}
+
+export function adaptSubsetPuzzleToFirstLinePlacement(
+  board: SubsetBoard,
+  axis: SubsetAxis,
+  index: number,
+  orientation: SubsetOrientation | null,
+  puzzle: SubsetPuzzleDefinition = SUBSET_DEMO_PUZZLE,
+): SubsetPlacementAdaptation | null {
+  return adaptSubsetPuzzleToLinePlacement(
+    board,
+    axis,
+    index,
+    orientation,
+    puzzle,
+  );
 }
 
 export function getSolvedLineCategory(

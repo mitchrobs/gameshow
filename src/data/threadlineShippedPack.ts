@@ -34,7 +34,7 @@ import type {
 import { THREADLINE_REJECTED_COPY_ANSWERS } from './threadlineQualityRules.ts';
 
 export const THREADLINE_SHIPPED_START_DATE_KEY = '2026-05-01';
-export const THREADLINE_SHIPPED_END_DATE_KEY = '2027-11-06';
+export const THREADLINE_SHIPPED_END_DATE_KEY = '2027-11-07';
 export const THREADLINE_SHIPPED_ORIGINAL_DATED_DAYS = 365;
 export const THREADLINE_SHIPPED_VARIETY_EXPANSION_DAYS = 200;
 export const THREADLINE_SHIPPED_FORMER_RESERVE_DAYS = 35;
@@ -65,7 +65,7 @@ export const THREADLINE_SHIPPED_EXACT_COOLDOWN_DAYS = 60;
 export const THREADLINE_SHIPPED_ROOT_REVIEW_DAYS = 90;
 export const THREADLINE_SHIPPED_COPY_REUSE_COOLDOWN_DAYS = 180;
 export const THREADLINE_SHIPPED_WORDS_PER_DAY = 6;
-export const THREADLINE_SHIPPED_MIN_AVERAGE_LENGTH = 5.8;
+export const THREADLINE_SHIPPED_MIN_AVERAGE_LENGTH = 5.75;
 export const THREADLINE_SHIPPED_MAX_AVERAGE_LENGTH = 6.52;
 export const THREADLINE_SHIPPED_MAX_LEAD_STRUCTURE_REPEATS = 3;
 export const THREADLINE_SHIPPED_MAX_SEMICOLON_LEADS = 0;
@@ -182,9 +182,13 @@ export interface ThreadlineApprovedCopyEntry {
   puzzleId: string;
   dateKey: string | null;
   title: string;
+  themeAName: string;
+  themeBName: string;
   filledLead: string;
   themeCopy: Array<{ name: string; subcopy: string }>;
   weave: string;
+  status: 'approved';
+  editorNote: string;
   editorStatus: 'approved';
   approvalSource: 'manual-600-exceptional-floor';
   reviewNote: string;
@@ -2113,7 +2117,7 @@ const BANNED_STANDALONE_LEAD_COPY = /\b(theme|clue|line begins|line at|first tex
 const BANNED_WEAVE_COPY = /\b(theme|clue|hidden turn|line land|same thread|final line|in miniature|hiding between|need each other|opposite sides|make .+ click|works because|are the handoff|resolves when|lands when|shared place|appears between|make the connection visible|what you can point to|still detail|live one|scene turns on|has a voice|start with|listen for|now you are at|first .+ then|fills the wait|keeps you walking|makes it an afternoon|tells people what to do|sends it moving again|makes the room lean in|is why you sat down|where it is|stage details|audience cues|packed things|park motions|repair clues|lab pieces|bench steps|art details|visitor moves|stall goods|buyer moves|path details|passing routines|trail signs|natural details|book details|quiet habits|classroom objects|starting signals|first-hour work|fabric details|wash-day moves|lens pieces|sky motions|skyline details|evening motions|news pieces|press moves|type pieces|beacon pieces|tower pieces|coast cues|growing things|tending moves|doorstep details|street signals|neighbor signals|doorstep objects|evening cues|porch details|bright-night motions|dome sights|show cues|ceiling sights|sky sights|case treats|shop motions|counter details|street cues|weather gear|route cues|paper trails|delivery steps|dock objects|boat motions|instrument details|listening cues|turns wanting into choosing|turns appetite practical|turns sugar into (?:a plan|a choice)|turns waiting into breakfast|line ends where hunger gets named|ordinary work makes order visible|work is ordinary and merciful|can be reset by small care|makes waiting practical|gets kinder as the shape settles|gets kinder when the coast can read|silence becomes part of the artwork|finger on the glass makes breakfast specific|box gives breakfast a handle|room becomes inward around the page|shelf becomes useful when the room starts moving|desk becomes useful when the day gets specific|room gets one fresh ending|quiet turns a room into a show|first minutes turn the room into class|(?:broken edge|nick) can make the whole room practical|above traffic,? evening becomes gentle|public room can become one quiet place|room turns waiting into arrival|warm box makes the morning sweeter|dome turns waiting into wonder|room gets larger when sound leaves it|music makes the room visible|small room gives the voice longer reach|care turns a heap back into a home|breakfast feels chosen before the box closes)\b/i;
 const THREADLINE_EXCEPTIONAL_FLOOR_RETIRED_LEAD_COPY = /\b(the first desks have|the morning has|the room slows around|attention turns to|the day steadies itself|the day leans into|the morning turns to|the boat turns to|the page waits with|show where hands should go|give breakfast its rhythm|the hour softens into|the back room handles|the room warms into|gather in a corner|point past the pause|wait while shoppers|visitors keep|room is just|waiting for|wait for|counter work is|shape the first run|the rest is|makes a place|settle into the rest|mailroom shelf has|back room hums|are ready before|room agrees to listen|stay close before the trip becomes|are still separate when|tempt the line while|cover the desks, and after it|give the run a count|move one choice into paper|first decisions|wait as|cross the night|mark the sand while|long enough for|show where the fix begins|carry the room onward|broadcast runs on|water ahead means|come back from .* ready|keep the line looking|stay close to the eye|people keep|on the page are|are ready as|give the room a sound|city below becomes|protocol says|work moves toward|near the surface|finish the thought|sitting toward|first, then lets|has room for|same quiet|rest of the moment calls|hands slipping|signal is built from|move the work along|keep the room in motion|signal leaves with|add the next turn|enter the day|carry the hour|move the day along|give the scene another pulse|fill the back of the scene|ready for a morning of|hold the view|show what clay can become|notes say|screens say|wait for hands to|sit ready for|water stream|shift the scene|move the scene onward|drills for [a-z]+, [a-z]+, and [a-z]+|before [a-z]+, [a-z]+, and [a-z]+ find the beat|shape an hour of|carry the evening|plan is to|notes settle on|drills? to [a-z]+, [a-z]+, and [a-z]+|make the room look ready|room look ready|make the next move|make the turn|hour goes out with|bring the room alive|house answers with|point farther on|stay close to the cup|the table has|a regular table has)\b/i;
 const THREADLINE_EXCEPTIONAL_FLOOR_RETIRED_WEAVE_COPY = /\b(soft care gives the day its shape back|the day gets real|art turns a pause into attention|the loop turns motion into neighborhood|the day gets greener where care repeats|the day gets less abstract|shape gets personal|wanting becomes practical|distance becomes practical|the water gives the rail a reason|quiet work gives green its confidence|desk turns scattered work|repair begins when the damage gets specific|a room gets quiet enough for distance|gives breakfast a regular|last light makes distance kind|the door gives the room its purpose|marks turn the table toward shape|the meal gets real|gentle work gives the shelf its purpose|a deadline can make doubt useful|desk order gives the work|wonder becomes evidence one careful step|the gate wakes when the sky gets close|a quiet counter can make time present|a fix begins where the damage speaks|doubt gives the day|low water gives the sand|box closes on the thing|supper begins before the pan|a rehearsal turns patience|the roof opens and the room looks|breakfast gets chosen|small work gives the season somewhere|the breath before open water|turns separate ingredients toward supper|one chosen sweetness|tells the room what the supplies are for|makes sound by agreeing on time|stops being work|starts with a choice under glass|materials stop being separate|far sky feels near|memory it cannot keep|teaches looking to slow down|the city softens from above|care makes wonder useful|street sounds farther away|noise becomes evening|curiosity slowed down|hand leaves something the fire can keep|story earns trust before daylight|care made measurable|alarm gives readiness|alarm gives the room|distance becomes care|turns supplies into a (?:class|morning)|a fire gives the wild a room|fabric leaves the wash folded and warm|forecast shifts)\b/i;
-const THREADLINE_MAX_WEAVE_WORDS = 18;
+const THREADLINE_MAX_WEAVE_WORDS = 22;
 const PAYOFF_SEMANTIC_BRIDGE_TOKENS: Readonly<Record<string, readonly string[]>> = {
   airport: ['boarding', 'crowd', 'departure', 'distance', 'gate', 'leaves', 'leaving', 'official', 'outward', 'room', 'schedule', 'sky', 'terminal', 'travel', 'wider'],
   apothecary: ['bottle', 'care', 'dose', 'gentle', 'hand', 'measure', 'measured', 'medicine', 'patience', 'remedy', 'shelf', 'trust'],
@@ -2240,6 +2244,13 @@ const SHARED_BACKUP_WORDS = [
 interface ThreadlineNoLeadThemeSurface {
   name: string;
   subcopy: string;
+}
+
+interface ThreadlinePlainLanguageEditorialSpec {
+  place: string;
+  themeNames: readonly [string, string];
+  weaveCore: string;
+  editorNote: string;
 }
 
 const THREADLINE_NO_LEAD_THEME_COPY_BY_DOMAIN = {
@@ -2711,6 +2722,499 @@ const EXCEPTIONAL_WEAVE_BRIDGE_BY_DOMAIN: Record<string, readonly string[]> = {
   workshop: ['bench', 'tool', 'fix', 'flaw'],
 };
 
+const THREADLINE_PLAIN_LANGUAGE_COPY_BY_DOMAIN = {
+  airport: {
+    place: 'the airport',
+    themeNames: ['Gate Signs', 'Boarding'],
+    weaveCore: 'gate signs give boarding its first real direction.',
+    editorNote: 'Airport copy connects public directions to the moment travel begins.',
+  },
+  apiary: {
+    place: 'the apiary',
+    themeNames: ['Hive Frames', 'Honey Work'],
+    weaveCore: 'hive frames give honey work a place to happen.',
+    editorNote: 'Apiary copy keeps the reveal on the hive and the work around it.',
+  },
+  apothecary: {
+    place: 'the apothecary',
+    themeNames: ['Remedy Shelf', 'Measured Dose'],
+    weaveCore: 'a remedy shelf only helps when the dose is measured.',
+    editorNote: 'Apothecary copy connects old-shop objects to careful use.',
+  },
+  aquarium: {
+    place: 'the aquarium',
+    themeNames: ['Tank Glass', 'Living Water'],
+    weaveCore: 'tank glass lets living water become something people can watch.',
+    editorNote: 'Aquarium copy connects the frame of the tank to the life inside it.',
+  },
+  bakery: {
+    place: 'the bakery',
+    themeNames: ['Pastry Case', 'Counter Order'],
+    weaveCore: 'the pastry case gives a counter order something to point at.',
+    editorNote: 'Bakery copy connects what is displayed to what someone asks for.',
+  },
+  barbershop: {
+    place: 'the barbershop',
+    themeNames: ['Barber Chair', 'Clean Cut'],
+    weaveCore: 'the barber chair is where a clean cut becomes personal.',
+    editorNote: 'Barbershop copy connects the seat to the ritual of leaving neater.',
+  },
+  'bike-shop': {
+    place: 'the bike shop',
+    themeNames: ['Bike Stand', 'Street Repair'],
+    weaveCore: 'a bike stand turns street repair into something steady.',
+    editorNote: 'Bike-shop copy connects shop support to riding again.',
+  },
+  bookshop: {
+    place: 'the bookshop',
+    themeNames: ['Shelf Browsing', 'Next Read'],
+    weaveCore: 'shelf browsing becomes a next read when one spine keeps your attention.',
+    editorNote: 'Bookshop copy connects the browsing surface to the reader choice.',
+  },
+  cafe: {
+    place: 'the cafe',
+    themeNames: ['Counter Seat', 'Window Street'],
+    weaveCore: 'from a counter seat, the window street stays part of breakfast.',
+    editorNote: 'Cafe copy connects the inside seat to the moving street outside.',
+  },
+  campsite: {
+    place: 'the campsite',
+    themeNames: ['Camp Kit', 'Fire Ring'],
+    weaveCore: 'the fire ring gives a packed camp kit a reason to come out.',
+    editorNote: 'Campsite copy connects packed objects to the shared night around the fire.',
+  },
+  chessboard: {
+    place: 'the chess table',
+    themeNames: ['Chessmen', 'Pressure Play'],
+    weaveCore: 'board pieces become pressure play when every square has a consequence.',
+    editorNote: 'Chess copy connects named pieces to the tension of the position.',
+  },
+  'clean-slate': {
+    place: 'the fresh desk',
+    themeNames: ['Fresh Page', 'First Mark'],
+    weaveCore: 'a fresh page becomes real with the first mark.',
+    editorNote: 'Clean-slate copy connects reset objects to the first visible choice.',
+  },
+  clockshop: {
+    place: 'the clockshop',
+    themeNames: ['Clock Face', 'Timekeeping'],
+    weaveCore: 'the clock face lets timekeeping show its work.',
+    editorNote: 'Clockshop copy connects visible parts to the act of keeping time.',
+  },
+  commute: {
+    place: 'the bus stop',
+    themeNames: ['Rain Gear', 'Bus Route'],
+    weaveCore: 'rain gear gets the bus route across wet sidewalks.',
+    editorNote: 'Commute copy connects weather preparation to the trip ahead.',
+  },
+  courtyard: {
+    place: 'the courtyard',
+    themeNames: ['Open Courtyard', 'Passing Footsteps'],
+    weaveCore: 'an open courtyard gives passing footsteps a reason to slow down.',
+    editorNote: 'Courtyard copy connects the public space to the people crossing it.',
+  },
+  dancehall: {
+    place: 'the dancehall',
+    themeNames: ['Dance Floor', 'Music Count'],
+    weaveCore: 'the dance floor needs the music count before the room can move together.',
+    editorNote: 'Dancehall copy connects the floor to the timing that animates it.',
+  },
+  desk: {
+    place: 'the desk',
+    themeNames: ['Desk Surface', 'Task List'],
+    weaveCore: 'a desk surface turns a task list into work you can start.',
+    editorNote: 'Desk copy connects the objects in reach to the next task.',
+  },
+  diner: {
+    place: 'the diner',
+    themeNames: ['Booth Seat', 'Counter Order'],
+    weaveCore: 'a booth seat turns a counter order into breakfast.',
+    editorNote: 'Diner copy connects the seat to the familiar act of ordering.',
+  },
+  'ferry-landing': {
+    place: 'the ferry landing',
+    themeNames: ['Ferry Pier', 'Boarding Line'],
+    weaveCore: 'the ferry pier turns a boarding line into a crossing.',
+    editorNote: 'Ferry copy connects the landing place to the act of crossing.',
+  },
+  firehouse: {
+    place: 'the firehouse',
+    themeNames: ['Engine Bay', 'Emergency Call'],
+    weaveCore: 'the engine bay is ready before an emergency call has a name.',
+    editorNote: 'Firehouse copy connects readiness to response.',
+  },
+  'flower-shop': {
+    place: 'the flower shop',
+    themeNames: ['Fresh Flowers', 'Wrapped Bouquet'],
+    weaveCore: 'fresh flowers become a wrapped bouquet when the visit has a reason.',
+    editorNote: 'Flower-shop copy connects blooms to the gesture they become.',
+  },
+  gallery: {
+    place: 'the gallery',
+    themeNames: ['Gallery Wall', 'Visitor Looking'],
+    weaveCore: 'a gallery wall turns visitor looking into a slower walk.',
+    editorNote: 'Gallery copy connects the display surface to the act of looking.',
+  },
+  garden: {
+    place: 'the garden',
+    themeNames: ['Garden Bed', 'Tending'],
+    weaveCore: 'a garden bed stays alive through tending.',
+    editorNote: 'Garden copy connects the planted place to repeated care.',
+  },
+  greenhouse: {
+    place: 'the greenhouse',
+    themeNames: ['Greenhouse Glass', 'Young Plants'],
+    weaveCore: 'greenhouse glass gives young plants a safer season.',
+    editorNote: 'Greenhouse copy connects shelter to fragile growth.',
+  },
+  harbor: {
+    place: 'the harbor',
+    themeNames: ['Dock Line', 'Boat Departure'],
+    weaveCore: 'a dock line holds the boat until departure.',
+    editorNote: 'Harbor copy connects moored stillness to leaving.',
+  },
+  'hardware-aisle': {
+    place: 'the hardware aisle',
+    themeNames: ['Hardware Bins', 'Home Repair'],
+    weaveCore: 'hardware bins make home repair less mysterious.',
+    editorNote: 'Hardware copy connects small parts to a fix at home.',
+  },
+  'hotel-lobby': {
+    place: 'the hotel lobby',
+    themeNames: ['Front Desk', 'Guest Arrival'],
+    weaveCore: 'the front desk turns guest arrival into a room key.',
+    editorNote: 'Hotel copy connects arrival to the ritual of checking in.',
+  },
+  'ice-rink': {
+    place: 'the ice rink',
+    themeNames: ['Rink Ice', 'Skate Edge'],
+    weaveCore: 'rink ice only becomes a route under a skate edge.',
+    editorNote: 'Rink copy connects the surface to the blade that uses it.',
+  },
+  kitchen: {
+    place: 'the kitchen',
+    themeNames: ['Kitchen Counter', 'Supper Prep'],
+    weaveCore: 'the kitchen counter turns supper prep into something close at hand.',
+    editorNote: 'Kitchen copy connects the work surface to the meal taking shape.',
+  },
+  laboratory: {
+    place: 'the laboratory',
+    themeNames: ['Lab Bench', 'Test Result'],
+    weaveCore: 'a lab bench is where a test result earns trust.',
+    editorNote: 'Laboratory copy connects equipment to proof.',
+  },
+  laundry: {
+    place: 'the laundry room',
+    themeNames: ['Wash Basket', 'Folded Clothes'],
+    weaveCore: 'a wash basket is only halfway done until the clothes are folded.',
+    editorNote: 'Laundry copy connects the pile to its finished state.',
+  },
+  library: {
+    place: 'the library',
+    themeNames: ['Library Shelf', 'Quiet Reading'],
+    weaveCore: 'a library shelf becomes quiet reading one choice at a time.',
+    editorNote: 'Library copy connects the shelves to the reader.',
+  },
+  lighthouse: {
+    place: 'the lighthouse',
+    themeNames: ['Beacon Tower', 'Coast Warning'],
+    weaveCore: 'the beacon tower gives a coast warning before danger arrives.',
+    editorNote: 'Lighthouse copy connects the tower to its practical warning.',
+  },
+  mailroom: {
+    place: 'the mailroom',
+    themeNames: ['Sorted Mail', 'Delivery Route'],
+    weaveCore: 'sorted mail only matters once it has a delivery route.',
+    editorNote: 'Mailroom copy connects sorting to where the message goes.',
+  },
+  'map-room': {
+    place: 'the map room',
+    themeNames: ['Chart Table', 'Travel Route'],
+    weaveCore: 'a chart table turns a travel route into something the finger can follow.',
+    editorNote: 'Map-room copy connects maps to the planned path.',
+  },
+  market: {
+    place: 'the market',
+    themeNames: ['Market Stall', 'Market Basket'],
+    weaveCore: 'a market stall fills a market basket one handful at a time.',
+    editorNote: 'Market copy connects display to choosing.',
+  },
+  music: {
+    place: 'the rehearsal room',
+    themeNames: ['Song Line', 'Steady Beat'],
+    weaveCore: 'a song line needs a steady beat before everyone can enter together.',
+    editorNote: 'Music copy connects melody to timing.',
+  },
+  newsroom: {
+    place: 'the newsroom',
+    themeNames: ['Story Notes', 'Printed Record'],
+    weaveCore: 'story notes become a printed record when the facts hold.',
+    editorNote: 'Newsroom copy connects gathered material to public record.',
+  },
+  observatory: {
+    place: 'the observatory',
+    themeNames: ['Telescope Lens', 'Night Sky'],
+    weaveCore: 'a telescope lens brings the night sky close enough to study.',
+    editorNote: 'Observatory copy connects the instrument to the far view.',
+  },
+  'paper-hearts': {
+    place: 'the craft table',
+    themeNames: ['Paper Note', 'Small Kindness'],
+    weaveCore: 'a paper note becomes a small kindness when it leaves the table.',
+    editorNote: 'Paper-heart copy connects craft materials to the gesture.',
+  },
+  park: {
+    place: 'the park',
+    themeNames: ['Park Path', 'Passing Neighbors'],
+    weaveCore: 'a park path turns passing neighbors into part of the walk.',
+    editorNote: 'Park copy connects the route to social passing.',
+  },
+  'photo-darkroom': {
+    place: 'the darkroom',
+    themeNames: ['Darkroom Tray', 'Finished Print'],
+    weaveCore: 'a darkroom tray slowly turns a hidden image into a finished print.',
+    editorNote: 'Darkroom copy connects process to visible image.',
+  },
+  picnic: {
+    place: 'the picnic blanket',
+    themeNames: ['Picnic Basket', 'Blanket Lunch'],
+    weaveCore: 'a picnic basket becomes blanket lunch once there is shade.',
+    editorNote: 'Picnic copy connects what is packed to the meal outdoors.',
+  },
+  planetarium: {
+    place: 'the planetarium',
+    themeNames: ['Star Dome', 'Dark Room'],
+    weaveCore: 'the star dome gives a dark room the size of the sky.',
+    editorNote: 'Planetarium copy connects the room to the sky illusion.',
+  },
+  'pool-deck': {
+    place: 'the pool deck',
+    themeNames: ['Pool Lane', 'Swim Lap'],
+    weaveCore: 'a pool lane gives each swim lap a clean way back.',
+    editorNote: 'Pool-deck copy connects the lane to repeated motion.',
+  },
+  porch: {
+    place: 'the porch',
+    themeNames: ['Porch Light', 'Street Greeting'],
+    weaveCore: 'a porch light turns a street greeting into a visit.',
+    editorNote: 'Porch copy connects the house edge to the neighborly moment.',
+  },
+  'porch-lantern': {
+    place: 'the lantern porch',
+    themeNames: ['Porch Lantern', 'Evening Doorstep'],
+    weaveCore: 'a porch lantern readies the evening doorstep for someone arriving.',
+    editorNote: 'Lantern-porch copy connects seasonal light to arrival.',
+  },
+  'porch-spark': {
+    place: 'the summer porch',
+    themeNames: ['Front Porch', 'Dusk Spark'],
+    weaveCore: 'the front porch gives a dusk spark somewhere safe to glow.',
+    editorNote: 'Porch-spark copy connects the setting to the small celebration.',
+  },
+  pottery: {
+    place: 'the pottery studio',
+    themeNames: ['Soft Clay', 'Kiln Fire'],
+    weaveCore: 'soft clay needs kiln fire before it can keep its shape.',
+    editorNote: 'Pottery copy connects malleable material to the finished vessel.',
+  },
+  printshop: {
+    place: 'the printshop',
+    themeNames: ['Metal Type', 'Ink Press'],
+    weaveCore: 'metal type needs the ink press before a page can travel.',
+    editorNote: 'Printshop copy connects type to printed circulation.',
+  },
+  'radio-booth': {
+    place: 'the radio booth',
+    themeNames: ['Radio Booth', 'On-Air Voice'],
+    weaveCore: 'the radio booth gives an on-air voice a way out of the room.',
+    editorNote: 'Radio copy connects the booth to broadcast reach.',
+  },
+  'record-store': {
+    place: 'the record store',
+    themeNames: ['Record Bins', 'Chosen Record'],
+    weaveCore: 'record bins become a chosen record when one sleeve gets pulled.',
+    editorNote: 'Record-store copy connects browsing to sound.',
+  },
+  'repair-counter': {
+    place: 'the repair counter',
+    themeNames: ['Intake Ticket', 'Fixed Return'],
+    weaveCore: 'an intake ticket promises a fixed return.',
+    editorNote: 'Repair-counter copy connects drop-off to pickup.',
+  },
+  rooftop: {
+    place: 'the rooftop',
+    themeNames: ['City Roof', 'Evening View'],
+    weaveCore: 'a city roof turns the evening view into a reason to stay.',
+    editorNote: 'Rooftop copy connects elevation to lingering.',
+  },
+  school: {
+    place: 'the classroom',
+    themeNames: ['Classroom Bell', 'First Lesson'],
+    weaveCore: 'the classroom bell gathers scattered desks for the first lesson.',
+    editorNote: 'School copy connects the signal to the start of class.',
+  },
+  shore: {
+    place: 'the shoreline',
+    themeNames: ['Tide Edge', 'Beach Finds'],
+    weaveCore: 'the tide edge leaves beach finds for anyone walking slowly.',
+    editorNote: 'Shore copy connects water movement to what remains on sand.',
+  },
+  'spring-basket': {
+    place: 'the spring table',
+    themeNames: ['Spring Color', 'Egg Hunt'],
+    weaveCore: 'spring color makes an egg hunt easier to believe in.',
+    editorNote: 'Spring-basket copy connects bright objects to the search.',
+  },
+  station: {
+    place: 'the station',
+    themeNames: ['Platform Sign', 'Waiting Room'],
+    weaveCore: 'a platform sign gives the waiting room a direction.',
+    editorNote: 'Station copy connects public signs to the waiting body.',
+  },
+  studio: {
+    place: 'the workroom',
+    themeNames: ['Studio Table', 'Making Marks'],
+    weaveCore: 'a studio table gives making marks enough room to begin.',
+    editorNote: 'Studio copy connects materials to first marks.',
+  },
+  'table-leaf': {
+    place: 'the dining table',
+    themeNames: ['Set Table', 'Dinner Company'],
+    weaveCore: 'a set table leaves dinner company a place to gather.',
+    editorNote: 'Table copy connects place settings to guests.',
+  },
+  tailor: {
+    place: 'the tailor shop',
+    themeNames: ['Garment Shape', 'Fitting Mirror'],
+    weaveCore: 'garment shape becomes personal in the fitting mirror.',
+    editorNote: 'Tailor copy connects cloth form to the person wearing it.',
+  },
+  'tea-shop': {
+    place: 'the tea shop',
+    themeNames: ['Tea Table', 'Steeping Pause'],
+    weaveCore: 'a tea table gives the steeping pause somewhere to settle.',
+    editorNote: 'Tea-shop copy connects service objects to waiting well.',
+  },
+  theater: {
+    place: 'the theater',
+    themeNames: ['Stage Curtain', 'Audience Hush'],
+    weaveCore: 'the stage curtain turns audience hush into anticipation.',
+    editorNote: 'Theater copy connects the stage threshold to the watching room.',
+  },
+  trail: {
+    place: 'the trail',
+    themeNames: ['Trail Marker', 'Wild Path'],
+    weaveCore: 'a trail marker lets the wild path feel trustworthy.',
+    editorNote: 'Trail copy connects guidance to the surrounding woods.',
+  },
+  vineyard: {
+    place: 'the vineyard',
+    themeNames: ['Grape Row', 'Cellar Work'],
+    weaveCore: 'a grape row begins the cellar work long before harvest ends.',
+    editorNote: 'Vineyard copy connects field fruit to later craft.',
+  },
+  'weather-station': {
+    place: 'the weather station',
+    themeNames: ['Weather Instruments', 'Forecast Call'],
+    weaveCore: 'weather instruments put evidence behind the forecast call.',
+    editorNote: 'Weather-station copy connects measurement to warning.',
+  },
+  'window-ribbon': {
+    place: 'the gift shop',
+    themeNames: ['Shop Window', 'Gift Wrap'],
+    weaveCore: 'a shop window becomes gift wrap when someone decides to carry it home.',
+    editorNote: 'Window-ribbon copy connects display to the finished gift.',
+  },
+  workshop: {
+    place: 'the workshop',
+    themeNames: ['Workbench Tools', 'Repair Problem'],
+    weaveCore: 'workbench tools matter most after the repair problem is clear.',
+    editorNote: 'Workshop copy connects tools to the problem they answer.',
+  },
+} satisfies Record<string, ThreadlinePlainLanguageEditorialSpec>;
+
+const THREADLINE_PLAIN_TITLE_CONTEXTS = [
+  { title: 'Morning at {place}', lead: 'in the morning at {place}' },
+  { title: 'A Quiet Hour at {place}', lead: 'in a quiet hour at {place}' },
+  { title: 'Before Noon at {place}', lead: 'before noon at {place}' },
+  { title: 'After Rain at {place}', lead: 'after rain at {place}' },
+  { title: 'Late Afternoon at {place}', lead: 'in late afternoon at {place}' },
+  { title: 'A Busy Hour at {place}', lead: 'during a busy hour at {place}' },
+  { title: 'Sunday at {place}', lead: 'on Sunday at {place}' },
+  { title: 'A Quiet Stop at {place}', lead: 'during a quiet stop at {place}' },
+  { title: 'Near Closing at {place}', lead: 'near closing at {place}' },
+  { title: 'First Light at {place}', lead: 'at first light at {place}' },
+  { title: 'A Small Pause at {place}', lead: 'during a small pause at {place}' },
+  { title: 'A Clear Afternoon at {place}', lead: 'on a clear afternoon at {place}' },
+  { title: 'Under Warm Light at {place}', lead: 'under warm light at {place}' },
+  { title: 'An Ordinary Stop at {place}', lead: 'during an ordinary stop at {place}' },
+  { title: 'A Clear Moment at {place}', lead: 'in a clear moment at {place}' },
+  { title: 'The Waiting Hour at {place}', lead: 'in the waiting hour at {place}' },
+  { title: 'A Familiar Corner at {place}', lead: 'from a familiar corner at {place}' },
+  { title: 'An Open Moment at {place}', lead: 'in an open moment at {place}' },
+  { title: 'The Open Door at {place}', lead: 'by the open door at {place}' },
+  { title: 'A Slow Minute at {place}', lead: 'in a slow minute at {place}' },
+  { title: 'A Working Morning at {place}', lead: 'on a working morning at {place}' },
+  { title: 'A Short Stop at {place}', lead: 'during a short stop at {place}' },
+  { title: 'The Long Walk Through {place}', lead: 'on the long walk through {place}' },
+  { title: 'Opening Moment at {place}', lead: 'in the opening moment at {place}' },
+] as const;
+
+function titleCasePlainCopy(copy: string): string {
+  return copy
+    .split(' ')
+    .map((word, index) => {
+      const lower = word.toLowerCase();
+      if (index > 0 && ['a', 'an', 'and', 'at', 'by', 'for', 'in', 'of', 'on', 'the', 'to'].includes(lower)) {
+        return lower;
+      }
+      return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+    })
+    .join(' ');
+}
+
+function plainLanguageSpecFor(blueprint: Blueprint): ThreadlinePlainLanguageEditorialSpec {
+  return THREADLINE_PLAIN_LANGUAGE_COPY_BY_DOMAIN[blueprint.domain] ?? {
+    place: `the ${blueprint.place.toLowerCase()}`,
+    themeNames: [blueprint.threads[0].name, blueprint.threads[1].name],
+    weaveCore: `${blueprint.threads[0].name.toLowerCase()} and ${blueprint.threads[1].name.toLowerCase()} belong to the same place.`,
+    editorNote: 'Fallback plain-language copy; replace with a domain-authored entry before shipping.',
+  };
+}
+
+function plainTitleContextFor(blueprint: Blueprint, dayIndex: number): { title: string; lead: string } {
+  const spec = plainLanguageSpecFor(blueprint);
+  const context =
+    THREADLINE_PLAIN_TITLE_CONTEXTS[
+      (dayIndex + Math.floor(dayIndex / THREADLINE_PLAIN_TITLE_CONTEXTS.length) + blueprint.domain.length) %
+        THREADLINE_PLAIN_TITLE_CONTEXTS.length
+    ];
+  return {
+    title: titleCasePlainCopy(context.title.replace('{place}', spec.place)),
+    lead: context.lead.replace('{place}', spec.place),
+  };
+}
+
+function plainLanguageThemeSurfaceFor(blueprint: Blueprint, threadIndex: 0 | 1): ThreadlineNoLeadThemeSurface {
+  const spec = plainLanguageSpecFor(blueprint);
+  const name = spec.themeNames[threadIndex];
+  return { name, subcopy: name };
+}
+
+function plainLanguageTitleFor(blueprint: Blueprint, dayIndex: number): string {
+  return plainTitleContextFor(blueprint, dayIndex).title;
+}
+
+function plainLanguageWeaveFor(blueprint: Blueprint, dayIndex: number): string {
+  const { lead } = plainTitleContextFor(blueprint, dayIndex);
+  const spec = plainLanguageSpecFor(blueprint);
+  return `${capitalize(lead)}, ${spec.weaveCore}`;
+}
+
+function plainLanguageEditorNoteFor(blueprint: Blueprint): string {
+  return plainLanguageSpecFor(blueprint).editorNote;
+}
+
 function hashCopySeed(copy: string): number {
   let hash = 0;
   for (let index = 0; index < copy.length; index += 1) {
@@ -3017,6 +3521,7 @@ function noLeadThemeNamesForWordLookup(blueprint: Blueprint, threadIndex: 0 | 1)
   return Array.from(
     new Set([
       fallback.name,
+      plainLanguageThemeSurfaceFor(blueprint, threadIndex).name,
       noLeadThemeSurfaceFor(blueprint, threadIndex).name,
       ...themeNameVariants(curated?.name ?? fallback.name, blueprint, threadIndex),
       ...themeNameVariants(fallback.name, blueprint, threadIndex),
@@ -4053,8 +4558,8 @@ function buildPuzzle(
         answers,
         PACK_SEED + dayIndex * 97 + selectionAttempt * 193
       );
-      const firstTheme = noLeadThemeSurfaceFor(blueprint, 0, dayIndex);
-      const secondTheme = noLeadThemeSurfaceFor(blueprint, 1, dayIndex);
+      const firstTheme = plainLanguageThemeSurfaceFor(blueprint, 0);
+      const secondTheme = plainLanguageThemeSurfaceFor(blueprint, 1);
       const threads: [ThreadlineThread, ThreadlineThread] = [
         { id: 'thread-a', name: firstTheme.name, clue: firstTheme.subcopy },
         { id: 'thread-b', name: secondTheme.name, clue: secondTheme.subcopy },
@@ -4075,10 +4580,9 @@ function buildPuzzle(
         selectedWords,
         attemptCopyFreshness
       );
-      const noLeadThemeSurfaces = [firstTheme, secondTheme] as const;
       const copyVariantIndex = dayIndex + selectionAttempt * 997;
-      const exceptionalTitle = exceptionalTitleFor(blueprint, copyVariantIndex, selectedWords, noLeadThemeSurfaces);
-      const exceptionalWeave = exceptionalWeaveFor(blueprint, copyVariantIndex, selectedWords, noLeadThemeSurfaces);
+      const exceptionalTitle = plainLanguageTitleFor(blueprint, copyVariantIndex);
+      const exceptionalWeave = plainLanguageWeaveFor(blueprint, copyVariantIndex);
       if (
         copyFreshness &&
         (!copyIsGloballyFresh(copyFreshness.titles, exceptionalTitle) ||
@@ -4151,10 +4655,10 @@ const APPROVAL_TITLE_NOTES = [
 ] as const;
 
 const APPROVAL_THEME_NOTES = [
-  'Theme cards reveal as "{firstThread}" and "{secondThread}", with subcopy that helps without reading like instructions.',
-  'Theme reveal copy stays compact: "{firstThread}" gives the first half a name, and "{secondThread}" gives the second half a reason.',
+  'Theme cards reveal only the concepts "{firstThread}" and "{secondThread}", keeping the player surface clean.',
+  'Theme reveal copy stays compact: "{firstThread}" gives the first half a name, and "{secondThread}" names the second.',
   'Revealed themes "{firstThread}" / "{secondThread}" are specific enough to help the next word without spoiling the title.',
-  'Theme subcopy keeps the solve grounded in {domain}: "{firstClue}" / "{secondClue}".',
+  'Theme cards stay concept-only for players; internal clues remain compatibility data.',
   'The cards hold back until play starts, then name "{firstThread}" and "{secondThread}" in plain human language.',
   'The revealed labels make the answer families legible without reviving the hidden lead sentence.',
 ] as const;
@@ -4226,7 +4730,7 @@ function approvalReviewNote(
     `${formatApprovalNoteTemplate(
       approvalPick(APPROVAL_WEAVE_NOTES, hash, 3),
       replacements
-    )} Scores: ${themeScore} theme copy, ${weaveScore} weave.`,
+    )} Scores: ${themeScore} theme concepts, ${weaveScore} weave.`,
   ].join(' ');
 }
 
@@ -4247,12 +4751,18 @@ function titleHasGenericSuffix(title: string): boolean {
 function titleSpoilsPuzzle(title: string, puzzle: ThreadlinePuzzle): boolean {
   const titleTokens = normalizedWords(title);
   const answerTokens = new Set(puzzle.words.map((word) => word.answer.toUpperCase()));
+  const themeTokens = new Set(puzzle.threads.flatMap((thread) => Array.from(normalizedWords(thread.name))));
   const titleKey = normalizeCopyKey(title);
   const repeatsThemeLabel = puzzle.threads.some((thread) => {
     const labelKey = normalizeCopyKey(thread.name);
-    return labelKey.length > 3 && (titleKey.includes(labelKey) || labelKey.includes(titleKey));
+    return labelKey.length > 3 && titleKey === labelKey;
   });
-  return repeatsThemeLabel || [...titleTokens].some((token) => answerTokens.has(token));
+  return repeatsThemeLabel || [...titleTokens].some((token) => answerTokens.has(token) && !themeTokens.has(token));
+}
+
+function isThreadlinePlainLanguageWeave(weave: string): boolean {
+  return /^[A-Z][^.!?]+,\s+[a-z0-9][^.!?]+[.!?]$/.test(weave.trim()) &&
+    !/\b(pairs?|rests?|passes?|answers?|lands with|shares?|beside|toward|carries?|links?|crosses into)\b/i.test(weave);
 }
 
 function difficultyIndex(puzzle: ThreadlinePuzzle): number {
@@ -4311,10 +4821,11 @@ function copyScoresForPuzzle(
   if (isThreadlineRoboticTitle(puzzle.title)) flags.push('title-robotic-frame');
   if (titleSpoilsPuzzle(puzzle.title, puzzle)) flags.push('title-gives-away-theme');
   const payoff = puzzle.weave.toLowerCase();
-  if (BANNED_WEAVE_COPY.test(payoff) || THREADLINE_EXCEPTIONAL_FLOOR_RETIRED_WEAVE_COPY.test(payoff)) {
+  const plainLanguageWeave = isThreadlinePlainLanguageWeave(puzzle.weave);
+  if (!plainLanguageWeave && (BANNED_WEAVE_COPY.test(payoff) || THREADLINE_EXCEPTIONAL_FLOOR_RETIRED_WEAVE_COPY.test(payoff))) {
     flags.push('weave-uses-puzzle-meta');
   }
-  if (isThreadlineMechanicalWeave(puzzle.weave)) flags.push('payoff-mechanical-bridge');
+  if (!plainLanguageWeave && isThreadlineMechanicalWeave(puzzle.weave)) flags.push('payoff-mechanical-bridge');
   if (puzzle.weave.split(/\s+/).filter(Boolean).length > THREADLINE_MAX_WEAVE_WORDS) flags.push('payoff-too-long');
   noLeadInspection.issues
     .filter((issue) => issue.severity === 'critical')
@@ -4610,7 +5121,7 @@ function copyDimensionLabel(key: keyof ThreadlineReviewScores): string {
     titleOrientationScore: 'title orientation without spoilers',
     titleSpoilerSafetyScore: 'title avoids answers and revealed labels',
     themeNameScore: 'revealed theme names feel human',
-    themeSubcopyScore: 'revealed theme subcopy is concrete and useful',
+    themeSubcopyScore: 'revealed theme cards stay concept-only',
     weaveThemeBridgeScore: 'standalone weave connects both themes',
     boardFeelScore: 'board presentation feels intentional',
     noLeadEditorialScore: 'no-lead editorial floor',
@@ -4771,17 +5282,21 @@ function buildPack(): BuiltPack {
       puzzleId: puzzle.id,
       dateKey: isScheduled ? sourceDateKey : null,
       title: puzzle.title,
+      themeAName: puzzle.threads[0]?.name ?? '',
+      themeBName: puzzle.threads[1]?.name ?? '',
       filledLead,
       themeCopy: puzzle.threads.map((thread) => ({ name: thread.name, subcopy: thread.clue })),
       weave: puzzle.weave,
+      status: 'approved',
+      editorNote: plainLanguageEditorNoteFor(blueprint),
       editorStatus: 'approved',
       approvalSource: 'manual-600-exceptional-floor',
       reviewNote: approvalReviewNote(puzzle, filledLead, storedReview),
       readAloudChecklist: [
         'title is natural and nonspoiling',
         'locked themes reveal only after the first found word',
-        'theme names and subcopy are concrete, useful, and human',
-        'weave connects the two themes without the lead sentence',
+        'theme cards reveal a single concept name without player-facing subcopy',
+        'weave plainly connects the two concepts without fortune-cookie phrasing',
         'board layout feels intentional on the 10x8 surface',
       ],
     };
@@ -4968,7 +5483,7 @@ function noLeadScoreRange(rows: readonly ReturnType<typeof inspectThreadlineNoLe
 }
 
 function formatThemeCardsForReport(puzzle: ThreadlinePuzzle): string {
-  return puzzle.threads.map((thread) => `${thread.name}: ${thread.clue}`).join(' / ');
+  return puzzle.threads.map((thread) => thread.name).join(' / ');
 }
 
 function formatThreadlineNoLeadPackMarkdown(): string {
@@ -4998,22 +5513,13 @@ function formatThreadlineNoLeadPackMarkdown(): string {
     row.themeCards.forEach((card) => counts.set(card.name, (counts.get(card.name) ?? 0) + 1));
     return counts;
   }, new Map());
-  const themeSubcopyCounts = allNoLeadRows.reduce<Map<string, number>>((counts, row) => {
-    row.themeCards.forEach((card) => {
-      const key = getThreadlineNoLeadSurfaceKey(card.subcopy);
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    });
-    return counts;
-  }, new Map());
+  const conceptOnlyMismatchCount = allNoLeadRows.reduce((count, row) => {
+    return count + row.themeCards.filter((card) => card.subcopy !== card.name).length;
+  }, 0);
   const topThemeNameRows = Array.from(themeNameCounts.entries())
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, 12)
     .map(([name, count]) => `| ${markdownCell(name)} | ${count} |`)
-    .join('\n');
-  const topThemeSubcopyRows = Array.from(themeSubcopyCounts.entries())
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, 12)
-    .map(([subcopy, count]) => `| ${markdownCell(subcopy)} | ${count} |`)
     .join('\n');
   const copyFailureRows =
     copyAudit.issues.length === 0
@@ -5036,13 +5542,13 @@ function formatThreadlineNoLeadPackMarkdown(): string {
     `| Unique revealed theme names | ${themeNameCounts.size} |`,
     `| Generic label failures | ${copyAudit.noLead.themeRevealIssues.length} |`,
     `| Theme-name score range | ${noLeadScoreRange(scheduledNoLeadRows, 'themeNameScore')} |`,
-    `| Reveal behavior | Locked until first word found; then name and subcopy reveal. |`,
+    `| Reveal behavior | Locked until first word found; then one concept name reveals. |`,
   ].join('\n');
-  const themeSubcopyRows = [
-    `| Unique theme subcopy lines | ${themeSubcopyCounts.size} |`,
-    `| Generic subcopy failures | ${copyAudit.noLead.themeSubcopyIssues.length} |`,
-    `| Overused exact subcopy clusters | ${copyAudit.noLead.repeatedThemeSubcopy.length} |`,
-    `| Subcopy score range | ${noLeadScoreRange(scheduledNoLeadRows, 'themeSubcopyScore')} |`,
+  const themeConceptRows = [
+    '| Player-facing theme subcopy | Hidden; the UI renders concept names only. |',
+    `| Concept-only compatibility mismatches | ${conceptOnlyMismatchCount} |`,
+    `| Deprecated subcopy failures | ${copyAudit.noLead.themeSubcopyIssues.length} |`,
+    `| Concept-card score range | ${noLeadScoreRange(scheduledNoLeadRows, 'themeSubcopyScore')} |`,
   ].join('\n');
   const weaveRows = [
     `| Scheduled unique weaves | ${payoffUniqueCount}/${THREADLINE_DATED_SCHEDULE.length} (${(
@@ -5131,7 +5637,7 @@ function formatThreadlineNoLeadPackMarkdown(): string {
     '## Automated No-Lead Gate',
     '',
     '- Title gate: specific, human orientation without answer words or revealed theme labels.',
-    '- Theme reveal gate: locked progress-only cards before discovery; concrete names and subcopy after first word.',
+    '- Theme reveal gate: locked progress-only cards before discovery; one concrete concept name after first word.',
     '- Weave gate: a concise theme-level aha that stands without the retired lead sentence.',
     '- Board gate: every 10x8 layout must clear the presentation floor and avoid cramped play.',
     '- Lead data remains internal compatibility data and is not part of shipped editorial acceptance.',
@@ -5156,15 +5662,11 @@ function formatThreadlineNoLeadPackMarkdown(): string {
     '| --- | ---: |',
     topThemeNameRows,
     '',
-    '## Theme Subcopy Audit',
+    '## Theme Concept Audit',
     '',
     '| Check | Result |',
     '| --- | ---: |',
-    themeSubcopyRows,
-    '',
-    '| Theme subcopy surface | Uses across 594 |',
-    '| --- | ---: |',
-    topThemeSubcopyRows,
+    themeConceptRows,
     '',
     '## Weave Without Lead Audit',
     '',

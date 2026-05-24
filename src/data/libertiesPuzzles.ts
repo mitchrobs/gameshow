@@ -173,9 +173,10 @@ export interface LibertiesShareTextOptions {
 
 const LIBERTIES_PACK_START_DATE = '2026-05-18';
 const LIBERTIES_PACK_LENGTH = 750;
+const LIBERTIES_DAILY_SCHEDULE_LENGTH = 730;
 const LIBERTIES_RESERVE_PACK_LENGTH = 72;
 const LIBERTIES_GENERATION_POOL_LENGTH = LIBERTIES_PACK_LENGTH + LIBERTIES_RESERVE_PACK_LENGTH;
-// Player-facing mode controls which daily rotation is used (standard vs hard mode),
+// Play mode controls which daily rotation is used (standard vs hard mode),
 // while each puzzle keeps its own fixed difficulty label (Easy / Standard / Hard).
 const LIBERTIES_STANDARD_MODE_DAILY_START_PUZZLE_ID = 'liberties-clock-square';
 const LIBERTIES_HARD_MODE_DAILY_START_PUZZLE_ID = 'liberties-clock-square'; // placeholder for a dedicated hard-mode pack
@@ -1056,12 +1057,13 @@ function isPointSpecOnBoard(point: LibertiesPointSpec, size: number): boolean {
 }
 
 function getPointSpecNeighbors(point: LibertiesPointSpec, size: number): LibertiesPointSpec[] {
-  return [
+  const candidates: LibertiesPointSpec[] = [
     [point[0] - 1, point[1]],
     [point[0] + 1, point[1]],
     [point[0], point[1] - 1],
     [point[0], point[1] + 1],
-  ].filter((candidate): candidate is LibertiesPointSpec => isPointSpecOnBoard(candidate, size));
+  ];
+  return candidates.filter((candidate) => isPointSpecOnBoard(candidate, size));
 }
 
 function addTerrainCandidate(
@@ -1122,7 +1124,7 @@ function getTerrainCandidatesForArchetype(
 
     if (archetype === 'soft-net' || archetype === 'fake-room') {
       group.stones.forEach(([row, col]) => {
-        [
+        const softNetCandidates: LibertiesPointSpec[] = [
           [row - 1, col - 1],
           [row - 1, col + 1],
           [row + 1, col - 1],
@@ -1131,7 +1133,8 @@ function getTerrainCandidatesForArchetype(
           [row + 2, col],
           [row, col - 2],
           [row, col + 2],
-        ].forEach((point) => addTerrainCandidate(candidates, spec, protectedKeys, point as LibertiesPointSpec));
+        ];
+        softNetCandidates.forEach((point) => addTerrainCandidate(candidates, spec, protectedKeys, point));
       });
     }
 
@@ -1815,10 +1818,35 @@ export function buildLibertiesPuzzlesForGeneration(
   return buildLibertiesPacksForMode(mode).publicPuzzles;
 }
 
-const libertiesPuzzlesStandard = generatedLibertiesPack;
-const libertiesPuzzlesHard = generatedLibertiesHardPack ?? generatedLibertiesPack;
-const libertiesReservePuzzlesStandard = generatedLibertiesReservePack;
-const libertiesReservePuzzlesHard = generatedLibertiesHardReservePack ?? generatedLibertiesReservePack;
+function buildDailyScheduleFromGeneratedPack(
+  publicPool: LibertiesPuzzle[],
+  reservePool: LibertiesPuzzle[]
+): { publicPuzzles: LibertiesPuzzle[]; reservePuzzles: LibertiesPuzzle[] } {
+  const publicPuzzles = publicPool.slice(0, LIBERTIES_DAILY_SCHEDULE_LENGTH);
+  const overflowReserves = publicPool
+    .slice(LIBERTIES_DAILY_SCHEDULE_LENGTH)
+    .map((puzzle, index) => ({
+      ...puzzle,
+      reserveRank: reservePool.length + index + 1,
+    }));
+  return {
+    publicPuzzles,
+    reservePuzzles: [...reservePool, ...overflowReserves],
+  };
+}
+
+const libertiesScheduleStandard = buildDailyScheduleFromGeneratedPack(
+  generatedLibertiesPack,
+  generatedLibertiesReservePack
+);
+const libertiesScheduleHard = buildDailyScheduleFromGeneratedPack(
+  generatedLibertiesHardPack ?? generatedLibertiesPack,
+  generatedLibertiesHardReservePack ?? generatedLibertiesReservePack
+);
+const libertiesPuzzlesStandard = libertiesScheduleStandard.publicPuzzles;
+const libertiesPuzzlesHard = libertiesScheduleHard.publicPuzzles;
+const libertiesReservePuzzlesStandard = libertiesScheduleStandard.reservePuzzles;
+const libertiesReservePuzzlesHard = libertiesScheduleHard.reservePuzzles;
 export const libertiesPuzzles: LibertiesPuzzle[] = libertiesPuzzlesStandard;
 export const libertiesReservePuzzles: LibertiesPuzzle[] = libertiesReservePuzzlesStandard;
 export const libertiesHardPuzzles: LibertiesPuzzle[] = libertiesPuzzlesHard;
@@ -1915,7 +1943,7 @@ function makeLibertiesLayout(
 
   spec.blocks?.forEach((point) => {
     const { row, col } = toPoint(point);
-    grid[row]![col] = 'B';
+    grid[row]![col] = 'X';
   });
 
   spec.groups.forEach((group) => {
@@ -3051,14 +3079,14 @@ export function getBestLibertiesHintMove(
   let best: LibertiesHintResult | null = null;
   let bestCandidate: LiveHintCandidate | null = null;
 
-  candidates.forEach((candidate) => {
+  for (const candidate of candidates) {
     const rest = solveLibertiesGreedyFromBoard(
       puzzle,
       candidate.result.board,
       solutionRanks,
       maxDepth - 1
     );
-    if (!rest) return;
+    if (!rest) continue;
 
     const route = [candidate.point, ...rest];
     const result: LibertiesHintResult = {
@@ -3078,9 +3106,9 @@ export function getBestLibertiesHintMove(
       best = result;
       bestCandidate = candidate;
     }
-  });
+  }
 
-  if (best) {
+  if (best !== null) {
     cacheLiveHintRoute(puzzle, board, best.route);
     return liveHintRouteCache.get(getLiveHintRouteCacheKey(puzzle, board)) ?? best;
   }
@@ -3412,13 +3440,13 @@ function getDailyPuzzleStartId(mode: LibertiesPlayMode): string {
 
 export function getDailyLibertiesEntry(
   date: Date = new Date(),
-  playerFacingMode: LibertiesPlayMode = 'standard'
+  playMode: LibertiesPlayMode = 'standard'
 ): LibertiesDailyEntry {
   const dateKey = getUtcDateKey(date);
   const dayOffset = dateKeyToUtcOrdinal(dateKey) - LIBERTIES_PACK_START_ORDINAL;
-  const modePuzzles = getLibertiesPuzzlesForMode(playerFacingMode);
+  const modePuzzles = getLibertiesPuzzlesForMode(playMode);
   // Important: mode selects which pack rotation to use; it does not remap puzzle difficulty labels.
-  const modeStartIndex = modePuzzles.findIndex((puzzle) => puzzle.id === getDailyPuzzleStartId(playerFacingMode));
+  const modeStartIndex = modePuzzles.findIndex((puzzle) => puzzle.id === getDailyPuzzleStartId(playMode));
   const startIndex = modeStartIndex >= 0 ? modeStartIndex : 0;
   const index = positiveModulo(startIndex + dayOffset, modePuzzles.length);
   return {

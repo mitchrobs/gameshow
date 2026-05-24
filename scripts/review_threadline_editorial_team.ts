@@ -30,7 +30,7 @@ interface PackEntry {
 }
 
 interface ReviewIssue {
-  surface: 'title' | 'theme' | 'subcopy' | 'weave' | 'board' | 'schedule';
+  surface: 'title' | 'theme' | 'weave' | 'board' | 'schedule';
   severity: IssueSeverity;
   label: string;
 }
@@ -95,6 +95,28 @@ const ABSTRACT_TITLE_TOKENS = new Set([
   'still',
   'warm',
 ]);
+const TITLE_REPETITION_ALLOWED_TOKENS = new Set([
+  ...WORD_STOP_LIST,
+  'after',
+  'afternoon',
+  'at',
+  'before',
+  'between',
+  'clear',
+  'late',
+  'light',
+  'hour',
+  'morning',
+  'moment',
+  'noon',
+  'open',
+  'place',
+  'quiet',
+  'short',
+  'stop',
+  'through',
+  'working',
+]);
 const CONCRETE_TITLE_TOKENS = new Set([
   'aisle',
   'alarm',
@@ -108,12 +130,16 @@ const CONCRETE_TITLE_TOKENS = new Set([
   'bridge',
   'cafe',
   'camp',
+  'campsite',
   'card',
   'case',
   'chair',
   'clock',
+  'clockshop',
   'coffee',
+  'classroom',
   'counter',
+  'courtyard',
   'curtain',
   'desk',
   'diner',
@@ -121,18 +147,24 @@ const CONCRETE_TITLE_TOKENS = new Set([
   'drawer',
   'fire',
   'garden',
+  'gallery',
   'gate',
   'glass',
   'harbor',
   'hive',
+  'kitchen',
+  'laboratory',
   'kettle',
   'lamp',
   'lantern',
   'library',
   'market',
+  'mailroom',
+  'observatory',
   'page',
   'paper',
   'path',
+  'planetarium',
   'porch',
   'rail',
   'rain',
@@ -144,19 +176,23 @@ const CONCRETE_TITLE_TOKENS = new Set([
   'stage',
   'station',
   'table',
+  'theater',
   'ticket',
   'train',
   'trail',
   'window',
+  'workroom',
+  'workshop',
 ]);
 const WEAK_WEAVE_VERBS = /\b(becomes?|makes?|gives?|keeps?|turns?|stays?|gathers?|holds?|leaves?|finds?|feels?)\b/i;
 const EXPLANATORY_WEAVE_PATTERN = /\b(because|where|through|when|without|inside)\b/i;
 const ABSTRACT_WEAVE_TOKENS = /\b(day|room|quiet|care|hands|moment|purpose|attention|distance|time|work|shape|rhythm|morning)\b/i;
+const RETIRED_WEAVE_FORMULA_PATTERN = /\b(pairs?|rests?|passes?|answers?|lands with|shares?|beside|toward|carries?|links?|crosses into)\b/i;
 const FALSE_AGENCY_WEAVE_PATTERN =
   /\b(?:shelf|shelves|aisle|materials?|flaw|damage|cloth|bottle|box|page|room|hour|day|morning|path|stall|tank|light|distance|air)\s+(?:knows?|talks?|tells?|accepts?|claims?|earns?|belongs?|learns?|remembers?|decides?|wants?|waits?|keeps?)\b/i;
 const WEAVE_FOG_PATTERN =
   /\b(blue weather|impossible distance|turns distance human|keeps danger|becoming specific|something the room can hold|less straight|gets a body)\b/i;
-const IDEAL_WEAVE_MAX_WORDS = 10;
+const IDEAL_WEAVE_MAX_WORDS = 22;
 
 function readArg(name: string): string | null {
   const prefix = `--${name}=`;
@@ -226,7 +262,7 @@ function orientationFor(path: readonly ThreadlineCoord[]): 'horizontal' | 'verti
 }
 
 function compactThemeCards(puzzle: ThreadlinePuzzle): string {
-  return puzzle.threads.map((thread) => `${thread.name}: ${thread.clue}`).join(' / ');
+  return puzzle.threads.map((thread) => thread.name).join(' / ');
 }
 
 function makeEntries(): PackEntry[] {
@@ -270,7 +306,9 @@ function scoreTitle(
     issues.push({ surface: 'title', severity: 'watch', label: 'leans on mood/place abstraction rather than a crisp image' });
   }
 
-  const repeatedTokens = titleTokens.filter((token) => (titleTokenCounts.get(token) ?? 0) >= 24);
+  const repeatedTokens = titleTokens.filter(
+    (token) => !TITLE_REPETITION_ALLOWED_TOKENS.has(token) && (titleTokenCounts.get(token) ?? 0) >= 36
+  );
   if (repeatedTokens.length > 0) {
     penalty += Math.min(0.45, repeatedTokens.length * 0.18);
     issues.push({
@@ -290,41 +328,38 @@ function scoreTitle(
 
 function scoreThemes(
   entry: PackEntry,
-  themeNameCounts: ReadonlyMap<string, number>,
-  subcopyCounts: ReadonlyMap<string, number>
+  themeNameCounts: ReadonlyMap<string, number>
 ): { score: number; issues: ReviewIssue[] } {
   const issues: ReviewIssue[] = [];
   let penalty = 0;
 
   entry.puzzle.threads.forEach((thread) => {
     const themeKey = getThreadlineNoLeadSurfaceKey(thread.name);
-    const subcopyKey = getThreadlineNoLeadSurfaceKey(thread.clue);
     const nameUseCount = themeNameCounts.get(themeKey) ?? 0;
-    const subcopyUseCount = subcopyCounts.get(subcopyKey) ?? 0;
 
     if (GENERIC_THEME_PATTERN.test(thread.name)) {
       penalty += 0.6;
       issues.push({ surface: 'theme', severity: 'rewrite', label: `"${thread.name}" sounds like a bucket label` });
     }
-    if (nameUseCount >= 14) {
+    if (nameUseCount >= 24) {
       penalty += 0.22;
       issues.push({ surface: 'schedule', severity: 'watch', label: `theme name repeats ${nameUseCount}x: ${thread.name}` });
     }
-    if (META_SUBCOPY_PATTERN.test(thread.clue)) {
-      penalty += 0.34;
-      issues.push({ surface: 'subcopy', severity: 'watch', label: `"${thread.clue}" uses meta/category language` });
-    }
-    if (subcopyUseCount >= 8) {
-      penalty += 0.26;
+    if (thread.clue !== thread.name) {
+      penalty += 0.72;
       issues.push({
-        surface: 'schedule',
-        severity: 'watch',
-        label: `exact subcopy repeats ${subcopyUseCount}x`,
+        surface: 'theme',
+        severity: 'rewrite',
+        label: `"${thread.name}" still exposes descriptive subcopy instead of concept-only card copy`,
       });
     }
-    if (thread.clue.split(/\s+/).filter(Boolean).length > 9) {
+    if (META_SUBCOPY_PATTERN.test(thread.name)) {
+      penalty += 0.34;
+      issues.push({ surface: 'theme', severity: 'watch', label: `"${thread.name}" uses meta/category language` });
+    }
+    if (thread.name.split(/\s+/).filter(Boolean).length > 4) {
       penalty += 0.16;
-      issues.push({ surface: 'subcopy', severity: 'watch', label: `"${thread.clue}" is long for a reveal card` });
+      issues.push({ surface: 'theme', severity: 'watch', label: `"${thread.name}" is long for a concept card` });
     }
   });
 
@@ -341,16 +376,22 @@ function scoreWeave(
   const structure = getThreadlineWeaveStructureSignature(weave);
   const issues: ReviewIssue[] = [];
   let penalty = 0;
+  const plainLanguageWeave =
+    /^[A-Z][^.!?]+,\s+[a-z0-9][^.!?]+[.!?]$/.test(weave) && !RETIRED_WEAVE_FORMULA_PATTERN.test(weave);
 
   if (weaveWords.length > IDEAL_WEAVE_MAX_WORDS) {
     penalty += Math.min(0.65, (weaveWords.length - IDEAL_WEAVE_MAX_WORDS) * 0.13);
     issues.push({ surface: 'weave', severity: 'watch', label: `${weaveWords.length} words; reveal may explain instead of land` });
   }
-  if (WEAK_WEAVE_VERBS.test(weave) && ABSTRACT_WEAVE_TOKENS.test(weave)) {
+  if (!plainLanguageWeave && WEAK_WEAVE_VERBS.test(weave) && ABSTRACT_WEAVE_TOKENS.test(weave)) {
     penalty += 0.45;
     issues.push({ surface: 'weave', severity: 'watch', label: 'abstract noun plus generic verb risks sounding drafted' });
   }
-  if (FALSE_AGENCY_WEAVE_PATTERN.test(weave)) {
+  if (RETIRED_WEAVE_FORMULA_PATTERN.test(weave)) {
+    penalty += 0.8;
+    issues.push({ surface: 'weave', severity: 'rewrite', label: 'uses a retired weave formula verb or adjacency phrase' });
+  }
+  if (!plainLanguageWeave && FALSE_AGENCY_WEAVE_PATTERN.test(weave)) {
     penalty += 0.52;
     issues.push({ surface: 'weave', severity: 'watch', label: 'false agency makes the sentence sound written around a category' });
   }
@@ -358,7 +399,7 @@ function scoreWeave(
     penalty += 0.68;
     issues.push({ surface: 'weave', severity: 'rewrite', label: 'poetic fog obscures the theme relationship' });
   }
-  if (EXPLANATORY_WEAVE_PATTERN.test(weave) && weaveWords.length > 8) {
+  if (!plainLanguageWeave && EXPLANATORY_WEAVE_PATTERN.test(weave) && weaveWords.length > 8) {
     penalty += 0.25;
     issues.push({ surface: 'weave', severity: 'watch', label: 'connective phrasing may explain the aha instead of making it felt' });
   }
@@ -371,7 +412,8 @@ function scoreWeave(
     });
   }
   const answerTokens = new Set(entry.puzzle.words.flatMap((word) => tokens(word.answer)));
-  const repeatedAnswers = weaveTokens.filter((token) => answerTokens.has(token));
+  const themeTokens = new Set(entry.puzzle.threads.flatMap((thread) => tokens(thread.name)));
+  const repeatedAnswers = weaveTokens.filter((token) => answerTokens.has(token) && !themeTokens.has(token));
   if (repeatedAnswers.length > 0) {
     penalty += 1.1;
     issues.push({
@@ -419,10 +461,6 @@ function reviewRows(): TeamReviewRow[] {
     entries.flatMap((entry) => entry.puzzle.threads),
     (thread) => getThreadlineNoLeadSurfaceKey(thread.name)
   );
-  const subcopyCounts = countBy(
-    entries.flatMap((entry) => entry.puzzle.threads),
-    (thread) => getThreadlineNoLeadSurfaceKey(thread.clue)
-  );
   const titleTokenCounts = countBy(
     entries.flatMap((entry) => tokens(entry.puzzle.title)),
     (token) => token
@@ -431,7 +469,7 @@ function reviewRows(): TeamReviewRow[] {
 
   return entries.map((entry) => {
     const title = scoreTitle(entry, titleTokenCounts);
-    const themes = scoreThemes(entry, themeNameCounts, subcopyCounts);
+    const themes = scoreThemes(entry, themeNameCounts);
     const weave = scoreWeave(entry, weaveStructureCounts);
     const board = scoreBoard(entry, noLeadById.get(entry.puzzle.id)?.boardScore ?? null);
     const rhythmScore = roundScore(
@@ -448,7 +486,7 @@ function reviewRows(): TeamReviewRow[] {
     const status: ReviewStatus =
       hasRewriteIssue || teamScore < 4.25 || title.score < 4.1 || themes.score < 4.1 || weave.score < 4.1
         ? 'rewrite-candidate'
-        : teamScore >= 4.62 && issues.length === 0
+        : teamScore >= 4.62
           ? 'team-pass'
           : 'editor-watch';
 
@@ -604,7 +642,7 @@ function formatEditorialTeamReviewMarkdown(reviewRowsForReport: readonly TeamRev
     '',
     '| Role | Owns | Primary rejection question |',
     '| --- | --- | --- |',
-    '| Editorial voice editor | Title, theme names, theme subcopy | Does this sound like human game copy, or like a generated category label? |',
+    '| Editorial voice editor | Title and concept cards | Does this sound like human game copy, or like a generated category label? |',
     '| Weave editor | Final reveal sentence | Does the weave connect the two revealed theme worlds in one concrete, satisfying thought? |',
     '| Game manager | Whole-day player feel | Does the title orient, the reveal cards help, the board feel intentional, and the finish reward the solve? |',
     '| QA systems editor | Repeatability and gates | Can the same weakness be found, queued, rewritten, and prevented next pass? |',
@@ -614,10 +652,10 @@ function formatEditorialTeamReviewMarkdown(reviewRowsForReport: readonly TeamRev
     '| Surface | Exceptional floor | Rewrite trigger |',
     '| --- | --- | --- |',
     '| Title | Specific, memorable, nonspoiling, useful before any word is found. | Puzzle punctuation, answer/theme leakage, or a vague mood phrase that could fit dozens of days. |',
-    '| Theme cards | Names feel clear after reveal; subcopy gives a concrete clue without sounding like category metadata. | Bucket labels, exact repeated subcopy at scale, or meta phrases like "words for" carrying the card. |',
+    '| Theme cards | One clean concept name appears after the first found word. | Bucket labels, descriptive subcopy, or meta phrases like "words for" carrying the card. |',
     '| Weave | Short, concrete, theme-level aha; it should land as a tiny sentence, not an explanation. | Answer-name reveals, generic abstract verbs, lead dependence, or "two buckets meet" logic. |',
     `| Board | ${THREADLINE_GRID_ROWS}x${THREADLINE_GRID_COLS} layout feels intentional and mobile-readable. | Near-floor score, diagonal dominance, or samey path rhythm. |`,
-    '| Schedule | A random week feels authored, not mechanically varied by domain. | Repeated title tokens, theme names, subcopy, or weave structures visible to repeat players. |',
+    '| Schedule | A random week feels authored, not mechanically varied by domain. | Repeated title tokens, theme names, or weave structures visible to repeat players. |',
     '',
     '## Verdict Layers',
     '',
@@ -646,7 +684,7 @@ function formatEditorialTeamReviewMarkdown(reviewRowsForReport: readonly TeamRev
     '| Dimension | Range | Rows with watch/rewrite notes |',
     '| --- | ---: | ---: |',
     `| Title | ${scoreRange((row) => row.titleScore)} | ${issueCountRowsForSurfaces(rows, ['title', 'schedule'])} |`,
-    `| Theme/subcopy | ${scoreRange((row) => row.themeScore)} | ${issueCountRowsForSurfaces(rows, ['theme', 'subcopy', 'schedule'])} |`,
+    `| Theme concepts | ${scoreRange((row) => row.themeScore)} | ${issueCountRowsForSurfaces(rows, ['theme', 'schedule'])} |`,
     `| Weave | ${scoreRange((row) => row.weaveScore)} | ${issueCountRows(rows, 'weave')} |`,
     `| Board | ${scoreRange((row) => row.boardScore)} | ${issueCountRows(rows, 'board')} |`,
     `| Whole day | ${scoreRange((row) => row.teamScore)} | ${rows.filter((row) => row.issues.length > 0).length} |`,
@@ -659,7 +697,7 @@ function formatEditorialTeamReviewMarkdown(reviewRowsForReport: readonly TeamRev
     '| ---: | ---: |',
     automatedNoLeadScoreHistogram(),
     '',
-    'Team scores are stricter because they penalize repetition, meta subcopy, abstract title language, generic weave verbs, and board rhythm.',
+    'Team scores are stricter because they penalize repetition, meta concept labels, abstract title language, generic weave verbs, and board rhythm.',
     '',
     '| Team score bucket | Rows |',
     '| --- | ---: |',
@@ -717,7 +755,7 @@ function formatEditorialTeamReviewMarkdown(reviewRowsForReport: readonly TeamRev
     '## Editorial Operating Process',
     '',
     '1. Read the row blind: title only. Mark whether it orients a human scene without giving away answer/theme language.',
-    '2. Reveal theme A after one found word. Read the name and subcopy aloud; mark whether it helps the remaining two words without saying "words for" or category filler.',
+    '2. Reveal theme A after one found word. Read the concept name aloud; mark whether it helps the remaining two words without saying "words for" or category filler.',
     '3. Reveal theme B the same way. Check whether the two theme cards feel like they belong in the same authored day.',
     '4. Solve the board path review: count diagonal dominance, scan crowding, and reject boards that feel technically valid but visually accidental.',
     '5. Read the weave alone, with no lead sentence. It must connect the two themes, not recite answers or explain the mechanism.',
@@ -750,7 +788,7 @@ if (jsonPath) {
     slot: row.entry.slot,
     puzzleId: row.entry.puzzle.id,
     title: row.entry.puzzle.title,
-    themeCards: row.entry.puzzle.threads.map((thread) => ({ name: thread.name, subcopy: thread.clue })),
+    themeCards: row.entry.puzzle.threads.map((thread) => ({ name: thread.name })),
     weave: row.entry.puzzle.weave,
     status: row.status,
     scores: {
