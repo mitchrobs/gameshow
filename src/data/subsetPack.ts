@@ -751,87 +751,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2026-05-24-cut-folded-stacked-paper-goods-flat-foods-clothing",
+    "id": "subset-2026-05-24-market-stations-vendors-display-gear-takeaways",
     "date": "2026-05-24",
     "dayIndex": 9,
     "difficulty": "medium",
-    "editorialLane": "phrase",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "TORTILLA",
+    "theme": "Weekend market stations",
+    "centerWord": "BUCKET",
     "rows": [
       {
-        "label": "Paper Goods",
+        "label": "Vendors",
         "words": [
-          "FLYER",
-          "LETTER",
-          "ENVELOPE"
+          "BAKER",
+          "FLORIST",
+          "FARMER"
         ]
       },
       {
-        "label": "Flat Foods",
+        "label": "Display Gear",
         "words": [
-          "CAKE",
-          "TORTILLA",
-          "PANCAKE"
+          "CASE",
+          "BUCKET",
+          "CRATE"
         ]
       },
       {
-        "label": "Clothing",
+        "label": "Takeaways",
         "words": [
-          "SHIRT",
-          "JEANS",
-          "SWEATER"
+          "BREAD",
+          "DAISY",
+          "PEACH"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Bakery",
         "words": [
-          "FLYER",
-          "CAKE",
-          "SHIRT"
+          "BAKER",
+          "CASE",
+          "BREAD"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Flower Stall",
         "words": [
-          "LETTER",
-          "TORTILLA",
-          "JEANS"
+          "FLORIST",
+          "BUCKET",
+          "DAISY"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Produce Stand",
         "words": [
-          "ENVELOPE",
-          "PANCAKE",
-          "SWEATER"
+          "FARMER",
+          "CRATE",
+          "PEACH"
         ]
       }
     ],
     "grid": [
       [
-        "FLYER",
-        "LETTER",
-        "ENVELOPE"
+        "BAKER",
+        "FLORIST",
+        "FARMER"
       ],
       [
-        "CAKE",
-        "TORTILLA",
-        "PANCAKE"
+        "CASE",
+        "BUCKET",
+        "CRATE"
       ],
       [
-        "SHIRT",
-        "JEANS",
-        "SWEATER"
+        "BREAD",
+        "DAISY",
+        "PEACH"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "market-stations"
   },
   {
     "id": "subset-2026-05-25-holiday-memorial-day",
@@ -1922,87 +1923,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2026-06-07-saved-sent-printed-desk-tasks-money-class-packet",
+    "id": "subset-2026-06-07-post-office-rush-live-workers-tools-moves",
     "date": "2026-06-07",
     "dayIndex": 23,
     "difficulty": "medium",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "INVOICE",
+    "theme": "Post office rush",
+    "centerWord": "SCANNER",
     "rows": [
       {
-        "label": "Desk Tasks",
+        "label": "Workers",
         "words": [
-          "FILE",
-          "EMAIL",
-          "REPORT"
+          "POSTMASTER",
+          "COURIER",
+          "SORTER"
         ]
       },
       {
-        "label": "Money",
+        "label": "Tools",
         "words": [
-          "RECEIPT",
-          "INVOICE",
-          "COUPON"
+          "SCALE",
+          "SCANNER",
+          "BIN"
         ]
       },
       {
-        "label": "Class Packet",
+        "label": "Moves",
         "words": [
-          "WORKSHEET",
-          "NOTE",
-          "HANDOUT"
+          "STAMP",
+          "DELIVER",
+          "ROUTE"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Post Office",
         "words": [
-          "FILE",
-          "RECEIPT",
-          "WORKSHEET"
+          "POSTMASTER",
+          "SCALE",
+          "STAMP"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Delivery Van",
         "words": [
-          "EMAIL",
-          "INVOICE",
-          "NOTE"
+          "COURIER",
+          "SCANNER",
+          "DELIVER"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Mailroom",
         "words": [
-          "REPORT",
-          "COUPON",
-          "HANDOUT"
+          "SORTER",
+          "BIN",
+          "ROUTE"
         ]
       }
     ],
     "grid": [
       [
-        "FILE",
-        "EMAIL",
-        "REPORT"
+        "POSTMASTER",
+        "COURIER",
+        "SORTER"
       ],
       [
-        "RECEIPT",
-        "INVOICE",
-        "COUPON"
+        "SCALE",
+        "SCANNER",
+        "BIN"
       ],
       [
-        "WORKSHEET",
-        "NOTE",
-        "HANDOUT"
+        "STAMP",
+        "DELIVER",
+        "ROUTE"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "post-office-rush-live"
   },
   {
     "id": "subset-2026-06-08-outings-on-duty-entry-props-day-gear",
@@ -2754,87 +2756,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2026-06-17-cut-folded-stacked-camping-desk-pile-picnic",
+    "id": "subset-2026-06-17-repair-counters-live-specialists-parts-tasks",
     "date": "2026-06-17",
     "dayIndex": 33,
     "difficulty": "medium",
-    "editorialLane": "phrase",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "role-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "FOLDER",
+    "theme": "Repair counters in common language",
+    "centerWord": "CHAIN",
     "rows": [
       {
-        "label": "Camping",
+        "label": "Specialists",
         "words": [
-          "ROPE",
-          "TENT",
-          "FIREWOOD"
+          "TAILOR",
+          "MECHANIC",
+          "COBBLER"
         ]
       },
       {
-        "label": "Desk Pile",
+        "label": "Parts",
         "words": [
-          "PAPER",
-          "FOLDER",
-          "TRAYS"
+          "BUTTON",
+          "CHAIN",
+          "SOLE"
         ]
       },
       {
-        "label": "Picnic",
+        "label": "Tasks",
         "words": [
-          "BREAD",
-          "NAPKIN",
-          "PLATES"
+          "HEM",
+          "TUNE",
+          "RESOLE"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Alterations",
         "words": [
-          "ROPE",
-          "PAPER",
-          "BREAD"
+          "TAILOR",
+          "BUTTON",
+          "HEM"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Bike Shop",
         "words": [
-          "TENT",
-          "FOLDER",
-          "NAPKIN"
+          "MECHANIC",
+          "CHAIN",
+          "TUNE"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Shoe Counter",
         "words": [
-          "FIREWOOD",
-          "TRAYS",
-          "PLATES"
+          "COBBLER",
+          "SOLE",
+          "RESOLE"
         ]
       }
     ],
     "grid": [
       [
-        "ROPE",
-        "TENT",
-        "FIREWOOD"
+        "TAILOR",
+        "MECHANIC",
+        "COBBLER"
       ],
       [
-        "PAPER",
-        "FOLDER",
-        "TRAYS"
+        "BUTTON",
+        "CHAIN",
+        "SOLE"
       ],
       [
-        "BREAD",
-        "NAPKIN",
-        "PLATES"
+        "HEM",
+        "TUNE",
+        "RESOLE"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "repair-counters-live"
   },
   {
     "id": "subset-2026-06-18-sports-fields-gear-places-fans",
@@ -3304,7 +3307,7 @@ export const SUBSET_LIVE_PUZZLES = [
     ],
     "columns": [
       {
-        "label": "Pottery Booth",
+        "label": "Clay Table",
         "words": [
           "POTTER",
           "BOWL",
@@ -3312,7 +3315,7 @@ export const SUBSET_LIVE_PUZZLES = [
         ]
       },
       {
-        "label": "Jewelry Booth",
+        "label": "Jewelry Case",
         "words": [
           "JEWELER",
           "BRACELET",
@@ -3320,7 +3323,7 @@ export const SUBSET_LIVE_PUZZLES = [
         ]
       },
       {
-        "label": "Print Booth",
+        "label": "Print Rack",
         "words": [
           "PRINTER",
           "POSTER",
@@ -3931,87 +3934,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2026-07-01-saved-sent-printed-money-snapshots-recipe-night",
+    "id": "subset-2026-07-01-vet-clinic-stations-care-team-treatment-gear-visit-moves",
     "date": "2026-07-01",
     "dayIndex": 47,
-    "difficulty": "medium",
+    "difficulty": "easy",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "SNAP",
+    "theme": "Vet clinic stations",
+    "centerWord": "BANDAGE",
     "rows": [
       {
-        "label": "Money",
+        "label": "Care Team",
         "words": [
-          "RECEIPT",
-          "INVOICE",
-          "COUPON"
+          "VET",
+          "TECH",
+          "GROOMER"
         ]
       },
       {
-        "label": "Snapshots",
+        "label": "Treatment Gear",
         "words": [
-          "IMAGE",
-          "SNAP",
-          "POSTER"
+          "LEASH",
+          "BANDAGE",
+          "BRUSH"
         ]
       },
       {
-        "label": "Recipe Night",
+        "label": "Visit Moves",
         "words": [
-          "PLAN",
-          "INVITE",
-          "MENU"
+          "EXAM",
+          "WRAP",
+          "TRIM"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Exam Room",
         "words": [
-          "RECEIPT",
-          "IMAGE",
-          "PLAN"
+          "VET",
+          "LEASH",
+          "EXAM"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Recovery",
         "words": [
-          "INVOICE",
-          "SNAP",
-          "INVITE"
+          "TECH",
+          "BANDAGE",
+          "WRAP"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Grooming",
         "words": [
-          "COUPON",
-          "POSTER",
-          "MENU"
+          "GROOMER",
+          "BRUSH",
+          "TRIM"
         ]
       }
     ],
     "grid": [
       [
-        "RECEIPT",
-        "INVOICE",
-        "COUPON"
+        "VET",
+        "TECH",
+        "GROOMER"
       ],
       [
-        "IMAGE",
-        "SNAP",
-        "POSTER"
+        "LEASH",
+        "BANDAGE",
+        "BRUSH"
       ],
       [
-        "PLAN",
-        "INVITE",
-        "MENU"
+        "EXAM",
+        "WRAP",
+        "TRIM"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "vet-clinic-stations"
   },
   {
     "id": "subset-2026-07-02-outings-where-to-sit-sound-cues-on-duty",
@@ -4769,87 +4773,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2026-07-11-cut-folded-stacked-paper-goods-clothing-desk-pile",
+    "id": "subset-2026-07-11-library-flow-live-library-staff-desk-tools-library-tasks",
     "date": "2026-07-11",
     "dayIndex": 57,
-    "difficulty": "hard",
-    "editorialLane": "phrase",
+    "difficulty": "easy",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "JEANS",
+    "theme": "How a library moves a book",
+    "centerWord": "CART",
     "rows": [
       {
-        "label": "Paper Goods",
+        "label": "Library Staff",
         "words": [
-          "FLYER",
-          "LETTER",
-          "ENVELOPE"
+          "LIBRARIAN",
+          "SHELVER",
+          "ASSISTANT"
         ]
       },
       {
-        "label": "Clothing",
+        "label": "Desk Tools",
         "words": [
-          "SHIRT",
-          "JEANS",
-          "SWEATER"
+          "CATALOG",
+          "CART",
+          "BARCODE"
         ]
       },
       {
-        "label": "Desk Pile",
+        "label": "Library Tasks",
         "words": [
-          "PAPER",
-          "FOLDER",
-          "TRAYS"
+          "RECOMMEND",
+          "SORT",
+          "CHECKOUT"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Reference Desk",
         "words": [
-          "FLYER",
-          "SHIRT",
-          "PAPER"
+          "LIBRARIAN",
+          "CATALOG",
+          "RECOMMEND"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Stacks",
         "words": [
-          "LETTER",
-          "JEANS",
-          "FOLDER"
+          "SHELVER",
+          "CART",
+          "SORT"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Front Desk",
         "words": [
-          "ENVELOPE",
-          "SWEATER",
-          "TRAYS"
+          "ASSISTANT",
+          "BARCODE",
+          "CHECKOUT"
         ]
       }
     ],
     "grid": [
       [
-        "FLYER",
-        "LETTER",
-        "ENVELOPE"
+        "LIBRARIAN",
+        "SHELVER",
+        "ASSISTANT"
       ],
       [
-        "SHIRT",
-        "JEANS",
-        "SWEATER"
+        "CATALOG",
+        "CART",
+        "BARCODE"
       ],
       [
-        "PAPER",
-        "FOLDER",
-        "TRAYS"
+        "RECOMMEND",
+        "SORT",
+        "CHECKOUT"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "library-flow-live"
   },
   {
     "id": "subset-2026-07-12-sports-fields-gear-scoring-play-moves",
@@ -5934,87 +5939,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2026-07-25-saved-sent-printed-desk-tasks-class-packet-snapshots",
+    "id": "subset-2026-07-25-firehouse-response-crew-gear-moves",
     "date": "2026-07-25",
     "dayIndex": 71,
     "difficulty": "hard",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "NOTE",
+    "theme": "Firehouse response zones",
+    "centerWord": "HOSE",
     "rows": [
       {
-        "label": "Desk Tasks",
+        "label": "Crew",
         "words": [
-          "FILE",
-          "EMAIL",
-          "REPORT"
+          "CAPTAIN",
+          "DRIVER",
+          "MEDIC"
         ]
       },
       {
-        "label": "Class Packet",
+        "label": "Gear",
         "words": [
-          "WORKSHEET",
-          "NOTE",
-          "HANDOUT"
+          "RADIO",
+          "HOSE",
+          "KIT"
         ]
       },
       {
-        "label": "Snapshots",
+        "label": "Moves",
         "words": [
-          "IMAGE",
-          "SNAP",
-          "POSTER"
+          "DISPATCH",
+          "PUMP",
+          "TREAT"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Command Desk",
         "words": [
-          "FILE",
-          "WORKSHEET",
-          "IMAGE"
+          "CAPTAIN",
+          "RADIO",
+          "DISPATCH"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Engine Bay",
         "words": [
-          "EMAIL",
-          "NOTE",
-          "SNAP"
+          "DRIVER",
+          "HOSE",
+          "PUMP"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Ambulance",
         "words": [
-          "REPORT",
-          "HANDOUT",
-          "POSTER"
+          "MEDIC",
+          "KIT",
+          "TREAT"
         ]
       }
     ],
     "grid": [
       [
-        "FILE",
-        "EMAIL",
-        "REPORT"
+        "CAPTAIN",
+        "DRIVER",
+        "MEDIC"
       ],
       [
-        "WORKSHEET",
-        "NOTE",
-        "HANDOUT"
+        "RADIO",
+        "HOSE",
+        "KIT"
       ],
       [
-        "IMAGE",
-        "SNAP",
-        "POSTER"
+        "DISPATCH",
+        "PUMP",
+        "TREAT"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "firehouse-response"
   },
   {
     "id": "subset-2026-07-26-outings-snacks-on-duty-entry-props",
@@ -6766,87 +6772,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2026-08-04-cut-folded-stacked-paper-goods-flat-foods-picnic",
+    "id": "subset-2026-08-04-camp-stations-leaders-gear-activities",
     "date": "2026-08-04",
     "dayIndex": 81,
-    "difficulty": "easy",
-    "editorialLane": "phrase",
+    "difficulty": "medium",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "TORTILLA",
+    "theme": "Summer camp stations",
+    "centerWord": "VEST",
     "rows": [
       {
-        "label": "Paper Goods",
+        "label": "Leaders",
         "words": [
-          "FLYER",
-          "LETTER",
-          "ENVELOPE"
+          "COUNSELOR",
+          "LIFEGUARD",
+          "RANGER"
         ]
       },
       {
-        "label": "Flat Foods",
+        "label": "Gear",
         "words": [
-          "CAKE",
-          "TORTILLA",
-          "PANCAKE"
+          "GLUE",
+          "VEST",
+          "COMPASS"
         ]
       },
       {
-        "label": "Picnic",
+        "label": "Activities",
         "words": [
-          "BREAD",
-          "NAPKIN",
-          "PLATES"
+          "CRAFT",
+          "SWIM",
+          "HIKE"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Craft Cabin",
         "words": [
-          "FLYER",
-          "CAKE",
-          "BREAD"
+          "COUNSELOR",
+          "GLUE",
+          "CRAFT"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Waterfront",
         "words": [
-          "LETTER",
-          "TORTILLA",
-          "NAPKIN"
+          "LIFEGUARD",
+          "VEST",
+          "SWIM"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Trail",
         "words": [
-          "ENVELOPE",
-          "PANCAKE",
-          "PLATES"
+          "RANGER",
+          "COMPASS",
+          "HIKE"
         ]
       }
     ],
     "grid": [
       [
-        "FLYER",
-        "LETTER",
-        "ENVELOPE"
+        "COUNSELOR",
+        "LIFEGUARD",
+        "RANGER"
       ],
       [
-        "CAKE",
-        "TORTILLA",
-        "PANCAKE"
+        "GLUE",
+        "VEST",
+        "COMPASS"
       ],
       [
-        "BREAD",
-        "NAPKIN",
-        "PLATES"
+        "CRAFT",
+        "SWIM",
+        "HIKE"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "camp-stations"
   },
   {
     "id": "subset-2026-08-05-sports-fields-scoring-play-moves-fans",
@@ -7304,7 +7311,7 @@ export const SUBSET_LIVE_PUZZLES = [
     ],
     "columns": [
       {
-        "label": "Copy Desk",
+        "label": "Copy Team",
         "words": [
           "COPYEDITOR",
           "STYLEBOOK",
@@ -7312,7 +7319,7 @@ export const SUBSET_LIVE_PUZZLES = [
         ]
       },
       {
-        "label": "Photo Desk",
+        "label": "Photo Lab",
         "words": [
           "PHOTOEDITOR",
           "CAPTION",
@@ -7320,7 +7327,7 @@ export const SUBSET_LIVE_PUZZLES = [
         ]
       },
       {
-        "label": "Web Desk",
+        "label": "Website",
         "words": [
           "PRODUCER",
           "LINK",
@@ -7931,87 +7938,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2026-08-18-saved-sent-printed-class-packet-recipe-night-travel",
+    "id": "subset-2026-08-18-museum-exhibit-flow-museum-staff-gallery-items-tasks",
     "date": "2026-08-18",
     "dayIndex": 95,
-    "difficulty": "easy",
+    "difficulty": "medium",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "INVITE",
+    "theme": "Museum exhibit workflow",
+    "centerWord": "HANGER",
     "rows": [
       {
-        "label": "Class Packet",
+        "label": "Museum Staff",
         "words": [
-          "WORKSHEET",
-          "NOTE",
-          "HANDOUT"
+          "CURATOR",
+          "FRAMER",
+          "GUARD"
         ]
       },
       {
-        "label": "Recipe Night",
+        "label": "Gallery Items",
         "words": [
-          "PLAN",
-          "INVITE",
-          "MENU"
+          "LABEL",
+          "HANGER",
+          "BADGE"
         ]
       },
       {
-        "label": "Travel",
+        "label": "Tasks",
         "words": [
-          "MAP",
-          "TEXT",
-          "TICKET"
+          "SELECT",
+          "MOUNT",
+          "WATCH"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Exhibit",
         "words": [
-          "WORKSHEET",
-          "PLAN",
-          "MAP"
+          "CURATOR",
+          "LABEL",
+          "SELECT"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Workshop",
         "words": [
-          "NOTE",
-          "INVITE",
-          "TEXT"
+          "FRAMER",
+          "HANGER",
+          "MOUNT"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Gallery Door",
         "words": [
-          "HANDOUT",
-          "MENU",
-          "TICKET"
+          "GUARD",
+          "BADGE",
+          "WATCH"
         ]
       }
     ],
     "grid": [
       [
-        "WORKSHEET",
-        "NOTE",
-        "HANDOUT"
+        "CURATOR",
+        "FRAMER",
+        "GUARD"
       ],
       [
-        "PLAN",
-        "INVITE",
-        "MENU"
+        "LABEL",
+        "HANGER",
+        "BADGE"
       ],
       [
-        "MAP",
-        "TEXT",
-        "TICKET"
+        "SELECT",
+        "MOUNT",
+        "WATCH"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "museum-exhibit-flow"
   },
   {
     "id": "subset-2026-08-19-outings-where-to-sit-entry-props-day-gear",
@@ -8763,87 +8771,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2026-08-28-cut-folded-stacked-clothing-desk-pile-picnic",
+    "id": "subset-2026-08-28-studio-stations-live-people-equipment-outputs",
     "date": "2026-08-28",
     "dayIndex": 105,
-    "difficulty": "medium",
-    "editorialLane": "phrase",
+    "difficulty": "hard",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "role-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "FOLDER",
+    "theme": "Studio stations and outputs",
+    "centerWord": "FADER",
     "rows": [
       {
-        "label": "Clothing",
+        "label": "People",
         "words": [
-          "SHIRT",
-          "JEANS",
-          "SWEATER"
+          "SINGER",
+          "ENGINEER",
+          "PHOTOGRAPHER"
         ]
       },
       {
-        "label": "Desk Pile",
+        "label": "Equipment",
         "words": [
-          "PAPER",
-          "FOLDER",
-          "TRAYS"
+          "MIC",
+          "FADER",
+          "CAMERA"
         ]
       },
       {
-        "label": "Picnic",
+        "label": "Outputs",
         "words": [
-          "BREAD",
-          "NAPKIN",
-          "PLATES"
+          "VERSE",
+          "MIX",
+          "PORTRAIT"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Vocal Booth",
         "words": [
-          "SHIRT",
-          "PAPER",
-          "BREAD"
+          "SINGER",
+          "MIC",
+          "VERSE"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Control Room",
         "words": [
-          "JEANS",
-          "FOLDER",
-          "NAPKIN"
+          "ENGINEER",
+          "FADER",
+          "MIX"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Photo Corner",
         "words": [
-          "SWEATER",
-          "TRAYS",
-          "PLATES"
+          "PHOTOGRAPHER",
+          "CAMERA",
+          "PORTRAIT"
         ]
       }
     ],
     "grid": [
       [
-        "SHIRT",
-        "JEANS",
-        "SWEATER"
+        "SINGER",
+        "ENGINEER",
+        "PHOTOGRAPHER"
       ],
       [
-        "PAPER",
-        "FOLDER",
-        "TRAYS"
+        "MIC",
+        "FADER",
+        "CAMERA"
       ],
       [
-        "BREAD",
-        "NAPKIN",
-        "PLATES"
+        "VERSE",
+        "MIX",
+        "PORTRAIT"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "studio-stations-live"
   },
   {
     "id": "subset-2026-08-29-sports-fields-gear-places-officials",
@@ -9933,87 +9942,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2026-09-11-saved-sent-printed-desk-tasks-money-travel",
+    "id": "subset-2026-09-11-school-fair-stations-helpers-fair-supplies-fair-moves",
     "date": "2026-09-11",
     "dayIndex": 119,
-    "difficulty": "medium",
+    "difficulty": "easy",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "INVOICE",
+    "theme": "School fair stations",
+    "centerWord": "RAFFLE",
     "rows": [
       {
-        "label": "Desk Tasks",
+        "label": "Helpers",
         "words": [
-          "FILE",
-          "EMAIL",
-          "REPORT"
+          "TEACHER",
+          "STUDENT",
+          "PARENT"
         ]
       },
       {
-        "label": "Money",
+        "label": "Fair Supplies",
         "words": [
-          "RECEIPT",
-          "INVOICE",
-          "COUPON"
+          "POSTER",
+          "RAFFLE",
+          "PRIZE"
         ]
       },
       {
-        "label": "Travel",
+        "label": "Fair Moves",
         "words": [
-          "MAP",
-          "TEXT",
-          "TICKET"
+          "ANNOUNCE",
+          "SELL",
+          "CHEER"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Stage",
         "words": [
-          "FILE",
-          "RECEIPT",
-          "MAP"
+          "TEACHER",
+          "POSTER",
+          "ANNOUNCE"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Game Table",
         "words": [
-          "EMAIL",
-          "INVOICE",
-          "TEXT"
+          "STUDENT",
+          "RAFFLE",
+          "SELL"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Crowd",
         "words": [
-          "REPORT",
-          "COUPON",
-          "TICKET"
+          "PARENT",
+          "PRIZE",
+          "CHEER"
         ]
       }
     ],
     "grid": [
       [
-        "FILE",
-        "EMAIL",
-        "REPORT"
+        "TEACHER",
+        "STUDENT",
+        "PARENT"
       ],
       [
-        "RECEIPT",
-        "INVOICE",
-        "COUPON"
+        "POSTER",
+        "RAFFLE",
+        "PRIZE"
       ],
       [
-        "MAP",
-        "TEXT",
-        "TICKET"
+        "ANNOUNCE",
+        "SELL",
+        "CHEER"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "school-fair-stations"
   },
   {
     "id": "subset-2026-09-12-outings-snacks-sound-cues-day-gear",
@@ -10765,87 +10775,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2026-09-21-cut-folded-stacked-flat-foods-camping-desk-pile",
+    "id": "subset-2026-09-21-food-truck-row-workers-counter-gear-orders",
     "date": "2026-09-21",
     "dayIndex": 129,
-    "difficulty": "easy",
-    "editorialLane": "phrase",
+    "difficulty": "medium",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "TENT",
+    "theme": "Food truck row handoffs",
+    "centerWord": "REGISTER",
     "rows": [
       {
-        "label": "Flat Foods",
+        "label": "Workers",
         "words": [
-          "CAKE",
-          "TORTILLA",
-          "PANCAKE"
+          "COOK",
+          "CASHIER",
+          "BARISTA"
         ]
       },
       {
-        "label": "Camping",
+        "label": "Counter Gear",
         "words": [
-          "ROPE",
-          "TENT",
-          "FIREWOOD"
+          "GRIDDLE",
+          "REGISTER",
+          "STEAMER"
         ]
       },
       {
-        "label": "Desk Pile",
+        "label": "Orders",
         "words": [
-          "PAPER",
-          "FOLDER",
-          "TRAYS"
+          "TACO",
+          "RECEIPT",
+          "LATTE"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Taco Truck",
         "words": [
-          "CAKE",
-          "ROPE",
-          "PAPER"
+          "COOK",
+          "GRIDDLE",
+          "TACO"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Pay Window",
         "words": [
-          "TORTILLA",
-          "TENT",
-          "FOLDER"
+          "CASHIER",
+          "REGISTER",
+          "RECEIPT"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Coffee Cart",
         "words": [
-          "PANCAKE",
-          "FIREWOOD",
-          "TRAYS"
+          "BARISTA",
+          "STEAMER",
+          "LATTE"
         ]
       }
     ],
     "grid": [
       [
-        "CAKE",
-        "TORTILLA",
-        "PANCAKE"
+        "COOK",
+        "CASHIER",
+        "BARISTA"
       ],
       [
-        "ROPE",
-        "TENT",
-        "FIREWOOD"
+        "GRIDDLE",
+        "REGISTER",
+        "STEAMER"
       ],
       [
-        "PAPER",
-        "FOLDER",
-        "TRAYS"
+        "TACO",
+        "RECEIPT",
+        "LATTE"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "food-truck-row"
   },
   {
     "id": "subset-2026-09-22-sports-fields-scoring-officials-fans",
@@ -11930,87 +11941,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2026-10-05-saved-sent-printed-class-packet-snapshots-recipe-night",
+    "id": "subset-2026-10-05-camping-outfitter-staff-trip-gear-prep-moves",
     "date": "2026-10-05",
     "dayIndex": 143,
-    "difficulty": "easy",
+    "difficulty": "medium",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "SNAP",
+    "theme": "Camping outfitter stops",
+    "centerWord": "LANTERN",
     "rows": [
       {
-        "label": "Class Packet",
+        "label": "Staff",
         "words": [
-          "WORKSHEET",
-          "NOTE",
-          "HANDOUT"
+          "GUIDE",
+          "OUTFITTER",
+          "RANGER"
         ]
       },
       {
-        "label": "Snapshots",
+        "label": "Trip Gear",
         "words": [
-          "IMAGE",
-          "SNAP",
-          "POSTER"
+          "MAP",
+          "LANTERN",
+          "PERMIT"
         ]
       },
       {
-        "label": "Recipe Night",
+        "label": "Prep Moves",
         "words": [
           "PLAN",
-          "INVITE",
-          "MENU"
+          "PACK",
+          "CHECK"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Trail Desk",
         "words": [
-          "WORKSHEET",
-          "IMAGE",
+          "GUIDE",
+          "MAP",
           "PLAN"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Gear Shop",
         "words": [
-          "NOTE",
-          "SNAP",
-          "INVITE"
+          "OUTFITTER",
+          "LANTERN",
+          "PACK"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Ranger Station",
         "words": [
-          "HANDOUT",
-          "POSTER",
-          "MENU"
+          "RANGER",
+          "PERMIT",
+          "CHECK"
         ]
       }
     ],
     "grid": [
       [
-        "WORKSHEET",
-        "NOTE",
-        "HANDOUT"
+        "GUIDE",
+        "OUTFITTER",
+        "RANGER"
       ],
       [
-        "IMAGE",
-        "SNAP",
-        "POSTER"
+        "MAP",
+        "LANTERN",
+        "PERMIT"
       ],
       [
         "PLAN",
-        "INVITE",
-        "MENU"
+        "PACK",
+        "CHECK"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "camping-outfitter"
   },
   {
     "id": "subset-2026-10-06-outings-where-to-sit-snacks-entry-props",
@@ -12762,87 +12774,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2026-10-15-cut-folded-stacked-paper-goods-clothing-picnic",
+    "id": "subset-2026-10-15-community-garden-jobs-helpers-supplies-results",
     "date": "2026-10-15",
     "dayIndex": 153,
-    "difficulty": "hard",
-    "editorialLane": "phrase",
+    "difficulty": "easy",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "JEANS",
+    "theme": "Community garden jobs",
+    "centerWord": "BIN",
     "rows": [
       {
-        "label": "Paper Goods",
+        "label": "Helpers",
         "words": [
-          "FLYER",
-          "LETTER",
-          "ENVELOPE"
+          "GARDENER",
+          "VOLUNTEER",
+          "BEEKEEPER"
         ]
       },
       {
-        "label": "Clothing",
+        "label": "Supplies",
         "words": [
-          "SHIRT",
-          "JEANS",
-          "SWEATER"
+          "SEED",
+          "BIN",
+          "SMOKER"
         ]
       },
       {
-        "label": "Picnic",
+        "label": "Results",
         "words": [
-          "BREAD",
-          "NAPKIN",
-          "PLATES"
+          "HERB",
+          "SOIL",
+          "HONEY"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Garden Bed",
         "words": [
-          "FLYER",
-          "SHIRT",
-          "BREAD"
+          "GARDENER",
+          "SEED",
+          "HERB"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Compost",
         "words": [
-          "LETTER",
-          "JEANS",
-          "NAPKIN"
+          "VOLUNTEER",
+          "BIN",
+          "SOIL"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Hive",
         "words": [
-          "ENVELOPE",
-          "SWEATER",
-          "PLATES"
+          "BEEKEEPER",
+          "SMOKER",
+          "HONEY"
         ]
       }
     ],
     "grid": [
       [
-        "FLYER",
-        "LETTER",
-        "ENVELOPE"
+        "GARDENER",
+        "VOLUNTEER",
+        "BEEKEEPER"
       ],
       [
-        "SHIRT",
-        "JEANS",
-        "SWEATER"
+        "SEED",
+        "BIN",
+        "SMOKER"
       ],
       [
-        "BREAD",
-        "NAPKIN",
-        "PLATES"
+        "HERB",
+        "SOIL",
+        "HONEY"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "community-garden-jobs"
   },
   {
     "id": "subset-2026-10-16-sports-fields-gear-scoring-places",
@@ -13927,87 +13940,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2026-10-29-saved-sent-printed-money-class-packet-recipe-night",
+    "id": "subset-2026-10-29-newsroom-handoffs-live-roles-materials-desk-moves",
     "date": "2026-10-29",
     "dayIndex": 167,
     "difficulty": "hard",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "role-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "NOTE",
+    "theme": "Newsroom handoffs",
+    "centerWord": "PHOTO",
     "rows": [
       {
-        "label": "Money",
+        "label": "Roles",
         "words": [
-          "RECEIPT",
-          "INVOICE",
-          "COUPON"
+          "REPORTER",
+          "EDITOR",
+          "DESIGNER"
         ]
       },
       {
-        "label": "Class Packet",
+        "label": "Materials",
         "words": [
-          "WORKSHEET",
-          "NOTE",
-          "HANDOUT"
+          "NOTEBOOK",
+          "PHOTO",
+          "LAYOUT"
         ]
       },
       {
-        "label": "Recipe Night",
+        "label": "Desk Moves",
         "words": [
-          "PLAN",
-          "INVITE",
-          "MENU"
+          "INTERVIEW",
+          "CROP",
+          "PUBLISH"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Reporting",
         "words": [
-          "RECEIPT",
-          "WORKSHEET",
-          "PLAN"
+          "REPORTER",
+          "NOTEBOOK",
+          "INTERVIEW"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Photo Lab",
         "words": [
-          "INVOICE",
-          "NOTE",
-          "INVITE"
+          "EDITOR",
+          "PHOTO",
+          "CROP"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Website",
         "words": [
-          "COUPON",
-          "HANDOUT",
-          "MENU"
+          "DESIGNER",
+          "LAYOUT",
+          "PUBLISH"
         ]
       }
     ],
     "grid": [
       [
-        "RECEIPT",
-        "INVOICE",
-        "COUPON"
+        "REPORTER",
+        "EDITOR",
+        "DESIGNER"
       ],
       [
-        "WORKSHEET",
-        "NOTE",
-        "HANDOUT"
+        "NOTEBOOK",
+        "PHOTO",
+        "LAYOUT"
       ],
       [
-        "PLAN",
-        "INVITE",
-        "MENU"
+        "INTERVIEW",
+        "CROP",
+        "PUBLISH"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "newsroom-handoffs-live"
   },
   {
     "id": "subset-2026-10-30-outings-sound-cues-on-duty-day-gear",
@@ -14767,87 +14781,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2026-11-08-cut-folded-stacked-paper-goods-desk-pile-picnic",
+    "id": "subset-2026-11-08-theater-work-zones-crew-show-pieces-moments",
     "date": "2026-11-08",
     "dayIndex": 177,
-    "difficulty": "medium",
-    "editorialLane": "phrase",
+    "difficulty": "hard",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "FOLDER",
+    "theme": "Theater night work zones",
+    "centerWord": "RIGGING",
     "rows": [
       {
-        "label": "Paper Goods",
+        "label": "Crew",
         "words": [
-          "FLYER",
-          "LETTER",
-          "ENVELOPE"
+          "USHER",
+          "STAGEHAND",
+          "COSTUMER"
         ]
       },
       {
-        "label": "Desk Pile",
+        "label": "Show Pieces",
         "words": [
-          "PAPER",
-          "FOLDER",
-          "TRAYS"
+          "TICKET",
+          "RIGGING",
+          "WIG"
         ]
       },
       {
-        "label": "Picnic",
+        "label": "Moments",
         "words": [
-          "BREAD",
-          "NAPKIN",
-          "PLATES"
+          "SEAT",
+          "CUE",
+          "CHANGE"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Lobby",
         "words": [
-          "FLYER",
-          "PAPER",
-          "BREAD"
+          "USHER",
+          "TICKET",
+          "SEAT"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Stage",
         "words": [
-          "LETTER",
-          "FOLDER",
-          "NAPKIN"
+          "STAGEHAND",
+          "RIGGING",
+          "CUE"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Dressing Room",
         "words": [
-          "ENVELOPE",
-          "TRAYS",
-          "PLATES"
+          "COSTUMER",
+          "WIG",
+          "CHANGE"
         ]
       }
     ],
     "grid": [
       [
-        "FLYER",
-        "LETTER",
-        "ENVELOPE"
+        "USHER",
+        "STAGEHAND",
+        "COSTUMER"
       ],
       [
-        "PAPER",
-        "FOLDER",
-        "TRAYS"
+        "TICKET",
+        "RIGGING",
+        "WIG"
       ],
       [
-        "BREAD",
-        "NAPKIN",
-        "PLATES"
+        "SEAT",
+        "CUE",
+        "CHANGE"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "theater-work-zones"
   },
   {
     "id": "subset-2026-11-09-sports-fields-places-play-moves-fans",
@@ -15937,87 +15952,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2026-11-22-saved-sent-printed-snapshots-recipe-night-travel",
+    "id": "subset-2026-11-22-bakery-morning-stations-bakery-staff-tools-outputs",
     "date": "2026-11-22",
     "dayIndex": 191,
     "difficulty": "medium",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "INVITE",
+    "theme": "Bakery morning stations",
+    "centerWord": "OVEN",
     "rows": [
       {
-        "label": "Snapshots",
+        "label": "Bakery Staff",
         "words": [
-          "IMAGE",
-          "SNAP",
-          "POSTER"
+          "BAKER",
+          "CASHIER",
+          "DECORATOR"
         ]
       },
       {
-        "label": "Recipe Night",
+        "label": "Tools",
         "words": [
-          "PLAN",
-          "INVITE",
-          "MENU"
+          "MIXER",
+          "OVEN",
+          "PIPINGBAG"
         ]
       },
       {
-        "label": "Travel",
+        "label": "Outputs",
         "words": [
-          "MAP",
-          "TEXT",
-          "TICKET"
+          "LOAF",
+          "PIE",
+          "ROSETTE"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Bread Bench",
         "words": [
-          "IMAGE",
-          "PLAN",
-          "MAP"
+          "BAKER",
+          "MIXER",
+          "LOAF"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Hot Case",
         "words": [
-          "SNAP",
-          "INVITE",
-          "TEXT"
+          "CASHIER",
+          "OVEN",
+          "PIE"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Cake Table",
         "words": [
-          "POSTER",
-          "MENU",
-          "TICKET"
+          "DECORATOR",
+          "PIPINGBAG",
+          "ROSETTE"
         ]
       }
     ],
     "grid": [
       [
-        "IMAGE",
-        "SNAP",
-        "POSTER"
+        "BAKER",
+        "CASHIER",
+        "DECORATOR"
       ],
       [
-        "PLAN",
-        "INVITE",
-        "MENU"
+        "MIXER",
+        "OVEN",
+        "PIPINGBAG"
       ],
       [
-        "MAP",
-        "TEXT",
-        "TICKET"
+        "LOAF",
+        "PIE",
+        "ROSETTE"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "bakery-morning-stations"
   },
   {
     "id": "subset-2026-11-23-outings-where-to-sit-sound-cues-entry-props",
@@ -16774,87 +16790,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2026-12-02-cut-folded-stacked-clothing-camping-desk-pile",
+    "id": "subset-2026-12-02-clinic-visit-pathways-care-team-exam-items-visit-steps",
     "date": "2026-12-02",
     "dayIndex": 201,
     "difficulty": "medium",
-    "editorialLane": "phrase",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "TENT",
+    "theme": "Clinic visit pathways",
+    "centerWord": "THERMOMETER",
     "rows": [
       {
-        "label": "Clothing",
+        "label": "Care Team",
         "words": [
-          "SHIRT",
-          "JEANS",
-          "SWEATER"
+          "RECEPTIONIST",
+          "NURSE",
+          "PHARMACIST"
         ]
       },
       {
-        "label": "Camping",
+        "label": "Exam Items",
         "words": [
-          "ROPE",
-          "TENT",
-          "FIREWOOD"
+          "FORM",
+          "THERMOMETER",
+          "VIAL"
         ]
       },
       {
-        "label": "Desk Pile",
+        "label": "Visit Steps",
         "words": [
-          "PAPER",
-          "FOLDER",
-          "TRAYS"
+          "CHECKIN",
+          "EXAM",
+          "REFILL"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Intake",
         "words": [
-          "SHIRT",
-          "ROPE",
-          "PAPER"
+          "RECEPTIONIST",
+          "FORM",
+          "CHECKIN"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Exam Room",
         "words": [
-          "JEANS",
-          "TENT",
-          "FOLDER"
+          "NURSE",
+          "THERMOMETER",
+          "EXAM"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Pharmacy",
         "words": [
-          "SWEATER",
-          "FIREWOOD",
-          "TRAYS"
+          "PHARMACIST",
+          "VIAL",
+          "REFILL"
         ]
       }
     ],
     "grid": [
       [
-        "SHIRT",
-        "JEANS",
-        "SWEATER"
+        "RECEPTIONIST",
+        "NURSE",
+        "PHARMACIST"
       ],
       [
-        "ROPE",
-        "TENT",
-        "FIREWOOD"
+        "FORM",
+        "THERMOMETER",
+        "VIAL"
       ],
       [
-        "PAPER",
-        "FOLDER",
-        "TRAYS"
+        "CHECKIN",
+        "EXAM",
+        "REFILL"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "clinic-visit-pathways"
   },
   {
     "id": "subset-2026-12-03-sports-fields-gear-officials-play-moves",
@@ -17939,87 +17956,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2026-12-16-saved-sent-printed-desk-tasks-money-snapshots",
+    "id": "subset-2026-12-16-city-park-crew-crew-park-items-park-tasks",
     "date": "2026-12-16",
     "dayIndex": 215,
-    "difficulty": "medium",
+    "difficulty": "easy",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "INVOICE",
+    "theme": "City park crew",
+    "centerWord": "KIOSK",
     "rows": [
       {
-        "label": "Desk Tasks",
+        "label": "Crew",
         "words": [
-          "FILE",
-          "EMAIL",
-          "REPORT"
+          "GARDENER",
+          "RANGER",
+          "VOLUNTEER"
         ]
       },
       {
-        "label": "Money",
+        "label": "Park Items",
         "words": [
-          "RECEIPT",
-          "INVOICE",
-          "COUPON"
+          "RAKE",
+          "KIOSK",
+          "BAG"
         ]
       },
       {
-        "label": "Snapshots",
+        "label": "Park Tasks",
         "words": [
-          "IMAGE",
-          "SNAP",
-          "POSTER"
+          "PLANT",
+          "GUIDE",
+          "CLEAN"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Flower Bed",
         "words": [
-          "FILE",
-          "RECEIPT",
-          "IMAGE"
+          "GARDENER",
+          "RAKE",
+          "PLANT"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Trail",
         "words": [
-          "EMAIL",
-          "INVOICE",
-          "SNAP"
+          "RANGER",
+          "KIOSK",
+          "GUIDE"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Cleanup",
         "words": [
-          "REPORT",
-          "COUPON",
-          "POSTER"
+          "VOLUNTEER",
+          "BAG",
+          "CLEAN"
         ]
       }
     ],
     "grid": [
       [
-        "FILE",
-        "EMAIL",
-        "REPORT"
+        "GARDENER",
+        "RANGER",
+        "VOLUNTEER"
       ],
       [
-        "RECEIPT",
-        "INVOICE",
-        "COUPON"
+        "RAKE",
+        "KIOSK",
+        "BAG"
       ],
       [
-        "IMAGE",
-        "SNAP",
-        "POSTER"
+        "PLANT",
+        "GUIDE",
+        "CLEAN"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "city-park-crew"
   },
   {
     "id": "subset-2026-12-17-outings-sound-cues-entry-props-day-gear",
@@ -18783,87 +18801,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "holiday-christmas"
   },
   {
-    "id": "subset-2026-12-26-cut-folded-stacked-paper-goods-clothing-camping",
+    "id": "subset-2026-12-26-winter-lodge-stations-staff-gear-places",
     "date": "2026-12-26",
     "dayIndex": 225,
-    "difficulty": "hard",
-    "editorialLane": "phrase",
+    "difficulty": "easy",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "JEANS",
+    "theme": "Winter lodge stations",
+    "centerWord": "SKIS",
     "rows": [
       {
-        "label": "Paper Goods",
+        "label": "Staff",
         "words": [
-          "FLYER",
-          "LETTER",
-          "ENVELOPE"
+          "HOST",
+          "INSTRUCTOR",
+          "PATROLLER"
         ]
       },
       {
-        "label": "Clothing",
+        "label": "Gear",
         "words": [
-          "SHIRT",
-          "JEANS",
-          "SWEATER"
+          "KEYCARD",
+          "SKIS",
+          "RADIO"
         ]
       },
       {
-        "label": "Camping",
+        "label": "Places",
         "words": [
-          "ROPE",
-          "TENT",
-          "FIREWOOD"
+          "ROOM",
+          "SLOPE",
+          "LOOKOUT"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Lodge Desk",
         "words": [
-          "FLYER",
-          "SHIRT",
-          "ROPE"
+          "HOST",
+          "KEYCARD",
+          "ROOM"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Ski School",
         "words": [
-          "LETTER",
-          "JEANS",
-          "TENT"
+          "INSTRUCTOR",
+          "SKIS",
+          "SLOPE"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Patrol Hut",
         "words": [
-          "ENVELOPE",
-          "SWEATER",
-          "FIREWOOD"
+          "PATROLLER",
+          "RADIO",
+          "LOOKOUT"
         ]
       }
     ],
     "grid": [
       [
-        "FLYER",
-        "LETTER",
-        "ENVELOPE"
+        "HOST",
+        "INSTRUCTOR",
+        "PATROLLER"
       ],
       [
-        "SHIRT",
-        "JEANS",
-        "SWEATER"
+        "KEYCARD",
+        "SKIS",
+        "RADIO"
       ],
       [
-        "ROPE",
-        "TENT",
-        "FIREWOOD"
+        "ROOM",
+        "SLOPE",
+        "LOOKOUT"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "winter-lodge-stations"
   },
   {
     "id": "subset-2026-12-27-sports-fields-scoring-places-fans",
@@ -19959,87 +19978,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2027-01-09-saved-sent-printed-money-class-packet-snapshots",
+    "id": "subset-2027-01-09-airport-gate-flow-airport-staff-travel-gear-airport-moves",
     "date": "2027-01-09",
     "dayIndex": 239,
-    "difficulty": "hard",
+    "difficulty": "medium",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "NOTE",
+    "theme": "Airport gate flow",
+    "centerWord": "HEADSET",
     "rows": [
       {
-        "label": "Money",
+        "label": "Airport Staff",
         "words": [
-          "RECEIPT",
-          "INVOICE",
-          "COUPON"
+          "AGENT",
+          "PILOT",
+          "OFFICER"
         ]
       },
       {
-        "label": "Class Packet",
+        "label": "Travel Gear",
         "words": [
-          "WORKSHEET",
-          "NOTE",
-          "HANDOUT"
+          "PASS",
+          "HEADSET",
+          "PASSPORT"
         ]
       },
       {
-        "label": "Snapshots",
+        "label": "Airport Moves",
         "words": [
-          "IMAGE",
-          "SNAP",
-          "POSTER"
+          "BOARD",
+          "TAXI",
+          "DECLARE"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Gate",
         "words": [
-          "RECEIPT",
-          "WORKSHEET",
-          "IMAGE"
+          "AGENT",
+          "PASS",
+          "BOARD"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Cockpit",
         "words": [
-          "INVOICE",
-          "NOTE",
-          "SNAP"
+          "PILOT",
+          "HEADSET",
+          "TAXI"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Customs",
         "words": [
-          "COUPON",
-          "HANDOUT",
-          "POSTER"
+          "OFFICER",
+          "PASSPORT",
+          "DECLARE"
         ]
       }
     ],
     "grid": [
       [
-        "RECEIPT",
-        "INVOICE",
-        "COUPON"
+        "AGENT",
+        "PILOT",
+        "OFFICER"
       ],
       [
-        "WORKSHEET",
-        "NOTE",
-        "HANDOUT"
+        "PASS",
+        "HEADSET",
+        "PASSPORT"
       ],
       [
-        "IMAGE",
-        "SNAP",
-        "POSTER"
+        "BOARD",
+        "TAXI",
+        "DECLARE"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "airport-gate-flow"
   },
   {
     "id": "subset-2027-01-10-outings-where-to-sit-on-duty-day-gear",
@@ -20797,87 +20817,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "holiday-mlk-day"
   },
   {
-    "id": "subset-2027-01-19-cut-folded-stacked-flat-foods-desk-pile-picnic",
+    "id": "subset-2027-01-19-aquarium-care-zones-keepers-creatures-care",
     "date": "2027-01-19",
     "dayIndex": 249,
-    "difficulty": "easy",
-    "editorialLane": "phrase",
+    "difficulty": "hard",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "FOLDER",
+    "theme": "Aquarium care zones",
+    "centerWord": "RAY",
     "rows": [
       {
-        "label": "Flat Foods",
+        "label": "Keepers",
         "words": [
-          "CAKE",
-          "TORTILLA",
-          "PANCAKE"
+          "AQUARIST",
+          "DIVER",
+          "EDUCATOR"
         ]
       },
       {
-        "label": "Desk Pile",
+        "label": "Creatures",
         "words": [
-          "PAPER",
-          "FOLDER",
-          "TRAYS"
+          "CLOWNFISH",
+          "RAY",
+          "OTTER"
         ]
       },
       {
-        "label": "Picnic",
+        "label": "Care",
         "words": [
-          "BREAD",
-          "NAPKIN",
-          "PLATES"
+          "SALINITY",
+          "FEEDING",
+          "TALK"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Reef Tank",
         "words": [
-          "CAKE",
-          "PAPER",
-          "BREAD"
+          "AQUARIST",
+          "CLOWNFISH",
+          "SALINITY"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Touch Pool",
         "words": [
-          "TORTILLA",
-          "FOLDER",
-          "NAPKIN"
+          "DIVER",
+          "RAY",
+          "FEEDING"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Show Area",
         "words": [
-          "PANCAKE",
-          "TRAYS",
-          "PLATES"
+          "EDUCATOR",
+          "OTTER",
+          "TALK"
         ]
       }
     ],
     "grid": [
       [
-        "CAKE",
-        "TORTILLA",
-        "PANCAKE"
+        "AQUARIST",
+        "DIVER",
+        "EDUCATOR"
       ],
       [
-        "PAPER",
-        "FOLDER",
-        "TRAYS"
+        "CLOWNFISH",
+        "RAY",
+        "OTTER"
       ],
       [
-        "BREAD",
-        "NAPKIN",
-        "PLATES"
+        "SALINITY",
+        "FEEDING",
+        "TALK"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "aquarium-care-zones"
   },
   {
     "id": "subset-2027-01-20-sports-fields-gear-scoring-fans",
@@ -21962,87 +21983,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2027-02-02-saved-sent-printed-money-recipe-night-travel",
+    "id": "subset-2027-02-02-bookstore-event-flow-people-event-tools-moments",
     "date": "2027-02-02",
     "dayIndex": 263,
-    "difficulty": "easy",
+    "difficulty": "hard",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "INVITE",
+    "theme": "Bookstore event flow",
+    "centerWord": "PODIUM",
     "rows": [
       {
-        "label": "Money",
+        "label": "People",
         "words": [
-          "RECEIPT",
-          "INVOICE",
-          "COUPON"
+          "AUTHOR",
+          "HOST",
+          "BOOKSELLER"
         ]
       },
       {
-        "label": "Recipe Night",
+        "label": "Event Tools",
         "words": [
-          "PLAN",
-          "INVITE",
-          "MENU"
+          "PEN",
+          "PODIUM",
+          "REGISTER"
         ]
       },
       {
-        "label": "Travel",
+        "label": "Moments",
         "words": [
-          "MAP",
-          "TEXT",
-          "TICKET"
+          "SIGN",
+          "INTRODUCE",
+          "SELL"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Signing Table",
         "words": [
-          "RECEIPT",
-          "PLAN",
-          "MAP"
+          "AUTHOR",
+          "PEN",
+          "SIGN"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Stage",
         "words": [
-          "INVOICE",
-          "INVITE",
-          "TEXT"
+          "HOST",
+          "PODIUM",
+          "INTRODUCE"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Checkout",
         "words": [
-          "COUPON",
-          "MENU",
-          "TICKET"
+          "BOOKSELLER",
+          "REGISTER",
+          "SELL"
         ]
       }
     ],
     "grid": [
       [
-        "RECEIPT",
-        "INVOICE",
-        "COUPON"
+        "AUTHOR",
+        "HOST",
+        "BOOKSELLER"
       ],
       [
-        "PLAN",
-        "INVITE",
-        "MENU"
+        "PEN",
+        "PODIUM",
+        "REGISTER"
       ],
       [
-        "MAP",
-        "TEXT",
-        "TICKET"
+        "SIGN",
+        "INTRODUCE",
+        "SELL"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "bookstore-event-flow"
   },
   {
     "id": "subset-2027-02-03-outings-where-to-sit-snacks-day-gear",
@@ -22794,87 +22816,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2027-02-12-cut-folded-stacked-paper-goods-camping-picnic",
+    "id": "subset-2027-02-12-print-shop-workflow-live-specialists-materials-moves",
     "date": "2027-02-12",
     "dayIndex": 273,
     "difficulty": "medium",
-    "editorialLane": "phrase",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "TENT",
+    "theme": "Print shop workflow",
+    "centerWord": "INK",
     "rows": [
       {
-        "label": "Paper Goods",
+        "label": "Specialists",
         "words": [
-          "FLYER",
-          "LETTER",
-          "ENVELOPE"
+          "DESIGNER",
+          "PRINTER",
+          "BINDER"
         ]
       },
       {
-        "label": "Camping",
+        "label": "Materials",
         "words": [
-          "ROPE",
-          "TENT",
-          "FIREWOOD"
+          "PROOF",
+          "INK",
+          "THREAD"
         ]
       },
       {
-        "label": "Picnic",
+        "label": "Moves",
         "words": [
-          "BREAD",
-          "NAPKIN",
-          "PLATES"
+          "LAYOUT",
+          "PRESS",
+          "STITCH"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Design Desk",
         "words": [
-          "FLYER",
-          "ROPE",
-          "BREAD"
+          "DESIGNER",
+          "PROOF",
+          "LAYOUT"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Press",
         "words": [
-          "LETTER",
-          "TENT",
-          "NAPKIN"
+          "PRINTER",
+          "INK",
+          "PRESS"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Bindery",
         "words": [
-          "ENVELOPE",
-          "FIREWOOD",
-          "PLATES"
+          "BINDER",
+          "THREAD",
+          "STITCH"
         ]
       }
     ],
     "grid": [
       [
-        "FLYER",
-        "LETTER",
-        "ENVELOPE"
+        "DESIGNER",
+        "PRINTER",
+        "BINDER"
       ],
       [
-        "ROPE",
-        "TENT",
-        "FIREWOOD"
+        "PROOF",
+        "INK",
+        "THREAD"
       ],
       [
-        "BREAD",
-        "NAPKIN",
-        "PLATES"
+        "LAYOUT",
+        "PRESS",
+        "STITCH"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "print-shop-workflow-live"
   },
   {
     "id": "subset-2027-02-13-sports-fields-places-officials-play-moves",
@@ -23970,87 +23993,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2027-02-26-saved-sent-printed-desk-tasks-money-recipe-night",
+    "id": "subset-2027-02-26-hardware-store-counters-staff-counter-items-store-moves",
     "date": "2027-02-26",
     "dayIndex": 287,
-    "difficulty": "medium",
+    "difficulty": "easy",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "INVOICE",
+    "theme": "Hardware store counters",
+    "centerWord": "LEVEL",
     "rows": [
       {
-        "label": "Desk Tasks",
+        "label": "Staff",
         "words": [
-          "FILE",
-          "EMAIL",
-          "REPORT"
+          "KEYCUTTER",
+          "PLUMBER",
+          "PAINTER"
         ]
       },
       {
-        "label": "Money",
+        "label": "Counter Items",
         "words": [
-          "RECEIPT",
-          "INVOICE",
-          "COUPON"
+          "KEY",
+          "LEVEL",
+          "SWATCH"
         ]
       },
       {
-        "label": "Recipe Night",
+        "label": "Store Moves",
         "words": [
-          "PLAN",
-          "INVITE",
-          "MENU"
+          "CUT",
+          "MEASURE",
+          "MATCH"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Key Desk",
         "words": [
-          "FILE",
-          "RECEIPT",
-          "PLAN"
+          "KEYCUTTER",
+          "KEY",
+          "CUT"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Tool Aisle",
         "words": [
-          "EMAIL",
-          "INVOICE",
-          "INVITE"
+          "PLUMBER",
+          "LEVEL",
+          "MEASURE"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Paint Counter",
         "words": [
-          "REPORT",
-          "COUPON",
-          "MENU"
+          "PAINTER",
+          "SWATCH",
+          "MATCH"
         ]
       }
     ],
     "grid": [
       [
-        "FILE",
-        "EMAIL",
-        "REPORT"
+        "KEYCUTTER",
+        "PLUMBER",
+        "PAINTER"
       ],
       [
-        "RECEIPT",
-        "INVOICE",
-        "COUPON"
+        "KEY",
+        "LEVEL",
+        "SWATCH"
       ],
       [
-        "PLAN",
-        "INVITE",
-        "MENU"
+        "CUT",
+        "MEASURE",
+        "MATCH"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "hardware-store-counters"
   },
   {
     "id": "subset-2027-02-27-outings-snacks-sound-cues-entry-props",
@@ -24802,87 +24826,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2027-03-08-cut-folded-stacked-flat-foods-clothing-desk-pile",
+    "id": "subset-2027-03-08-train-station-handoffs-staff-travel-items-station-moves",
     "date": "2027-03-08",
     "dayIndex": 297,
     "difficulty": "easy",
-    "editorialLane": "phrase",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "JEANS",
+    "theme": "Train station handoffs",
+    "centerWord": "TICKET",
     "rows": [
       {
-        "label": "Flat Foods",
+        "label": "Staff",
         "words": [
-          "CAKE",
-          "TORTILLA",
-          "PANCAKE"
+          "AGENT",
+          "ATTENDANT",
+          "PORTER"
         ]
       },
       {
-        "label": "Clothing",
+        "label": "Travel Items",
         "words": [
-          "SHIRT",
-          "JEANS",
-          "SWEATER"
+          "MAP",
+          "TICKET",
+          "CART"
         ]
       },
       {
-        "label": "Desk Pile",
+        "label": "Station Moves",
         "words": [
-          "PAPER",
-          "FOLDER",
-          "TRAYS"
+          "DIRECT",
+          "BOARD",
+          "LOAD"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Info Booth",
         "words": [
-          "CAKE",
-          "SHIRT",
-          "PAPER"
+          "AGENT",
+          "MAP",
+          "DIRECT"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Platform",
         "words": [
-          "TORTILLA",
-          "JEANS",
-          "FOLDER"
+          "ATTENDANT",
+          "TICKET",
+          "BOARD"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Baggage",
         "words": [
-          "PANCAKE",
-          "SWEATER",
-          "TRAYS"
+          "PORTER",
+          "CART",
+          "LOAD"
         ]
       }
     ],
     "grid": [
       [
-        "CAKE",
-        "TORTILLA",
-        "PANCAKE"
+        "AGENT",
+        "ATTENDANT",
+        "PORTER"
       ],
       [
-        "SHIRT",
-        "JEANS",
-        "SWEATER"
+        "MAP",
+        "TICKET",
+        "CART"
       ],
       [
-        "PAPER",
-        "FOLDER",
-        "TRAYS"
+        "DIRECT",
+        "BOARD",
+        "LOAD"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "train-station-handoffs"
   },
   {
     "id": "subset-2027-03-09-sports-fields-scoring-places-officials",
@@ -25973,87 +25998,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2027-03-22-saved-sent-printed-class-packet-snapshots-travel",
+    "id": "subset-2027-03-22-farmers-market-demo-people-setup-gear-moves",
     "date": "2027-03-22",
     "dayIndex": 311,
-    "difficulty": "easy",
+    "difficulty": "medium",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "SNAP",
+    "theme": "Farmers market demo",
+    "centerWord": "SKILLET",
     "rows": [
       {
-        "label": "Class Packet",
+        "label": "People",
         "words": [
-          "WORKSHEET",
-          "NOTE",
-          "HANDOUT"
+          "FARMER",
+          "CHEF",
+          "MUSICIAN"
         ]
       },
       {
-        "label": "Snapshots",
+        "label": "Setup Gear",
         "words": [
-          "IMAGE",
-          "SNAP",
-          "POSTER"
+          "CRATE",
+          "SKILLET",
+          "GUITAR"
         ]
       },
       {
-        "label": "Travel",
+        "label": "Moves",
         "words": [
-          "MAP",
-          "TEXT",
-          "TICKET"
+          "HARVEST",
+          "SAUTE",
+          "STRUM"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Produce Stall",
         "words": [
-          "WORKSHEET",
-          "IMAGE",
-          "MAP"
+          "FARMER",
+          "CRATE",
+          "HARVEST"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Demo Tent",
         "words": [
-          "NOTE",
-          "SNAP",
-          "TEXT"
+          "CHEF",
+          "SKILLET",
+          "SAUTE"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Busker Corner",
         "words": [
-          "HANDOUT",
-          "POSTER",
-          "TICKET"
+          "MUSICIAN",
+          "GUITAR",
+          "STRUM"
         ]
       }
     ],
     "grid": [
       [
-        "WORKSHEET",
-        "NOTE",
-        "HANDOUT"
+        "FARMER",
+        "CHEF",
+        "MUSICIAN"
       ],
       [
-        "IMAGE",
-        "SNAP",
-        "POSTER"
+        "CRATE",
+        "SKILLET",
+        "GUITAR"
       ],
       [
-        "MAP",
-        "TEXT",
-        "TICKET"
+        "HARVEST",
+        "SAUTE",
+        "STRUM"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "farmers-market-demo"
   },
   {
     "id": "subset-2027-03-23-outings-where-to-sit-on-duty-entry-props",
@@ -27988,87 +28014,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "daily-tech"
   },
   {
-    "id": "subset-2027-04-15-saved-sent-printed-desk-tasks-class-packet-recipe-night",
+    "id": "subset-2027-04-15-harbor-day-handoffs-crew-dock-gear-harbor-jobs",
     "date": "2027-04-15",
     "dayIndex": 335,
     "difficulty": "hard",
     "editorialLane": "hybrid",
     "themeTypes": [
+      "place-context",
       "interaction"
     ],
-    "theme": "Useful things by what happens to them",
-    "centerWord": "NOTE",
+    "theme": "Harbor day handoffs",
+    "centerWord": "DOCK",
     "rows": [
       {
-        "label": "Desk Tasks",
+        "label": "Crew",
         "words": [
-          "FILE",
-          "EMAIL",
-          "REPORT"
+          "FISHER",
+          "SAILOR",
+          "HARBORMASTER"
         ]
       },
       {
-        "label": "Class Packet",
+        "label": "Dock Gear",
         "words": [
-          "WORKSHEET",
-          "NOTE",
-          "HANDOUT"
+          "NET",
+          "DOCK",
+          "LOGBOOK"
         ]
       },
       {
-        "label": "Recipe Night",
+        "label": "Harbor Jobs",
         "words": [
-          "PLAN",
-          "INVITE",
-          "MENU"
+          "WEIGH",
+          "TIE",
+          "INSPECT"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Saved",
+        "label": "Fish Stall",
         "words": [
-          "FILE",
-          "WORKSHEET",
-          "PLAN"
+          "FISHER",
+          "NET",
+          "WEIGH"
         ]
       },
       {
-        "label": "Can Be Sent",
+        "label": "Boat Slip",
         "words": [
-          "EMAIL",
-          "NOTE",
-          "INVITE"
+          "SAILOR",
+          "DOCK",
+          "TIE"
         ]
       },
       {
-        "label": "Can Be Printed",
+        "label": "Harbor Office",
         "words": [
-          "REPORT",
-          "HANDOUT",
-          "MENU"
+          "HARBORMASTER",
+          "LOGBOOK",
+          "INSPECT"
         ]
       }
     ],
     "grid": [
       [
-        "FILE",
-        "EMAIL",
-        "REPORT"
+        "FISHER",
+        "SAILOR",
+        "HARBORMASTER"
       ],
       [
-        "WORKSHEET",
-        "NOTE",
-        "HANDOUT"
+        "NET",
+        "DOCK",
+        "LOGBOOK"
       ],
       [
-        "PLAN",
-        "INVITE",
-        "MENU"
+        "WEIGH",
+        "TIE",
+        "INSPECT"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "saved-sent-printed"
+    "themeGroupId": "harbor-day-handoffs"
   },
   {
     "id": "subset-2027-04-16-outings-snacks-entry-props-day-gear",
@@ -28826,87 +28853,88 @@ export const SUBSET_LIVE_PUZZLES = [
     "themeGroupId": "media-modes"
   },
   {
-    "id": "subset-2027-04-25-cut-folded-stacked-clothing-camping-picnic",
+    "id": "subset-2027-04-25-nature-center-zones-guides-tools-tasks",
     "date": "2027-04-25",
     "dayIndex": 345,
     "difficulty": "medium",
-    "editorialLane": "phrase",
+    "editorialLane": "hybrid",
     "themeTypes": [
-      "phrase"
+      "place-context",
+      "interaction"
     ],
-    "theme": "Tactile objects by action",
-    "centerWord": "TENT",
+    "theme": "Nature center work zones",
+    "centerWord": "BASKET",
     "rows": [
       {
-        "label": "Clothing",
+        "label": "Guides",
         "words": [
-          "SHIRT",
-          "JEANS",
-          "SWEATER"
+          "RANGER",
+          "VOLUNTEER",
+          "KEEPER"
         ]
       },
       {
-        "label": "Camping",
+        "label": "Tools",
         "words": [
-          "ROPE",
-          "TENT",
-          "FIREWOOD"
+          "FIELDGUIDE",
+          "BASKET",
+          "ENCLOSURE"
         ]
       },
       {
-        "label": "Picnic",
+        "label": "Tasks",
         "words": [
-          "BREAD",
-          "NAPKIN",
-          "PLATES"
+          "IDENTIFY",
+          "COLLECT",
+          "FEED"
         ]
       }
     ],
     "columns": [
       {
-        "label": "Can Be Cut",
+        "label": "Trail Walk",
         "words": [
-          "SHIRT",
-          "ROPE",
-          "BREAD"
+          "RANGER",
+          "FIELDGUIDE",
+          "IDENTIFY"
         ]
       },
       {
-        "label": "Can Be Folded",
+        "label": "Cleanup",
         "words": [
-          "JEANS",
-          "TENT",
-          "NAPKIN"
+          "VOLUNTEER",
+          "BASKET",
+          "COLLECT"
         ]
       },
       {
-        "label": "Can Be Stacked",
+        "label": "Animal Room",
         "words": [
-          "SWEATER",
-          "FIREWOOD",
-          "PLATES"
+          "KEEPER",
+          "ENCLOSURE",
+          "FEED"
         ]
       }
     ],
     "grid": [
       [
-        "SHIRT",
-        "JEANS",
-        "SWEATER"
+        "RANGER",
+        "VOLUNTEER",
+        "KEEPER"
       ],
       [
-        "ROPE",
-        "TENT",
-        "FIREWOOD"
+        "FIELDGUIDE",
+        "BASKET",
+        "ENCLOSURE"
       ],
       [
-        "BREAD",
-        "NAPKIN",
-        "PLATES"
+        "IDENTIFY",
+        "COLLECT",
+        "FEED"
       ]
     ],
     "packRole": "live",
-    "themeGroupId": "cut-folded-stacked"
+    "themeGroupId": "nature-center-zones"
   },
   {
     "id": "subset-2027-04-26-sports-fields-gear-officials-fans",
@@ -31291,7 +31319,7 @@ export const SUBSET_RESERVE_PUZZLES = [
     ],
     "columns": [
       {
-        "label": "River Bank",
+        "label": "River Edge",
         "words": [
           "SILT",
           "DREDGER",
@@ -31299,7 +31327,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Data Bank",
+        "label": "Data Archive",
         "words": [
           "ARCHIVE",
           "LIBRARIAN",
@@ -31307,7 +31335,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Food Bank",
+        "label": "Food Pantry",
         "words": [
           "CANS",
           "SORTER",
@@ -31955,7 +31983,7 @@ export const SUBSET_RESERVE_PUZZLES = [
     ],
     "columns": [
       {
-        "label": "Copy Desk",
+        "label": "Copy Team",
         "words": [
           "COPYEDITOR",
           "STYLEBOOK",
@@ -31963,7 +31991,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Photo Desk",
+        "label": "Photo Lab",
         "words": [
           "PHOTOEDITOR",
           "CONTACTSHEET",
@@ -31971,7 +31999,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Opinion Desk",
+        "label": "Opinion Page",
         "words": [
           "COLUMNIST",
           "OPED",
@@ -32261,7 +32289,7 @@ export const SUBSET_RESERVE_PUZZLES = [
     "centerWord": "OTOSCOPE",
     "rows": [
       {
-        "label": "Clinic Staff",
+        "label": "Care Team",
         "words": [
           "RECEPTIONIST",
           "CLINICIAN",
@@ -32269,7 +32297,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Clinic Items",
+        "label": "Exam Items",
         "words": [
           "FORM",
           "OTOSCOPE",
@@ -32277,7 +32305,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Clinic Steps",
+        "label": "Visit Steps",
         "words": [
           "TRIAGE",
           "DIAGNOSE",
@@ -32370,7 +32398,7 @@ export const SUBSET_RESERVE_PUZZLES = [
     ],
     "columns": [
       {
-        "label": "Desert Trail",
+        "label": "Desert Route",
         "words": [
           "RANGER",
           "CAIRN",
@@ -32378,7 +32406,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Forest Trail",
+        "label": "Forest Path",
         "words": [
           "TRACKER",
           "BLAZE",
@@ -32386,7 +32414,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Alpine Trail",
+        "label": "Alpine Ridge",
         "words": [
           "MOUNTAINEER",
           "CORNICE",
@@ -32702,7 +32730,7 @@ export const SUBSET_RESERVE_PUZZLES = [
     ],
     "columns": [
       {
-        "label": "Watch Repair",
+        "label": "Watch Bench",
         "words": [
           "WATCHMAKER",
           "GEAR",
@@ -32710,7 +32738,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Bike Repair",
+        "label": "Bike Shop",
         "words": [
           "MECHANIC",
           "CHAIN",
@@ -32718,7 +32746,7 @@ export const SUBSET_RESERVE_PUZZLES = [
         ]
       },
       {
-        "label": "Shoe Repair",
+        "label": "Shoe Counter",
         "words": [
           "COBBLER",
           "SOLE",

@@ -129,6 +129,18 @@ function withCompoundEndingColumns(
   };
 }
 
+function withCanBeColumns(puzzle: SubsetScheduledPuzzle): SubsetScheduledPuzzle {
+  return {
+    ...puzzle,
+    theme: "Same-structure can-be regression fixture",
+    themeTypes: ["phrase", "interaction"],
+    columns: puzzle.columns.map((column, columnIndex) => ({
+      ...column,
+      label: ["Can Be Cut", "Can Be Folded", "Can Be Stacked"][columnIndex],
+    })),
+  };
+}
+
 function withPropsResetColumn(
   puzzle: SubsetScheduledPuzzle,
 ): SubsetScheduledPuzzle {
@@ -478,7 +490,7 @@ describe("Subset authored pack", () => {
     expect(reserveExperiment?.editorialVerdict).toBe("reserve-tagged");
   });
 
-  it("fails repeated wordplay carrier labels in live puzzles", () => {
+  it("fails repeated category structures in live puzzles", () => {
     const pairRegression = SUBSET_SCHEDULE.map((puzzle) =>
       puzzle.dayIndex === 10 ? withPairColumns(puzzle) : puzzle,
     );
@@ -488,7 +500,7 @@ describe("Subset authored pack", () => {
     });
     expect(
       pairViolations.some((violation) =>
-        violation.includes("same wordplay carrier structure"),
+        violation.includes("same category structure"),
       ),
     ).toBe(true);
 
@@ -501,12 +513,25 @@ describe("Subset authored pack", () => {
     });
     expect(
       compoundViolations.some((violation) =>
-        violation.includes("same wordplay carrier structure"),
+        violation.includes("same category structure"),
+      ),
+    ).toBe(true);
+
+    const canBeRegression = SUBSET_SCHEDULE.map((puzzle) =>
+      puzzle.dayIndex === 10 ? withCanBeColumns(puzzle) : puzzle,
+    );
+    const canBeViolations = checkSubsetPackEditorialStandards({
+      schedule: canBeRegression,
+      checkBuildOutput: false,
+    });
+    expect(
+      canBeViolations.some((violation) =>
+        violation.includes("same category structure"),
       ),
     ).toBe(true);
   });
 
-  it("flags unclear cross-fits without banning clear concrete context labels", () => {
+  it("flags unclear cross-fits and repeated concrete label structures", () => {
     const propsResetPuzzle = withPropsResetColumn(SUBSET_SCHEDULE[10]);
     expect(recognizabilityRiskForPuzzle(propsResetPuzzle)).toContain("RESET");
 
@@ -524,7 +549,9 @@ describe("Subset authored pack", () => {
     ).toBe(true);
 
     const concreteRepairPuzzle = withConcreteRepairColumns(SUBSET_SCHEDULE[10]);
-    expect(sameStructureRiskForPuzzle(concreteRepairPuzzle)).toBeNull();
+    expect(sameStructureRiskForPuzzle(concreteRepairPuzzle)).toContain(
+      "suffix grammar",
+    );
     const concreteRepairRegression = SUBSET_SCHEDULE.map((puzzle) =>
       puzzle.dayIndex === 10 ? concreteRepairPuzzle : puzzle,
     );
@@ -534,9 +561,9 @@ describe("Subset authored pack", () => {
     });
     expect(
       concreteRepairViolations.some((violation) =>
-        violation.includes("same wordplay carrier structure"),
+        violation.includes("same category structure"),
       ),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("detects stale Subset schedule strings in built output text", () => {

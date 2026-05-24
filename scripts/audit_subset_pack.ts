@@ -112,6 +112,11 @@ const SAME_STRUCTURE_WORDPLAY_CARRIERS = new Set([
   "Phrase",
 ]);
 
+const SAME_STRUCTURE_PREFIX_PATTERNS: Array<[RegExp, string]> = [
+  [/^Can Be\s+/i, "can-be-prefix"],
+  [/^Words (?:After|Before)\s+/i, "words-before-after-prefix"],
+];
+
 const RESERVE_SAME_STRUCTURE_ALLOWLIST = new Map([
   [
     "reserve-012",
@@ -260,6 +265,10 @@ function phraseTemplateLabelCount(puzzle: SubsetPackPuzzle): number {
 function sameStructurePatternForLabel(label: string): string | null {
   const trimmed = label.trim();
   if (PHRASE_TEMPLATE_LABEL_PATTERN.test(trimmed)) return "phrase-template";
+  const prefixPattern = SAME_STRUCTURE_PREFIX_PATTERNS.find(([pattern]) =>
+    pattern.test(trimmed),
+  );
+  if (prefixPattern) return prefixPattern[1];
   const suffixMatch = trimmed.match(/^(.+)\s+([A-Z][a-z]+)$/);
   if (!suffixMatch) return null;
   const suffix = suffixMatch[2];
@@ -267,14 +276,62 @@ function sameStructurePatternForLabel(label: string): string | null {
   return `wordplay-${suffix.toLowerCase()}`;
 }
 
+function labelTokens(label: string): string[] {
+  return label
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+function sharedTokenPrefix(labels: readonly string[]): string[] {
+  const tokenRows = labels.map(labelTokens);
+  if (tokenRows.some((tokens) => tokens.length < 2)) return [];
+  const shortest = Math.min(...tokenRows.map((tokens) => tokens.length));
+  const shared: string[] = [];
+  for (let index = 0; index < shortest - 1; index += 1) {
+    const token = tokenRows[0][index];
+    if (!tokenRows.every((tokens) => tokens[index] === token)) break;
+    shared.push(token);
+  }
+  return shared;
+}
+
+function sharedTokenSuffix(labels: readonly string[]): string[] {
+  const tokenRows = labels.map(labelTokens);
+  if (tokenRows.some((tokens) => tokens.length < 2)) return [];
+  const shortest = Math.min(...tokenRows.map((tokens) => tokens.length));
+  const shared: string[] = [];
+  for (let offset = 1; offset < shortest; offset += 1) {
+    const token = tokenRows[0][tokenRows[0].length - offset];
+    if (!tokenRows.every((tokens) => tokens[tokens.length - offset] === token)) {
+      break;
+    }
+    shared.unshift(token);
+  }
+  return shared;
+}
+
 function sameStructureRiskForAxis(
   labels: readonly string[],
   axisName: "rows" | "columns",
 ): string | null {
   const patterns = labels.map(sameStructurePatternForLabel);
-  if (!patterns.every(Boolean)) return null;
-  if (new Set(patterns).size !== 1) return null;
-  return `${axisName} share ${patterns[0]} grammar (${labels.join(" / ")})`;
+  if (patterns.every(Boolean) && new Set(patterns).size === 1) {
+    return `${axisName} share ${patterns[0]} grammar (${labels.join(" / ")})`;
+  }
+  const prefix = sharedTokenPrefix(labels);
+  if (prefix.length > 0) {
+    return `${axisName} share ${prefix.join(" ")} prefix grammar (${labels.join(
+      " / ",
+    )})`;
+  }
+  const suffix = sharedTokenSuffix(labels);
+  if (suffix.length > 0) {
+    return `${axisName} share ${suffix.join(" ")} suffix grammar (${labels.join(
+      " / ",
+    )})`;
+  }
+  return null;
 }
 
 export function sameStructureRiskForPuzzle(
@@ -874,7 +931,7 @@ export function checkSubsetPackEditorialStandards({
     if (sameStructureRisk) {
       if (puzzle.packRole === "live") {
         violations.push(
-          `${puzzle.date} repeats same wordplay carrier structure: ${sameStructureRisk}.`,
+          `${puzzle.date} repeats same category structure: ${sameStructureRisk}.`,
         );
       } else if (!reserveSameStructureAllowlistReason(puzzle)) {
         violations.push(
@@ -1069,7 +1126,7 @@ ${issueSummary}
 
 ## Editorial Standard
 
-Raw \`Starts with X\`, \`Ends in X\`, and \`N Letters\` mechanics are not approved for this authored pack. Live puzzles must not depend on three repeated wordplay carrier labels on one axis, and technically valid but player-unclear fits are rewrite issues rather than relabeling issues. Reserve experiments may be tagged only when they are not reachable through public date lookup.
+Raw \`Starts with X\`, \`Ends in X\`, and \`N Letters\` mechanics are not approved for this authored pack. Live puzzles must not depend on three repeated category-grammar labels on one axis, and technically valid but player-unclear fits are rewrite issues rather than relabeling issues. Reserve experiments may be tagged only when they are not reachable through public date lookup.
 
 ## Theme Group Averages
 
