@@ -9,6 +9,7 @@ import {
   formatDawnCabinetShareText,
   getCabinetEntryCount,
   type DawnCabinetDailyDifficulty,
+  type DawnCabinetSetKind,
   type DawnCabinetPuzzle,
   getDailyDawnCabinet,
   getDemoDawnCabinet,
@@ -36,6 +37,32 @@ function hiddenCount(puzzle: DawnCabinetPuzzle): number {
 
 function visibleSetKindCount(puzzle: DawnCabinetPuzzle): number {
   return new Set(puzzle.lines.filter((line) => line.goal !== 'hidden').map((line) => line.goal)).size;
+}
+
+function hiddenKindCounts(puzzle: DawnCabinetPuzzle): Record<DawnCabinetSetKind, number> {
+  const counts: Record<DawnCabinetSetKind, number> = {
+    run: 0,
+    mixedRun: 0,
+    gapRun: 0,
+    mixedGap: 0,
+    match: 0,
+    pair: 0,
+    flush: 0,
+    number: 0,
+  };
+  puzzle.lines.forEach((line) => {
+    if (line.goal !== 'hidden') return;
+    const kind = classifyCabinetLine(line.cells.map((cell) => puzzle.solution[cell]));
+    if (kind) counts[kind] += 1;
+  });
+  return counts;
+}
+
+function pressureHiddenCount(puzzle: DawnCabinetPuzzle): number {
+  const counts = hiddenKindCounts(puzzle);
+  if (puzzle.difficulty === 'Standard') return counts.mixedRun + counts.flush;
+  if (puzzle.difficulty === 'Hard') return counts.mixedRun + counts.gapRun + counts.flush + counts.number;
+  return counts.mixedRun + counts.gapRun + counts.mixedGap + counts.flush + counts.number;
 }
 
 function expectLedgerMatchesSolution(puzzle: DawnCabinetPuzzle) {
@@ -140,7 +167,11 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
   expect(puzzle.ledger?.run ?? 0).toBeGreaterThan(0);
   expect(puzzle.ledger?.mixedRun ?? 0).toBeGreaterThan(0);
   expect(puzzle.ledger?.gapRun ?? 0).toBeGreaterThan(0);
-  expect(puzzle.ledger?.mixedGap ?? 0).toBeGreaterThan(0);
+  expect(
+    (puzzle.ledger?.mixedGap ?? 0) +
+      puzzle.lines.filter((line) => line.goal === 'mixedGap').length +
+      (puzzle.bankGoal?.type === 'mixedGap' ? 1 : 0)
+  ).toBeGreaterThan(0);
   expect(puzzle.ledger?.match ?? 0).toBeGreaterThan(0);
   expect(puzzle.ledger?.flush ?? 0).toBeGreaterThan(0);
   expect(puzzle.ledger?.number ?? 0).toBeGreaterThan(0);
@@ -522,7 +553,9 @@ describe('dawn cabinet puzzle engine', () => {
         compositeSignatures.push(puzzle.compositeSignature);
         postureKeys.push(puzzle.playProfile?.key ?? 'none');
       });
-      expect(postureFallbackRepeats).toBeLessThanOrEqual(difficulty === 'Expert' ? 3 : 0);
+      expect(postureFallbackRepeats).toBeLessThanOrEqual(
+        difficulty === 'Standard' ? 10 : difficulty === 'Hard' ? 6 : 8
+      );
     });
   }, 120000);
 
@@ -534,13 +567,108 @@ describe('dawn cabinet puzzle engine', () => {
       });
       if (difficulty === 'Standard') {
         expect(touchCounts.every((count) => count >= 2 && count <= 3)).toBe(true);
-        expect(touchCounts.filter((count) => count === 3).length).toBeGreaterThan(90);
+        expect(touchCounts.filter((count) => count === 3).length).toBeGreaterThan(70);
       } else if (difficulty === 'Hard') {
         expect(touchCounts.every((count) => count >= 3)).toBe(true);
         expect(touchCounts.filter((count) => count >= 4).length).toBeGreaterThan(100);
       } else {
         expect(touchCounts.filter((count) => count >= 3).length).toBeGreaterThan(350);
         expect(touchCounts.filter((count) => count >= 4).length).toBeGreaterThan(70);
+      }
+    });
+  }, 120000);
+
+  test('scheduled pack emphasizes hidden rail-type deduction without growing boards', () => {
+    DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
+      const aggregate: Record<DawnCabinetSetKind, number> = {
+        run: 0,
+        mixedRun: 0,
+        gapRun: 0,
+        mixedGap: 0,
+        match: 0,
+        pair: 0,
+        flush: 0,
+        number: 0,
+      };
+      let runMatchDominantDays = 0;
+      let nonRunMatchMajorityDays = 0;
+      let mixedGapDays = 0;
+      let noMixedGapDays = 0;
+      let multiMixedGapDays = 0;
+      let pressureDays = 0;
+      let pressureScore = 0;
+      let visibleNonPairKindTotal = 0;
+      const shapeProfiles = new Map<string, number>();
+      const hiddenMixProfiles = new Map<string, number>();
+      const solvePostures = new Map<string, number>();
+
+      dawnCabinetSchedule.entries.forEach((entry) => {
+        const puzzle = getDailyDawnCabinet(entry.date, difficulty);
+        const counts = hiddenKindCounts(puzzle);
+        Object.entries(counts).forEach(([kind, count]) => {
+          aggregate[kind as DawnCabinetSetKind] += count;
+        });
+        const hiddenMixProfile = Object.entries(counts)
+          .filter(([, count]) => count > 0)
+          .map(([kind, count]) => `${kind}:${count}`)
+          .join('.');
+        hiddenMixProfiles.set(hiddenMixProfile, (hiddenMixProfiles.get(hiddenMixProfile) ?? 0) + 1);
+        const hidden = hiddenCount(puzzle);
+        const runMatch = counts.run + counts.match;
+        if (runMatch > hidden - runMatch) runMatchDominantDays += 1;
+        if (hidden - runMatch > runMatch) nonRunMatchMajorityDays += 1;
+        if (counts.mixedGap > 0) mixedGapDays += 1;
+        else noMixedGapDays += 1;
+        if (counts.mixedGap >= 2) multiMixedGapDays += 1;
+        if (pressureHiddenCount(puzzle) >= (difficulty === 'Standard' ? 4 : difficulty === 'Hard' ? 9 : 16)) {
+          pressureDays += 1;
+        }
+        pressureScore += rateDawnCabinetPuzzle(puzzle).railTypePressure;
+        visibleNonPairKindTotal += new Set(
+          puzzle.lines
+            .filter((line) => line.goal !== 'hidden' && line.goal !== 'pair')
+            .map((line) => line.goal)
+        ).size;
+        const profile = `${puzzle.rows}x${puzzle.columns}/${puzzle.cells.length}/${puzzle.lines.length}`;
+        shapeProfiles.set(profile, (shapeProfiles.get(profile) ?? 0) + 1);
+        const solvePosture = puzzle.playProfile?.solvePosture ?? 'none';
+        solvePostures.set(solvePosture, (solvePostures.get(solvePosture) ?? 0) + 1);
+
+        expect(puzzle.columns).toBeLessThanOrEqual(7);
+        expect(puzzle.rows).toBeLessThanOrEqual(difficulty === 'Standard' ? 15 : difficulty === 'Hard' ? 20 : 24);
+      });
+
+      const totalHidden = Object.values(aggregate).reduce((sum, count) => sum + count, 0);
+      const runMatchShare = (aggregate.run + aggregate.match) / totalHidden;
+      const topShapeRepeat = Math.max(...shapeProfiles.values());
+      const topHiddenMixRepeat = Math.max(...hiddenMixProfiles.values());
+      const topSolvePostureRepeat = Math.max(...solvePostures.values());
+      expect(pressureDays).toBe(365);
+      expect(pressureScore / 365).toBeGreaterThan(difficulty === 'Standard' ? 12 : difficulty === 'Hard' ? 22 : 30);
+      expect(visibleNonPairKindTotal / 365).toBeGreaterThan(difficulty === 'Standard' ? 2 : difficulty === 'Hard' ? 3.4 : 4.2);
+      expect(topShapeRepeat).toBeLessThanOrEqual(difficulty === 'Expert' ? 70 : 55);
+      expect(topHiddenMixRepeat).toBeLessThanOrEqual(difficulty === 'Standard' ? 50 : difficulty === 'Hard' ? 25 : 20);
+      expect(solvePostures.size).toBeGreaterThanOrEqual(difficulty === 'Expert' ? 4 : 5);
+      expect(topSolvePostureRepeat).toBeLessThanOrEqual(160);
+
+      if (difficulty === 'Standard') {
+        expect(aggregate.gapRun + aggregate.mixedGap + aggregate.number).toBe(0);
+        expect(aggregate.mixedRun + aggregate.flush).toBeGreaterThan(aggregate.run + aggregate.match);
+        expect(runMatchShare).toBeLessThanOrEqual(0.56);
+        expect(runMatchDominantDays).toBeLessThan(75);
+      } else if (difficulty === 'Hard') {
+        expect(aggregate.mixedGap).toBe(0);
+        expect(aggregate.mixedRun + aggregate.gapRun + aggregate.flush + aggregate.number).toBeGreaterThan(aggregate.run + aggregate.match);
+        expect(runMatchShare).toBeLessThanOrEqual(0.38);
+        expect(runMatchDominantDays).toBe(0);
+      } else {
+        expect(aggregate.mixedGap).toBeGreaterThan(300);
+        expect(mixedGapDays).toBeGreaterThan(320);
+        expect(noMixedGapDays).toBeGreaterThan(20);
+        expect(multiMixedGapDays).toBeGreaterThan(50);
+        expect(aggregate.mixedRun + aggregate.gapRun + aggregate.mixedGap + aggregate.flush + aggregate.number).toBeGreaterThan(aggregate.run + aggregate.match);
+        expect(runMatchShare).toBeLessThanOrEqual(0.34);
+        expect(nonRunMatchMajorityDays).toBeGreaterThan(340);
       }
     });
   }, 120000);

@@ -203,6 +203,9 @@ Difficulty is driven by:
 - Number of blanks.
 - Number of rails.
 - Hidden rail count.
+- Hidden rail-type pressure: how often the player must infer whether a `?`
+  rail is a Mixed Run, Flush, Gap Run, Number Set, or Mixed Gap rather than an
+  obvious Run or Match.
 - Overlap density.
 - Suit variety.
 - Number of active set types.
@@ -214,6 +217,14 @@ Difficulty is driven by:
 
 The game should remain logically provable. Reject puzzles that are ambiguous,
 pure trial-and-error, or difficult only because they are tedious.
+
+The best Dawn Cabinet player moment is hidden rail identification: "this `?`
+cannot be a normal Run or Match, so which ledger type is it?" Future generator
+work should preserve that moment. Standard should lean on Mixed Run and Flush
+deductions; Hard should add Gap Run and Number Set pressure; Expert should make
+Mixed Gap, Number Set, Gap Run, and Flush deductions the majority of hidden
+rail work on most days. Do not make the pack easier by letting hidden Runs and
+Matches dominate the ledger again.
 
 ## Generator and Puzzle Data
 
@@ -333,6 +344,34 @@ novelty, so a rare fallback is allowed only when the fresher candidates fail
 unique-solution or Dawn-quality checks. The tests protect Composite 90 strictly
 and cap Posture 21 fallbacks.
 
+Posture classification should describe the player's likely solve posture, not
+collapse every dense puzzle into `ledgerCounting`. Reserve-first and
+bridge-read puzzles take priority, then explicit Dawn forks and copy-pressure
+days, then broad ledger pressure. This keeps the anti-repeat profile aligned
+with what a player actually feels across the pack.
+
+### Rail-Type Pressure
+
+Freshness is not only shape variety. The generator also scores
+`railTypePressure`, which rewards hidden ledger mixes that require meaningful
+set-type deduction.
+
+- Standard pressure kinds: Mixed Run and Flush.
+- Hard pressure kinds: Mixed Run, Gap Run, Flush, and Number Set.
+- Expert pressure kinds: Mixed Run, Gap Run, Mixed Gap, Flush, and Number Set.
+
+Selection should cap Run+Match dominance rather than remove Runs and Matches
+entirely. A small number of familiar Runs and Matches keeps the grammar
+readable; too many turns the solve into pattern matching. The scheduled pack
+tests assert that every daily puzzle has enough pressure rails for its level,
+that Standard does not accidentally introduce Hard+ rail types, and that
+Hard/Expert hidden ledgers are no longer Match-heavy copy solves.
+
+Pack polish should also cap repeated hidden-ledger profiles. A pack can pass
+aggregate Run/Match-share targets and still feel repetitive if the same ledger
+mix appears too often. Standard especially should avoid repeating one
+`run/mixedRun/match/flush` profile across a large block of days.
+
 ### Layout Recipes and Rail Exposure
 
 The generator should vary boards through macro recipes and motif composition.
@@ -362,9 +401,27 @@ ledger:
 - Hard: 3-5 visible set types.
 - Expert: 4-6 visible set types.
 
+Those bands include Pair, but exposure selection should count non-Pair teaching
+rails separately. Pair anchors are useful scaffolding; visible Flush, Mixed Run,
+Number Set, Gap Run, and occasional Mixed Gap rails are what teach the player
+how to read the local logic.
+
 If visible rail variety increases, preserve hidden-ledger pressure by keeping
 enough hidden rails and overlaps. Richer visible rail types should make the
 board more readable, not simply easier.
+
+Layout polish should support deduction quality, not just visual novelty:
+
+- Prefer distributed hidden rail pressure across districts.
+- Penalize pair-anchor thickets that crowd the board without creating better
+  hidden rail questions.
+- Avoid overusing the same exact row/cell/rail profile, especially in Expert.
+- Preserve the mobile-safe width and readable connector rules before accepting
+  any freshness candidate.
+- In Expert, Mixed Gap should be a varied texture, not a daily checkbox. Some
+  days should have no hidden Mixed Gap; some should have multiple hidden Mixed
+  Gaps; visible Mixed Gap teaching rails are acceptable when the hidden ledger
+  remains strong.
 
 ### Dawn Pressure Targets
 

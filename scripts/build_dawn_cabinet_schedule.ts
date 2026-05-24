@@ -6,6 +6,7 @@ import {
   DAWN_CABINET_SCHEDULE_START,
   countCabinetSolutions,
   getCabinetEntryCount,
+  getDailyDawnCabinet,
   getGeneratedDailyDawnCabinet,
   isCabinetSolved,
   isGeneratedConnectorRail,
@@ -84,14 +85,29 @@ function assertPuzzleReadyForSchedule(
   }
 }
 
+function choosePuzzleForSchedule(date: string, difficulty: DawnCabinetDailyDifficulty): DawnCabinetPuzzle {
+  try {
+    const scheduled = getDailyDawnCabinet(date, difficulty);
+    assertPuzzleReadyForSchedule(date, difficulty, scheduled);
+    return scheduled;
+  } catch (error) {
+    console.warn(
+      `  replacing ${date} ${difficulty}: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+
+  const generated = getGeneratedDailyDawnCabinet(date, difficulty);
+  assertPuzzleReadyForSchedule(date, difficulty, generated);
+  return generated;
+}
+
 const entries: ScheduleEntry[] = [];
 
 for (let index = 0; index < DAWN_CABINET_SCHEDULE_DAYS; index += 1) {
   const date = addUtcDays(DAWN_CABINET_SCHEDULE_START, index);
   const puzzles = Object.fromEntries(
     DAWN_CABINET_DAILY_DIFFICULTIES.map((difficulty) => {
-      const puzzle = getGeneratedDailyDawnCabinet(date, difficulty);
-      assertPuzzleReadyForSchedule(date, difficulty, puzzle);
+      const puzzle = choosePuzzleForSchedule(date, difficulty);
       return [difficulty, makePuzzleEntry(puzzle)];
     })
   ) as Record<DawnCabinetDailyDifficulty, SchedulePuzzleEntry>;
