@@ -1,6 +1,8 @@
 import { writeFileSync } from 'node:fs';
 import {
   getLibertiesPuzzleAudit,
+  libertiesHardPuzzles,
+  libertiesHardReservePuzzles,
   libertiesReservePuzzles,
   libertiesPuzzles,
   type LibertiesDifficulty,
@@ -161,20 +163,37 @@ function simulatePersona(persona: Persona, puzzles: LibertiesPuzzle[], pool: str
   };
 }
 
+function simulatePersonaPools(
+  modeLabel: string,
+  modePuzzles: LibertiesPuzzle[],
+  modeReservePuzzles: LibertiesPuzzle[]
+): PersonaSummary[] {
+  const publicSummaries = PERSONAS.map((persona) => simulatePersona(persona, modePuzzles, `${modeLabel}-public`));
+  const reserveSummaries = PERSONAS.map((persona) => simulatePersona(persona, modeReservePuzzles, `${modeLabel}-reserve`));
+  const combinedSummaries = PERSONAS.map((persona) =>
+    simulatePersona(persona, [...modePuzzles, ...modeReservePuzzles], `${modeLabel}-combined`)
+  );
+  return [...publicSummaries, ...reserveSummaries, ...combinedSummaries];
+}
+
 function formatTime(seconds: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
-const publicSummaries = PERSONAS.map((persona) => simulatePersona(persona, libertiesPuzzles, 'Public'));
-const reserveSummaries = PERSONAS.map((persona) => simulatePersona(persona, libertiesReservePuzzles, 'Reserve'));
-const allPuzzles = [...libertiesPuzzles, ...libertiesReservePuzzles];
-const combinedSummaries = PERSONAS.map((persona) => simulatePersona(persona, allPuzzles, 'Combined'));
-const summaries = [...publicSummaries, ...reserveSummaries, ...combinedSummaries];
+const standardSummaries = simulatePersonaPools('standard', libertiesPuzzles, libertiesReservePuzzles);
+const hardSummaries = simulatePersonaPools('hard', libertiesHardPuzzles, libertiesHardReservePuzzles);
+const summaries = [...standardSummaries, ...hardSummaries];
+const standardPuzzles = [...libertiesPuzzles, ...libertiesReservePuzzles];
+const hardPuzzles = [...libertiesHardPuzzles, ...libertiesHardReservePuzzles];
 const payload = {
   generatedAt: new Date().toISOString(),
-  publicPuzzleCount: libertiesPuzzles.length,
-  reservePuzzleCount: libertiesReservePuzzles.length,
-  puzzleCount: allPuzzles.length,
+  standardPublicPuzzleCount: libertiesPuzzles.length,
+  standardReservePuzzleCount: libertiesReservePuzzles.length,
+  standardPuzzleCount: standardPuzzles.length,
+  hardPublicPuzzleCount: libertiesHardPuzzles.length,
+  hardReservePuzzleCount: libertiesHardReservePuzzles.length,
+  hardPuzzleCount: hardPuzzles.length,
+  puzzleCount: standardPuzzles.length + hardPuzzles.length,
   personas: PERSONAS,
   summaries,
 };
@@ -185,9 +204,10 @@ writeFileSync(
   [
     '# Liberties Player-Agent Report',
     '',
-    `Public puzzles tested: ${libertiesPuzzles.length}`,
-    `Reserve puzzles tested: ${libertiesReservePuzzles.length}`,
-    `Combined pool tested: ${allPuzzles.length}`,
+    `Standard public puzzles tested: ${libertiesPuzzles.length}`,
+    `Standard reserve puzzles tested: ${libertiesReservePuzzles.length}`,
+    `Hard public puzzles tested: ${libertiesHardPuzzles.length}`,
+    `Hard reserve puzzles tested: ${libertiesHardReservePuzzles.length}`,
     '',
     '| Pool | Persona | Solve rate | Median Standard | Avg hints | Avg resets | Unclear-rule flags | Frustration flags |',
     '|---|---|---:|---:|---:|---:|---:|---:|',
@@ -214,15 +234,26 @@ summaries.forEach((summary) => {
   );
 });
 
-const failing = publicSummaries.filter(
+const failing = standardSummaries.filter(
   (summary) =>
-    summary.solveRate < 0.94 ||
-    summary.medianStandardSeconds < 240 ||
-    summary.medianStandardSeconds > 420 ||
-    summary.frustrationFlags > 30
+    summary.pool === 'standard-public' &&
+    (summary.solveRate < 0.94 ||
+      summary.medianStandardSeconds < 240 ||
+      summary.medianStandardSeconds > 420 ||
+      summary.frustrationFlags > 30)
 );
 
-if (failing.length > 0) {
-  console.error(`Player-agent gate failed: ${failing.map((summary) => summary.label).join(', ')}`);
+const hardFailing = hardSummaries.filter(
+  (summary) =>
+    summary.pool === 'hard-public' &&
+    (summary.solveRate < 0.94 ||
+      summary.medianStandardSeconds < 240 ||
+      summary.medianStandardSeconds > 420 ||
+      summary.frustrationFlags > 30)
+);
+
+if (failing.length > 0 || hardFailing.length > 0) {
+  const failedPersonas = [...new Set([...failing, ...hardFailing].map((summary) => summary.label))];
+  console.error(`Player-agent gate failed: ${failedPersonas.join(', ')}`);
   process.exitCode = 1;
 }

@@ -1,8 +1,9 @@
 import { writeFileSync } from 'node:fs';
 import {
-  buildLibertiesPacksForGeneration,
+  buildLibertiesDualPacksForGeneration,
   getLibertiesPackAudit,
   getLibertiesPuzzleAudit,
+  type LibertiesDualModePackGenerationResult,
   type LibertiesPuzzle,
   type LibertiesPackGenerationResult,
 } from '../src/data/libertiesPuzzles';
@@ -21,7 +22,12 @@ function serializePuzzleArray(name: string, puzzles: LibertiesPuzzle[]): string 
   return [`export const ${name}: LibertiesPuzzle[] = [`, body, '];'].join('\n');
 }
 
-function writeGeneratedPack(publicPuzzles: LibertiesPuzzle[], reservePuzzles: LibertiesPuzzle[]): void {
+function writeGeneratedPack(
+  publicPuzzles: LibertiesPuzzle[],
+  reservePuzzles: LibertiesPuzzle[],
+  hardPublicPuzzles: LibertiesPuzzle[],
+  hardReservePuzzles: LibertiesPuzzle[]
+): void {
   writeFileSync(
     GENERATED_PATH,
     [
@@ -32,6 +38,10 @@ function writeGeneratedPack(publicPuzzles: LibertiesPuzzle[], reservePuzzles: Li
       serializePuzzleArray('generatedLibertiesPack', publicPuzzles),
       '',
       serializePuzzleArray('generatedLibertiesReservePack', reservePuzzles),
+      '',
+      serializePuzzleArray('generatedLibertiesHardPack', hardPublicPuzzles),
+      '',
+      serializePuzzleArray('generatedLibertiesHardReservePack', hardReservePuzzles),
       '',
     ].join('\n')
   );
@@ -70,7 +80,7 @@ function summarizePack(label: string, puzzles: LibertiesPuzzle[]): string[] {
   ];
 }
 
-function writeAuditReport(result: LibertiesPackGenerationResult): void {
+function summarizeMode(label: string, result: LibertiesPackGenerationResult): string[] {
   const publicAudit = getLibertiesPackAudit(result.publicPuzzles);
   const strongest = [...result.allPuzzles]
     .map((puzzle) => ({ puzzle, audit: getLibertiesPuzzleAudit(puzzle) }))
@@ -81,49 +91,102 @@ function writeAuditReport(result: LibertiesPackGenerationResult): void {
     )
     .slice(0, 8);
 
+  return [
+    `## ${label}`,
+    '',
+    ...summarizePack('Public Daily Pack', result.publicPuzzles),
+    ...summarizePack('Reserve Pack', result.reservePuzzles),
+    ...summarizePack('Combined 420-Board Pool', result.allPuzzles),
+    `Auto-retune preset: ${result.report.tuningId}`,
+    `Auto-retune iterations: ${result.report.iterationCount}`,
+    `Scored candidates: ${result.report.candidateCount}`,
+    '',
+    `## ${label} Public Terrain Archetypes`,
+    '',
+    ...Object.entries(publicAudit.terrainArchetypeCounts).map(([archetype, count]) => `- ${archetype}: ${count}`),
+    '',
+    '## Strongest Chase Samples',
+    '',
+    ...strongest.map(
+      ({ puzzle, audit }) =>
+        `- ${puzzle.id}: ${puzzle.difficulty}, ${puzzle.targetMoves} generated moves, ${puzzle.minMoves ?? puzzle.targetMoves} floor moves, ${audit.responseEventCount} stretches, dependency ${audit.captureOrderDependencyScore}`
+    ),
+    '',
+  ];
+}
+
+function countOverlappingPuzzleIds(
+  first: LibertiesPuzzle[],
+  second: LibertiesPuzzle[]
+): { overlapCount: number; overlapRatio: number } {
+  const secondIds = new Set(second.map((puzzle) => puzzle.id));
+  const overlapCount = first.filter((puzzle) => secondIds.has(puzzle.id)).length;
+  const overlapRatio = first.length === 0 ? 0 : overlapCount / first.length;
+  return { overlapCount, overlapRatio };
+}
+
+function assertHardPackDivergence(
+  standard: LibertiesPackGenerationResult,
+  hard: LibertiesPackGenerationResult
+): void {
+  const publicMatch = JSON.stringify(standard.publicPuzzles) === JSON.stringify(hard.publicPuzzles);
+  const reserveMatch = JSON.stringify(standard.reservePuzzles) === JSON.stringify(hard.reservePuzzles);
+  if (publicMatch && reserveMatch) {
+    throw new Error('Hard pack generation produced an output identical to standard in both public and reserve.');
+  }
+
+  const publicOverlap = countOverlappingPuzzleIds(hard.publicPuzzles, standard.publicPuzzles);
+  const reserveOverlap = countOverlappingPuzzleIds(hard.reservePuzzles, standard.reservePuzzles);
+  if (publicOverlap.overlapRatio >= 0.75 || reserveOverlap.overlapRatio >= 0.75) {
+    throw new Error(
+      `Hard pack output overlaps too much with standard: public ${publicOverlap.overlapCount}/${hard.publicPuzzles.length} `
+      + `(${(publicOverlap.overlapRatio * 100).toFixed(1)}%), reserve ${reserveOverlap.overlapCount}/${hard.reservePuzzles.length} `
+      + `(${(reserveOverlap.overlapRatio * 100).toFixed(1)}%)`
+    );
+  }
+}
+
+function writeAuditReport(standard: LibertiesPackGenerationResult, hard: LibertiesPackGenerationResult): void {
+  const combinedStandard = summarizeMode('Standard-mode Pack', standard);
+  const combinedHard = summarizeMode('Hard-mode Pack', hard);
+
   writeFileSync(
     AUDIT_PATH,
     [
       '# Liberties Pack Audit',
       '',
-      `Generated pool: ${result.allPuzzles.length}`,
-      `Public daily boards: ${result.publicPuzzles.length}`,
-      `Reserve boards: ${result.reservePuzzles.length}`,
-      `Auto-retune preset: ${result.report.tuningId}`,
-      `Auto-retune iterations: ${result.report.iterationCount}`,
-      `Scored candidates: ${result.report.candidateCount}`,
-      '',
-      ...summarizePack('Public Daily Pack', result.publicPuzzles),
-      ...summarizePack('Reserve Pack', result.reservePuzzles),
-      ...summarizePack('Combined 400-Board Pool', result.allPuzzles),
-      '## Public Terrain Archetypes',
-      '',
-      ...Object.entries(publicAudit.terrainArchetypeCounts).map(([archetype, count]) => `- ${archetype}: ${count}`),
-      '',
-      '## Strongest Chase Samples',
-      '',
-      ...strongest.map(
-        ({ puzzle, audit }) =>
-          `- ${puzzle.id}: ${puzzle.difficulty}, ${puzzle.targetMoves} generated moves, ${puzzle.minMoves ?? puzzle.targetMoves} floor moves, ${audit.responseEventCount} stretches, dependency ${audit.captureOrderDependencyScore}`
-      ),
-      '',
+      ...combinedStandard,
+      ...combinedHard,
     ].join('\n')
   );
 }
 
-const result = buildLibertiesPacksForGeneration();
-const puzzles = result.publicPuzzles;
-writeGeneratedPack(result.publicPuzzles, result.reservePuzzles);
-writeAuditReport(result);
-
-const audit = getLibertiesPackAudit(puzzles);
-console.log(`Generated ${result.allPuzzles.length} Liberties puzzles`);
-console.log(`Public daily boards: ${result.publicPuzzles.length}`);
-console.log(`Reserve boards: ${result.reservePuzzles.length}`);
-console.log(
-  `Difficulty mix: Easy ${audit.difficultyCounts.Easy}, Standard ${audit.difficultyCounts.Standard}, Hard ${audit.difficultyCounts.Hard}`
+const result: LibertiesDualModePackGenerationResult = buildLibertiesDualPacksForGeneration();
+const standard = result.standard;
+const hard = result.hard;
+assertHardPackDivergence(standard, hard);
+const puzzles = standard.publicPuzzles;
+writeGeneratedPack(
+  standard.publicPuzzles,
+  standard.reservePuzzles,
+  hard.publicPuzzles,
+  hard.reservePuzzles
 );
-console.log(`Standard median target seconds: ${audit.standardMedianTargetSeconds}`);
-console.log(`Auto-retune preset: ${result.report.tuningId}`);
+writeAuditReport(standard, hard);
+
+const standardAudit = getLibertiesPackAudit(standard.publicPuzzles);
+const hardAudit = getLibertiesPackAudit(hard.publicPuzzles);
+console.log(`Generated ${standard.allPuzzles.length + hard.allPuzzles.length} Liberties puzzles`);
+console.log(`Standard public: ${standard.publicPuzzles.length}, reserve: ${standard.reservePuzzles.length}`);
+console.log(`Hard public: ${hard.publicPuzzles.length}, reserve: ${hard.reservePuzzles.length}`);
+console.log(
+  `Standard difficulty mix: Easy ${standardAudit.difficultyCounts.Easy}, Standard ${standardAudit.difficultyCounts.Standard}, Hard ${standardAudit.difficultyCounts.Hard}`
+);
+console.log(
+  `Hard difficulty mix: Easy ${hardAudit.difficultyCounts.Easy}, Standard ${hardAudit.difficultyCounts.Standard}, Hard ${hardAudit.difficultyCounts.Hard}`
+);
+console.log(`Standard median target seconds: ${standardAudit.standardMedianTargetSeconds}`);
+console.log(`Hard median target seconds: ${hardAudit.standardMedianTargetSeconds}`);
+console.log(`Auto-retune preset: ${standard.report.tuningId}`);
 console.log(`Wrote ${GENERATED_PATH}`);
 console.log(`Wrote ${AUDIT_PATH}`);

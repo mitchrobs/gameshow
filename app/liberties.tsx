@@ -46,6 +46,7 @@ import {
   type LibertiesBoard,
   type LibertiesIllegalReason,
   type LibertiesPoint,
+  type LibertiesPlayMode,
 } from '../src/data/libertiesPuzzles';
 
 type GameState = 'playing' | 'won';
@@ -68,6 +69,7 @@ const STORAGE_PREFIX = 'liberties';
 const PLAY_COUNT_KEY = 'liberties';
 const THEME_STORAGE_KEY = `${STORAGE_PREFIX}:visual-theme`;
 const PUBLIC_GAME_TITLE = 'Liberties';
+const MODE_STORAGE_KEY = `${STORAGE_PREFIX}:mode`;
 const PROGRESS_STORAGE_VERSION = 1 as const;
 const STANDARD_PLAYTEST_PUZZLE_ID = 'liberties-clock-square';
 const HARD_PLAYTEST_PUZZLE_ID = 'liberties-ladder-garden';
@@ -269,21 +271,46 @@ function writeStorageItem(key: string, value: string): void {
   }
 }
 
-function getProgressStorageKey(dateKey: string): string {
-  return `${STORAGE_PREFIX}:progress:${dateKey}`;
+function isLibertiesPlayMode(value: string | null): value is LibertiesPlayMode {
+  return value === 'standard' || value === 'hard';
 }
 
-function markDailySolved(dateKey: string): boolean {
+function getInitialLibertiesPlayMode(): LibertiesPlayMode {
+  const queryMode = isLibertiesPlayMode(readSearchParam('mode')) ? readSearchParam('mode') : null;
+  if (queryMode) return queryMode;
+  const storedMode = readStorageItem(MODE_STORAGE_KEY);
+  return storedMode === 'hard' ? 'hard' : 'standard';
+}
+
+function getProgressStorageKey(dateKey: string, mode: LibertiesPlayMode): string {
+  return `${STORAGE_PREFIX}:progress:${mode}:${dateKey}`;
+}
+
+function markDailySolved(dateKey: string, mode: LibertiesPlayMode): boolean {
   const storage = getStorage();
   if (!storage) return true;
   try {
-    const key = `${STORAGE_PREFIX}:daily:${dateKey}`;
+    const key = `${STORAGE_PREFIX}:${mode}:daily:${dateKey}`;
     const alreadySolved = storage.getItem(key) === '1';
     storage.setItem(key, '1');
     return !alreadySolved;
   } catch {
     return true;
   }
+}
+
+function getShareUrl(mode: LibertiesPlayMode): string {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      const basePath = window.location.pathname.startsWith('/gameshow') ? '/gameshow' : '';
+      const suffix = mode === 'hard' ? '?mode=hard' : '';
+      return `${window.location.origin}${basePath}/liberties${suffix}`;
+    }
+  }
+  if (mode === 'hard') {
+    return 'https://mitchrobs.github.io/gameshow/liberties?mode=hard';
+  }
+  return 'https://mitchrobs.github.io/gameshow/liberties';
 }
 
 function formatTime(seconds: number): string {
@@ -362,16 +389,6 @@ function formatDarkClearStatus(count: number): string {
   const pebbleText = `black pebble${count === 1 ? '' : 's'}`;
   const ending = count === 1 ? 'it disappeared' : 'they disappeared';
   return ` White boxed in ${count} ${pebbleText}, so ${ending}.`;
-}
-
-function getShareUrl(): string {
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      const basePath = window.location.pathname.startsWith('/gameshow') ? '/gameshow' : '';
-      return `${window.location.origin}${basePath}/liberties`;
-    }
-  }
-  return 'https://mitchrobs.github.io/gameshow/liberties';
 }
 
 function readSearchParam(name: string): string | null {
@@ -1144,8 +1161,16 @@ export default function LibertiesScreen() {
       : width;
   const demoMode = useMemo(() => readDemoMode(), []);
   const puzzleOverride = useMemo(() => getPreviewPuzzleFromOverride(readPuzzleOverride()), []);
+  const queryMode = useMemo(() => {
+    const value = readSearchParam('mode');
+    return isLibertiesPlayMode(value) ? value : null;
+  }, []);
   const isPreviewMode = demoMode !== null || puzzleOverride !== null || readSearchParam('howTo') === '1';
-  const dailyEntry = useMemo(() => getDailyLibertiesEntry(), []);
+  const [playMode, setPlayMode] = useState<LibertiesPlayMode>(() => {
+    return queryMode ?? getInitialLibertiesPlayMode();
+  });
+  const activeMode: LibertiesPlayMode = isPreviewMode ? 'standard' : playMode;
+  const dailyEntry = useMemo(() => getDailyLibertiesEntry(new Date(), activeMode), [activeMode]);
   const demoPuzzle = useMemo(
     () => libertiesPuzzles.find((entry) => entry.id === 'liberties-shared-court') ?? null,
     []
@@ -1248,9 +1273,21 @@ export default function LibertiesScreen() {
         moves: moves.length,
         elapsedSeconds,
         hintsUsed,
-        url: getShareUrl(),
+        url: getShareUrl(activeMode),
       }),
-    [dateKey, elapsedSeconds, hintsUsed, moves.length]
+    [activeMode, dateKey, elapsedSeconds, hintsUsed, moves.length]
+  );
+  const modeIsLocked = isPreviewMode;
+  const isHardMode = activeMode === 'hard';
+  const isStandardMode = activeMode === 'standard';
+  const displayedModeLabel = isHardMode ? 'Hard mode' : 'Standard mode';
+  const displayedPuzzleDifficulty = puzzle.difficulty;
+  const handleModeChange = useCallback(
+    (nextMode: LibertiesPlayMode) => {
+      if (modeIsLocked || nextMode === activeMode) return;
+      setPlayMode(nextMode);
+    },
+    [activeMode, modeIsLocked]
   );
   const getLightImpactsForPoint = useCallback((point: LibertiesPoint) => {
     const selectedKey = pointKey(point);
@@ -1289,6 +1326,11 @@ export default function LibertiesScreen() {
   }, [demoMode]);
 
   useEffect(() => {
+    if (isPreviewMode) return;
+    writeStorageItem(MODE_STORAGE_KEY, playMode);
+  }, [isPreviewMode, playMode]);
+
+  useEffect(() => {
     if (demoMode || puzzleOverride) {
       const demoMoves = demoMode ? puzzle.solution.slice(0, getDemoMoveCount(demoMode)) : [];
       hasCountedRef.current = true;
@@ -1310,7 +1352,7 @@ export default function LibertiesScreen() {
     }
 
     setHasRestoredProgress(false);
-    const raw = readStorageItem(getProgressStorageKey(dateKey));
+    const raw = readStorageItem(getProgressStorageKey(dateKey, activeMode));
     if (!raw) {
       hasCountedRef.current = false;
       setMoves([]);
@@ -1373,7 +1415,7 @@ export default function LibertiesScreen() {
     } finally {
       setHasRestoredProgress(true);
     }
-  }, [dateKey, demoMode, puzzle, puzzleOverride]);
+  }, [activeMode, dateKey, demoMode, puzzle, puzzleOverride]);
 
   useEffect(() => {
     if (!hasRestoredProgress || isPreviewMode) return;
@@ -1384,8 +1426,8 @@ export default function LibertiesScreen() {
       elapsedSeconds,
       hintsUsed,
     };
-    writeStorageItem(getProgressStorageKey(dateKey), JSON.stringify(payload));
-  }, [dateKey, elapsedSeconds, gameState, hasRestoredProgress, hintsUsed, isPreviewMode, moves]);
+    writeStorageItem(getProgressStorageKey(dateKey, activeMode), JSON.stringify(payload));
+  }, [activeMode, dateKey, elapsedSeconds, gameState, hasRestoredProgress, hintsUsed, isPreviewMode, moves]);
 
   useEffect(() => {
     if (gameState !== 'playing' || !solved) return;
@@ -1395,11 +1437,11 @@ export default function LibertiesScreen() {
   useEffect(() => {
     if (gameState !== 'won' || hasCountedRef.current || isPreviewMode) return;
     hasCountedRef.current = true;
-    const shouldCount = markDailySolved(dateKey);
+    const shouldCount = markDailySolved(dateKey, activeMode);
     if (shouldCount) {
       incrementGlobalPlayCount(PLAY_COUNT_KEY);
     }
-  }, [dateKey, gameState, isPreviewMode]);
+  }, [activeMode, dateKey, gameState, isPreviewMode]);
 
   useEffect(() => {
     if (!hasRestoredProgress || gameState !== 'playing' || isPreviewMode) return;
@@ -1610,6 +1652,41 @@ export default function LibertiesScreen() {
           </Pressable>
         );
       })}
+    </View>
+  );
+
+  const modeSectionSurface = (
+    <View style={[styles.modeSection, isPhoneLayout && styles.modeSectionPhone, phoneChromeStyle]}>
+      <Text style={styles.modeSectionLabel}>Player mode: {displayedModeLabel}</Text>
+      <View style={styles.modeSectionControls}>
+        <Pressable
+          accessibilityRole="button"
+          disabled={modeIsLocked || isStandardMode}
+          style={({ pressed }) => [
+            styles.modeSectionButton,
+            isStandardMode ? styles.modeSectionButtonActive : styles.modeSectionButtonInactive,
+            modeIsLocked && styles.modeSectionButtonDisabled,
+            pressed && !modeIsLocked && !isStandardMode && styles.modeSectionButtonPressed,
+          ]}
+          onPress={() => handleModeChange('standard')}
+        >
+          <Text style={[styles.modeSectionButtonText, isStandardMode && styles.modeSectionButtonTextActive]}>Standard</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          disabled={modeIsLocked || isHardMode}
+          style={({ pressed }) => [
+            styles.modeSectionButton,
+            isHardMode ? styles.modeSectionButtonActive : styles.modeSectionButtonInactive,
+            modeIsLocked && styles.modeSectionButtonDisabled,
+            pressed && !modeIsLocked && !isHardMode && styles.modeSectionButtonPressed,
+          ]}
+          onPress={() => handleModeChange('hard')}
+        >
+          <Text style={[styles.modeSectionButtonText, isHardMode && styles.modeSectionButtonTextActive]}>Hard</Text>
+        </Pressable>
+      </View>
+      <Text style={styles.modeSectionMapLabel}>Map label: {displayedPuzzleDifficulty}</Text>
     </View>
   );
 
@@ -1874,6 +1951,7 @@ export default function LibertiesScreen() {
             <>
               {topBarSurface}
               {metricsSurface}
+              {modeSectionSurface}
               {isStyleMenuVisible && themeSwitcher}
               {boardSurface}
               {statusSurface}
@@ -1883,6 +1961,7 @@ export default function LibertiesScreen() {
           ) : (
             <>
               {topBarSurface}
+              {modeSectionSurface}
               {isStyleMenuVisible && themeSwitcher}
               {boardSurface}
               {statusSurface}
@@ -2164,6 +2243,56 @@ const createStyles = (
       fontWeight: '900',
       textTransform: 'uppercase',
       letterSpacing: 0.6,
+    modeSection: {
+      marginTop: Spacing.md,
+      gap: Spacing.sm,
+    },
+    modeSectionLabel: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.9,
+    },
+    modeSectionControls: {
+      flexDirection: 'row',
+      gap: Spacing.sm,
+      flexWrap: 'wrap',
+    },
+    modeSectionButton: {
+      ...ui.pill,
+      minWidth: 122,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#f2f6fb',
+    },
+    modeSectionButtonActive: {
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.soft,
+    },
+    modeSectionButtonInactive: {
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.56)',
+    },
+    modeSectionButtonDisabled: {
+      opacity: 0.55,
+    },
+    modeSectionButtonPressed: {
+      opacity: 0.86,
+      transform: [{ scale: 0.98 }],
+    },
+    modeSectionButtonText: {
+      color: Colors.textMuted,
+      fontSize: FontSize.sm,
+      fontWeight: '800',
+    },
+    modeSectionButtonTextActive: {
+      color: screenAccent.badgeText,
+    },
+    modeSectionMapLabel: {
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 20,
     },
     modalOverlay: {
       flex: 1,

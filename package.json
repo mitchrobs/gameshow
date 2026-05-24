@@ -14,6 +14,7 @@
     "build:liberties-pack": "tsx scripts/build_liberties_pack.ts",
     "audit:liberties-pack": "tsx scripts/audit_liberties_pack.ts",
     "audit:liberties-personas": "tsx scripts/audit_liberties_personas.ts",
+    "compare:liberties-pack": "tsx scripts/compare_liberties_packs.ts",
     "build:wordie-schedule": "python3 scripts/build_wordie_schedule.py",
     "build:mini-crossword-bank": "python3 scripts/build_mini_crossword_bank.py",
     "build:mini-crossword-seeds": "python3 scripts/build_mini_crossword_variants.py",
