@@ -205,16 +205,20 @@ const HOW_TO_INTERACTIVE_LESSONS = [
     id: 'clear',
     label: 'Clear',
     actionPoint: HOW_TO_CLEAR_MOVE,
+    freePlay: false,
     intro: 'Close the last empty side crossing to clear the white group.',
     puzzle: HOW_TO_CLEAR_PUZZLE,
+    startStatus: `Try ${formatHowToPoint(HOW_TO_CLEAR_MOVE)}.`,
     title: 'Clear a group',
   },
   {
     id: 'stretch',
     label: 'White moves',
     actionPoint: HOW_TO_STRETCH_MOVE,
-    intro: 'Place a black pebble that does not clear white. Then white stretches once.',
+    freePlay: true,
+    intro: 'Place a black pebble on any empty crossing. Then white stretches once.',
     puzzle: HOW_TO_STRETCH_PUZZLE,
+    startStatus: 'Try any empty crossing.',
     title: 'White stretches once',
   },
 ] as const;
@@ -721,6 +725,9 @@ function getHowToCompletionMessage(result: Extract<LibertiesMoveResult, { legal:
   if (result.captured.length > 0) {
     return 'Nice. The white group had no empty side crossings left, so it cleared. White does not move after you clear a group.';
   }
+  if (result.responses.length > 0 && result.capturedDark.length > 0) {
+    return `White stretched to ${formatHowToPoint(result.responses[0]!)} and closed every side around a black group, so that black group disappeared.`;
+  }
   if (result.responses.length > 0) {
     return `Good. That move cleared no white group, so white stretched to ${formatHowToPoint(result.responses[0]!)}.`;
   }
@@ -745,7 +752,7 @@ function HowToInteractiveBoard({
   const [selectedPoint, setSelectedPoint] = useState<LibertiesPoint | null>(null);
   const [responsePoints, setResponsePoints] = useState<LibertiesPoint[]>([]);
   const [isComplete, setIsComplete] = useState(false);
-  const [status, setStatus] = useState(`Try ${formatHowToPoint(activeLesson.actionPoint)}.`);
+  const [status, setStatus] = useState(activeLesson.startStatus);
   const boardSize = activeLesson.puzzle.size === 4 ? 164 : 184;
   const boardPadding = 24;
   const gridSpan = boardSize - boardPadding * 2;
@@ -757,7 +764,7 @@ function HowToInteractiveBoard({
     setSelectedPoint(null);
     setResponsePoints([]);
     setIsComplete(false);
-    setStatus(`Try ${formatHowToPoint(lesson.actionPoint)}.`);
+    setStatus(lesson.startStatus);
   }, [activeLesson]);
 
   const handleLessonSelect = useCallback(
@@ -778,9 +785,9 @@ function HowToInteractiveBoard({
         return;
       }
 
-      if (!samePoint(point, activeLesson.actionPoint)) {
+      if (!activeLesson.freePlay && !samePoint(point, activeLesson.actionPoint)) {
         setSelectedPoint(point);
-        setStatus(`That crossing is open, but this lesson wants ${formatHowToPoint(activeLesson.actionPoint)}.`);
+        setStatus(`That crossing is open. For this example, use ${formatHowToPoint(activeLesson.actionPoint)}.`);
         return;
       }
 
@@ -810,9 +817,8 @@ function HowToInteractiveBoard({
     <View style={styles.howToInteractivePanel}>
       <View style={styles.howToInteractiveHeader}>
         <View style={styles.howToInteractiveTextBlock}>
-          <Text style={styles.howToMiniBoardLabel}>Try both moves</Text>
           <Text style={styles.howToInteractiveIntro}>
-            Choose Clear or White moves, then tap the highlighted crossing twice.
+            Choose a tab. Tap once to preview, then tap again to place.
           </Text>
         </View>
         <Pressable
@@ -884,7 +890,7 @@ function HowToInteractiveBoard({
             const point = { row: rowIndex, col: colIndex };
             const cell = board[rowIndex]?.[colIndex] ?? null;
             const isSelected = selectedPoint ? samePoint(selectedPoint, point) : false;
-            const isAction = !isComplete && samePoint(activeLesson.actionPoint, point);
+            const isAction = !isComplete && !activeLesson.freePlay && samePoint(activeLesson.actionPoint, point);
             const isResponse = responsePoints.some((response) => samePoint(response, point));
             const pieceKind =
               cell === 'black' || cell === 'white' ? cell : cell === 'frozen' || cell === 'release' ? 'blocker' : null;
@@ -952,7 +958,6 @@ function HowToStretchOrderBoard({
 
   return (
     <View style={styles.howToStretchPanel}>
-      <Text style={styles.howToMiniBoardLabel}>How white chooses</Text>
       <View style={styles.howToStretchBoard}>
         {Array.from({ length: 5 }).map((_, index) => (
           <View
@@ -2219,7 +2224,6 @@ export default function LibertiesScreen() {
               </View>
 
               <View style={styles.objectiveCard}>
-                <Text style={styles.objectiveTitle}>Goal</Text>
                 <Text style={styles.objectiveText}>
                   White pebbles that touch side-to-side make a group. You place black pebbles on empty
                   crossings, where grid lines meet. Make every white group disappear by closing the
@@ -2227,14 +2231,12 @@ export default function LibertiesScreen() {
                 </Text>
               </View>
 
-              <Text accessibilityRole="header" style={styles.modalTitle}>How to play</Text>
               <View style={styles.rulesList}>
                 <HowToInteractiveBoard
                   lessons={HOW_TO_INTERACTIVE_LESSONS}
                   styles={styles}
                   visualTheme={visualTheme}
                 />
-                <Text style={styles.ruleListTitle}>Basic rules</Text>
                 {QUICK_START_RULES.map((rule) => (
                   <HowToRuleItem key={rule} text={rule} styles={styles} />
                 ))}
@@ -2243,7 +2245,7 @@ export default function LibertiesScreen() {
               <Text accessibilityRole="header" style={styles.modalTitle}>When white moves</Text>
               <View style={[styles.rulesList, styles.rulesListSecondary]}>
                 <Text style={styles.ruleListIntro}>
-                  After each black pebble, the board checks what happened.
+                  After each black pebble, the board checks whether white cleared.
                 </Text>
                 <View style={styles.whiteMoveSteps}>
                   <HowToNumberedItem
@@ -2262,7 +2264,7 @@ export default function LibertiesScreen() {
                     styles={styles}
                   />
                 </View>
-                <Text style={styles.ruleListTitle}>Where white goes</Text>
+                <Text style={styles.ruleListTitle}>How white chooses a spot</Text>
                 <HowToStretchOrderBoard styles={styles} visualTheme={visualTheme} />
                 <View style={styles.whiteMoveSteps}>
                   {WHITE_STRETCH_RULES.map((rule, index) => (
@@ -2331,7 +2333,6 @@ const createStyles = (
   const tileColor = visualTheme.tileColor;
   const modalSurface = theme.mode === 'dark' ? '#121a23' : '#ffffff';
   const modalPanelSurface = theme.mode === 'dark' ? '#1b2632' : '#eef2f8';
-  const modalAccentPanel = theme.mode === 'dark' ? '#173637' : '#e3f6f1';
   const phoneChromeWidth =
     Platform.OS === 'web'
       ? ({ width: 'calc(100% - 16px)', maxWidth: 'calc(100% - 16px)', marginHorizontal: 8, boxSizing: 'border-box' } as any)
@@ -2652,12 +2653,7 @@ const createStyles = (
       lineHeight: 20,
     },
     objectiveCard: {
-      borderRadius: BorderRadius.md,
-      borderWidth: 1,
-      borderColor: screenAccent.badgeBorder,
-      backgroundColor: modalAccentPanel,
-      padding: Spacing.md,
-      gap: Spacing.xs,
+      paddingRight: Spacing.sm,
     },
     objectiveTitle: {
       color: screenAccent.main,
@@ -2681,16 +2677,8 @@ const createStyles = (
     },
     rulesList: {
       gap: Spacing.sm,
-      borderRadius: BorderRadius.md,
-      borderWidth: 1,
-      borderColor: screenAccent.badgeBorder,
-      backgroundColor: modalAccentPanel,
-      padding: Spacing.md,
     },
     rulesListSecondary: {
-      borderColor: Colors.border,
-      backgroundColor: modalPanelSurface,
-      paddingTop: Spacing.md,
       gap: Spacing.md,
     },
     ruleListTitle: {
@@ -2830,11 +2818,6 @@ const createStyles = (
     howToInteractivePanel: {
       alignItems: 'center',
       gap: Spacing.sm,
-      borderRadius: BorderRadius.md,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      backgroundColor: modalPanelSurface,
-      padding: Spacing.md,
     },
     howToInteractiveHeader: {
       width: '100%',
