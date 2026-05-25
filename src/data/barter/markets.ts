@@ -93,7 +93,7 @@ export const BARTER_MARKETS: BarterMarketTheme[] = [
     gems: ['Moonstones', '💎'],
     jade: ['Jade Plaques', '🏺'],
   }),
-  market('porcelain-court', 'Porcelain House', '🫖', 'Tea steam, kiln salt, and white cups make this market precise and patient.', 'A screened court table is setting one night contract.', {
+  market('porcelain-court', 'Porcelain Market', '🫖', 'Tea steam, kiln salt, and white cups make this market precise and patient.', 'A screened court table is setting one night contract.', {
     spice: ['Cinnamon Quills', '🥢'],
     wool: ['Tea Towels', '🧺'],
     tea: ['Oolong Tins', '🍵'],
@@ -141,7 +141,7 @@ export const BARTER_MARKETS: BarterMarketTheme[] = [
     gems: ['Amber Beads', '🧿'],
     jade: ['Carved Pendants', '🏺'],
   }),
-  market('salt-timber', 'Salt & Timber Depot', '🧂', 'Salt blocks and timber stacks move slowly, but the right bundle travels far.', 'One locked yard stack is being opened for night.', {
+  market('salt-timber', 'Salt & Timber Market', '🧂', 'Salt blocks and timber stacks move slowly, but the right bundle travels far.', 'One locked yard stack is being opened for night.', {
     spice: ['Pitch Pots', '🛢️'],
     wool: ['Work Ropes', '🪢'],
     tea: ['Camp Tea', '🍵'],
@@ -189,7 +189,7 @@ export const BARTER_MARKETS: BarterMarketTheme[] = [
     gems: ['River Pearls', '🦪'],
     jade: ['Gate Stones', '🪨'],
   }),
-  market('crimson-ledger', 'Ink House', '🟥', 'Red ink marks every overpay, and the page remembers what was spent.', 'A final red-ink line is being balanced for night.', {
+  market('crimson-ledger', 'Ink Market', '🟥', 'Red ink marks every overpay, and the page remembers what was spent.', 'A final red-ink line is being balanced for night.', {
     spice: ['Red Ink', '🖋️'],
     wool: ['Binding Cord', '🧵'],
     tea: ['Clerk Tea', '🍵'],
@@ -225,7 +225,7 @@ export const BARTER_MARKETS: BarterMarketTheme[] = [
     gems: ['Sea Glass', '💎'],
     jade: ['Anchor Tags', '⚓'],
   }),
-  market('windmill', 'Rye Depot', '🌬️', 'Canvas sails turn above the stalls, making each fair trade feel windblown.', 'One canvas shutter is rising for the night market.', {
+  market('windmill', 'Rye Market', '🌬️', 'Canvas sails turn above the stalls, making each fair trade feel windblown.', 'One canvas shutter is rising for the night market.', {
     spice: ['Rye Sacks', '🌾'],
     wool: ['Canvas Ties', '🧶'],
     tea: ['Miller Tea', '🍵'],
@@ -249,7 +249,7 @@ export const BARTER_MARKETS: BarterMarketTheme[] = [
     gems: ['Dew Glass', '💎'],
     jade: ['Oasis Tokens', '🧿'],
   }),
-  market('tea-road', 'Tea House', '🍵', 'Tea tins pass from stall to stall; warmth saved early matters late.', 'A hidden night blend is still steeping.', {
+  market('tea-road', 'Tea Market', '🍵', 'Tea tins pass from stall to stall; warmth saved early matters late.', 'A hidden night blend is still steeping.', {
     spice: ['Ginger Chips', '🫚'],
     wool: ['Tea Towels', '🧺'],
     tea: ['Tea Tins', '🍵'],
@@ -285,7 +285,7 @@ export const BARTER_MARKETS: BarterMarketTheme[] = [
     gems: ['North Stars', '✨'],
     jade: ['Atlas Plates', '🗺️'],
   }),
-  market('sunrise-caravan', 'Pack Depot', '🌅', 'Morning gates open wide, but the best packs are aimed at dusk.', 'One hidden bundle is being tied for nightfall.', {
+  market('sunrise-caravan', 'Pack Market', '🌅', 'Morning gates open wide, but the best packs are aimed at dusk.', 'One hidden bundle is being tied for nightfall.', {
     spice: ['Morning Dates', '🌅'],
     wool: ['Pack Cloth', '🎒'],
     tea: ['Dawn Tea', '🍵'],
@@ -297,7 +297,7 @@ export const BARTER_MARKETS: BarterMarketTheme[] = [
     gems: ['Sunstone Chips', '💎'],
     jade: ['Trail Tokens', '🎟️'],
   }),
-  market('antarctic-supply-depot', 'Antarctic Supply Depot', '❄️', 'Ration crates, ice cores, and radio tags move between expedition tents.', 'A weatherproof cache is opening for the night shift.', {
+  market('antarctic-supply-depot', 'Antarctic Supply Market', '❄️', 'Ration crates, ice cores, and radio tags move between expedition tents.', 'A weatherproof cache is opening for the night shift.', {
     spice: ['Ration Packets', '🥫'],
     wool: ['Thermal Coils', '🧶'],
     tea: ['Field Tea', '🍵'],
@@ -309,7 +309,7 @@ export const BARTER_MARKETS: BarterMarketTheme[] = [
     gems: ['Ice Cores', '🧊'],
     jade: ['Survey Markers', '📍'],
   }),
-  market('royal-exchange', 'London Royal Arcade', '👑', 'London merchants price cloth, pepper, and coin beneath the royal arcade.', 'A covered arcade desk is opening for night business.', {
+  market('royal-exchange', 'London Cloth Exchange', '👑', 'London merchants price cloth, pepper, and coin beneath the royal exchange.', 'A covered exchange desk is opening for night business.', {
     spice: ['Pepper Chests', '🌶️'],
     wool: ['English Wool', '🧶'],
     tea: ['Coffeehouse Tea', '🍵'],

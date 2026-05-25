@@ -20,7 +20,6 @@ import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import {
   analyzeBarterPuzzle,
   BarterMarketTab,
-  BarterQualityReport,
   applyTrade,
   BarterPuzzle,
   canAfford as canAffordTrade,
@@ -154,38 +153,6 @@ function shortGoodName(name: string): string {
   return words[words.length - 1] || name;
 }
 
-function getShareRouteEmojis(
-  trades: Trade[],
-  puzzle: BarterPuzzle,
-  qualityReport: BarterQualityReport
-): string {
-  if (trades.length === 0) return '🛒';
-
-  const firstTrade = trades[0];
-  const firstKey = tradeKey(firstTrade);
-  const regret = qualityReport.openingRegrets.find((entry) => entry.tradeKey === firstKey);
-  const emojis: string[] = [];
-
-  if (!regret || regret.regret === null) emojis.push('🧪');
-  else if (regret.regret === 0) emojis.push('🎯');
-  else if (regret.regret === 1) emojis.push('🧭');
-  else emojis.push('🔁');
-
-  const usedHiddenVendor =
-    qualityReport.hiddenVendorKey !== null &&
-    trades.some((trade) => tradeKey(trade) === qualityReport.hiddenVendorKey);
-  if (usedHiddenVendor) emojis.push('🌙');
-
-  const usedSignatureBundle = trades.some(
-    (trade) =>
-      trade.give.length > 1 &&
-      trade.receive.some((side) => side.good === puzzle.goal.good && side.qty >= 2)
-  );
-  if (usedSignatureBundle) emojis.push('🎁');
-
-  return emojis.join('');
-}
-
 interface MarketIdentity {
   flavor: string;
   dayScene: string;
@@ -239,7 +206,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Seal Appraiser', 'Gallery Broker', 'Ledger Keeper', 'Lamp Counter'],
     },
   },
-  'Porcelain House': {
+  'Porcelain Market': {
     dayScene: 'Tea steam softens the shelves, but the offers stay precise.',
     nightScene: 'Porcelain bells ring while the screened tables open for night.',
     sceneMarks: ['🫖', '🍵', '🏺'],
@@ -279,7 +246,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Candle Appraiser', 'Private Strand', 'Night Counter', 'Warm Ledger'],
     },
   },
-  'Salt & Timber Depot': {
+  'Salt & Timber Market': {
     dayScene: 'Salt blocks and timber stacks make every exchange feel heavy.',
     nightScene: 'Torchlight marks the prepared bundles that can finally move.',
     sceneMarks: ['🧂', '🪵', '🔥'],
@@ -319,7 +286,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Night Lock', 'Tide Appraiser', 'Gate Broker', 'Moon Porter'],
     },
   },
-  'Ink House': {
+  'Ink Market': {
     dayScene: 'Red ink dries fast, and every overpay stays on the page.',
     nightScene: 'The ledger closes around the goods left on the page.',
     sceneMarks: ['🟥', '🖋️', '📕'],
@@ -349,7 +316,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Blue Lamp', 'Night Dockhand', 'Tide Appraiser', 'Hidden Crate'],
     },
   },
-  'Rye Depot': {
+  'Rye Market': {
     dayScene: 'Canvas sails turn above the stalls, pushing every deal into motion.',
     nightScene: 'The sails slow at dusk, and the right goods finally catch the wind.',
     sceneMarks: ['🌬️', '🪽', '🧵'],
@@ -369,7 +336,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Night Reserve', 'Lamp Scribe', 'Oasis Appraiser', 'Cool Ledger'],
     },
   },
-  'Tea House': {
+  'Tea Market': {
     dayScene: 'Tea tins pass from stall to stall while the arcade keeps its rhythm.',
     nightScene: 'The final cups pour only for warmth kept from the day.',
     sceneMarks: ['🍵', '🫖', '🏮'],
@@ -399,7 +366,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Night Cartographer', 'Hidden Route', 'Atlas Appraiser', 'Lamp Surveyor'],
     },
   },
-  'Pack Depot': {
+  'Pack Market': {
     dayScene: 'Sunrise opens the caravan gates with every bargain pointed at dusk.',
     nightScene: 'The camp settles into lamplight and the tied packs matter most.',
     sceneMarks: ['🌅', '🐪', '⛺'],
@@ -409,7 +376,7 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Pack Master', 'Camp Appraiser', 'Lamp Carter', 'Hidden Bundle'],
     },
   },
-  'Antarctic Supply Depot': {
+  'Antarctic Supply Market': {
     dayScene: 'Ration crates and field gear move between wind-bent expedition tents.',
     nightScene: 'The temperature drops, and the sealed supply cache finally opens.',
     sceneMarks: ['❄️', '🧊', '📻'],
@@ -419,13 +386,13 @@ const MARKET_DETAILS: Record<string, Omit<MarketIdentity, 'flavor'>> = {
       night: ['Cache Keeper', 'Night Surveyor', 'Ice Appraiser', 'Weather Clerk'],
     },
   },
-  'London Royal Arcade': {
-    dayScene: 'London merchants call prices beneath the royal arcade.',
-    nightScene: 'The arcade lamps catch the contracts that survived the day.',
+  'London Cloth Exchange': {
+    dayScene: 'London merchants call cloth and coin prices beneath the exchange lamps.',
+    nightScene: 'The exchange lamps catch the contracts that survived the day.',
     sceneMarks: ['👑', '🧶', '🪙'],
-    hiddenStall: 'A covered arcade desk is opening for night business.',
+    hiddenStall: 'A covered exchange desk is opening for night business.',
     vendors: {
-      day: ['Royal Clerk', 'Wool Factor', 'Arcade Broker', 'Pepper Runner'],
+      day: ['Royal Clerk', 'Wool Factor', 'Cloth Broker', 'Pepper Runner'],
       night: ['Lamp Notary', 'Covered Desk', 'Coin Appraiser', 'Night Factor'],
     },
   },
@@ -522,6 +489,15 @@ export default function BarterScreen() {
         weekday: 'short',
         month: 'short',
         day: 'numeric',
+      }),
+    [previewDate]
+  );
+  const shareDateLabel = useMemo(
+    () =>
+      previewDate.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
       }),
     [previewDate]
   );
@@ -656,31 +632,22 @@ export default function BarterScreen() {
   }, [getDisplayGood, puzzle.goods, puzzle.inventory]);
 
   const shareText = useMemo(() => {
-    const scoreCode =
-      gameState === 'won' ? `${tradesUsed}/${puzzle.par}` : `X/${puzzle.maxTrades}`;
-    const resultLine = resultOutcome.routeLabel
-      ? `${resultOutcome.shareLabel} · ${resultOutcome.routeLabel}`
-      : resultOutcome.shareLabel;
-    const routeEmojis = getShareRouteEmojis(tradeHistory, puzzle, qualityReport);
+    const tradeLine =
+      gameState === 'lost'
+        ? `Failed (${tradesUsed} / Par ${puzzle.par})`
+        : `${tradesUsed} / Par ${puzzle.par}`;
     return [
-      `Barter ${dateKey} ${scoreCode}`,
-      `${resultLine} · ${marketName} ${marketEmoji}`,
-      `${routeEmojis} · ${formatTime(elapsedSeconds)}`,
-      'https://mitchrobs.github.io/gameshow/barter',
+      `Barter · ${shareDateLabel} · ${marketName} ${marketEmoji}`,
+      `Trades: ${tradeLine}`,
+      `Time: ${formatTime(elapsedSeconds)}`,
     ].join('\n');
   }, [
-    dateKey,
     elapsedSeconds,
     gameState,
     marketEmoji,
     marketName,
-    puzzle,
-    puzzle.maxTrades,
     puzzle.par,
-    qualityReport,
-    resultOutcome.routeLabel,
-    resultOutcome.shareLabel,
-    tradeHistory,
+    shareDateLabel,
     tradesUsed,
   ]);
 

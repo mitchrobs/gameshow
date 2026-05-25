@@ -497,6 +497,13 @@ describe('Barter excellence generator', () => {
     });
   });
 
+  it('keeps public market names in the market or exchange family', () => {
+    BARTER_MARKETS.forEach((market) => {
+      expect(market.name).toMatch(/\b(Market|Exchange)$/);
+      expect(market.name).not.toMatch(/\b(Arcade|Depot|Galley|House|Ledger|Quay|Stall|Table|Works)\b/);
+    });
+  });
+
   it('keeps themed inventory item names short and literal', () => {
     const abstractItemEmojis = new Set(['💧', '🟧', '🟤', '🔴', '🟠', '🟢', '🟦', '🟥', '⚫']);
     const retiredVagueLabels = new Set([
