@@ -182,7 +182,7 @@ const HOW_TO_CLEAR_PUZZLE: LibertiesPuzzle = {
   releaseLinks: [],
   lightGroups: [[{ row: 1, col: 1 }, { row: 1, col: 2 }]],
 };
-const HOW_TO_STRETCH_MOVE: LibertiesPoint = { row: 4, col: 0 };
+const HOW_TO_STRETCH_MOVE: LibertiesPoint = { row: 2, col: 2 };
 const HOW_TO_STRETCH_PUZZLE: LibertiesPuzzle = {
   id: 'liberties-how-to-stretch',
   title: 'How To Stretch',
@@ -194,11 +194,11 @@ const HOW_TO_STRETCH_PUZZLE: LibertiesPuzzle = {
   variant: 'chase',
   motif: 'Tutorial',
   focusTags: [],
-  layout: ['..X..', '.....', '.BW..', '..B..', '.....'],
+  layout: ['XXXXX', 'X.W.X', 'XB.BX', 'X.W.X', 'XXXXX'],
   solution: [HOW_TO_STRETCH_MOVE],
   minSolution: [HOW_TO_STRETCH_MOVE],
   releaseLinks: [],
-  lightGroups: [[{ row: 2, col: 2 }]],
+  lightGroups: [[{ row: 1, col: 2 }], [{ row: 3, col: 2 }]],
 };
 const HOW_TO_INTERACTIVE_LESSONS = [
   {
@@ -216,9 +216,9 @@ const HOW_TO_INTERACTIVE_LESSONS = [
     label: 'White moves',
     actionPoint: HOW_TO_STRETCH_MOVE,
     freePlay: true,
-    intro: 'Place a black pebble on any empty crossing. Then white stretches once.',
+    intro: 'Every empty crossing touches a white group. Try any one and watch which group white helps.',
     puzzle: HOW_TO_STRETCH_PUZZLE,
-    startStatus: 'Try any empty crossing.',
+    startStatus: 'Try any empty crossing beside white.',
     title: 'White stretches once',
   },
 ] as const;
@@ -793,7 +793,11 @@ function HowToInteractiveBoard({
 
       if (!selectedPoint || !samePoint(selectedPoint, point)) {
         setSelectedPoint(point);
-        setStatus(`Tap ${formatHowToPoint(point)} again to place the black pebble.`);
+        setStatus(
+          activeLesson.freePlay
+            ? `Tap ${formatHowToPoint(point)} again to see how white answers.`
+            : `Tap ${formatHowToPoint(point)} again to place the black pebble.`
+        );
         return;
       }
 
@@ -1020,7 +1024,7 @@ function HowToStretchOrderBoard({
         <Text style={[styles.howToStretchLabel, styles.howToStretchLongLabel]}>longer</Text>
       </View>
       <Text style={styles.howToMiniBoardCaption}>
-        White compares the empty side crossings beside white groups. Longer straight path wins.
+        In this picture, the right-side path is longer, so white chooses it.
       </Text>
     </View>
   );
@@ -2232,20 +2236,20 @@ export default function LibertiesScreen() {
               </View>
 
               <View style={styles.rulesList}>
+                {QUICK_START_RULES.map((rule) => (
+                  <HowToRuleItem key={rule} text={rule} styles={styles} />
+                ))}
                 <HowToInteractiveBoard
                   lessons={HOW_TO_INTERACTIVE_LESSONS}
                   styles={styles}
                   visualTheme={visualTheme}
                 />
-                {QUICK_START_RULES.map((rule) => (
-                  <HowToRuleItem key={rule} text={rule} styles={styles} />
-                ))}
               </View>
 
-              <Text accessibilityRole="header" style={styles.modalTitle}>When white moves</Text>
+              <Text accessibilityRole="header" style={styles.modalTitle}>After your move</Text>
               <View style={[styles.rulesList, styles.rulesListSecondary]}>
                 <Text style={styles.ruleListIntro}>
-                  After each black pebble, the board checks whether white cleared.
+                  If your move clears white, white waits. Otherwise, white adds one pebble.
                 </Text>
                 <View style={styles.whiteMoveSteps}>
                   <HowToNumberedItem
@@ -2264,7 +2268,6 @@ export default function LibertiesScreen() {
                     styles={styles}
                   />
                 </View>
-                <Text style={styles.ruleListTitle}>How white chooses a spot</Text>
                 <HowToStretchOrderBoard styles={styles} visualTheme={visualTheme} />
                 <View style={styles.whiteMoveSteps}>
                   {WHITE_STRETCH_RULES.map((rule, index) => (
@@ -2655,13 +2658,6 @@ const createStyles = (
     objectiveCard: {
       paddingRight: Spacing.sm,
     },
-    objectiveTitle: {
-      color: screenAccent.main,
-      fontSize: FontSize.sm,
-      fontWeight: '900',
-      textTransform: 'uppercase',
-      letterSpacing: 0.8,
-    },
     objectiveText: {
       color: Colors.text,
       fontSize: FontSize.md,
@@ -2680,14 +2676,6 @@ const createStyles = (
     },
     rulesListSecondary: {
       gap: Spacing.md,
-    },
-    ruleListTitle: {
-      color: screenAccent.main,
-      fontSize: FontSize.sm,
-      fontWeight: '900',
-      textTransform: 'uppercase',
-      letterSpacing: 0.8,
-      marginBottom: 2,
     },
     ruleListIntro: {
       color: Colors.textSecondary,
@@ -3050,9 +3038,6 @@ const createStyles = (
     },
     whiteMoveSteps: {
       gap: Spacing.sm,
-      paddingTop: Spacing.xs,
-      borderTopWidth: 1,
-      borderTopColor: Colors.border,
     },
     howToActionGrid: {
       flexDirection: 'row',
