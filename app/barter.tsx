@@ -519,7 +519,6 @@ export default function BarterScreen() {
   const [activeTab, setActiveTab] = useState<BarterMarketTab>('day');
   const [selectedGood, setSelectedGood] = useState<GoodId | null>(null);
   const [selectedTradeKey, setSelectedTradeKey] = useState<string | null>(null);
-  const [nightNoticeDismissed, setNightNoticeDismissed] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [tradeHistory, setTradeHistory] = useState<Trade[]>([]);
   const [newlyAffordableKeys, setNewlyAffordableKeys] = useState<Set<string>>(
@@ -716,7 +715,6 @@ export default function BarterScreen() {
   useEffect(() => {
     if (!lateWindowOpen) return;
     setActiveTab('night');
-    setNightNoticeDismissed(false);
     setNewlyAffordableKeys(new Set());
   }, [lateWindowOpen]);
 
@@ -1255,23 +1253,6 @@ export default function BarterScreen() {
                     : 'Trade complete'}
                 </Text>
               </Animated.View>
-            )}
-            {lateWindowOpen && !nightNoticeDismissed && (
-              <View style={styles.nightWelcomeCard}>
-                <Text style={styles.nightWelcomeTitle}>Night Market is open</Text>
-                <Text style={styles.nightWelcomeBody}>
-                  {marketIdentity.nightScene} {tradeWaves.hiddenTrade ? 'The hidden stall has joined the row.' : ''}
-                </Text>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.nightWelcomeButton,
-                    pressed && styles.nightWelcomeButtonPressed,
-                  ]}
-                  onPress={() => setNightNoticeDismissed(true)}
-                >
-                  <Text style={styles.nightWelcomeButtonText}>Enter night</Text>
-                </Pressable>
-              </View>
             )}
             {lateTransition && (
               <Animated.View
@@ -2040,41 +2021,6 @@ const createStyles = (
     marginTop: 2,
     fontSize: 11,
     color: theme.mode === 'dark' ? '#8877CC' : '#6656cc',
-  },
-  nightWelcomeCard: {
-    backgroundColor: theme.mode === 'dark' ? '#181630' : '#f2edff',
-    borderRadius: BorderRadius.sm,
-    borderWidth: 1,
-    borderColor: theme.mode === 'dark' ? '#4a3f82' : '#c8b9ff',
-    padding: Spacing.sm,
-    marginBottom: Spacing.sm,
-  },
-  nightWelcomeTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: theme.mode === 'dark' ? '#ded7ff' : '#392c83',
-  },
-  nightWelcomeBody: {
-    marginTop: 3,
-    fontSize: 11,
-    color: theme.mode === 'dark' ? '#b8b0df' : '#5b4fa0',
-    lineHeight: 16,
-  },
-  nightWelcomeButton: {
-    marginTop: Spacing.sm,
-    alignSelf: 'flex-start',
-    borderRadius: BorderRadius.sm,
-    backgroundColor: theme.mode === 'dark' ? '#5f50c9' : '#6656cc',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-  },
-  nightWelcomeButtonPressed: {
-    backgroundColor: theme.mode === 'dark' ? '#7568e0' : '#5142ad',
-  },
-  nightWelcomeButtonText: {
-    color: '#ffffff',
-    fontSize: 11,
-    fontWeight: '800',
   },
   tradeEffectToast: {
     pointerEvents: 'none',

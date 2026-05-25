@@ -472,7 +472,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -484,13 +484,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tent Poles",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -966,7 +966,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -996,7 +996,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Gold Foil",
+      "name": "Gold Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -1474,13 +1474,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -1492,7 +1492,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -1998,7 +1998,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -2522,7 +2522,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Lacquer",
+      "name": "Red Envelopes",
       "emoji": "🧧",
       "tier": "common"
     },
@@ -2540,13 +2540,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
@@ -3009,7 +3009,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Bead Trays",
+      "name": "Amber Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -3021,13 +3021,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Carved Pendants",
+      "name": "Carved Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -3463,7 +3463,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -3481,7 +3481,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -4000,7 +4000,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -4464,7 +4464,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Shade Canvas",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
@@ -4482,13 +4482,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -4958,7 +4958,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -5445,13 +5445,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Ledger Boards",
+      "name": "Red Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -5463,7 +5463,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Audit Stamps",
+      "name": "Audit Cards",
       "emoji": "🪪",
       "tier": "rare"
     }
@@ -5919,13 +5919,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -6369,7 +6369,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Net Bundles",
+      "name": "Dock Nets",
       "emoji": "🕸️",
       "tier": "common"
     },
@@ -6387,7 +6387,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -6399,7 +6399,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Anchor Tags",
+      "name": "Anchor Weights",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -6893,7 +6893,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Glass Vanes",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -7365,13 +7365,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -7875,7 +7875,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -7887,7 +7887,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -8427,19 +8427,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Anchor Tags",
+      "name": "Mooring Anchors",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -8900,7 +8900,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Map Canvas",
+      "name": "Map Thread",
       "emoji": "🧵",
       "tier": "common"
     },
@@ -8912,7 +8912,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Map Cases",
+      "name": "Map Compasses",
       "emoji": "🧭",
       "tier": "common"
     },
@@ -9372,13 +9372,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Morning Dates",
+      "name": "Sunrise Bundles",
       "emoji": "🌅",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -9390,7 +9390,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -9886,13 +9886,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ration Packets",
+      "name": "Ration Cans",
       "emoji": "🥫",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Thermal Coils",
+      "name": "Thermal Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -9904,7 +9904,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -10374,13 +10374,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Oak Ledgers",
+      "name": "Oak Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -10392,7 +10392,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Royal Badges",
+      "name": "Crown Warrants",
       "emoji": "👑",
       "tier": "rare"
     }
@@ -10871,7 +10871,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -11363,7 +11363,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -11375,7 +11375,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Warehouse Tags",
+      "name": "Rice Crocks",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -11820,7 +11820,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Burlap Bales",
+      "name": "Burlap Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -11850,7 +11850,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trade Badges",
+      "name": "Pit Hall Contracts",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -12806,7 +12806,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Coral Idols",
+      "name": "Coral Branches",
       "emoji": "🪸",
       "tier": "rare"
     }
@@ -13264,13 +13264,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Date Bundles",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -13282,7 +13282,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -13804,7 +13804,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -13834,7 +13834,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Gold Foil",
+      "name": "Gold Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -14344,13 +14344,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -14362,7 +14362,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -14851,7 +14851,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -15329,7 +15329,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -15843,7 +15843,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -15855,7 +15855,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Warehouse Tags",
+      "name": "Rice Crocks",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -16343,7 +16343,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trade Badges",
+      "name": "Pit Hall Contracts",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -17335,7 +17335,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Coral Idols",
+      "name": "Coral Branches",
       "emoji": "🪸",
       "tier": "rare"
     }
@@ -17796,7 +17796,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -17814,7 +17814,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -18258,7 +18258,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -18751,7 +18751,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -18769,7 +18769,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -19275,7 +19275,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -19775,13 +19775,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
@@ -20317,13 +20317,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Carved Pendants",
+      "name": "Carved Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -20771,7 +20771,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -20789,7 +20789,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -21261,13 +21261,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Badges",
+      "name": "Mint Halls",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -21740,13 +21740,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Shade Canvas",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
@@ -21758,13 +21758,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -22248,7 +22248,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -22746,7 +22746,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -22758,7 +22758,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Audit Stamps",
+      "name": "Audit Cards",
       "emoji": "🪪",
       "tier": "rare"
     }
@@ -23233,13 +23233,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -23251,7 +23251,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oracle Tablets",
+      "name": "Oracle Scrolls",
       "emoji": "📜",
       "tier": "rare"
     }
@@ -23670,7 +23670,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Net Bundles",
+      "name": "Dock Nets",
       "emoji": "🕸️",
       "tier": "common"
     },
@@ -23682,7 +23682,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -24126,7 +24126,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
+      "name": "Canvas Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -24138,7 +24138,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Sail Struts",
+      "name": "Wood Struts",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -24638,7 +24638,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -25132,7 +25132,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -25150,7 +25150,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -25666,19 +25666,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Anchor Tags",
+      "name": "Mooring Anchors",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -26660,13 +26660,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Morning Dates",
+      "name": "Sunrise Bundles",
       "emoji": "🌅",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -26678,7 +26678,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -26690,7 +26690,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trail Tokens",
+      "name": "Trail Tickets",
       "emoji": "🎟️",
       "tier": "rare"
     }
@@ -27130,13 +27130,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ration Packets",
+      "name": "Ration Cans",
       "emoji": "🥫",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Thermal Coils",
+      "name": "Thermal Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -27148,7 +27148,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -27663,7 +27663,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -27675,7 +27675,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Royal Badges",
+      "name": "Crown Warrants",
       "emoji": "👑",
       "tier": "rare"
     }
@@ -28153,7 +28153,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -28616,7 +28616,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -29097,7 +29097,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Burlap Bales",
+      "name": "Burlap Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -29121,7 +29121,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Glass Markers",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -29542,7 +29542,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Cedar Crates",
+      "name": "Cedar Logs",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -29992,7 +29992,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Map Canvas",
+      "name": "Map Thread",
       "emoji": "🧵",
       "tier": "common"
     },
@@ -30004,7 +30004,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Map Cases",
+      "name": "Map Compasses",
       "emoji": "🧭",
       "tier": "common"
     },
@@ -30485,7 +30485,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -30503,7 +30503,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -30975,7 +30975,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Thermal Coils",
+      "name": "Thermal Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -30993,7 +30993,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -31005,7 +31005,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Radio Tags",
+      "name": "Field Radios",
       "emoji": "📻",
       "tier": "rare"
     }
@@ -31499,13 +31499,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Oak Ledgers",
+      "name": "Oak Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -31517,7 +31517,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Jeweller Parcels",
+      "name": "Cut Jewels",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -32041,7 +32041,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -32519,7 +32519,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -32973,7 +32973,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Burlap Bales",
+      "name": "Burlap Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -33508,7 +33508,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Cedar Crates",
+      "name": "Cedar Logs",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -33526,7 +33526,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Jade Pendants",
+      "name": "Jade Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -34458,13 +34458,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Date Bundles",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -34476,7 +34476,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -34986,7 +34986,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Gold Foil",
+      "name": "Gold Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -35431,7 +35431,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
@@ -35449,7 +35449,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -35905,7 +35905,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -36387,7 +36387,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Lacquer",
+      "name": "Red Envelopes",
       "emoji": "🧧",
       "tier": "common"
     },
@@ -36405,19 +36405,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Moon Tiles",
+      "name": "Moon Crescents",
       "emoji": "🌙",
       "tier": "rare"
     }
@@ -36907,7 +36907,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Bead Trays",
+      "name": "Amber Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -36919,7 +36919,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
@@ -37425,7 +37425,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -37437,7 +37437,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Foreman Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -37971,7 +37971,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -38425,7 +38425,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Shade Canvas",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
@@ -38443,13 +38443,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -38915,7 +38915,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -39430,7 +39430,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -39442,7 +39442,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Audit Stamps",
+      "name": "Audit Cards",
       "emoji": "🪪",
       "tier": "rare"
     }
@@ -39880,13 +39880,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -40359,7 +40359,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Net Bundles",
+      "name": "Dock Nets",
       "emoji": "🕸️",
       "tier": "common"
     },
@@ -40377,7 +40377,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -40389,7 +40389,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Anchor Tags",
+      "name": "Anchor Weights",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -40851,7 +40851,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
+      "name": "Canvas Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -40863,7 +40863,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Sail Struts",
+      "name": "Wood Struts",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -41360,7 +41360,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -41822,7 +41822,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -42315,13 +42315,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
@@ -42821,7 +42821,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Map Cases",
+      "name": "Map Compasses",
       "emoji": "🧭",
       "tier": "common"
     },
@@ -42839,7 +42839,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Compass Coins",
+      "name": "Atlas Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -43322,7 +43322,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -43340,7 +43340,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -43862,7 +43862,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Thermal Coils",
+      "name": "Thermal Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -43880,7 +43880,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -44369,13 +44369,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Oak Ledgers",
+      "name": "Oak Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -44387,7 +44387,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Royal Badges",
+      "name": "Crown Warrants",
       "emoji": "👑",
       "tier": "rare"
     }
@@ -44834,7 +44834,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -45330,7 +45330,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
+      "name": "Canvas Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -45832,13 +45832,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -46329,7 +46329,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -46822,13 +46822,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
@@ -47285,7 +47285,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Map Cases",
+      "name": "Map Compasses",
       "emoji": "🧭",
       "tier": "common"
     },
@@ -47740,7 +47740,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Morning Dates",
+      "name": "Sunrise Bundles",
       "emoji": "🌅",
       "tier": "common"
     },
@@ -47758,7 +47758,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -48234,7 +48234,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ration Packets",
+      "name": "Ration Cans",
       "emoji": "🥫",
       "tier": "common"
     },
@@ -48252,7 +48252,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -48754,7 +48754,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -48766,7 +48766,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Royal Badges",
+      "name": "Crown Warrants",
       "emoji": "👑",
       "tier": "rare"
     }
@@ -49270,7 +49270,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -49282,7 +49282,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Company Tokens",
+      "name": "Company Anchors",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -49810,7 +49810,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -50273,7 +50273,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Burlap Bales",
+      "name": "Burlap Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -50769,7 +50769,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Cedar Crates",
+      "name": "Cedar Logs",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -50787,7 +50787,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Jade Pendants",
+      "name": "Jade Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -51302,7 +51302,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Coral Idols",
+      "name": "Coral Branches",
       "emoji": "🪸",
       "tier": "rare"
     }
@@ -51760,13 +51760,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Date Bundles",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -51778,7 +51778,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -52236,7 +52236,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -52728,7 +52728,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
@@ -52746,7 +52746,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -53683,13 +53683,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
@@ -54171,7 +54171,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Bead Trays",
+      "name": "Amber Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -54183,7 +54183,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
@@ -54662,7 +54662,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -54680,7 +54680,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -55168,7 +55168,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -55684,7 +55684,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Shade Canvas",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
@@ -55702,13 +55702,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -56177,7 +56177,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -56654,13 +56654,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Ledger Boards",
+      "name": "Red Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -56672,7 +56672,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Audit Stamps",
+      "name": "Audit Cards",
       "emoji": "🪪",
       "tier": "rare"
     }
@@ -57175,7 +57175,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -57187,7 +57187,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oracle Tablets",
+      "name": "Oracle Scrolls",
       "emoji": "📜",
       "tier": "rare"
     }
@@ -57651,7 +57651,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Net Bundles",
+      "name": "Dock Nets",
       "emoji": "🕸️",
       "tier": "common"
     },
@@ -57663,7 +57663,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -58114,13 +58114,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
+      "name": "Canvas Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Sail Struts",
+      "name": "Wood Struts",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -58138,7 +58138,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Glass Vanes",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -58614,13 +58614,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -58632,7 +58632,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Ledger Marks",
+      "name": "Oasis Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -59078,7 +59078,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -59096,7 +59096,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -59558,13 +59558,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
@@ -60040,7 +60040,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Map Canvas",
+      "name": "Map Thread",
       "emoji": "🧵",
       "tier": "common"
     },
@@ -60064,7 +60064,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Compass Coins",
+      "name": "Atlas Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -60564,7 +60564,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -61074,13 +61074,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Ledger Boards",
+      "name": "Red Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -61092,7 +61092,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Audit Stamps",
+      "name": "Audit Cards",
       "emoji": "🪪",
       "tier": "rare"
     }
@@ -61610,13 +61610,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -62096,13 +62096,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Crate Wood",
+      "name": "Cargo Crates",
       "emoji": "📦",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -62114,7 +62114,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Anchor Tags",
+      "name": "Anchor Weights",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -63069,13 +63069,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -63546,7 +63546,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -64045,13 +64045,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
@@ -64526,7 +64526,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Map Canvas",
+      "name": "Map Thread",
       "emoji": "🧵",
       "tier": "common"
     },
@@ -64959,13 +64959,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Morning Dates",
+      "name": "Sunrise Bundles",
       "emoji": "🌅",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -64977,7 +64977,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -65426,13 +65426,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ration Packets",
+      "name": "Ration Cans",
       "emoji": "🥫",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Thermal Coils",
+      "name": "Thermal Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -65444,7 +65444,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -65937,7 +65937,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -65949,7 +65949,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Royal Badges",
+      "name": "Crown Warrants",
       "emoji": "👑",
       "tier": "rare"
     }
@@ -66445,7 +66445,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -66962,7 +66962,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -66974,7 +66974,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Warehouse Tags",
+      "name": "Rice Crocks",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -67476,7 +67476,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Burlap Bales",
+      "name": "Burlap Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -67500,7 +67500,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trade Badges",
+      "name": "Pit Hall Contracts",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -67972,7 +67972,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Cedar Crates",
+      "name": "Cedar Logs",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -68939,7 +68939,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -68951,13 +68951,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tent Poles",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -69410,7 +69410,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -69440,7 +69440,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Gold Foil",
+      "name": "Gold Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -69908,13 +69908,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -69926,7 +69926,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -70412,7 +70412,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -70857,19 +70857,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Moon Tiles",
+      "name": "Moon Crescents",
       "emoji": "🌙",
       "tier": "rare"
     }
@@ -71313,7 +71313,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Bead Trays",
+      "name": "Amber Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -71325,13 +71325,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Carved Pendants",
+      "name": "Carved Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -71794,7 +71794,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -71812,7 +71812,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -72308,7 +72308,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -72797,7 +72797,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Shade Canvas",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
@@ -72815,13 +72815,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -73351,7 +73351,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -73831,13 +73831,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Ledger Boards",
+      "name": "Red Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -73849,7 +73849,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Stamped Fees",
+      "name": "Stamped Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -74303,13 +74303,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -74817,13 +74817,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Crate Wood",
+      "name": "Cargo Crates",
       "emoji": "📦",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -75319,7 +75319,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
@@ -75771,7 +75771,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -75789,7 +75789,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -75801,7 +75801,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Foreman Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -76289,13 +76289,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Badges",
+      "name": "Mint Halls",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -76728,7 +76728,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
@@ -76746,13 +76746,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -77208,7 +77208,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -77695,13 +77695,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Ledger Boards",
+      "name": "Red Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -78203,13 +78203,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -78691,7 +78691,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Net Bundles",
+      "name": "Dock Nets",
       "emoji": "🕸️",
       "tier": "common"
     },
@@ -78703,7 +78703,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -78715,7 +78715,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Anchor Tags",
+      "name": "Anchor Weights",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -79233,7 +79233,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Sail Struts",
+      "name": "Wood Struts",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -79711,13 +79711,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -79729,7 +79729,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Ledger Marks",
+      "name": "Oasis Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -80207,7 +80207,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -80710,13 +80710,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
@@ -81186,7 +81186,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Map Canvas",
+      "name": "Map Thread",
       "emoji": "🧵",
       "tier": "common"
     },
@@ -81656,7 +81656,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Morning Dates",
+      "name": "Sunrise Bundles",
       "emoji": "🌅",
       "tier": "common"
     },
@@ -81674,7 +81674,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -82153,13 +82153,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ration Packets",
+      "name": "Ration Cans",
       "emoji": "🥫",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Thermal Coils",
+      "name": "Thermal Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -82171,7 +82171,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -82183,7 +82183,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Radio Tags",
+      "name": "Field Radios",
       "emoji": "📻",
       "tier": "rare"
     }
@@ -82641,13 +82641,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Oak Ledgers",
+      "name": "Oak Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -82659,7 +82659,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Jeweller Parcels",
+      "name": "Cut Jewels",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -83109,7 +83109,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -83121,7 +83121,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Company Tokens",
+      "name": "Company Anchors",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -83602,7 +83602,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -83614,7 +83614,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Warehouse Tags",
+      "name": "Rice Crocks",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -84098,7 +84098,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Burlap Bales",
+      "name": "Burlap Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -84122,7 +84122,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trade Badges",
+      "name": "Pit Hall Contracts",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -85611,7 +85611,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Date Bundles",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
@@ -85629,7 +85629,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -86070,7 +86070,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -86100,7 +86100,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Gold Foil",
+      "name": "Gold Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -86585,7 +86585,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
@@ -86603,7 +86603,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -87592,7 +87592,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Lacquer",
+      "name": "Red Envelopes",
       "emoji": "🧧",
       "tier": "common"
     },
@@ -87610,19 +87610,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Moon Tiles",
+      "name": "Moon Crescents",
       "emoji": "🌙",
       "tier": "rare"
     }
@@ -88096,7 +88096,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Bead Trays",
+      "name": "Amber Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -88108,7 +88108,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
@@ -88565,7 +88565,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -89038,13 +89038,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Badges",
+      "name": "Mint Halls",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -89508,7 +89508,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
@@ -89526,13 +89526,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -90016,7 +90016,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -90493,7 +90493,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -90523,7 +90523,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Gold Foil",
+      "name": "Gold Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -91033,7 +91033,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -91051,7 +91051,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -91511,7 +91511,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -91971,7 +91971,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Lacquer",
+      "name": "Red Envelopes",
       "emoji": "🧧",
       "tier": "common"
     },
@@ -91989,13 +91989,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
@@ -92497,7 +92497,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Bead Trays",
+      "name": "Amber Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -92509,7 +92509,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
@@ -92978,7 +92978,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -93479,13 +93479,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Mint Badges",
+      "name": "Mint Halls",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -93947,7 +93947,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
@@ -93965,13 +93965,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -94440,7 +94440,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -94896,13 +94896,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Ledger Boards",
+      "name": "Red Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -94914,7 +94914,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Audit Stamps",
+      "name": "Audit Cards",
       "emoji": "🪪",
       "tier": "rare"
     }
@@ -95390,13 +95390,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -95408,7 +95408,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oracle Tablets",
+      "name": "Oracle Scrolls",
       "emoji": "📜",
       "tier": "rare"
     }
@@ -95882,13 +95882,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Crate Wood",
+      "name": "Cargo Crates",
       "emoji": "📦",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -96383,7 +96383,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
+      "name": "Canvas Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -96937,7 +96937,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -96949,7 +96949,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Ledger Marks",
+      "name": "Oasis Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -97400,7 +97400,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -97872,13 +97872,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
@@ -98839,7 +98839,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -98857,7 +98857,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -98869,7 +98869,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trail Tokens",
+      "name": "Trail Tickets",
       "emoji": "🎟️",
       "tier": "rare"
     }
@@ -99355,7 +99355,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -99843,13 +99843,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Oak Ledgers",
+      "name": "Oak Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -99861,7 +99861,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Royal Badges",
+      "name": "Crown Warrants",
       "emoji": "👑",
       "tier": "rare"
     }
@@ -100340,7 +100340,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -100352,7 +100352,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Company Tokens",
+      "name": "Company Anchors",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -100802,7 +100802,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -101308,7 +101308,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trade Badges",
+      "name": "Pit Hall Contracts",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -101820,7 +101820,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Jade Pendants",
+      "name": "Jade Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -102843,13 +102843,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Date Bundles",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -102861,7 +102861,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -103333,7 +103333,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -103363,7 +103363,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Jade Plaques",
+      "name": "Jade Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -103799,7 +103799,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -103817,7 +103817,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -104326,7 +104326,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -104802,7 +104802,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Lacquer",
+      "name": "Red Envelopes",
       "emoji": "🧧",
       "tier": "common"
     },
@@ -104820,19 +104820,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Moon Tiles",
+      "name": "Moon Crescents",
       "emoji": "🌙",
       "tier": "rare"
     }
@@ -105331,7 +105331,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trade Badges",
+      "name": "Pit Hall Contracts",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -106698,13 +106698,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Date Bundles",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -106716,7 +106716,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -107192,7 +107192,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -107222,7 +107222,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Jade Plaques",
+      "name": "Jade Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -107700,7 +107700,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
@@ -107718,7 +107718,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -108228,7 +108228,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -108750,7 +108750,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Lacquer",
+      "name": "Red Envelopes",
       "emoji": "🧧",
       "tier": "common"
     },
@@ -108768,19 +108768,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Moon Tiles",
+      "name": "Moon Crescents",
       "emoji": "🌙",
       "tier": "rare"
     }
@@ -109252,7 +109252,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
@@ -109723,7 +109723,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -109741,7 +109741,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -110262,7 +110262,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -110726,13 +110726,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Shade Canvas",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
@@ -110744,13 +110744,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -111207,7 +111207,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -111694,13 +111694,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Ledger Boards",
+      "name": "Red Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -112139,7 +112139,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -112595,13 +112595,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Crate Wood",
+      "name": "Cargo Crates",
       "emoji": "📦",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -113089,7 +113089,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Sail Struts",
+      "name": "Wood Struts",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -113579,13 +113579,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -113597,7 +113597,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Ledger Marks",
+      "name": "Oasis Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -114067,7 +114067,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -114595,13 +114595,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
@@ -115061,7 +115061,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Map Canvas",
+      "name": "Map Thread",
       "emoji": "🧵",
       "tier": "common"
     },
@@ -115538,7 +115538,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -115556,7 +115556,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -116041,7 +116041,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Thermal Coils",
+      "name": "Thermal Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -116059,7 +116059,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -116549,7 +116549,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -116561,7 +116561,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Jeweller Parcels",
+      "name": "Cut Jewels",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -117066,7 +117066,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -117560,7 +117560,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -118047,7 +118047,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trade Badges",
+      "name": "Pit Hall Contracts",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -119008,7 +119008,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Coral Idols",
+      "name": "Coral Branches",
       "emoji": "🪸",
       "tier": "rare"
     }
@@ -119490,25 +119490,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Date Bundles",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Tent Poles",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -120002,7 +120002,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -120032,7 +120032,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Jade Plaques",
+      "name": "Jade Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -120554,7 +120554,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Bead Trays",
+      "name": "Amber Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -120566,7 +120566,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
@@ -121050,7 +121050,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -121062,7 +121062,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Foreman Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -121528,7 +121528,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -122018,7 +122018,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
@@ -122036,13 +122036,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -122511,7 +122511,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -123000,13 +123000,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Ledger Boards",
+      "name": "Red Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -123493,13 +123493,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -123511,7 +123511,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oracle Tablets",
+      "name": "Oracle Scrolls",
       "emoji": "📜",
       "tier": "rare"
     }
@@ -123990,7 +123990,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -124440,13 +124440,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
+      "name": "Canvas Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Sail Struts",
+      "name": "Wood Struts",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -124940,13 +124940,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -124958,7 +124958,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Ledger Marks",
+      "name": "Oasis Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -125454,7 +125454,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -125967,19 +125967,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Anchor Tags",
+      "name": "Mooring Anchors",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -126501,7 +126501,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Map Cases",
+      "name": "Map Compasses",
       "emoji": "🧭",
       "tier": "common"
     },
@@ -126964,7 +126964,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -126982,7 +126982,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -126994,7 +126994,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trail Tokens",
+      "name": "Trail Tickets",
       "emoji": "🎟️",
       "tier": "rare"
     }
@@ -127431,7 +127431,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Thermal Coils",
+      "name": "Thermal Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -127449,7 +127449,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -127958,13 +127958,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Oak Ledgers",
+      "name": "Oak Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -127976,7 +127976,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Jeweller Parcels",
+      "name": "Cut Jewels",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -128446,7 +128446,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -128922,7 +128922,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -128934,7 +128934,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Warehouse Tags",
+      "name": "Rice Crocks",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -129426,7 +129426,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Glass Markers",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -130821,25 +130821,25 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Date Bundles",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Tent Poles",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -131311,7 +131311,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -131806,13 +131806,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -131824,7 +131824,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -132354,7 +132354,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -132835,13 +132835,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
@@ -133319,7 +133319,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Bead Trays",
+      "name": "Amber Wood",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -133331,13 +133331,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Carved Pendants",
+      "name": "Carved Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -133822,7 +133822,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -133840,7 +133840,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -134336,7 +134336,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -134788,7 +134788,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
@@ -134806,13 +134806,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -135298,7 +135298,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -135743,7 +135743,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -136206,7 +136206,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -136224,7 +136224,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -136712,7 +136712,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -137206,13 +137206,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
@@ -137724,7 +137724,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
@@ -138240,7 +138240,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -138258,7 +138258,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -138270,7 +138270,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Foreman Tags",
+      "name": "Foreman Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -138727,7 +138727,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -139193,13 +139193,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Shade Canvas",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
@@ -139211,13 +139211,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -139724,7 +139724,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -140189,13 +140189,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Ledger Boards",
+      "name": "Red Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -140207,7 +140207,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Stamped Fees",
+      "name": "Stamped Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -140688,13 +140688,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -141180,7 +141180,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Net Bundles",
+      "name": "Dock Nets",
       "emoji": "🕸️",
       "tier": "common"
     },
@@ -141192,7 +141192,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -141671,13 +141671,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Canvas Ties",
+      "name": "Canvas Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
     {
       "id": "timber",
-      "name": "Sail Struts",
+      "name": "Wood Struts",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -142139,13 +142139,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -142639,7 +142639,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -143147,19 +143147,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
     {
       "id": "gems",
-      "name": "Compass Glass",
+      "name": "Compasses",
       "emoji": "🧭",
       "tier": "rare"
     }
@@ -143651,7 +143651,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Map Canvas",
+      "name": "Map Thread",
       "emoji": "🧵",
       "tier": "common"
     },
@@ -144185,7 +144185,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -144203,7 +144203,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -144671,7 +144671,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ration Packets",
+      "name": "Ration Cans",
       "emoji": "🥫",
       "tier": "common"
     },
@@ -144689,7 +144689,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -144701,7 +144701,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Radio Tags",
+      "name": "Field Radios",
       "emoji": "📻",
       "tier": "rare"
     }
@@ -145142,13 +145142,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Oak Ledgers",
+      "name": "Oak Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -145160,7 +145160,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Royal Badges",
+      "name": "Crown Warrants",
       "emoji": "👑",
       "tier": "rare"
     }
@@ -145662,7 +145662,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -146133,7 +146133,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -146613,7 +146613,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Burlap Bales",
+      "name": "Burlap Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -146643,7 +146643,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Glass Markers",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -147119,7 +147119,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Cedar Crates",
+      "name": "Cedar Logs",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -147137,7 +147137,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Jade Pendants",
+      "name": "Jade Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -148013,7 +148013,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -148025,13 +148025,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tent Poles",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -148537,7 +148537,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Jade Plaques",
+      "name": "Jade Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -149019,7 +149019,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
@@ -149037,7 +149037,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -149542,7 +149542,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "wool",
-      "name": "Burlap Bales",
+      "name": "Burlap Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -150082,7 +150082,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Cedar Crates",
+      "name": "Cedar Logs",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -151023,7 +151023,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -151035,13 +151035,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tent Poles",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -151567,7 +151567,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Gold Foil",
+      "name": "Gold Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -152008,13 +152008,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -152026,7 +152026,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -152999,7 +152999,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Lacquer",
+      "name": "Red Envelopes",
       "emoji": "🧧",
       "tier": "common"
     },
@@ -153017,19 +153017,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Moon Tiles",
+      "name": "Moon Crescents",
       "emoji": "🌙",
       "tier": "rare"
     }
@@ -153466,7 +153466,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
@@ -153909,7 +153909,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -153927,7 +153927,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -154427,7 +154427,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -154913,13 +154913,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Shade Canvas",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
@@ -154931,13 +154931,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -155444,7 +155444,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -155984,7 +155984,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -155996,7 +155996,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Stamped Fees",
+      "name": "Stamped Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -156456,13 +156456,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -156931,7 +156931,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Net Bundles",
+      "name": "Dock Nets",
       "emoji": "🕸️",
       "tier": "common"
     },
@@ -156943,13 +156943,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Crate Wood",
+      "name": "Cargo Crates",
       "emoji": "📦",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -157434,7 +157434,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
+      "name": "Canvas Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -157446,7 +157446,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Sail Struts",
+      "name": "Wood Struts",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -157464,7 +157464,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Glass Vanes",
+      "name": "Glass Gems",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -157936,13 +157936,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -158418,7 +158418,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -158912,19 +158912,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Anchor Tags",
+      "name": "Mooring Anchors",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -159377,7 +159377,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Map Cases",
+      "name": "Map Compasses",
       "emoji": "🧭",
       "tier": "common"
     },
@@ -159395,7 +159395,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Compass Coins",
+      "name": "Atlas Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -159845,7 +159845,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -160321,7 +160321,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Thermal Coils",
+      "name": "Thermal Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -160339,7 +160339,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -160841,13 +160841,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Oak Ledgers",
+      "name": "Oak Books",
       "emoji": "📕",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -161341,7 +161341,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -161881,7 +161881,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -162341,7 +162341,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Burlap Bales",
+      "name": "Burlap Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -162836,7 +162836,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Cedar Crates",
+      "name": "Cedar Logs",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -162854,7 +162854,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Jade Pendants",
+      "name": "Jade Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -163357,7 +163357,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Coral Idols",
+      "name": "Coral Branches",
       "emoji": "🪸",
       "tier": "rare"
     }
@@ -163815,7 +163815,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -163827,13 +163827,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tent Poles",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -164291,7 +164291,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -164788,7 +164788,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ration Packets",
+      "name": "Ration Cans",
       "emoji": "🥫",
       "tier": "common"
     },
@@ -164806,7 +164806,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -164818,7 +164818,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Radio Tags",
+      "name": "Field Radios",
       "emoji": "📻",
       "tier": "rare"
     }
@@ -165282,7 +165282,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -165294,7 +165294,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "Jeweller Parcels",
+      "name": "Cut Jewels",
       "emoji": "💎",
       "tier": "rare"
     }
@@ -165744,7 +165744,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -165756,7 +165756,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Company Tokens",
+      "name": "Company Anchors",
       "emoji": "⚓",
       "tier": "rare"
     }
@@ -166238,7 +166238,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -166250,7 +166250,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Warehouse Tags",
+      "name": "Rice Crocks",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -166762,7 +166762,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Trade Badges",
+      "name": "Pit Hall Contracts",
       "emoji": "🏛️",
       "tier": "rare"
     }
@@ -167248,7 +167248,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Cedar Crates",
+      "name": "Cedar Logs",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -167806,7 +167806,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Coral Idols",
+      "name": "Coral Branches",
       "emoji": "🪸",
       "tier": "rare"
     }
@@ -168239,7 +168239,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Camel Blankets",
+      "name": "Pack Camels",
       "emoji": "🐪",
       "tier": "common"
     },
@@ -168251,13 +168251,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Tent Poles",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Saddle Cloth",
+      "name": "Saddle Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -168698,7 +168698,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ink Cakes",
+      "name": "Ink Pens",
       "emoji": "🖋️",
       "tier": "common"
     },
@@ -168728,7 +168728,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Gold Foil",
+      "name": "Gold Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -169211,13 +169211,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Cinnamon Quills",
+      "name": "Cinnamon Sticks",
       "emoji": "🥢",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -169229,7 +169229,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Screen Runners",
+      "name": "Screen Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -169697,7 +169697,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Arcade Boxes",
+      "name": "Spice Boxes",
       "emoji": "📦",
       "tier": "common"
     },
@@ -170180,7 +170180,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Red Lacquer",
+      "name": "Red Envelopes",
       "emoji": "🧧",
       "tier": "common"
     },
@@ -170198,19 +170198,19 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Paper Shades",
+      "name": "Paper Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Oil Cups",
+      "name": "Oil Pots",
       "emoji": "🫖",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Moon Tiles",
+      "name": "Moon Crescents",
       "emoji": "🌙",
       "tier": "rare"
     }
@@ -170696,13 +170696,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Candle Cups",
+      "name": "Wax Candles",
       "emoji": "🕯️",
       "tier": "uncommon"
     },
     {
       "id": "jade",
-      "name": "Carved Pendants",
+      "name": "Carved Vases",
       "emoji": "🏺",
       "tier": "rare"
     }
@@ -171147,7 +171147,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Pitch Pots",
+      "name": "Pitch Barrels",
       "emoji": "🛢️",
       "tier": "common"
     },
@@ -171165,7 +171165,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Canvas Rolls",
+      "name": "Canvas Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -171633,7 +171633,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "porcelain",
-      "name": "Scale Bowls",
+      "name": "Balance Scales",
       "emoji": "⚖️",
       "tier": "uncommon"
     },
@@ -172103,13 +172103,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Night Dates",
+      "name": "Date Palms",
       "emoji": "🌴",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Shade Canvas",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "common"
     },
@@ -172121,13 +172121,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Blue Veils",
+      "name": "Blue Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Lamp Bowls",
+      "name": "Moon Lanterns",
       "emoji": "🏮",
       "tier": "uncommon"
     },
@@ -172611,7 +172611,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sail Patches",
+      "name": "Barge Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -173127,7 +173127,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Marks",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -173139,7 +173139,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Audit Stamps",
+      "name": "Audit Cards",
       "emoji": "🪪",
       "tier": "rare"
     }
@@ -173661,13 +173661,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Pillar Wood",
+      "name": "Stone Pillars",
       "emoji": "🏛️",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Banners",
+      "name": "Star Sparks",
       "emoji": "✨",
       "tier": "uncommon"
     },
@@ -173679,7 +173679,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Oracle Tablets",
+      "name": "Oracle Scrolls",
       "emoji": "📜",
       "tier": "rare"
     }
@@ -174112,7 +174112,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Net Bundles",
+      "name": "Dock Nets",
       "emoji": "🕸️",
       "tier": "common"
     },
@@ -174124,13 +174124,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Crate Wood",
+      "name": "Cargo Crates",
       "emoji": "📦",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Blue Canvas",
+      "name": "Blue Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
@@ -174584,7 +174584,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Canvas Ties",
+      "name": "Canvas Yarn",
       "emoji": "🧶",
       "tier": "common"
     },
@@ -174596,7 +174596,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Sail Struts",
+      "name": "Wood Struts",
       "emoji": "🪵",
       "tier": "common"
     },
@@ -175110,13 +175110,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Palm Slats",
+      "name": "Palm Logs",
       "emoji": "🪵",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Shade Cloth",
+      "name": "Shade Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -175128,7 +175128,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gold",
-      "name": "Ledger Marks",
+      "name": "Oasis Coins",
       "emoji": "🪙",
       "tier": "rare"
     }
@@ -175573,7 +175573,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Tea Towels",
+      "name": "Tea Baskets",
       "emoji": "🧺",
       "tier": "common"
     },
@@ -175591,7 +175591,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Steam Cloth",
+      "name": "Steam Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -176086,13 +176086,13 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sailcloth",
+      "name": "Mast Sails",
       "emoji": "⛵",
       "tier": "uncommon"
     },
     {
       "id": "porcelain",
-      "name": "Chart Tubes",
+      "name": "Sea Charts",
       "emoji": "🗺️",
       "tier": "uncommon"
     },
@@ -176572,7 +176572,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Map Cases",
+      "name": "Map Compasses",
       "emoji": "🧭",
       "tier": "common"
     },
@@ -177035,7 +177035,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Cloth",
+      "name": "Trail Packs",
       "emoji": "🎒",
       "tier": "common"
     },
@@ -177053,7 +177053,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Sun Banners",
+      "name": "Sun Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -177497,7 +177497,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Ration Packets",
+      "name": "Ration Cans",
       "emoji": "🥫",
       "tier": "common"
     },
@@ -177515,7 +177515,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Tent Cloth",
+      "name": "Field Tents",
       "emoji": "⛺",
       "tier": "uncommon"
     },
@@ -178009,7 +178009,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Ribbon Rolls",
+      "name": "Ribbon Bows",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -178021,7 +178021,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Royal Badges",
+      "name": "Crown Warrants",
       "emoji": "👑",
       "tier": "rare"
     }
@@ -178501,7 +178501,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Trade Ribbons",
+      "name": "Canal Ribbons",
       "emoji": "🎀",
       "tier": "uncommon"
     },
@@ -179014,7 +179014,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Broker Cord",
+      "name": "Broker Thread",
       "emoji": "🧵",
       "tier": "uncommon"
     },
@@ -179026,7 +179026,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Warehouse Tags",
+      "name": "Rice Crocks",
       "emoji": "🏺",
       "tier": "rare"
     }
