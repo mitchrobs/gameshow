@@ -139,6 +139,28 @@ const THEMED_PIECE_ASSETS = {
     },
   },
 } as const;
+const THEMED_PIECE_SHADOW_ASSETS = {
+  pebble: {
+    black: require('../assets/liberties/shadows/pebble/black.png'),
+    white: require('../assets/liberties/shadows/pebble/white.png'),
+    blocker: require('../assets/liberties/shadows/pebble/blocker.png'),
+  },
+  knob: {
+    black: require('../assets/liberties/shadows/knob/black.png'),
+    white: require('../assets/liberties/shadows/knob/white.png'),
+    blocker: require('../assets/liberties/shadows/knob/blocker.png'),
+  },
+  neoCity: {
+    black: require('../assets/liberties/shadows/neo-city/black.png'),
+    white: require('../assets/liberties/shadows/neo-city/white.png'),
+    blocker: require('../assets/liberties/shadows/neo-city/blocker.png'),
+  },
+  softCeramic: {
+    black: require('../assets/liberties/shadows/soft-ceramic/black.png'),
+    white: require('../assets/liberties/shadows/soft-ceramic/white.png'),
+    blocker: require('../assets/liberties/shadows/soft-ceramic/blocker.png'),
+  },
+} as const;
 const WEB_NO_SELECT =
   Platform.OS === 'web'
     ? {
@@ -523,14 +545,14 @@ function getThemePieceImageStyle(
 ) {
   const anchorByTheme: Partial<Record<LibertiesVisualThemeId, Record<LibertiesAssetPieceKind, number>>> = {
     knob: {
-      black: -0.08,
-      white: -0.08,
+      black: -0.16,
+      white: -0.16,
       blocker: -0.04,
     },
     neoCity: {
-      black: -0.07,
-      white: -0.07,
-      blocker: -0.05,
+      black: -0.17,
+      white: -0.17,
+      blocker: -0.08,
     },
     softCeramic: {
       black: -0.05,
@@ -540,7 +562,7 @@ function getThemePieceImageStyle(
   };
   const scaleByTheme: Partial<Record<LibertiesVisualThemeId, number>> = {
     knob: 0.98,
-    neoCity: 0.97,
+    neoCity: 0.96,
     softCeramic: 0.98,
   };
   const scale = scaleByTheme[visualTheme.id] ?? 1;
@@ -554,118 +576,55 @@ function getThemePieceImageStyle(
   };
 }
 
-function getThemePieceContactShadowStyles(
+function getThemePieceShadowStyle(
   size: number,
   visualTheme: LibertiesVisualTheme,
   assetKind: LibertiesAssetPieceKind
 ) {
-  if (visualTheme.id === 'softCeramic') return null;
-
-  const contactByTheme: Partial<
-    Record<
-      LibertiesVisualThemeId,
-      {
-        ambientBottom: number;
-        ambientHeight: number;
-        ambientOpacity: number;
-        ambientWidth: number;
-        coreBottom: number;
-        coreHeight: number;
-        coreOpacity: number;
-        coreWidth: number;
-      }
-    >
-  > = {
+  const scaleByTheme: Partial<Record<LibertiesVisualThemeId, Record<LibertiesAssetPieceKind, number>>> = {
+    pebble: { black: 1, white: 1, blocker: 1 },
+    knob: { black: 1, white: 1, blocker: 0.88 },
+    neoCity: { black: 0.94, white: 0.94, blocker: 0.86 },
+    softCeramic: { black: 0.92, white: 0.92, blocker: 0.92 },
+  };
+  const opacityByTheme: Partial<Record<LibertiesVisualThemeId, Record<LibertiesAssetPieceKind, number>>> = {
+    pebble: { black: 0.88, white: 0.76, blocker: 0.82 },
+    knob: { black: 0.88, white: 0.74, blocker: 0.3 },
+    neoCity: { black: 0.86, white: 0.74, blocker: 0.34 },
+    softCeramic: { black: 0.56, white: 0.48, blocker: 0.52 },
+  };
+  const offsetByTheme: Partial<Record<LibertiesVisualThemeId, Record<LibertiesAssetPieceKind, { x: number; y: number }>>> = {
     pebble: {
-      ambientBottom: 0.085,
-      ambientHeight: 0.18,
-      ambientOpacity: 0.14,
-      ambientWidth: 0.76,
-      coreBottom: 0.115,
-      coreHeight: 0.075,
-      coreOpacity: 0.18,
-      coreWidth: 0.48,
+      black: { x: 0, y: 0 },
+      white: { x: 0, y: 0 },
+      blocker: { x: 0, y: 0 },
     },
     knob: {
-      ambientBottom: 0.08,
-      ambientHeight: 0.19,
-      ambientOpacity: 0.15,
-      ambientWidth: 0.78,
-      coreBottom: 0.11,
-      coreHeight: 0.08,
-      coreOpacity: 0.2,
-      coreWidth: 0.5,
+      black: { x: 0, y: 0 },
+      white: { x: 0, y: 0 },
+      blocker: { x: 0, y: 0.02 },
     },
     neoCity: {
-      ambientBottom: 0.075,
-      ambientHeight: 0.2,
-      ambientOpacity: 0.16,
-      ambientWidth: 0.66,
-      coreBottom: 0.105,
-      coreHeight: 0.085,
-      coreOpacity: 0.22,
-      coreWidth: 0.42,
+      black: { x: -0.01, y: 0.01 },
+      white: { x: -0.01, y: 0.01 },
+      blocker: { x: 0, y: 0.02 },
+    },
+    softCeramic: {
+      black: { x: 0, y: 0.01 },
+      white: { x: 0, y: 0.01 },
+      blocker: { x: 0, y: 0.01 },
     },
   };
-  const contact = contactByTheme[visualTheme.id];
-  if (!contact) return null;
-
-  const whiteLift = assetKind === 'white' ? 0.78 : 1;
-  const darkModeLift = visualTheme.mode === 'dark' ? 1.18 : 1;
-  const makeLayer = ({
-    bottom,
-    height,
-    opacity,
-    width,
-    blur,
-  }: {
-    bottom: number;
-    height: number;
-    opacity: number;
-    width: number;
-    blur: number;
-  }) => {
-    const renderedWidth = size * width;
-    const renderedHeight = size * height;
-
-    return {
-      position: 'absolute' as const,
-      bottom: size * bottom,
-      width: renderedWidth,
-      height: renderedHeight,
-      borderRadius: renderedHeight / 2,
-      backgroundColor: '#000',
-      opacity: opacity * whiteLift * darkModeLift,
-      pointerEvents: 'none' as const,
-      transform: [{ scaleX: 1.12 }],
-      ...(Platform.OS === 'web'
-        ? ({
-            filter: `blur(${Math.max(1, size * blur)}px)`,
-          } as any)
-        : {
-            shadowColor: '#000',
-            shadowOpacity: 0.18,
-            shadowRadius: Math.max(2, size * blur),
-            shadowOffset: { width: 0, height: 1 },
-          }),
-    };
-  };
+  const shadowSize = size * (scaleByTheme[visualTheme.id]?.[assetKind] ?? 1);
+  const offset = offsetByTheme[visualTheme.id]?.[assetKind] ?? { x: 0, y: 0 };
 
   return {
-    ambient: makeLayer({
-      bottom: contact.ambientBottom,
-      height: contact.ambientHeight,
-      opacity: contact.ambientOpacity,
-      width: contact.ambientWidth,
-      blur: 0.025,
-    }),
-    core: makeLayer({
-      bottom: contact.coreBottom,
-      height: contact.coreHeight,
-      opacity: contact.coreOpacity,
-      width: contact.coreWidth,
-      blur: 0.01,
-    }),
+    position: 'absolute' as const,
+    width: shadowSize,
+    height: shadowSize,
+    left: (size - shadowSize) / 2 + size * offset.x,
+    top: (size - shadowSize) / 2 + size * offset.y,
+    opacity: opacityByTheme[visualTheme.id]?.[assetKind] ?? 0.86,
   };
 }
 
@@ -685,7 +644,7 @@ function ThemedLibertiesPiece({
   invalid?: boolean;
 }) {
   const assetKind: LibertiesAssetPieceKind = kind === 'release' ? 'blocker' : kind;
-  const contactShadowStyles = getThemePieceContactShadowStyles(size, visualTheme, assetKind);
+  const shadowStyle = getThemePieceShadowStyle(size, visualTheme, assetKind);
 
   return (
     <View
@@ -699,12 +658,11 @@ function ThemedLibertiesPiece({
         },
       ]}
     >
-      {contactShadowStyles && (
-        <>
-          <View style={contactShadowStyles.ambient} />
-          <View style={contactShadowStyles.core} />
-        </>
-      )}
+      <Image
+        source={THEMED_PIECE_SHADOW_ASSETS[visualTheme.id][assetKind]}
+        style={shadowStyle}
+        resizeMode="contain"
+      />
       <Image
         source={THEMED_PIECE_ASSETS[visualTheme.id][visualTheme.mode][assetKind]}
         style={[
@@ -2228,6 +2186,7 @@ export default function LibertiesScreen() {
               </View>
 
               <View style={styles.objectiveCard}>
+                <Text style={styles.howToSectionLabel}>Goal</Text>
                 <Text style={styles.objectiveText}>
                   White pebbles that touch side-to-side make a group. You place black pebbles on empty
                   crossings, where grid lines meet. Make every white group disappear by closing the
@@ -2236,9 +2195,15 @@ export default function LibertiesScreen() {
               </View>
 
               <View style={styles.rulesList}>
-                {QUICK_START_RULES.map((rule) => (
-                  <HowToRuleItem key={rule} text={rule} styles={styles} />
-                ))}
+                <View style={styles.howToRulesBlock}>
+                  <Text style={styles.howToSectionLabel}>Remember</Text>
+                  <View style={styles.howToRuleGroup}>
+                    {QUICK_START_RULES.map((rule) => (
+                      <HowToRuleItem key={rule} text={rule} styles={styles} />
+                    ))}
+                  </View>
+                </View>
+                <Text style={styles.howToSectionLabel}>Try it</Text>
                 <HowToInteractiveBoard
                   lessons={HOW_TO_INTERACTIVE_LESSONS}
                   styles={styles}
@@ -2656,7 +2621,16 @@ const createStyles = (
       lineHeight: 20,
     },
     objectiveCard: {
+      gap: 4,
       paddingRight: Spacing.sm,
+    },
+    howToSectionLabel: {
+      color: screenAccent.badgeText,
+      fontSize: 11,
+      lineHeight: 14,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.7,
     },
     objectiveText: {
       color: Colors.text,
@@ -2672,10 +2646,17 @@ const createStyles = (
       marginBottom: -Spacing.sm,
     },
     rulesList: {
-      gap: Spacing.sm,
+      gap: Spacing.md,
     },
     rulesListSecondary: {
       gap: Spacing.md,
+    },
+    howToRulesBlock: {
+      gap: Spacing.xs,
+      paddingVertical: 2,
+    },
+    howToRuleGroup: {
+      gap: Spacing.xs,
     },
     ruleListIntro: {
       color: Colors.textSecondary,
