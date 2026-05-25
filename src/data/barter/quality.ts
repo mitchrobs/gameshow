@@ -26,7 +26,7 @@ import type {
 } from './types.ts';
 
 const MIN_PATH_LENGTH = 8;
-const MAX_PATH_LENGTH = 11;
+const MAX_PATH_LENGTH = 12;
 
 function uniqueCount(values: string[]): number {
   return new Set(values).size;
@@ -83,6 +83,12 @@ function buildInsight(puzzle: BarterPuzzle, best: RouteSummary | null, alternate
       return 'The Night Market gave the clue before the first trade: prepare what the visible payoff wants.';
     case 'hidden_is_mercy':
       return 'The hidden stall is mercy for recovery, while the clean route is readable from the visible market.';
+    case 'delayed_key':
+      return 'A quiet good becomes the key later; par comes from carrying it until the night payoff explains it.';
+    case 'reserve_fund':
+      return 'The market invites spending, but the clean route keeps one reserve good for the late bridge.';
+    case 'one_big_cashout':
+      return 'Small cash-outs are tempting, but the route is about preparing one large bundle payout.';
   }
   switch (puzzle.topology ?? puzzle.archetype) {
     case 'catalyst_debt':
@@ -385,6 +391,12 @@ function firstQuestion(thesis: FeltMarketThesis | undefined): string {
       return 'what did night already tell me?';
     case 'hidden_is_mercy':
       return 'how do I solve without the hidden stall?';
+    case 'delayed_key':
+      return 'what quiet good becomes important later?';
+    case 'reserve_fund':
+      return 'what do I need to keep in reserve?';
+    case 'one_big_cashout':
+      return 'what sets up the biggest cash-out?';
     default:
       return 'what is the market asking?';
   }
@@ -418,6 +430,17 @@ function findVisiblePremiseTrade(puzzle: BarterPuzzle, bottleneckGood: GoodId | 
       return biggestBundle ?? visibleNight.find((trade) => inferNightVendorRole(puzzle, trade) === 'recycler') ?? null;
     case 'hidden_is_mercy':
       return biggestBundle ?? visibleNight.find((trade) => goalOutput(trade, puzzle.goal.good) > 0) ?? null;
+    case 'delayed_key':
+    case 'reserve_fund':
+      return (
+        (bottleneckGood
+          ? visibleNight.find((trade) => trade.give.some((side) => side.good === bottleneckGood))
+          : null) ??
+        biggestBundle ??
+        null
+      );
+    case 'one_big_cashout':
+      return biggestBundle ?? visibleNight.find((trade) => goalOutput(trade, puzzle.goal.good) > 0) ?? null;
     default:
       return biggestBundle ?? visibleNight[0] ?? null;
   }
@@ -447,6 +470,9 @@ function motifEvidence(
   if (puzzle.feltThesis === 'hidden_is_mercy' && hiddenVendorUsage !== 'par_route') {
     evidence.push('hidden-mercy');
   }
+  if (puzzle.feltThesis === 'reserve_fund') evidence.push('reserve-fund');
+  if (puzzle.feltThesis === 'one_big_cashout' && signatureValue >= 4) evidence.push('large-cashout');
+  if (puzzle.feltThesis === 'delayed_key' && visiblePremiseTrade) evidence.push('delayed-key');
   return evidence;
 }
 
@@ -540,6 +566,12 @@ function classifyPlayerSolveFeel(
       return 'visible_night_target';
     case 'hidden_is_mercy':
       return hiddenVendorUsage === 'par_route' ? 'visible_night_target' : 'hidden_recovery';
+    case 'delayed_key':
+      return 'delayed_key';
+    case 'reserve_fund':
+      return 'reserve_fund';
+    case 'one_big_cashout':
+      return 'one_big_cashout';
     default:
       return null;
   }
@@ -863,8 +895,8 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
     violations.push('Day window must be four or five trades.');
   }
   if (puzzle.earlyWindowTrades > 5) violations.push('Day window may not exceed five trades.');
-  if (puzzle.trades.length < 8 || puzzle.trades.length > 11) {
-    violations.push('Trade pool must contain eight to eleven trades.');
+  if (puzzle.trades.length < 8 || puzzle.trades.length > 12) {
+    violations.push('Trade pool must contain eight to twelve trades.');
   }
   if (!puzzle.feltThesis) violations.push('A daily needs a felt market thesis.');
   if (!hasValidStartEconomyShape(puzzle)) {
@@ -875,8 +907,8 @@ export function analyzeBarterPuzzle(puzzle: BarterPuzzle): BarterQualityReport {
   if (dayTrades.length < 4 || dayTrades.length > 5) {
     violations.push('Day Market must contain four or five trades.');
   }
-  if (nightTrades.length < 4 || nightTrades.length > 6) {
-    violations.push('Night Market must contain four to six trades.');
+  if (nightTrades.length < 4 || nightTrades.length > 7) {
+    violations.push('Night Market must contain four to seven trades.');
   }
   if (nearPathCount < 2) violations.push('At least two near-optimal route identities are required.');
   if (nearFirstMoveCount < 2) violations.push('At least two near-optimal first moves are required.');

@@ -214,14 +214,20 @@ const FELT_THESIS_CYCLE: FeltMarketThesis[] = [
   'stop_early',
   'night_told_you',
   'hidden_is_mercy',
+  'delayed_key',
+  'reserve_fund',
+  'one_big_cashout',
 ];
 
 const PLAYER_SOLVE_FEEL_CYCLE: PlayerSolveFeel[] = [
   'liquefy_heap',
+  'delayed_key',
   'protect_coupon',
   'carry_pair',
+  'reserve_fund',
   'ugly_liquidity',
   'stop_production',
+  'one_big_cashout',
   'visible_night_target',
   'hidden_recovery',
   'split_lanes',
@@ -374,6 +380,12 @@ function feltThesisLine(thesis: FeltMarketThesis, fallback: string): string {
       return 'The visible Night Market already tells you what to prepare.';
     case 'hidden_is_mercy':
       return 'The hidden stall is a recovery tool. The clean plan is visible now.';
+    case 'delayed_key':
+      return 'A quiet good becomes the key later. Keep it alive until night prices explain it.';
+    case 'reserve_fund':
+      return 'Spend boldly, but leave one reserve good for the late bridge.';
+    case 'one_big_cashout':
+      return 'Build toward one large cash-out instead of nibbling at the goal too early.';
     default:
       return fallback;
   }
@@ -411,6 +423,12 @@ function feltThesisForSolveFeel(feel: PlayerSolveFeel, index: number): FeltMarke
       return index % 2 === 0 ? 'protect_key_good' : 'spend_the_heap';
     case 'compression_bundle':
       return index % 2 === 0 ? 'carry_the_pair' : 'night_told_you';
+    case 'delayed_key':
+      return 'delayed_key';
+    case 'reserve_fund':
+      return 'reserve_fund';
+    case 'one_big_cashout':
+      return 'one_big_cashout';
   }
 }
 
@@ -434,6 +452,12 @@ function startEconomyForSolveFeel(feel: PlayerSolveFeel, index: number): StartEc
       return index % 3 === 0 ? 'messy_pantry' : 'split_capital';
     case 'compression_bundle':
       return index % 3 === 0 ? 'balanced_pair' : index % 3 === 1 ? 'split_capital' : 'messy_pantry';
+    case 'delayed_key':
+      return index % 2 === 0 ? 'prepared_piece' : 'scarce_coupon';
+    case 'reserve_fund':
+      return index % 2 === 0 ? 'scarce_coupon' : 'split_capital';
+    case 'one_big_cashout':
+      return index % 2 === 0 ? 'balanced_pair' : 'messy_pantry';
   }
 }
 
@@ -457,6 +481,12 @@ function topologyForSolveFeel(feel: PlayerSolveFeel): BarterTopology {
       return 'split_pipeline';
     case 'compression_bundle':
       return 'compression_route';
+    case 'delayed_key':
+      return 'delayed_multiplier';
+    case 'reserve_fund':
+      return 'catalyst_debt';
+    case 'one_big_cashout':
+      return 'compression_route';
   }
 }
 
@@ -477,6 +507,12 @@ function economicThesisForFelt(thesis: FeltMarketThesis, topology: BarterTopolog
       return 'prepare_the_bundle';
     case 'hidden_is_mercy':
       return 'stay_flexible';
+    case 'delayed_key':
+      return 'save_one_good';
+    case 'reserve_fund':
+      return 'save_one_good';
+    case 'one_big_cashout':
+      return 'prepare_the_bundle';
     default:
       return 'stay_flexible';
   }
@@ -495,7 +531,9 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
     playerSolveFeel === 'carry_pair' ||
     playerSolveFeel === 'compression_bundle' ||
     playerSolveFeel === 'visible_night_target' ||
-    playerSolveFeel === 'ugly_liquidity';
+    playerSolveFeel === 'ugly_liquidity' ||
+    playerSolveFeel === 'delayed_key' ||
+    playerSolveFeel === 'one_big_cashout';
   const canStayBrisk = playerSolveFeel === 'liquefy_heap';
   let includeCommitmentSetup =
     (par >= 9 && !canStayBrisk) ||
@@ -506,6 +544,8 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
     feltThesis === 'night_told_you' ||
     feltThesis === 'spend_the_heap' ||
     feltThesis === 'protect_key_good' ||
+    feltThesis === 'delayed_key' ||
+    feltThesis === 'reserve_fund' ||
     (feltThesis === 'use_the_ugly_trade' && par >= 10) ||
     topology === 'compression_route'
       ? 4
@@ -518,7 +558,10 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
   let catalystQty = 1;
   let initialEnginePartQty = 0;
   let initialTempoPartQty = 0;
-  let includeEngineDiscount = feltThesis !== 'carry_the_pair' && feltThesis !== 'night_told_you';
+  let includeEngineDiscount =
+    feltThesis !== 'carry_the_pair' &&
+    feltThesis !== 'night_told_you' &&
+    feltThesis !== 'one_big_cashout';
   let includeExtraNightTrade = true;
   let extraNightGoalQty =
     feltThesis === 'use_the_ugly_trade' && par >= 11 && index % 2 === 0 ? 1 : 0;
@@ -607,12 +650,36 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
     signatureValue = 4;
     extraNightGoalQty = Math.max(2, extraNightGoalQty);
   }
+  if (playerSolveFeel === 'delayed_key') {
+    signatureValue = 4;
+    includeCommitmentSetup = true;
+    includeExtraNightTrade = true;
+    includeEngineDiscount = false;
+    extraNightGoalQty = 0;
+  }
+  if (playerSolveFeel === 'reserve_fund') {
+    signatureValue = 4;
+    includeCommitmentSetup = true;
+    includeExtraNightTrade = true;
+    includeEngineDiscount = true;
+    extraNightGoalQty = 0;
+  }
+  if (playerSolveFeel === 'one_big_cashout') {
+    signatureValue = par >= 11 ? 5 : 4;
+    includeCommitmentSetup = true;
+    includeEngineDiscount = false;
+    includeExtraNightTrade = true;
+    extraNightGoalQty = 0;
+  }
   const wantsThreeCashInFinish =
     playerSolveFeel === 'liquefy_heap' ||
     playerSolveFeel === 'protect_coupon' ||
-    playerSolveFeel === 'split_lanes';
-  const needsTallerTwoCashInFinish = playerSolveFeel === 'carry_pair';
-  const visibleTwoCashFinish = playerSolveFeel === 'visible_night_target';
+    playerSolveFeel === 'split_lanes' ||
+    playerSolveFeel === 'reserve_fund';
+  const needsTallerTwoCashInFinish =
+    playerSolveFeel === 'carry_pair' ||
+    playerSolveFeel === 'one_big_cashout';
+  const visibleTwoCashFinish = playerSolveFeel === 'visible_night_target' || playerSolveFeel === 'delayed_key';
   if (
     needsTallerTwoCashInFinish ||
     visibleTwoCashFinish ||
@@ -657,7 +724,7 @@ function getPortfolioDirectorChoice(seed: number, date: Date): PortfolioDirector
         : topology === 'overproduction_trap'
         ? 3
         : 2,
-    payoffQty: par === 11 ? 5 : topology === 'delayed_multiplier' ? 4 : 3,
+    payoffQty: par >= 12 ? 6 : par === 11 ? 5 : topology === 'delayed_multiplier' ? 4 : 3,
     signatureTempoCost:
       wantsThreeCashInFinish || needsTallerTwoCashInFinish || visibleTwoCashFinish
         ? 5
@@ -957,6 +1024,50 @@ function portfolioTargetVariants(choice: PortfolioDirectorChoice): QualityTarget
       extraNightGoalQty: 0,
     });
   }
+  if (base.feltThesis === 'delayed_key') {
+    add({
+      ...base,
+      includeCommitmentSetup: true,
+      includeEngineDiscount: false,
+      signatureValue: Math.max(4, base.signatureValue),
+      payoffQty: Math.max(4, base.payoffQty),
+    });
+    add({
+      ...base,
+      initialEnginePartQty: Math.max(1, base.initialEnginePartQty),
+      goalQty: base.goalQty + 1,
+    });
+  }
+  if (base.feltThesis === 'reserve_fund') {
+    add({
+      ...base,
+      catalystQty: Math.max(1, base.catalystQty),
+      includeEngineDiscount: true,
+      signatureValue: Math.max(4, base.signatureValue),
+    });
+    add({
+      ...base,
+      catalystQty: base.catalystQty + 1,
+      sourceBQty: base.sourceBQty + 1,
+    });
+  }
+  if (base.feltThesis === 'one_big_cashout') {
+    add({
+      ...base,
+      signatureValue: Math.max(5, base.signatureValue),
+      signatureTempoCost: Math.max(4, base.signatureTempoCost),
+      includeEngineDiscount: false,
+      includeExtraNightTrade: true,
+      goalQty: base.goalQty + 1,
+    });
+    add({
+      ...base,
+      signatureValue: Math.max(6, base.signatureValue),
+      signatureTempoCost: Math.max(5, base.signatureTempoCost),
+      includeEngineDiscount: false,
+      goalQty: base.goalQty + 2,
+    });
+  }
   if (base.playerSolveFeel === 'carry_pair') {
     add({
       ...base,
@@ -1000,7 +1111,8 @@ function plannedLateSequence(
   compoundGate: Trade,
   signatureGate: Trade,
   engineDiscount: Trade,
-  nightBridge: Trade
+  nightBridge: Trade,
+  reserveConverter: Trade
 ): Trade[] {
   const lateSlots = target.intendedPar - target.earlyWindowTrades;
   const canUseNightRecycler = target.includeExtraNightTrade && target.extraNightGoalQty <= 0;
@@ -1010,7 +1122,9 @@ function plannedLateSequence(
     target.playerSolveFeel === 'carry_pair' ||
     target.playerSolveFeel === 'compression_bundle' ||
     target.playerSolveFeel === 'visible_night_target' ||
-    target.playerSolveFeel === 'ugly_liquidity';
+    target.playerSolveFeel === 'ugly_liquidity' ||
+    target.playerSolveFeel === 'delayed_key' ||
+    target.playerSolveFeel === 'one_big_cashout';
 
   const sequence =
     lateSlots <= 4
@@ -1021,6 +1135,10 @@ function plannedLateSequence(
       ? prefersTwoCashIns
         ? [enginePayoff, recycler, signatureGate, enginePayoff, compoundGate]
         : [enginePayoff, signatureGate, recycler, compoundGate, bridge]
+      : lateSlots >= 7
+      ? prefersTwoCashIns
+        ? [enginePayoff, recycler, reserveConverter, signatureGate, enginePayoff, compoundGate, bridge]
+        : [enginePayoff, signatureGate, recycler, reserveConverter, enginePayoff, compoundGate, bridge]
       : prefersTwoCashIns
       ? [enginePayoff, recycler, enginePayoff, signatureGate, recycler, compoundGate]
       : [enginePayoff, recycler, signatureGate, enginePayoff, compoundGate, bridge];
@@ -1032,9 +1150,14 @@ function hiddenVendorPurposeForFelt(
   thesis: FeltMarketThesis,
   fallback: HiddenVendorPurpose
 ): HiddenVendorPurpose {
-  if (thesis === 'hidden_is_mercy' || thesis === 'stop_early') return 'safety_valve';
-  if (thesis === 'night_told_you') return 'recovery';
+  if (thesis === 'hidden_is_mercy' || thesis === 'stop_early') {
+    return 'safety_valve';
+  }
+  if (thesis === 'night_told_you' || thesis === 'delayed_key' || thesis === 'reserve_fund') {
+    return 'recovery';
+  }
   if (thesis === 'use_the_ugly_trade') return 'alternate';
+  if (thesis === 'one_big_cashout') return 'compression';
   return fallback;
 }
 
@@ -1207,6 +1330,19 @@ function buildCoreRecipeTrades(
     variant: true,
     vendorRole: target.extraNightGoalQty > 0 ? 'loop_finisher' : 'recycler',
   };
+  const reserveConverter: Trade = {
+    give: [tradeSide(picks.sourceB, 1)],
+    receive: [tradeSide(picks.tempoPart, 1)],
+    window: 'late',
+    stage: 12,
+    role: 'variant',
+    line: 'shared',
+    variant: true,
+    vendorRole: 'recycler',
+  };
+  const includeDepthTrade =
+    target.playerSolveFeel === 'reserve_fund' ||
+    target.playerSolveFeel === 'one_big_cashout';
   const dayTrades = target.includeCommitmentSetup
     ? [earlyEngineSetup, earlyTempoOpen, earlyBalance, commitmentSetup, falseFriend]
     : [earlyEngineSetup, earlyTempoOpen, earlyBalance, falseFriend];
@@ -1217,6 +1353,7 @@ function buildCoreRecipeTrades(
     signatureGate,
     ...(target.includeEngineDiscount ? [engineDiscount] : []),
     ...(target.includeExtraNightTrade ? [nightBridge] : []),
+    ...(includeDepthTrade ? [reserveConverter] : []),
   ];
   const solutionEarly = target.includeCommitmentSetup
     ? [earlyEngineSetup, earlyEngineSetup, earlyTempoOpen, earlyBalance, commitmentSetup]
@@ -1233,7 +1370,8 @@ function buildCoreRecipeTrades(
         compoundGate,
         signatureGate,
         engineDiscount,
-        nightBridge
+        nightBridge,
+        reserveConverter
       ),
     ],
   };
@@ -1309,6 +1447,31 @@ function buildSolveFeelRecipe(
       case 'compression_bundle':
         return {
           signatureGateReceiveQty: Math.max(3, target.signatureValue),
+          hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
+        };
+      case 'delayed_key':
+        return {
+          enginePayoffReceiveQty: target.payoffQty + 1,
+          compoundGateGive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
+          hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
+          signatureGateReceiveQty: Math.max(4, target.signatureValue),
+        };
+      case 'reserve_fund':
+        return {
+          compoundGateGive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
+          engineDiscountGive: () => [tradeSide(picks.catalyst, 2)],
+          hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 2), tradeSide(picks.sourceB, 1)],
+          compoundGateReceiveQty: 3,
+          engineDiscountReceiveQty: 3,
+        };
+      case 'one_big_cashout':
+        return {
+          signatureGateReceiveQty: Math.max(5, target.signatureValue),
+          signatureGateGive: () => [
+            tradeSide(picks.enginePart, 2),
+            tradeSide(picks.tempoPart, Math.max(4, target.signatureTempoCost)),
+          ],
+          compoundGateReceiveQty: 1,
           hiddenBailoutReceive: () => [tradeSide(picks.catalyst, 1), tradeSide(picks.tempoPart, 1)],
         };
     }
@@ -1536,6 +1699,8 @@ function candidateScore(
       ? 58
       : report.shortestPathLength === 11
       ? 18
+      : report.shortestPathLength === 12
+      ? 12
       : report.shortestPathLength === 8
       ? -82
       : 0;
@@ -1590,7 +1755,7 @@ export function generateBarterPuzzle(seed: number, date: Date = new Date()): Bar
       const analyzedPuzzle =
         initialReport.shortestPathLength !== null &&
         initialReport.shortestPathLength >= 8 &&
-        initialReport.shortestPathLength <= 11
+        initialReport.shortestPathLength <= 12
           ? {
               ...puzzle,
               par: initialReport.shortestPathLength,

@@ -105,7 +105,10 @@ export type FeltMarketThesis =
   | 'use_the_ugly_trade'
   | 'stop_early'
   | 'night_told_you'
-  | 'hidden_is_mercy';
+  | 'hidden_is_mercy'
+  | 'delayed_key'
+  | 'reserve_fund'
+  | 'one_big_cashout';
 
 export type PlayerSolveFeel =
   | 'liquefy_heap'
@@ -116,7 +119,10 @@ export type PlayerSolveFeel =
   | 'visible_night_target'
   | 'hidden_recovery'
   | 'split_lanes'
-  | 'compression_bundle';
+  | 'compression_bundle'
+  | 'delayed_key'
+  | 'reserve_fund'
+  | 'one_big_cashout';
 
 export interface Trade {
   give: TradeSide[];

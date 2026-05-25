@@ -1,5 +1,13 @@
 import { canAfford, missingForTrade, tradeKey } from './engine.ts';
-import type { BarterPuzzle, GoodId, Inventory, Trade, TradeSide } from './types.ts';
+import type {
+  BarterPuzzle,
+  BarterQualityReport,
+  GoodId,
+  Inventory,
+  PlayerSolveFeel,
+  Trade,
+  TradeSide,
+} from './types.ts';
 
 export type BarterMarketTab = 'day' | 'night';
 export type TradeLockReason = 'night_locked' | 'day_closed' | null;
@@ -18,6 +26,154 @@ export interface TradeActionState {
   buttonLabel: string;
   detail: string;
   missing: TradeSide[];
+}
+
+export type BarterOutcomeGameState = 'playing' | 'won' | 'lost';
+
+export interface BarterOutcome {
+  title: string;
+  shareLabel: string;
+  subtitle: string;
+  detail: string;
+  tone: 'perfect' | 'clean' | 'close' | 'lost' | 'planning';
+  routeLabel: string | null;
+}
+
+type OutcomeQualityRead = Pick<BarterQualityReport, 'hiddenVendorKey' | 'playerSolveFeel'>;
+
+const SOLVE_FEEL_OUTCOMES: Record<PlayerSolveFeel, { label: string; note: string }> = {
+  liquefy_heap: {
+    label: 'Heap Liquidated',
+    note: 'Awkward starting stock turned into useful night goods.',
+  },
+  protect_coupon: {
+    label: 'Key Protected',
+    note: 'The flexible good stayed alive long enough to pay off.',
+  },
+  carry_pair: {
+    label: 'Pair Carried',
+    note: 'A matched pair reached Night and unlocked the better trade.',
+  },
+  ugly_liquidity: {
+    label: 'Ugly Trade',
+    note: 'The odd-looking move created the liquid route.',
+  },
+  stop_production: {
+    label: 'Stopped Early',
+    note: 'The route stopped producing before extra stock became cleanup.',
+  },
+  visible_night_target: {
+    label: 'Night Read',
+    note: 'The visible Night Market told you what to prepare.',
+  },
+  hidden_recovery: {
+    label: 'Recovery Read',
+    note: 'The route stayed alive around the hidden night option.',
+  },
+  split_lanes: {
+    label: 'Split Lane',
+    note: 'One pipeline did the work while the other acted as a bridge.',
+  },
+  compression_bundle: {
+    label: 'Bundle Route',
+    note: 'The compound bundle compressed the cash-out.',
+  },
+  delayed_key: {
+    label: 'Delayed Key',
+    note: 'A quiet good stayed useful until Night made its value clear.',
+  },
+  reserve_fund: {
+    label: 'Reserve Held',
+    note: 'One reserve good stayed available for the late bridge.',
+  },
+  one_big_cashout: {
+    label: 'Big Cash-Out',
+    note: 'The route built toward one large payout instead of nibbling early.',
+  },
+};
+
+function routeOutcome(
+  qualityReport: OutcomeQualityRead | null | undefined,
+  tradeHistory: Trade[] | undefined
+): { label: string; note: string } | null {
+  if (!qualityReport) return null;
+
+  const usedHiddenVendor =
+    qualityReport.hiddenVendorKey !== null &&
+    Boolean(tradeHistory?.some((trade) => tradeKey(trade) === qualityReport.hiddenVendorKey));
+
+  if (usedHiddenVendor) {
+    return {
+      label: 'Hidden Save',
+      note: 'A night-only stall helped keep the route alive.',
+    };
+  }
+
+  return qualityReport.playerSolveFeel
+    ? SOLVE_FEEL_OUTCOMES[qualityReport.playerSolveFeel]
+    : null;
+}
+
+export function getBarterOutcome(
+  puzzle: BarterPuzzle,
+  options: {
+    gameState: BarterOutcomeGameState;
+    tradesUsed: number;
+    qualityReport?: OutcomeQualityRead | null;
+    tradeHistory?: Trade[];
+  }
+): BarterOutcome {
+  const route = routeOutcome(options.qualityReport, options.tradeHistory);
+
+  if (options.gameState === 'lost') {
+    return {
+      title: 'Overtraded',
+      shareLabel: 'Overtraded',
+      subtitle: 'The market closed before the goal.',
+      detail: `Goal was ${puzzle.goal.qty} goods in ${puzzle.maxTrades} trades.`,
+      tone: 'lost',
+      routeLabel: route?.label ?? null,
+    };
+  }
+
+  if (options.gameState !== 'won') {
+    return {
+      title: 'Planning',
+      shareLabel: 'Planning',
+      subtitle: 'The route is still open.',
+      detail: `Par is ${puzzle.par}; the market closes at ${puzzle.maxTrades} trades.`,
+      tone: 'planning',
+      routeLabel: route?.label ?? null,
+    };
+  }
+
+  const result =
+    options.tradesUsed <= puzzle.par
+      ? {
+          title: 'Perfect Trade',
+          shareLabel: 'Perfect Trade',
+          subtitle: 'Solved at par. Every move paid.',
+          tone: 'perfect' as const,
+        }
+      : options.tradesUsed <= puzzle.par + 1
+        ? {
+            title: 'Clean Profit',
+            shareLabel: 'Clean Profit',
+            subtitle: 'One trade over par, still controlled.',
+            tone: 'clean' as const,
+          }
+        : {
+            title: 'Close Call',
+            shareLabel: 'Close Call',
+            subtitle: 'Solved on the final cushion.',
+            tone: 'close' as const,
+          };
+
+  return {
+    ...result,
+    detail: route?.note ?? `Collected the goal in ${options.tradesUsed} trades.`,
+    routeLabel: route?.label ?? null,
+  };
 }
 
 export function tradeUsesGood(trade: Trade, good: GoodId | null): boolean {

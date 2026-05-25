@@ -9,6 +9,7 @@ import {
 } from '../barterPuzzles.ts';
 import {
   getDefaultSelectedTradeKey,
+  getBarterOutcome,
   getMarketTradeEntries,
   getTradeActionState,
   getTradeOfferLabel,
@@ -94,6 +95,58 @@ describe('Barter UI market state', () => {
       canExecute: false,
       buttonLabel: 'Opens at night',
     });
+  });
+
+  it('labels result outcomes by margin and route flavor', () => {
+    expect(
+      getBarterOutcome(puzzle, {
+        gameState: 'won',
+        tradesUsed: puzzle.par,
+      }).title
+    ).toBe('Perfect Trade');
+    expect(
+      getBarterOutcome(puzzle, {
+        gameState: 'won',
+        tradesUsed: puzzle.par + 1,
+        qualityReport: { hiddenVendorKey: null, playerSolveFeel: 'reserve_fund' },
+      })
+    ).toMatchObject({
+      title: 'Clean Profit',
+      routeLabel: 'Reserve Held',
+    });
+    expect(
+      getBarterOutcome(puzzle, {
+        gameState: 'won',
+        tradesUsed: puzzle.par + 2,
+        qualityReport: { hiddenVendorKey: null, playerSolveFeel: 'one_big_cashout' },
+      })
+    ).toMatchObject({
+      title: 'Close Call',
+      routeLabel: 'Big Cash-Out',
+    });
+    expect(
+      getBarterOutcome(puzzle, {
+        gameState: 'lost',
+        tradesUsed: puzzle.maxTrades,
+      }).title
+    ).toBe('Overtraded');
+  });
+
+  it('marks hidden-vendor recoveries as a hidden save outcome', () => {
+    const hiddenTrade = splitMarketTrades(puzzle).hiddenNightTrade;
+    if (!hiddenTrade) throw new Error('Expected a hidden night trade for outcome tests.');
+
+    expect(
+      getBarterOutcome(puzzle, {
+        gameState: 'won',
+        tradesUsed: puzzle.par + 1,
+        qualityReport: {
+          hiddenVendorKey: tradeKey(hiddenTrade),
+          playerSolveFeel: 'hidden_recovery',
+        },
+        tradeHistory: [hiddenTrade],
+      }).routeLabel
+    ).toBe('Hidden Save');
   });
 
   it('uses short offer labels instead of broker-style vendor names', () => {

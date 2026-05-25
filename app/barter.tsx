@@ -25,6 +25,7 @@ import {
   BarterPuzzle,
   canAfford as canAffordTrade,
   getDefaultSelectedTradeKey,
+  getBarterOutcome,
   getMarketTradeEntries,
   getTradeActionState,
   getTradeFeedback,
@@ -479,12 +480,19 @@ function getMarketIdentity(marketName: string, marketEmoji: string): MarketIdent
   };
 }
 
-function getResultTier(gameState: GameState, tradesUsed: number, puzzle: BarterPuzzle): string {
-  if (gameState === 'lost') return 'Bust';
-  if (gameState !== 'won') return 'Planning';
-  if (tradesUsed <= puzzle.par) return 'Perfect';
-  if (tradesUsed <= puzzle.par + 1) return 'Par';
-  return 'Solved';
+function getOutcomeEmoji(tone: ReturnType<typeof getBarterOutcome>['tone']): string {
+  switch (tone) {
+    case 'perfect':
+      return '⭐';
+    case 'clean':
+      return '🎉';
+    case 'close':
+      return '😅';
+    case 'lost':
+      return '⌛';
+    default:
+      return '⚖';
+  }
 }
 
 export default function BarterScreen() {
@@ -549,7 +557,16 @@ export default function BarterScreen() {
   const marketEmoji = puzzle.marketEmoji || '🏺';
   const goalGood = getDisplayGood(puzzle.goal.good);
   const goalShort = `${puzzle.goal.qty} ${goalGood.emoji}`;
-  const resultTier = getResultTier(gameState, tradesUsed, puzzle);
+  const resultOutcome = useMemo(
+    () =>
+      getBarterOutcome(puzzle, {
+        gameState,
+        tradesUsed,
+        qualityReport,
+        tradeHistory,
+      }),
+    [gameState, puzzle, qualityReport, tradeHistory, tradesUsed]
+  );
   const isMarinerMarket = marketName === 'Rope & Salt Exchange';
   const earlyWindowTrades = puzzle.earlyWindowTrades ?? 4;
   const lateWindowTrigger = earlyWindowTrades;
@@ -641,12 +658,9 @@ export default function BarterScreen() {
   const shareText = useMemo(() => {
     const scoreCode =
       gameState === 'won' ? `${tradesUsed}/${puzzle.par}` : `X/${puzzle.maxTrades}`;
-    const resultLine =
-      gameState === 'won'
-        ? resultTier
-        : gameState === 'lost'
-        ? 'Bust'
-        : 'Planning';
+    const resultLine = resultOutcome.routeLabel
+      ? `${resultOutcome.shareLabel} · ${resultOutcome.routeLabel}`
+      : resultOutcome.shareLabel;
     const routeEmojis = getShareRouteEmojis(tradeHistory, puzzle, qualityReport);
     return [
       `Barter ${dateKey} ${scoreCode}`,
@@ -664,7 +678,8 @@ export default function BarterScreen() {
     puzzle.maxTrades,
     puzzle.par,
     qualityReport,
-    resultTier,
+    resultOutcome.routeLabel,
+    resultOutcome.shareLabel,
     tradeHistory,
     tradesUsed,
   ]);
@@ -1419,17 +1434,20 @@ export default function BarterScreen() {
                 contentContainerStyle={styles.resultModalContent}
                 showsVerticalScrollIndicator={false}
               >
-              <Text style={styles.resultEmoji}>
-                {gameState === 'won' ? (resultTier === 'Perfect' ? '⭐' : '🎉') : '😔'}
-              </Text>
-              <Text style={styles.resultTitle}>
-                {resultTier === 'Bust' ? 'Out of Trades' : resultTier}
-              </Text>
-              <Text style={styles.resultSummary}>
+              <Text style={styles.resultEmoji}>{getOutcomeEmoji(resultOutcome.tone)}</Text>
+              <Text style={styles.resultTitle}>{resultOutcome.title}</Text>
+              {resultOutcome.routeLabel && (
+                <View style={styles.resultRoutePill}>
+                  <Text style={styles.resultRoutePillText}>{resultOutcome.routeLabel}</Text>
+                </View>
+              )}
+              <Text style={styles.resultSummary}>{resultOutcome.subtitle}</Text>
+              <Text style={styles.resultRead}>
                 {gameState === 'won'
                   ? `Collected ${puzzle.goal.qty} ${goalGood.emoji} in ${tradesUsed} trades.`
                   : `Goal: ${puzzle.goal.qty} ${goalGood.emoji} ${goalGood.name}.`}
               </Text>
+              <Text style={styles.resultOutcomeDetail}>{resultOutcome.detail}</Text>
 
               <View style={styles.resultStats}>
                 <View style={styles.resultStat}>
@@ -2641,6 +2659,24 @@ const createStyles = (
     color: Colors.textSecondary,
     textAlign: 'center',
     marginTop: Spacing.sm,
+    lineHeight: 19,
+  },
+  resultRoutePill: {
+    alignSelf: 'center',
+    marginTop: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    borderColor: theme.mode === 'dark' ? '#3a2b11' : '#f1c38a',
+    backgroundColor: theme.mode === 'dark' ? '#1f1710' : '#fff7e6',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+  resultRoutePillText: {
+    color: theme.mode === 'dark' ? '#FFA41F' : '#B75F00',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
   },
   resultRead: {
     marginTop: 4,
@@ -2648,6 +2684,13 @@ const createStyles = (
     color: Colors.textMuted,
     textAlign: 'center',
     fontWeight: '700',
+  },
+  resultOutcomeDetail: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'center',
   },
   resultStats: {
     flexDirection: 'row',
