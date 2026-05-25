@@ -37,10 +37,10 @@ export interface ThreadlinePuzzle {
 }
 
 import {
-  THREADLINE_PUZZLE_BANK,
-  getThreadlineOutOfWindowFallback,
-  getThreadlineShippedPuzzleByDateKey,
-} from './threadlineShippedPack.ts';
+  getThreadlineRuntimePuzzles,
+  getThreadlineRuntimeOutOfWindowFallback,
+  getThreadlineRuntimePuzzleByDateKey,
+} from './threadlineRuntimePack.ts';
 
 const THREADLINE_PUZZLES: ThreadlinePuzzle[] = [
   {
@@ -369,11 +369,11 @@ export function getLocalThreadlineDateKey(date: Date = new Date()): string {
 
 export function getDailyThreadline(date: Date = new Date()): ThreadlinePuzzle {
   const dateKey = getLocalThreadlineDateKey(date);
-  return getThreadlineShippedPuzzleByDateKey(dateKey) ?? getThreadlineOutOfWindowFallback(dateKey);
+  return getThreadlineRuntimePuzzleByDateKey(dateKey) ?? getThreadlineRuntimeOutOfWindowFallback(dateKey);
 }
 
 export function getThreadlinePuzzles(): ThreadlinePuzzle[] {
-  return THREADLINE_PUZZLE_BANK;
+  return getThreadlineRuntimePuzzles();
 }
 
 export function coordKey(coord: ThreadlineCoord): string {

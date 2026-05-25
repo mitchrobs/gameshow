@@ -198,7 +198,7 @@ export default function ThreadlineScreen() {
   );
   const isShortPhoneLayout =
     isPhoneLayout && (viewportWidth <= 430 || mobileViewportHeight <= 620);
-  const mobileViewportWidth = Math.max(viewportWidth || frameWidth, playAreaSize.width);
+  const mobileViewportWidth = Math.max(0, viewportWidth || frameWidth);
   const mobileHorizontalPadding = mobileViewportWidth <= 380 ? 10 : 12;
   const mobileVerticalPadding = mobileViewportHeight <= 680 ? 8 : 12;
 
@@ -511,13 +511,10 @@ export default function ThreadlineScreen() {
     0,
     mobileViewportWidth - mobileHorizontalPadding * 2
   );
-  const measuredPlayAreaWidth =
-    playAreaSize.width || mobileAvailableWidth;
+  const measuredPlayAreaWidth = playAreaSize.width || mobileAvailableWidth;
   const mobileSafePlayAreaWidth = Math.max(
     0,
-    isShortPhoneLayout
-      ? mobileAvailableWidth
-      : Math.min(measuredPlayAreaWidth, mobileAvailableWidth)
+    Math.min(measuredPlayAreaWidth, mobileAvailableWidth)
   );
   const measuredPlayAreaHeight = playAreaSize.height || 0;
   const mobileReservedHeight =
@@ -527,12 +524,13 @@ export default function ThreadlineScreen() {
     (mobileViewportHeight <= 680 ? 46 : 52) +
     (mobileViewportHeight <= 680 ? 18 : 24);
   const mobileBoardFallback = Math.max(160, mobileViewportHeight - mobileReservedHeight);
-  const mobileBoardLimit =
-    isShortPhoneLayout
-      ? mobileSafePlayAreaWidth
-      : measuredPlayAreaHeight > 0
+  const measuredMobileBoardLimit =
+    measuredPlayAreaHeight > 0
       ? Math.max(0, measuredPlayAreaHeight - 8)
       : mobileBoardFallback;
+  const mobileBoardLimit = isShortPhoneLayout
+    ? mobileBoardFallback
+    : Math.min(mobileBoardFallback, measuredMobileBoardLimit || mobileBoardFallback);
   const pageWidth = isPhoneLayout
     ? mobileSafePlayAreaWidth
     : Math.max(0, Math.min(520, width - Spacing.lg * 2));
@@ -542,7 +540,7 @@ export default function ThreadlineScreen() {
       : 410
     : 430;
   const boardAvailableWidth = Math.max(0, Math.min(maxBoardWidth, pageWidth));
-  const mobileBoardHeightLimit = Math.max(mobileBoardFallback, mobileBoardLimit);
+  const mobileBoardHeightLimit = Math.max(160, mobileBoardLimit);
   const boardAvailableHeight = Math.max(
     0,
     Math.min(430, isPhoneLayout ? mobileBoardHeightLimit : 430)
@@ -557,18 +555,19 @@ export default function ThreadlineScreen() {
     (boardAvailableWidth - boardPadding * 2 - cellGap * (gridColCount - 1)) / gridColCount;
   const fittedCellSizeFromHeight =
     (boardAvailableHeight - boardPadding * 2 - cellGap * (gridRowCount - 1)) / gridRowCount;
-  const fittedCellSize = isPhoneLayout
-    ? fittedCellSizeFromWidth
-    : Math.min(fittedCellSizeFromWidth, fittedCellSizeFromHeight);
-  const minimumPhoneCellSize = boardAvailableWidth < 280 ? 24 : 30;
+  const fittedCellSize = Math.min(fittedCellSizeFromWidth, fittedCellSizeFromHeight);
+  const safeFittedCellSize = Number.isFinite(fittedCellSize)
+    ? Math.max(0, fittedCellSize)
+    : 0;
+  const minimumPhoneCellSize = boardAvailableWidth < 280 ? 20 : 24;
   const maximumPhoneCellSize = boardAvailableWidth < 340
-    ? 32
-    : isShortPhoneLayout
     ? 34
-    : 38;
+    : isShortPhoneLayout
+    ? 38
+    : 39;
   const cellSize = isPhoneLayout
-    ? Math.max(minimumPhoneCellSize, Math.min(maximumPhoneCellSize, fittedCellSize))
-    : Math.max(22, fittedCellSize);
+    ? Math.max(minimumPhoneCellSize, Math.min(maximumPhoneCellSize, safeFittedCellSize))
+    : Math.max(22, safeFittedCellSize);
   const boardPixelWidth = Math.floor(
     gridColCount * cellSize + cellGap * (gridColCount - 1) + boardPadding * 2
   );
@@ -1268,6 +1267,11 @@ export default function ThreadlineScreen() {
       paddingTop: mobileVerticalPadding,
       paddingBottom: mobileVerticalPadding,
     };
+    const mobileFrameMaxWidth = Math.max(0, Math.min(520, mobileViewportWidth));
+    const mobileScrollableFrameMaxWidth = Math.max(
+      0,
+      Math.min(520, mobileAvailableWidth)
+    );
     const mobileGameContent = (
       <>
         {renderHeader(true)}
@@ -1301,10 +1305,29 @@ export default function ThreadlineScreen() {
             contentContainerStyle={[styles.mobileScrollContent, mobileFramePadding]}
             scrollEnabled={Platform.OS === 'web' || !isBoardGestureActive}
           >
-            <View style={styles.mobileGameFrameScrollable}>{mobileGameContent}</View>
+            <View
+              style={[
+                styles.mobileGameFrameScrollable,
+                {
+                  width: mobileScrollableFrameMaxWidth,
+                  maxWidth: mobileScrollableFrameMaxWidth,
+                },
+              ]}
+            >
+              {mobileGameContent}
+            </View>
           </ScrollView>
         ) : (
-          <View style={[styles.mobileGameFrame, mobileFramePadding]}>
+          <View
+            style={[
+              styles.mobileGameFrame,
+              mobileFramePadding,
+              {
+                width: mobileFrameMaxWidth,
+                maxWidth: mobileFrameMaxWidth,
+              },
+            ]}
+          >
             {mobileGameContent}
           </View>
         )}
@@ -1835,6 +1858,8 @@ const createStyles = (
     },
     boardWrap: {
       alignItems: 'center',
+      alignSelf: 'center',
+      justifyContent: 'center',
       marginTop: Spacing.lg,
     },
     mobileBoardWrap: {
@@ -2092,9 +2117,12 @@ const createStyles = (
       ...ui.cta,
       borderRadius: BorderRadius.lg,
       flex: 1,
+      flexBasis: 0,
+      minWidth: 0,
     },
     mobileHintButton: {
       minHeight: 42,
+      minWidth: 0,
       borderRadius: BorderRadius.md,
       paddingVertical: 9,
       paddingHorizontal: Spacing.md,
@@ -2113,13 +2141,15 @@ const createStyles = (
       letterSpacing: 0.9,
     },
     timerButton: {
+      flex: 1,
+      flexBasis: 0,
       minHeight: 52,
-      minWidth: 116,
+      minWidth: 0,
       borderRadius: BorderRadius.lg,
       borderWidth: 1,
       borderColor: Colors.border,
       backgroundColor: Colors.surfaceGlass,
-      paddingHorizontal: Spacing.md,
+      paddingHorizontal: Spacing.xl,
       alignItems: 'center',
       justifyContent: 'center',
       ...WEB_NO_SELECT,
@@ -2130,9 +2160,9 @@ const createStyles = (
     },
     mobileTimerButton: {
       minHeight: 42,
-      minWidth: 96,
+      minWidth: 0,
       borderRadius: BorderRadius.md,
-      paddingHorizontal: Spacing.sm,
+      paddingHorizontal: Spacing.md,
     },
     timerButtonPressed: {
       backgroundColor: screenAccent.badgeBg,
