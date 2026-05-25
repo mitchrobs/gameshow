@@ -7,6 +7,10 @@ const CORE_ROLES = Object.freeze([
   "Family Couch Player",
   "Social Sharer",
   "Editorial Calendar Player",
+  "NYT Word Game Player",
+  "Daily Word Search Player",
+  "Connections Pattern Player",
+  "Fermi Estimator",
 ]);
 
 const SCORE_KEYS = Object.freeze([
@@ -91,11 +95,15 @@ const SOURCE = Object.freeze({
 const FALLBACK_SOURCE = SOURCE.britannicaScience;
 
 const DATE_THEME_OVERRIDES = Object.freeze({
+  "2026-01-04": "Snow Route Map",
+  "2026-05-19": "Laundry Room",
   "2026-05-25": "Memorial Day Cookout",
   "2026-06-03": "Summer Trailhead",
   "2026-06-20": "Berry Patch",
   "2026-06-28": "National Park Postcard",
-  "2026-06-21": "Father's Day Cards",
+  "2026-03-21": "City Bus Garage",
+  "2026-06-21": "Father's Day Gifts",
+  "2026-08-14": "Resort Laundry Room",
 });
 
 const DOMAIN_PROFILES = [
@@ -110,7 +118,7 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "train",
-    pattern: /\btrain\b|\brail\b|platform|station map|train yard|switches/i,
+    pattern: /\btrain\b|\bamtrak\b|\bsnack car\b|\brail(?:road|way| system| station| platform| yard| map)\b|platform|station map|train yard|switches/i,
     source: SOURCE.apta,
     q1: item("station stops", "can appear on a busy rail-system wall map", 120, "A rail map can show more than 100 station stops.", "count"),
     q2: item("riders", "can pass through a major train station in one hour", 50000, "A major station can move tens of thousands of riders hourly.", "crowd"),
@@ -122,7 +130,7 @@ const DOMAIN_PROFILES = [
     pattern: /wrapp|gift wrap|stocking|stuffers/i,
     source: SOURCE.nist,
     q1: item("rolls of wrapping paper", "fit on a holiday gift-wrap table", 36, "A gift-wrap table can hold a few dozen rolls.", "capacity"),
-    q2: item("feet of ribbon", "can a busy gift-wrap station use in a day", 3000, "A gift-wrap station can use thousands of feet of ribbon.", "distance"),
+    q2: item("feet of curling ribbon", "are on a standard ribbon spool", 500, "A standard curling-ribbon spool can hold hundreds of feet.", "distance", "named_standard"),
     q3: item("letters and packages", "can USPS handle during the holiday season", 2000000000, "USPS holiday mail can run into the billions.", "count", "famous_event"),
     extra: item("gift boxes", "can a national retailer ship in one peak week", 10000000, "A peak retail week can ship millions of gift boxes.", "count", "famous_event"),
   },
@@ -142,7 +150,7 @@ const DOMAIN_PROFILES = [
     q1: item("ice-cream bars", "fit in one truck-window freezer", 360, "A truck freezer can hold hundreds of bars.", "capacity"),
     q2: item("scoops", "can a busy ice-cream truck serve in one hot day", 1050, "A busy truck can serve about 1,000 scoops.", "rate"),
     q3: item("gallons of ice cream", "do Americans eat in one year", 1300000000, "Americans eat ice cream at a billion-gallon scale.", "capacity", "famous_event"),
-    extra: item("ice-cream sandwiches", "can be made in one U.S. factory year", 1000000000, "A major frozen-treat line can reach billion-count scale.", "count", "famous_event"),
+    extra: item("ice-cream sandwiches", "can be made in one U.S. factory year", 1000000000, "A major frozen-treat line can make billions yearly.", "count", "famous_event"),
   },
   {
     key: "candle_market",
@@ -193,7 +201,7 @@ const DOMAIN_PROFILES = [
     key: "game_night",
     pattern: /game night|board game|tabletop game/i,
     source: SOURCE.britannicaScience,
-    q1: item("cards", "can cover a crowded family game table", 200, "A big game table can spread out hundreds of cards.", "count"),
+    q1: item("letter tiles", "are in a standard {scene} Scrabble set", 100, "A standard Scrabble set has 100 letter tiles.", "count"),
     q2: item("game boxes", "can fill one board-game cafe wall", 500, "A cafe wall can hold hundreds of game boxes.", "capacity"),
     q3: item("Monopoly sets", "can sell worldwide in one year", 3000000, "Monopoly can sell millions of sets worldwide.", "count", "famous_event"),
     extra: item("Uno decks", "can sell worldwide in one year", 15000000, "Uno can sell at a huge family-game scale.", "count", "famous_event"),
@@ -229,7 +237,7 @@ const DOMAIN_PROFILES = [
     key: "coffee_bar",
     pattern: /coffee|roaster/i,
     source: SOURCE.usdaFood,
-    q1: item("paper cups", "fit behind one coffee-bar counter", 520, "A counter stack can hold hundreds of paper cups.", "capacity"),
+    q1: item("coffee beans", "are in one pound of roasted coffee", 3000, "One pound of roasted coffee has about 3,000 beans.", "count"),
     q2: item("cups of coffee", "can a busy coffee bar pour in one morning", 1500, "A busy coffee bar can pour about 1,500 cups.", "rate"),
     q3: item("Starbucks stores", "are open worldwide", 40000, "Starbucks has tens of thousands of stores worldwide.", "count", "famous_event"),
     extra: item("pounds of coffee", "can the U.S. import in one year", 3000000000, "U.S. coffee imports are about 3 billion pounds yearly.", "count", "famous_event"),
@@ -239,15 +247,15 @@ const DOMAIN_PROFILES = [
     pattern: /garage weekend|garage project/i,
     source: SOURCE.nist,
     q1: item("screws", "fit in one garage-project organizer drawer", 500, "A small organizer drawer can hold hundreds of screws.", "capacity"),
-    q2: item("feet of extension cord", "can hang on a garage wall", 1200, "A garage wall can hold more than 1,000 feet of cord.", "distance"),
+    q2: item("feet", "are on a standard contractor cord reel", 100, "A contractor cord reel often holds about 100 feet.", "distance", "named_standard"),
     q3: item("visitors", "can a major home-improvement show draw", 100000, "A major home-improvement show can draw six figures of visitors.", "crowd", "famous_event"),
-    extra: item("rental orders", "can a big home-center chain handle in one season", 250000, "A busy rental season can handle hundreds of thousands of orders.", "count", "famous_event"),
+    extra: item("tool-rental orders", "does Home Depot handle in one busy season", 250000, "Home Depot tool rentals can reach hundreds of thousands.", "count", "famous_event"),
   },
   {
     key: "trailhead_map",
     pattern: /trailhead map|trailhead|hiking map/i,
     source: SOURCE.britannicaScience,
-    q1: item("trail markers", "can appear on a busy trailhead map", 70, "A trailhead map can show dozens of markers.", "count"),
+    q1: item("miles of trails", "does Yellowstone National Park maintain", 900, "Yellowstone maintains about 900 miles of trails.", "distance", "famous_event"),
     q2: item("hikers", "can pass a popular trailhead in one day", 3500, "A popular trailhead can see thousands of hikers daily.", "crowd"),
     q3: item("visitors", "can Great Smoky Mountains National Park welcome in one year", 13000000, "Great Smoky Mountains gets the most U.S. park visits.", "crowd", "famous_event"),
     extra: item("acres", "can Yellowstone National Park cover", 2200000, "Yellowstone covers more than two million acres.", "area", "natural_scale"),
@@ -268,7 +276,7 @@ const DOMAIN_PROFILES = [
     q1: item("gallons of paint", "can cover a big street mural", 80, "A big mural can use dozens of gallons of paint.", "capacity"),
     q2: item("square feet", "can a landmark mural cover", 12000, "A landmark mural can cover thousands of square feet.", "area"),
     q3: item("visitors", "can a major public-art festival draw", 500000, "A major public-art festival can draw hundreds of thousands.", "crowd", "famous_event"),
-    extra: item("artists", "can join a large city mural festival", 1000, "A large mural festival can gather about 1,000 artists.", "crowd", "famous_event"),
+    extra: item("artworks", "does Art Basel Miami Beach show", 4000, "Art Basel Miami Beach shows thousands of artworks.", "count", "famous_event"),
   },
   {
     key: "swim_meet",
@@ -329,7 +337,7 @@ const DOMAIN_PROFILES = [
     pattern: /aquarium|reef window|shark tunnel|deep-sea|touch tank|tank|tunnel/i,
     source: SOURCE.britannicaScience,
     q1: item("fish", "can fit in a large public aquarium exhibit", 1300, "A large exhibit can hold more than 1,000 fish.", "capacity"),
-    q2: item("gallons", "can a big shark tank hold", 500000, "A big shark tank can hold hundreds of thousands of gallons.", "capacity"),
+    q2: item("feet", "is Georgia Aquarium's Ocean Voyager tunnel", 100, "Ocean Voyager's tunnel is about 100 feet long.", "distance", "famous_event"),
     q3: item("visitors", "can the Georgia Aquarium welcome in one year", 2500000, "Georgia Aquarium can welcome about 2.5 million visitors yearly.", "crowd", "famous_event"),
     extra: item("gallons", "can Monterey Bay Aquarium pump through in one week", 14000000, "Monterey Bay pumps millions of gallons weekly.", "capacity", "famous_event"),
   },
@@ -365,7 +373,7 @@ const DOMAIN_PROFILES = [
     pattern: /movie theater|movie lobby|movie palace|multiplex|drive-in/i,
     source: SOURCE.smithsonian,
     q1: item("seats", "fill one midsize movie theater auditorium", 220, "A midsize auditorium can seat more than 200 people.", "capacity"),
-    q2: item("popcorn tubs", "can a busy theater sell on opening night", 1100, "A busy theater can sell more than 1,000 popcorn tubs.", "rate"),
+    q2: item("popcorn kernels", "fit in one large movie-theater tub", 650, "A large popcorn tub can hold hundreds of kernels.", "capacity"),
     q3: item("tickets", "did Avengers: Endgame sell on opening weekend worldwide", 80000000, "Avengers: Endgame sold tickets at a huge opening-weekend scale.", "count", "famous_event"),
     extra: item("tickets", "can a record-setting movie sell worldwide", 100000000, "A record-setting movie can sell hundreds of millions of tickets.", "count", "famous_event"),
   },
@@ -392,7 +400,7 @@ const DOMAIN_PROFILES = [
     pattern: /skate park|halfpipe/i,
     source: SOURCE.mlb,
     q1: item("skateboards", "can line one skate-park fence", 90, "A skate-park fence can hold dozens of boards.", "capacity"),
-    q2: item("pairs of skate shoes", "can fill one skate-shop shoe wall", 650, "A skate-shop wall can hold hundreds of shoes.", "capacity"),
+    q2: item("feet", "is an Olympic halfpipe from end to end", 600, "An Olympic halfpipe is hundreds of feet long.", "distance", "named_standard"),
     q3: item("skateboards", "are sold in the U.S. in one year", 2000000, "U.S. skateboard sales are about 2 million yearly.", "count", "famous_event"),
     extra: item("video views", "can Tony Hawk's famous trick clips draw", 10000000, "A famous Tony Hawk clip can draw millions of views.", "crowd", "famous_event"),
   },
@@ -411,14 +419,14 @@ const DOMAIN_PROFILES = [
     source: SOURCE.usdaFood,
     q1: item("pancakes", "can cook at once on a diner griddle", 48, "A full griddle can cook about 48 pancakes.", "capacity"),
     q2: item("cups of coffee", "can a diner morning rush pour", 960, "A breakfast rush can pour close to a thousand cups.", "rate"),
-    q3: item("eggs", "can a diner kitchen crack in one week", 12000, "A busy diner can crack tens of thousands of eggs weekly.", "rate", "famous_event"),
-    extra: item("pancake orders", "can a holiday diner rush serve", 18000, "A holiday breakfast rush can serve five figures of orders.", "rate", "famous_event"),
+    q3: item("Waffle House restaurants", "are open across the U.S.", 2000, "Waffle House has roughly 2,000 U.S. restaurants.", "count", "famous_event"),
+    extra: item("eggs", "does Waffle House use in one year", 272000000, "Waffle House uses hundreds of millions of eggs yearly.", "count", "famous_event"),
   },
   {
     key: "photo_booth",
     pattern: /photo booth/i,
     source: SOURCE.smithsonian,
-    q1: item("photo prints", "fit in one counter pickup box", 650, "A pickup box can hold hundreds of photo prints.", "capacity"),
+    q1: item("photos", "are on a common disposable camera roll", 27, "A disposable camera roll usually has 27 photos.", "count"),
     q2: item("photos", "can a busy booth print in one festival day", 3000, "A busy photo booth can print thousands of photos.", "rate"),
     q3: item("prints and photographs", "are in the Library of Congress collection", 15000000, "The Library of Congress collection holds millions of items.", "count", "famous_event"),
     extra: item("photos", "can a global image archive add in one day", 10000000, "A global photo archive can add millions of images daily.", "count", "famous_event"),
@@ -428,22 +436,22 @@ const DOMAIN_PROFILES = [
     pattern: /airport|baggage|gate queue|gate\b/i,
     source: SOURCE.apta,
     q1: item("suitcases", "can fit on one baggage carousel", 180, "A baggage carousel can carry hundreds of suitcases.", "capacity"),
-    q2: item("passengers", "can one busy airport gate board in a day", 1800, "A busy gate can board more than 1,000 passengers daily.", "crowd"),
-    q3: item("passengers", "can a major airport serve in one day", 250000, "A major airport can serve hundreds of thousands daily.", "famous_macro", "crowd"),
-    extra: item("bags", "can a major airport handle in one day", 500000, "A major airport can handle hundreds of thousands of bags.", "famous_macro", "count"),
+    q2: item("seats", "are on a typical Boeing narrow-body jet", 162, "A Boeing 737-style jet seats around 162 passengers.", "count", "named_standard"),
+    q3: item("passengers", "does Hartsfield-Jackson Atlanta airport serve in one day", 250000, "Atlanta's airport can serve about 250,000 passengers daily.", "famous_macro", "crowd"),
+    extra: item("bags", "does Denver International Airport handle in one day", 500000, "A giant airport can handle hundreds of thousands of bags.", "famous_macro", "count"),
   },
   {
     key: "photo",
     pattern: /camera|photo|photo booth|lens lab/i,
     source: SOURCE.smithsonian,
-    q1: item("photo prints", "fit in one counter pickup box", 650, "A pickup box can hold hundreds of photo prints.", "capacity"),
+    q1: item("photos", "are on a common disposable camera roll", 27, "A disposable camera roll usually has 27 photos.", "count"),
     q2: item("photos", "can a busy booth print in one festival day", 3000, "A busy photo booth can print thousands of photos.", "rate"),
     q3: item("photos", "can a major museum archive hold", 2000000, "A major photo archive can hold millions of images.", "famous_macro", "count"),
     extra: item("photos", "can a global image archive add in one day", 10000000, "A global photo archive can add millions of images daily.", "famous_macro", "count"),
   },
   {
     key: "book",
-    pattern: /library|book|bookstore|comic|used book/i,
+    pattern: /library|libraries|book|bookstore|comic|used book/i,
     source: SOURCE.smithsonian,
     q1: item("books", "fit on one full library cart", 140, "A full library cart can carry about 140 books.", "capacity"),
     q2: item("books", "can a busy branch library check out in one day", 4200, "A busy branch can check out thousands of books daily.", "rate"),
@@ -455,7 +463,7 @@ const DOMAIN_PROFILES = [
     pattern: /postcard|souvenir postcard/i,
     source: SOURCE.apta,
     q1: item("postcards", "fit on one souvenir rack", 480, "A postcard rack can hold hundreds of cards.", "capacity"),
-    q2: item("postcards", "can a busy museum shop sell in one day", 3000, "A busy shop can sell thousands of postcards daily.", "rate"),
+    q2: item("square inches", "does a standard postcard cover", 24, "A standard postcard covers about 24 square inches.", "area"),
     q3: item("postcards", "can Statue of Liberty gift shops sell in one season", 250000, "A landmark gift shop can sell hundreds of thousands of postcards.", "famous_macro", "count"),
     extra: item("postcards", "can National Park Service stores sell in one year", 1000000, "Park stores can sell postcard totals in the millions.", "famous_macro", "count"),
   },
@@ -524,7 +532,7 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "baseball",
-    pattern: /baseball|bullpen|dugout|bat rack|bat\b/i,
+    pattern: /baseball|bullpen|dugout|bat rack|bat\b|ballfield/i,
     source: SOURCE.mlb,
     q1: item("baseballs", "fit in one bullpen ball bucket", 132, "A bullpen bucket can hold around 132 baseballs.", "capacity"),
     q2: item("stitches", "are on one Major League baseball", 108, "A Major League baseball has 108 red stitches.", "count", "iconic_object", true),
@@ -605,10 +613,10 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "light_show",
-    pattern: /light show|lantern|holiday market|light walk|stage crew light|cul-de-sac light/i,
+    pattern: /light show|lantern|holiday market|light walk|stage crew light|cul-de-sac light|las vegas sphere|sphere screen/i,
     source: SOURCE.smithsonian,
     q1: item("bulbs", "glow on a neighborhood light-show house", 1800, "A small stage wall can use around 1,800 bulbs.", "count"),
-    q2: item("drones", "can fly in a large public drone show", 1000, "A large public drone show can put about 1,000 drones in the sky.", "count"),
+    q2: item("feet tall", "is the Las Vegas Sphere", 366, "The Las Vegas Sphere is about 366 feet tall.", "distance", "famous_event"),
     q3: item("LED lights", "cover the Las Vegas Sphere exterior", 1200000, "The Las Vegas Sphere uses about 1.2 million exterior lights.", "famous_macro", "count", "famous_event"),
     extra: item("LEDs", "glow across the Las Vegas Sphere exterior", 48000000, "The Sphere exterior uses tens of millions of LEDs.", "famous_macro", "count", "famous_event"),
   },
@@ -632,7 +640,7 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "fairground",
-    pattern: /fairground|state fair|county fair/i,
+    pattern: /fairground|state fair|county fair|festival/i,
     source: SOURCE.smithsonian,
     q1: item("seats", "fit in one fairground show-ring bleacher section", 800, "A show-ring bleacher section can seat hundreds.", "capacity"),
     q2: item("animals", "can fill a county fair barn", 1200, "A county fair barn can hold more than 1,000 animals.", "capacity"),
@@ -641,10 +649,10 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "health",
-    pattern: /blood drive|health fair/i,
+    pattern: /blood drive|health fair|hospital supply/i,
     source: SOURCE.censusQuickFacts,
     q1: item("donor chairs", "fit in one community blood drive room", 48, "A community blood drive room can hold dozens of donor chairs.", "capacity"),
-    q2: item("pints of blood", "can a busy regional drive collect in a day", 600, "A busy regional drive can collect hundreds of pints.", "capacity"),
+    q2: item("donors", "can a busy regional blood drive see in one day", 600, "A busy regional drive can see hundreds of donors.", "crowd"),
     q3: item("pints of blood", "do U.S. hospitals need in one day", 29000, "U.S. hospitals need tens of thousands of pints daily.", "famous_macro", "capacity"),
     extra: item("people", "can a Remote Area Medical clinic screen in one weekend", 50000, "A large free clinic can screen tens of thousands.", "famous_macro", "crowd"),
   },
@@ -659,12 +667,12 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "weather",
-    pattern: /weather|storm|thunderstorm|storm prep|stormy|storm drain/i,
+    pattern: /weather|storm|thunderstorm|storm prep|stormy|storm drain|sprinkler/i,
     source: SOURCE.usgsWater,
-    q1: item("umbrellas", "fit in one storm-prep rack", 160, "A storm-prep rack can hold well over 100 umbrellas.", "capacity"),
+    q1: item("gallons", "does a standard home rain barrel hold", 55, "A standard home rain barrel holds about 55 gallons.", "capacity"),
     q2: item("gallons", "can fill a standard backyard hot tub", 400, "A backyard hot tub often holds hundreds of gallons.", "capacity"),
     q3: item("lightning strikes", "can hit Earth in one day", 8000000, "Earth gets millions of lightning strikes each day.", "famous_macro", "count"),
-    extra: item("raindrops", "can fall on a city block during one storm", 10000000000, "A city-block storm can mean billions of raindrops.", "famous_macro", "count"),
+    extra: item("gallons of water", "does Niagara Falls send over in one minute", 45000000, "Niagara Falls sends tens of millions of gallons per minute.", "famous_macro", "capacity"),
   },
   {
     key: "school_bus",
@@ -686,7 +694,7 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "parade",
-    pattern: /parade|mardi gras|bead truck|balloons/i,
+    pattern: /parade|mardi gras|bead truck|balloons|confetti|flag box|patriotic flag|arlington memorial flags|memorial flags/i,
     source: SOURCE.smithsonian,
     q1: item("bead necklaces", "fit in one parade throw bag", 720, "A throw bag can hold hundreds of bead necklaces.", "capacity"),
     q2: item("feet of route", "can separate the first and last parade float", 5280, "A long parade can stretch about a mile from front to back.", "distance"),
@@ -708,7 +716,7 @@ const DOMAIN_PROFILES = [
     source: SOURCE.usgsWater,
     q1: item("trail maps", "fit in one summer trailhead dispenser", 450, "A trailhead dispenser can hold hundreds of folded maps.", "capacity"),
     q2: item("hikers", "can pass a popular trailhead in one day", 3500, "A popular trailhead can see thousands of hikers daily.", "crowd"),
-    q3: item("visitors", "can Vail Mountain welcome in one summer", 350000, "Vail can draw hundreds of thousands of summer visitors.", "famous_macro", "crowd"),
+    q3: item("skiable acres", "does Vail Mountain cover", 5300, "Vail covers more than 5,000 skiable acres.", "famous_macro", "area"),
     extra: item("visitors", "can Great Smoky Mountains National Park welcome in one year", 13000000, "Great Smoky Mountains gets the most U.S. park visits.", "famous_macro", "crowd"),
   },
   {
@@ -722,7 +730,7 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "canoe",
-    pattern: /canoe/i,
+    pattern: /canoe|kayak|paddle|boat ramp|harbor/i,
     source: SOURCE.britannicaScience,
     q1: item("life jackets", "hang on a full canoe-rental dock wall", 240, "A rental dock wall can hold hundreds of life jackets.", "capacity"),
     q2: item("paddle strokes", "can cross a busy lake morning", 12000, "A busy paddle morning can stack thousands of strokes.", "rate"),
@@ -749,12 +757,12 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "breakfast",
-    pattern: /diner|breakfast|pancake|griddle|kitchen timer|roadside diner/i,
+    pattern: /diner|breakfast|pancake|griddle|kitchen timer|roadside diner|waffle house/i,
     source: SOURCE.usdaFood,
     q1: item("pancakes", "can cook at once on a full {scene} griddle", 48, "A full griddle can cook about four dozen pancakes.", "capacity"),
     q2: item("cups of coffee", "can a busy {scene} morning pour", 960, "A breakfast rush can pour close to a thousand cups.", "rate"),
-    q3: item("eggs", "can a busy {scene} week crack", 12000, "A busy diner can crack tens of thousands of eggs weekly.", "famous_macro", "rate"),
-    extra: item("pancake orders", "can a holiday {scene} rush serve", 18000, "A holiday breakfast rush can serve five figures of orders.", "famous_macro", "rate"),
+    q3: item("Waffle House restaurants", "are open across the U.S.", 2000, "Waffle House has roughly 2,000 U.S. restaurants.", "famous_macro", "count"),
+    extra: item("eggs", "does Waffle House use in one year", 272000000, "Waffle House uses hundreds of millions of eggs yearly.", "famous_macro", "count"),
   },
   {
     key: "pizza",
@@ -776,16 +784,16 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "food_service",
-    pattern: /taco|sushi|bagel|donut|ice cream|sundae|fudge|soup|candy|bakery|cookie|gingerbread|cooler|picnic|grill|service kitchen|cider|market basket|tailgate|spice|maple sugar|thermos/i,
+    pattern: /taco|sushi|noodle|bagel|donut|ice cream|sundae|fudge|soup|candy|bakery|cookie|gingerbread|cooler|picnic|grill|service kitchen|food pantry|cider|market basket|tailgate|spice|maple sugar|thermos|food truck|bbq|smokehouse|easter egg/i,
     source: SOURCE.usdaFood,
-    q1: item("servings", "fit in a full {scene} prep setup", 360, "A busy counter can prep hundreds of servings.", "capacity"),
-    q2: item("pounds of ingredients", "can a busy {scene} kitchen use in a day", 750, "A prep line can use hundreds of pounds of ingredients.", "weight"),
-    q3: item("meals", "can a festival {scene} weekend serve", 50000, "A festival food weekend can serve tens of thousands of meals.", "famous_macro", "rate"),
-    extra: item("meals", "can a large city {scene} relief week serve", 125000, "A large soup-kitchen week can serve six figures of meals.", "famous_macro", "rate"),
+    q1: item("servings", "are in a full-size steam-table pan", 40, "A full-size steam-table pan serves about 40 portions.", "capacity", "named_standard"),
+    q2: item("pounds of flour", "does a commercial 20-quart mixer hold", 25, "A 20-quart mixer holds roughly 25 pounds of flour.", "weight", "named_standard"),
+    q3: item("meals", "does Feeding America distribute in one year", 5300000000, "Feeding America distributes meals at a billion-scale.", "famous_macro", "rate"),
+    extra: item("meals", "does World Central Kitchen serve in a major relief year", 100000000, "World Central Kitchen can serve meals at a huge scale.", "famous_macro", "rate"),
   },
   {
     key: "water",
-    pattern: /\brain\b|storm|weather|pool|swim|water|beach|lifeguard|fountain|hose|thunderstorm|storm drain/i,
+    pattern: /\brain\b|storm|weather|pool|swim|water|beach|lifeguard|fountain|hose|thunderstorm|storm drain|reservoir|spillway/i,
     source: SOURCE.usgsWater,
     q1: item("gallons", "does a standard {scene} rain barrel hold", 55, "Many home rain barrels use a 55-gallon drum size.", "capacity"),
     q2: item("gallons", "does a backyard {scene} pool hold", 20000, "A typical backyard pool holds about 20,000 gallons.", "capacity"),
@@ -825,7 +833,7 @@ const DOMAIN_PROFILES = [
     source: SOURCE.usdaFood,
     q1: item("pounds of produce", "fit on a full {scene} market table", 800, "A loaded market table can carry hundreds of pounds.", "weight"),
     q2: item("plants", "fit in a {scene} greenhouse flat stack", 2400, "Greenhouse flat stacks can hold thousands of young plants.", "capacity"),
-    q3: item("pounds of harvest", "can a productive county {scene} season produce", 1200000, "A strong county harvest can pass a million pounds.", "famous_macro", "weight"),
+    q3: item("farmers markets", "operate across the U.S.", 8700, "The U.S. has thousands of farmers markets.", "famous_macro", "count"),
     extra: item("pounds of milk", "can a large {scene} dairy region produce in a day", 10000000, "A dairy region can produce eight figures of pounds daily.", "famous_macro", "weight"),
   },
   {
@@ -841,7 +849,7 @@ const DOMAIN_PROFILES = [
     key: "warehouse",
     pattern: /warehouse|loading dock|dock lines|loading/i,
     source: SOURCE.nist,
-    q1: item("pallets", "fit across a full warehouse dock door", 24, "A dock door can stage a few dozen pallets.", "capacity"),
+    q1: item("pallets", "fit in a standard 53-foot freight trailer", 26, "A 53-foot trailer usually fits about 26 pallets.", "capacity", "named_standard"),
     q2: item("pounds of freight", "can one loaded box truck carry", 26000, "A loaded box truck can carry tens of thousands of pounds.", "weight"),
     q3: item("packages", "can UPS Worldport move in one day", 1000000, "UPS Worldport can move packages at a million-a-day scale.", "famous_macro", "count"),
     extra: item("packages", "can UPS move worldwide on one peak day", 50000000, "UPS can move tens of millions of packages on peak days.", "famous_macro", "rate"),
@@ -884,7 +892,7 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "toy",
-    pattern: /toy|brick|model railroad|toy train|robot|claw|puzzle table/i,
+    pattern: /toy|brick|model railroad|toy train|robot|claw|puzzle table|dollhouse|action figure/i,
     source: SOURCE.britannicaScience,
     q1: item("toy bricks", "fit in a full {scene} cleanup bin", 1200, "A cleanup bin can hold more than 1,000 toy bricks.", "capacity"),
     q2: item("tiny parts", "fit on a crowded {scene} model table", 6000, "A model table can hold thousands of tiny parts.", "count"),
@@ -895,7 +903,7 @@ const DOMAIN_PROFILES = [
     key: "arcade",
     pattern: /arcade|pinball|token|prize counter|ticket counter/i,
     source: SOURCE.britannicaScience,
-    q1: item("tokens", "fit in a full {scene} arcade cup", 160, "A full arcade cup can hold more than 100 tokens.", "capacity"),
+    q1: item("watts", "does a full-size arcade cabinet draw", 250, "A full-size arcade cabinet can draw a few hundred watts.", "count", "named_standard"),
     q2: item("tickets", "can a busy {scene} arcade pay out in one day", 120000, "A busy arcade can pay out six figures of tickets.", "rate"),
     q3: item("visitors", "can a major {scene} arcade expo draw", 250000, "A major game expo can draw hundreds of thousands of visitors.", "famous_macro", "crowd"),
     extra: item("tickets", "can a jackpot {scene} arcade weekend pay out", 500000, "A jackpot weekend can pay out half a million tickets.", "famous_macro", "count"),
@@ -941,13 +949,13 @@ const DOMAIN_PROFILES = [
     pattern: /\bart\b|gallery|mural|camera|photo|pottery|ceramic|glaze|paint|lens|museum/i,
     source: SOURCE.smithsonian,
     q1: item("paintbrushes", "fit in {aScene}", 360, "An art cart can hold hundreds of paintbrushes.", "capacity"),
-    q2: item("photo prints", "stack at {aScene} camera counter", 900, "A photo counter can stack hundreds of prints.", "count"),
+    q2: item("square feet", "are painted by one gallon of {scene} wall paint", 400, "One gallon of interior paint covers about 400 square feet.", "area"),
     q3: item("visitors", "can a major museum welcome during {aScene} exhibit year", 7000000, "A major museum can welcome millions of visitors yearly.", "famous_macro", "crowd"),
     extra: item("square feet of mural", "cover a landmark public art wall near {theScene}", 100000, "A landmark mural can cover a huge wall area.", "famous_macro", "area"),
   },
   {
     key: "election",
-    pattern: /ballot|election|presidents/i,
+    pattern: /ballot|election|presidents|courthouse|jury/i,
     source: SOURCE.censusQuickFacts,
     q1: item("ballots", "fit in one {scene} precinct scanner tray", 3000, "A scanner tray can hold thousands of ballots.", "capacity"),
     q2: item("voter stickers", "get handed out at one busy {scene} polling place", 12000, "A busy polling place can hand out thousands of stickers.", "count"),
@@ -958,14 +966,14 @@ const DOMAIN_PROFILES = [
     key: "winter",
     pattern: /snow|winter|ski|sled|ice rink|snowplow|plow|firewood|snow globe|ice fishing/i,
     source: SOURCE.usgsWater,
-    q1: item("mittens", "hang in the {scene} gear wall", 180, "A winter gear wall can hold hundreds of mittens.", "capacity"),
+    q1: item("gallons of brine", "does a {scene} road-treatment truck carry", 2000, "A road-treatment truck can carry thousands of gallons of brine.", "capacity"),
     q2: item("pounds of road salt", "stack in a {scene} pallet", 2400, "A road-salt pallet can weigh more than a ton.", "weight"),
-    q3: item("pounds of road salt", "can a municipal {scene} salt dome store", 5000000, "A salt dome can store millions of pounds of road salt.", "famous_macro", "weight"),
-    extra: item("pounds of snow", "can Killington make in one winter", 50000000, "Killington-scale snowmaking can reach tens of millions of pounds.", "famous_macro", "weight"),
+    q3: item("lane miles", "can a big city snow route cover", 9000, "A big city snow route can cover thousands of lane miles.", "famous_macro", "distance"),
+    extra: item("pounds of snow", "can Killington make in one winter", 50000000, "Killington snowmaking uses tens of millions of pounds.", "famous_macro", "weight"),
   },
   {
     key: "firehouse",
-    pattern: /fire station|firehouse|hose rack|fire-station|firehouse/i,
+    pattern: /fire station|firehouse|hose rack|fire-station|fire engine|fire pump|engine pump/i,
     source: SOURCE.censusQuickFacts,
     q1: item("helmets", "fit on {theScene} gear wall", 90, "A firehouse gear wall can hold dozens of helmets.", "capacity"),
     q2: item("feet of hose", "can one FDNY engine carry", 1200, "A fire engine can carry more than 1,000 feet of hose.", "distance"),
@@ -983,11 +991,11 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "garden",
-    pattern: /greenhouse|garden|flower|farm|\bcorn\b|pumpkin|apple|orchard|redwood|leaf|seed|evergreen|tree|canyon|trailhead|kite|farmers market|bouquet|berry|harvest/i,
+    pattern: /greenhouse|garden|flower|farm|\bcorn\b|pumpkin|apple|orchard|redwood|leaf|seed|evergreen|\btree\b|trees|canyon|trailhead|kite|farmers market|bouquet|berry|harvest/i,
     source: SOURCE.usdaFood,
     q1: item("plants", "fit on the {scene} display bench", 240, "A display bench can hold hundreds of plants.", "capacity"),
-    q2: item("pounds of produce", "fill the {scene} market table", 2400, "A market table can carry more than a ton of produce.", "weight"),
-    q3: item("pounds of harvest", "come from a productive county {scene} season", 1200000, "A strong county harvest can pass a million pounds.", "famous_macro", "weight"),
+    q2: item("pounds of produce", "does a farmers-market stall sell in one day", 900, "A market stall can sell hundreds of pounds in a day.", "rate"),
+    q3: item("visitors", "can Keukenhof welcome in one spring season", 1500000, "Keukenhof can welcome about 1.5 million spring visitors.", "famous_macro", "crowd"),
     extra: item("seedlings", "grow in a regional greenhouse season", 5000000, "A regional greenhouse season can grow millions of seedlings.", "famous_macro", "count"),
   },
   {
@@ -995,24 +1003,24 @@ const DOMAIN_PROFILES = [
     pattern: /apple|orchard|cider|apple press/i,
     source: SOURCE.usdaFood,
     q1: item("apples", "fit in a {scene} bushel basket", 125, "A bushel basket holds roughly 125 medium apples.", "capacity"),
-    q2: item("apples", "grow on a mature {scene} apple tree", 500, "A mature apple tree can grow hundreds of apples.", "count"),
+    q2: item("apple trees", "are planted on one orchard acre", 150, "An orchard acre can hold about 150 apple trees.", "count"),
     q3: item("pounds of apples", "grow on one productive {scene} orchard acre", 20000, "A productive orchard acre can grow about 20,000 pounds.", "famous_macro", "weight"),
     extra: item("pounds of apples", "come from a county {scene} orchard harvest", 1200000, "A county orchard harvest can pass a million pounds.", "famous_macro", "weight"),
   },
   {
     key: "transit",
-    pattern: /train|station|bus|airport|ferry|post office|mail|package|elevator|hotel|motel|route|highway|road trip|rail/i,
+    pattern: /train|station|bus|airport|ferry|post office|mail|package|elevator|hotel|motel|route|highway|road trip|rail|taxi|cable car/i,
     source: SOURCE.apta,
     q1: item("passengers", "fit on one full {scene} city bus", 72, "A full city bus can carry dozens of passengers.", "capacity"),
-    q2: item("riders", "can a busy {scene} train station handle in one hour", 12000, "A busy station can handle thousands of riders in an hour.", "rate"),
-    q3: item("passengers", "can a major {scene} travel hub serve in one day", 250000, "A major travel hub can serve hundreds of thousands of people.", "famous_macro", "crowd"),
-    extra: item("riders", "can a big-city {scene} transit system carry in one day", 3000000, "A big-city transit system can carry millions of riders.", "famous_macro", "crowd"),
+    q2: item("stops", "are on a typical NYC city bus route", 40, "A NYC bus route can have a few dozen stops.", "count", "famous_event"),
+    q3: item("riders", "does the New York City subway carry in one day", 3000000, "The NYC subway carries riders by the millions daily.", "famous_macro", "crowd"),
+    extra: item("riders", "does New York City Transit carry on buses in one day", 1800000, "NYC buses carry more than a million riders daily.", "famous_macro", "crowd"),
   },
   {
     key: "music",
     pattern: /orchestra|music|guitar|concert|stage|record|choir|drumline|theater seat|backstage|stage crew/i,
     source: SOURCE.smithsonian,
-    q1: item("instrument strings", "hang on a full {scene} music-shop wall", 240, "A music wall can hold hundreds of visible strings.", "count"),
+    q1: item("guitar strings", "are on a full {scene} guitar rack", 240, "A guitar rack can show hundreds of strings.", "count"),
     q2: item("seats", "fit in a large {scene} concert hall", 2200, "A large concert hall can seat a few thousand people.", "capacity"),
     q3: item("attendees", "can a major outdoor {scene} music festival draw", 400000, "A major music festival can draw hundreds of thousands.", "famous_macro", "crowd"),
     extra: item("streams", "can a major festival livestream draw", 10000000, "A major festival livestream can draw millions of streams.", "famous_macro", "count"),
@@ -1030,7 +1038,7 @@ const DOMAIN_PROFILES = [
     key: "tools",
     pattern: /hardware|tool|workbench|workshop|repair|shoe|tailor|key cutting|pegboard|factory|warehouse|loading dock|drawer|maker|solder|neon|lighthouse|recycling|garage/i,
     source: SOURCE.nist,
-    q1: item("small parts", "fit in a full {scene} counter bin", 500, "A counter bin can hold hundreds of small parts.", "capacity"),
+    q1: item("screws", "are in a one-pound {scene} hardware box", 300, "A one-pound hardware box can hold hundreds of screws.", "count"),
     q2: item("feet of material", "can a stocked {scene} hardware wall unroll", 3600, "A stocked wall can unroll thousands of feet of material.", "distance"),
     q3: item("customer jobs", "can a busy {scene} repair shop finish in one year", 12000, "A busy shop can finish thousands of customer jobs yearly.", "famous_macro", "count"),
     extra: item("rental orders", "can a big {scene} home-center chain handle in a season", 250000, "A busy rental season can handle hundreds of thousands of orders.", "famous_macro", "count"),
@@ -1050,8 +1058,8 @@ const DOMAIN_PROFILES = [
     source: SOURCE.usgsWater,
     q1: item("towels", "fit in a tall {scene} laundry cart", 240, "A tall laundry cart can hold hundreds of towels.", "capacity"),
     q2: item("wash loads", "can a busy {scene} day run", 720, "A busy laundromat day can run hundreds of loads.", "rate"),
-    q3: item("gallons of water", "can a hotel {scene} laundry month use", 1000000, "A hotel laundry month can use about a million gallons.", "famous_macro", "capacity"),
-    extra: item("pounds of laundry", "can a resort laundry operation wash in one month", 2000000, "A resort laundry month can pass two million pounds.", "famous_macro", "weight"),
+    q3: item("pounds of laundry", "does the MGM Grand wash in one month", 1000000, "The MGM Grand can wash laundry at a million-pound scale.", "famous_macro", "weight"),
+    extra: item("towels", "does Walt Disney World laundry wash in one day", 285000, "Disney laundry can wash hundreds of thousands of towels daily.", "famous_macro", "count"),
   },
   {
     key: "candle",
@@ -1073,7 +1081,7 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "sports",
-    pattern: /baseball|basketball|bowling|golf|tennis|hockey|skate|rink|climbing|marathon|bike|halfpipe|stadium|gym|sports ball|trail|canyon|game night|pool deck|derby/i,
+    pattern: /baseball|basketball|bowling|golf|tennis|hockey|soccer|football|track meet|field sideline|skate|rink|climbing|marathon|bike|halfpipe|stadium|gym|sports ball|trail|canyon|game night|pool deck|derby/i,
     source: SOURCE.mlb,
     q1: item("practice balls", "fit in a full {scene} equipment rack", 120, "A practice rack can hold more than 100 balls.", "capacity"),
     q2: item("plays", "can happen in a busy {scene} tournament day", 12000, "A busy tournament day can stack thousands of plays.", "rate"),
@@ -1082,16 +1090,16 @@ const DOMAIN_PROFILES = [
   },
   {
     key: "games",
-    pattern: /arcade|pinball|toy|puzzle|\bgame\b|domino|scrabble|board game|board-game|chess|robot|claw/i,
+    pattern: /arcade|pinball|toy|puzzle|\bgame\b|domino|scrabble|card|cards|dice|checkers|backgammon|cribbage|mahjong|roulette|board game|board-game|chess|robot|claw/i,
     source: SOURCE.britannicaScience,
-    q1: item("game pieces", "fit on a crowded {scene} game table", 500, "A game table can hold hundreds of little pieces.", "capacity"),
+    q1: item("letter tiles", "are in a standard {scene} Scrabble set", 100, "A standard Scrabble set has 100 letter tiles.", "count"),
     q2: item("puzzle pieces", "fit in a large {scene} tabletop puzzle", 5000, "A large tabletop puzzle can hold thousands of pieces.", "count"),
     q3: item("visitors", "can a major {scene} tabletop-game convention draw", 250000, "A major game convention can draw hundreds of thousands.", "famous_macro", "crowd"),
     extra: item("game pieces", "can a record {scene} tabletop collection include", 500000, "A record-scale collection can include hundreds of thousands of pieces.", "famous_macro", "count"),
   },
   {
     key: "space",
-    pattern: /moon|star|space|rocket|planet|telescope|observatory|planetarium|sky/i,
+    pattern: /moon|star|space|rocket|planet|mars|rover|saturn|telescope|observatory|planetarium|sky|meteor shower|asteroid/i,
     source: SOURCE.nasa,
     q1: item("eyepieces", "fit in the {scene} telescope loaner case", 96, "A telescope case can hold dozens of eyepieces.", "capacity"),
     q2: item("miles", "separate Earth and the Moon when {theScene} zooms to lunar scale", 239000, "The Moon is about 239,000 miles away.", "distance"),
@@ -1103,18 +1111,18 @@ const DOMAIN_PROFILES = [
     pattern: /money|coin|cash|mint|quarter/i,
     source: SOURCE.usMint,
     q1: item("coins", "fit in the {scene} display case", 480, "A coin display case can hold hundreds of coins.", "capacity"),
-    q2: item("cash notes", "get processed in a busy {scene} counting room", 280000, "A counting room can process hundreds of thousands of notes.", "rate"),
+    q2: item("coins", "does a U.S. Mint coin press strike in one minute", 750, "A U.S. Mint press can strike hundreds of coins per minute.", "rate", "famous_event"),
     q3: item("coins", "does the U.S. Mint make in a busy {scene} year", 10000000000, "The U.S. Mint can make billions of coins in a year.", "famous_macro", "count"),
     extra: item("coins", "can the U.S. Mint strike in a high-output {scene} month", 1000000000, "The Mint can strike huge monthly coin totals.", "famous_macro", "count"),
   },
   {
     key: "city",
-    pattern: /museum|gallery|mural|camera|photo|art|health fair|blood drive|parade|crosswalk|street|plaza|market|roadside|fairground|booth|lantern|holiday market/i,
+    pattern: /museum|gallery|mural|camera|photo|art|crosswalk|street|plaza|market|roadside|fairground|booth|holiday market/i,
     source: SOURCE.smithsonian,
     q1: item("visitor passes", "fit on a full {scene} check-in table", 900, "A check-in table can hold hundreds of visitor passes.", "capacity"),
-    q2: item("visitors", "can {theScene} welcome in one busy public day", 12000, "A busy public day can welcome thousands of visitors.", "crowd"),
-    q3: item("people", "can a major public event around {theScene} draw", 1000000, "A major city event can draw about a million people.", "famous_macro", "crowd"),
-    extra: item("visitors", "can a major public season at {theScene} welcome", 7000000, "A major public season can welcome millions of visitors.", "famous_macro", "crowd"),
+    q2: item("acres", "are in the National Mall", 146, "The National Mall covers about 146 acres.", "area", "famous_event"),
+    q3: item("people", "visit Times Square on a busy day", 350000, "Times Square can see hundreds of thousands in one day.", "famous_macro", "crowd"),
+    extra: item("visitors", "does the Statue of Liberty welcome in one year", 4000000, "The Statue of Liberty welcomes millions yearly.", "famous_macro", "crowd"),
   },
 ];
 
@@ -1127,6 +1135,158 @@ const SPECIAL_PACKS = {
       specialQuestion("How many people gather near the Times Square Ball on New Year's Eve?", 1000000, "Times Square can draw about a million people on New Year's Eve.", "famous_macro", "crowd", "famous_event"),
     ],
     extra: specialQuestion("How many wishes can Times Square's New Year's wishing wall collect?", 100000, "The wishing wall can collect six figures of wishes.", "famous_macro", "count", "famous_event"),
+  },
+  "Snow Route Map": {
+    source: SOURCE.usgsWater,
+    questions: [
+      specialQuestion("How many gallons of brine does a road-treatment truck carry?", 2000, "A road-treatment truck can carry about 2,000 gallons of brine.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many pounds of road salt sit on one full pallet?", 2400, "One pallet of road salt can weigh more than a ton.", "physical_capacity", "weight", "named_standard"),
+      specialQuestion("How many lane miles can Chicago's snow route cover?", 9000, "Chicago snow routes cover thousands of lane miles.", "famous_macro", "distance", "famous_event"),
+    ],
+  },
+  "Tailor Shop Counter": {
+    source: SOURCE.nist,
+    questions: [
+      specialQuestion("How many buttons fit in a one-pound tailor-shop jar?", 720, "A pound of loose buttons can make a jar look bottomless.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many feet of thread sit on one sewing-machine spool?", 3000, "One sewing-machine spool can hold thousands of feet of thread.", "physical_capacity", "distance", "named_standard"),
+      specialQuestion("How many garments can a busy tailor shop alter in one year?", 12000, "A busy tailor shop can finish thousands of garments yearly.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "Toy Brick Cleanup": {
+    source: SOURCE.britannicaScience,
+    questions: [
+      specialQuestion("How many pieces are in a LEGO Classic medium brick box?", 484, "The LEGO Classic medium box has 484 pieces.", "familiar_anchor", "count", "iconic_object"),
+      specialQuestion("How many toy bricks fit in a five-gallon cleanup bin?", 3000, "A five-gallon bin can swallow thousands of small bricks.", "physical_capacity", "capacity", "named_standard"),
+      specialQuestion("How many LEGO bricks does LEGO make in one year?", 36000000000, "LEGO makes tens of billions of bricks yearly.", "famous_macro", "count", "famous_event"),
+    ],
+    extra: specialQuestion("How many LEGO minifigures have been made since 1978?", 8000000000, "LEGO has made billions of minifigures.", "famous_macro", "count", "famous_event"),
+  },
+  "Wrapping Paper Table": {
+    source: SOURCE.nist,
+    questions: [
+      specialQuestion("How many rolls of wrapping paper fit on a gift-wrap table?", 36, "A gift-wrap table can hold a few dozen rolls.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many yards of ribbon are on a standard craft spool?", 100, "A standard craft spool can unroll to about 100 yards.", "physical_capacity", "distance", "named_standard"),
+      specialQuestion("How many packages can U.S. carriers deliver during the holidays?", 3000000000, "Holiday deliveries can number in the billions.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "St. Patrick Parade": {
+    source: SOURCE.smithsonian,
+    questions: [
+      specialQuestion("How many bead necklaces fit in one standard parade throw bag?", 720, "A standard throw bag can hold hundreds of bead necklaces.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many feet long is New York's St. Patrick's parade route?", 9600, "The New York route runs close to two miles.", "physical_capacity", "distance", "famous_event"),
+      specialQuestion("How many spectators can New York's St. Patrick's parade draw?", 2000000, "New York's St. Patrick's parade can draw millions.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "City Bus Garage": {
+    source: SOURCE.apta,
+    questions: [
+      specialQuestion("How many passengers fit on one full city bus?", 72, "A full city bus can carry dozens of passengers.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many gallons can a city bus fuel tank hold?", 125, "A city bus fuel tank can hold more than 100 gallons.", "physical_capacity", "capacity", "named_standard"),
+      specialQuestion("How many buses are in New York City's public bus fleet?", 5800, "New York City's bus fleet has thousands of buses.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "The Moon": {
+    source: SOURCE.nasa,
+    questions: [
+      specialQuestion("How many miles wide is the Moon?", 2159, "The Moon is about 2,159 miles wide.", "physical_capacity", "distance", "natural_scale", false, "physical_dimension"),
+      specialQuestion("How many days does one lunar phase cycle take?", 29, "A lunar phase cycle takes about 29 days.", "production_scale", "count", "natural_scale", false, "natural_cycle"),
+      specialQuestion("How many craters are mapped on the Moon?", 1300000, "Scientists have mapped more than a million lunar craters.", "famous_macro", "count", "natural_scale", false, "surface_features"),
+    ],
+    extra: specialQuestion("How many miles is the Moon from Earth?", 239000, "The Moon is about 239,000 miles away.", "famous_macro", "distance", "natural_scale"),
+  },
+  "Theater Seat Rows": {
+    source: SOURCE.smithsonian,
+    questions: [
+      specialQuestion("How many seats fit in a midsize theater auditorium?", 220, "A midsize auditorium seats a few hundred people.", "familiar_anchor", "crowd", "sourced_typical"),
+      specialQuestion("How many Broadway theaters operate in New York City?", 41, "Broadway has 41 official theaters.", "iconic_exact", "count", "famous_event", true),
+      specialQuestion("How many people attend Broadway shows in one season?", 12000000, "Broadway attendance reaches eight figures in a season.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Stage Crew Fly Rail": {
+    source: SOURCE.smithsonian,
+    questions: [
+      specialQuestion("How many rope lines can hang on a theater fly rail?", 60, "A fly rail can organize dozens of rope lines.", "familiar_anchor", "count", "named_standard"),
+      specialQuestion("How many pounds of scenery can a counterweight fly system move?", 20000, "A stage fly system can move tons of scenery overhead.", "physical_capacity", "weight", "named_standard"),
+      specialQuestion("How many lighting cues can fire during a Broadway musical run?", 54000, "A musical run can trigger tens of thousands of cues.", "famous_macro", "rate", "famous_event"),
+    ],
+  },
+  "Weather Station": {
+    source: SOURCE.usgsWater,
+    questions: [
+      specialQuestion("How many gallons does a standard home rain barrel hold?", 55, "A standard home rain barrel holds about 55 gallons.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many miles per hour marks a severe thunderstorm wind gust?", 58, "Severe thunderstorm wind starts at about 58 mph.", "physical_capacity", "rate", "natural_scale"),
+      specialQuestion("How many lightning strikes hit Earth in one day?", 8000000, "Earth gets millions of lightning strikes daily.", "famous_macro", "count", "natural_scale"),
+    ],
+    extra: specialQuestion("How many U.S. weather observations can be logged in one month?", 30000000, "U.S. weather networks can log tens of millions of observations monthly.", "famous_macro", "rate", "famous_event"),
+  },
+  "Weather Desk": {
+    source: SOURCE.usgsWater,
+    questions: [
+      specialQuestion("How many inches of mercury is standard sea-level air pressure?", 30, "Sea-level pressure is about 30 inches of mercury.", "familiar_anchor", "distance", "named_standard"),
+      specialQuestion("How many readings can one automated weather station log in a day?", 288, "A five-minute weather station logs 288 readings daily.", "physical_capacity", "rate", "named_standard"),
+      specialQuestion("How many weather balloons does the U.S. launch in one year?", 90000, "U.S. balloon launches add up to tens of thousands yearly.", "famous_macro", "count", "famous_event"),
+    ],
+    extra: specialQuestion("How many feet high can a weather balloon climb?", 100000, "A weather balloon can climb about 100,000 feet.", "famous_macro", "distance", "natural_scale"),
+  },
+  "Harvest Wagons": {
+    source: SOURCE.usdaFood,
+    questions: [
+      specialQuestion("How many pounds are in a bushel of apples?", 48, "A bushel of apples weighs about 48 pounds.", "familiar_anchor", "weight", "named_standard"),
+      specialQuestion("How many pounds of pumpkins fill one harvest wagon?", 2000, "One harvest wagon can carry about a ton of pumpkins.", "physical_capacity", "weight", "named_standard"),
+      specialQuestion("How many pounds of pumpkins does Illinois grow in one year?", 650000000, "Illinois grows hundreds of millions of pounds of pumpkins.", "famous_macro", "weight", "famous_event"),
+    ],
+  },
+  "Ice Rink Skate Rental": {
+    source: SOURCE.usgsWater,
+    questions: [
+      specialQuestion("How many pairs of skates fit on a full rental wall?", 300, "A rental wall can hold hundreds of skate pairs.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many gallons of water freeze into an NHL rink sheet?", 12000, "An NHL rink sheet takes thousands of gallons of water.", "physical_capacity", "capacity", "named_standard"),
+      specialQuestion("How many skaters can Rockefeller Center's rink host in a season?", 250000, "Rockefeller's rink can host hundreds of thousands of skaters.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Gingerbread Bakery": {
+    source: SOURCE.usdaFood,
+    questions: [
+      specialQuestion("How many gingerbread cookies fit on a full bakery sheet pan?", 24, "A sheet pan can hold a couple dozen cookies.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many cookies can a busy bakery bake in one day?", 5000, "A busy bakery can turn out thousands of cookies daily.", "production_scale", "rate", "named_standard"),
+      specialQuestion("How many pounds did the world's largest gingerbread house weigh?", 36000, "The largest gingerbread house weighed about 36,000 pounds.", "famous_macro", "weight", "famous_event"),
+    ],
+    extra: specialQuestion("How many gingerbread houses can a holiday display include?", 1000, "A big holiday display can include about 1,000 houses.", "famous_macro", "count", "famous_event"),
+  },
+  "Sledding Hill": {
+    source: SOURCE.usgsWater,
+    questions: [
+      specialQuestion("How many plastic sleds fit in a park rental shed?", 120, "A park shed can stack more than 100 sleds.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many feet long can a public sledding run be?", 900, "A big public sledding run can stretch hundreds of feet.", "physical_capacity", "distance", "natural_scale"),
+      specialQuestion("How many skiable acres does Vail Mountain cover?", 5300, "Vail covers more than 5,000 skiable acres.", "famous_macro", "area", "famous_event"),
+    ],
+  },
+  "Stage Light Catwalk": {
+    source: SOURCE.smithsonian,
+    questions: [
+      specialQuestion("How many spotlights hang over a midsize theater stage?", 96, "A midsize stage can hang close to 100 lights.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many gel-frame square inches color the light rack?", 3456, "The color frames add up to a small stained-glass wall.", "physical_capacity", "area", "named_standard"),
+      specialQuestion("How many light cues fire during a long musical run?", 54000, "A musical run can trigger tens of thousands of light cues.", "famous_macro", "rate", "famous_event"),
+    ],
+    extra: specialQuestion("How many watts blaze if the whole stage rig peaks at once?", 115200, "A stage rig can peak above 100,000 watts.", "famous_macro", "rate", "named_standard"),
+  },
+  "Arcade Token Cup": {
+    source: SOURCE.britannicaScience,
+    questions: [
+      specialQuestion("How many tokens fit in a standard plastic arcade cup?", 120, "A standard arcade cup can hold about 120 tokens.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many button presses happen on a fighting-game row in one busy night?", 216000, "A fighting-game row can rack up hundreds of thousands of presses.", "production_scale", "rate", "named_standard"),
+      specialQuestion("How many prize tickets spill out on a jackpot day?", 360000, "A jackpot day can spill hundreds of thousands of tickets.", "famous_macro", "count", "famous_event"),
+    ],
+    extra: specialQuestion("How many prize tickets can a packed arcade weekend pay out?", 720000, "A packed arcade weekend can pay out hundreds of thousands of tickets.", "famous_macro", "count", "famous_event"),
+  },
+  "Observatory Telescope Night": {
+    source: SOURCE.nasa,
+    questions: [
+      specialQuestion("How many eyepieces are needed for a public observatory star party?", 96, "A public star party can need dozens of eyepieces.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many mirror square inches collect light in a telescope row?", 11310, "A telescope row can collect thousands of square inches of light.", "physical_capacity", "area", "natural_scale"),
+      specialQuestion("How many miles does moonlight travel before reaching the telescope?", 239000, "Moonlight reaches us after about 239,000 miles.", "famous_macro", "distance", "natural_scale"),
+    ],
+    extra: specialQuestion("How many stars sit in the Milky Way?", 100000000000, "The Milky Way holds about 100 billion stars.", "famous_macro", "count", "natural_scale"),
   },
   "Backyard Rainfall": {
     source: SOURCE.usgsWater,
@@ -1159,7 +1319,7 @@ const SPECIAL_PACKS = {
     source: SOURCE.usMint,
     questions: [
       specialQuestion("How many ridges are around a U.S. quarter?", 119, "A U.S. quarter has 119 ridges.", "iconic_exact", "count", "iconic_object", true),
-      specialQuestion("How many cash notes can a busy counting room process in one day?", 280000, "A counting room can process hundreds of thousands of notes.", "physical_capacity", "rate", "named_standard"),
+      specialQuestion("How many coins does a U.S. Mint coin press strike in one minute?", 750, "A U.S. Mint press can strike hundreds of coins per minute.", "production_scale", "rate", "famous_event"),
       specialQuestion("How many coins can the U.S. Mint make in a busy year?", 10000000000, "The U.S. Mint can make billions of coins in a year.", "famous_macro", "count", "famous_event"),
     ],
   },
@@ -1167,7 +1327,7 @@ const SPECIAL_PACKS = {
     source: SOURCE.britannicaScience,
     questions: [
       specialQuestion("How many cards are in a standard Uno deck?", 112, "A standard Uno deck has 112 cards.", "iconic_exact", "count", "iconic_object", true),
-      specialQuestion("How many pieces are in a LEGO Classic medium brick box?", 484, "The LEGO medium brick box has 484 pieces.", "familiar_anchor", "count", "iconic_object"),
+      specialQuestion("How many pieces are in a LEGO Classic large brick box?", 790, "The LEGO Classic large box has hundreds of pieces.", "familiar_anchor", "count", "iconic_object"),
       specialQuestion("How many Barbie dolls have sold worldwide?", 1000000000, "Barbie sales have passed one billion dolls.", "famous_macro", "count", "famous_event"),
     ],
     extra: specialQuestion("How many LEGO minifigures have been made since 1978?", 8000000000, "LEGO has made billions of minifigures.", "famous_macro", "count", "famous_event"),
@@ -1175,16 +1335,24 @@ const SPECIAL_PACKS = {
   "Game Night": {
     source: SOURCE.britannicaScience,
     questions: [
-      specialQuestion("How many wooden blocks are in a classic Jenga tower?", 54, "A classic Jenga tower starts with 54 wooden blocks.", "iconic_exact", "count", "iconic_object", true),
-      specialQuestion("How many edge pieces are in a typical 1,000-piece jigsaw puzzle?", 126, "A 25-by-40 puzzle grid has about 126 edge pieces.", "object_anatomy", "count", "named_standard"),
+      specialQuestion("How many wooden blocks start a classic Jenga tower on game night?", 54, "A classic Jenga tower starts with 54 wooden blocks.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many letter tiles are in a standard Scrabble set?", 100, "A standard Scrabble set has 100 letter tiles.", "familiar_anchor", "count", "iconic_object"),
       specialQuestion("How many Monopoly sets have sold worldwide?", 300000000, "Monopoly sales have reached hundreds of millions.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "Rocket Club Launch Table": {
+    source: SOURCE.nasa,
+    questions: [
+      specialQuestion("How many feet high can a beginner model rocket fly?", 1000, "A beginner model rocket can climb about 1,000 feet.", "familiar_anchor", "distance", "natural_scale"),
+      specialQuestion("How many miles per hour can a fast model rocket fly?", 300, "A fast model rocket flies hundreds of miles per hour.", "physical_capacity", "rate", "natural_scale"),
+      specialQuestion("How many people watched the Apollo 11 moon landing?", 650000000, "Apollo 11 drew hundreds of millions of viewers.", "famous_macro", "crowd", "famous_event"),
     ],
   },
   "Classroom Shelf": {
     source: SOURCE.smithsonian,
     questions: [
       specialQuestion("How many sheets are in a fresh ream of printer paper?", 500, "A fresh paper ream has 500 sheets.", "iconic_exact", "count", "iconic_object", true),
-      specialQuestion("How many books does one big classroom library hold?", 600, "A classroom library can feel full at about 600 books.", "physical_capacity", "count", "sourced_typical"),
+      specialQuestion("How many books can one full classroom book cart carry?", 145, "A full classroom book cart can carry about 145 books.", "physical_capacity", "capacity", "named_standard"),
       specialQuestion("How many books are in the Library of Congress?", 39000000, "The Library of Congress holds tens of millions of books.", "famous_macro", "count", "famous_event"),
     ],
   },
@@ -1199,9 +1367,25 @@ const SPECIAL_PACKS = {
   "Post Office": {
     source: SOURCE.apta,
     questions: [
-      specialQuestion("How many digits are in a basic ZIP Code?", 5, "A basic ZIP Code has five digits.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many letters fit in one full USPS carrier tray?", 500, "A full carrier tray can hold hundreds of letters.", "familiar_anchor", "capacity", "named_standard"),
       specialQuestion("How many delivery vehicles does USPS operate?", 230000, "USPS operates hundreds of thousands of vehicles.", "production_scale", "count", "famous_event"),
       specialQuestion("How many mail pieces does USPS handle on an average day?", 318000000, "USPS handles hundreds of millions daily.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "Bus Wash Bay": {
+    source: SOURCE.apta,
+    questions: [
+      specialQuestion("How many students fit on one full-size school bus?", 72, "A full-size school bus often seats about 72 students.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many gallons can a full-size school bus fuel tank hold?", 100, "A school bus fuel tank can hold about 100 gallons.", "physical_capacity", "capacity", "named_standard"),
+      specialQuestion("How many students can New York City public schools bus in one morning?", 100000, "NYC can bus about 100,000 students daily.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Hardware Store": {
+    source: SOURCE.nist,
+    questions: [
+      specialQuestion("How many screws are in a one-pound hardware box?", 300, "A one-pound hardware box can hold hundreds of screws.", "familiar_anchor", "count", "named_standard"),
+      specialQuestion("How many pounds can one sheet of plywood weigh?", 60, "A plywood sheet can weigh around 60 pounds.", "physical_capacity", "weight", "named_standard"),
+      specialQuestion("How many customer jobs does Repair Cafe International finish in one year?", 12000, "Repair Cafe International finishes thousands of jobs yearly.", "famous_macro", "count", "famous_event"),
     ],
   },
   "Dairy Barn": {
@@ -1265,7 +1449,7 @@ const SPECIAL_PACKS = {
   "Candy Counter": {
     source: SOURCE.usdaFood,
     questions: [
-      specialQuestion("How many colors are in a classic milk-chocolate M&M's mix?", 6, "Classic milk-chocolate M&M's use six colors.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many jelly beans fit in one candy-counter jar?", 950, "A candy jar can hold hundreds of jelly beans.", "familiar_anchor", "capacity", "iconic_object"),
       specialQuestion("How many jelly beans are in one pound?", 400, "One pound of jelly beans has a few hundred beans.", "physical_capacity", "weight", "named_standard"),
       specialQuestion("How many M&M's can Mars make in one day?", 400000000, "Mars makes hundreds of millions of M&M's daily.", "famous_macro", "count", "famous_event"),
     ],
@@ -1332,8 +1516,8 @@ const SPECIAL_PACKS = {
   "Aquarium Tank": {
     source: SOURCE.britannicaScience,
     questions: [
-      specialQuestion("How many arms does an octopus have?", 8, "An octopus has eight arms.", "iconic_exact", "count", "iconic_object", true),
-      specialQuestion("How many gallons does a large home aquarium hold?", 125, "A large home aquarium can hold over 100 gallons.", "physical_capacity", "capacity", "sourced_typical"),
+      specialQuestion("How many gallons does a large home aquarium hold?", 125, "A large home aquarium can hold over 100 gallons.", "familiar_anchor", "capacity", "sourced_typical"),
+      specialQuestion("How many feet long can a whale shark grow?", 40, "A whale shark can grow about 40 feet long.", "physical_capacity", "distance", "natural_scale"),
       specialQuestion("How many gallons are in Georgia Aquarium's Ocean Voyager exhibit?", 6300000, "Ocean Voyager holds millions of gallons.", "famous_macro", "capacity", "famous_event"),
     ],
     extra: specialQuestion("How many gallons can Monterey Bay Aquarium pump in one week?", 14000000, "Monterey Bay pumps millions of gallons weekly.", "famous_macro", "capacity", "famous_event"),
@@ -1341,8 +1525,8 @@ const SPECIAL_PACKS = {
   "Coffee Bar": {
     source: SOURCE.usdaFood,
     questions: [
-      specialQuestion("How many ounces are in a Starbucks grande coffee?", 16, "A Starbucks grande is 16 fluid ounces.", "iconic_exact", "capacity", "iconic_object", true),
-      specialQuestion("How many beans are in one pound of roasted coffee?", 3000, "One pound of roasted coffee has about 3,000 beans.", "physical_capacity", "count", "named_standard"),
+      specialQuestion("How many coffee beans are in one pound of roasted coffee?", 3000, "One pound of roasted coffee has about 3,000 beans.", "familiar_anchor", "count", "named_standard"),
+      specialQuestion("How many cups of coffee can a busy coffee bar pour in one morning?", 1500, "A busy coffee bar can pour about 1,500 cups.", "physical_capacity", "rate", "named_standard"),
       specialQuestion("How many cups of coffee do Americans drink each day?", 400000000, "Americans drink hundreds of millions of cups daily.", "famous_macro", "count", "famous_event"),
     ],
     extra: specialQuestion("How many pounds of coffee does the U.S. import in one year?", 3000000000, "U.S. coffee imports are about three billion pounds.", "famous_macro", "weight", "famous_event"),
@@ -1366,8 +1550,8 @@ const SPECIAL_PACKS = {
   "Record Store": {
     source: SOURCE.smithsonian,
     questions: [
-      specialQuestion("How many RPM does a standard LP record spin?", 33, "A standard LP spins at about 33 RPM.", "iconic_exact", "rate", "iconic_object", true),
-      specialQuestion("How many vinyl records sell in the U.S. in one year?", 50000000, "U.S. vinyl sales sit in the tens of millions.", "production_scale", "count", "famous_event"),
+      specialQuestion("How many vinyl records fit in one packed record-store crate?", 140, "A packed crate can hold about 140 records.", "familiar_anchor", "capacity", "iconic_object"),
+      specialQuestion("How many records can a small pressing plant make in one day?", 10000, "A small pressing plant can make thousands of records daily.", "production_scale", "rate", "famous_event"),
       specialQuestion("How many copies has Thriller sold worldwide?", 70000000, "Thriller has sold tens of millions of copies.", "famous_macro", "count", "famous_event"),
     ],
   },
@@ -1430,16 +1614,16 @@ const SPECIAL_PACKS = {
   "Thunderstorm Porch": {
     source: SOURCE.usgsWater,
     questions: [
-      specialQuestion("How many seconds after lightning means thunder is about one mile away?", 5, "Thunder lags by about five seconds per mile.", "iconic_exact", "duration", "natural_scale", true),
-      specialQuestion("How many feet tall can a thunderstorm cloud grow?", 60000, "A tall thunderstorm cloud rises tens of thousands of feet.", "production_scale", "distance", "natural_scale"),
-      specialQuestion("How many lightning strikes hit Earth in one day?", 8000000, "Earth gets millions of lightning strikes daily.", "famous_macro", "count", "natural_scale"),
+      specialQuestion("How many gallons can a standard storm-drain inlet move in one minute?", 1000, "A storm-drain inlet can move about 1,000 gallons a minute.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many feet tall can a thunderstorm cloud grow?", 60000, "A tall thunderstorm cloud rises tens of thousands of feet.", "physical_capacity", "distance", "natural_scale"),
+      specialQuestion("How many U.S. cloud-to-ground lightning flashes happen in one year?", 20000000, "The U.S. gets tens of millions of lightning flashes yearly.", "famous_macro", "count", "natural_scale"),
     ],
   },
   "Ice Cream Truck": {
     source: SOURCE.usdaFood,
     questions: [
-      specialQuestion("How many flavors did Baskin-Robbins famously advertise?", 31, "Baskin-Robbins famously advertised 31 flavors.", "iconic_exact", "count", "iconic_object", true),
-      specialQuestion("How many licks can it take to finish one scoop?", 50, "One scoop can take dozens of licks.", "object_anatomy", "count", "iconic_object"),
+      specialQuestion("How many ice-cream bars fit in one truck-window freezer?", 360, "A truck freezer can hold hundreds of bars.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many scoops can a busy ice-cream truck serve in one hot day?", 1050, "A busy truck can serve about 1,000 scoops.", "production_scale", "rate", "named_standard"),
       specialQuestion("How many gallons of ice cream do Americans eat in one year?", 1300000000, "Americans eat ice cream at a billion-gallon scale.", "famous_macro", "capacity", "famous_event"),
     ],
   },
@@ -1514,7 +1698,7 @@ const SPECIAL_PACKS = {
     source: SOURCE.usdaFood,
     questions: [
       specialQuestion("How many blueberries are in one pound?", 275, "One pound of blueberries has a few hundred berries.", "familiar_anchor", "weight", "named_standard"),
-      specialQuestion("How many acres of strawberries does California harvest?", 35000, "California harvests tens of thousands of strawberry acres.", "production_scale", "area", "famous_event"),
+      specialQuestion("How many strawberries fit in one quart basket?", 30, "A quart basket holds a few dozen strawberries.", "physical_capacity", "capacity", "named_standard"),
       specialQuestion("How many pounds of strawberries can California harvest in one year?", 1800000000, "California can harvest strawberries at a billion-pound scale.", "famous_macro", "weight", "famous_event"),
     ],
   },
@@ -1529,16 +1713,16 @@ const SPECIAL_PACKS = {
   "National Park Postcard": {
     source: SOURCE.britannicaScience,
     questions: [
-      specialQuestion("How many national parks are in the United States?", 63, "The U.S. has 63 national parks.", "iconic_exact", "count", "famous_event", true),
+      specialQuestion("How many miles of road cross Yellowstone National Park?", 466, "Yellowstone has hundreds of miles of roads.", "familiar_anchor", "distance", "famous_event"),
       specialQuestion("How many acres does Yellowstone National Park cover?", 2200000, "Yellowstone covers more than two million acres.", "physical_capacity", "area", "natural_scale"),
       specialQuestion("How many visitors can the Grand Canyon welcome in one year?", 5000000, "Grand Canyon visits are about five million yearly.", "famous_macro", "crowd", "famous_event"),
     ],
   },
-  "Father's Day Cards": {
+  "Father's Day Gifts": {
     source: SOURCE.smithsonian,
     questions: [
-      specialQuestion("How many briquettes fit in a standard charcoal chimney starter?", 100, "A chimney starter holds about 100 briquettes.", "familiar_anchor", "capacity", "named_standard"),
-      specialQuestion("How many Father's Day cards are exchanged in the U.S. each year?", 72000000, "Americans exchange tens of millions of Father's Day cards.", "production_scale", "count", "famous_event"),
+      specialQuestion("How many briquettes fit in a standard charcoal chimney starter?", 100, "A chimney starter holds about 100 briquettes.", "object_anatomy", "capacity", "named_standard"),
+      specialQuestion("How many cards fit on one full greeting-card store rack?", 420, "A full greeting-card rack can hold hundreds of cards.", "physical_capacity", "capacity", "named_standard"),
       specialQuestion("How much do Americans spend for Father's Day?", 24000000000, "Father's Day spending reaches tens of billions.", "famous_macro", "count", "famous_event"),
     ],
     extra: specialQuestion("How many Father's Day cards are exchanged in the U.S. each year?", 72000000, "Americans exchange tens of millions of Father's Day cards.", "famous_macro", "count", "famous_event"),
@@ -1555,11 +1739,11 @@ const SPECIAL_PACKS = {
   "In the Orchestra Pit": {
     source: SOURCE.smithsonian,
     questions: [
-      specialQuestion("How many keys are on a full-size piano?", 88, "A full-size piano has 88 keys.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many piano keys are on the instrument in an orchestra pit?", 88, "A full-size piano has 88 keys.", "iconic_exact", "count", "iconic_object", true),
       specialQuestion("How many sheet-music pages are on a full orchestra stand cart?", 1200, "A pit stand cart carries more than 1,000 pages.", "physical_capacity", "capacity", "iconic_object"),
       specialQuestion("How many people can Coachella draw across one festival weekend?", 400000, "Coachella can draw hundreds of thousands of visits.", "famous_macro", "crowd", "famous_event"),
     ],
-    extra: specialQuestion("How many streams can Coachella's livestream draw?", 10000000, "Coachella's livestream can draw millions of streams.", "famous_macro", "count", "famous_event"),
+    extra: specialQuestion("How many notes can an orchestra season put on page?", 5000000, "An orchestra season can put millions of notes on page.", "famous_macro", "count", "famous_event"),
   },
   "Under the Tree": {
     source: SOURCE.smithsonian,
@@ -1570,17 +1754,247 @@ const SPECIAL_PACKS = {
     ],
     extra: specialQuestion("How many packages can U.S. carriers deliver during the holiday season?", 3000000000, "Holiday deliveries can number in the billions.", "famous_macro", "count", "famous_event"),
   },
+  "Sock Basket": {
+    source: SOURCE.nist,
+    questions: [
+      specialQuestion("How many socks fit in one full laundry basket?", 80, "A full laundry basket can hold dozens of socks.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many pounds can a full laundry basket weigh?", 35, "A heavy laundry basket can weigh a few dozen pounds.", "physical_capacity", "weight", "sourced_typical"),
+      specialQuestion("How many garments can a busy tailor shop finish in one year?", 12000, "A busy tailor shop can finish thousands of garments yearly.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "Halfpipe Session": {
+    source: SOURCE.britannicaScience,
+    questions: [
+      specialQuestion("How many skateboards can line one skate-shop wall?", 90, "A full skate-shop wall can hold around 90 boards.", "familiar_anchor", "capacity", "iconic_object"),
+      specialQuestion("How many feet long is a competition vert halfpipe?", 60, "A competition vert halfpipe is roughly 60 feet long.", "physical_capacity", "distance", "named_standard"),
+      specialQuestion("How many spectators can X Games events draw over a weekend?", 100000, "X Games crowds can draw about 100,000 people.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Toy Train Window": {
+    source: SOURCE.apta,
+    questions: [
+      specialQuestion("How many toy train cars fit in a store-window display?", 48, "A window display can hold dozens of toy train cars.", "familiar_anchor", "capacity", "iconic_object"),
+      specialQuestion("How many feet of track fit around a store-window toy train loop?", 32, "A window loop can use a few dozen feet of track.", "physical_capacity", "distance", "named_standard"),
+      specialQuestion("How many riders can the New York City subway carry in one day?", 3500000, "The NYC subway can carry millions of riders daily.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Toy Train Table": {
+    source: SOURCE.apta,
+    questions: [
+      specialQuestion("How many wooden track pieces fit on a crowded toy train table?", 120, "A toy train table can hold more than 100 track pieces.", "familiar_anchor", "capacity", "iconic_object"),
+      specialQuestion("How many station stops are marked on the London Underground map?", 272, "The Tube map has hundreds of station stops.", "physical_capacity", "count", "famous_event"),
+      specialQuestion("How many riders can the New York City subway carry in one day?", 3500000, "The NYC subway can carry millions of riders daily.", "famous_macro", "crowd", "famous_event"),
+    ],
+    extra: specialQuestion("How many riders can Tokyo's Yamanote Line carry in one day?", 3600000, "Tokyo's Yamanote Line can carry millions daily.", "famous_macro", "crowd", "famous_event"),
+  },
+  "Yellowstone Geyser Basin": {
+    source: SOURCE.britannicaScience,
+    questions: [
+      specialQuestion("How many named geysers are in Yellowstone National Park?", 500, "Yellowstone has about 500 named geysers.", "familiar_anchor", "count", "famous_event"),
+      specialQuestion("How many feet high does Old Faithful usually shoot water?", 180, "Old Faithful eruptions rise around 180 feet.", "physical_capacity", "distance", "natural_scale"),
+      specialQuestion("How many people visit Yellowstone National Park in a year?", 4000000, "Yellowstone draws about 4 million visitors a year.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Donut Proofing Rack": {
+    source: SOURCE.usdaFood,
+    questions: [
+      specialQuestion("How many donuts fit on a full bakery proofing rack?", 480, "A full proofing rack can hold hundreds of donuts.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many pounds of dough does a busy donut shop use in a day?", 750, "A busy donut shop can use hundreds of pounds of dough.", "production_scale", "weight", "sourced_typical"),
+      specialQuestion("How many donuts does Dunkin' sell worldwide in a year?", 2900000000, "Dunkin' sells donuts at a billion-plus scale.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "Light Show": {
+    source: SOURCE.sphere,
+    questions: [
+      specialQuestion("How many drones can fly in a modern public drone show?", 1000, "A large drone show can put about 1,000 drones up.", "production_scale", "count", "famous_event"),
+      specialQuestion("How many LEDs can fit in a stadium video-board cabinet?", 250000, "A stadium video-board cabinet can pack in hundreds of thousands of LEDs.", "physical_capacity", "count", "famous_event"),
+      specialQuestion("How many LED pucks cover the Las Vegas Sphere exterior?", 1200000, "The Sphere exterior uses about 1.2 million LED pucks.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "Movie Palace Matinee": {
+    source: SOURCE.smithsonian,
+    questions: [
+      specialQuestion("How many seats fill a classic movie-palace auditorium?", 1800, "A movie palace can seat well over 1,000 people.", "familiar_anchor", "crowd", "sourced_typical"),
+      specialQuestion("How many kernels can pop from one pound of popcorn?", 16000, "One pound of kernels can pop into tens of thousands of pieces.", "physical_capacity", "count", "named_standard"),
+      specialQuestion("How many tickets did Barbie sell worldwide in theaters?", 160000000, "Barbie sold tickets at a hundred-million scale worldwide.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "Swimming Pool Deck": {
+    source: SOURCE.usgsWater,
+    questions: [
+      specialQuestion("How many gallons fill a standard backyard swimming pool?", 20000, "A standard backyard pool holds about 20,000 gallons.", "familiar_anchor", "capacity", "named_standard"),
+      specialQuestion("How many lane lines divide an Olympic swimming pool?", 10, "An Olympic pool has 10 lanes.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many people visit U.S. public swimming pools in a year?", 300000000, "Public pools draw hundreds of millions of visits yearly.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Noodle Bar Steam Table": {
+    source: SOURCE.usdaFood,
+    questions: [
+      specialQuestion("How many instant-ramen packs are in one standard case?", 24, "A standard instant-ramen case holds 24 packs.", "familiar_anchor", "count", "named_standard"),
+      specialQuestion("How many pounds of noodles can a restaurant stockpot cook at once?", 50, "A big stockpot can cook dozens of pounds of noodles.", "physical_capacity", "weight", "named_standard"),
+      specialQuestion("How many instant ramen servings are eaten worldwide in one year?", 120000000000, "Instant ramen is eaten at a hundred-billion-serving scale.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "Food Pantry Shelf": {
+    source: SOURCE.usdaFood,
+    questions: [
+      specialQuestion("How many cans are in one standard food-pantry case?", 24, "A standard pantry case usually holds 24 cans.", "familiar_anchor", "count", "named_standard"),
+      specialQuestion("How many pounds of food can one pantry pallet hold?", 2000, "One food pallet can carry about a ton.", "physical_capacity", "weight", "named_standard"),
+      specialQuestion("How many meals does Feeding America help provide in a year?", 5000000000, "Feeding America helps provide billions of meals yearly.", "famous_macro", "count", "famous_event"),
+    ],
+  },
+  "Patriotic Flag Box": {
+    source: SOURCE.smithsonian,
+    questions: [
+      specialQuestion("How many stripes are on one U.S. flag?", 13, "A U.S. flag has 13 stripes.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many flags fit in a standard cemetery flag case?", 144, "A flag case can hold a gross of small flags.", "physical_capacity", "capacity", "named_standard"),
+      specialQuestion("How many people watch Fourth of July fireworks in the U.S.?", 140000000, "Fourth of July fireworks reach a hundred-million-plus audience.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Telescope Mirror Lab": {
+    source: SOURCE.nasa,
+    questions: [
+      specialQuestion("How many inches wide is the Hubble Space Telescope mirror?", 94, "Hubble's primary mirror is about 94 inches wide.", "familiar_anchor", "distance", "famous_event"),
+      specialQuestion("How many pounds does the Hale Telescope mirror weigh?", 28000, "The Hale mirror weighs about 28,000 pounds.", "physical_capacity", "weight", "famous_event"),
+      specialQuestion("How many miles from Earth does the James Webb Space Telescope orbit?", 1000000, "The Webb telescope works about 1 million miles from Earth.", "famous_macro", "distance", "famous_event"),
+    ],
+    extra: specialQuestion("How many miles separate Earth from the nearest star?", 25300000000000, "The nearest star is about 25 trillion miles away.", "famous_macro", "distance", "natural_scale"),
+  },
+  "Photo Booth Strip": {
+    source: SOURCE.smithsonian,
+    questions: [
+      specialQuestion("How many frames are on a classic photo-booth strip?", 4, "A classic booth strip has four frames.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many prints can a standard photo-booth media roll make?", 700, "A photo-booth media roll can make hundreds of prints.", "production_scale", "count", "named_standard"),
+      specialQuestion("How many photos can be stored on a 128 GB phone?", 32000, "A 128 GB phone can hold tens of thousands of photos.", "famous_macro", "count", "named_standard"),
+    ],
+  },
+  "Stormy Umbrella Stand": {
+    source: SOURCE.usgsWater,
+    questions: [
+      specialQuestion("How many inches wide is a standard golf umbrella?", 60, "A golf umbrella opens to about 60 inches wide.", "familiar_anchor", "distance", "named_standard"),
+      specialQuestion("How many gallons does a standard home rain barrel hold?", 55, "A home rain barrel holds about 55 gallons.", "physical_capacity", "capacity", "named_standard"),
+      specialQuestion("How many lightning flashes happen on Earth in one day?", 8000000, "Earth gets millions of lightning flashes daily.", "famous_macro", "count", "natural_scale"),
+    ],
+  },
+  "Forest Fire Lookout": {
+    source: SOURCE.britannicaScience,
+    questions: [
+      specialQuestion("How many feet tall is a common fire lookout tower?", 80, "A fire lookout tower can stand about 80 feet tall.", "familiar_anchor", "distance", "named_standard"),
+      specialQuestion("How many miles can a lookout see on a clear day?", 30, "A clear lookout view can stretch for dozens of miles.", "physical_capacity", "distance", "natural_scale"),
+      specialQuestion("How many acres can a large western wildfire burn?", 1000000, "A major western wildfire can burn around a million acres.", "famous_macro", "area", "natural_scale"),
+    ],
+  },
+  "Track Meet Timing Tent": {
+    source: SOURCE.olympics,
+    questions: [
+      specialQuestion("How many meters around is one lap on a regulation track?", 400, "One regulation track lap is 400 meters.", "familiar_anchor", "distance", "regulation"),
+      specialQuestion("How many lanes are on a standard outdoor track?", 8, "A standard outdoor track usually has eight lanes.", "iconic_exact", "count", "regulation", true),
+      specialQuestion("How many runners finish the New York City Marathon?", 55000, "The New York City Marathon has about 55,000 finishers.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Miniature Train Window": {
+    source: SOURCE.apta,
+    questions: [
+      specialQuestion("How many feet of track does a beginner model railroad layout use?", 40, "A beginner model railroad can use a few dozen feet of track.", "familiar_anchor", "distance", "named_standard"),
+      specialQuestion("How many station stops are marked on the London Underground map?", 272, "The Tube map has hundreds of station stops.", "physical_capacity", "count", "famous_event"),
+      specialQuestion("How many riders can the New York City subway carry in one day?", 3500000, "The NYC subway can carry millions of riders daily.", "famous_macro", "crowd", "famous_event"),
+    ],
+  },
+  "Grand Pianos": {
+    source: SOURCE.smithsonian,
+    questions: [
+      specialQuestion("How many keys are on a full-size grand piano?", 88, "A full-size piano has 88 keys.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many pounds does a concert grand piano weigh?", 990, "A concert grand can weigh close to 1,000 pounds.", "object_anatomy", "weight", "iconic_object"),
+      specialQuestion("How many pianos can Steinway build in one year?", 3000, "Steinway builds pianos at a few-thousand-per-year scale.", "famous_macro", "count", "famous_event"),
+    ],
+    extra: specialQuestion("How many pianos are in U.S. homes?", 10000000, "U.S. homes hold pianos at a ten-million scale.", "famous_macro", "count", "famous_event"),
+  },
+  "Rubik Cubes": {
+    source: SOURCE.britannicaScience,
+    questions: [
+      specialQuestion("How many competitors can a major speedcubing championship host?", 1000, "A major speedcubing championship can host about 1,000 competitors.", "familiar_anchor", "crowd", "famous_event"),
+      specialQuestion("How many solves are attempted at a major speedcubing championship?", 10000, "A major championship can produce tens of thousands of solves.", "production_scale", "count", "famous_event"),
+      specialQuestion("How many Rubik's Cubes have sold worldwide?", 450000000, "Rubik's Cube sales are in the hundreds of millions.", "famous_macro", "count", "famous_event"),
+    ],
+    extra: specialQuestion("How many official solves has the World Cube Association logged?", 1000000000, "Official speedcubing solves have reached billion-scale.", "famous_macro", "count", "famous_event"),
+  },
+  "Peach Orchards": {
+    source: SOURCE.usdaFood,
+    questions: [
+      specialQuestion("How many pounds are in one bushel of peaches?", 48, "A peach bushel weighs about 48 pounds.", "familiar_anchor", "weight", "named_standard"),
+      specialQuestion("How many acres does a mid-size peach orchard cover?", 100, "A mid-size orchard can cover about 100 acres.", "object_anatomy", "area", "natural_scale"),
+      specialQuestion("How many pounds of peaches does Georgia grow in a year?", 70000000, "Georgia grows peaches at a tens-of-millions-of-pounds scale.", "famous_macro", "weight", "famous_event"),
+    ],
+    extra: specialQuestion("How many pounds of peaches does California grow in a year?", 500000000, "California grows peaches at a hundreds-of-millions scale.", "famous_macro", "weight", "famous_event"),
+  },
+  "Campgrounds": {
+    source: SOURCE.britannicaScience,
+    questions: [
+      specialQuestion("How many square feet are in a standard campground tent pad?", 100, "A tent pad is often around 100 square feet.", "familiar_anchor", "area", "named_standard"),
+      specialQuestion("How many gallons does an RV freshwater tank hold?", 40, "An RV freshwater tank can hold dozens of gallons.", "production_scale", "capacity", "named_standard"),
+      specialQuestion("How many people camp in U.S. national parks in a year?", 13000000, "National park camping runs in the millions of visits yearly.", "famous_macro", "crowd", "famous_event"),
+    ],
+    extra: specialQuestion("How many acres does the National Park Service manage?", 85000000, "The National Park Service manages tens of millions of acres.", "famous_macro", "area", "famous_event"),
+  },
+  "Stage Lighting": {
+    source: SOURCE.sphere,
+    questions: [
+      specialQuestion("How many watts does a common theater spotlight draw?", 750, "A theater spotlight can draw hundreds of watts.", "familiar_anchor", "rate", "named_standard"),
+      specialQuestion("How many feet of cable can a theater lighting rig use?", 5000, "A theater lighting rig can use thousands of feet of cable.", "production_scale", "distance", "named_standard"),
+      specialQuestion("How many lighting cues can fire during a Broadway musical run?", 54000, "A long Broadway run can trigger tens of thousands of lighting cues.", "famous_macro", "count", "famous_event"),
+    ],
+    extra: specialQuestion("How many LED pucks cover the Las Vegas Sphere exterior?", 1200000, "The Sphere exterior uses about 1.2 million LED pucks.", "famous_macro", "count", "famous_event"),
+  },
+  "Theater Lighting": {
+    source: SOURCE.sphere,
+    questions: [
+      specialQuestion("How many lights can hang on a theater electrics pipe?", 36, "One theater pipe can carry dozens of lights.", "familiar_anchor", "count", "named_standard"),
+      specialQuestion("How many watts can one stage lighting circuit handle?", 2400, "A stage circuit can handle a few thousand watts.", "physical_capacity", "rate", "named_standard"),
+      specialQuestion("How many lighting cues can fire during a Broadway musical run?", 54000, "A long Broadway run can trigger tens of thousands of lighting cues.", "famous_macro", "count", "famous_event"),
+    ],
+    extra: specialQuestion("How many LED pucks cover the Las Vegas Sphere exterior?", 1200000, "The Sphere exterior uses about 1.2 million LED pucks.", "famous_macro", "count", "famous_event"),
+  },
+  "Observatories": {
+    source: SOURCE.nasa,
+    questions: [
+      specialQuestion("How many stars can a dark-sky eye see without a telescope?", 2500, "A dark sky can show about 2,500 stars to the eye.", "familiar_anchor", "count", "natural_scale"),
+      specialQuestion("How many pounds does the Hale Telescope mirror weigh?", 28000, "The Hale Telescope mirror weighs about 28,000 pounds.", "object_anatomy", "weight", "famous_event"),
+      specialQuestion("How many stars are in the Milky Way?", 100000000000, "The Milky Way contains about 100 billion stars.", "famous_macro", "count", "natural_scale"),
+    ],
+    extra: specialQuestion("How many miles separate Earth from the nearest star?", 25300000000000, "The nearest star is about 25 trillion miles away.", "famous_macro", "distance", "natural_scale"),
+  },
+  "Baseball Diamonds": {
+    source: SOURCE.mlb,
+    questions: [
+      specialQuestion("How many stitches are on one Major League baseball?", 108, "A Major League baseball has 108 red stitches.", "iconic_exact", "count", "iconic_object", true),
+      specialQuestion("How many feet is it from home plate to first base?", 90, "A baseball diamond puts first base 90 feet from home.", "physical_capacity", "distance", "regulation"),
+      specialQuestion("How many fans can Dodger Stadium hold?", 56000, "Dodger Stadium holds about 56,000 fans.", "famous_macro", "crowd", "famous_event"),
+    ],
+    extra: specialQuestion("How many baseballs can MLB use in one regular season?", 900000, "MLB can use close to a million baseballs in a season.", "famous_macro", "count", "famous_event"),
+  },
+  "Baseball Fields": {
+    source: SOURCE.mlb,
+    questions: [
+      specialQuestion("How many pounds of clay are in a regulation baseball mound?", 2000, "A baseball mound can use around a ton of clay.", "familiar_anchor", "weight", "regulation"),
+      specialQuestion("How many square feet are inside a baseball infield diamond?", 8100, "The basepaths frame about 8,100 square feet.", "physical_capacity", "area", "regulation"),
+      specialQuestion("How many fans can Yankee Stadium hold?", 47000, "Yankee Stadium holds about 47,000 fans.", "famous_macro", "crowd", "famous_event"),
+    ],
+    extra: specialQuestion("How many baseballs can MLB use in one regular season?", 900000, "MLB can use close to a million baseballs in a season.", "famous_macro", "count", "famous_event"),
+  },
 };
 
 const EXACT_OPTIONS_BY_PROFILE = {
   breakfast: [],
   movie: [],
   money: [],
+  clock_tower: [
+    ["How many hours are marked on a standard clock face?", 12, "A standard clock face marks 12 hours.", SOURCE.nist],
+  ],
   music: [
-    ["How many keys are on a full-size piano?", 88, "A full-size piano has 88 keys.", SOURCE.smithsonian],
+    ["How many keys are on a full-size piano?", 88, "A full-size piano has 88 keys.", SOURCE.smithsonian, /orchestra|piano/i],
   ],
   games: [
-    ["How many cards are in a standard deck?", 52, "A standard deck has 52 cards.", SOURCE.britannicaScience],
+    ["How many wooden blocks are in a classic Jenga tower?", 54, "A classic Jenga tower starts with 54 wooden blocks.", SOURCE.britannicaScience, /game night|game table|board game|tabletop|jenga/i],
   ],
   school: [],
   mail: [],
@@ -1588,11 +2002,46 @@ const EXACT_OPTIONS_BY_PROFILE = {
     ["How many stitches are on one major-league baseball?", 108, "A baseball has 108 double stitches.", SOURCE.mlb, /baseball|bullpen|dugout|bat/i],
     ["How many pins stand in a regulation bowling setup?", 10, "A bowling lane starts with 10 pins.", SOURCE.mlb, /bowling/i],
   ],
+  baseball: [
+    ["How many stitches are on one Major League baseball in {theScene}?", 108, "A Major League baseball has 108 red stitches.", SOURCE.mlb],
+  ],
+  bowling: [
+    ["How many pins stand in a regulation bowling setup in {theScene}?", 10, "A bowling lane starts with 10 pins.", SOURCE.mlb],
+  ],
+  golf: [
+    ["How many dimples are on a regulation golf ball in {theScene}?", 336, "A regulation golf ball commonly has 336 dimples.", SOURCE.mlb],
+  ],
+  basketball: [
+    ["How many panels are on a regulation basketball in {theScene}?", 8, "A regulation basketball has eight panels.", SOURCE.mlb],
+  ],
+  skate: [
+    ["How many wheels are on one standard skateboard in {theScene}?", 4, "A standard skateboard has four wheels.", SOURCE.mlb],
+  ],
+  bike: [
+    ["How many spokes are on a common road-bike wheel in {theScene}?", 32, "A common road-bike wheel has about 32 spokes.", SOURCE.parkTool],
+  ],
+  clock: [
+    ["How many hours are marked on a standard clock face in {theScene}?", 12, "A standard clock face marks 12 hours.", SOURCE.nist],
+  ],
+  pool: [
+    ["How many lanes are in an Olympic swimming pool?", 10, "An Olympic swimming pool has 10 lanes.", SOURCE.usgsWater, /swim|swimming|lifeguard|water park|pool deck|backyard pool|lesson/i],
+  ],
+  school: [
+    ["How many sheets are in a fresh ream of printer paper in {theScene}?", 500, "A fresh paper ream has 500 sheets.", SOURCE.smithsonian, /paper|print|classroom|school|library/i],
+  ],
+  boardwalk_arcade: [
+    ["How many dots are in the original Pac-Man maze in {theScene}?", 240, "The original Pac-Man maze has 240 dots.", SOURCE.britannicaScience],
+  ],
+  toy_chest: [
+    ["How many cards are in a standard Uno deck in {theScene}?", 112, "A standard Uno deck has 112 cards.", SOURCE.britannicaScience],
+  ],
   transit: [],
   school_bus: [
     ["How many students fit on one full-size school bus?", 72, "A full-size school bus often seats about 72 students.", SOURCE.apta],
   ],
-  pool: [],
+  pool: [
+    ["How many lanes are in an Olympic swimming pool in {theScene}?", 10, "An Olympic swimming pool has 10 lanes.", SOURCE.usgsWater],
+  ],
   apple: [],
   art: [
     ["How many crayons are in a classic big Crayola box?", 64, "A classic big Crayola box has 64 crayons.", SOURCE.smithsonian, /art studio|school supply|crayon/i],
@@ -1651,7 +2100,7 @@ const PROFILE_VARIANTS = Object.freeze({
   ],
   music: [
     [
-      variant("instrument strings", "hang on a full music-shop wall", 240, "A music wall can hold hundreds of visible strings.", "count"),
+      variant("guitar strings", "are on a full guitar-shop rack", 240, "A guitar rack can show hundreds of strings.", "count"),
       variant("microphones", "fit in a backstage audio case", 120, "An audio case can hold more than 100 microphones.", "capacity"),
       variant("piano keys", "sit on a full-size piano", 88, "A full-size piano has 88 keys.", "count", "iconic_object"),
     ],
@@ -1695,8 +2144,8 @@ const PROFILE_VARIANTS = Object.freeze({
   ],
 });
 
-function specialQuestion(prompt, answer, fact, questionMove, estimationMode, anchorType, iconicExact = false) {
-  return { prompt, answer, fact, questionMove, estimationMode, anchorType, iconicExact };
+function specialQuestion(prompt, answer, fact, questionMove, estimationMode, anchorType, iconicExact = false, topicFacet = null) {
+  return { prompt, answer, fact, questionMove, estimationMode, anchorType, iconicExact, topicFacet };
 }
 
 function slugify(value) {
@@ -1826,7 +2275,7 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
     ],
     light_show: [
       `glow on a small summer stage light wall`,
-      `can fly in a large public drone show`,
+      `is the Las Vegas Sphere`,
       `cover the Las Vegas Sphere exterior`,
       `glow across the Las Vegas Sphere exterior`,
     ],
@@ -1850,7 +2299,7 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
     ],
     health: [
       `fit in one community blood drive room`,
-      `can a busy regional drive collect in one day`,
+      `can a busy regional blood drive see in one day`,
       `do U.S. hospitals need in one day`,
       `can a major health fair screen in one weekend`,
     ],
@@ -1861,10 +2310,10 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
       `can a novelty warehouse ship in April`,
     ],
     weather: [
-      `fit in one storm-prep rack`,
+      `does a standard ${subject} rain barrel hold`,
       `can fill a standard backyard hot tub`,
       `can hit Earth in one day`,
-      `can fall on a city block during one storm`,
+      `does Niagara Falls send over in one minute`,
     ],
     school_bus: [
       `fit on one full-size school bus`,
@@ -1893,7 +2342,7 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
     snowplay: [
       `fit in one summer trailhead dispenser`,
       `can pass a popular trailhead in one day`,
-      `can Vail Mountain welcome in one summer`,
+      `does Vail Mountain cover`,
       `can Great Smoky Mountains National Park welcome in one year`,
     ],
     dairy: [
@@ -1933,16 +2382,16 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
       `can New York City deliver on Super Bowl Sunday`,
     ],
     coffee: [
-      `fit in one pound of roasted coffee at ${articleSubject}`,
+      `are in one pound of roasted coffee at ${articleSubject}`,
       `can ${articleSubject} morning line pour`,
       `can a city cafe chain sell in one ${subject} morning`,
       `can ${articleSubject} roasting batch hold`,
     ],
     food_service: [
-      `fit in a full ${subject} prep setup`,
-      `can a busy ${subject} kitchen use in a day`,
-      `can a festival ${subject} weekend serve`,
-      `can a large city ${subject} relief week serve`,
+      `are in a full-size steam-table pan`,
+      `does a commercial 20-quart mixer hold`,
+      `does Feeding America distribute in one year`,
+      `does World Central Kitchen serve in a major relief year`,
     ],
     water: [
       `does a standard rain barrel hold`,
@@ -1971,11 +2420,11 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
     farm: [
       `fit on a full ${subject} market table`,
       `fit in a ${subject} greenhouse flat stack`,
-      `can a productive county ${subject} season produce`,
+      `operate across the U.S.`,
       `can a large ${subject} region produce in a day`,
     ],
     warehouse: [
-      `fit across a full ${subject} dock door`,
+      `fit in a standard 53-foot freight trailer`,
       `can one loaded ${subject} box truck carry`,
       `can a major distribution hub move in one day`,
       `can a national parcel network move in one peak day`,
@@ -2017,7 +2466,7 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
       `can a record ${subject} fan build use`,
     ],
     arcade: [
-      `fit in a full ${subject} cup`,
+      `does a full-size arcade cabinet draw`,
       `can a busy ${subject} pay out in one day`,
       `can a major ${subject} expo draw`,
       `can a jackpot ${subject} weekend pay out`,
@@ -2048,7 +2497,7 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
     ],
     art: [
       `fit on a full ${subject} supply cart`,
-      `stack at ${articleSubject} counter`,
+      `are painted by one gallon of ${subject} wall paint`,
       `can a major ${subject} exhibit welcome in one year`,
       `cover a landmark ${subject} public wall`,
     ],
@@ -2059,9 +2508,9 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
       `cast in a high-turnout ${subject} state election`,
     ],
     winter: [
-      `hang on a ${subject} gear wall`,
+      `does a ${subject} road-treatment truck carry`,
       `stack on a ${subject} pallet`,
-      `can a municipal ${subject} salt dome store`,
+      `can a big city ${subject} route cover`,
       `can a major ski resort make in one season`,
     ],
     firehouse: [
@@ -2078,24 +2527,24 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
     ],
     garden: [
       `fit on the ${subject} display bench`,
-      `fill the ${subject} market table`,
-      `come from a productive county ${subject} season`,
+      `does a farmers-market stall sell in one day`,
+      `can Keukenhof welcome in one spring season`,
       `grow in a regional greenhouse season`,
     ],
     apple: [
       `fit in a ${subject} bushel basket`,
-      `grow on a mature ${subject} apple tree`,
+      `are planted on one orchard acre`,
       `grow on one productive ${subject} orchard acre`,
       `come from a county ${subject} orchard harvest`,
     ],
     transit: [
       `fit on one full ${subject} vehicle`,
-      `can a busy ${subject} station handle in one hour`,
-      `can a major ${subject} travel hub serve in one day`,
-      `can a big-city ${subject} transit system carry in one day`,
+      `are on a typical NYC city bus route`,
+      `does the New York City subway carry in one day`,
+      `does New York City Transit carry on buses in one day`,
     ],
     music: [
-      `hang on a full ${subject} music wall`,
+      `are on a full ${subject} guitar rack`,
       `fit in a large concert hall`,
       `can a major outdoor ${subject} festival draw`,
       `can a major festival livestream draw`,
@@ -2107,10 +2556,10 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
       `can a national cinema chain sell in one blockbuster weekend`,
     ],
     tools: [
-      `fit in a full ${subject} counter bin`,
+      `are in a one-pound ${subject} hardware box`,
       `can a stocked ${subject} wall unroll`,
       `can a busy ${subject} repair shop finish in one year`,
-      `can a big ${subject} home-center chain handle in a season`,
+      `does Home Depot handle in one busy season`,
     ],
     tailor: [
       `can a ${subject} counter hold`,
@@ -2121,8 +2570,8 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
     laundry: [
       `fit in a tall ${subject} laundry cart`,
       `can a busy laundromat run in one day`,
-      `can a hotel ${subject} laundry month use`,
-      `can a resort laundry operation wash in one month`,
+      `does the MGM Grand wash in one month`,
+      `does Walt Disney World laundry wash in one day`,
     ],
     candle: [
       `fit on the ${subject} market display`,
@@ -2143,7 +2592,7 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
       `can a major ${subject} tournament week draw`,
     ],
     games: [
-      `fit on a crowded ${subject} game table`,
+      `are in a standard ${subject} Scrabble set`,
       `fit in a large ${subject} tabletop puzzle`,
       `can a major ${subject} convention draw`,
       `can a record ${subject} collection include`,
@@ -2156,15 +2605,15 @@ function promptOverride(theme, itemEntry, slot, profileKey) {
     ],
     money: [
       `fit in the ${subject} display case`,
-      `get processed in a busy ${subject} counting room`,
+      `does a U.S. Mint coin press strike in one minute`,
       `does the U.S. Mint make in a busy ${subject} year`,
       `can the U.S. Mint strike in a high-output ${subject} month`,
     ],
     city: [
       `fit on a full ${subject} check-in table`,
-      `can ${articleSubject} welcome in one busy public day`,
-      `can a major public event around ${articleSubject} draw`,
-      `can a major public season around ${articleSubject} welcome`,
+      `are in the National Mall`,
+      `visit Times Square on a busy day`,
+      `does the Statue of Liberty welcome in one year`,
     ],
   };
 
@@ -2195,6 +2644,8 @@ function cleanPlayerPrompt(prompt) {
     .replace(/\bnear a weather\b/gi, "at a weather station")
     .replace(/\b(apple orchard) orchard\b/gi, "$1")
     .replace(/\b(arcade) arcade\b/gi, "$1")
+    .replace(/\bcan a Vail Mountain make\b/gi, "can Vail Mountain make")
+    .replace(/\ba NHL\b/g, "an NHL")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -2325,15 +2776,8 @@ function inferProfile(theme) {
 }
 
 function scaledAnswer(baseAnswer, packId, slot, { exact = false, macro = false } = {}) {
-  if (exact || Number(baseAnswer) < 100) return Math.round(baseAnswer);
-  const factorSeed = hashNumber(`${packId}:${slot}:${baseAnswer}:scale`) % 91;
-  const factor = (macro ? 0.72 : 0.78) + factorSeed / 100;
-  const value = Number(baseAnswer) * factor;
-  if (value >= 1000000000) return Math.round(value / 1000000) * 1000000;
-  if (value >= 1000000) return Math.round(value / 10000) * 10000;
-  if (value >= 100000) return Math.round(value / 1000) * 1000;
-  if (value >= 10000) return Math.round(value / 100) * 100;
-  return roundedEstimate(value);
+  if (exact) return Math.round(Number(baseAnswer));
+  return roundedEstimate(Number(baseAnswer));
 }
 
 function roundedEstimate(value) {
@@ -2366,15 +2810,19 @@ function selectExactOption(theme, profileKey, serial) {
 }
 
 function shouldUseExact(theme, profileKey, serial) {
+  // Baseball's regular Q2 already uses the stitches fact; do not duplicate it as
+  // the opener on baseball days.
+  if (profileKey === "baseball") return false;
   return Boolean(selectExactOption(theme, profileKey, serial));
 }
 
 function buildExactQuestion(theme, packId, serial, profileKey) {
   const [promptTemplate, answer, fact, sourceEntry] = selectExactOption(theme, profileKey, serial);
-  const prompt = contextualizeGeneratedPrompt(
-    varyGeneratedQuestionLead(polishGeneratedPrompt(promptTemplate.replace("{scene}", scenePhrase(theme))), packId, 0),
-    theme
-  );
+  const rawPrompt = promptTemplate
+    .replaceAll("{theScene}", scenePhrase(theme))
+    .replaceAll("{aScene}", articleForScene(theme))
+    .replaceAll("{scene}", compactScene(theme));
+  const prompt = polishGeneratedPrompt(rawPrompt.includes("{") ? rawPrompt : contextualizeGeneratedPrompt(rawPrompt, theme));
   return q(prompt, answer, fact, {
     source: sourceEntry,
     answerType: "exact",
@@ -2384,7 +2832,7 @@ function buildExactQuestion(theme, packId, serial, profileKey) {
     themeKey: slugify(theme),
     questionKey: `${slugify(theme)}-q1`,
     estimationMode: "count",
-    calibrationAnchor: `Use ${articleForScene(theme)} as the setting, then recall the familiar object.`,
+    calibrationAnchor: "Picture the familiar object and estimate its visible count before recalling the exact fact.",
     questionMove: "iconic_exact",
     anchorType: "iconic_object",
     rationale: "Recognizable exact fact used sparingly as a fun opener.",
@@ -2416,6 +2864,75 @@ function selectProfileItem(profileKey, itemEntry, slot, packId) {
   const variants = PROFILE_VARIANTS[profileKey]?.[slot];
   if (!variants?.length) return itemEntry;
   return variants[hashNumber(`${packId}:${profileKey}:${slot}`) % variants.length];
+}
+
+function semanticFlavorForItem(itemEntry, slot) {
+  const combined = `${itemEntry.unit} ${itemEntry.verbPhrase} ${itemEntry.estimationMode} ${itemEntry.anchorType}`.toLowerCase();
+  if (/\b(sold|sales|sell|selling|retail|stores?)\b/.test(combined)) return "sales";
+  if (/\b(visitors|people|fans|spectators|riders|students|attendees|passengers|viewers|crowd)\b/.test(combined)) return "crowd";
+  if (/\b(harvest|produce|production|grow|grown|pounds of produce|pounds of harvest|bushels)\b/.test(combined)) return "production";
+  if (/\b(gallons|water|flow|rain|tank|pool|barrel)\b/.test(combined)) return "water";
+  if (/\b(miles|feet|distance|route|trail|steps)\b/.test(combined)) return "distance";
+  if (/\b(area|acres|square)\b/.test(combined)) return "area";
+  if (/\b(weight|pounds|tons)\b/.test(combined)) return "weight";
+  if (/\b(fit|hold|holds|inside|case|box|bag|rack|cart|table|display)\b/.test(combined)) return "capacity";
+  if (slot === 2 || itemEntry.anchorType === "famous_event") return "famous";
+  return itemEntry.estimationMode ?? "count";
+}
+
+function selectDistinctProfileItem(profileKey, itemEntry, slot, packId, previousItems = []) {
+  const variants = PROFILE_VARIANTS[profileKey]?.[slot] ?? [];
+  const pool = [itemEntry, ...variants];
+  const start = hashNumber(`${packId}:${profileKey}:${slot}`) % pool.length;
+  const ordered = pool.map((_, index) => pool[(start + index) % pool.length]);
+  const usedFlavors = new Set(previousItems.map((entry, index) => semanticFlavorForItem(entry, index)));
+  return ordered.find((entry) => !usedFlavors.has(semanticFlavorForItem(entry, slot))) ?? ordered[0] ?? itemEntry;
+}
+
+function promptHasThemeContext(prompt, theme) {
+  const promptText = String(prompt).toLowerCase();
+  const subjectWords = themeSubject(theme)
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length > 3);
+  if (!subjectWords.length) return true;
+  return subjectWords.some((word) => promptText.includes(word));
+}
+
+function promptHasNamedAnchor(prompt) {
+  return /\b(?:Earth|Moon|Milky Way|Niagara Falls|Coachella|Waffle House|USPS|U\.S\.|M&M's|Mars|Georgia Aquarium|Monterey Bay|Times Square|Starbucks|Monopoly|Taco Bell|Yankee Stadium|Great Smoky Mountains|Yellowstone|Vail|Big Ben|Staten Island Ferry|Grand Central|Las Vegas Sphere|Citi Bike|FDNY|Macy's|Library of Congress|Smithsonian|Wimbledon|Dodger Stadium|Minnesota State Fair|Pike Place|Statue of Liberty|BirdCast|San Diego Zoo|Jenga|Crayola|Olympic|Baskin-Robbins|Waffle House|Domino's|IHOP)\b/.test(
+    prompt
+  );
+}
+
+function contextAdjective(theme) {
+  return themeSubject(theme)
+    .replace(/\b(day|night|rush|line|room|row|table|counter|claim|queue|rack|wall|yard|bay|porch|booth|stand|shelf|cart|map|floor|lot|route|window|walk|test|shop|store|station|desk|pit|pieces)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function insertThemeContext(prompt, theme) {
+  const context = contextAdjective(theme);
+  if (!context || promptHasThemeContext(prompt, theme) || promptHasNamedAnchor(prompt)) return prompt;
+  const escapedContext = context.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const containerWords =
+    "(?:auditorium|barrel|bench|bin|bucket|cart|case|counter|crate|display|drawer|freezer|griddle|jar|lot|map|rack|room|shelf|stand|station|table|tray|tub|wall|yard|cage|carousel|cooler|dock|feeder|flat|gym|line|pallet|pool|shop|store|theater|tower|tub)";
+  const articleContainer = new RegExp(
+    `\\b(one|a|an|the)\\s+((?:full|busy|large|big|midsize|standard|common|packed|tall|crowded|major|small|public|backyard|community|regional|holiday|city|citywide|national|popular|modern|productive|famous|record-setting)\\s+)?(?!${escapedContext}\\b)([a-z-]+\\s+){0,2}${containerWords}\\b`,
+    "i"
+  );
+  if (articleContainer.test(prompt)) {
+    return prompt.replace(articleContainer, (match, article, descriptor = "") => {
+      const rest = match.replace(new RegExp(`^${article}\\s+${descriptor.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"), "");
+      return `${article} ${descriptor}${context} ${rest}`.replace(/\s+/g, " ");
+    });
+  }
+  const busyActor = /\b(a|an|the)\s+((?:busy|large|major|popular|regional|citywide|national|modern|productive|famous|record-setting)\s+)(?![A-Z])([a-z-]+(?:\s+[a-z-]+){0,3})\b/i;
+  if (busyActor.test(prompt)) {
+    return prompt.replace(busyActor, `$1 $2${context} $3`);
+  }
+  return prompt;
 }
 
 function selectExtraProfileItem(profile, packId, coreQuestions) {
@@ -2499,9 +3016,7 @@ function polishGeneratedPrompt(prompt) {
     .replace(/\bcan a stadium concession sell\b/gi, "does a Yankee Stadium concession sell")
     .replace(/\bcan a busy theater sell\b/gi, "does a multiplex sell")
     .replace(/\bcan a busy booth print\b/gi, "does a photo booth print")
-    .replace(/\bfeet of ribbon\b/gi, "ribbon length")
     .replace(/\brow of tailgate coolers\b/gi, "stadium tailgate ice order")
-    .replace(/\braindrops can fall on a city block during one storm\b/gi, "lightning strikes hit Earth in one day")
     .replace(/\bbushel basket\b/gi, "standard apple bushel")
     .replace(/\bapples fit in a bushel basket\b/gi, "apples are in a standard apple bushel")
     .replace(/\bflags can line a long Veterans Day parade block\b/gi, "flags fly around the National Mall on Veterans Day")
@@ -2572,43 +3087,83 @@ function polishGeneratedPrompt(prompt) {
     .replace(/\bwhat(?: is the rough count of| count of| is the rough total of| number of)? ([^?]+?) can ([A-Z][^?]+?) (draw|sell|serve|welcome|cover|make|hold|host|drive|use)\b/gi, "how many $1 does $2 $3")
     .replace(/\bwhat(?: is the rough count of| count of| is the rough total of| number of)? ([^?]+?) does ([A-Z][^?]+?) (draw|sell|serve|welcome|cover|make|hold|host|drive|use)\b/gi, "how many $1 does $2 $3");
 
-  return text.replace(/\s+/g, " ").trim();
+  return text.replace(/\ba X Games\b/gi, "the X Games").replace(/\s+/g, " ").trim();
 }
 
 function varyGeneratedQuestionLead(prompt, packId, slot) {
-  const variants = [
-    (text) => text,
-    (text) => text.replace(/^How many\b/i, "About how many"),
-    (text) => text.replace(/^How many\b/i, "Roughly how many"),
-    (text) => text.replace(/^How many\b/i, "Around how many"),
-    (text) => text.replace(/^How many\b/i, "Ballpark how many"),
-    (text) => text.replace(/^How many\b/i, "Estimate how many"),
-    (text) => text.replace(/^How many\b/i, "Guess how many"),
-    (text) => text.replace(/^How many\b/i, "At a glance, how many"),
-    (text) => text.replace(/^How many\b/i, "Use your gut: how many"),
-    (text) => text.replace(/^How many\b/i, "Take a swing: how many"),
-    (text) => text.replace(/^How many\b/i, "In ballpark terms, how many"),
-    (text) => text.replace(/^How many\b/i, "For a quick estimate, how many"),
-    (text) => text.replace(/^How many\b/i, "What is the rough count of"),
-    (text) => text.replace(/^How many\b/i, "What is the rough total of"),
-    (text) => text.replace(/^How many\b/i, "What number of"),
-    (text) => text.replace(/^How many\b/i, "What count of"),
-  ];
-  const index = hashNumber(`${packId}:${slot}:question-lead`) % variants.length;
-  return variants[index](prompt);
+  return prompt.replace(/^About how many\b/i, "How many");
 }
 
 function lowercaseFirst(value) {
   return `${value.charAt(0).toLowerCase()}${value.slice(1)}`;
 }
 
+function normalizePromptForUsage(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function themeFrame(theme) {
+  const subject = (contextAdjective(theme) || compactScene(theme)).replace(/^the\s+/i, "");
+  return subject ? `the ${subject}` : "the day's topic";
+}
+
+function uniquifyPromptForYear(prompt, theme, usedPrompts) {
+  const originalKey = normalizePromptForUsage(prompt);
+  if (!usedPrompts.has(originalKey)) {
+    usedPrompts.add(originalKey);
+    return prompt;
+  }
+
+  const extraPrefix = /^Extra Innings:\s*/i.test(prompt) ? "Extra Innings: " : "";
+  const body = prompt.replace(/^Extra Innings:\s*/i, "");
+  const bodyWithFrame = body.endsWith("?")
+    ? body.replace(/\?$/, ` in ${themeFrame(theme)}?`)
+    : `${body} in ${themeFrame(theme)}`;
+  let candidate = `${extraPrefix}${bodyWithFrame}`;
+  let candidateKey = normalizePromptForUsage(candidate);
+  let index = 2;
+  while (usedPrompts.has(candidateKey)) {
+    const indexedFrame = `${themeFrame(theme)} ${index}`;
+    const indexedBody = body.endsWith("?")
+      ? body.replace(/\?$/, ` in ${indexedFrame}?`)
+      : `${body} in ${indexedFrame}`;
+    candidate = `${extraPrefix}${indexedBody}`;
+    candidateKey = normalizePromptForUsage(candidate);
+    index += 1;
+  }
+  usedPrompts.add(candidateKey);
+  return candidate;
+}
+
+function uniquifyPackPrompts(pack, usedPrompts) {
+  return {
+    ...pack,
+    questions: pack.questions.map((question) => ({
+      ...question,
+      prompt: uniquifyPromptForYear(question.prompt, pack.theme, usedPrompts),
+    })),
+    ...(pack.extraInning
+      ? {
+          extraInning: {
+            ...pack.extraInning,
+            prompt: uniquifyPromptForYear(pack.extraInning.prompt, pack.theme, usedPrompts),
+          },
+        }
+      : {}),
+  };
+}
+
 function contextualizeGeneratedPrompt(prompt, theme) {
-  const context = theme.replace(/\bDay\b/g, "").replace(/\s+/g, " ").trim();
-  return `For ${context}, ${lowercaseFirst(prompt)}`;
+  const cleanPrompt = insertThemeContext(prompt.trim(), theme);
+  if (!cleanPrompt.endsWith("?")) return cleanPrompt;
+  return cleanPrompt;
 }
 
 function buildProfileQuestion(theme, packId, profile, itemEntry, slot) {
-  const resolvedItem = selectProfileItem(profile.key, itemEntry, slot, packId);
+  const resolvedItem = itemEntry;
   const themeKey = slugify(theme);
   const isMacro = slot === 2;
   const answer = scaledAnswer(resolvedItem.baseAnswer, packId, slot, {
@@ -2616,14 +3171,11 @@ function buildProfileQuestion(theme, packId, profile, itemEntry, slot) {
     macro: isMacro,
   });
   const questionMove = inferQuestionMove(resolvedItem, slot, packId);
-  const prompt = contextualizeGeneratedPrompt(
-    varyGeneratedQuestionLead(promptFromItem(theme, resolvedItem, slot, profile.key), packId, slot),
-    theme
-  ).replace(
+  const prompt = contextualizeGeneratedPrompt(promptFromItem(theme, resolvedItem, slot, profile.key), theme).replace(
     /\bcustomer jobs can a busy [a-z ]*repair shop finish in one year\b/gi,
     "customer jobs does Repair Cafe International finish in one year"
   );
-  return q(prompt, answer, playerFactFromItem(theme, resolvedItem, answer, slot), {
+  return q(prompt, answer, resolvedItem.fact, {
     source: profile.source ?? FALLBACK_SOURCE,
     answerType: "estimate",
     iconicExact: false,
@@ -2666,21 +3218,24 @@ function ensureMacroBeatsMiddle(questions, packId) {
 }
 
 function buildQuestions(theme, packId, serial, profile) {
+  const q1Item = selectDistinctProfileItem(profile.key, profile.q1, 0, packId, []);
+  const q2Item = selectDistinctProfileItem(profile.key, profile.q2, 1, packId, [q1Item]);
+  const q3Item = selectDistinctProfileItem(profile.key, profile.q3, 2, packId, [q1Item, q2Item]);
   if (shouldUseExact(theme, profile.key, serial)) {
     return ensureMacroBeatsMiddle(
       [
         buildExactQuestion(theme, packId, serial, profile.key),
-        buildProfileQuestion(theme, packId, profile, profile.q2, 1),
-        buildProfileQuestion(theme, packId, profile, profile.q3, 2),
+        buildProfileQuestion(theme, packId, profile, q2Item, 1),
+        buildProfileQuestion(theme, packId, profile, q3Item, 2),
       ],
       packId
     );
   }
   return ensureMacroBeatsMiddle(
     [
-      buildProfileQuestion(theme, packId, profile, profile.q1, 0),
-      buildProfileQuestion(theme, packId, profile, profile.q2, 1),
-      buildProfileQuestion(theme, packId, profile, profile.q3, 2),
+      buildProfileQuestion(theme, packId, profile, q1Item, 0),
+      buildProfileQuestion(theme, packId, profile, q2Item, 1),
+      buildProfileQuestion(theme, packId, profile, q3Item, 2),
     ],
     packId
   );
@@ -2692,10 +3247,11 @@ function buildExtra(theme, packId, profile, coreQuestions) {
   const coreMax = Math.max(...coreQuestions.map((question) => Number(question.answer)));
   const scaled = scaledAnswer(base.baseAnswer, packId, 3, { macro: true });
   const answer = scaled > coreMax * 1.25 ? scaled : roundedEstimate(coreMax * 1.65);
-  const fact = `${compactScene(theme)} bonus reaches a ${scalePhrase(answer)} benchmark.`;
-  const prompt = `Extra Innings: for ${theme}, ${lowercaseFirst(
-    varyGeneratedQuestionLead(extraPromptFromItem(theme, base, profile.key).replace(/^Extra Innings:\s*/i, ""), packId, 3)
-  )}`;
+  const fact = base.fact;
+  const prompt = `Extra Innings: ${contextualizeGeneratedPrompt(
+    extraPromptFromItem(theme, base, profile.key).replace(/^Extra Innings:\s*/i, "").replace(/^how many\b/i, "How many"),
+    theme
+  ).replace(/^How many\s+/i, "how many ")}`;
   return q(prompt, answer, fact, {
     source: profile.source ?? FALLBACK_SOURCE,
     answerType: "estimate",
@@ -2724,6 +3280,10 @@ function makeReviews(theme, packId) {
     "Family Couch Player": "recognizable hooks for group guessing",
     "Social Sharer": "reveals worth discussing after the round",
     "Editorial Calendar Player": "freshness against nearby packs and season fit",
+    "NYT Word Game Player": "premium daily-puzzle wording, elegant clue rhythm, and clean reveals",
+    "Daily Word Search Player": "theme cohesion, calm recognizability, and approachable clue objects",
+    "Connections Pattern Player": "distinct topic facets across Q1/Q2/Q3 without samey category drift",
+    "Fermi Estimator": "decomposable anchors, sane first guesses, and real quantities about the topic",
   };
   return CORE_ROLES.map((role, index) => ({
     role,
@@ -2754,6 +3314,7 @@ function q(prompt, answer, funFact, extra) {
     anchorType: extra.anchorType,
     iconicExact: extra.iconicExact === true,
     agentDifficultyTarget: extra.agentDifficultyTarget ?? "normal",
+    ...(extra.topicFacet ? { topicFacet: extra.topicFacet } : {}),
     ...(extra.iconicExact ? { recognizableExact: true } : {}),
   };
 }
@@ -2773,6 +3334,7 @@ function buildSpecialQuestion(theme, specialEntry, index) {
     calibrationAnchor: `Use ${articleForScene(theme)} as the day’s anchor, then calibrate from feedback.`,
     questionMove: specialEntry.questionMove,
     anchorType: specialEntry.anchorType,
+    topicFacet: specialEntry.topicFacet,
     rationale: "Hand-shaped high-risk pack with resolved player-facing copy.",
     answerNote: `Rounded from the cited ${theme} reference for fair play.`,
   });
@@ -2831,30 +3393,33 @@ export function buildRebuiltCalendarFromLegacy(legacyCalendar) {
   const entries = Object.entries(legacyCalendar).sort(([firstDate], [secondDate]) =>
     firstDate.localeCompare(secondDate)
   );
+  const usedPrompts = new Set();
   return Object.fromEntries(
-    entries.map(([dateKey, legacyEntry], index) => [
-      dateKey,
-      buildPack(
+    entries.map(([dateKey, legacyEntry], index) => {
+      const pack = buildPack(
         DATE_THEME_OVERRIDES[dateKey] ?? legacyEntry.theme,
         dateKey,
         index,
         isFridayDateKey(dateKey),
         legacyEntry.playability ?? "tactile",
         false
-      ),
-    ])
+      );
+      return [dateKey, uniquifyPackPrompts(pack, usedPrompts)];
+    })
   );
 }
 
 export function buildRebuiltReservePacksFromLegacy(legacyReservePacks) {
-  return legacyReservePacks.map((legacyEntry, index) =>
-    buildPack(
+  const usedPrompts = new Set();
+  return legacyReservePacks.map((legacyEntry, index) => {
+    const pack = buildPack(
       legacyEntry.theme,
       legacyEntry.reserveId ?? `reserve-${String(index + 1).padStart(3, "0")}`,
       index + 365,
       true,
       legacyEntry.playability ?? "tactile",
       true
-    )
-  );
+    );
+    return uniquifyPackPrompts(pack, usedPrompts);
+  });
 }

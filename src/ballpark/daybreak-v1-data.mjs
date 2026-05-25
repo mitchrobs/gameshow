@@ -244,20 +244,22 @@ const FAMOUS_SCALE_PATTERN =
 const VAGUE_MACRO_PROMPT_PATTERN =
   /\b(?:major|large|famous|top|busy|citywide|national)\s+(?:city|public|state|water|ski|park|resort|library|museum|aquarium|event|festival|show|district|region|county|landmark|attraction|tournament|chain|network|system|shelter|hotel|fair|beach|ride|food|health|climbing|sports|game|toy|arcade|parcel|distribution|repair|shop|market|holiday)\b/i;
 const NAMED_MACRO_ANCHOR_PATTERN =
-  /\b(?:U\.S\.|United States|USPS|FDNY|NYPL|ASPCA|MLB|Macy's|Times Square|Library of Congress|WorldCat|Toy Fair New York|Gen Con|Monopoly|Uno|Barbie|LEGO|Taco Bell|Starbucks|Waffle House|Domino's|Home Depot|Yankee Stadium|Pike Place|Rose Parade|Rockefeller Center|Dyker Heights|Las Vegas Sphere|Sphere|M&M's|Reese's|X Games|Vail|Vail Mountain|Killington|Coney Island|Great Smoky Mountains|Yellowstone|Redwood National Park|National Park Service|U\.S\. national parks|Big Ben|Galveston|Houston|Iowa|Washington|Wisconsin|Niagara Falls|BirdCast|San Diego Zoo|Georgia Aquarium|Monterey Bay Aquarium|Dodger Stadium|Five Boro Bike Tour|Citi Bike|Schlitterbahn|Minnesota State Fair|National Memorial Day Parade|Arlington|National Museum of African American History and Culture|Smithsonian|Smithsonian National Museum of Natural History|Science Museum of Minnesota|Coachella|Taylor Swift|Boundary Waters|Staten Island Ferry|Wimbledon|Feeding America|UPS Worldport|Grand Central Terminal|Cape Hatteras|Google|Oriental Trading|IFSC|MGM Grand|Dutch flower auction|Art Basel Miami Beach|Statue of Liberty|Japan's Sushi Festival|Operation Santa|Toys for Tots|Clear the Shelters|Grand Canyon|U\.S\. national seashores|Marvel|New York City|New York City Transit|New York City public schools)\b/i;
+  /\b(?:U\.S\.|United States|USPS|FDNY|NYPL|ASPCA|MLB|Macy's|Times Square|Library of Congress|WorldCat|Toy Fair New York|Gen Con|Monopoly|Uno|Barbie|LEGO|Taco Bell|Starbucks|Waffle House|Domino's|Home Depot|Yankee Stadium|Pike Place|Rose Parade|Rockefeller Center|Dyker Heights|Las Vegas Sphere|Sphere|M&M's|Reese's|X Games|Vail|Vail Mountain|Killington|Coney Island|Great Smoky Mountains|Yellowstone|Redwood National Park|National Park Service|U\.S\. national parks|Big Ben|Galveston|Houston|Iowa|Washington|Wisconsin|Niagara Falls|BirdCast|San Diego Zoo|Georgia Aquarium|Monterey Bay Aquarium|Dodger Stadium|Five Boro Bike Tour|Citi Bike|Schlitterbahn|Minnesota State Fair|National Memorial Day Parade|National Mall|Arlington|National Museum of African American History and Culture|Smithsonian|Smithsonian National Museum of Natural History|Science Museum of Minnesota|Coachella|Taylor Swift|Boundary Waters|Staten Island Ferry|Wimbledon|Feeding America|World Central Kitchen|UPS Worldport|Grand Central Terminal|Hartsfield-Jackson|Denver International Airport|Cape Hatteras|Google|Oriental Trading|IFSC|MGM Grand|Walt Disney World|Dutch flower auction|Art Basel Miami Beach|Statue of Liberty|Japan's Sushi Festival|Operation Santa|Toys for Tots|Clear the Shelters|Grand Canyon|U\.S\. national seashores|Marvel|New York City|New York City Transit|New York City public schools)\b/i;
 const RECOGNIZABLE_STANDARD_ANCHOR_PATTERN =
   /\b(?:average American public library branch|NYC city bus route|city bus route|standard backyard swimming pool|standard home rain barrel|common party pack|full-size school bus|five-gallon bucket|gallon jug|one-gallon storage bin|bushel basket|apple bushel|jumbo laundromat washer|plastic arcade cup|full golf bag|major-league baseball|standard deck|full-size piano|regulation bowling|regulation golf|Olympic pool|Olympic swimming)\b/i;
 const NATURAL_TOPIC_GENERATED_GLUE_PATTERN =
-  /\b(?:starter anchor|regular operation|public scale|bonus scale|counted for|use as its starter anchor|uses .* as its starter anchor|can .* handle in a busy run|rough total|rough count|in (?:a|an) [^?.]+ context)\b/i;
+  /\b(?:starter anchor|regular operation|public scale|bonus scale|counted for|use as its starter anchor|uses .* as its starter anchor|can .* handle in a busy run|rough total|rough count|in (?:a|an) [^?.]+ context|starter set|starter kit|full [a-z -]+ shipment|major U\.S\. [a-z -]+ site|people encounter [a-z -]+ at U\.S\. scale|yearly encounters|national-scale [a-z -]+ reach estimate|use the [a-z -]+ anchor, then calibrate)\b/i;
 const WEAK_UNIT_RELEVANCE_PATTERN =
   /\b(?:one big classroom library|big classroom library|classroom library hold|classroom's worth|full holds cart|library hold shelf|library return cart)\b/i;
+const ABSTRACT_FERMI_SCAFFOLD_PATTERN =
+  /\b(?:daily service|annual processing|national service scale|customer flow|resource use|industry scale|service capacity|service volume|public land scale|holiday food scale|holiday audience)\b/i;
 const UNSTABLE_PLAYER_UNIT_PATTERN = /\bHow many\s+(?:runs)\b/i;
 const HIDDEN_HOMEWORK_PROMPT_PATTERN =
   /\b(?:line a long .*block|row of .*coolers|one acre|bushel basket|beach block|pitcher's mound|display box|feet of extension cord|feet of ribbon|pounds of salsa fit|prep cooler|show plan|years passed between|years has .* been an? U\.S\. holiday|times can Big Ben (?:strike|ring) in one year|scoops are in one gallon|raindrops can fall on a city block|with \d[\d,]* .*each|at \d[\d,]* .*each)\b/i;
 const ARBITRARY_CONTAINER_PROMPT_PATTERN =
   /\b(?:fit|fits|fit on|fit in|fit behind|fit at|fit inside|can hold|can carry|can line|can cover|can fill|can hang|can stack|can hide|can chill|can store|sit in|fill one|cover one)\b[^?]*\b(?:arcade cup|bag|bay|bench|bin|boathouse|box|bucket|cage|carousel|cart|case|counter|crate|cooler|display|drawer|freezer|jar|organizer|parking lot|rack|rental stand|shelf|shoebox|stack|stand|station|table|tray|tub|wall)\b|\b(?:busy trailhead map|small summer stage light wall|large public aquarium exhibit|big shark tank|farmers-market pickup load)\b/i;
 const GENERIC_THROUGHPUT_PROMPT_PATTERN =
-  /\bcan\s+(?:a|an|one|the)?\s*(?:busy|big|large|major|modern|popular|regional|citywide|national)?\s*[^?]{0,80}\b(?:board|check out|collect|compete|cross|deliver|draw|hand out|handle|milk|pass|pour|print|screen|sell|serve|ship|sort|squeeze|use|welcome)\s+(?:in|on|during|across)\s+one\s+(?:day|morning|week|rush|night|season|year|weekend|hour)\b|\b(?:diner morning rush|diner kitchen crack|busy shop dinner rush|stadium concession sell|busy theater sell|busy booth print|Father's Day calls can U\.S\. networks carry|people can watch Olympic swimming across a full Games)\b/i;
+  /\bcan\s+(?:a|an|one|the)?\s*(?:busy|big|large|major|modern|popular|regional|citywide|national)?\s*[^?]{0,80}\b(?:board|check out|collect|compete|cross|deliver|draw|hand out|handle|milk|pass|pour|print|process|screen|sell|serve|ship|sort|squeeze|use|welcome)\s+(?:in|on|during|across)\s+(?:a|an|one|the)?\s*(?:day|morning|week|rush|night|season|year|weekend|hour|lunch rush)\b|\bhow many (?:people|customers|records|servings|gallons of water)\s+(?:can|do)\s+(?:a|an|one|the|u\.s\.)?[^?]{0,90}\b(?:serve|process|use|produce|provide|handle)\b|\b(?:diner morning rush|diner kitchen crack|busy shop dinner rush|stadium concession sell|busy theater sell|busy booth print|Father's Day calls can U\.S\. networks carry|people can watch Olympic swimming across a full Games)\b/i;
 const EXTRA_INNING_ENTITY_ANCHORS = [
   "Starbucks",
   "Georgia Aquarium",
@@ -4460,7 +4462,7 @@ function hasRecognizableResolvedAnchor(questionEntry, combinedText) {
 const GENERATED_PROMPT_WRAPPER_PATTERN =
   /^(?:For\s+[^,]+,\s*)?(?:use your gut:|take a swing:|in ballpark terms,|for a quick estimate,|what(?: is the)? rough (?:count|total) of|what (?:number|count) of|guess how many|estimate how many|ballpark how many|at a glance, how many)/i;
 const VISUAL_EXACT_OPENER_PATTERN =
-  /\b(Jenga tower|wooden blocks|Crayola box|crayons|full-size piano|piano keys|quarter|ridges|golf ball|dimples|baseball|stitches|bowling|pins|school bus|U\.S\. flag|flag stars|Olympic|pool lanes|skateboard|wheels|Uno deck|Scrabble|Pac-Man|maze dots|basketball|panels|egg carton|standard carton|pizza|slices|bike wheel|road-bike|spokes|photo-booth strip|clock face|standard clock|teeth|die|dice|pips|violin|guitar|frets|Monopoly|Rubik|roulette|checkers|backgammon|cribbage|face cards|card suits|suits are in|recorder|grand piano|pool table|billiards|tennis ball|soccer|Olympic symbol|Olympic rings|Mahjong|domino|chessboard|chess game)\b/i;
+  /\b(Jenga tower|wooden blocks|Crayola box|crayons|full-size piano|piano keys|quarter|ridges|golf ball|dimples|baseball|stitches|bowling|pins|school bus|U\.S\. flag|flag stars|Olympic|pool lanes|skateboard|wheels|Uno deck|Scrabble|Pac-Man|maze dots|basketball|panels|egg carton|standard carton|pizza|slices|bike wheel|road-bike|spokes|photo-booth strip|clock face|standard clock|teeth|die|dice|pips|violin|guitar|frets|Monopoly|Rubik|roulette|checkers|backgammon|cribbage|face cards|card suits|suits are in|recorder|grand piano|pool table|billiards|tennis ball|tennis balls|soccer|Olympic symbol|Olympic rings|Mahjong|domino|chessboard|chess game)\b/i;
 const TASTE_STOP_WORDS = new Set(
   "how many about are is in on one the a an of to with for from can do does did have has by at into across during through and standard typical common full size estimate estimated rough number count ballpark terms glance quick".split(" ")
 );
@@ -4527,7 +4529,7 @@ const WEAK_LEARNING_VALUE_PATTERN =
 const REAL_TOPIC_FACT_SIGNAL_PATTERN =
   /\b(?:standard|regulation|official|average|typical|common|midsize|packed|full-size|one-year|year|daily|per day|average day|one day|one year|season|weekend|U\.S\.|United States|USPS|FDNY|NYC|New York|Arlington|Library of Congress|Smithsonian|Monopoly|Jenga|Scrabble|Pac-Man|Uno|Waffle House|Domino's|Yankee Stadium|Grand Central|Times Square|Georgia Aquarium|Olympic|Macy's|X Games|Yellowstone|Vail|Big Ben|Staten Island Ferry|Las Vegas Sphere|Citi Bike|Pike Place|San Diego Zoo|Feeding America|UPS Worldport)\b/i;
 const FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN =
-  /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|riders|visitors|students|vehicles|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|petals|bows|cranberries|tortillas|records|campers|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|tiles|dots)\b/i;
+  /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|riders|visitors|students|vehicles|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|petals|bows|cranberries|tortillas|records|campers|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|tiles|dots|needles|towels|seedlings|lemons|bouquets|dice|bowling balls)\b/i;
 const SINGLE_OBJECT_FACETS = new Set(["object_structure", "small_capacity", "physical_size"]);
 const BREADTH_FACETS = new Set([
   "usage",
@@ -4960,7 +4962,7 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
     }
     const canonicalChecks = [
       { pattern: /\bfresh ream of printer paper\b/i, expected: 500, label: "fresh ream" },
-      { pattern: /\bmajor[- ]league baseball\b/i, expected: 108, label: "major-league baseball stitches" },
+      { pattern: /\bmajor[- ]league baseball\b(?=[^?]*(?:stitches|seams))/i, expected: 108, label: "major-league baseball stitches" },
       { pattern: /\btypical adult dog\b/i, expected: 42, label: "adult dog teeth" },
       { pattern: /\bchessboard squares\b|\bchessboard\b/i, expected: 64, label: "chessboard squares" },
       { pattern: /\bdouble-six set\b/i, expected: 28, label: "double-six domino set" },
@@ -5079,17 +5081,7 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
     const recognizableAnchor = hasRecognizableResolvedAnchor(questionEntry, combinedText);
     const arbitraryContainerPrompt = ARBITRARY_CONTAINER_PROMPT_PATTERN.test(questionEntry.prompt);
     const genericThroughputPrompt = GENERIC_THROUGHPUT_PROMPT_PATTERN.test(questionEntry.prompt);
-    const naturalSpecificTypicalPrompt =
-      questionEntry.anchorType === "named_standard" &&
-      !WEAK_UNIT_RELEVANCE_PATTERN.test(combinedText) &&
-      /\b(?:average|typical|busy|standard|common|U\.S\.|United States|American|NYC|New York|one day|one year|season)\b/i.test(
-        combinedText
-      );
-    if (
-      (arbitraryContainerPrompt || genericThroughputPrompt) &&
-      !recognizableAnchor &&
-      !naturalSpecificTypicalPrompt
-    ) {
+    if ((arbitraryContainerPrompt || genericThroughputPrompt) && !recognizableAnchor) {
       recordQuestionLaunchBlocker(
         record,
         "arbitrary_container",
@@ -5097,6 +5089,16 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         label,
         questionEntry,
         "Prompt leans on arbitrary container-packing or generic throughput instead of a recognizable Ballpark anchor."
+      );
+    }
+    if (ABSTRACT_FERMI_SCAFFOLD_PATTERN.test(combinedText)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "weak_learning_value",
+        dailySet,
+        label,
+        questionEntry,
+        "Question uses abstract service/industry scaffold language instead of a specific thing players would wonder about."
       );
     }
     if (

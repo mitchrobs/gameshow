@@ -473,7 +473,7 @@ describe('Ballpark 2026 calendar', () => {
       '2026-05-10': 'Flower Shop',
       '2026-05-25': 'Memorial Day Cookout',
       '2026-06-19': 'Juneteenth Block Party',
-      '2026-06-21': "Father's Day Cards",
+      '2026-06-21': "Father's Day Gifts",
       '2026-07-04': 'Fireworks Finale',
       '2026-09-07': 'Toolbox Day',
       '2026-10-31': 'Candy Bowl',
