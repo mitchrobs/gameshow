@@ -47,6 +47,7 @@ import {
   samePoint,
   type LibertiesBoard,
   type LibertiesIllegalReason,
+  type LibertiesMoveResult,
   type LibertiesPoint,
   type LibertiesPlayMode,
   type LibertiesPuzzle,
@@ -54,7 +55,6 @@ import {
 
 type GameState = 'playing' | 'won';
 type DemoMode = 'intro' | 'select' | 'stage0' | 'stage1' | 'stage2' | 'complete';
-type HowToCell = 'black' | 'white' | 'frozen' | null;
 type LibertiesVisualThemeId = 'pebble' | 'knob' | 'neoCity' | 'softCeramic';
 type LibertiesPieceKind = 'black' | 'white' | 'blocker' | 'release';
 type LibertiesAssetPieceKind = Exclude<LibertiesPieceKind, 'release'>;
@@ -149,33 +149,55 @@ const WEB_NO_SELECT =
       }
     : {};
 const WEB_BORDER_BOX = Platform.OS === 'web' ? ({ boxSizing: 'border-box' } as any) : null;
-const HOW_TO_OPEN_GRID: HowToCell[][] = [
-  [null, 'black', 'frozen', null],
-  ['black', 'white', 'white', null],
-  [null, null, 'black', null],
-  [null, null, null, null],
-];
-const HOW_TO_CLOSED_GRID: HowToCell[][] = [
-  [null, 'black', 'frozen', null],
-  ['black', 'white', 'white', 'white'],
-  [null, 'black', 'black', null],
-  [null, null, null, null],
-];
 const QUICK_START_RULES = [
-  'Tap an empty crossing once to preview. Tap again to place a black pebble.',
-  'White pebbles that touch side-to-side are one white group.',
-  'Only side crossings count: up, down, left, and right. Diagonals do not count.',
-  'Black pebbles, red blockers, and board edges close empty side crossings.',
-  'A white group clears when every side crossing around that white group is closed.',
-  'If your move clears a white group, you move again before white moves.',
-  'Black pebbles also need one empty side crossing. If white closes the last one, those black pebbles disappear.',
+  'Tap once to preview a black pebble. Tap the same crossing again to place it.',
+  'White pebbles that touch side-to-side are one group. Diagonals do not touch.',
+  'Black pebbles, red blockers, and board edges close side crossings.',
+  'Black pebbles also need one empty side crossing. If white closes the last one, that black group disappears.',
 ];
 const WHITE_STRETCH_RULES = [
-  'First, white saves a white group with only one empty side crossing.',
-  'If no white group is in trouble, white checks every empty side crossing beside a white group.',
-  'White chooses the empty crossing with the longest straight open path.',
-  'If two paths are tied, white chooses the topmost crossing, then the leftmost crossing.',
+  'White first saves a white group that has only one empty side crossing.',
+  'If no group is trapped, white checks every empty side crossing beside a white group.',
+  'White picks the crossing with the longest straight open path away from that group.',
+  'If two choices are tied, white picks the topmost crossing, then the leftmost crossing.',
 ];
+
+const HOW_TO_CLEAR_MOVE: LibertiesPoint = { row: 1, col: 3 };
+const HOW_TO_CLEAR_PUZZLE: LibertiesPuzzle = {
+  id: 'liberties-how-to-clear',
+  title: 'How To Clear',
+  difficulty: 'Easy',
+  size: 4,
+  targetMoves: 1,
+  minMoves: 1,
+  targetSeconds: 45,
+  variant: 'chase',
+  motif: 'Tutorial',
+  focusTags: [],
+  layout: ['.XB.', 'BWW.', '.BB.', '....'],
+  solution: [HOW_TO_CLEAR_MOVE],
+  minSolution: [HOW_TO_CLEAR_MOVE],
+  releaseLinks: [],
+  lightGroups: [[{ row: 1, col: 1 }, { row: 1, col: 2 }]],
+};
+const HOW_TO_STRETCH_MOVE: LibertiesPoint = { row: 4, col: 0 };
+const HOW_TO_STRETCH_PUZZLE: LibertiesPuzzle = {
+  id: 'liberties-how-to-stretch',
+  title: 'How To Stretch',
+  difficulty: 'Easy',
+  size: 5,
+  targetMoves: 1,
+  minMoves: 1,
+  targetSeconds: 45,
+  variant: 'chase',
+  motif: 'Tutorial',
+  focusTags: [],
+  layout: ['..X..', '.....', '.BW..', '..B..', '.....'],
+  solution: [HOW_TO_STRETCH_MOVE],
+  minSolution: [HOW_TO_STRETCH_MOVE],
+  releaseLinks: [],
+  lightGroups: [[{ row: 2, col: 2 }]],
+};
 
 interface LibertiesVisualTheme {
   id: LibertiesVisualThemeId;
@@ -549,87 +571,187 @@ function ThemedLibertiesPiece({
   );
 }
 
-function HowToMiniBoard({
-  grid,
-  label,
-  caption,
+function formatHowToPoint(point: LibertiesPoint): string {
+  return `Row ${point.row + 1}, Col ${point.col + 1}`;
+}
+
+function getHowToCompletionMessage(result: Extract<LibertiesMoveResult, { legal: true }>): string {
+  if (result.captured.length > 0) {
+    return 'Nice. The white group had no empty side crossings left, so it cleared. White does not move after you clear a group.';
+  }
+  if (result.responses.length > 0) {
+    return `Good. That move cleared no white group, so white stretched to ${formatHowToPoint(result.responses[0]!)}.`;
+  }
+  if (result.capturedDark.length > 0) {
+    return 'White closed the last empty side crossing around a black group, so that black group disappeared.';
+  }
+  return 'Good. The board changed, and the next choice starts from this new position.';
+}
+
+function HowToInteractiveBoard({
+  actionPoint,
+  intro,
+  puzzle,
   styles,
+  title,
   visualTheme,
 }: {
-  grid: HowToCell[][];
-  label: string;
-  caption: string;
+  actionPoint: LibertiesPoint;
+  intro: string;
+  puzzle: LibertiesPuzzle;
   styles: ReturnType<typeof createStyles>;
+  title: string;
   visualTheme: LibertiesVisualTheme;
 }) {
-  const miniSize = 154;
-  const miniPadding = 24;
-  const miniGridSpan = miniSize - miniPadding * 2;
-  const miniGap = miniGridSpan / Math.max(1, grid.length - 1);
-  const miniHitSize = 34;
+  const [board, setBoard] = useState<LibertiesBoard>(() => createLibertiesBoard(puzzle));
+  const [selectedPoint, setSelectedPoint] = useState<LibertiesPoint | null>(null);
+  const [responsePoints, setResponsePoints] = useState<LibertiesPoint[]>([]);
+  const [isComplete, setIsComplete] = useState(false);
+  const [status, setStatus] = useState(`Try ${formatHowToPoint(actionPoint)}.`);
+  const boardSize = puzzle.size === 4 ? 164 : 184;
+  const boardPadding = 24;
+  const gridSpan = boardSize - boardPadding * 2;
+  const gap = gridSpan / Math.max(1, puzzle.size - 1);
+  const hitSize = 36;
+
+  const resetExample = useCallback(() => {
+    setBoard(createLibertiesBoard(puzzle));
+    setSelectedPoint(null);
+    setResponsePoints([]);
+    setIsComplete(false);
+    setStatus(`Try ${formatHowToPoint(actionPoint)}.`);
+  }, [actionPoint, puzzle]);
+
+  const handlePointPress = useCallback(
+    (point: LibertiesPoint) => {
+      if (isComplete) return;
+      const cell = board[point.row]?.[point.col];
+      if (cell) {
+        setSelectedPoint(null);
+        setStatus('That crossing is already full. Use an empty crossing.');
+        return;
+      }
+
+      if (!samePoint(point, actionPoint)) {
+        setSelectedPoint(point);
+        setStatus(`That crossing is open, but this lesson wants ${formatHowToPoint(actionPoint)}.`);
+        return;
+      }
+
+      if (!selectedPoint || !samePoint(selectedPoint, point)) {
+        setSelectedPoint(point);
+        setStatus(`Tap ${formatHowToPoint(point)} again to place the black pebble.`);
+        return;
+      }
+
+      const result = playLibertiesMove(board, puzzle.size, point, 'black', puzzle);
+      if (!result.legal) {
+        setSelectedPoint(null);
+        setStatus(getIllegalMoveMessage(result.reason));
+        return;
+      }
+
+      setBoard(result.board);
+      setResponsePoints(result.responses);
+      setSelectedPoint(null);
+      setIsComplete(true);
+      setStatus(getHowToCompletionMessage(result));
+    },
+    [actionPoint, board, isComplete, puzzle, selectedPoint]
+  );
 
   return (
-    <View style={styles.howToMiniBoardPanel}>
-      <Text style={styles.howToMiniBoardLabel}>{label}</Text>
-      <View style={styles.howToMiniBoard}>
-        {grid.map((_, index) => (
+    <View style={styles.howToInteractivePanel}>
+      <View style={styles.howToInteractiveHeader}>
+        <View style={styles.howToInteractiveTextBlock}>
+          <Text style={styles.howToMiniBoardLabel}>{title}</Text>
+          <Text style={styles.howToInteractiveIntro}>{intro}</Text>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Reset ${title}`}
+          style={({ pressed }) => [styles.howToResetButton, pressed && styles.howToResetButtonPressed]}
+          onPress={resetExample}
+        >
+          <Text style={styles.howToResetButtonText}>Reset</Text>
+        </Pressable>
+      </View>
+      <View style={[styles.howToInteractiveBoard, { width: boardSize, height: boardSize }]}>
+        {Array.from({ length: puzzle.size }).map((_, index) => (
           <View
-            key={`how-to-mini-vertical-${label}-${index}`}
+            key={`how-to-interactive-vertical-${puzzle.id}-${index}`}
             style={[
               styles.howToMiniGridLine,
               {
-                left: miniPadding + index * miniGap,
-                top: miniPadding,
+                left: boardPadding + index * gap,
+                top: boardPadding,
                 width: 1,
-                height: miniGridSpan,
+                height: gridSpan,
               },
             ]}
           />
         ))}
-        {grid.map((_, index) => (
+        {Array.from({ length: puzzle.size }).map((_, index) => (
           <View
-            key={`how-to-mini-horizontal-${label}-${index}`}
+            key={`how-to-interactive-horizontal-${puzzle.id}-${index}`}
             style={[
               styles.howToMiniGridLine,
               {
-                left: miniPadding,
-                top: miniPadding + index * miniGap,
-                width: miniGridSpan,
+                left: boardPadding,
+                top: boardPadding + index * gap,
+                width: gridSpan,
                 height: 1,
               },
             ]}
           />
         ))}
-        {grid.map((row, rowIndex) =>
-          row.map((cell, colIndex) => {
-            if (cell === null) return null;
+        {Array.from({ length: puzzle.size }).flatMap((_, rowIndex) =>
+          Array.from({ length: puzzle.size }).map((__, colIndex) => {
+            const point = { row: rowIndex, col: colIndex };
+            const cell = board[rowIndex]?.[colIndex] ?? null;
+            const isSelected = selectedPoint ? samePoint(selectedPoint, point) : false;
+            const isAction = !isComplete && samePoint(actionPoint, point);
+            const isResponse = responsePoints.some((response) => samePoint(response, point));
+            const pieceKind =
+              cell === 'black' || cell === 'white' ? cell : cell === 'frozen' || cell === 'release' ? 'blocker' : null;
+
             return (
-              <View
-                key={`how-to-point-${label}-${rowIndex}-${colIndex}`}
-                style={[
-                  styles.howToMiniPoint,
-                  cell === 'frozen' && styles.howToMiniFrozen,
+              <Pressable
+                key={`how-to-interactive-point-${puzzle.id}-${rowIndex}-${colIndex}`}
+                accessibilityRole="button"
+                accessibilityLabel={`${formatHowToPoint(point)}${cell ? ', occupied' : ', empty'}`}
+                style={({ pressed }) => [
+                  styles.howToInteractivePoint,
                   {
-                    left: miniPadding + colIndex * miniGap - miniHitSize / 2,
-                    top: miniPadding + rowIndex * miniGap - miniHitSize / 2,
-                    width: miniHitSize,
-                    height: miniHitSize,
-                    borderRadius: miniHitSize / 2,
+                    left: boardPadding + colIndex * gap - hitSize / 2,
+                    top: boardPadding + rowIndex * gap - hitSize / 2,
+                    width: hitSize,
+                    height: hitSize,
+                    borderRadius: hitSize / 2,
                   },
+                  isAction && styles.howToInteractiveActionPoint,
+                  isSelected && styles.howToInteractiveSelectedPoint,
+                  isResponse && styles.howToInteractiveResponsePoint,
+                  pressed && !isComplete && styles.howToInteractivePressedPoint,
                 ]}
+                onPress={() => handlePointPress(point)}
               >
-                <ThemedLibertiesPiece
-                  kind={cell === 'frozen' ? 'blocker' : cell}
-                  size={cell === 'frozen' ? 32 : 34}
-                  styles={styles}
-                  visualTheme={visualTheme}
-                />
-              </View>
+                {pieceKind ? (
+                  <ThemedLibertiesPiece
+                    kind={pieceKind}
+                    size={cell === 'frozen' || cell === 'release' ? 32 : 34}
+                    styles={styles}
+                    visualTheme={visualTheme}
+                  />
+                ) : isSelected ? (
+                  <ThemedLibertiesPiece kind="black" preview size={34} styles={styles} visualTheme={visualTheme} />
+                ) : null}
+              </Pressable>
             );
           })
         )}
       </View>
-      <Text style={styles.howToMiniBoardCaption}>{caption}</Text>
+      <Text style={[styles.howToInteractiveStatus, isComplete && styles.howToInteractiveStatusComplete]}>{status}</Text>
     </View>
   );
 }
@@ -1925,18 +2047,19 @@ export default function LibertiesScreen() {
               <View style={styles.objectiveCard}>
                 <Text style={styles.objectiveTitle}>Goal</Text>
                 <Text style={styles.objectiveText}>
-                  Place black pebbles on empty crossings. Clear each white group by closing every
-                  empty side crossing directly beside that white group.
+                  You place black pebbles on empty crossings, where grid lines meet. Clear every
+                  white group by closing the empty crossings directly above, below, left, and right of it.
                 </Text>
               </View>
 
-              <Text accessibilityRole="header" style={styles.modalTitle}>Your move</Text>
+              <Text accessibilityRole="header" style={styles.modalTitle}>Try a clear</Text>
               <View style={styles.rulesList}>
-                <HowToMiniBoard
-                  grid={HOW_TO_OPEN_GRID}
-                  label="Board example"
-                  caption="Pebbles sit where grid lines meet. White pebbles touching side-to-side are one white group."
+                <HowToInteractiveBoard
+                  actionPoint={HOW_TO_CLEAR_MOVE}
+                  intro="The two white pebbles are one group. Close the last empty side crossing to clear them."
+                  puzzle={HOW_TO_CLEAR_PUZZLE}
                   styles={styles}
+                  title="Close the last side"
                   visualTheme={visualTheme}
                 />
                 <Text style={styles.ruleListTitle}>Rules</Text>
@@ -1948,9 +2071,17 @@ export default function LibertiesScreen() {
               <Text accessibilityRole="header" style={styles.modalTitle}>When white moves</Text>
               <View style={[styles.rulesList, styles.rulesListSecondary]}>
                 <Text style={styles.ruleListIntro}>
-                  White moves only after a standard move: a black pebble that clears no white group.
-                  White adds one white pebble beside an existing white group.
+                  If your move clears a white group, white waits and you get the next turn. If your move
+                  clears no white group, white stretches once from an existing white group.
                 </Text>
+                <HowToInteractiveBoard
+                  actionPoint={HOW_TO_STRETCH_MOVE}
+                  intro="This black move does not clear white, so white gets one stretch."
+                  puzzle={HOW_TO_STRETCH_PUZZLE}
+                  styles={styles}
+                  title="Make a no-clear move"
+                  visualTheme={visualTheme}
+                />
                 <HowToStretchOrderBoard styles={styles} visualTheme={visualTheme} />
                 <View style={styles.whiteMoveSteps}>
                   {WHITE_STRETCH_RULES.map((rule, index) => (
@@ -2514,6 +2645,109 @@ const createStyles = (
       fontWeight: '800',
       textAlign: 'center',
       maxWidth: 220,
+    },
+    howToInteractivePanel: {
+      alignItems: 'center',
+      gap: Spacing.sm,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: modalPanelSurface,
+      padding: Spacing.md,
+    },
+    howToInteractiveHeader: {
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: Spacing.sm,
+    },
+    howToInteractiveTextBlock: {
+      flex: 1,
+      minWidth: 0,
+      gap: 4,
+    },
+    howToInteractiveIntro: {
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 19,
+      fontWeight: '700',
+    },
+    howToResetButton: {
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      backgroundColor: Colors.surfaceLight,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 6,
+    },
+    howToResetButtonPressed: {
+      backgroundColor: screenAccent.soft,
+    },
+    howToResetButtonText: {
+      color: Colors.textSecondary,
+      fontSize: 11,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+    },
+    howToInteractiveBoard: {
+      overflow: 'hidden',
+      borderRadius: BorderRadius.sm,
+      borderWidth: 1,
+      borderColor: boardEdge,
+      backgroundColor: boardColor,
+      position: 'relative',
+      shadowColor: '#000',
+      shadowOpacity: theme.mode === 'dark' ? 0.2 : 0.08,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 6 },
+      ...WEB_NO_SELECT,
+    },
+    howToInteractivePoint: {
+      position: 'absolute',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
+    },
+    howToInteractiveActionPoint: {
+      borderWidth: 2,
+      borderColor: screenAccent.main,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(67, 183, 168, 0.14)' : 'rgba(67, 183, 168, 0.12)',
+    },
+    howToInteractiveSelectedPoint: {
+      borderWidth: 2,
+      borderColor: screenAccent.main,
+      backgroundColor: screenAccent.soft,
+    },
+    howToInteractiveResponsePoint: {
+      borderWidth: 2,
+      borderColor: theme.mode === 'dark' ? 'rgba(215, 154, 51, 0.82)' : 'rgba(172, 111, 20, 0.72)',
+      backgroundColor: theme.mode === 'dark' ? 'rgba(215, 154, 51, 0.12)' : 'rgba(215, 154, 51, 0.14)',
+    },
+    howToInteractivePressedPoint: {
+      transform: [{ scale: 0.96 }],
+    },
+    howToInteractiveStatus: {
+      alignSelf: 'stretch',
+      color: Colors.textSecondary,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.7)',
+      borderRadius: BorderRadius.sm,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 8,
+      fontSize: FontSize.sm,
+      lineHeight: 19,
+      fontWeight: '800',
+      textAlign: 'center',
+    },
+    howToInteractiveStatusComplete: {
+      color: screenAccent.badgeText,
+      backgroundColor: screenAccent.soft,
+      borderColor: screenAccent.badgeBorder,
     },
     howToStretchPanel: {
       alignItems: 'center',

@@ -68,6 +68,7 @@ Required conventions:
 | Mini Sudoku | `/sudoku` | Solved elapsed seconds | lower | No terminal loss today; incomplete results should not submit |
 | Dawn Cabinet | `/dawn-cabinet` | Solved elapsed seconds | lower | No terminal loss today; incomplete results should not submit |
 | Bridges | `/bridges` | Solved elapsed seconds | lower | No terminal loss today; incomplete results should not submit |
+| Liberties | `/liberties` | Normalized move-efficiency score | higher | No terminal loss today; incomplete results should not submit |
 | Whodunit | `/whodunit` | Penalized case time | lower | Wrong accusation sorts worse than any solved case |
 | Ballpark | `/ballpark` | Composite daily score | higher | Failed rounds stay in the composite |
 | Daily Mix | `/daily-mix` | Trivia points | higher | Score can be `0` |
@@ -265,6 +266,55 @@ not submit game results.
     `hints_used`, `difficulty`, `theme`, `elapsed_seconds`, `did_win`.
   - Ranking: elapsed seconds on solved results.
   - Direction: `"lower"`.
+
+### Liberties
+
+- Source: `app/liberties.tsx`, `src/data/libertiesPuzzles.ts`,
+  `src/data/libertiesPack.generated.ts`, `scripts/build_liberties_pack.ts`,
+  `scripts/audit_liberties_pack.ts`.
+- Core mechanic to preserve: Place black pebbles on grid crossings to clear
+  white groups by closing their empty side crossings. If a black move clears no
+  white group, one white group deterministically stretches into an empty side
+  crossing. If a move clears a white group, white does not move before the
+  player's next turn.
+- Completion: Win when every white group has cleared. There is no current loss
+  condition.
+- Progress to persist: placed black moves, board state if needed for fast
+  resume, selected theme, selected mode (`standard` or `hard`), hints used,
+  elapsed seconds, terminal state, date/pack identity.
+- Generation/content source: Two-year Standard and Hard daily schedules plus
+  reserves, built from the Liberties generator and audited for legal minimum
+  routes, no starting black pebbles, terrain usefulness, blocker impact,
+  response pressure, and persona solve-time bands.
+- UX that can change: Piece theme, board chrome, tutorial surfaces, hint
+  presentation, completion card, and share formatting.
+- UX constraints to retain: Pieces sit on line crossings. White response order
+  must remain deterministic. Hints from the opening board should follow the
+  puzzle's true minimum route. Red blockers are fixed board terrain, not a
+  player action.
+- Result summary:
+  - `score_text`: `"{moves} moves - {m:ss}"`.
+  - Fields: `moves`, `min_moves`, `target_seconds`, `elapsed_seconds`,
+    `hints_used`, `mode`, `difficulty`, `visual_theme`, `challenge_score`,
+    `did_win`.
+  - Challenge ranking: normalized move-efficiency score, not raw moves. Raw
+    move counts should not be averaged across challenge entries because each
+    board has a different minimum route.
+  - Recommended challenge formula:
+
+    ```ts
+    const excessMoves = Math.max(0, moves - minMoves);
+    const movePenalty = excessMoves * 6;
+    const timeRatio = elapsedSeconds / targetSeconds;
+    const timePenalty = clamp((timeRatio - 1) * 4, 0, 6);
+    const hintPenalty = hintsUsed * 2;
+    const challengeScore = clamp(100 - movePenalty - timePenalty - hintPenalty, 0, 100);
+    ```
+
+  - Direction: `"higher"`.
+  - Game-specific leaderboard display can still sort solved results by
+    `moves`, then `elapsed_seconds`, then `hints_used`; the normalized
+    `challenge_score` is the value to average inside mixed-game challenges.
 
 ### Whodunit
 
