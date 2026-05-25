@@ -856,7 +856,8 @@ export default function ThreadlineScreen() {
               </View>
             </View>
             <View style={styles.mobileThemeMiniRow}>
-              {threadStats.map((thread) => {
+              {threadStats.map((thread, index) => {
+                const hiddenThemeLabel = `Theme ${index + 1}`;
                 return (
                   <View
                     key={thread.id}
@@ -869,7 +870,7 @@ export default function ThreadlineScreen() {
                     accessibilityLabel={
                       thread.isRevealed
                         ? `${thread.name}, ${thread.foundCount} of ${thread.totalCount}`
-                        : `${thread.foundCount} of ${thread.totalCount} words found in locked theme`
+                        : `${hiddenThemeLabel}, ${thread.foundCount} of ${thread.totalCount} words found`
                     }
                   >
                     <View style={styles.mobileThemeMiniHeader}>
@@ -878,7 +879,9 @@ export default function ThreadlineScreen() {
                           {thread.name}
                         </Text>
                       ) : (
-                        <View style={styles.mobileThemeMiniLockedSpacer} />
+                        <Text style={styles.mobileThemeMiniHiddenName} numberOfLines={1}>
+                          {hiddenThemeLabel}
+                        </Text>
                       )}
                       <Text style={styles.mobileThemeMiniCount}>
                         {thread.foundCount}/{thread.totalCount}
@@ -921,50 +924,58 @@ export default function ThreadlineScreen() {
         </View>
 
         <View style={[styles.threadRow, compact && styles.mobileThreadRow]}>
-          {threadStats.map((thread) => (
-            <View
-              key={thread.id}
-              style={[
-                styles.threadCard,
-                compact && styles.mobileThreadCard,
-                !thread.isRevealed && styles.threadCardLocked,
-                thread.isComplete && styles.threadCardComplete,
-              ]}
-              accessibilityLabel={
-                thread.isRevealed
-                  ? `${thread.name}, ${thread.foundCount} of ${thread.totalCount}`
-                  : `${thread.foundCount} of ${thread.totalCount} words found in locked theme`
-              }
-            >
-              <View style={styles.threadHeader}>
-                {thread.isRevealed ? (
-                  <Text
-                    style={[styles.threadName, compact && styles.mobileThreadName]}
-                    numberOfLines={1}
-                  >
-                    {thread.name}
+          {threadStats.map((thread, index) => {
+            const hiddenThemeLabel = `Theme ${index + 1}`;
+            return (
+              <View
+                key={thread.id}
+                style={[
+                  styles.threadCard,
+                  compact && styles.mobileThreadCard,
+                  !thread.isRevealed && styles.threadCardLocked,
+                  thread.isComplete && styles.threadCardComplete,
+                ]}
+                accessibilityLabel={
+                  thread.isRevealed
+                    ? `${thread.name}, ${thread.foundCount} of ${thread.totalCount}`
+                    : `${hiddenThemeLabel}, ${thread.foundCount} of ${thread.totalCount} words found`
+                }
+              >
+                <View style={styles.threadHeader}>
+                  {thread.isRevealed ? (
+                    <Text
+                      style={[styles.threadName, compact && styles.mobileThreadName]}
+                      numberOfLines={1}
+                    >
+                      {thread.name}
+                    </Text>
+                  ) : (
+                    <Text
+                      style={[styles.threadHiddenName, compact && styles.mobileThreadHiddenName]}
+                      numberOfLines={1}
+                    >
+                      {hiddenThemeLabel}
+                    </Text>
+                  )}
+                  <Text style={[styles.threadCount, compact && styles.mobileThreadCount]}>
+                    {thread.foundCount}/{thread.totalCount}
                   </Text>
-                ) : (
-                  <View style={styles.threadLockedSpacer} />
-                )}
-                <Text style={[styles.threadCount, compact && styles.mobileThreadCount]}>
-                  {thread.foundCount}/{thread.totalCount}
-                </Text>
+                </View>
+                <View style={[styles.threadMeter, compact && styles.mobileThreadMeter]}>
+                  {Array.from({ length: thread.totalCount }).map((_, index) => (
+                    <View
+                      key={`${thread.id}-${index}`}
+                      style={[
+                        styles.threadDot,
+                        compact && styles.mobileThreadDot,
+                        index < thread.foundCount && styles.threadDotFilled,
+                      ]}
+                    />
+                  ))}
+                </View>
               </View>
-              <View style={[styles.threadMeter, compact && styles.mobileThreadMeter]}>
-                {Array.from({ length: thread.totalCount }).map((_, index) => (
-                  <View
-                    key={`${thread.id}-${index}`}
-                    style={[
-                      styles.threadDot,
-                      compact && styles.mobileThreadDot,
-                      index < thread.foundCount && styles.threadDotFilled,
-                    ]}
-                  />
-                ))}
-              </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
       </View>
     </View>
@@ -1630,6 +1641,14 @@ const createStyles = (
       fontWeight: '800',
       color: Colors.text,
     },
+    mobileThemeMiniHiddenName: {
+      flex: 1,
+      minWidth: 0,
+      fontSize: 11,
+      lineHeight: 13,
+      fontWeight: '800',
+      color: Colors.textMuted,
+    },
     mobileThemeMiniLockedSpacer: {
       flex: 1,
       minHeight: 14,
@@ -1751,11 +1770,21 @@ const createStyles = (
       fontWeight: '800',
       color: Colors.text,
     },
+    threadHiddenName: {
+      flex: 1,
+      fontSize: 13,
+      fontWeight: '800',
+      color: Colors.textMuted,
+    },
     threadLockedSpacer: {
       flex: 1,
       minHeight: 16,
     },
     mobileThreadName: {
+      fontSize: 11,
+      lineHeight: 13,
+    },
+    mobileThreadHiddenName: {
       fontSize: 11,
       lineHeight: 13,
     },

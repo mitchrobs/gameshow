@@ -79,11 +79,11 @@ const THREADLINE_SHIPPED_REJECTED_DATE_KEY_SET = new Set<string>(THREADLINE_SHIP
 export const THREADLINE_GRID_ROWS = 10;
 export const THREADLINE_GRID_COLS = 8;
 const PACK_SEED = 19337;
-const THREADLINE_GRID_PLACEMENT_ATTEMPTS = 8;
-const THREADLINE_GRID_SEARCH_NODE_LIMIT = 5_000;
-const THREADLINE_GRID_SEARCH_BREADTH = 22;
-const THREADLINE_GRID_IDEAL_PRESENTATION_SCORE = 4.85;
-export const THREADLINE_MIN_GRID_PRESENTATION_SCORE = 4.8;
+const THREADLINE_GRID_PLACEMENT_ATTEMPTS = 16;
+const THREADLINE_GRID_SEARCH_NODE_LIMIT = 10_000;
+const THREADLINE_GRID_SEARCH_BREADTH = 34;
+const THREADLINE_GRID_IDEAL_PRESENTATION_SCORE = 4.95;
+export const THREADLINE_MIN_GRID_PRESENTATION_SCORE = 4.85;
 const GRID_CENTER_ROW_MIN = Math.floor(THREADLINE_GRID_ROWS / 4);
 const GRID_CENTER_ROW_MAX = THREADLINE_GRID_ROWS - 1 - GRID_CENTER_ROW_MIN;
 const GRID_CENTER_COL_MIN = Math.floor(THREADLINE_GRID_COLS / 4);
@@ -2248,8 +2248,11 @@ interface ThreadlineNoLeadThemeSurface {
 
 interface ThreadlinePlainLanguageEditorialSpec {
   place: string;
+  titlePlace?: string;
+  scenePreposition?: 'at' | 'by' | 'in' | 'on';
   themeNames: readonly [string, string];
   weaveCore: string;
+  weaveVariants?: readonly string[];
   editorNote: string;
 }
 
@@ -2726,145 +2729,175 @@ const THREADLINE_PLAIN_LANGUAGE_COPY_BY_DOMAIN = {
   airport: {
     place: 'the airport',
     themeNames: ['Gate Signs', 'Boarding'],
-    weaveCore: 'gate signs give boarding its first real direction.',
+    weaveCore: 'boarding starts at the gate signs.',
     editorNote: 'Airport copy connects public directions to the moment travel begins.',
   },
   apiary: {
     place: 'the apiary',
     themeNames: ['Hive Frames', 'Honey Work'],
-    weaveCore: 'hive frames give honey work a place to happen.',
+    weaveCore: 'honey work starts with the hive frames.',
     editorNote: 'Apiary copy keeps the reveal on the hive and the work around it.',
   },
   apothecary: {
     place: 'the apothecary',
     themeNames: ['Remedy Shelf', 'Measured Dose'],
-    weaveCore: 'a remedy shelf only helps when the dose is measured.',
+    weaveCore: 'a measured dose comes from the remedy shelf.',
     editorNote: 'Apothecary copy connects old-shop objects to careful use.',
   },
   aquarium: {
     place: 'the aquarium',
     themeNames: ['Tank Glass', 'Living Water'],
-    weaveCore: 'tank glass lets living water become something people can watch.',
+    weaveCore: 'people watch living water through tank glass.',
     editorNote: 'Aquarium copy connects the frame of the tank to the life inside it.',
   },
   bakery: {
     place: 'the bakery',
     themeNames: ['Pastry Case', 'Counter Order'],
-    weaveCore: 'the pastry case gives a counter order something to point at.',
+    weaveCore: 'orders start at the pastry case.',
     editorNote: 'Bakery copy connects what is displayed to what someone asks for.',
   },
   barbershop: {
     place: 'the barbershop',
     themeNames: ['Barber Chair', 'Clean Cut'],
-    weaveCore: 'the barber chair is where a clean cut becomes personal.',
+    weaveCore: 'a clean cut starts in the barber chair.',
     editorNote: 'Barbershop copy connects the seat to the ritual of leaving neater.',
   },
   'bike-shop': {
     place: 'the bike shop',
     themeNames: ['Bike Stand', 'Street Repair'],
-    weaveCore: 'a bike stand turns street repair into something steady.',
+    weaveCore: 'the bike stand steadies a street repair.',
     editorNote: 'Bike-shop copy connects shop support to riding again.',
   },
   bookshop: {
     place: 'the bookshop',
     themeNames: ['Shelf Browsing', 'Next Read'],
-    weaveCore: 'shelf browsing becomes a next read when one spine keeps your attention.',
+    weaveCore: 'shelf browsing ends with the next read.',
     editorNote: 'Bookshop copy connects the browsing surface to the reader choice.',
   },
   cafe: {
     place: 'the cafe',
-    themeNames: ['Counter Seat', 'Window Street'],
-    weaveCore: 'from a counter seat, the window street stays part of breakfast.',
+    themeNames: ['Counter Seat', 'Window View'],
+    weaveCore: 'the counter seat faces the window view.',
     editorNote: 'Cafe copy connects the inside seat to the moving street outside.',
   },
   campsite: {
     place: 'the campsite',
     themeNames: ['Camp Kit', 'Fire Ring'],
-    weaveCore: 'the fire ring gives a packed camp kit a reason to come out.',
+    weaveCore: 'a packed camp kit comes out around the fire ring.',
     editorNote: 'Campsite copy connects packed objects to the shared night around the fire.',
   },
   chessboard: {
     place: 'the chess table',
     themeNames: ['Chessmen', 'Pressure Play'],
-    weaveCore: 'board pieces become pressure play when every square has a consequence.',
+    weaveCore: 'pressure play begins when the chessmen run out of safe squares.',
     editorNote: 'Chess copy connects named pieces to the tension of the position.',
   },
   'clean-slate': {
     place: 'the fresh desk',
     themeNames: ['Fresh Page', 'First Mark'],
-    weaveCore: 'a fresh page becomes real with the first mark.',
+    weaveCore: 'the fresh page begins with the first mark.',
     editorNote: 'Clean-slate copy connects reset objects to the first visible choice.',
   },
   clockshop: {
     place: 'the clockshop',
     themeNames: ['Clock Face', 'Timekeeping'],
-    weaveCore: 'the clock face lets timekeeping show its work.',
+    weaveCore: 'timekeeping is visible on the clock face.',
     editorNote: 'Clockshop copy connects visible parts to the act of keeping time.',
   },
   commute: {
     place: 'the bus stop',
     themeNames: ['Rain Gear', 'Bus Route'],
-    weaveCore: 'rain gear gets the bus route across wet sidewalks.',
+    weaveCore: 'rain gear covers the walk to the bus route.',
+    weaveVariants: [
+      '{lead}, rain gear covers the walk to the bus route.',
+      '{lead}, rain gear is for the walk to the bus route.',
+      '{lead}, the walk to the bus route needs rain gear.',
+    ],
     editorNote: 'Commute copy connects weather preparation to the trip ahead.',
   },
   courtyard: {
     place: 'the courtyard',
     themeNames: ['Open Courtyard', 'Passing Footsteps'],
-    weaveCore: 'an open courtyard gives passing footsteps a reason to slow down.',
+    weaveCore: 'passing footsteps slow down in an open courtyard.',
     editorNote: 'Courtyard copy connects the public space to the people crossing it.',
   },
   dancehall: {
     place: 'the dancehall',
     themeNames: ['Dance Floor', 'Music Count'],
-    weaveCore: 'the dance floor needs the music count before the room can move together.',
+    weaveCore: 'the dance floor moves together on the music count.',
     editorNote: 'Dancehall copy connects the floor to the timing that animates it.',
   },
   desk: {
     place: 'the desk',
     themeNames: ['Desk Surface', 'Task List'],
-    weaveCore: 'a desk surface turns a task list into work you can start.',
+    weaveCore: 'work starts with the task list on the desk.',
+    weaveVariants: [
+      '{lead}, work starts with the task list on the desk.',
+      '{lead}, the task list sits on the desk before the work starts.',
+      '{lead}, desk work begins with the task list.',
+      '{lead}, the task list is already on the desk.',
+      '{lead}, the desk surface holds the task list.',
+      '{lead}, the next task is on the desk surface.',
+    ],
     editorNote: 'Desk copy connects the objects in reach to the next task.',
   },
   diner: {
     place: 'the diner',
     themeNames: ['Booth Seat', 'Counter Order'],
-    weaveCore: 'a booth seat turns a counter order into breakfast.',
+    weaveCore: 'breakfast starts at the counter and reaches the booth.',
     editorNote: 'Diner copy connects the seat to the familiar act of ordering.',
   },
   'ferry-landing': {
     place: 'the ferry landing',
     themeNames: ['Ferry Pier', 'Boarding Line'],
-    weaveCore: 'the ferry pier turns a boarding line into a crossing.',
+    weaveCore: 'the boarding line crosses from the ferry pier.',
     editorNote: 'Ferry copy connects the landing place to the act of crossing.',
   },
   firehouse: {
     place: 'the firehouse',
     themeNames: ['Engine Bay', 'Emergency Call'],
-    weaveCore: 'the engine bay is ready before an emergency call has a name.',
+    weaveCore: 'an emergency call sends the engine bay into motion.',
     editorNote: 'Firehouse copy connects readiness to response.',
   },
   'flower-shop': {
     place: 'the flower shop',
     themeNames: ['Fresh Flowers', 'Wrapped Bouquet'],
-    weaveCore: 'fresh flowers become a wrapped bouquet when the visit has a reason.',
+    weaveCore: 'fresh flowers leave the shop as a wrapped bouquet.',
     editorNote: 'Flower-shop copy connects blooms to the gesture they become.',
   },
   gallery: {
     place: 'the gallery',
     themeNames: ['Gallery Wall', 'Visitor Looking'],
-    weaveCore: 'a gallery wall turns visitor looking into a slower walk.',
+    weaveCore: 'visitors look longer at the gallery wall.',
+    weaveVariants: [
+      '{lead}, the gallery wall keeps visitors looking.',
+      '{lead}, the gallery wall slows visitors down.',
+      '{lead}, a longer look starts at the gallery wall.',
+      "{lead}, the gallery wall holds a visitor's attention.",
+      '{lead}, people stop longest at the gallery wall.',
+      "{lead}, a visitor's eye returns to the gallery wall.",
+      '{lead}, people pause in front of the gallery wall.',
+      '{lead}, visitors spend extra time in front of the gallery wall.',
+      '{lead}, the gallery wall draws a longer look.',
+      '{lead}, visitors stop in front of the gallery wall.',
+    ],
     editorNote: 'Gallery copy connects the display surface to the act of looking.',
   },
   garden: {
     place: 'the garden',
     themeNames: ['Garden Bed', 'Tending'],
-    weaveCore: 'a garden bed stays alive through tending.',
+    weaveCore: 'tending keeps the garden bed alive.',
+    weaveVariants: [
+      '{lead}, tending keeps the garden bed alive.',
+      '{lead}, the garden bed stays alive with tending.',
+      '{lead}, tending keeps life in the garden bed.',
+    ],
     editorNote: 'Garden copy connects the planted place to repeated care.',
   },
   greenhouse: {
     place: 'the greenhouse',
     themeNames: ['Greenhouse Glass', 'Young Plants'],
-    weaveCore: 'greenhouse glass gives young plants a safer season.',
+    weaveCore: 'greenhouse glass shelters young plants.',
     editorNote: 'Greenhouse copy connects shelter to fragile growth.',
   },
   harbor: {
@@ -2876,241 +2909,283 @@ const THREADLINE_PLAIN_LANGUAGE_COPY_BY_DOMAIN = {
   'hardware-aisle': {
     place: 'the hardware aisle',
     themeNames: ['Hardware Bins', 'Home Repair'],
-    weaveCore: 'hardware bins make home repair less mysterious.',
+    weaveCore: 'home repair starts at the hardware bins.',
     editorNote: 'Hardware copy connects small parts to a fix at home.',
   },
   'hotel-lobby': {
     place: 'the hotel lobby',
     themeNames: ['Front Desk', 'Guest Arrival'],
-    weaveCore: 'the front desk turns guest arrival into a room key.',
+    weaveCore: 'guest arrival ends at the front desk with a room key.',
     editorNote: 'Hotel copy connects arrival to the ritual of checking in.',
   },
   'ice-rink': {
     place: 'the ice rink',
     themeNames: ['Rink Ice', 'Skate Edge'],
-    weaveCore: 'rink ice only becomes a route under a skate edge.',
+    weaveCore: 'a skate edge cuts a route through rink ice.',
     editorNote: 'Rink copy connects the surface to the blade that uses it.',
   },
   kitchen: {
     place: 'the kitchen',
     themeNames: ['Kitchen Counter', 'Supper Prep'],
-    weaveCore: 'the kitchen counter turns supper prep into something close at hand.',
+    weaveCore: 'supper prep starts on the kitchen counter.',
+    weaveVariants: [
+      '{lead}, supper prep starts on the kitchen counter.',
+      '{lead}, the kitchen counter is ready for supper prep.',
+      '{lead}, supper prep begins at the kitchen counter.',
+    ],
     editorNote: 'Kitchen copy connects the work surface to the meal taking shape.',
   },
   laboratory: {
     place: 'the laboratory',
     themeNames: ['Lab Bench', 'Test Result'],
-    weaveCore: 'a lab bench is where a test result earns trust.',
+    weaveCore: 'a test result is checked on the lab bench.',
     editorNote: 'Laboratory copy connects equipment to proof.',
   },
   laundry: {
     place: 'the laundry room',
     themeNames: ['Wash Basket', 'Folded Clothes'],
-    weaveCore: 'a wash basket is only halfway done until the clothes are folded.',
+    weaveCore: 'the wash basket is finished when the clothes are folded.',
     editorNote: 'Laundry copy connects the pile to its finished state.',
   },
   library: {
     place: 'the library',
     themeNames: ['Library Shelf', 'Quiet Reading'],
-    weaveCore: 'a library shelf becomes quiet reading one choice at a time.',
+    weaveCore: 'one choice from the library shelf starts quiet reading.',
+    weaveVariants: [
+      '{lead}, one choice from the library shelf starts quiet reading.',
+      '{lead}, quiet reading begins with one shelf choice.',
+      '{lead}, the next quiet read starts at the library shelf.',
+    ],
     editorNote: 'Library copy connects the shelves to the reader.',
   },
   lighthouse: {
     place: 'the lighthouse',
     themeNames: ['Beacon Tower', 'Coast Warning'],
-    weaveCore: 'the beacon tower gives a coast warning before danger arrives.',
+    weaveCore: 'the beacon tower warns the coast.',
     editorNote: 'Lighthouse copy connects the tower to its practical warning.',
   },
   mailroom: {
     place: 'the mailroom',
     themeNames: ['Sorted Mail', 'Delivery Route'],
-    weaveCore: 'sorted mail only matters once it has a delivery route.',
+    weaveCore: 'sorted mail leaves on a delivery route.',
     editorNote: 'Mailroom copy connects sorting to where the message goes.',
   },
   'map-room': {
     place: 'the map room',
     themeNames: ['Chart Table', 'Travel Route'],
-    weaveCore: 'a chart table turns a travel route into something the finger can follow.',
+    weaveCore: 'the travel route is visible on the chart table.',
     editorNote: 'Map-room copy connects maps to the planned path.',
   },
   market: {
     place: 'the market',
     themeNames: ['Market Stall', 'Market Basket'],
-    weaveCore: 'a market stall fills a market basket one handful at a time.',
+    weaveCore: 'shoppers fill the market basket at the stalls.',
     editorNote: 'Market copy connects display to choosing.',
   },
   music: {
     place: 'the rehearsal room',
     themeNames: ['Song Line', 'Steady Beat'],
-    weaveCore: 'a song line needs a steady beat before everyone can enter together.',
+    weaveCore: 'a steady beat lets the song line enter together.',
     editorNote: 'Music copy connects melody to timing.',
   },
   newsroom: {
     place: 'the newsroom',
     themeNames: ['Story Notes', 'Printed Record'],
-    weaveCore: 'story notes become a printed record when the facts hold.',
+    weaveCore: 'story notes reach the printed record after the facts are checked.',
     editorNote: 'Newsroom copy connects gathered material to public record.',
   },
   observatory: {
     place: 'the observatory',
     themeNames: ['Telescope Lens', 'Night Sky'],
-    weaveCore: 'a telescope lens brings the night sky close enough to study.',
+    weaveCore: 'the telescope makes the night sky close enough to study.',
     editorNote: 'Observatory copy connects the instrument to the far view.',
   },
   'paper-hearts': {
     place: 'the craft table',
     themeNames: ['Paper Note', 'Small Kindness'],
-    weaveCore: 'a paper note becomes a small kindness when it leaves the table.',
+    weaveCore: 'a paper note leaves the table as a small kindness.',
     editorNote: 'Paper-heart copy connects craft materials to the gesture.',
   },
   park: {
     place: 'the park',
     themeNames: ['Park Path', 'Passing Neighbors'],
-    weaveCore: 'a park path turns passing neighbors into part of the walk.',
+    weaveCore: 'neighbors use the park path as part of the block.',
+    weaveVariants: [
+      '{lead}, neighbors use the park path as part of the block.',
+      '{lead}, neighbors cross the block on the park path.',
+      '{lead}, the park path is part of the neighborhood walk.',
+    ],
     editorNote: 'Park copy connects the route to social passing.',
   },
   'photo-darkroom': {
     place: 'the darkroom',
     themeNames: ['Darkroom Tray', 'Finished Print'],
-    weaveCore: 'a darkroom tray slowly turns a hidden image into a finished print.',
+    weaveCore: 'a finished print starts as a hidden image in the darkroom tray.',
     editorNote: 'Darkroom copy connects process to visible image.',
   },
   picnic: {
     place: 'the picnic blanket',
+    titlePlace: 'the picnic',
     themeNames: ['Picnic Basket', 'Blanket Lunch'],
-    weaveCore: 'a picnic basket becomes blanket lunch once there is shade.',
+    weaveCore: 'lunch starts when the basket opens on the blanket.',
     editorNote: 'Picnic copy connects what is packed to the meal outdoors.',
   },
   planetarium: {
     place: 'the planetarium',
     themeNames: ['Star Dome', 'Dark Room'],
-    weaveCore: 'the star dome gives a dark room the size of the sky.',
+    weaveCore: 'the dark room looks like sky under the star dome.',
     editorNote: 'Planetarium copy connects the room to the sky illusion.',
   },
   'pool-deck': {
     place: 'the pool deck',
     themeNames: ['Pool Lane', 'Swim Lap'],
-    weaveCore: 'a pool lane gives each swim lap a clean way back.',
+    weaveCore: 'each swim lap returns through the pool lane.',
     editorNote: 'Pool-deck copy connects the lane to repeated motion.',
   },
   porch: {
     place: 'the porch',
     themeNames: ['Porch Light', 'Street Greeting'],
-    weaveCore: 'a porch light turns a street greeting into a visit.',
+    weaveCore: 'a hello from the street reaches the steps under the porch light.',
     editorNote: 'Porch copy connects the house edge to the neighborly moment.',
   },
   'porch-lantern': {
     place: 'the lantern porch',
+    titlePlace: 'the porch',
     themeNames: ['Porch Lantern', 'Evening Doorstep'],
-    weaveCore: 'a porch lantern readies the evening doorstep for someone arriving.',
+    weaveCore: 'the porch lantern lights the evening doorstep.',
     editorNote: 'Lantern-porch copy connects seasonal light to arrival.',
   },
   'porch-spark': {
     place: 'the summer porch',
+    titlePlace: 'the porch',
     themeNames: ['Front Porch', 'Dusk Spark'],
-    weaveCore: 'the front porch gives a dusk spark somewhere safe to glow.',
+    weaveCore: 'the front porch is a safe place for a dusk spark.',
     editorNote: 'Porch-spark copy connects the setting to the small celebration.',
   },
   pottery: {
     place: 'the pottery studio',
     themeNames: ['Soft Clay', 'Kiln Fire'],
-    weaveCore: 'soft clay needs kiln fire before it can keep its shape.',
+    weaveCore: 'soft clay keeps its shape after kiln fire.',
     editorNote: 'Pottery copy connects malleable material to the finished vessel.',
   },
   printshop: {
     place: 'the printshop',
     themeNames: ['Metal Type', 'Ink Press'],
-    weaveCore: 'metal type needs the ink press before a page can travel.',
+    weaveCore: 'metal type reaches the page through the ink press.',
     editorNote: 'Printshop copy connects type to printed circulation.',
   },
   'radio-booth': {
     place: 'the radio booth',
     themeNames: ['Radio Booth', 'On-Air Voice'],
-    weaveCore: 'the radio booth gives an on-air voice a way out of the room.',
+    weaveCore: 'an on-air voice leaves the room through the radio booth.',
     editorNote: 'Radio copy connects the booth to broadcast reach.',
   },
   'record-store': {
     place: 'the record store',
     themeNames: ['Record Bins', 'Chosen Record'],
-    weaveCore: 'record bins become a chosen record when one sleeve gets pulled.',
+    weaveCore: 'a chosen record starts in the record bins.',
     editorNote: 'Record-store copy connects browsing to sound.',
   },
   'repair-counter': {
     place: 'the repair counter',
-    themeNames: ['Intake Ticket', 'Fixed Return'],
-    weaveCore: 'an intake ticket promises a fixed return.',
+    themeNames: ['Intake Ticket', 'Repair Pickup'],
+    weaveCore: 'an intake ticket ends at repair pickup.',
     editorNote: 'Repair-counter copy connects drop-off to pickup.',
   },
   rooftop: {
     place: 'the rooftop',
     themeNames: ['City Roof', 'Evening View'],
-    weaveCore: 'a city roof turns the evening view into a reason to stay.',
+    weaveCore: 'people stay on the roof for the evening view.',
     editorNote: 'Rooftop copy connects elevation to lingering.',
   },
   school: {
     place: 'the classroom',
     themeNames: ['Classroom Bell', 'First Lesson'],
-    weaveCore: 'the classroom bell gathers scattered desks for the first lesson.',
+    weaveCore: 'the classroom bell starts the first lesson.',
+    weaveVariants: [
+      '{lead}, the classroom bell starts the first lesson.',
+      '{lead}, the first lesson begins after the classroom bell.',
+      '{lead}, the first lesson follows the classroom bell.',
+    ],
     editorNote: 'School copy connects the signal to the start of class.',
   },
   shore: {
     place: 'the shoreline',
     themeNames: ['Tide Edge', 'Beach Finds'],
-    weaveCore: 'the tide edge leaves beach finds for anyone walking slowly.',
+    weaveCore: 'the tide edge leaves beach finds on the sand.',
     editorNote: 'Shore copy connects water movement to what remains on sand.',
   },
   'spring-basket': {
     place: 'the spring table',
     themeNames: ['Spring Color', 'Egg Hunt'],
-    weaveCore: 'spring color makes an egg hunt easier to believe in.',
+    weaveCore: 'spring color marks the egg hunt.',
     editorNote: 'Spring-basket copy connects bright objects to the search.',
   },
   station: {
     place: 'the station',
     themeNames: ['Platform Sign', 'Waiting Room'],
-    weaveCore: 'a platform sign gives the waiting room a direction.',
+    weaveCore: 'people in the waiting room follow the platform sign.',
+    weaveVariants: [
+      '{lead}, people in the waiting room follow the platform sign.',
+      '{lead}, the platform sign guides people from the waiting room.',
+      '{lead}, passengers in the waiting room use the platform sign.',
+      '{lead}, the platform sign points people out of the waiting room.',
+    ],
     editorNote: 'Station copy connects public signs to the waiting body.',
   },
   studio: {
     place: 'the workroom',
     themeNames: ['Studio Table', 'Making Marks'],
-    weaveCore: 'a studio table gives making marks enough room to begin.',
+    weaveCore: 'first marks begin on the studio table.',
+    weaveVariants: [
+      '{lead}, first marks begin on the studio table.',
+      '{lead}, the first marks go on the studio table.',
+      '{lead}, the studio table is ready for first marks.',
+      '{lead}, making marks starts at the studio table.',
+      '{lead}, the studio table holds the first marks.',
+      '{lead}, first marks start the work on the studio table.',
+    ],
     editorNote: 'Studio copy connects materials to first marks.',
   },
   'table-leaf': {
     place: 'the dining table',
     themeNames: ['Set Table', 'Dinner Company'],
-    weaveCore: 'a set table leaves dinner company a place to gather.',
+    weaveCore: 'dinner company gathers at the set table.',
     editorNote: 'Table copy connects place settings to guests.',
   },
   tailor: {
     place: 'the tailor shop',
     themeNames: ['Garment Shape', 'Fitting Mirror'],
-    weaveCore: 'garment shape becomes personal in the fitting mirror.',
+    weaveCore: 'the fitting mirror shows whether the garment shape fits.',
     editorNote: 'Tailor copy connects cloth form to the person wearing it.',
   },
   'tea-shop': {
     place: 'the tea shop',
     themeNames: ['Tea Table', 'Steeping Pause'],
-    weaveCore: 'a tea table gives the steeping pause somewhere to settle.',
+    weaveCore: 'the steeping pause happens at the tea table.',
     editorNote: 'Tea-shop copy connects service objects to waiting well.',
   },
   theater: {
     place: 'the theater',
     themeNames: ['Stage Curtain', 'Audience Hush'],
-    weaveCore: 'the stage curtain turns audience hush into anticipation.',
+    weaveCore: 'audience hush comes before the stage curtain rises.',
+    weaveVariants: [
+      '{lead}, audience hush comes before the stage curtain rises.',
+      '{lead}, the stage curtain rises after the audience hush.',
+      '{lead}, the audience gets quiet before the stage curtain rises.',
+    ],
     editorNote: 'Theater copy connects the stage threshold to the watching room.',
   },
   trail: {
     place: 'the trail',
     themeNames: ['Trail Marker', 'Wild Path'],
-    weaveCore: 'a trail marker lets the wild path feel trustworthy.',
+    weaveCore: 'a wild path is easier to trust with trail markers.',
     editorNote: 'Trail copy connects guidance to the surrounding woods.',
   },
   vineyard: {
     place: 'the vineyard',
     themeNames: ['Grape Row', 'Cellar Work'],
-    weaveCore: 'a grape row begins the cellar work long before harvest ends.',
+    weaveCore: 'cellar work begins in the grape row.',
     editorNote: 'Vineyard copy connects field fruit to later craft.',
   },
   'weather-station': {
@@ -3122,43 +3197,228 @@ const THREADLINE_PLAIN_LANGUAGE_COPY_BY_DOMAIN = {
   'window-ribbon': {
     place: 'the gift shop',
     themeNames: ['Shop Window', 'Gift Wrap'],
-    weaveCore: 'a shop window becomes gift wrap when someone decides to carry it home.',
+    weaveCore: 'a choice from the shop window goes home under gift wrap.',
     editorNote: 'Window-ribbon copy connects display to the finished gift.',
   },
   workshop: {
     place: 'the workshop',
     themeNames: ['Workbench Tools', 'Repair Problem'],
-    weaveCore: 'workbench tools matter most after the repair problem is clear.',
+    weaveCore: 'workbench tools fit the repair problem.',
     editorNote: 'Workshop copy connects tools to the problem they answer.',
   },
 } satisfies Record<string, ThreadlinePlainLanguageEditorialSpec>;
 
-const THREADLINE_PLAIN_TITLE_CONTEXTS = [
-  { title: 'Morning at {place}', lead: 'in the morning at {place}' },
-  { title: 'A Quiet Hour at {place}', lead: 'in a quiet hour at {place}' },
-  { title: 'Before Noon at {place}', lead: 'before noon at {place}' },
-  { title: 'After Rain at {place}', lead: 'after rain at {place}' },
-  { title: 'Late Afternoon at {place}', lead: 'in late afternoon at {place}' },
-  { title: 'A Busy Hour at {place}', lead: 'during a busy hour at {place}' },
-  { title: 'Sunday at {place}', lead: 'on Sunday at {place}' },
-  { title: 'A Quiet Stop at {place}', lead: 'during a quiet stop at {place}' },
-  { title: 'Near Closing at {place}', lead: 'near closing at {place}' },
-  { title: 'First Light at {place}', lead: 'at first light at {place}' },
-  { title: 'A Small Pause at {place}', lead: 'during a small pause at {place}' },
-  { title: 'A Clear Afternoon at {place}', lead: 'on a clear afternoon at {place}' },
-  { title: 'Under Warm Light at {place}', lead: 'under warm light at {place}' },
-  { title: 'An Ordinary Stop at {place}', lead: 'during an ordinary stop at {place}' },
-  { title: 'A Clear Moment at {place}', lead: 'in a clear moment at {place}' },
-  { title: 'The Waiting Hour at {place}', lead: 'in the waiting hour at {place}' },
-  { title: 'A Familiar Corner at {place}', lead: 'from a familiar corner at {place}' },
-  { title: 'An Open Moment at {place}', lead: 'in an open moment at {place}' },
-  { title: 'The Open Door at {place}', lead: 'by the open door at {place}' },
-  { title: 'A Slow Minute at {place}', lead: 'in a slow minute at {place}' },
-  { title: 'A Working Morning at {place}', lead: 'on a working morning at {place}' },
-  { title: 'A Short Stop at {place}', lead: 'during a short stop at {place}' },
-  { title: 'The Long Walk Through {place}', lead: 'on the long walk through {place}' },
-  { title: 'Opening Moment at {place}', lead: 'in the opening moment at {place}' },
+interface ThreadlinePlainTitleContext {
+  title: string;
+  lead: string;
+}
+
+const THREADLINE_PLAIN_SCENE_PREPOSITION_BY_DOMAIN: Partial<
+  Record<string, ThreadlinePlainLanguageEditorialSpec['scenePreposition']>
+> = {
+  aquarium: 'at',
+  bookshop: 'at',
+  cafe: 'at',
+  campsite: 'at',
+  courtyard: 'in',
+  dancehall: 'at',
+  desk: 'at',
+  gallery: 'in',
+  garden: 'in',
+  greenhouse: 'in',
+  'hardware-aisle': 'in',
+  'hotel-lobby': 'in',
+  kitchen: 'in',
+  laboratory: 'in',
+  laundry: 'in',
+  library: 'in',
+  'map-room': 'in',
+  market: 'at',
+  observatory: 'at',
+  park: 'in',
+  'photo-darkroom': 'in',
+  picnic: 'at',
+  'pool-deck': 'on',
+  porch: 'on',
+  'porch-lantern': 'on',
+  'porch-spark': 'on',
+  rooftop: 'on',
+  school: 'in',
+  shore: 'at',
+  station: 'at',
+  studio: 'in',
+  'table-leaf': 'at',
+  theater: 'at',
+  trail: 'on',
+};
+
+const THREADLINE_PLAIN_TITLE_CONTEXTS: readonly ThreadlinePlainTitleContext[] = [
+  { title: 'Morning {where}', lead: '{where} in the morning' },
+  { title: 'Early Morning {where}', lead: '{where} early in the morning' },
+  { title: 'Before Noon {where}', lead: '{where} before noon' },
+  { title: 'Around Noon {where}', lead: '{where} around noon' },
+  { title: 'After Rain {where}', lead: '{where} after rain' },
+  { title: 'Late Afternoon {where}', lead: '{where} in late afternoon' },
+  { title: 'Evening {where}', lead: '{where} in the evening' },
+  { title: 'Sunday {where}', lead: '{where} on Sunday' },
+  { title: 'Saturday {where}', lead: '{where} on Saturday' },
+  { title: 'First Light {where}', lead: '{where} at first light' },
+  { title: 'A Quiet Morning {where}', lead: '{where} on a quiet morning' },
+  { title: 'A Slow Afternoon {where}', lead: '{where} on a slow afternoon' },
+  { title: 'After Lunch {where}', lead: '{where} after lunch' },
+  { title: 'Early {where}', lead: '{where} early in the day' },
+  { title: 'A Rainy Morning {where}', lead: '{where} on a rainy morning' },
+  { title: 'A Warm Afternoon {where}', lead: '{where} on a warm afternoon' },
+  { title: 'A Cool Evening {where}', lead: '{where} on a cool evening' },
+  { title: 'After Dark {where}', lead: '{where} after dark' },
+  { title: 'Near Sundown {where}', lead: '{where} near sundown' },
+  { title: 'Midafternoon {where}', lead: '{where} in midafternoon' },
+  { title: 'A Still Morning {where}', lead: '{where} on a still morning' },
+  { title: 'A Long Afternoon {where}', lead: '{where} on a long afternoon' },
+  { title: 'A Bright Morning {where}', lead: '{where} on a bright morning' },
+  { title: 'A Gentle Afternoon {where}', lead: '{where} on a gentle afternoon' },
 ] as const;
+
+const THREADLINE_PLAIN_TITLE_CONTEXTS_BY_DOMAIN: Partial<Record<string, readonly ThreadlinePlainTitleContext[]>> = {
+  bakery: [
+    { title: 'Morning at the Bakery', lead: 'at the bakery in the morning' },
+    { title: 'Before Breakfast at the Bakery', lead: 'at the bakery before breakfast' },
+    { title: 'A Warm Morning at the Bakery', lead: 'at the bakery on a warm morning' },
+    { title: 'The Early Line at the Bakery', lead: 'at the bakery as the morning line forms' },
+    { title: 'Bakery Box Morning', lead: 'at the bakery in the morning' },
+    { title: 'A Sweet Morning at the Bakery', lead: 'at the bakery on a sweet morning' },
+    { title: 'Saturday at the Bakery', lead: 'at the bakery on Saturday' },
+    { title: 'Sunday Morning at the Bakery', lead: 'at the bakery on Sunday morning' },
+    { title: 'A Calm Morning at the Bakery', lead: 'at the bakery on a calm morning' },
+    { title: 'First Choice at the Bakery', lead: 'at the bakery by the pastry case' },
+    { title: 'A Rainy Morning at the Bakery', lead: 'at the bakery on a rainy morning' },
+    { title: 'The Glass Case Morning', lead: 'at the bakery by the glass case' },
+    { title: 'Before Noon at the Bakery', lead: 'at the bakery before noon' },
+    { title: 'Waiting by the Bakery Case', lead: 'at the bakery by the glass case' },
+    { title: 'A Bright Morning at the Bakery', lead: 'at the bakery as the morning brightens' },
+    { title: 'By the Bakery Window', lead: 'at the bakery by the window' },
+    { title: 'A Good Smell at the Bakery', lead: 'at the bakery while the morning smells sweet' },
+    { title: 'The Morning Line at the Bakery', lead: 'at the bakery in the morning line' },
+    { title: 'A Slow Morning at the Bakery', lead: 'at the bakery on a slow morning' },
+    { title: 'Waiting at the Bakery', lead: 'at the bakery in the morning line' },
+  ],
+  diner: [
+    { title: 'Early Morning at the Diner', lead: 'at the diner early in the morning' },
+    { title: 'Breakfast at the Diner', lead: 'at the diner during breakfast' },
+    { title: 'Before Noon at the Diner', lead: 'at the diner before noon' },
+    { title: 'A Corner Seat at the Diner', lead: 'at the diner in a corner seat' },
+    { title: 'The Usual Morning at the Diner', lead: 'at the diner on the usual morning' },
+    { title: 'A Rainy Morning at the Diner', lead: 'at the diner on a rainy morning' },
+    { title: 'Saturday Morning at the Diner', lead: 'at the diner on Saturday morning' },
+    { title: 'Sunday at the Diner', lead: 'at the diner on Sunday morning' },
+    { title: 'The First Cup at the Diner', lead: 'at the diner during the first cup' },
+    { title: 'A Slow Morning at the Diner', lead: 'at the diner on a slow morning' },
+    { title: 'Morning by the Window', lead: 'at the diner by the window' },
+    { title: 'The Breakfast Hour at the Diner', lead: 'at the diner during the breakfast hour' },
+    { title: 'A Familiar Morning at the Diner', lead: 'at the diner on a familiar morning' },
+    { title: 'Morning by the Griddle', lead: 'at the diner by the griddle in the morning' },
+    { title: 'Ahead of the Morning Rush', lead: 'at the diner ahead of the morning rush' },
+    { title: 'A Short Morning at the Diner', lead: 'at the diner during a short morning stop' },
+    { title: 'Morning by the Window', lead: 'at the diner by the window' },
+    { title: 'Another Morning at the Diner', lead: 'at the diner on another morning' },
+  ],
+  market: [
+    { title: 'Morning at the Market', lead: 'at the market in the morning' },
+    { title: 'A Warm Afternoon at the Market', lead: 'at the market on a warm afternoon' },
+    { title: 'Around Noon at the Market', lead: 'at the market around noon' },
+    { title: 'Saturday at the Market', lead: 'at the market on Saturday' },
+    { title: 'Sunday at the Market', lead: 'at the market on Sunday' },
+    { title: 'After Rain at the Market', lead: 'at the market after rain' },
+    { title: 'Late Afternoon at the Market', lead: 'at the market in late afternoon' },
+    { title: 'A Busy Hour at the Market', lead: 'at the market during a busy hour' },
+    { title: 'Under the Canopy at the Market', lead: 'at the market under the canopy' },
+    { title: 'A Slow Walk Through the Market', lead: 'at the market on a slow walk' },
+    { title: 'The Morning Errand at the Market', lead: 'at the market during the morning errand' },
+    { title: 'A Bright Morning at the Market', lead: 'at the market as the morning brightens' },
+    { title: 'Before Lunch at the Market', lead: 'at the market before lunch' },
+    { title: 'A Busy Morning at the Market', lead: 'at the market during a busy morning' },
+    { title: 'A Small Stop at the Market', lead: 'at the market during a small stop' },
+    { title: 'The Canopy Morning', lead: 'at the market under the morning canopy' },
+    { title: 'A Long Afternoon at the Market', lead: 'at the market over a long afternoon' },
+    { title: 'The Saturday Market', lead: 'at the market on Saturday' },
+    { title: 'A Rainy Market Morning', lead: 'at the market on a rainy morning' },
+    { title: 'One More Stop at the Market', lead: 'at the market during one more stop' },
+    { title: 'Late Light at the Market', lead: 'at the market in the late light' },
+    { title: 'A Friendly Morning at the Market', lead: 'at the market on a friendly morning' },
+  ],
+  observatory: [
+    { title: 'Nighttime {where}', lead: '{where} at night' },
+    { title: 'Near Sundown {where}', lead: '{where} near sundown' },
+    { title: 'After Dark {where}', lead: '{where} after dark' },
+    { title: 'Late Evening {where}', lead: '{where} in late evening' },
+    { title: 'Clear Night {where}', lead: '{where} on a clear night' },
+    { title: 'A Long Look {where}', lead: '{where} during a long look upward' },
+    { title: 'The Dome at Night', lead: '{where} under the night dome' },
+    { title: 'Stars Over the Dome', lead: '{where} with stars over the dome' },
+    { title: 'A Clear Night {where}', lead: '{where} on a clear night' },
+    { title: 'Night Watch {where}', lead: '{where} at night' },
+    { title: 'Under Clear Skies {where}', lead: '{where} under clear skies' },
+    { title: 'Open Roof at Night', lead: '{where} with the roof open at night' },
+  ],
+  picnic: [
+    { title: 'Sunday at the Picnic', lead: 'at the picnic on Sunday' },
+    { title: 'Around Noon at the Picnic', lead: 'at the picnic around noon' },
+    { title: 'A Slow Afternoon at the Picnic', lead: 'at the picnic during a slow afternoon' },
+    { title: 'A Warm Afternoon at the Picnic', lead: 'at the picnic on a warm afternoon' },
+    { title: 'After Lunch at the Picnic', lead: 'at the picnic after lunch' },
+    { title: 'Under the Trees at the Picnic', lead: 'at the picnic under the trees' },
+    { title: 'A Gentle Afternoon at the Picnic', lead: 'at the picnic on a gentle afternoon' },
+    { title: 'A Quiet Noon at the Picnic', lead: 'at the picnic during a quiet noon' },
+    { title: 'Afternoon at the Picnic', lead: 'at the picnic in the afternoon' },
+    { title: 'A Long Lunch at the Picnic', lead: 'at the picnic during a long lunch' },
+    { title: 'More Shade at the Picnic', lead: 'at the picnic in the shade' },
+    { title: 'A Bright Afternoon at the Picnic', lead: 'at the picnic on a bright afternoon' },
+    { title: 'Lunch in the Park', lead: 'at the picnic during lunch in the park' },
+    { title: 'Lunch in the Shade', lead: 'at the picnic in the shade' },
+    { title: 'Lunch Under the Trees', lead: 'at the picnic under the trees' },
+    { title: 'Noon in the Park', lead: 'at the picnic at noon in the park' },
+    { title: 'A Table in the Grass', lead: 'at the picnic with a table in the grass' },
+    { title: 'Shade at the Picnic', lead: 'at the picnic in the shade' },
+  ],
+  'porch-lantern': [
+    { title: 'Evening on the Porch', lead: 'on the porch in the evening' },
+    { title: 'After Supper on the Porch', lead: 'on the porch after supper' },
+    { title: 'Last Light on the Porch', lead: 'on the porch in the last light' },
+    { title: 'The Porch After Sundown', lead: 'on the porch after sundown' },
+    { title: 'Night Air on the Porch', lead: 'on the porch in the night air' },
+    { title: 'An Evening on the Front Steps', lead: 'on the front steps in the evening' },
+    { title: 'Streetlights from the Porch', lead: 'on the porch with streetlights on' },
+    { title: 'The Porch Before Bedtime', lead: 'on the porch before bedtime' },
+  ],
+  'porch-spark': [
+    { title: 'Summer Evening on the Porch', lead: 'on the porch on a summer evening' },
+    { title: 'After Supper on the Front Steps', lead: 'on the front steps after supper' },
+    { title: 'Last Light on the Front Steps', lead: 'on the front steps in the last light' },
+    { title: 'The Front Steps After Sundown', lead: 'on the front steps after sundown' },
+    { title: 'Night Air on the Front Steps', lead: 'on the front steps in the night air' },
+    { title: 'An Evening by the Porch Rail', lead: 'by the porch rail in the evening' },
+    { title: 'Streetlights from the Front Steps', lead: 'on the front steps with streetlights on' },
+    { title: 'Late Summer on the Porch', lead: 'on the porch in late summer' },
+  ],
+  rooftop: [
+    { title: 'Evening on the Rooftop', lead: 'on the rooftop in the evening' },
+    { title: 'Near Sundown on the Rooftop', lead: 'on the rooftop near sundown' },
+    { title: 'After Dark on the Rooftop', lead: 'on the rooftop after dark' },
+    { title: 'Last Light on the Rooftop', lead: 'on the rooftop in the last light' },
+    { title: 'A Cool Evening on the Rooftop', lead: 'on the rooftop as evening cools' },
+    { title: 'A Slow Hour on the Rooftop', lead: 'on the rooftop during a slow hour' },
+    { title: 'Evening Above the Block', lead: 'on the rooftop in the evening above the block' },
+    { title: 'Streetlights Below', lead: 'on the rooftop with streetlights below' },
+    { title: 'Golden Hour on the Rooftop', lead: 'on the rooftop during golden hour' },
+    { title: 'A Long Look Down', lead: 'on the rooftop during a long look down' },
+    { title: 'An Hour Above the Street', lead: 'on the rooftop above the street' },
+    { title: 'Last Light Over the Block', lead: 'on the rooftop in the last light over the block' },
+    { title: 'Evening Above Traffic', lead: 'on the rooftop above traffic in the evening' },
+    { title: 'The Last Light Above', lead: 'on the rooftop in the last light above' },
+    { title: 'A Slow View from Above', lead: 'on the rooftop during a slow view from above' },
+    { title: 'Air Over the Block', lead: 'on the rooftop in the air over the block' },
+  ],
+};
 
 function titleCasePlainCopy(copy: string): string {
   return copy
@@ -3182,16 +3442,25 @@ function plainLanguageSpecFor(blueprint: Blueprint): ThreadlinePlainLanguageEdit
   };
 }
 
-function plainTitleContextFor(blueprint: Blueprint, dayIndex: number): { title: string; lead: string } {
+function plainScenePhraseFor(blueprint: Blueprint): string {
   const spec = plainLanguageSpecFor(blueprint);
+  const place = spec.titlePlace ?? spec.place;
+  const preposition =
+    spec.scenePreposition ?? THREADLINE_PLAIN_SCENE_PREPOSITION_BY_DOMAIN[blueprint.domain] ?? 'at';
+  return `${preposition} ${place}`;
+}
+
+function plainTitleContextFor(blueprint: Blueprint, dayIndex: number): { title: string; lead: string } {
+  const contexts = THREADLINE_PLAIN_TITLE_CONTEXTS_BY_DOMAIN[blueprint.domain] ?? THREADLINE_PLAIN_TITLE_CONTEXTS;
   const context =
-    THREADLINE_PLAIN_TITLE_CONTEXTS[
-      (dayIndex + Math.floor(dayIndex / THREADLINE_PLAIN_TITLE_CONTEXTS.length) + blueprint.domain.length) %
-        THREADLINE_PLAIN_TITLE_CONTEXTS.length
+    contexts[
+      (dayIndex + Math.floor(dayIndex / contexts.length) + blueprint.domain.length) %
+        contexts.length
     ];
+  const where = plainScenePhraseFor(blueprint);
   return {
-    title: titleCasePlainCopy(context.title.replace('{place}', spec.place)),
-    lead: context.lead.replace('{place}', spec.place),
+    title: titleCasePlainCopy(context.title.replace('{where}', where)),
+    lead: context.lead.replace('{where}', where),
   };
 }
 
@@ -3208,6 +3477,22 @@ function plainLanguageTitleFor(blueprint: Blueprint, dayIndex: number): string {
 function plainLanguageWeaveFor(blueprint: Blueprint, dayIndex: number): string {
   const { lead } = plainTitleContextFor(blueprint, dayIndex);
   const spec = plainLanguageSpecFor(blueprint);
+  if (spec.weaveVariants?.length) {
+    const variant =
+      spec.weaveVariants[
+        (dayIndex + Math.floor(dayIndex / spec.weaveVariants.length) + blueprint.domain.length) %
+          spec.weaveVariants.length
+      ] ?? spec.weaveVariants[0];
+    const where = plainScenePhraseFor(blueprint);
+    return sentenceCase(
+      variant
+        .replaceAll('{where}', where)
+        .replaceAll('{lead}', lead)
+        .replaceAll('{place}', spec.place)
+        .replaceAll('{Place}', capitalize(spec.place))
+        .replaceAll('{titlePlace}', spec.titlePlace ?? spec.place)
+    );
+  }
   return `${capitalize(lead)}, ${spec.weaveCore}`;
 }
 
@@ -3905,9 +4190,11 @@ function scorePlacementCandidate(
       : 0;
   const diagonalBonus = orientation.startsWith('diagonal')
     ? placedDiagonalCount < 2
-      ? 0.75
-      : -0.75
-    : 0.42;
+      ? 1.2
+      : -0.9
+    : placedDiagonalCount === 0 && placedPaths.length >= 3
+      ? -0.45
+      : 0.22;
   const sameOrientationCount = placedPaths.filter(
     (placedPath) => pathOrientation(placedPath.path) === orientation
   ).length;
@@ -3946,11 +4233,11 @@ function scorePlacementCandidate(
     centerRatio * 1.5 +
     crossingCount * 0.7 +
     Math.min(0.8, crossThreadTouchCount * 0.06) -
-    sameOrientationCount * 0.55 -
-    (sameOrientationCount >= 2 ? 1.2 : 0) -
-    (sameOrientationCount >= 3 ? 2.4 : 0) -
-    edgeRatio * 1.1 -
-    (pathUsesOuterRail(path) ? 5.5 : 0) +
+    sameOrientationCount * 0.7 -
+    (sameOrientationCount >= 2 ? 1.6 : 0) -
+    (sameOrientationCount >= 3 ? 3.2 : 0) -
+    edgeRatio * 1.6 -
+    (pathUsesOuterRail(path) ? 8 : 0) +
     random() * 0.08
   );
 }
@@ -4026,31 +4313,39 @@ function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresent
   }
   if (diagonalCount < 1) {
     flags.push('too-few-diagonals');
-    score -= 0.52;
+    score -= 0.9;
   }
   if (diagonalCount > 3) {
     flags.push('too-many-diagonals');
-    score -= (diagonalCount - 3) * 0.38;
+    score -= (diagonalCount - 3) * 0.45;
   }
   if (dominantOrientationCount > 3) {
     flags.push('dominant-orientation');
-    score -= (dominantOrientationCount - 3) * 0.42;
+    score -= (dominantOrientationCount - 3) * 0.7;
+  }
+  if (verticalCount >= 4 && diagonalCount <= 1) {
+    flags.push('column-stack');
+    score -= 0.72;
+  }
+  if (horizontalCount >= 4 && diagonalCount <= 1) {
+    flags.push('row-stack');
+    score -= 0.72;
   }
   if (outerRailWordCount > 0) {
     flags.push('outer-rail-word');
-    score -= outerRailWordCount * 0.4;
+    score -= outerRailWordCount * 0.75;
   }
   if (edgeHeavyWordCount > 1) {
     flags.push('edge-heavy-words');
-    score -= (edgeHeavyWordCount - 1) * 0.25;
+    score -= (edgeHeavyWordCount - 1) * 0.35;
   }
-  if (edgeCellRatio > 0.42) {
+  if (edgeCellRatio > 0.35) {
     flags.push('edge-heavy-board');
-    score -= 0.25;
+    score -= 0.38;
   }
   if (crossingCellCount === 0) {
     flags.push('no-letter-crossings');
-    score -= 0.28;
+    score -= 0.45;
   } else if (crossingCellCount <= 4) {
     score += Math.min(0.18, crossingCellCount * 0.06);
   } else {
@@ -4073,15 +4368,7 @@ function scoreGridPresentation(paths: readonly ThreadlineCoord[][]): GridPresent
     score -= 0.25;
   }
 
-  const hasCriticalLayoutFlag = flags.some((flag) =>
-    [
-      'missing-horizontal',
-      'missing-vertical',
-      'too-many-diagonals',
-    ].includes(flag)
-  );
-  const floorScore = hasCriticalLayoutFlag ? score : Math.max(score, THREADLINE_MIN_GRID_PRESENTATION_SCORE);
-  const finalScore = Math.max(1, Math.min(5, Math.round(floorScore * 100) / 100));
+  const finalScore = Math.max(1, Math.min(5, Math.round(score * 100) / 100));
   return {
     score: finalScore,
     flags,
@@ -4111,7 +4398,7 @@ function placeWords(answers: string[], seed: number): ThreadlinePlacement {
       .flatMap((start) =>
         shuffled(DIRECTIONS, random).map((direction) => buildPath(start, direction, answer.length))
       )
-      .filter(pathIsInside);
+      .filter((path) => pathIsInside(path) && !pathUsesOuterRail(path));
     candidatePools.set(wordIndex, candidates);
   });
 
@@ -4204,7 +4491,14 @@ function placeWordsWithRetries(answers: string[], seed: number): ThreadlinePlace
       lastError = error;
     }
   }
-  if (bestPlacement) return bestPlacement;
+  if (bestPlacement && bestPlacement.presentation.score >= THREADLINE_MIN_GRID_PRESENTATION_SCORE) return bestPlacement;
+  if (bestPlacement) {
+    throw new Error(
+      `Threadline grid presentation below floor (${bestPlacement.presentation.score.toFixed(2)}) for ${answers.join(', ')}: ${
+        bestPlacement.presentation.note
+      }`
+    );
+  }
   throw lastError;
 }
 
@@ -4971,7 +5265,12 @@ function reviewForPuzzle(
     scores.casualMorningPlayer,
     scores.mobileFirstPlayer,
   ];
-  const overallEditorialScore = average(editorScores);
+  const scoreTexture =
+    (avg - 6.2) * 0.015 +
+    (difficultyIndex(puzzle) - 3.5) * 0.01 +
+    (gridPresentation.score - THREADLINE_MIN_GRID_PRESENTATION_SCORE) * 0.04 +
+    ((dayIndex % 11) - 5) * 0.003;
+  const overallEditorialScore = roundScore(average(editorScores) + scoreTexture);
   const playerAverageScore = average(playerScores);
   const minCoreScore = Math.min(...editorScores, ...playerScores);
 

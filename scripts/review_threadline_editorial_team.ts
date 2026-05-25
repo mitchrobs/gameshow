@@ -78,6 +78,10 @@ const WORD_STOP_LIST = new Set([
 
 const META_SUBCOPY_PATTERN = /\b(words?|nouns?|verbs?|language|signals?|cues?|moves?|motions?|things?|habits?|choices?|actions?|details?|parts?|items?)\b/i;
 const GENERIC_THEME_PATTERN = /\b(details?|cues?|moves?|things?|signals?|pieces?|objects?|steps?|motions?|textures?|habits?|items?|parts?)\b/i;
+const ROBOTIC_SCENE_TITLE_PATTERN =
+  /\b(open moment|clear moment|small pause|slow minute|waiting hour|ordinary stop|under warm light|opening moment)\b/i;
+const ROBOTIC_SCENE_WEAVE_PATTERN =
+  /\b(in (?:an open moment|a clear moment|a slow minute|the waiting hour|the opening moment|late afternoon) at|during (?:a small pause|an ordinary stop) at|under warm light at|on a clear afternoon at|at first light at)\b/i;
 const ABSTRACT_TITLE_TOKENS = new Set([
   'air',
   'care',
@@ -192,6 +196,8 @@ const FALSE_AGENCY_WEAVE_PATTERN =
   /\b(?:shelf|shelves|aisle|materials?|flaw|damage|cloth|bottle|box|page|room|hour|day|morning|path|stall|tank|light|distance|air)\s+(?:knows?|talks?|tells?|accepts?|claims?|earns?|belongs?|learns?|remembers?|decides?|wants?|waits?|keeps?)\b/i;
 const WEAVE_FOG_PATTERN =
   /\b(blue weather|impossible distance|turns distance human|keeps danger|becoming specific|something the room can hold|less straight|gets a body)\b/i;
+const CLEAR_HUMAN_FAILURE_PATTERN =
+  /\b(can feel like|feels? like|turns? into|becomes?|gives? [^.?!]*(?:purpose|reason|voice)|where [^.?!]+ meets?|stall fills|basket turns|street greeting can feel like|packed basket turns|shop-window choice|street hello|in a summer evening|usually starts|ends up|the lunch shade|lunch trees|in the early line|line waits)\b/i;
 const IDEAL_WEAVE_MAX_WORDS = 22;
 
 function readArg(name: string): string | null {
@@ -322,6 +328,10 @@ function scoreTitle(
     penalty += 1.1;
     issues.push({ surface: 'title', severity: 'rewrite', label: 'uses puzzle-construction punctuation' });
   }
+  if (ROBOTIC_SCENE_TITLE_PATTERN.test(title)) {
+    penalty += 1.1;
+    issues.push({ surface: 'title', severity: 'rewrite', label: 'uses a robotic scene frame instead of natural speech' });
+  }
 
   return { score: roundScore(5 - penalty), issues };
 }
@@ -391,6 +401,10 @@ function scoreWeave(
     penalty += 0.8;
     issues.push({ surface: 'weave', severity: 'rewrite', label: 'uses a retired weave formula verb or adjacency phrase' });
   }
+  if (ROBOTIC_SCENE_WEAVE_PATTERN.test(weave)) {
+    penalty += 1.1;
+    issues.push({ surface: 'weave', severity: 'rewrite', label: 'uses a robotic scene preface instead of natural speech' });
+  }
   if (!plainLanguageWeave && FALSE_AGENCY_WEAVE_PATTERN.test(weave)) {
     penalty += 0.52;
     issues.push({ surface: 'weave', severity: 'watch', label: 'false agency makes the sentence sound written around a category' });
@@ -398,6 +412,14 @@ function scoreWeave(
   if (WEAVE_FOG_PATTERN.test(weave)) {
     penalty += 0.68;
     issues.push({ surface: 'weave', severity: 'rewrite', label: 'poetic fog obscures the theme relationship' });
+  }
+  if (CLEAR_HUMAN_FAILURE_PATTERN.test(weave)) {
+    penalty += 1.1;
+    issues.push({
+      surface: 'weave',
+      severity: 'rewrite',
+      label: 'uses beauty-first or false-agency language instead of plain human truth',
+    });
   }
   if (!plainLanguageWeave && EXPLANATORY_WEAVE_PATTERN.test(weave) && weaveWords.length > 8) {
     penalty += 0.25;
@@ -728,7 +750,9 @@ function formatEditorialTeamReviewMarkdown(reviewRowsForReport: readonly TeamRev
     '## Weave Editor Notes',
     '',
     '- The most common weak pattern is transformation math: "turns", "becomes", "gives", or "makes" plus a broad subject like room, day, hour, or morning.',
+    '- Strong weaves are literal before they are charming. If a line sounds profound but is not literally true, reject it.',
     '- Strong weaves make the relationship visible through a concrete object, gesture, or consequence: a finger on glass, a tied boat, a checked story, a lit step.',
+    '- The final line should create a clear click, not poetry.',
     '- Review false agency carefully: shelves should not know, aisles should not talk, materials should not accept marks, and damage should not call a hand unless the sentence truly earns that move.',
     '- Later expansion domains need extra sensory anchors before abstract weaves are approved, especially printshop, apothecary, laboratory, lighthouse, aquarium, and observatory.',
     '- If the weave sounds natural after "This means," it is probably explaining the connection instead of landing it.',

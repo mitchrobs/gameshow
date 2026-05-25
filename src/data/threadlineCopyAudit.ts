@@ -370,7 +370,11 @@ const NO_LEAD_THEME_SUBCOPY_FILLER =
 const NO_LEAD_WEAVE_LEAD_DEPENDENT =
   /\b(lead|sentence|theme|clue|answer family|two families|both families|category|bucket|first thread|second thread|first half|second half|the solve)\b/i;
 const NO_LEAD_TITLE_PURPOSE_WEAK =
-  /\b(crossing for later|where the hour turns|common answer|good place)\b/i;
+  /\b(crossing for later|where the hour turns|common answer|good place|open moment|clear moment|small pause|slow minute|waiting hour|ordinary stop|under warm light|opening moment)\b/i;
+const NO_LEAD_ROBOTIC_SCENE_WEAVE =
+  /\b(in (?:an open moment|a clear moment|a slow minute|the waiting hour|the opening moment|late afternoon) at|during (?:a small pause|an ordinary stop) at|under warm light at|on a clear afternoon at|at first light at)\b/i;
+const NO_LEAD_CLEAR_HUMAN_WEAVE_FAILURE =
+  /\b(can feel like|feels? like|turns? into|becomes?|gives? [^.?!]*(?:purpose|reason|voice)|where [^.?!]+ meets?|stall fills|basket turns|street greeting can feel like|packed basket turns|objects? (?:want|know)|(?:wants?|knows?|remembers?)\b|shop-window choice|street hello|in a summer evening|usually starts|ends up|the lunch shade|lunch trees|in the early line|line waits)\b/i;
 
 function noLeadTokens(copy: string): string[] {
   return normalizeThreadlineCopy(copy)
@@ -520,9 +524,18 @@ export function inspectThreadlineNoLeadQuality(
     );
   }
   const plainLanguageWeave = isThreadlinePlainLanguageWeave(weave);
+  if (weave && NO_LEAD_CLEAR_HUMAN_WEAVE_FAILURE.test(weave)) {
+    issues.push(
+      noLeadIssue(puzzle, 'weave-without-lead', 'Weave uses beauty-first or false-agency language instead of a clear literal connection.', {
+        ...options,
+        value: weave,
+      })
+    );
+  }
   if (
     weave &&
     (NO_LEAD_WEAVE_LEAD_DEPENDENT.test(weave) ||
+      NO_LEAD_ROBOTIC_SCENE_WEAVE.test(weave) ||
       (!plainLanguageWeave &&
         (BANNED_PAYOFF_COPY.test(weave) ||
           RETIRED_EXCEPTIONAL_FLOOR_WEAVE_COPY.test(weave) ||

@@ -94,8 +94,39 @@ const THREADLINE_NEWLY_RETIRED_LEAD_PATTERNS =
   /\b(hour fills with|next hour gathers|small work of|the room finds|day fills with|morning fills with|feels made from|keep it from feeling empty|keep the beach brief|first hour is full|night fills with|firelight settles over|keep going through|glass catches|room steadies itself|broadcast goes out|counter turns to|order becomes|make the first idea visible|make the draft visible|take the boat out|counter handles|rehearsal gathers around|settle into [a-z]+ing|bring the draft into view|give the quiet shape|keep the fire tended|keep the sand unsettled|wait for [a-z]+ing, [a-z]+ing, and [a-z]+ing|wait while|sit close while|look ready while|decide what (?:goes|leaves)|make breakfast specific|visit becomes|draws its outline|hour is spent|keeps the room busy|are what rehearsal is for|give the first hour its shape|works through|wait beyond the rail|make the wait sweet|the first desks have|the morning has|the room slows around|attention turns to|the day steadies itself|the day leans into|the morning turns to|the boat turns to|the page waits with|show where hands should go|give breakfast its rhythm|the hour softens into|the back room handles|the room warms into|gather in a corner|point past the pause|wait while shoppers|visitors keep|room is just|waiting for|wait for|counter work is|shape the first run|the rest is|makes a place|settle into the rest|mailroom shelf has|back room hums|are ready before|room agrees to listen|stay close before the trip becomes|are still separate when|tempt the line while|cover the desks, and after it|give the run a count|move one choice into paper|first decisions|wait as|cross the night|mark the sand while|long enough for|show where the fix begins|carry the room onward|broadcast runs on|water ahead means|come back from .* ready|keep the line looking|stay close to the eye|people keep|on the page are|are ready as|give the room a sound|city below becomes|protocol says|work moves toward|near the surface|finish the thought|sitting toward|first, then lets|has room for|same quiet|rest of the moment calls|hands slipping|signal is built from|move the work along|keep the room in motion|signal leaves with|add the next turn|enter the day|carry the hour|move the day along|give the scene another pulse|fill the back of the scene|ready for a morning of|hold the view|show what clay can become|notes say|screens say|wait for hands to|sit ready for|water stream|shift the scene|move the scene onward|drills for [a-z]+, [a-z]+, and [a-z]+|before [a-z]+, [a-z]+, and [a-z]+ find the beat|shape an hour of|carry the evening|plan is to|notes settle on|drills? to [a-z]+, [a-z]+, and [a-z]+|make the room look ready|room look ready|make the next move|make the turn|hour goes out with|bring the room alive|house answers with|point farther on|stay close to the cup|the table has|a regular table has|a walk by|the first mile has|the forecast has [^.?!]+ by the door and the route has|bring the train close|share the table with|stay close while hands|hands are [a-z]+, [a-z]+, and [a-z]+|keep people close|fill the room|ready for one|come back through|come back after|pass through [^.?!]+ before the drawer|make room for|make the dark practical|sit on the shelf|by way of|give the morning voices|turn camp into a room|pass through the seats|ready for a carrier|ready for the kiln|hold the stage|make every choice sweeter|stay under their hands|raise the questions|for one [a-z]+, one [a-z]+, and one [a-z]+|clerks keep [a-z]+ing, [a-z]+ing, and [a-z]+ing|sit beside a loose [a-z]+, a split [a-z]+, and a rough [a-z]+|before [a-z]+, [a-z]+, and [a-z]+ take over|forecast shifts toward|answers through|reports report|pressure keeps reveal|skies (?:update|gusting)|gusts keep thaw|swing wind|warn pressure|drizzle wind|and a clear|make a clear beginning|add a little weight|pile feels wearable|water keeps [a-z]+ing, [a-z]+ing, and [a-z]+ing|can disappear before|make people linger over|short list:|card sit beside|change under hands that)\b/i;
 const THREADLINE_NEWLY_RETIRED_WEAVE_PATTERNS =
   /\b(matters because|less quiet|hunger gets specific|make the draft visible|make the first idea visible|turns wanting into choosing|turns appetite practical|turns sugar into (?:a plan|a choice)|turns waiting into breakfast|line ends where hunger gets named|ordinary work makes order visible|work is ordinary and merciful|can be reset by small care|makes waiting practical|gets kinder as the shape settles|gets kinder when the coast can read|silence becomes part of the artwork|finger on the glass makes breakfast specific|box gives breakfast a handle|room becomes inward around the page|shelf becomes useful when the room starts moving|desk becomes useful when the day gets specific|room gets one fresh ending|quiet turns a room into a show|first minutes turn the room into class|(?:broken edge|nick) can make the whole room practical|above traffic,? evening becomes gentle|public room can become one quiet place|room turns waiting into arrival|warm box makes the morning sweeter|dome turns waiting into wonder|room gets larger when sound leaves it|music makes the room visible|small room gives the voice longer reach|care turns a heap back into a home|breakfast feels chosen before the box closes|soft care gives the day its shape back|the day gets real|art turns a pause into attention|the loop turns motion into neighborhood|the day gets greener where care repeats|the day gets less abstract|shape gets personal|wanting becomes practical|distance becomes practical|the water gives the rail a reason|quiet work gives green its confidence|desk turns scattered work|repair begins when the damage gets specific|a room gets quiet enough for distance|gives breakfast a regular|last light makes distance kind|the door gives the room its purpose|marks turn the table toward shape|the meal gets real|gentle work gives the shelf its purpose|a deadline can make doubt useful|desk order gives the work|wonder becomes evidence one careful step|the gate wakes when the sky gets close|a quiet counter can make time present|a fix begins where the damage speaks|doubt gives the day|low water gives the sand|box closes on the thing|supper begins before the pan|a rehearsal turns patience|the roof opens and the room looks|breakfast gets chosen|small work gives the season somewhere|the breath before open water|turns separate ingredients toward supper|one chosen sweetness|tells the room what the supplies are for|makes sound by agreeing on time|stops being work|starts with a choice under glass|materials stop being separate|far sky feels near|memory it cannot keep|teaches looking to slow down|the city softens from above|care makes wonder useful|street sounds farther away|noise becomes evening|curiosity slowed down|hand leaves something the fire can keep|story earns trust before daylight|care made measurable|alarm gives readiness|alarm gives the room|distance becomes care|station listens through instruments and forecast shifts|instruments turn pressure into forecast shifts|a remedy is care measured small|the pile comes back ready|the pile returns as something wearable|ready for drawers|ready to be worn|ready for ordinary use|turns supplies into a (?:class|morning)|a fire gives the wild a room|fabric leaves the wash folded and warm|forecast shifts|the water turns the tank into weather)\b/i;
+const THREADLINE_CLEAR_HUMAN_RETIRED_WEAVE_PATTERNS =
+  /\b(can feel like|feels? like|turns? into|becomes?|gives? [^.?!]*(?:purpose|reason|voice)|where [^.?!]+ meets?|stall fills|basket turns|street greeting can feel like|packed basket turns|shop-window choice|street hello|in a summer evening|usually starts|ends up|the lunch shade|lunch trees|in the early line|line waits)\b/i;
 const THREADLINE_WEAK_SLOT_WORDS =
   /\b(warmer|sitdown|fogbound|lockup|platen|stellar|skyward|recedes|clouding|seaward|aiming|marking|cueing|ducking)\b/i;
+
+function getThreadlineTestPathOrientation(path: ThreadlinePuzzle['words'][number]['path']): 'horizontal' | 'vertical' | 'diagonal' {
+  if (path.length < 2) return 'horizontal';
+  const first = path[0];
+  const second = path[1];
+  if (first.row === second.row) return 'horizontal';
+  if (first.col === second.col) return 'vertical';
+  return 'diagonal';
+}
+
+function threadlineTestPathUsesOuterRail(path: ThreadlinePuzzle['words'][number]['path']): boolean {
+  return (
+    path.every((coord) => coord.row === 0) ||
+    path.every((coord) => coord.row === THREADLINE_GRID_ROWS - 1) ||
+    path.every((coord) => coord.col === 0) ||
+    path.every((coord) => coord.col === THREADLINE_GRID_COLS - 1)
+  );
+}
+
+function countThreadlineTestCrossingCells(puzzle: ThreadlinePuzzle): number {
+  const cellCounts = new Map<string, number>();
+  puzzle.words.forEach((word) => {
+    word.path.forEach((coord) => {
+      const key = `${coord.row}:${coord.col}`;
+      cellCounts.set(key, (cellCounts.get(key) ?? 0) + 1);
+    });
+  });
+  return Array.from(cellCounts.values()).filter((count) => count > 1).length;
+}
 
 function countThreadlineLeadAnswerOccurrences(completedLead: string, answer: string): number {
   const target = normalizeThreadlineEditorialTokenText(answer);
@@ -322,6 +353,24 @@ describe('threadline puzzles', () => {
     );
   });
 
+  it('keeps shipped boards from feeling like stacked columns or edge rails', () => {
+    THREADLINE_PUZZLE_BANK.forEach((puzzle) => {
+      const orientations = puzzle.words.map((word) => getThreadlineTestPathOrientation(word.path));
+      const horizontalCount = orientations.filter((orientation) => orientation === 'horizontal').length;
+      const verticalCount = orientations.filter((orientation) => orientation === 'vertical').length;
+      const diagonalCount = orientations.filter((orientation) => orientation === 'diagonal').length;
+      const dominantOrientationCount = Math.max(horizontalCount, verticalCount, diagonalCount);
+
+      expect(horizontalCount).toBeGreaterThanOrEqual(1);
+      expect(verticalCount).toBeGreaterThanOrEqual(1);
+      expect(diagonalCount).toBeGreaterThanOrEqual(1);
+      expect(diagonalCount).toBeLessThanOrEqual(3);
+      expect(dominantOrientationCount).toBeLessThanOrEqual(3);
+      expect(puzzle.words.filter((word) => threadlineTestPathUsesOuterRail(word.path))).toHaveLength(0);
+      expect(countThreadlineTestCrossingCells(puzzle)).toBeGreaterThanOrEqual(1);
+    });
+  });
+
   it('generates a valid 365-day plus reserve review calendar', () => {
     const expectedDays = THREADLINE_REVIEW_DAYS + THREADLINE_RESERVE_DAYS;
     const review = generateThreadlineCalendarReview({
@@ -477,6 +526,9 @@ describe('threadline puzzles', () => {
       expect(inspection.issues.filter((issue) => issue.code === 'title-spoiler')).toEqual([]);
       expect(puzzle.title).not.toContain(':');
       expect(puzzle.title).not.toContain('&');
+      expect(puzzle.title).not.toMatch(
+        /\b(open moment|clear moment|small pause|slow minute|waiting hour|ordinary stop|under warm light|opening moment)\b/i
+      );
       expect(isThreadlineRoboticTitle(puzzle.title)).toBe(false);
     });
   });
@@ -493,13 +545,35 @@ describe('threadline puzzles', () => {
 
     THREADLINE_PUZZLE_BANK.forEach((puzzle) => {
       expect(puzzle.weave).not.toMatch(bannedWeaveCopy);
+      expect(puzzle.weave).not.toMatch(
+        /\b(in (?:an open moment|a clear moment|a slow minute|the waiting hour|the opening moment|late afternoon) at|during (?:a small pause|an ordinary stop) at|under warm light at|on a clear afternoon at|at first light at)\b/i
+      );
       expect(puzzle.weave).not.toMatch(THREADLINE_WEAK_TASTE_PATTERNS);
       expect(puzzle.weave).not.toMatch(THREADLINE_NEWLY_RETIRED_WEAVE_PATTERNS);
+      expect(puzzle.weave).not.toMatch(THREADLINE_CLEAR_HUMAN_RETIRED_WEAVE_PATTERNS);
       expect(puzzle.weave).not.toMatch(THREADLINE_WEAK_SLOT_WORDS);
       expect(isThreadlineMechanicalWeave(puzzle.weave)).toBe(false);
       expect(puzzle.weave).toMatch(/[.!?]$/);
       expect(puzzle.weave.length).toBeGreaterThanOrEqual(23);
       expect(puzzle.weave.split(/\s+/).filter(Boolean).length).toBeLessThanOrEqual(22);
+    });
+  });
+
+  it('keeps the clear-human reset phrases out of player-facing weaves', () => {
+    const rejectedSnippets = [
+      'a street greeting can feel like a visit',
+      'a packed basket turns the blanket into lunch',
+      'the stall fills the basket one choice at a time',
+      'a counter order usually starts at the pastry case',
+      'shop-window choice',
+      'in a summer evening',
+    ];
+
+    THREADLINE_PUZZLE_BANK.forEach((puzzle) => {
+      const normalizedWeave = puzzle.weave.toLowerCase();
+      rejectedSnippets.forEach((snippet) => {
+        expect(normalizedWeave).not.toContain(snippet);
+      });
     });
   });
 

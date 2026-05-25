@@ -6801,6 +6801,7 @@ export function isThreadlineMechanicalWeave(weave: string): boolean {
     /\b(has a voice|has a path|refuses to sit still|asks you to do|is already implied|starts? to feel|becomes readable|becomes legible)\b/i.test(weave) ||
     /\b(fills the wait|keeps you walking|makes it an afternoon|tells people what to do|sends it moving again|makes the room lean in|is why you sat down|where it is|weather becomes logistics|gives shore finds|feel human when|becomes company by traveling|is a promise to leave|finishes the dark|slow taste begins|edge keeps changing|wall keeps changing|becomes human at|never just a pile|learns its place|teaches waiting habits)\b/i.test(weave) ||
     /\b(works? (?:where|when)|meets?|where [^.?!]+ meet|(?:begins|lives|settles|pauses|wakes|gathers|improves) where|feels human where)\b/i.test(weave) ||
+    /\b(can feel like|feels? like|turns? into|becomes?|gives? [^.?!]*(?:purpose|reason|voice)|where [^.?!]+ meets?|stall fills|basket turns|street greeting can feel like|packed basket turns|shop-window choice|street hello|in a summer evening|usually starts|ends up|the lunch shade|lunch trees|in the early line|line waits)\b/i.test(weave) ||
     /\bbecomes? [^.?!]+ through\b/i.test(weave) ||
     /\bmakes? [^.?!]+ feel\b/i.test(weave) ||
     /\b(stage details|audience cues|packed things|park motions|repair clues|lab pieces|bench steps|art details|visitor moves|stall goods|buyer moves|path details|passing routines|trail signs|natural details|book details|quiet habits|classroom objects|starting signals|first-hour work|fabric details|wash-day moves|lens pieces|sky motions|skyline details|evening motions|news pieces|press moves|type pieces|beacon pieces|tower pieces|coast cues|shore finds|water motion|camp gear|camp moves|growing things|tending moves|doorstep details|street signals|neighbor signals|doorstep objects|evening cues|porch details|bright-night motions|dome sights|show cues|ceiling sights|sky sights|case treats|shop motions|counter details|street cues|weather gear|route cues|paper trails|delivery steps|dock objects|boat motions|instrument details|listening cues)\b/i.test(weave) ||
@@ -7255,7 +7256,7 @@ function leadTemplatesForContext(context: ThreadlineEditorialContext): Threadlin
         'The table is set with {A} while the counter talks in {B}.',
         'At breakfast, {A} sit on the table while the counter calls out {B}.',
         'In the booth, {A} feel already known while the counter calls out {B}.',
-        'The booth has the comfort of {A} and the counter has the sound of {B}.',
+        'A booth breakfast feels familiar with {A}, while the counter calls out {B}.',
         'By the window, {A} make breakfast familiar while {B} keep the counter talking.',
         'A regular booth can mean {A}, with the counter running on {B} across the room.',
       ],
@@ -7642,7 +7643,7 @@ export function makeThreadlineEditorialLead(context: ThreadlineEditorialContext)
         'The route bends around {A} while people {B} in the open air.',
         'The loop has {A} in view while people {B} under the trees.',
         'The path moves past {A} as people {B} through the afternoon.',
-        'A familiar loop has {A} while people {B} as the day opens.',
+        'The park path passes {A} while people {B} in the open air.',
       ]),
       firstIds,
       secondIds,
