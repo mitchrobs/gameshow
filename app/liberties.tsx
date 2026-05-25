@@ -531,6 +531,78 @@ function getThemePieceImageStyle(
   };
 }
 
+function getThemePieceStageStyle(
+  size: number,
+  visualTheme: LibertiesVisualTheme,
+  assetKind: LibertiesAssetPieceKind
+) {
+  if (visualTheme.id === 'softCeramic') return null;
+
+  const shadowByTheme: Partial<
+    Record<
+      LibertiesVisualThemeId,
+      {
+        elevation: number;
+        opacity: { dark: number; light: number };
+        radius: number;
+        y: number;
+        web: { dark: string; light: string };
+      }
+    >
+  > = {
+    pebble: {
+      elevation: 2,
+      opacity: { dark: 0.24, light: 0.13 },
+      radius: 0.1,
+      y: 0.075,
+      web: {
+        dark: 'drop-shadow(0 4px 4px rgba(0, 0, 0, 0.28))',
+        light: 'drop-shadow(0 4px 5px rgba(22, 34, 38, 0.16))',
+      },
+    },
+    knob: {
+      elevation: 2,
+      opacity: { dark: 0.26, light: 0.14 },
+      radius: 0.11,
+      y: 0.085,
+      web: {
+        dark: 'drop-shadow(0 5px 5px rgba(0, 0, 0, 0.3))',
+        light: 'drop-shadow(0 5px 6px rgba(30, 37, 38, 0.16))',
+      },
+    },
+    neoCity: {
+      elevation: 3,
+      opacity: { dark: 0.28, light: 0.16 },
+      radius: 0.12,
+      y: 0.095,
+      web: {
+        dark: 'drop-shadow(0 6px 6px rgba(0, 0, 0, 0.32))',
+        light: 'drop-shadow(0 6px 7px rgba(56, 42, 25, 0.17))',
+      },
+    },
+  };
+  const shadow = shadowByTheme[visualTheme.id];
+  if (!shadow) return null;
+
+  const isDark = visualTheme.mode === 'dark';
+  const whiteLift = assetKind === 'white' ? 0.86 : 1;
+  const opacity = (isDark ? shadow.opacity.dark : shadow.opacity.light) * whiteLift;
+
+  return {
+    borderRadius: getThemeMarkerRadius(size, visualTheme),
+    shadowColor: '#000',
+    shadowOpacity: opacity,
+    shadowRadius: Math.max(3, size * shadow.radius),
+    shadowOffset: { width: 0, height: Math.max(2, size * shadow.y) },
+    elevation: shadow.elevation,
+    ...(Platform.OS === 'web'
+      ? ({
+          filter: isDark ? shadow.web.dark : shadow.web.light,
+        } as any)
+      : null),
+  };
+}
+
 function ThemedLibertiesPiece({
   kind,
   size,
@@ -552,6 +624,7 @@ function ThemedLibertiesPiece({
     <View
       style={[
         styles.pieceStage,
+        getThemePieceStageStyle(size, visualTheme, assetKind),
         preview && styles.previewPiece,
         invalid && styles.invalidPreviewPiece,
         {
