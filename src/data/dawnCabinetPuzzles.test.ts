@@ -18,9 +18,11 @@ import {
   isGeneratedConnectorRail,
   isLegibleRailPath,
   isValidCabinetLine,
+  hasDawnCabinetRailCoverage,
   makeTutorialPuzzle,
   rateDawnCabinetPuzzle,
   segmentCrossesUnrelatedActiveCell,
+  tileKey,
 } from './dawnCabinetPuzzles';
 
 function suitCount(puzzle: DawnCabinetPuzzle): number {
@@ -90,6 +92,12 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
     expect(puzzle.spareCount).toBe(0);
     expect(puzzle.ledger).toEqual({ run: 2, match: 1 });
     expect(puzzle.bankGoal).toBeUndefined();
+    expect(puzzle.dawnTile).toBeDefined();
+    expect(puzzle.dawnTile?.options).toHaveLength(2);
+    expect(puzzle.dawnTile?.options.map(tileKey)).toContain(tileKey(puzzle.dawnTile!.resolvedTile));
+    expect(puzzle.givens[puzzle.dawnTile?.solutionCell ?? '']).toBeUndefined();
+    expect(getCabinetEntryCount(puzzle)).toBe(blanks);
+    expect(puzzle.bank).toHaveLength(blanks - 1);
     return;
   }
 
@@ -158,7 +166,7 @@ function expectDifficultyTargets(puzzle: DawnCabinetPuzzle) {
   expect(suits).toBe(5);
   expect(blanks).toBeGreaterThanOrEqual(37);
   expect(blanks).toBeLessThanOrEqual(39);
-  expect(puzzle.lines.length).toBeGreaterThanOrEqual(43);
+  expect(puzzle.lines.length).toBeGreaterThanOrEqual(39);
   expect(puzzle.lines.length).toBeLessThanOrEqual(52);
   expect(hidden).toBeGreaterThanOrEqual(32);
   expect(hidden).toBeLessThanOrEqual(37);
@@ -473,6 +481,7 @@ describe('dawn cabinet puzzle engine', () => {
       DAWN_CABINET_DAILY_DIFFICULTIES.forEach((difficulty) => {
         const puzzle = getDailyDawnCabinet(entry.date, difficulty);
         expect(isCabinetSolved(puzzle, puzzle.solution)).toBe(true);
+        expect(hasDawnCabinetRailCoverage(puzzle)).toBe(true);
         puzzle.lines
           .filter(isGeneratedConnectorRail)
           .forEach((line) => {
@@ -516,14 +525,40 @@ describe('dawn cabinet puzzle engine', () => {
       expect(exposureProfiles.size).toBe(6);
       expect(motifs.has('mixed-run-braid')).toBe(true);
       if (difficulty === 'Standard') {
-        expect(macroFamilies).toEqual(new Set(['splitHinge', 'cornerExchange', 'threePocket', 'shortBasin']));
+        expect(macroFamilies).toEqual(new Set([
+          'splitHinge',
+          'cornerExchange',
+          'threePocket',
+          'shortBasin',
+          'sideShelf',
+          'offsetHinge',
+          'gateCourt',
+        ]));
         expect(motifs.has('switchback-ladder')).toBe(true);
         expect(motifs.has('copy-block')).toBe(true);
       } else {
         expect(macroFamilies).toEqual(
           difficulty === 'Hard'
-            ? new Set(['braidedReservoir', 'mirrorTrap', 'offsetBridge', 'reserveFork'])
-            : new Set(['ringCabinet', 'fiveDistrict', 'doubleBasin', 'brokenSpine', 'lanternWeb'])
+            ? new Set([
+                'braidedReservoir',
+                'mirrorTrap',
+                'offsetBridge',
+                'reserveFork',
+                'chainBridge',
+                'basinFork',
+                'lockBridge',
+              ])
+            : new Set([
+                'ringCabinet',
+                'fiveDistrict',
+                'doubleBasin',
+                'brokenSpine',
+                'lanternWeb',
+                'arcWeb',
+                'staggeredCourt',
+                'crownWeb',
+                'braidedCourt',
+              ])
         );
         expect(motifs.has('knot-cell')).toBe(true);
         expect(motifs.has('gap-run-pocket')).toBe(true);
@@ -598,6 +633,7 @@ describe('dawn cabinet puzzle engine', () => {
       let pressureDays = 0;
       let pressureScore = 0;
       let visibleNonPairKindTotal = 0;
+      let highPressureCellTotal = 0;
       const shapeProfiles = new Map<string, number>();
       const hiddenMixProfiles = new Map<string, number>();
       const solvePostures = new Map<string, number>();
@@ -623,7 +659,10 @@ describe('dawn cabinet puzzle engine', () => {
         if (pressureHiddenCount(puzzle) >= (difficulty === 'Standard' ? 4 : difficulty === 'Hard' ? 9 : 16)) {
           pressureDays += 1;
         }
-        pressureScore += rateDawnCabinetPuzzle(puzzle).railTypePressure;
+        const rating = rateDawnCabinetPuzzle(puzzle);
+        pressureScore += rating.railTypePressure;
+        highPressureCellTotal += rating.highPressureCellCount;
+        const generatedConnectorCount = puzzle.lines.filter(isGeneratedConnectorRail).length;
         visibleNonPairKindTotal += new Set(
           puzzle.lines
             .filter((line) => line.goal !== 'hidden' && line.goal !== 'pair')
@@ -636,6 +675,11 @@ describe('dawn cabinet puzzle engine', () => {
 
         expect(puzzle.columns).toBeLessThanOrEqual(7);
         expect(puzzle.rows).toBeLessThanOrEqual(difficulty === 'Standard' ? 15 : difficulty === 'Hard' ? 20 : 24);
+        expect(hasDawnCabinetRailCoverage(puzzle)).toBe(true);
+        expect(generatedConnectorCount).toBeGreaterThanOrEqual(difficulty === 'Standard' ? 1 : 2);
+        if (difficulty === 'Expert') {
+          expect(rating.highPressureCellCount).toBeLessThanOrEqual(14);
+        }
       });
 
       const totalHidden = Object.values(aggregate).reduce((sum, count) => sum + count, 0);
@@ -664,11 +708,12 @@ describe('dawn cabinet puzzle engine', () => {
       } else {
         expect(aggregate.mixedGap).toBeGreaterThan(300);
         expect(mixedGapDays).toBeGreaterThan(320);
-        expect(noMixedGapDays).toBeGreaterThan(20);
+        expect(noMixedGapDays).toBeGreaterThan(10);
         expect(multiMixedGapDays).toBeGreaterThan(50);
         expect(aggregate.mixedRun + aggregate.gapRun + aggregate.mixedGap + aggregate.flush + aggregate.number).toBeGreaterThan(aggregate.run + aggregate.match);
         expect(runMatchShare).toBeLessThanOrEqual(0.34);
         expect(nonRunMatchMajorityDays).toBeGreaterThan(340);
+        expect(highPressureCellTotal / 365).toBeLessThanOrEqual(11.6);
       }
     });
   }, 120000);

@@ -394,7 +394,7 @@ function getDifficultyCardSummary(puzzle: DawnCabinetPuzzle): string {
     case 'Expert':
       return 'Largest cabinet\nFull rail set\nHardest Dawn placement';
     default:
-      return 'Small cabinet\nPractice rails\nGentle solve';
+      return 'Small cabinet\nGuided rails\n2-value Dawn Tile';
   }
 }
 
@@ -407,7 +407,7 @@ function getStartGoalPreview(puzzle: DawnCabinetPuzzle): string {
     case 'Expert':
       return 'Expert is the longest cabinet, with every rail family and the most demanding Dawn Tile placement.';
     default:
-      return 'A short practice cabinet for learning the rail language.';
+      return 'A guided small cabinet for learning rails and a two-value Dawn Tile.';
   }
 }
 
@@ -496,12 +496,14 @@ export default function DawnCabinetScreen() {
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [firstCorrectCells, setFirstCorrectCells] = useState<string[]>([]);
   const hasCountedRef = useRef(false);
+  const practiceAutoFocusPuzzleRef = useRef<string | null>(null);
 
   const placements = useMemo(() => {
     return createPlacements(puzzle, bankByID, placedEntryIdsByCell);
   }, [bankByID, placedEntryIdsByCell, puzzle]);
 
   const usedEntryIDs = useMemo(() => new Set(Object.values(placedEntryIdsByCell)), [placedEntryIdsByCell]);
+  const selectedEntry = selectedEntryID ? bankByID.get(selectedEntryID) : undefined;
   const availableBankEntries = useMemo(
     () => bankEntries.filter((entry) => !usedEntryIDs.has(entry.id)),
     [bankEntries, usedEntryIDs]
@@ -623,6 +625,15 @@ export default function DawnCabinetScreen() {
     setFirstCorrectCells([]);
     hasCountedRef.current = false;
   }, [bankByID, bankEntries, puzzle]);
+
+  useEffect(() => {
+    if (!isPractice || puzzle.difficulty !== 'Easy' || !puzzle.dawnTile || gameState !== 'playing') return;
+    if (practiceAutoFocusPuzzleRef.current === puzzle.id) return;
+    if (Object.keys(placedEntryIdsByCell).length > 0) return;
+    practiceAutoFocusPuzzleRef.current = puzzle.id;
+    setSelectedCell(puzzle.dawnTile.solutionCell);
+    setArmedCell(null);
+  }, [gameState, isPractice, placedEntryIdsByCell, puzzle]);
 
   useEffect(() => {
     const storage = getStorage();
@@ -837,6 +848,7 @@ export default function DawnCabinetScreen() {
 
   const handlePracticeEasy = useCallback(() => {
     getStorage()?.setItem(`${STORAGE_PREFIX}:tutorial-seen`, '1');
+    practiceAutoFocusPuzzleRef.current = null;
     setIsPractice(true);
     setHasStartedPuzzle(true);
     setShowTutorial(false);
@@ -1023,6 +1035,18 @@ export default function DawnCabinetScreen() {
             />
           </View>
 
+          {isPractice && puzzle.difficulty === 'Easy' ? (
+            <PracticeCoachPanel
+              puzzle={puzzle}
+              selectedEntry={selectedEntry}
+              selectedCell={selectedCell}
+              hasChecked={hasChecked}
+              message={message}
+              gameState={gameState}
+              styles={styles}
+            />
+          ) : null}
+
           {!isMobile ? (
             <View style={styles.bankSection}>
               <View style={styles.sectionHeader}>
@@ -1179,7 +1203,7 @@ function StartScreen({
   const quickStartSteps = [
     'Place Cabinet tiles onto the board.',
     'Every rail must form its set.',
-    'Daily cabinets include a Dawn Tile; harder cabinets may leave reserve tiles.',
+    'Practice has a simple Dawn Tile; daily cabinets use the same idea.',
   ];
 
   return (
@@ -1300,6 +1324,58 @@ function StartScreen({
       >
         <Text style={styles.practiceButtonText}>Practice a Small Cabinet</Text>
       </Pressable>
+    </View>
+  );
+}
+
+function PracticeCoachPanel({
+  puzzle,
+  selectedEntry,
+  selectedCell,
+  hasChecked,
+  message,
+  gameState,
+  styles,
+}: {
+  puzzle: DawnCabinetPuzzle;
+  selectedEntry?: BankEntry;
+  selectedCell: string | null;
+  hasChecked: boolean;
+  message: string | null;
+  gameState: GameState;
+  styles: ReturnType<typeof createStyles>;
+}) {
+  const dawnTile = selectedEntry?.kind === 'dawn' ? selectedEntry.dawnTile : undefined;
+  let title = 'Start with the rails';
+  let body = 'Tap a cell to spotlight its rails, or pick a Cabinet tile.';
+
+  if (gameState === 'won') {
+    title = 'Practice complete';
+    body = 'Nice. Standard uses the same moves with more rails.';
+  } else if (hasChecked && message) {
+    title = 'Check the rails';
+    body = 'Use the highlighted rails to find the mismatch.';
+  } else if (dawnTile) {
+    title = 'Dawn Tile';
+    body = 'Dawn can be used as either shown value. It must be placed on the board.';
+  } else if (selectedEntry) {
+    title = 'Place the tile';
+    body = 'Now tap a board spot to place it.';
+  } else if (selectedCell) {
+    title = 'Attached rails';
+    body = 'These attached rails all use this spot.';
+  }
+
+  return (
+    <View style={styles.practiceCoachCard}>
+      <Text style={styles.practiceCoachKicker}>Practice Coach</Text>
+      <Text style={styles.practiceCoachTitle}>{title}</Text>
+      <Text style={styles.practiceCoachText}>{body}</Text>
+      {dawnTile ? (
+        <DawnCandidateChips dawnTile={dawnTile} styles={styles} compact leftAligned />
+      ) : puzzle.dawnTile && !selectedEntry && gameState === 'playing' ? (
+        <Text style={styles.practiceCoachHint}>The Dawn Tile is in your Cabinet.</Text>
+      ) : null}
     </View>
   );
 }
@@ -2142,11 +2218,14 @@ function DawnFilterNote({
   dawnTile: DawnCabinetDawnTile;
   styles: ReturnType<typeof createStyles>;
 }) {
+  const candidateCopy = dawnTile.options.length === 2
+    ? 'Can be used as either of these tiles:'
+    : 'Can be used as any of these tiles:';
   return (
     <View style={styles.dawnFilterNote}>
       <View style={styles.dawnFilterNoteCopy}>
         <Text style={styles.dawnFilterNoteTitle}>Today's Dawn Tile</Text>
-        <Text style={styles.dawnFilterNoteText}>Can be used as any of these tiles:</Text>
+        <Text style={styles.dawnFilterNoteText}>{candidateCopy}</Text>
         <DawnCandidateChips dawnTile={dawnTile} styles={styles} leftAligned />
         <Text style={styles.dawnFilterNoteText}>Must be placed on the board.</Text>
       </View>
@@ -2358,6 +2437,7 @@ function TutorialModal({
   const cabinetRules = [
     'Copy tiles show how many identical Cabinet tiles remain.',
     'Reserve tells you which tiles, if any, should be left after the board is complete.',
+    'Easy practice shows two Dawn values; daily cabinets show three or four.',
     'The Dawn Tile can be used as one of its shown values, but it must be placed on the board.',
     'Tap a cell to spotlight every rail that uses it.',
   ];
@@ -2585,11 +2665,11 @@ function TutorialModal({
               <View style={styles.lessonTitleRow}>
                 <Text style={styles.lessonTitle}>Dawn Tile</Text>
                 <View style={styles.lessonDifficultyBadge}>
-                  <Text style={styles.lessonDifficultyText}>Daily</Text>
+                  <Text style={styles.lessonDifficultyText}>All</Text>
                 </View>
               </View>
               <DawnCandidateChips dawnTile={dawnLessonTile} styles={styles} leftAligned />
-              <Text style={styles.lessonText}>Can be used as one of its shown values, but must be placed on the board.</Text>
+              <Text style={styles.lessonText}>Easy practice shows two values; daily cabinets show three or four. Dawn must be placed on the board.</Text>
             </View>
           </View>
 
@@ -3054,6 +3134,42 @@ const createStyles = (
     boardCard: {
       padding: Spacing.md,
       alignItems: 'center',
+    },
+    practiceCoachCard: {
+      ...ui.subtleCard,
+      marginTop: Spacing.md,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      borderColor: screenAccent.badgeBorder,
+      backgroundColor: screenAccent.soft,
+      gap: 3,
+    },
+    practiceCoachKicker: {
+      color: screenAccent.main,
+      fontSize: 11,
+      lineHeight: 14,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
+    practiceCoachTitle: {
+      color: Colors.text,
+      fontSize: FontSize.md,
+      lineHeight: 22,
+      fontWeight: '900',
+    },
+    practiceCoachText: {
+      color: Colors.textSecondary,
+      fontSize: FontSize.sm,
+      lineHeight: 19,
+      fontWeight: '800',
+    },
+    practiceCoachHint: {
+      color: Colors.textMuted,
+      fontSize: 12,
+      lineHeight: 16,
+      fontWeight: '800',
+      marginTop: 2,
     },
     cabinetProgressPanel: {
       width: '100%',

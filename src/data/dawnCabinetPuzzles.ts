@@ -35,15 +35,25 @@ export type DawnCabinetMacroFamily =
   | 'cornerExchange'
   | 'threePocket'
   | 'shortBasin'
+  | 'sideShelf'
+  | 'offsetHinge'
+  | 'gateCourt'
   | 'braidedReservoir'
   | 'mirrorTrap'
   | 'offsetBridge'
   | 'reserveFork'
+  | 'chainBridge'
+  | 'basinFork'
+  | 'lockBridge'
   | 'ringCabinet'
   | 'fiveDistrict'
   | 'doubleBasin'
   | 'brokenSpine'
-  | 'lanternWeb';
+  | 'lanternWeb'
+  | 'arcWeb'
+  | 'staggeredCourt'
+  | 'crownWeb'
+  | 'braidedCourt';
 export type DawnCabinetExposureProfile =
   | 'friendlyStart'
   | 'ledgerFirst'
@@ -120,6 +130,8 @@ export interface DawnCabinetDifficultyRating {
   railTypePressure: number;
   hiddenRunMatchShare: number;
   layoutQualityScore: number;
+  multiRailCellCount: number;
+  highPressureCellCount: number;
   playProfileKey?: string;
   score: number;
 }
@@ -284,12 +296,18 @@ const STANDARD_MACRO_FAMILIES: DawnCabinetMacroFamily[] = [
   'cornerExchange',
   'threePocket',
   'shortBasin',
+  'sideShelf',
+  'offsetHinge',
+  'gateCourt',
 ];
 const HARD_MACRO_FAMILIES: DawnCabinetMacroFamily[] = [
   'braidedReservoir',
   'mirrorTrap',
   'offsetBridge',
   'reserveFork',
+  'chainBridge',
+  'basinFork',
+  'lockBridge',
 ];
 const EXPERT_MACRO_FAMILIES: DawnCabinetMacroFamily[] = [
   'ringCabinet',
@@ -297,21 +315,35 @@ const EXPERT_MACRO_FAMILIES: DawnCabinetMacroFamily[] = [
   'doubleBasin',
   'brokenSpine',
   'lanternWeb',
+  'arcWeb',
+  'staggeredCourt',
+  'crownWeb',
+  'braidedCourt',
 ];
 const GENERATED_CONNECTOR_RAIL_PREFIXES = [
   'split-hinge',
   'corner-exchange',
   'three-pocket',
   'short-basin',
+  'side-shelf',
+  'offset-hinge',
+  'gate-court',
   'braided-reservoir',
   'mirror-trap',
   'offset-bridge',
   'reserve-fork',
+  'chain-bridge',
+  'basin-fork',
+  'lock-bridge',
   'ring-cabinet',
   'five-district',
   'double-basin',
   'broken-spine',
   'lantern-web',
+  'arc-web',
+  'staggered-court',
+  'crown-web',
+  'braided-court',
   'mixed-gap-pressure',
 ] as const;
 const EXPOSURE_PROFILES: DawnCabinetExposureProfile[] = [
@@ -626,6 +658,7 @@ export function rateDawnCabinetPuzzle(puzzle: DawnCabinetPuzzle): DawnCabinetDif
   const railTypePressure = getRailTypePressureScore(puzzle);
   const hiddenRunMatchShare = getHiddenRunMatchShare(puzzle);
   const layoutQualityScore = getLayoutQualityScore(puzzle);
+  const railTouchProfile = getRailTouchProfile(puzzle);
   const score =
     blanks * 10 +
     hiddenRails * 7 +
@@ -640,7 +673,8 @@ export function rateDawnCabinetPuzzle(puzzle: DawnCabinetPuzzle): DawnCabinetDif
     dawnQualityScore * 4 +
     visibleRailSpreadScore * 3 +
     railTypePressure * 6 +
-    layoutQualityScore * 4;
+    layoutQualityScore * 4 -
+    Math.max(0, railTouchProfile.highPressureCellCount - getHighPressureCellTarget(puzzle.difficulty)) * 3;
 
   return {
     blanks,
@@ -664,6 +698,8 @@ export function rateDawnCabinetPuzzle(puzzle: DawnCabinetPuzzle): DawnCabinetDif
     railTypePressure,
     hiddenRunMatchShare,
     layoutQualityScore,
+    multiRailCellCount: railTouchProfile.multiRailCellCount,
+    highPressureCellCount: railTouchProfile.highPressureCellCount,
     playProfileKey: puzzle.playProfile?.key,
     score,
   };
@@ -693,6 +729,32 @@ function getOverlapDensity(puzzle: DawnCabinetPuzzle): number {
     return (linesByCell[cellKey(cell.row, cell.col)]?.length ?? 0) > 1;
   }).length;
   return overlappingCells / activeCells;
+}
+
+function getRailTouchProfile(puzzle: DawnCabinetPuzzle): {
+  multiRailCellCount: number;
+  highPressureCellCount: number;
+  maxRailTouchCount: number;
+} {
+  const linesByCell = getLinesByCell(puzzle);
+  return puzzle.cells.reduce((profile, cell) => {
+    const count = linesByCell[cellKey(cell.row, cell.col)]?.length ?? 0;
+    if (count > 1) profile.multiRailCellCount += 1;
+    if (count >= 3) profile.highPressureCellCount += 1;
+    profile.maxRailTouchCount = Math.max(profile.maxRailTouchCount, count);
+    return profile;
+  }, {
+    multiRailCellCount: 0,
+    highPressureCellCount: 0,
+    maxRailTouchCount: 0,
+  });
+}
+
+function getHighPressureCellTarget(difficulty: DawnCabinetDifficulty): number {
+  if (difficulty === 'Expert') return 12;
+  if (difficulty === 'Hard') return 10;
+  if (difficulty === 'Standard') return 5;
+  return 3;
 }
 
 function getDawnRailTouchCount(puzzle: DawnCabinetPuzzle): number {
@@ -932,6 +994,8 @@ function selectAntiFingerprintVariant(
   const dateOffset = Number.isNaN(dayIndex) ? 0 : dayIndex;
   const recent = getCachedRecentCompositeSignatures(date, difficulty);
   const recentProfiles = getCachedRecentPlayProfileKeys(date, difficulty);
+  const recentShapeProfiles = getCachedRecentBroadShapeProfiles(date, difficulty);
+  const recentMacroFamilies = getCachedRecentMacroFamilies(date, difficulty);
   const offset = Number((seed + BigInt(dateOffset)) % BigInt(variants.length));
   const ordered = [...variants.slice(offset), ...variants.slice(0, offset)];
   const candidateByVariant = new Map<number, DawnCabinetPuzzle>();
@@ -959,7 +1023,7 @@ function selectAntiFingerprintVariant(
 
   for (const [index, variant] of ordered.entries()) {
     const candidate = getCandidate(variant);
-    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles);
+    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles, recentShapeProfiles, recentMacroFamilies);
     const selectable = isSelectableDawnCandidate(candidate);
     const visibleConnectors = hasVisibleGeneratedConnectorRails(candidate);
     const qualityTarget = meetsSelectionQualityTarget(candidate);
@@ -974,10 +1038,12 @@ function selectAntiFingerprintVariant(
       qualityTarget &&
       !recent.has(candidate.compositeSignature) &&
       !recentProfiles.has(candidate.playProfile?.key ?? '') &&
+      !isBroadShapeOverused(candidate, recentShapeProfiles) &&
       selectable;
     const acceptableFreshCandidate =
       qualityTarget &&
       !recent.has(candidate.compositeSignature) &&
+      !isBroadShapeOverused(candidate, recentShapeProfiles) &&
       selectable;
     if (
       strongFreshCandidate &&
@@ -1002,7 +1068,7 @@ function selectAntiFingerprintVariant(
     const candidate = getCandidate(variant);
     if (!meetsSelectionQualityTarget(candidate)) continue;
     if (getSolutionCount(candidate) !== 1) continue;
-    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles);
+    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles, recentShapeProfiles, recentMacroFamilies);
     if (!bestUniqueFallback || score > bestUniqueFallback.score) bestUniqueFallback = { candidate, score };
   }
   if (bestUniqueFallback) {
@@ -1016,7 +1082,7 @@ function selectAntiFingerprintVariant(
     if (!isSelectableDawnCandidate(candidate)) continue;
     if (!meetsBranchQualityTarget(candidate)) continue;
     if (getSolutionCount(candidate) !== 1) continue;
-    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles);
+    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles, recentShapeProfiles, recentMacroFamilies);
     if (!bestUniqueFallback || score > bestUniqueFallback.score) bestUniqueFallback = { candidate, score };
   }
   if (bestUniqueFallback) {
@@ -1029,7 +1095,7 @@ function selectAntiFingerprintVariant(
     if (!hasVisibleGeneratedConnectorRails(candidate)) continue;
     if (!meetsBranchQualityTarget(candidate)) continue;
     if (getSolutionCount(candidate) !== 1) continue;
-    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles);
+    const score = getCandidateFreshnessScore(candidate, recent, recentProfiles, recentShapeProfiles, recentMacroFamilies);
     if (!bestUniqueFallback || score > bestUniqueFallback.score) bestUniqueFallback = { candidate, score };
   }
   if (bestUniqueFallback) {
@@ -1093,6 +1159,7 @@ function meetsSelectionQualityTarget(candidate: DawnCabinetPuzzle): boolean {
       visibleKinds >= 4 &&
       visibleKinds <= 6 &&
       dawnTouchCount >= 3 &&
+      getRailTouchProfile(candidate).highPressureCellCount <= 14 &&
       getLayoutQualityScore(candidate) >= 8 &&
       candidate.motifs.length >= 14 &&
       candidate.motifs.length <= 17;
@@ -1175,14 +1242,62 @@ function getCachedRecentPlayProfileKeys(date: string, difficulty: DawnCabinetDif
   return recent;
 }
 
+function getCachedRecentBroadShapeProfiles(date: string, difficulty: DawnCabinetDifficulty): Map<string, number> {
+  const recent = new Map<string, number>();
+  const dateIndex = getUtcDayIndex(date);
+  if (Number.isNaN(dateIndex)) return recent;
+  for (let dayIndex = dateIndex - 90; dayIndex < dateIndex; dayIndex += 1) {
+    const currentDate = utcDateFromDayIndex(dayIndex);
+    const currentSeed = stableSeed(`${currentDate}:${difficulty}:daily`);
+    const selected = SELECTED_CANDIDATE_CACHE.get(selectedCandidateCacheKey(currentDate, difficulty, currentSeed));
+    if (!selected) continue;
+    const profile = getBroadShapeProfile(selected);
+    recent.set(profile, (recent.get(profile) ?? 0) + 1);
+  }
+  return recent;
+}
+
+function getCachedRecentMacroFamilies(date: string, difficulty: DawnCabinetDifficulty): Map<string, number> {
+  const recent = new Map<string, number>();
+  const dateIndex = getUtcDayIndex(date);
+  if (Number.isNaN(dateIndex)) return recent;
+  for (let dayIndex = dateIndex - 90; dayIndex < dateIndex; dayIndex += 1) {
+    const currentDate = utcDateFromDayIndex(dayIndex);
+    const currentSeed = stableSeed(`${currentDate}:${difficulty}:daily`);
+    const selected = SELECTED_CANDIDATE_CACHE.get(selectedCandidateCacheKey(currentDate, difficulty, currentSeed));
+    if (!selected?.macroFamily) continue;
+    recent.set(selected.macroFamily, (recent.get(selected.macroFamily) ?? 0) + 1);
+  }
+  return recent;
+}
+
+function getBroadShapeProfile(puzzle: DawnCabinetPuzzle): string {
+  return `${puzzle.rows}x${puzzle.columns}/${puzzle.cells.length}/${puzzle.lines.length}`;
+}
+
+function isBroadShapeOverused(
+  candidate: DawnCabinetPuzzle,
+  recentShapeProfiles: ReadonlyMap<string, number>
+): boolean {
+  const count = recentShapeProfiles.get(getBroadShapeProfile(candidate)) ?? 0;
+  const limit = candidate.difficulty === 'Expert' ? 14 : candidate.difficulty === 'Hard' ? 13 : 16;
+  return count >= limit;
+}
+
 function getCandidateFreshnessScore(
   candidate: DawnCabinetPuzzle,
   recentCompositeSignatures: Set<string>,
-  recentPlayProfileKeys: Set<string>
+  recentPlayProfileKeys: Set<string>,
+  recentShapeProfiles: ReadonlyMap<string, number>,
+  recentMacroFamilies: ReadonlyMap<string, number>
 ): number {
   const connectorVisibility = hasVisibleGeneratedConnectorRails(candidate) ? 160 : -10_000;
   const compositeFresh = recentCompositeSignatures.has(candidate.compositeSignature) ? -1_000 : 200;
   const postureFresh = recentPlayProfileKeys.has(candidate.playProfile?.key ?? '') ? -250 : 120;
+  const broadShapeCount = recentShapeProfiles.get(getBroadShapeProfile(candidate)) ?? 0;
+  const broadShapeFresh = broadShapeCount === 0 ? 100 : -Math.min(360, broadShapeCount * 28);
+  const macroFamilyCount = candidate.macroFamily ? (recentMacroFamilies.get(candidate.macroFamily) ?? 0) : 0;
+  const macroFamilyFresh = macroFamilyCount === 0 ? 900 : -Math.min(480, macroFamilyCount * 18);
   const dawnQuality = getDawnQualityScore(candidate) * 12;
   const railTypePressure = getRailTypePressureScore(candidate) * 18;
   const layoutQuality = getLayoutQualityScore(candidate) * 10;
@@ -1196,7 +1311,7 @@ function getCandidateFreshnessScore(
   const connectedBonus = isBoardConnected(candidate) ? 50 : -500;
   const widthBonus = candidate.columns <= 7 ? 30 : -500;
   const motifBonus = new Set(candidate.motifs).size * 3;
-  return connectorVisibility + compositeFresh + postureFresh + dawnQuality + railTypePressure + layoutQuality + dawnPressureBonus + visibleSpread + connectedBonus + widthBonus + motifBonus;
+  return connectorVisibility + compositeFresh + postureFresh + broadShapeFresh + macroFamilyFresh + dawnQuality + railTypePressure + layoutQuality + dawnPressureBonus + visibleSpread + connectedBonus + widthBonus + motifBonus;
 }
 
 function isSelectableDawnCandidate(candidate: DawnCabinetPuzzle): boolean {
@@ -1474,7 +1589,7 @@ function makeEasyPuzzle(config: {
   setLineGoal(draft, 'low-dot-wait', 'hidden');
   setLineGoal(draft, 'copy-match', 'hidden');
 
-  return makePuzzle({
+  return addDawnTileToPuzzle(makePuzzle({
     id: config.id,
     date: config.date,
     title: 'Dawn Cabinet',
@@ -1487,6 +1602,12 @@ function makeEasyPuzzle(config: {
     macroFamily: 'easyPractice',
     exposureProfile: 'friendlyStart',
     ...draft,
+  }), {
+    optionCount: 2,
+    variant: config.variant ?? 0,
+    allowDuplicateResolvedTile: true,
+    preferredLineCount: 3,
+    minLineCount: 2,
   });
 }
 
@@ -1796,7 +1917,7 @@ function makeExpertPuzzle(config: {
     givens: getHardWeaveMask(config.variant),
   });
   addWeavePairAnchor(draft, 'expert-left-pair-a', topLeft, config.variant);
-  addWeavePairAnchor(draft, 'expert-left-pair-b', topLeft, config.variant + 1);
+  if (config.variant % 4 === 0) addWeavePairAnchor(draft, 'expert-left-pair-b', topLeft, config.variant + 1);
 
   const topRight = addMixedFlushWeaveCluster(draft, {
     idPrefix: 'expert-right',
@@ -1807,7 +1928,7 @@ function makeExpertPuzzle(config: {
     givens: getHardWeaveMask(config.variant >> 1),
   });
   addWeavePairAnchor(draft, 'expert-right-pair-a', topRight, config.variant >> 1);
-  if (config.variant % 4 !== 0) addWeavePairAnchor(draft, 'expert-right-pair-b', topRight, (config.variant >> 1) + 1);
+  if (config.variant % 8 === 1) addWeavePairAnchor(draft, 'expert-right-pair-b', topRight, (config.variant >> 1) + 1);
 
   const lowerLeft = addMixedFlushWeaveCluster(draft, {
     idPrefix: 'expert-lower-left',
@@ -1818,7 +1939,9 @@ function makeExpertPuzzle(config: {
     givens: getHardWeaveMask(config.variant >> 2),
   });
   addWeavePairAnchor(draft, 'expert-lower-left-pair-a', lowerLeft, config.variant >> 2);
-  if (config.variant % 5 !== 0) addWeavePairAnchor(draft, 'expert-lower-left-pair-b', lowerLeft, (config.variant >> 2) + 1);
+  if (config.variant % 5 === 1) {
+    addWeavePairAnchor(draft, 'expert-lower-left-pair-b', lowerLeft, (config.variant >> 2) + 1);
+  }
 
   const lowerRight = addWeaveCluster(draft, {
     idPrefix: 'expert-lower-right',
@@ -1829,7 +1952,9 @@ function makeExpertPuzzle(config: {
     givens: getHardWeaveMask(config.variant >> 3),
   });
   addWeavePairAnchor(draft, 'expert-lower-right-pair-a', lowerRight, config.variant >> 3);
-  addWeavePairAnchor(draft, 'expert-lower-right-pair-b', lowerRight, (config.variant >> 3) + 1);
+  if (config.variant % 4 === 2) {
+    addWeavePairAnchor(draft, 'expert-lower-right-pair-b', lowerRight, (config.variant >> 3) + 1);
+  }
 
   const tailRow = Math.max(bottomLeftRow, bottomRightRow) + 5 + (config.variant % 3 === 0 ? 1 : 0);
   addExpertFifthSuitTail(draft, {
@@ -2575,7 +2700,7 @@ function addCopyBlock(
 function addDawnTileToPuzzle(
   puzzle: DawnCabinetPuzzle,
   config: {
-    optionCount: 3 | 4;
+    optionCount: 2 | 3 | 4;
     variant: number;
     allowDuplicateResolvedTile?: boolean;
     preferredLineCount?: number;
@@ -2657,7 +2782,7 @@ function makeDawnOptions(
   puzzle: DawnCabinetPuzzle,
   chosenCell: string,
   resolvedTile: DawnCabinetTile,
-  optionCount: 3 | 4,
+  optionCount: 2 | 3 | 4,
   variant: number
 ): DawnCabinetTile[] {
   const suits = Array.from(new Set(Object.values(puzzle.solution).map((tile) => tile.suit)));
@@ -2956,10 +3081,28 @@ function getSilhouetteClass(
   puzzle: DawnCabinetPuzzle,
   macroFamily: DawnCabinetMacroFamily
 ): DawnCabinetSilhouetteClass {
-  if (macroFamily === 'shortBasin' || macroFamily === 'doubleBasin') return 'basin';
-  if (macroFamily === 'brokenSpine') return 'spine';
-  if (macroFamily === 'ringCabinet' || macroFamily === 'lanternWeb') return 'web';
-  if (macroFamily === 'splitHinge' || macroFamily === 'fiveDistrict') return 'split';
+  if (
+    macroFamily === 'shortBasin' ||
+    macroFamily === 'doubleBasin' ||
+    macroFamily === 'basinFork'
+  ) return 'basin';
+  if (macroFamily === 'brokenSpine' || macroFamily === 'sideShelf') return 'spine';
+  if (
+    macroFamily === 'ringCabinet' ||
+    macroFamily === 'lanternWeb' ||
+    macroFamily === 'arcWeb' ||
+    macroFamily === 'crownWeb'
+  ) return 'web';
+  if (
+    macroFamily === 'splitHinge' ||
+    macroFamily === 'fiveDistrict' ||
+    macroFamily === 'offsetHinge' ||
+    macroFamily === 'gateCourt' ||
+    macroFamily === 'chainBridge' ||
+    macroFamily === 'lockBridge' ||
+    macroFamily === 'staggeredCourt' ||
+    macroFamily === 'braidedCourt'
+  ) return 'split';
   if (puzzle.rows >= 16) return 'spine';
   if (puzzle.rows >= 10) return 'stepped';
   return 'compact';
@@ -2999,6 +3142,17 @@ function isBoardConnected(puzzle: DawnCabinetPuzzle): boolean {
     });
   }
   return seen.size === allCells.size;
+}
+
+export function isDawnCabinetBoardConnected(puzzle: DawnCabinetPuzzle): boolean {
+  return isBoardConnected(puzzle);
+}
+
+export function hasDawnCabinetRailCoverage(puzzle: DawnCabinetPuzzle): boolean {
+  const linesByCell = getLinesByCell(puzzle);
+  return puzzle.cells.every((cell) => {
+    return (linesByCell[cellKey(cell.row, cell.col)]?.length ?? 0) > 0;
+  });
 }
 
 function makeLedgerForLines(
@@ -3180,6 +3334,15 @@ function applyMacroFamilyVariation(
     case 'shortBasin':
       addConnectors('short-basin', ['flush', 'mixedRun', 'run'], 1, 31);
       break;
+    case 'sideShelf':
+      addConnectors('side-shelf', ['mixedRun', 'flush', 'run'], 2, 37);
+      break;
+    case 'offsetHinge':
+      addConnectors('offset-hinge', ['flush', 'mixedRun', 'match'], 2, 47);
+      break;
+    case 'gateCourt':
+      addConnectors('gate-court', ['mixedRun', 'flush', 'match'], 2, 57);
+      break;
     case 'braidedReservoir':
       addConnectors('braided-reservoir', ['number', 'mixedRun', 'flush', 'gapRun'], 2);
       break;
@@ -3190,7 +3353,16 @@ function applyMacroFamilyVariation(
       addConnectors('offset-bridge', ['mixedRun', 'number', 'gapRun', 'flush'], 2, 29);
       break;
     case 'reserveFork':
-      addConnectors('reserve-fork', ['flush', 'number', 'mixedRun', 'gapRun'], 1, 41);
+      addConnectors('reserve-fork', ['flush', 'number', 'mixedRun', 'gapRun'], 2, 41);
+      break;
+    case 'chainBridge':
+      addConnectors('chain-bridge', ['mixedRun', 'number', 'gapRun', 'flush'], 3, 47);
+      break;
+    case 'basinFork':
+      addConnectors('basin-fork', ['flush', 'number', 'mixedRun', 'gapRun'], 2, 59);
+      break;
+    case 'lockBridge':
+      addConnectors('lock-bridge', ['number', 'gapRun', 'mixedRun', 'flush'], 3, 67);
       break;
     case 'ringCabinet':
       addConnectors('ring-cabinet', ['mixedGap', 'number', 'mixedRun', 'gapRun'], 3);
@@ -3206,6 +3378,18 @@ function applyMacroFamilyVariation(
       break;
     case 'lanternWeb':
       addConnectors('lantern-web', ['mixedGap', 'number', 'gapRun', 'mixedRun'], 3, 61);
+      break;
+    case 'arcWeb':
+      addConnectors('arc-web', ['number', 'mixedGap', 'mixedRun', 'flush'], 3, 67);
+      break;
+    case 'staggeredCourt':
+      addConnectors('staggered-court', ['mixedRun', 'number', 'gapRun', 'mixedGap'], 2, 73);
+      break;
+    case 'crownWeb':
+      addConnectors('crown-web', ['mixedGap', 'number', 'flush', 'gapRun'], 3, 83);
+      break;
+    case 'braidedCourt':
+      addConnectors('braided-court', ['number', 'mixedGap', 'mixedRun', 'gapRun'], 3, 97);
       break;
     case 'easyPractice':
       break;

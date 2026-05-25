@@ -58,9 +58,8 @@ Avoid:
   types, but the board should not reveal which type early.
 - **Ledger**: Counts of hidden rail set types that must be satisfied exactly.
 - **Reserve**: Required leftover Cabinet tiles after the board is complete.
-- **Dawn tile**: A special bounded wild tile used on daily difficulties. It has
-  visible candidate values, but resolves only at its generator-chosen solution
-  cell.
+- **Dawn tile**: A special bounded wild tile. It has visible candidate values,
+  but resolves only at its generator-chosen solution cell.
 - **Easy Demo**: Tutorial/practice mode. It is not a daily difficulty.
 - **Daily levels**: Standard, Hard, and Expert.
 
@@ -84,13 +83,15 @@ Dawn Cabinet uses modern Mahjong-inspired numbered suits.
   clipped.
 - Copy pips on Cabinet tiles show how many identical Cabinet tiles remain.
 - The Cabinet supply is finite. Every placed tile comes from this supply.
-- Standard, Hard, and Expert include exactly one Dawn tile. Easy Demo does not.
+- Easy Demo includes one 2-value Dawn tile for teaching. Standard, Hard, and
+  Expert include exactly one daily Dawn tile.
 
 ## Dawn Tile Rules
 
 The Dawn tile is Dawn Cabinet's flower/season-inspired special tile. It adds
 freshness and allocation tension without becoming an unbounded wild card.
 
+- Easy Demo has one Dawn tile with two visible candidate values.
 - Standard and Hard each have one Dawn tile with three visible candidate values.
 - Expert has one Dawn tile with four visible candidate values.
 - The Dawn tile is placed from the Cabinet like any other Cabinet tile.
@@ -377,14 +378,23 @@ mix appears too often. Standard especially should avoid repeating one
 The generator should vary boards through macro recipes and motif composition.
 Current intended recipe families are:
 
-- Standard: `splitHinge`, `cornerExchange`, `threePocket`, `shortBasin`.
-- Hard: `braidedReservoir`, `mirrorTrap`, `offsetBridge`, `reserveFork`.
+- Standard: `splitHinge`, `cornerExchange`, `threePocket`, `shortBasin`,
+  `sideShelf`, `offsetHinge`, `gateCourt`.
+- Hard: `braidedReservoir`, `mirrorTrap`, `offsetBridge`, `reserveFork`,
+  `chainBridge`, `basinFork`, `lockBridge`.
 - Expert: `ringCabinet`, `fiveDistrict`, `doubleBasin`, `brokenSpine`,
-  `lanternWeb`.
+  `lanternWeb`, `arcWeb`, `staggeredCourt`, `crownWeb`, `braidedCourt`.
 
 These names are not just labels for analytics. The generator uses them to add
 different connector rails and motif pressure so the same difficulty does not
 always open with the same visual or logical posture.
+
+When adding new shape profiles, prefer Dawn Cabinet-fluent silhouettes:
+hinges, shelves, terraces, basins, bridges, courts, and webs. A good profile
+changes what the player reads first without making the board look like an
+arbitrary graph. Each profile should add legible connector pressure, maintain
+mobile-safe width, and create at least one hidden rail-type question instead of
+only adding visible decoration.
 
 Visible rails should not collapse into mostly Pair clues. Use seeded exposure
 profiles so visible clues teach local board logic without giving away the
@@ -415,6 +425,18 @@ Layout polish should support deduction quality, not just visual novelty:
 - Prefer distributed hidden rail pressure across districts.
 - Penalize pair-anchor thickets that crowd the board without creating better
   hidden rail questions.
+- In Expert, cap high-pressure multi-rail cells: a high-pressure cell is touched
+  by three or more rails. These are valuable in moderation, but too many make
+  the board feel visually tangled instead of clever. The schedule gate currently
+  rejects Expert puzzles above 14 high-pressure cells, which keeps the pack
+  roughly 20% lighter than the previous Expert crossing density.
+- Preserve interconnection by rejecting any scheduled puzzle with a playable
+  cell that is not attached to at least one rail. Do not force every board into
+  one strict graph component; the modular cabinet grammar can still use distinct
+  districts as long as each district has rail coverage and connector pressure.
+- Hard and Expert should feel more interconnected than Standard. The schedule
+  tests currently require at least two generated connector rails on every Hard
+  and Expert puzzle, while Standard keeps at least one readable connector.
 - Avoid overusing the same exact row/cell/rail profile, especially in Expert.
 - Preserve the mobile-safe width and readable connector rules before accepting
   any freshness candidate.
@@ -425,7 +447,8 @@ Layout polish should support deduction quality, not just visual novelty:
 
 ### Dawn Pressure Targets
 
-Standard, Hard, and Expert each include exactly one Dawn tile.
+Easy Demo includes one 2-value Dawn tile for teaching. Standard, Hard, and
+Expert each include exactly one daily Dawn tile.
 
 - Standard: usually touches two rails, sometimes three. It should create a
   small pause without making Standard feel like a trap.
@@ -660,7 +683,7 @@ For UI changes, also smoke test `/dawn-cabinet` in the browser:
 - Do not make hidden rails turn green before the puzzle is solved.
 - Do not simplify difficulty by removing ledger or reserve pressure.
 - Do not turn the Dawn tile into an unlimited wild card.
-- Do not add Dawn to Easy Demo without a separate design pass.
+- Do not make Easy Demo a daily level or shareable result.
 - Do not add multiple Dawn tiles without first designing the `dawnTiles[]`
   schema, solver, rating, Cabinet UI, and uniqueness rules together.
 - Do not collapse Standard, Hard, and Expert into similar boards.

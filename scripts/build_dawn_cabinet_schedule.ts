@@ -11,6 +11,8 @@ import {
   isCabinetSolved,
   isGeneratedConnectorRail,
   isLegibleRailPath,
+  hasDawnCabinetRailCoverage,
+  rateDawnCabinetPuzzle,
   tileKey,
   type DawnCabinetDailyDifficulty,
   type DawnCabinetPuzzle,
@@ -54,6 +56,10 @@ function assertPuzzleReadyForSchedule(
     throw new Error(`Dawn Cabinet schedule rejected ${context}: solution state does not satisfy rails, ledger, or reserve goal`);
   }
 
+  if (!hasDawnCabinetRailCoverage(puzzle)) {
+    throw new Error(`Dawn Cabinet schedule rejected ${context}: at least one playable cell is not attached to a rail`);
+  }
+
   const solutionCount = countCabinetSolutions(puzzle, 2);
   if (solutionCount !== 1) {
     throw new Error(`Dawn Cabinet schedule rejected ${context}: expected 1 solution, found ${solutionCount}`);
@@ -83,22 +89,26 @@ function assertPuzzleReadyForSchedule(
   if (puzzle.reserveTiles.some((tile) => tileKey(tile) === dawnResolvedKey)) {
     throw new Error(`Dawn Cabinet schedule rejected ${context}: Dawn Tile can be left in reserve`);
   }
+
+  if (difficulty === 'Expert' && rateDawnCabinetPuzzle(puzzle).highPressureCellCount > 14) {
+    throw new Error(`Dawn Cabinet schedule rejected ${context}: too many high-pressure multi-rail cells`);
+  }
 }
 
 function choosePuzzleForSchedule(date: string, difficulty: DawnCabinetDailyDifficulty): DawnCabinetPuzzle {
   try {
-    const scheduled = getDailyDawnCabinet(date, difficulty);
-    assertPuzzleReadyForSchedule(date, difficulty, scheduled);
-    return scheduled;
+    const generated = getGeneratedDailyDawnCabinet(date, difficulty);
+    assertPuzzleReadyForSchedule(date, difficulty, generated);
+    return generated;
   } catch (error) {
     console.warn(
-      `  replacing ${date} ${difficulty}: ${error instanceof Error ? error.message : String(error)}`
+      `  generated ${date} ${difficulty} failed: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 
-  const generated = getGeneratedDailyDawnCabinet(date, difficulty);
-  assertPuzzleReadyForSchedule(date, difficulty, generated);
-  return generated;
+  const scheduled = getDailyDawnCabinet(date, difficulty);
+  assertPuzzleReadyForSchedule(date, difficulty, scheduled);
+  return scheduled;
 }
 
 const entries: ScheduleEntry[] = [];
