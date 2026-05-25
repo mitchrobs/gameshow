@@ -437,6 +437,31 @@ describe('Ballpark 2026 calendar', () => {
     });
   });
 
+  it('blocks the too-easy exact-recall pattern that made the Memorial Day opener weak', async () => {
+    const memorialDay = await getDailySet('2026-05-25');
+    const combinedAudit = runBallpark400PackAudit();
+    const allPacks = [
+      ...validateAuthoredLibrary().authoredSets,
+      ...validateBallparkReserveBank().reservePacks,
+    ];
+    const tooEasyExactRecall =
+      /\b(?:U\.S\. flag|standard clock face|standard skateboard|regulation basketball|bowling setup|Olympic swimming pool|standard outdoor track|photo-booth strip)\b/i;
+
+    expect(memorialDay.theme).toBe('Memorial Day Cookout');
+    expect(memorialDay.questions[0].prompt).toBe('How many headstones are at Arlington National Cemetery?');
+    expect(memorialDay.questions[0].answer).toBe(400000);
+    expect(memorialDay.questions[0].answerType).toBe('estimate');
+    expect(combinedAudit.categoryCounts.weak_exact_opener).toBe(0);
+
+    allPacks.forEach((pack) => {
+      [...pack.questions, ...(pack.extraInning ? [pack.extraInning] : [])].forEach((question) => {
+        if (question.answerType === 'exact' && question.answer <= 60) {
+          expect(`${pack.theme}: ${question.prompt}`).not.toMatch(tooEasyExactRecall);
+        }
+      });
+    });
+  });
+
   it('keeps the Fermi-core reset focused on real topic facts with strong anchors', () => {
     const combinedAudit = runBallpark400PackAudit();
     const allPacks = [
@@ -698,7 +723,7 @@ describe('Ballpark 2026 calendar', () => {
     });
 
     const iconicExactCount = allQuestions.filter((question) => question.answerType === 'exact').length;
-    expect(iconicExactCount).toBeGreaterThanOrEqual(40);
+    expect(iconicExactCount).toBeGreaterThanOrEqual(15);
     expect(iconicExactCount).toBeLessThanOrEqual(70);
     allQuestions.forEach((question) => {
       expect(question.prompt).not.toMatch(artificialUnitPattern);

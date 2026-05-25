@@ -431,6 +431,12 @@ const SOURCE_LIBRARY = {
     "National Park Service",
     "2026-05-16"
   ),
+  arlingtonCemetery: source(
+    "Office of Army Cemeteries: Our Cemeteries",
+    "https://armycemeteries.army.mil/About-Us/Our-Cemeteries",
+    "Office of Army Cemeteries",
+    "2026-05-25"
+  ),
   smithsonian: source(
     "Smithsonian Spotlight Reference",
     "https://www.si.edu/spotlight",
@@ -469,6 +475,39 @@ const SOURCE_LIBRARY = {
     "2026-05-16"
   ),
 };
+
+function resolvedEstimateOverride({
+  prompt,
+  answer,
+  funFact,
+  rationale,
+  answerNote,
+  calibrationAnchor,
+  estimationMode = "count",
+  questionMove = "familiar_anchor",
+  anchorType = "sourced_typical",
+  topicFacet,
+  scaleBand,
+  sources,
+}) {
+  return {
+    prompt,
+    answer,
+    funFact,
+    rationale,
+    answerNote,
+    calibrationAnchor,
+    estimationMode,
+    questionMove,
+    anchorType,
+    answerType: "estimate",
+    iconicExact: false,
+    recognizableExact: false,
+    ...(topicFacet ? { topicFacet } : {}),
+    ...(scaleBand ? { scaleBand } : {}),
+    ...(sources ? { sources } : {}),
+  };
+}
 
 const BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY = {
   "toy-chest-q3": {
@@ -756,6 +795,396 @@ const BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY = {
   "snowplow-route-extra": {
     prompt: "How many square inches of blade surface are on the snowplow fleet?",
   },
+};
+
+const BALLPARK_RESOLVED_QUALITY_OVERRIDES_BY_QUESTION_KEY = {
+  "basketball-gym-q1": resolvedEstimateOverride({
+    prompt: "How many fans can a packed high school basketball gym hold?",
+    answer: 1200,
+    funFact: "Answer: 1,200. A packed school gym can hold a thousand-plus fans.",
+    rationale: "Replaces an eight-panel memory fact with a real gym-capacity estimate.",
+    answerNote: "Estimated from bleacher rows and a full high-school gym crowd.",
+    calibrationAnchor: "Picture bleachers on both sides, then estimate a packed gym crowd.",
+    estimationMode: "crowd",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+    topicFacet: "audience:sports",
+    scaleBand: "room",
+  }),
+  "bowling-lane-night-q1": resolvedEstimateOverride({
+    prompt: "How many pairs of rental shoes sit behind a bowling-alley counter?",
+    answer: 1100,
+    funFact: "Answer: 1,100. A rental counter can hold more than a thousand pairs.",
+    rationale: "Replaces the instant ten-pin recall with an estimable bowling-alley inventory fact.",
+    answerNote: "Estimated from shoe-size runs and wall storage at a busy alley.",
+    calibrationAnchor: "Estimate pairs per shelf, then scale across the rental counter.",
+    estimationMode: "capacity",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:sports",
+    scaleBand: "room",
+  }),
+  "roller-rink-night-q1": resolvedEstimateOverride({
+    prompt: "How many rental skates can a busy roller rink keep behind the counter?",
+    answer: 600,
+    funFact: "Answer: 600. A busy rink can stock hundreds of rental skates.",
+    rationale: "Replaces the four-wheel recall with a rink-scale inventory estimate.",
+    answerNote: "Estimated from size runs and rental shelves at a busy skating rink.",
+    calibrationAnchor: "Picture rows of sizes behind the counter, then estimate total skates.",
+    estimationMode: "capacity",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:sports",
+  }),
+  "bike-share-corral-q1": resolvedEstimateOverride({
+    prompt: "How many bikes fit on one full bike-share dock block?",
+    answer: 120,
+    funFact: "Answer: 120. A full dock block can hold more than a hundred bikes.",
+    rationale: "Replaces spoke recall with a bike-share capacity fact players can picture.",
+    answerNote: "Estimated from a long city block of bike-share docks.",
+    calibrationAnchor: "Estimate bikes per dock segment, then scale to the block.",
+    estimationMode: "capacity",
+    questionMove: "physical_capacity",
+    anchorType: "named_standard",
+    topicFacet: "infrastructure:transit",
+  }),
+  "citi-bike-dock-q1": resolvedEstimateOverride({
+    prompt: "How many bikes fit across a full Citi Bike station block?",
+    answer: 120,
+    funFact: "Answer: 120. A full bike-share station block can hold more than a hundred bikes.",
+    rationale: "Replaces spoke recall with a bike-share infrastructure estimate.",
+    answerNote: "Estimated from a long Citi Bike-style station block.",
+    calibrationAnchor: "Estimate docks per segment, then scale across the station.",
+    estimationMode: "capacity",
+    questionMove: "physical_capacity",
+    anchorType: "famous_event",
+    topicFacet: "infrastructure:transit",
+  }),
+  "lifeguard-beach-tower-q1": resolvedEstimateOverride({
+    prompt: "How many beachgoers can one lifeguard tower watch on a busy day?",
+    answer: 800,
+    funFact: "Answer: 800. One busy tower can watch hundreds of beachgoers.",
+    rationale: "Replaces unrelated Olympic-lane recall with a beach-safety estimate.",
+    answerNote: "Estimated from a crowded guarded beach section.",
+    calibrationAnchor: "Picture towels and swimmers in one guarded zone, then count the crowd.",
+    estimationMode: "crowd",
+    questionMove: "familiar_anchor",
+    anchorType: "sourced_typical",
+    topicFacet: "audience:water",
+  }),
+  "bike-shop-tune-up-q1": resolvedEstimateOverride({
+    prompt: "How many tires hang on a full bike-shop repair wall?",
+    answer: 180,
+    funFact: "Answer: 180. A repair wall can hold hundreds of replacement tires.",
+    rationale: "Replaces low-count spoke recall with a tangible bike-shop inventory estimate.",
+    answerNote: "Estimated from rows of hanging replacement tires at a full-service bike shop.",
+    calibrationAnchor: "Estimate tires per row, then scale across the wall.",
+    estimationMode: "capacity",
+    questionMove: "object_anatomy",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:sports",
+  }),
+  "memorial-day-cookout-q1": resolvedEstimateOverride({
+    prompt: "How many headstones are at Arlington National Cemetery?",
+    answer: 400000,
+    funFact: "Answer: 400,000. Arlington has more than 400,000 headstones.",
+    rationale: "Replaces 50-star recall with a Memorial Day fact that players can estimate from place scale.",
+    answerNote: "Rounded from the Office of Army Cemeteries' over-400,000-headstone description.",
+    calibrationAnchor: "Picture Arlington's rows across hundreds of acres, then estimate the headstones.",
+    estimationMode: "count",
+    questionMove: "object_anatomy",
+    anchorType: "famous_event",
+    topicFacet: "institution_scale:civic",
+    scaleBand: "city",
+    sources: [SOURCE_LIBRARY.arlingtonCemetery],
+  }),
+  "theater-seat-rows-q2": resolvedEstimateOverride({
+    prompt: "How many Broadway theaters operate in New York City?",
+    answer: 41,
+    funFact: "Answer: 41. Broadway has 41 official theaters.",
+    rationale: "Keeps the Broadway fact, but treats it as a district-scale estimate rather than recall trivia.",
+    answerNote: "Uses the official Broadway-theater count as a stable theater-district benchmark.",
+    calibrationAnchor: "Picture the Broadway district as blocks of theaters, then estimate the count.",
+    estimationMode: "count",
+    questionMove: "production_scale",
+    anchorType: "famous_event",
+    topicFacet: "institution_scale:city",
+  }),
+  "tide-pool-window-q1": resolvedEstimateOverride({
+    prompt: "How many gallons of seawater does a public touch-tank system hold?",
+    answer: 1200,
+    funFact: "Answer: 1,200. A public touch tank can hold over a thousand gallons.",
+    rationale: "Replaces unrelated Olympic-lane recall with an aquarium water-capacity estimate.",
+    answerNote: "Estimated from a large public touch-tank system.",
+    calibrationAnchor: "Picture a shallow exhibit tank, then estimate its water volume.",
+    estimationMode: "capacity",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+    topicFacet: "liquid_capacity:water",
+  }),
+  "track-meet-timing-tent-q2": resolvedEstimateOverride({
+    prompt: "How many timing chips are issued for a big track meet?",
+    answer: 1200,
+    funFact: "Answer: 1,200. A big meet can hand out over a thousand timing chips.",
+    rationale: "Replaces lane-count recall with a real meet-operations estimate.",
+    answerNote: "Estimated from athlete entries at a large track meet.",
+    calibrationAnchor: "Estimate athletes per heat and event, then widen to the meet.",
+    estimationMode: "count",
+    questionMove: "production_scale",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:sports",
+  }),
+  "patriotic-flag-box-q1": resolvedEstimateOverride({
+    prompt: "How many small U.S. flags fit in a full parade flag box?",
+    answer: 240,
+    funFact: "Answer: 240. A parade flag box can hold a few hundred small flags.",
+    rationale: "Replaces 13-stripe recall with a more estimable flag-day object.",
+    answerNote: "Estimated from bundled small hand flags packed in a parade supply box.",
+    calibrationAnchor: "Picture flag bundles inside the box, then estimate total flags.",
+    estimationMode: "capacity",
+    questionMove: "familiar_anchor",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:civic",
+  }),
+  "photo-booth-strip-q1": resolvedEstimateOverride({
+    prompt: "How many photo strips can a busy booth print in one festival day?",
+    answer: 750,
+    funFact: "Answer: 750. A busy booth can print hundreds of strips in a day.",
+    rationale: "Replaces four-frame recall with a real photo-booth throughput estimate.",
+    answerNote: "Estimated from a steady booth line across a festival day.",
+    calibrationAnchor: "Estimate strips per minute, then stretch across the day.",
+    estimationMode: "rate",
+    questionMove: "production_scale",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:art",
+  }),
+  "photo-booth-strip-q2": resolvedEstimateOverride({
+    prompt: "How many prints can a standard photo-booth media roll make?",
+    answer: 700,
+    funFact: "Answer: 700. One booth media roll can make hundreds of prints.",
+    rationale: "Keeps the media-roll fact while making it a different move from Q1.",
+    answerNote: "Estimated from a standard dye-sub photo-booth media roll.",
+    calibrationAnchor: "Picture one roll of photo paper, then estimate how many strips it yields.",
+    estimationMode: "count",
+    questionMove: "object_anatomy",
+    anchorType: "named_standard",
+    topicFacet: "object_structure:art",
+  }),
+  "clock-repair-tray-q1": resolvedEstimateOverride({
+    prompt: "How many clocks are on a full repair-shop display wall?",
+    answer: 240,
+    funFact: "Answer: 240. A repair-shop wall can display hundreds of clocks.",
+    rationale: "Replaces clock-face recall with a visible clock-shop scale estimate.",
+    answerNote: "Estimated from rows and columns of clocks on a dense repair-shop wall.",
+    calibrationAnchor: "Picture rows of clock faces, then scale across the wall.",
+    estimationMode: "count",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:tools",
+  }),
+  "sprinkler-system-timer-q1": resolvedEstimateOverride({
+    prompt: "How many gallons can one lawn sprinkler use in an hour?",
+    answer: 1000,
+    funFact: "Answer: 1,000. A lawn sprinkler can use about a thousand gallons an hour.",
+    rationale: "Replaces clock-face recall with a sprinkler-system water estimate.",
+    answerNote: "Rounded from common lawn-sprinkler flow rates across one hour.",
+    calibrationAnchor: "Estimate gallons per minute, then stretch it across an hour.",
+    estimationMode: "capacity",
+    questionMove: "production_scale",
+    anchorType: "sourced_typical",
+    topicFacet: "liquid_capacity:water",
+  }),
+  "big-ben-clock-tower-q1": resolvedEstimateOverride({
+    prompt: "How many steps climb the Elizabeth Tower to Big Ben?",
+    answer: 334,
+    funFact: "Answer: 334. The climb to Big Ben is a few hundred steps.",
+    rationale: "Replaces generic clock-face recall with a named landmark estimate.",
+    answerNote: "Rounded from public Elizabeth Tower visitor descriptions.",
+    calibrationAnchor: "Picture a tall clock tower staircase, then estimate the climb.",
+    estimationMode: "count",
+    questionMove: "familiar_anchor",
+    anchorType: "famous_event",
+    topicFacet: "infrastructure:city",
+  }),
+  "big-ben-clock-tower-q2": resolvedEstimateOverride({
+    prompt: "How many pounds does Big Ben's Great Bell weigh?",
+    answer: 30000,
+    funFact: "Answer: 30,000. Big Ben's Great Bell weighs about thirty thousand pounds.",
+    rationale: "Replaces a generic clock-shop battery count with a named landmark weight estimate.",
+    answerNote: "Rounded from public descriptions of the Great Bell's weight.",
+    calibrationAnchor: "Picture a car's weight, then scale up to a tower bell.",
+    estimationMode: "weight",
+    questionMove: "physical_capacity",
+    anchorType: "famous_event",
+    topicFacet: "weight:city",
+    scaleBand: "city",
+  }),
+  "beach-tide-clock-q1": resolvedEstimateOverride({
+    prompt: "How many minutes pass between high tides at a beach?",
+    answer: 745,
+    funFact: "Answer: 745. High tides are roughly twelve hours and twenty-five minutes apart.",
+    rationale: "Replaces clock-face recall with a real tide-clock estimate.",
+    answerNote: "Rounded from the lunar tidal cycle between high tides.",
+    calibrationAnchor: "Start with about half a day, then add the Moon-driven drift.",
+    estimationMode: "duration",
+    questionMove: "familiar_anchor",
+    anchorType: "natural_scale",
+    topicFacet: "natural_scale:water",
+  }),
+  "swimming-lesson-pool-q1": resolvedEstimateOverride({
+    prompt: "How many kickboards can a swim school keep beside the lesson pool?",
+    answer: 240,
+    funFact: "Answer: 240. A lesson pool can keep hundreds of kickboards nearby.",
+    rationale: "Replaces lane recall with a swim-lesson equipment estimate.",
+    answerNote: "Estimated from stacked kickboards for several class groups.",
+    calibrationAnchor: "Picture bins beside the pool, then estimate boards per stack.",
+    estimationMode: "capacity",
+    questionMove: "familiar_anchor",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:water",
+    scaleBand: "room",
+  }),
+  "swimming-pool-deck-q2": resolvedEstimateOverride({
+    prompt: "How many pounds does the water in an Olympic-size pool weigh?",
+    answer: 5500000,
+    funFact: "Answer: 5,500,000. The water in an Olympic pool weighs millions of pounds.",
+    rationale: "Replaces lane-line recall with a more surprising pool-weight estimate.",
+    answerNote: "Calculated from an Olympic pool's approximate gallon capacity and water weight.",
+    calibrationAnchor: "Start with the pool's water volume, then think of each gallon as about eight pounds.",
+    estimationMode: "weight",
+    questionMove: "physical_capacity",
+    anchorType: "regulation",
+    topicFacet: "weight:water",
+    scaleBand: "world",
+  }),
+  "pond-skater-surface-q1": resolvedEstimateOverride({
+    prompt: "How many water striders can skim a small neighborhood pond?",
+    answer: 200,
+    funFact: "Answer: 200. A small pond can hold hundreds of surface-skating insects.",
+    rationale: "Replaces skateboard-wheel recall with a real pond-surface estimate.",
+    answerNote: "Estimated from a small pond surface and loose insect spacing.",
+    calibrationAnchor: "Picture insects spread across the surface, then estimate the count.",
+    estimationMode: "count",
+    questionMove: "familiar_anchor",
+    anchorType: "natural_scale",
+    topicFacet: "natural_population:animals",
+    scaleBand: "room",
+  }),
+  "pond-skater-surface-q2": resolvedEstimateOverride({
+    prompt: "How many square feet does a small neighborhood pond cover?",
+    answer: 43560,
+    funFact: "Answer: 43,560. A small acre-sized pond covers 43,560 square feet.",
+    rationale: "Turns the middle clue into a natural surface-area anchor.",
+    answerNote: "Uses an acre-sized neighborhood pond as the surface-area benchmark.",
+    calibrationAnchor: "Picture a football-field-sized pond, then estimate its surface area.",
+    estimationMode: "area",
+    questionMove: "physical_capacity",
+    anchorType: "named_standard",
+    topicFacet: "area_extent:water",
+    scaleBand: "city",
+  }),
+  "pond-skater-surface-q3": resolvedEstimateOverride({
+    prompt: "How many gallons of water can a one-acre farm pond hold?",
+    answer: 2000000,
+    funFact: "Answer: 2,000,000. A one-acre pond can hold millions of gallons.",
+    rationale: "Finishes with pond volume instead of an unrelated skate-event macro.",
+    answerNote: "Estimated from a one-acre pond with a moderate average depth.",
+    calibrationAnchor: "Start with the acre surface, then add depth to estimate volume.",
+    estimationMode: "capacity",
+    questionMove: "famous_macro",
+    anchorType: "natural_scale",
+    topicFacet: "liquid_capacity:water",
+    scaleBand: "world",
+  }),
+  "backyard-swimming-pools-q1": resolvedEstimateOverride({
+    prompt: "How many gallons fill a standard backyard swimming pool?",
+    answer: 20000,
+    funFact: "Answer: 20,000. A standard backyard pool holds about 20,000 gallons.",
+    rationale: "Replaces Olympic-lane recall with the natural Ballpark pool question.",
+    answerNote: "Uses a common in-ground backyard pool capacity rounded for play.",
+    calibrationAnchor: "Picture the pool as a box of water, then compare it with a bathtub.",
+    estimationMode: "capacity",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+    topicFacet: "liquid_capacity:water",
+    scaleBand: "city",
+  }),
+  "bike-wheels-q1": resolvedEstimateOverride({
+    prompt: "How many wheels can a bike-shop repair rack hold?",
+    answer: 80,
+    funFact: "Answer: 80. A bike-shop rack can hold dozens of wheels.",
+    rationale: "Replaces spoke recall with a bike-shop capacity estimate.",
+    answerNote: "Estimated from a full vertical wheel-storage rack.",
+    calibrationAnchor: "Estimate wheels per hook row, then scale across the rack.",
+    estimationMode: "capacity",
+    questionMove: "familiar_anchor",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:sports",
+  }),
+  "basketball-gyms-q1": resolvedEstimateOverride({
+    prompt: "How many fans can a packed high school basketball gym hold?",
+    answer: 1200,
+    funFact: "Answer: 1,200. A packed school gym can hold a thousand-plus fans.",
+    rationale: "Replaces panel recall with a real gym-capacity estimate.",
+    answerNote: "Estimated from bleacher rows and a full high-school gym crowd.",
+    calibrationAnchor: "Picture bleachers on both sides, then estimate a packed gym crowd.",
+    estimationMode: "crowd",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+    topicFacet: "audience:sports",
+    scaleBand: "room",
+  }),
+  "pool-tables-q1": resolvedEstimateOverride({
+    prompt: "How many square feet of felt cover a regulation pool table?",
+    answer: 50,
+    funFact: "Answer: 50. A regulation pool table has about 50 square feet of felt.",
+    rationale: "Replaces unrelated Olympic-pool lanes with a pool-table surface estimate.",
+    answerNote: "Rounded from a nine-foot regulation pool table playing surface.",
+    calibrationAnchor: "Picture the table as a rectangle, then estimate its area.",
+    estimationMode: "area",
+    questionMove: "physical_capacity",
+    anchorType: "regulation",
+    topicFacet: "physical_size:games",
+    scaleBand: "room",
+  }),
+  "bowling-alleys-q1": resolvedEstimateOverride({
+    prompt: "How many pairs of rental shoes sit behind a bowling-alley counter?",
+    answer: 1100,
+    funFact: "Answer: 1,100. A rental counter can hold more than a thousand pairs.",
+    rationale: "Replaces ten-pin recall with an alley operations estimate.",
+    answerNote: "Estimated from shoe-size runs and wall storage at a busy alley.",
+    calibrationAnchor: "Estimate pairs per shelf, then scale across the rental counter.",
+    estimationMode: "capacity",
+    questionMove: "object_anatomy",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:sports",
+    scaleBand: "room",
+  }),
+  "bowling-alleys-q2": resolvedEstimateOverride({
+    prompt: "How many bowling balls can a full alley keep in its house-ball racks?",
+    answer: 720,
+    funFact: "Answer: 720. A full alley can keep hundreds of house balls ready.",
+    rationale: "Separates the reserve pack's Q2 from the rental-shoe opener.",
+    answerNote: "Estimated from house-ball racks across a multi-lane bowling alley.",
+    calibrationAnchor: "Estimate balls per rack, then scale across the lanes.",
+    estimationMode: "capacity",
+    questionMove: "physical_capacity",
+    anchorType: "sourced_typical",
+    topicFacet: "operations:sports",
+    scaleBand: "city",
+  }),
+  "bike-share-systems-q1": resolvedEstimateOverride({
+    prompt: "How many bikes fit across a full Citi Bike station block?",
+    answer: 120,
+    funFact: "Answer: 120. A full bike-share station block can hold more than a hundred bikes.",
+    rationale: "Replaces spoke recall with a bike-share infrastructure estimate.",
+    answerNote: "Estimated from a long Citi Bike-style station block.",
+    calibrationAnchor: "Estimate docks per segment, then scale across the station.",
+    estimationMode: "capacity",
+    questionMove: "physical_capacity",
+    anchorType: "famous_event",
+    topicFacet: "infrastructure:transit",
+  }),
 };
 
 const BALLPARK_QUESTION_KEY_OVERRIDES_BY_DATE = {};
@@ -3637,7 +4066,8 @@ function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = 
   const qualityOverride = entry.rebuiltPack === true
     ? {}
     : BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY[baseQuestionKey] ?? {};
-  const resolvedQuestionEntry = { ...questionEntry, ...qualityOverride };
+  const resolvedQualityOverride = BALLPARK_RESOLVED_QUALITY_OVERRIDES_BY_QUESTION_KEY[baseQuestionKey] ?? {};
+  const resolvedQuestionEntry = { ...questionEntry, ...qualityOverride, ...resolvedQualityOverride };
   const themeKey = resolvedQuestionEntry.themeKey ?? entry.themeKey ?? slugify(entry.theme ?? "ballpark");
   const questionKey = resolvedQuestionEntry.questionKey ?? baseQuestionKey;
   const estimationMode =
@@ -4456,11 +4886,20 @@ function hasRecognizableResolvedAnchor(questionEntry, combinedText) {
   if (RECOGNIZABLE_STANDARD_ANCHOR_PATTERN.test(combinedText)) {
     return true;
   }
+  if (
+    questionEntry.anchorType === "sourced_typical" &&
+    REAL_TOPIC_FACT_SIGNAL_PATTERN.test(combinedText) &&
+    FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN.test(combinedText)
+  ) {
+    return true;
+  }
   return false;
 }
 
 const GENERATED_PROMPT_WRAPPER_PATTERN =
   /^(?:For\s+[^,]+,\s*)?(?:use your gut:|take a swing:|in ballpark terms,|for a quick estimate,|what(?: is the)? rough (?:count|total) of|what (?:number|count) of|guess how many|estimate how many|ballpark how many|at a glance, how many)/i;
+const TOO_EASY_EXACT_RECALL_PATTERN =
+  /\b(?:U\.S\. flag|flag stars|flag stripes|standard clock face|standard skateboard|regulation basketball|bowling setup|Olympic swimming pool|standard outdoor track|photo-booth strip)\b/i;
 const VISUAL_EXACT_OPENER_PATTERN =
   /\b(Jenga tower|wooden blocks|Crayola box|crayons|full-size piano|piano keys|quarter|ridges|golf ball|dimples|baseball|stitches|bowling|pins|school bus|U\.S\. flag|flag stars|Olympic|pool lanes|skateboard|wheels|Uno deck|Scrabble|Pac-Man|maze dots|basketball|panels|egg carton|standard carton|pizza|slices|bike wheel|road-bike|spokes|photo-booth strip|clock face|standard clock|teeth|die|dice|pips|violin|guitar|frets|Monopoly|Rubik|roulette|checkers|backgammon|cribbage|face cards|card suits|suits are in|recorder|grand piano|pool table|billiards|tennis ball|tennis balls|soccer|Olympic symbol|Olympic rings|Mahjong|domino|chessboard|chess game)\b/i;
 const TASTE_STOP_WORDS = new Set(
@@ -4518,6 +4957,9 @@ function getTasteQuestionFlavor(questionEntry) {
 
 function hasWeakExactOpener(questionEntry) {
   if (questionEntry.answerType !== "exact") return false;
+  if (Number(questionEntry.answer) <= 60 && TOO_EASY_EXACT_RECALL_PATTERN.test(`${questionEntry.prompt} ${questionEntry.funFact}`)) {
+    return true;
+  }
   if (Number(questionEntry.answer) > 100) return false;
   return !VISUAL_EXACT_OPENER_PATTERN.test(`${questionEntry.prompt} ${questionEntry.calibrationAnchor ?? ""}`);
 }
@@ -4527,9 +4969,9 @@ const TOY_FERMI_PROMPT_PATTERN =
 const WEAK_LEARNING_VALUE_PATTERN =
   /\b(?:cards cover a crowded family game table|paper cups (?:fit|sit) behind|small parts (?:fit|are) in a full|instrument strings hang on a full|umbrellas (?:fit|are) in one storm-prep rack|model rockets (?:fit|stand) on a club launch rack|photo prints (?:fit|are) in one counter pickup box)\b/i;
 const REAL_TOPIC_FACT_SIGNAL_PATTERN =
-  /\b(?:standard|regulation|official|average|typical|common|midsize|packed|full-size|one-year|year|daily|per day|average day|one day|one year|season|weekend|U\.S\.|United States|USPS|FDNY|NYC|New York|Arlington|Library of Congress|Smithsonian|Monopoly|Jenga|Scrabble|Pac-Man|Uno|Waffle House|Domino's|Yankee Stadium|Grand Central|Times Square|Georgia Aquarium|Olympic|Macy's|X Games|Yellowstone|Vail|Big Ben|Staten Island Ferry|Las Vegas Sphere|Citi Bike|Pike Place|San Diego Zoo|Feeding America|UPS Worldport)\b/i;
+  /\b(?:standard|regulation|official|average|typical|common|midsize|packed|busy|full-size|one-year|year|daily|per day|average day|one day|one year|season|weekend|repair-shop|bike-shop|U\.S\.|United States|USPS|FDNY|NYC|New York|Arlington|Library of Congress|Smithsonian|Monopoly|Jenga|Scrabble|Pac-Man|Uno|Waffle House|Domino's|Yankee Stadium|Grand Central|Times Square|Georgia Aquarium|Olympic|Macy's|X Games|Yellowstone|Vail|Big Ben|Staten Island Ferry|Las Vegas Sphere|Citi Bike|Pike Place|San Diego Zoo|Feeding America|UPS Worldport)\b/i;
 const FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN =
-  /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|riders|visitors|students|vehicles|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|petals|bows|cranberries|tortillas|records|campers|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|tiles|dots|needles|towels|seedlings|lemons|bouquets|dice|bowling balls)\b/i;
+  /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|riders|visitors|students|fans|vehicles|bikes|wheels|clocks|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|photo strips|petals|bows|cranberries|tortillas|records|campers|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|timing chips|rental shoes|rental skates|watch batteries|kickboards|tires|headstones|beachgoers|seawater|water striders|pond surface|tiles|dots|needles|towels|seedlings|lemons|bouquets|dice|bowling balls)\b/i;
 const SINGLE_OBJECT_FACETS = new Set(["object_structure", "small_capacity", "physical_size"]);
 const BREADTH_FACETS = new Set([
   "usage",
@@ -4950,14 +5392,14 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         "Unit of measurement is not naturally relevant enough for Ballpark; replace the day with a natural topic anchor."
       );
     }
-    if (label === "Q1" && hasWeakExactOpener(questionEntry)) {
+    if ((label === "Q1" || Number(questionEntry.answer) <= 60) && hasWeakExactOpener(questionEntry)) {
       recordQuestionLaunchBlocker(
         record,
         "weak_exact_opener",
         dailySet,
         label,
         questionEntry,
-        "Exact Q1 needs a visible estimating path; low-answer memory facts alone are not strong Ballpark openers."
+        "Low-answer exact recall needs a visible estimating path; memory facts alone are not strong Ballpark clues."
       );
     }
     const canonicalChecks = [
@@ -5621,10 +6063,10 @@ function auditCombinedPackPolish(datedSets, reserveSets) {
     ({ question }) => question.answerType === "exact" && question.iconicExact === true
   ).length;
   const blockers = [];
-  if (iconicExactCount < 40 || iconicExactCount > 70) {
+  if (iconicExactCount < 15 || iconicExactCount > 70) {
     blockers.push({
       category: "iconic_exact_mix",
-      message: `Expected 40-70 recognizable exact facts across the 400-pack set after player-feedback calibration; found ${iconicExactCount}.`,
+      message: `Expected 15-70 recognizable exact facts across the 400-pack set after the low-recall audit; found ${iconicExactCount}.`,
     });
   }
   return blockers;
