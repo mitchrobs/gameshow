@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
   View,
   type GestureResponderEvent,
+  type ImageStyle,
   type PanResponderGestureState,
   type StyleProp,
   type ViewStyle,
@@ -163,6 +164,14 @@ const LIGHT_COLORS = {
 
 type MuseumPalette = Record<keyof typeof DARK_COLORS, string>;
 type MuseumPhase = 'reveal' | 'context' | 'quiz' | 'result';
+type ArtworkShape = 'tall' | 'portrait' | 'square' | 'landscape' | 'panorama';
+
+interface StageArtworkLayout {
+  cardWidth: number;
+  cardHeight: number;
+  cardPadding: number;
+  shape: ArtworkShape;
+}
 
 interface PassportStats {
   seen: number;
@@ -252,6 +261,72 @@ function useArtworkAspectRatio(uri: string, fallback = 1.25): number {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
+}
+
+function getSafeAspectRatio(value: number, fallback = 1.25): number {
+  if (!Number.isFinite(value) || value <= 0) return fallback;
+  return clamp(value, 0.28, 3.8);
+}
+
+function getArtworkShape(aspectRatio: number): ArtworkShape {
+  const safeAspectRatio = getSafeAspectRatio(aspectRatio);
+  if (safeAspectRatio < 0.58) return 'tall';
+  if (safeAspectRatio < 0.9) return 'portrait';
+  if (safeAspectRatio <= 1.12) return 'square';
+  if (safeAspectRatio <= 1.9) return 'landscape';
+  return 'panorama';
+}
+
+function getStageArtworkLayout(
+  aspectRatio: number,
+  viewportWidth: number,
+  viewportHeight: number
+): StageArtworkLayout {
+  const safeAspectRatio = getSafeAspectRatio(aspectRatio);
+  const shape = getArtworkShape(safeAspectRatio);
+  const frameAspectRatio = clamp(safeAspectRatio, 0.74, 1.78);
+  const horizontalMargin = viewportWidth < 520 ? 28 : 40;
+  const maxWidthByShape =
+    shape === 'tall' ? 500 : shape === 'portrait' ? 560 : shape === 'panorama' ? 900 : 760;
+  const maxWidth = Math.max(280, Math.min(viewportWidth - horizontalMargin, maxWidthByShape));
+  const maxHeight = Math.max(300, Math.min(viewportHeight * 0.48, 500));
+  let cardWidth = maxWidth;
+  let cardHeight = cardWidth / frameAspectRatio;
+
+  if (cardHeight > maxHeight) {
+    cardHeight = maxHeight;
+    cardWidth = cardHeight * frameAspectRatio;
+  }
+
+  const minWidth = shape === 'tall' ? 300 : shape === 'portrait' ? 320 : 340;
+  if (cardWidth < minWidth && viewportWidth - horizontalMargin >= minWidth) {
+    cardWidth = minWidth;
+    cardHeight = Math.min(maxHeight, cardWidth / frameAspectRatio);
+  }
+
+  return {
+    cardWidth,
+    cardHeight,
+    cardPadding: shape === 'panorama' ? 14 : shape === 'tall' ? 20 : 16,
+    shape,
+  };
+}
+
+function getContainedArtworkImageStyle(aspectRatio: number): ImageStyle {
+  const safeAspectRatio = getSafeAspectRatio(aspectRatio);
+  if (safeAspectRatio < 0.95) {
+    return {
+      height: '100%',
+      aspectRatio: safeAspectRatio,
+      maxWidth: '100%',
+    };
+  }
+
+  return {
+    width: '100%',
+    aspectRatio: safeAspectRatio,
+    maxHeight: '100%',
+  };
 }
 
 function getTouchDistance(touches: readonly { pageX: number; pageY: number }[]): number {
@@ -466,6 +541,10 @@ function getQuestionKindLabel(question: MuseumQuestion): string {
 }
 
 function splitPeriodTag(periodTag: string): [string, string, string] {
+  if (periodTag.includes(' · ')) {
+    const [movement = periodTag, place = '', date = ''] = periodTag.split(' · ');
+    return [movement, place, date];
+  }
   const [first = periodTag, second = '', date = ''] = periodTag.split(' - ');
   if (second) {
     return [second, first, date];
@@ -649,6 +728,22 @@ function ContextSection({
   );
 }
 
+function getArtworkCardShapeStyle(styles: MuseumStyles, shape: ArtworkShape): ViewStyle {
+  if (shape === 'tall') return styles.artworkShapeTall;
+  if (shape === 'portrait') return styles.artworkShapePortrait;
+  if (shape === 'square') return styles.artworkShapeSquare;
+  if (shape === 'panorama') return styles.artworkShapePanorama;
+  return styles.artworkShapeLandscape;
+}
+
+function getStageArtworkShapeStyle(styles: MuseumStyles, shape: ArtworkShape): ViewStyle {
+  if (shape === 'tall') return styles.stageArtworkCardTall;
+  if (shape === 'portrait') return styles.stageArtworkCardPortrait;
+  if (shape === 'square') return styles.stageArtworkCardSquare;
+  if (shape === 'panorama') return styles.stageArtworkCardPanorama;
+  return styles.stageArtworkCardLandscape;
+}
+
 interface ArtworkLayerProps {
   uri: string;
   opacity: number;
@@ -715,6 +810,8 @@ function MuseumArtworkCard({
   variant?: 'thumb' | 'card' | 'hero' | 'share';
   styles: MuseumStyles;
 }) {
+  const aspectRatio = useArtworkAspectRatio(uri ?? artwork.images.displayUrl, 1.25);
+  const shape = getArtworkShape(aspectRatio);
   const variantStyle =
     variant === 'thumb'
       ? styles.artworkCardThumb
@@ -725,11 +822,11 @@ function MuseumArtworkCard({
           : styles.artworkCard;
 
   return (
-    <View style={[styles.artworkCardBase, variantStyle, style]}>
+    <View style={[styles.artworkCardBase, variantStyle, getArtworkCardShapeStyle(styles, shape), style]}>
       <View style={styles.artworkCardInner}>
         <Image
           source={{ uri: uri ?? artwork.images.displayUrl }}
-          style={styles.staticArtworkImage}
+          style={[styles.staticArtworkImage, getContainedArtworkImageStyle(aspectRatio)]}
           resizeMode="contain"
         />
       </View>
@@ -937,18 +1034,11 @@ function MuseumArtworkStage({
     onImageAvailabilityChange?.(false);
   }, [displaySourceIndex, imageSources.length, onImageAvailabilityChange]);
 
-  const preferredMaxWidth = aspectRatio > 1.3 ? Math.min(width - 32, 760) : Math.min(width - 32, 560);
-  const maxHeight = height * 0.52;
-  const cardPadding = aspectRatio > 1.3 ? 14 : 18;
-  let artWidth = preferredMaxWidth - cardPadding * 2;
-  let artHeight = artWidth / aspectRatio;
-  if (artHeight + cardPadding * 2 > maxHeight) {
-    artHeight = maxHeight - cardPadding * 2;
-    artWidth = artHeight * aspectRatio;
-  }
-
-  const cardWidth = artWidth + cardPadding * 2;
-  const cardHeight = artHeight + cardPadding * 2;
+  const { cardWidth, cardHeight, cardPadding, shape } = getStageArtworkLayout(
+    aspectRatio,
+    width,
+    height
+  );
   const controlInset = Math.max(10, cardPadding - 2);
   const controlStackBottom = controlInset + 42;
   const transformStyle = {
@@ -967,6 +1057,7 @@ function MuseumArtworkStage({
       <View
         style={[
           styles.stageArtworkCard,
+          getStageArtworkShapeStyle(styles, shape),
           {
             width: cardWidth,
             height: cardHeight,
@@ -1155,17 +1246,15 @@ export default function MuseumScreen() {
     () =>
       [
         `Museum · ${dateLabel}`,
-        `${artwork.title} — ${artwork.artist} (${artwork.objectDate})`,
-        `Today's visit: ${score}/3 · Streak: ${museumStreak} day${museumStreak === 1 ? '' : 's'}`,
+        artwork.title,
+        `Today's visit: ${score}/3`,
         `${getMuseumLabel(artwork)} · ${movement}`,
       ].join('\n'),
     [
       artwork,
-      artwork.objectDate,
       artwork.title,
       dateLabel,
       movement,
-      museumStreak,
       score,
     ]
   );
@@ -1750,12 +1839,7 @@ export default function MuseumScreen() {
                   <View style={styles.sharePreviewTextWrap}>
                     <Text style={styles.sharePreviewEyebrow}>Museum · {dateLabel}</Text>
                     <Text style={styles.sharePreviewTitle}>{artwork.title}</Text>
-                    <Text style={styles.sharePreviewMeta}>
-                      {artwork.artist} ({artwork.objectDate})
-                    </Text>
-                    <Text style={styles.sharePreviewVisit}>
-                      Today's visit: {score}/3 · Streak: {museumStreak} day{museumStreak === 1 ? '' : 's'}
-                    </Text>
+                    <Text style={styles.sharePreviewVisit}>Today's visit: {score}/3</Text>
                     <Text style={styles.sharePreviewQuote}>
                       {getMuseumLabel(artwork)} · {movement}
                     </Text>
@@ -1846,6 +1930,21 @@ const createStyles = (COLORS: MuseumPalette) =>
     shadowOffset: { width: 0, height: 18 },
     elevation: 8,
   },
+  stageArtworkCardTall: {
+    borderRadius: 30,
+  },
+  stageArtworkCardPortrait: {
+    borderRadius: 28,
+  },
+  stageArtworkCardSquare: {
+    borderRadius: 26,
+  },
+  stageArtworkCardLandscape: {
+    borderRadius: 24,
+  },
+  stageArtworkCardPanorama: {
+    borderRadius: 22,
+  },
   stageArtworkInset: {
     flex: 1,
     overflow: 'hidden',
@@ -1896,6 +1995,21 @@ const createStyles = (COLORS: MuseumPalette) =>
     borderRadius: 18,
     padding: 10,
   },
+  artworkShapeTall: {
+    borderRadius: 22,
+  },
+  artworkShapePortrait: {
+    borderRadius: 20,
+  },
+  artworkShapeSquare: {
+    borderRadius: 18,
+  },
+  artworkShapeLandscape: {
+    borderRadius: 18,
+  },
+  artworkShapePanorama: {
+    borderRadius: 16,
+  },
   artworkCardInner: {
     flex: 1,
     borderRadius: 14,
@@ -1903,10 +2017,11 @@ const createStyles = (COLORS: MuseumPalette) =>
     backgroundColor: COLORS.artworkInnerBg,
     borderWidth: 1,
     borderColor: COLORS.insetBorder,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   staticArtworkImage: {
-    width: '100%',
-    height: '100%',
+    flexShrink: 0,
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
