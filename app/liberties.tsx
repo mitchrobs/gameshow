@@ -51,6 +51,7 @@ import {
   type LibertiesPoint,
   type LibertiesPlayMode,
   type LibertiesPuzzle,
+  createLibertiesBoard,
 } from '../src/data/libertiesPuzzles';
 
 type GameState = 'playing' | 'won';
