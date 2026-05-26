@@ -1549,8 +1549,8 @@ export default function LibertiesScreen() {
   const gridLineThickness = isPhoneLayout && boardSize < 360 ? 1 : 2;
   const dailyLabel = useMemo(() => formatUtcDateLabel(dateKey), [dateKey]);
   const lowestMoveCount = useMemo(
-    () => (gameState === 'won' ? getLowestLibertiesMoveCount(puzzle) : null),
-    [gameState, puzzle]
+    () => (gameState === 'won' ? getLowestLibertiesMoveCount(puzzle, moves) : null),
+    [gameState, moves, puzzle]
   );
   const shareText = useMemo(
     () =>

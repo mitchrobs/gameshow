@@ -3193,19 +3193,24 @@ export function getBestLibertiesHintMove(
   };
 }
 
-export function getLowestLibertiesMoveCount(puzzle: LibertiesPuzzle): number {
+export function getLowestLibertiesMoveCount(puzzle: LibertiesPuzzle, completedRoute?: LibertiesPoint[]): number {
+  const completedMoveCount =
+    completedRoute && routeSolvesLibertiesPuzzle(puzzle, completedRoute) ? completedRoute.length : null;
+
   if (typeof puzzle.minMoves === 'number' && (puzzle.minMoves > 0 || puzzle.solution.length === 0)) {
-    return puzzle.minMoves;
+    return completedMoveCount === null ? puzzle.minMoves : Math.min(puzzle.minMoves, completedMoveCount);
   }
 
   const cacheKey = getLibertiesPuzzleCacheKey(puzzle);
   const cached = lowestMoveCountCache.get(cacheKey);
-  if (cached !== undefined) return cached;
+  if (cached !== undefined) {
+    return completedMoveCount === null ? cached : Math.min(cached, completedMoveCount);
+  }
 
   const route = getInitialMoveOptimizedLibertiesRoute(puzzle);
   const moveCount = route?.length ?? puzzle.targetMoves;
   lowestMoveCountCache.set(cacheKey, moveCount);
-  return moveCount;
+  return completedMoveCount === null ? moveCount : Math.min(moveCount, completedMoveCount);
 }
 
 export function isLibertiesSolved(puzzle: LibertiesPuzzle, board: LibertiesBoard): boolean {

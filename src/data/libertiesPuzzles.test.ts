@@ -447,6 +447,30 @@ describe('liberties puzzle engine', () => {
     expect(getLowestLibertiesMoveCount(entry.puzzle)).toBeLessThan(entry.puzzle.targetMoves);
   });
 
+  it('does not display a generated move floor above a proven completed route', () => {
+    const puzzle = {
+      id: 'test-stale-move-floor',
+      title: 'Test Stale Move Floor',
+      difficulty: 'Easy' as const,
+      size: 4,
+      targetMoves: 2,
+      minMoves: 2,
+      targetSeconds: 45,
+      variant: 'chase' as const,
+      motif: 'Test fixture',
+      focusTags: [],
+      layout: ['.XB.', 'BWW.', '.BB.', '....'],
+      solution: [{ row: 1, col: 3 }],
+      minSolution: [{ row: 0, col: 0 }, { row: 1, col: 3 }],
+      releaseLinks: [],
+      lightGroups: [[{ row: 1, col: 1 }, { row: 1, col: 2 }]],
+    };
+    const provenRoute = [{ row: 1, col: 3 }];
+
+    expect(getLowestLibertiesMoveCount(puzzle)).toBe(2);
+    expect(getLowestLibertiesMoveCount(puzzle, provenRoute)).toBe(1);
+  });
+
   it('solves today at the displayed move floor when every move follows hints', () => {
     const entry = getDailyLibertiesEntry(new Date('2026-05-21T12:00:00.000Z'));
     let board = createLibertiesBoard(entry.puzzle);
