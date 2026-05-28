@@ -53,8 +53,35 @@ export interface MuseumArtworkSource {
 export interface MuseumArtworkReview {
   status: 'approved';
   approvedAt: string;
+  approvedBy?: string;
+  approvalType?: 'editor-agent-v1';
+  showcaseTier?: 'A-showcase';
+  showcaseApprovedBy?: string;
+  copyEditedBy?: string;
+  factCheckedBy?: string;
   factCheckSources: string[];
+  sourceEvidence?: {
+    objectUrl?: string;
+    sourceType?: string;
+    title?: string;
+    date?: string;
+    medium?: string;
+    classification?: string;
+    originTerms?: string[];
+    subjectTerms?: string[];
+    sourceTerms?: string[];
+    supports?: Record<string, boolean>;
+  };
+  copyPolishV2?: {
+    visibleFeature?: string;
+    objectLesson?: string;
+    historicalBridge?: string;
+    copyStandard?: string;
+  };
+  visualQualityNote?: string;
+  resolvedRisks?: string[];
   safetyFlags: string[];
+  editorNotes?: string[];
 }
 
 export interface MuseumEditorialRecord {
@@ -90,8 +117,19 @@ export interface MuseumEditorialRecord {
   review: {
     status: 'sourced' | 'drafted' | 'fact-checked' | 'copy-edited' | 'approved';
     approvedAt?: string | null;
+    approvedBy?: string;
+    approvalType?: 'editor-agent-v1' | '';
+    showcaseTier?: 'A-showcase' | '';
+    showcaseApprovedBy?: string;
+    copyEditedBy?: string;
+    factCheckedBy?: string;
     factCheckSources: string[];
+    sourceEvidence?: MuseumArtworkReview['sourceEvidence'];
+    copyPolishV2?: MuseumArtworkReview['copyPolishV2'];
+    visualQualityNote?: string;
+    resolvedRisks?: string[];
     safetyFlags: string[];
+    editorNotes?: string[];
     notes?: string;
   };
   qa: {

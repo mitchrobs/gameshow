@@ -58,7 +58,6 @@ const DARK_COLORS = {
   red: '#f16e86',
   redSoft: 'rgba(241,110,134,0.14)',
   white: '#ffffff',
-  wallGlow: 'rgba(255,255,255,0.03)',
   stageCard: 'rgba(17,14,13,0.94)',
   shadow: '#000000',
   insetBg: '#080707',
@@ -121,7 +120,6 @@ const LIGHT_COLORS = {
   red: '#c16371',
   redSoft: 'rgba(193,99,113,0.14)',
   white: '#ffffff',
-  wallGlow: 'rgba(255,255,255,0.55)',
   stageCard: 'rgba(255,250,243,0.96)',
   shadow: 'rgba(105, 83, 60, 0.24)',
   insetBg: '#f2e9dd',
@@ -536,8 +534,8 @@ function getRevealHintText(contextUnlocked: boolean, elapsedSeconds: number): st
 
 function getQuestionKindLabel(question: MuseumQuestion): string {
   if (question.kind === 'observation') return 'From the work';
-  if (question.kind === 'context') return 'From the notes';
-  return 'Across the period';
+  if (question.kind === 'context') return 'Material & context';
+  return 'Art history';
 }
 
 function splitPeriodTag(periodTag: string): [string, string, string] {
@@ -557,7 +555,7 @@ function splitPeriodTag(periodTag: string): [string, string, string] {
 function getPlacardFacts(artwork: MuseumArtwork): Array<{ label: string; value: string }> {
   const [movement, place, date] = splitPeriodTag(artwork.periodTag);
   return [
-    { label: 'Movement', value: movement },
+    { label: 'Tradition', value: movement },
     { label: 'Origin', value: place || artwork.geoRegion },
     { label: 'Date', value: date || artwork.objectDate },
     { label: 'Medium', value: artwork.mediumCategory },
@@ -571,8 +569,7 @@ function getHeroPlacardLine(artwork: MuseumArtwork): string {
 }
 
 function getContextLead(artwork: MuseumArtwork): string {
-  const [movement] = splitPeriodTag(artwork.periodTag);
-  return `${artwork.title} belongs to ${movement}. These notes gather how the work was made, one detail worth holding onto, and the broader thread it joins.`;
+  return `${artwork.title} rewards a slow look. Start with what you can see, then use the notes below to place those details in history.`;
 }
 
 function getAccuracy(stats: PassportStats | undefined): number | null {
@@ -628,8 +625,8 @@ function getPassportSummary(
 
   const intro =
     worksLogged <= 1
-      ? 'Your passport has begun. Each return adds another work, movement, and place to remember.'
-      : `A growing collection of ${worksLogged} works across ${periodCount} movements, ${regionCount} regions, and ${mediumCount} materials.`;
+      ? 'Your passport has begun. Each return adds another work, tradition, and place to remember.'
+      : `A growing collection of ${worksLogged} works across ${periodCount} traditions, ${regionCount} regions, and ${mediumCount} materials.`;
 
   return {
     intro,
@@ -648,9 +645,9 @@ function getPassportSummary(
       },
       {
         key: 'periods',
-        label: 'Styles',
+        label: 'Traditions',
         value: `${periodCount}`,
-        note: 'Movements visited',
+        note: 'Areas visited',
         accent: palette.pink,
       },
       {
@@ -957,6 +954,15 @@ function MuseumArtworkStage({
     setDisplayFailed(false);
   }, [displaySourceIndex]);
 
+  const activeDisplayUri = imageSources[Math.min(displaySourceIndex, imageSources.length - 1)] ?? artwork.images.displayUrl;
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    setDisplayLoaded(true);
+    setDisplayFailed(false);
+    onImageAvailabilityChange?.(true);
+  }, [activeDisplayUri, onImageAvailabilityChange]);
+
   useEffect(() => {
     Image.prefetch(artwork.images.displayUrl);
   }, [artwork.images.displayUrl]);
@@ -1010,7 +1016,6 @@ function MuseumArtworkStage({
     [markInteraction, updatePan, updateZoom]
   );
 
-  const activeDisplayUri = imageSources[Math.min(displaySourceIndex, imageSources.length - 1)] ?? artwork.images.displayUrl;
   const retryImageLoad = useCallback(() => {
     setDisplaySourceIndex(0);
     setDisplayLoaded(false);
@@ -1024,6 +1029,12 @@ function MuseumArtworkStage({
     onImageAvailabilityChange?.(true);
   }, [onImageAvailabilityChange]);
   const handleDisplayError = useCallback(() => {
+    if (Platform.OS === 'web') {
+      setDisplayLoaded(true);
+      setDisplayFailed(false);
+      onImageAvailabilityChange?.(true);
+      return;
+    }
     setDisplayLoaded(false);
     setHighResLoaded(false);
     if (displaySourceIndex < imageSources.length - 1) {
@@ -1052,8 +1063,6 @@ function MuseumArtworkStage({
 
   return (
     <View style={[styles.viewer, { height }]}>
-      <View style={styles.viewerWallGlow} />
-
       <View
         style={[
           styles.stageArtworkCard,
@@ -1161,7 +1170,7 @@ function MuseumArtworkStage({
           <Text style={styles.fallbackLabel}>Image unavailable</Text>
           <Text style={styles.fallbackTitle}>{artwork.title}</Text>
           <Text style={styles.fallbackMeta}>
-            The museum image did not load. You can retry the image or open the source record.
+            The museum image did not load. You can retry the image or open the museum page.
           </Text>
           <View style={styles.fallbackActionRow}>
             <Pressable
@@ -1697,7 +1706,7 @@ export default function MuseumScreen() {
 
               {selectedOption !== null && (
                 <View style={styles.answerReveal}>
-                  <Text style={styles.answerRevealTitle}>From today's notes</Text>
+                  <Text style={styles.answerRevealTitle}>What to remember</Text>
                   <Text style={styles.answerRevealText}>{currentQuestion.reinforcement}</Text>
                   <Pressable
                     style={({ pressed }) => [
@@ -1754,7 +1763,7 @@ export default function MuseumScreen() {
                 <StatTile value={`${museumStreak}`} label="Day streak" accent={palette.amber} styles={styles} />
                 <StatTile
                   value={`${periodSeen}`}
-                  label="In this movement"
+                  label="In this tradition"
                   accent={palette.pink}
                   styles={styles}
                 />
@@ -1795,11 +1804,11 @@ export default function MuseumScreen() {
 
                 <View style={styles.passportQuickRow}>
                   <View style={styles.passportQuickPill}>
-                    <Text style={styles.passportQuickLabel}>Most seen medium</Text>
+                    <Text style={styles.passportQuickLabel}>Material focus</Text>
                     <Text style={styles.passportQuickValue}>{passportSummary.topMediumLabel}</Text>
                   </View>
                   <View style={styles.passportQuickPill}>
-                    <Text style={styles.passportQuickLabel}>Overall recall</Text>
+                    <Text style={styles.passportQuickLabel}>Quiz recall</Text>
                     <Text style={styles.passportQuickValue}>
                       {passportSummary.metrics.find((item) => item.key === 'accuracy')?.value ?? '0%'}
                     </Text>
@@ -1906,18 +1915,6 @@ const createStyles = (COLORS: MuseumPalette) =>
     justifyContent: 'flex-start',
     position: 'relative',
     paddingTop: 80,
-  },
-  viewerWallGlow: {
-    position: 'absolute',
-    top: '16%',
-    width: '74%',
-    height: '50%',
-    borderRadius: 36,
-    backgroundColor: COLORS.wallGlow,
-    shadowColor: COLORS.white,
-    shadowOpacity: 0.08,
-    shadowRadius: 44,
-    shadowOffset: { width: 0, height: 0 },
   },
   stageArtworkCard: {
     borderRadius: 28,

@@ -17,9 +17,34 @@ from museum_pipeline_common import (
     project_curated_payload,
     read_json,
     validate_editorial_payload,
+    validate_curated_quality,
     validate_schedule_payload,
     write_json,
 )
+
+
+def copy_editor_for_day(day_index: int) -> str:
+    if day_index <= 92:
+        return "Editor B1"
+    if day_index <= 184:
+        return "Editor B2"
+    if day_index <= 276:
+        return "Editor B3"
+    return "Editor B4"
+
+
+def apply_scheduled_editor_ownership(editorial_payload: dict, entries: list[dict[str, str]]) -> None:
+    records_by_id = {record.get("id"): record for record in editorial_payload.get("records", [])}
+    for index, entry in enumerate(entries, start=1):
+        record = records_by_id.get(entry["artworkId"])
+        if not record or record.get("workflow", {}).get("status") != "approved":
+            continue
+        copy_editor = copy_editor_for_day(index)
+        record.setdefault("review", {})["copyEditedBy"] = copy_editor
+        notes = record.setdefault("review", {}).setdefault("editorNotes", [])
+        notes = [note for note in notes if not str(note).startswith("Copy editor:")]
+        notes.append(f"Copy editor: {copy_editor}; QA editor: Editor C; scheduled day {index:03d}.")
+        record["review"]["editorNotes"] = notes
 
 
 def resolve_days(start, days: int | None, through: str | None) -> tuple[int, str]:
@@ -53,6 +78,9 @@ def main() -> int:
         raise ValueError("\n".join(editorial_errors[:50]))
 
     curated_payload = project_curated_payload(editorial_payload)
+    curated_errors = validate_curated_quality(curated_payload)
+    if curated_errors:
+        raise ValueError("\n".join(curated_errors[:50]))
     approved_artworks = curated_payload.get("artworks") or []
     if len(approved_artworks) < 365:
         raise ValueError(f"Need at least 365 approved artworks before scheduling; found {len(approved_artworks)}")
@@ -60,6 +88,8 @@ def main() -> int:
     start = parse_date(args.start)
     days, through = resolve_days(start, args.days, args.through)
     entries = build_schedule_entries(approved_artworks, start, days)
+    apply_scheduled_editor_ownership(editorial_payload, entries)
+    curated_payload = project_curated_payload(editorial_payload)
     schedule_payload = {
         "version": "museum-schedule-v2",
         "generatedAt": now_iso(),
@@ -72,6 +102,7 @@ def main() -> int:
     if schedule_errors:
         raise ValueError("\n".join(schedule_errors[:50]))
 
+    write_json(args.editorial_bank, editorial_payload)
     write_json(args.curated_output, curated_payload)
     write_json(args.schedule_output, schedule_payload)
     print(

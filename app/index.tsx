@@ -12,6 +12,7 @@ import {
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { BUILD_ID } from '../src/constants/build';
 import { getDailyKilter } from '../src/data/kilter';
+import { getDailyMuseumArtwork } from '../src/data/museumArtworks';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 import { getUtcDateKey } from '../src/utils/dailyUtc';
 
@@ -111,14 +112,6 @@ const HOME_WHODUNIT_PREVIEW = {
     { emoji: '🗝️', name: 'Casey' },
   ],
 };
-const HOME_MUSEUM_PREVIEW = {
-  title: 'Wheat Field with Cypresses',
-  artist: 'Vincent van Gogh',
-  objectDate: '1889',
-  periodTag: 'Post-Impressionism - France - 1889',
-  thumbnailUrl: 'https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg',
-};
-
 type HomeGameCategory = 'all' | 'word' | 'logic' | 'trivia';
 type FilterableGameCategory = Exclude<HomeGameCategory, 'all'>;
 
@@ -233,6 +226,7 @@ export default function HomeScreen() {
   const [streak, setStreak] = useState(0);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const [activeCategory, setActiveCategory] = useState<HomeGameCategory>('all');
+  const museumArtwork = useMemo(() => getDailyMuseumArtwork(), []);
   const dateLabel = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -547,15 +541,15 @@ export default function HomeScreen() {
             <View style={styles.dailyCard}>
               <View style={styles.museumPreview}>
                 <Image
-                  source={{ uri: HOME_MUSEUM_PREVIEW.thumbnailUrl }}
+                  source={{ uri: museumArtwork.images.thumbnailUrl }}
                   style={styles.museumPreviewImage}
                 />
                 <View style={styles.museumPreviewText}>
-                  <Text style={styles.museumPreviewTitle}>{HOME_MUSEUM_PREVIEW.title}</Text>
+                  <Text style={styles.museumPreviewTitle}>{museumArtwork.title}</Text>
                   <Text style={styles.museumPreviewMeta}>
-                    {HOME_MUSEUM_PREVIEW.artist} - {HOME_MUSEUM_PREVIEW.objectDate}
+                    {museumArtwork.artist} - {museumArtwork.objectDate}
                   </Text>
-                  <Text style={styles.museumPreviewTag}>{HOME_MUSEUM_PREVIEW.periodTag}</Text>
+                  <Text style={styles.museumPreviewTag}>{museumArtwork.periodTag}</Text>
                 </View>
               </View>
               <Pressable

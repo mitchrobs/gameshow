@@ -1,0 +1,935 @@
+{
+  "version": "museum-editorial-polish-v1",
+  "agent": "Editor A",
+  "generatedAt": "2026-05-25T00:00:00.000Z",
+  "summary": {
+    "sourcePack": "museum-curated-v2",
+    "scheduleVersion": "museum-schedule-v2",
+    "artworksAudited": 365,
+    "scheduledEntriesAudited": 365,
+    "recordsFlagged": 48,
+    "notes": [
+      "Flagged exact title duplicates above the mix gate: Weight (10), Cope (7), Icon (7), Bead (4), Bound print (3), Charles and Lavinia Stratton (3), Headrest (3), and Unidentified Woman (3).",
+      "Most replacement pressure comes from repeated small-object hero slots: Akan weights, Ethiopian icons, liturgical copes, glass beads, wall facings, and study/fragment-like records.",
+      "Several records use geography, culture, or incomplete attribution strings in the maker field; those should be normalized before hero display.",
+      "One suspected region/title conflict is high confidence: Tsuba is tagged United States/North America despite a Japanese object title."
+    ]
+  },
+  "records": {
+    "smithsonian-nmafa_94-21-1": {
+      "id": "smithsonian-nmafa_94-21-1",
+      "date": "2026-04-24",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Exact title duplicate above mix gate: Icon appears 7 times.",
+        "Generic one-word title makes a weak repeated hero without a subject qualifier.",
+        "Family cluster starts within the first schedule month, creating early visual sameness."
+      ],
+      "suggestedHeroNote": "Keep only if the hero copy distinguishes this as an Ethiopian Orthodox devotional icon and avoids treating 'Icon' as a standalone artwork hook.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "icon-family",
+        "generic-title"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Ethiopian Orthodox icon",
+        "displayMaker": "Ethiopian Orthodox maker"
+      }
+    },
+    "smithsonian-nmafa_96-42-1.3": {
+      "id": "smithsonian-nmafa_96-42-1.3",
+      "date": "2026-04-26",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Akan weight family is heavily overrepresented as scheduled hero material.",
+        "Broad object date repeats across all Weight records."
+      ],
+      "suggestedHeroNote": "Use as the representative Akan weight only if the label explains the measuring-weight function and marks the rest of the family for sourcing or replacement.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object",
+        "broad-date"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Akan goldweight",
+        "displayMaker": "Akan artist"
+      }
+    },
+    "ycba-5466": {
+      "id": "ycba-5466",
+      "date": "2026-04-28",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Study family item with date unknown.",
+        "Hero title foregrounds a study rather than a finished, legible daily anchor.",
+        "World Art passport label is too broad for a Turner watercolor slot."
+      ],
+      "suggestedHeroNote": "Use as a sourced support item for Turner process, not as a primary hero unless the label is rewritten around sketching and place.",
+      "mixFlags": [
+        "study-family",
+        "weak-date",
+        "broad-passport-label"
+      ],
+      "suggestedLabelFixes": {
+        "dateDisplay": "date unknown",
+        "passportLabel": "British watercolor"
+      }
+    },
+    "smithsonian-nmafa_2004-7-2": {
+      "id": "smithsonian-nmafa_2004-7-2",
+      "date": "2026-05-02",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Exact title duplicate above mix gate: Icon appears 7 times.",
+        "Generic title needs a devotional or regional qualifier for hero use.",
+        "Date range is broad and repeats the same African Art lane as nearby icons."
+      ],
+      "suggestedHeroNote": "Keep only as an early contrasting Ethiopian icon if other Icon records are demoted or replaced.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "icon-family",
+        "generic-title",
+        "broad-date"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Ethiopian Orthodox icon",
+        "dateDisplay": "15th-16th century"
+      }
+    },
+    "smithsonian-nmafa_96-42-1.2": {
+      "id": "smithsonian-nmafa_96-42-1.2",
+      "date": "2026-05-03",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Second Weight in eight days; repeated title and date make the schedule feel generated.",
+        "Hero object is small and generic without differentiating label copy."
+      ],
+      "suggestedHeroNote": "Retain at most one additional Akan weight near launch and give it a distinct visible-form note.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object",
+        "launch-cluster"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Akan goldweight"
+      }
+    },
+    "smithsonian-nmafa_2015-7-9": {
+      "id": "smithsonian-nmafa_2015-7-9",
+      "date": "2026-05-10",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Icon appears 7 times.",
+        "Third Icon slot within 17 schedule days.",
+        "One-word title and century-only date are weak for an annual-pack hero."
+      ],
+      "suggestedHeroNote": "Demote to a sourced comparison if the pack keeps two stronger Ethiopian icon heroes.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "icon-family",
+        "generic-title",
+        "weak-date"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Ethiopian Orthodox icon",
+        "dateDisplay": "18th century"
+      }
+    },
+    "smithsonian-nmafa_96-42-1.5": {
+      "id": "smithsonian-nmafa_96-42-1.5",
+      "date": "2026-05-11",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Third Weight slot within 16 schedule days.",
+        "Same maker label and broad date as the other Weight records."
+      ],
+      "suggestedHeroNote": "Replace with a stronger African Art object that adds a new silhouette, material, or region.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object",
+        "launch-cluster"
+      ]
+    },
+    "smithsonian-nmafa_2003-7-1": {
+      "id": "smithsonian-nmafa_2003-7-1",
+      "date": "2026-05-17",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Icon appears 7 times.",
+        "Fourth Icon slot in the launch stretch.",
+        "Century-only date and generic title need editorial support."
+      ],
+      "suggestedHeroNote": "Use as a comparison item for Ethiopian devotional painting rather than a standalone hero.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "icon-family",
+        "generic-title",
+        "weak-date"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Ethiopian Orthodox icon",
+        "dateDisplay": "17th century"
+      }
+    },
+    "smithsonian-nmafa_73-19-18": {
+      "id": "smithsonian-nmafa_73-19-18",
+      "date": "2026-05-19",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Fourth Weight in less than a month.",
+        "Repeated title, maker, date, passport label, and medium category."
+      ],
+      "suggestedHeroNote": "Replace; this slot should carry a different African Art form instead of another Akan weight.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object",
+        "launch-cluster"
+      ]
+    },
+    "smithsonian-nmafa_2010-19-1": {
+      "id": "smithsonian-nmafa_2010-19-1",
+      "date": "2026-05-25",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Icon appears 7 times.",
+        "Fifth Icon in the first five weeks.",
+        "Late 18th century date is acceptable but the title still needs a subject qualifier."
+      ],
+      "suggestedHeroNote": "Demote unless the merge needs a later Ethiopian icon to replace an earlier weaker one.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "icon-family",
+        "generic-title"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Ethiopian Orthodox icon",
+        "dateDisplay": "Late 18th century"
+      }
+    },
+    "smithsonian-nmafa_73-19-13": {
+      "id": "smithsonian-nmafa_73-19-13",
+      "date": "2026-05-26",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Fifth Weight in the first five weeks.",
+        "No visible label differentiation from the other Akan weight records."
+      ],
+      "suggestedHeroNote": "Replace with a non-weight object; keep one representative Akan weight elsewhere if needed.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object",
+        "launch-cluster"
+      ]
+    },
+    "smithsonian-nmafa_2014-21-1": {
+      "id": "smithsonian-nmafa_2014-21-1",
+      "date": "2026-06-01",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Icon appears 7 times.",
+        "Object date is malformed: Late18th century is missing a space.",
+        "Generic title remains weak after multiple earlier Icon heroes."
+      ],
+      "suggestedHeroNote": "Demote; if retained, fix the date typography and give the title a devotional qualifier.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "icon-family",
+        "generic-title",
+        "date-format"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Ethiopian Orthodox icon",
+        "dateDisplay": "Late 18th century"
+      }
+    },
+    "aic-35399": {
+      "id": "aic-35399",
+      "date": "2026-06-02",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Exact title duplicate above mix gate: Cope appears 7 times, with 10 cope-family records overall.",
+        "Generic liturgical garment title needs a textile-use note for hero clarity.",
+        "Slash date format should be normalized for public label display."
+      ],
+      "suggestedHeroNote": "Keep as the first representative cope only if later cope-family repeats are replaced or demoted.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "cope-family",
+        "generic-title",
+        "date-format"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Cope",
+        "dateDisplay": "1675-1700"
+      }
+    },
+    "smithsonian-nmafa_73-19-17": {
+      "id": "smithsonian-nmafa_73-19-17",
+      "date": "2026-06-03",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Sixth Weight before mid-June.",
+        "Repeated family creates an annual-pack mix failure."
+      ],
+      "suggestedHeroNote": "Replace; this should not remain a hero after multiple earlier Akan weights.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object",
+        "launch-cluster"
+      ]
+    },
+    "smithsonian-nmafa_73-24-1": {
+      "id": "smithsonian-nmafa_73-24-1",
+      "date": "2026-06-09",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Icon appears 7 times.",
+        "Seventh Icon slot lands before mid-June.",
+        "Generic title and broad date range require more specific hero support."
+      ],
+      "suggestedHeroNote": "Demote to source/comparison material unless replacing all earlier icon slots.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "icon-family",
+        "generic-title",
+        "weak-date"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Ethiopian Orthodox icon",
+        "dateDisplay": "Mid-late 17th century"
+      }
+    },
+    "smithsonian-nmafa_96-42-1.12": {
+      "id": "smithsonian-nmafa_96-42-1.12",
+      "date": "2026-06-10",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Seventh Weight in the opening schedule window.",
+        "Same title, maker, date, medium, and collection path as prior Weight records."
+      ],
+      "suggestedHeroNote": "Replace with a more visually distinct object.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object",
+        "launch-cluster"
+      ]
+    },
+    "smithsonian-nmafa_96-42-1.10": {
+      "id": "smithsonian-nmafa_96-42-1.10",
+      "date": "2026-06-18",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Eighth Weight in under two months.",
+        "Repeated broad date and generic title make this a poor hero candidate."
+      ],
+      "suggestedHeroNote": "Replace; this should be sourced at most if a weight comparison set is needed.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object",
+        "broad-date"
+      ]
+    },
+    "aic-143676": {
+      "id": "aic-143676",
+      "date": "2026-07-12",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Cope appears 7 times.",
+        "Maker label is geography-only: Italy or Spain.",
+        "Another cope arrives six weeks after the first, before the schedule has established enough textile variety."
+      ],
+      "suggestedHeroNote": "Demote unless this becomes the single representative early cope; normalize maker display as place/culture, not artist.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "cope-family",
+        "bad-maker-label",
+        "generic-title"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Italian or Spanish maker",
+        "dateDisplay": "1500-1525"
+      }
+    },
+    "smithsonian-chndm_1926-43-4-655": {
+      "id": "smithsonian-chndm_1926-43-4-655",
+      "date": "2026-07-13",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Wall facing family appears 3 times.",
+        "Unknown maker plus generic architectural-object title needs a stronger object hook.",
+        "United States/Design label may be collection-derived rather than object-origin specific."
+      ],
+      "suggestedHeroNote": "Keep only one wall-facing tile and use the note to explain pattern, installation, and architectural use.",
+      "mixFlags": [
+        "wall-facing-family",
+        "weak-hero-object",
+        "bad-maker-label",
+        "region-review"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Unknown maker",
+        "displayTitle": "Tile wall facing"
+      }
+    },
+    "smithsonian-nmafa_96-42-1.11": {
+      "id": "smithsonian-nmafa_96-42-1.11",
+      "date": "2026-07-29",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Ninth Weight extends a saturated family into late July.",
+        "No label distinction from earlier Akan weights."
+      ],
+      "suggestedHeroNote": "Replace; the schedule already has enough Akan weight material.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object"
+      ]
+    },
+    "aic-121876": {
+      "id": "aic-121876",
+      "date": "2026-08-01",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Cope family appears 10 times.",
+        "Date label mixes object date with adaptation history and needs careful display.",
+        "Another liturgical garment hero adds to textile repetition."
+      ],
+      "suggestedHeroNote": "Use as sourced textile context unless the annual pack needs a later adaptation example.",
+      "mixFlags": [
+        "cope-family",
+        "label-complexity",
+        "weak-hero-object"
+      ],
+      "suggestedLabelFixes": {
+        "dateDisplay": "19th century, adapted from a 17th-century textile design"
+      }
+    },
+    "smithsonian-chndm_1926-43-5-553": {
+      "id": "smithsonian-chndm_1926-43-5-553",
+      "date": "2026-08-04",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate: Wall facing appears twice, with 3 wall-facing family records overall.",
+        "Generic architectural fragment-like object makes a weak repeated hero.",
+        "Unknown maker and United States/Design origin tag should be reviewed before display."
+      ],
+      "suggestedHeroNote": "Replace if the schedule keeps the earlier Tile wall facing.",
+      "mixFlags": [
+        "wall-facing-family",
+        "weak-hero-object",
+        "bad-maker-label",
+        "region-review"
+      ]
+    },
+    "aic-140391": {
+      "id": "aic-140391",
+      "date": "2026-08-09",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Maker field is geography-only: Venice.",
+        "Region is probably fine, but maker display should not imply Venice is an artist.",
+        "Century-only date should be normalized for label consistency."
+      ],
+      "suggestedHeroNote": "Keep, but rewrite attribution as place/culture and let the mirror form carry the hero.",
+      "mixFlags": [
+        "bad-maker-label",
+        "weak-date"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Venetian maker",
+        "dateDisplay": "Mid-18th century"
+      }
+    },
+    "smithsonian-chndm_1926-43-6-b-202": {
+      "id": "smithsonian-chndm_1926-43-6-b-202",
+      "date": "2026-08-11",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate: Wall facing appears twice, with 3 wall-facing family records overall.",
+        "Third wall-facing family item in one month.",
+        "Unknown maker and generic title do not justify another hero slot."
+      ],
+      "suggestedHeroNote": "Replace with a stronger design object; keep one wall-facing record as sourced comparison only.",
+      "mixFlags": [
+        "wall-facing-family",
+        "weak-hero-object",
+        "bad-maker-label",
+        "region-review"
+      ]
+    },
+    "smithsonian-chndm_1936-4-207": {
+      "id": "smithsonian-chndm_1936-4-207",
+      "date": "2026-09-02",
+      "decision": "replace",
+      "reasons": [
+        "Suspected region/title conflict: Tsuba is a Japanese sword guard term but the record is tagged United States/North America.",
+        "Unknown maker plus possibly wrong geography creates a high-risk hero label.",
+        "Passport label Design is too broad to resolve the conflict."
+      ],
+      "suggestedHeroNote": "Replace unless source review can confirm why a tsuba belongs under United States/North America.",
+      "mixFlags": [
+        "suspected-region-title-conflict",
+        "bad-maker-label",
+        "broad-passport-label"
+      ],
+      "suggestedLabelFixes": {
+        "displayTitle": "Tsuba",
+        "regionReview": "Check whether geoRegion should be Asia/Japan rather than North America/United States."
+      }
+    },
+    "aic-36999": {
+      "id": "aic-36999",
+      "date": "2026-09-13",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Cope appears 7 times.",
+        "Maker label is uncertain geography rather than a maker name.",
+        "Another generic Cope title weakens textile variety."
+      ],
+      "suggestedHeroNote": "Demote unless replacing earlier cope records with this earlier-dated example.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "cope-family",
+        "bad-maker-label",
+        "generic-title"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Probably Spanish maker",
+        "dateDisplay": "1450-1500"
+      }
+    },
+    "smithsonian-fsg_F1909.1311": {
+      "id": "smithsonian-fsg_F1909.1311",
+      "date": "2026-10-02",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Bead family appears 7 times, with exact Bead appearing 4 times.",
+        "Title emphasizes a damaged small object: Bead; chipped.",
+        "Unknown maker and object-level fragility make this weak as a daily hero."
+      ],
+      "suggestedHeroNote": "Use as sourced material-history context, not a main hero.",
+      "mixFlags": [
+        "bead-family",
+        "weak-hero-object",
+        "fragment-condition",
+        "bad-maker-label"
+      ]
+    },
+    "aic-29736": {
+      "id": "aic-29736",
+      "date": "2026-10-07",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Cope appears 7 times.",
+        "Maker label is geography-only: Italy or Spain.",
+        "Slash date range needs public-label normalization."
+      ],
+      "suggestedHeroNote": "Demote; enough cope-family textile coverage exists elsewhere.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "cope-family",
+        "bad-maker-label",
+        "date-format"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Italian or Spanish maker",
+        "dateDisplay": "1675-1725"
+      }
+    },
+    "smithsonian-fsg_F1909.1309": {
+      "id": "smithsonian-fsg_F1909.1309",
+      "date": "2026-10-17",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Bead appears 4 times.",
+        "Small generic object with unknown maker is weak hero material.",
+        "Bead family repetition starts a dense fall run."
+      ],
+      "suggestedHeroNote": "Replace with a more substantial ancient glass or Asian Art object.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "bead-family",
+        "weak-hero-object",
+        "bad-maker-label"
+      ]
+    },
+    "smithsonian-chndm_1921-6-204-30": {
+      "id": "smithsonian-chndm_1921-6-204-30",
+      "date": "2026-10-21",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Bound print appears 3 times.",
+        "Date unknown weakens a hero label.",
+        "North America/Design tag may reflect Cooper Hewitt cataloging rather than the French maker context."
+      ],
+      "suggestedHeroNote": "Demote unless a source check can supply a stronger title/date or clarify why it belongs in this regional lane.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weak-date",
+        "region-review"
+      ],
+      "suggestedLabelFixes": {
+        "dateDisplay": "date unknown",
+        "regionReview": "Review North America tag against French maker context."
+      }
+    },
+    "aic-86411": {
+      "id": "aic-86411",
+      "date": "2026-10-22",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Cope family appears 10 times.",
+        "Maker label is geography-only: France or Italy.",
+        "Title has more detail than plain Cope records but still compounds a repeated garment family."
+      ],
+      "suggestedHeroNote": "Use as sourced textile comparison unless this becomes the lone cope-family hero.",
+      "mixFlags": [
+        "cope-family",
+        "bad-maker-label",
+        "date-format"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "French or Italian maker",
+        "dateDisplay": "1725-1775"
+      }
+    },
+    "smithsonian-fsg_F1909.1291": {
+      "id": "smithsonian-fsg_F1909.1291",
+      "date": "2026-11-01",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Bead appears 4 times.",
+        "Second exact Bead slot within 15 days.",
+        "Unknown maker and repeated BCE date match other bead records."
+      ],
+      "suggestedHeroNote": "Replace; the pack should not spend another hero slot on an indistinct bead.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "bead-family",
+        "weak-hero-object",
+        "bad-maker-label"
+      ]
+    },
+    "smithsonian-nmafa_96-42-1.8": {
+      "id": "smithsonian-nmafa_96-42-1.8",
+      "date": "2026-11-11",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Weight appears 10 times.",
+        "Tenth Weight record extends a saturated duplicate family late into the year.",
+        "Same maker and broad date as other Weight records."
+      ],
+      "suggestedHeroNote": "Replace; if needed, keep as a sourced member of an Akan weight comparison set.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "weight-family",
+        "weak-hero-object",
+        "broad-date"
+      ]
+    },
+    "smithsonian-fsg_F1909.1562": {
+      "id": "smithsonian-fsg_F1909.1562",
+      "date": "2026-11-15",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Bead appears 4 times.",
+        "Third exact Bead slot in a month.",
+        "Unknown maker and century-only date are thin for hero use."
+      ],
+      "suggestedHeroNote": "Replace with a more legible ancient or medieval object.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "bead-family",
+        "weak-hero-object",
+        "bad-maker-label",
+        "weak-date"
+      ]
+    },
+    "aic-24177": {
+      "id": "aic-24177",
+      "date": "2026-11-20",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Cope appears 7 times.",
+        "Maker label is geography-only: Italy or Sicily.",
+        "Slash date range should be normalized."
+      ],
+      "suggestedHeroNote": "Demote; use only as a source comparison for regional textile variation.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "cope-family",
+        "bad-maker-label",
+        "date-format"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Italian or Sicilian maker",
+        "dateDisplay": "1601-1675"
+      }
+    },
+    "aic-181739": {
+      "id": "aic-181739",
+      "date": "2026-12-03",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Cope appears 7 times.",
+        "Maker label is geography-only: France or England.",
+        "Another generic Cope title adds little to the annual hero mix."
+      ],
+      "suggestedHeroNote": "Demote or replace unless the schedule intentionally preserves a textile series outside hero rotation.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "cope-family",
+        "bad-maker-label",
+        "generic-title",
+        "date-format"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "French or English maker",
+        "dateDisplay": "1775-1825"
+      }
+    },
+    "aic-116873": {
+      "id": "aic-116873",
+      "date": "2026-12-11",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Maker field appears truncated: German or.",
+        "Date label is broad but usable if normalized.",
+        "Hero object is strong enough, but attribution text needs repair before display."
+      ],
+      "suggestedHeroNote": "Keep after fixing the incomplete maker string.",
+      "mixFlags": [
+        "bad-maker-label",
+        "weak-date"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "German maker",
+        "dateDisplay": "late 16th century-early 17th century"
+      }
+    },
+    "aic-26487": {
+      "id": "aic-26487",
+      "date": "2027-01-01",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Cope family appears 10 times.",
+        "New-year slot should avoid another repeated liturgical garment.",
+        "Slash date format needs normalization."
+      ],
+      "suggestedHeroNote": "Demote; this is better as textile comparison material after earlier cope coverage.",
+      "mixFlags": [
+        "cope-family",
+        "weak-hero-object",
+        "date-format"
+      ],
+      "suggestedLabelFixes": {
+        "dateDisplay": "1725-1750"
+      }
+    },
+    "smithsonian-fsg_F1909.1481": {
+      "id": "smithsonian-fsg_F1909.1481",
+      "date": "2027-01-10",
+      "decision": "replace",
+      "reasons": [
+        "Exact title duplicate above mix gate: Bead appears 4 times.",
+        "Fourth exact Bead slot and seventh bead-family record.",
+        "Unknown maker and repeated BCE date duplicate earlier bead records."
+      ],
+      "suggestedHeroNote": "Replace; this is too thin and repetitive for a late-year hero.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "bead-family",
+        "weak-hero-object",
+        "bad-maker-label"
+      ]
+    },
+    "smithsonian-saam_1930.12.47": {
+      "id": "smithsonian-saam_1930.12.47",
+      "date": "2027-01-14",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Study family item with n.d. date.",
+        "Decorative-panel study is process material and weaker than finished hero objects.",
+        "Date needs label normalization."
+      ],
+      "suggestedHeroNote": "Use as a sourced process/support item rather than a primary hero.",
+      "mixFlags": [
+        "study-family",
+        "weak-date",
+        "weak-hero-object"
+      ],
+      "suggestedLabelFixes": {
+        "dateDisplay": "not dated"
+      }
+    },
+    "aic-70593": {
+      "id": "aic-70593",
+      "date": "2027-01-21",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Maker field is geography/provenance-like: Iran possibly Shiraz.",
+        "PeriodTag says Herat while maker field says Iran possibly Shiraz, creating a possible place-label conflict.",
+        "Date is dynasty-plus-century and should be displayed consistently."
+      ],
+      "suggestedHeroNote": "Keep if attribution is reframed as place/culture and the Herat/Shiraz wording is checked.",
+      "mixFlags": [
+        "bad-maker-label",
+        "suspected-region-title-conflict",
+        "label-complexity"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Iranian maker, possibly Shiraz",
+        "regionReview": "Check Herat periodTag against 'Iran possibly Shiraz' maker field."
+      }
+    },
+    "smithsonian-fsg_F1909.815": {
+      "id": "smithsonian-fsg_F1909.815",
+      "date": "2027-01-24",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Bead family appears 7 times.",
+        "Small-object title remains weak even with a shape qualifier.",
+        "Unknown maker limits hero specificity."
+      ],
+      "suggestedHeroNote": "Demote; keep only as sourced material comparison if bead coverage is needed.",
+      "mixFlags": [
+        "bead-family",
+        "weak-hero-object",
+        "bad-maker-label"
+      ]
+    },
+    "aic-62992": {
+      "id": "aic-62992",
+      "date": "2027-02-01",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Exact title duplicate above mix gate: Cope appears 7 times.",
+        "Late duplicate after many cope-family slots.",
+        "Century-only date and generic title are weak for another hero."
+      ],
+      "suggestedHeroNote": "Demote or replace; do not preserve as a hero unless all earlier cope records are removed.",
+      "mixFlags": [
+        "exact-title-duplicate>2",
+        "cope-family",
+        "generic-title",
+        "weak-date"
+      ],
+      "suggestedLabelFixes": {
+        "dateDisplay": "18th century"
+      }
+    },
+    "aic-76890": {
+      "id": "aic-76890",
+      "date": "2027-02-22",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Maker field is geography-only: India Uttar Pradesh.",
+        "Hero title is strong, but attribution should not display as an artist name.",
+        "Date is broad and should be normalized for display."
+      ],
+      "suggestedHeroNote": "Keep after attribution cleanup; the scene is visually stronger than most repeated-object flags.",
+      "mixFlags": [
+        "bad-maker-label",
+        "weak-date"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Indian maker, Uttar Pradesh",
+        "dateDisplay": "Late 18th century"
+      }
+    },
+    "aic-36504": {
+      "id": "aic-36504",
+      "date": "2027-03-16",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Maker field is place-like: Iran Tehran or Shiraz.",
+        "Hero title is acceptable, but attribution should be normalized before display.",
+        "Dynasty-plus-century date needs concise public-facing treatment."
+      ],
+      "suggestedHeroNote": "Keep after converting the maker field to a place/culture attribution.",
+      "mixFlags": [
+        "bad-maker-label",
+        "label-complexity"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Iranian maker, Tehran or Shiraz",
+        "dateDisplay": "Qajar dynasty, 19th century"
+      }
+    },
+    "aic-220751": {
+      "id": "aic-220751",
+      "date": "2027-04-06",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Maker field combines origin and findspot: India, Gujarat Found in the Toraja area of Sulawesi.",
+        "Possible region/provenance conflict should be clarified before hero display.",
+        "Slash date range needs normalization."
+      ],
+      "suggestedHeroNote": "Keep if the label separates place made from findspot and makes the textile's travel history explicit.",
+      "mixFlags": [
+        "bad-maker-label",
+        "suspected-region-title-conflict",
+        "date-format"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "Indian maker, Gujarat",
+        "dateDisplay": "15th-17th century",
+        "provenanceNote": "Found in the Toraja area of Sulawesi"
+      }
+    },
+    "smithsonian-fsg_F1909.979": {
+      "id": "smithsonian-fsg_F1909.979",
+      "date": "2027-04-09",
+      "decision": "demote-to-sourced",
+      "reasons": [
+        "Bead family appears 7 times.",
+        "Small-object title remains weak despite a bore-size qualifier.",
+        "Unknown maker and century-only date make this a thin late-pack hero."
+      ],
+      "suggestedHeroNote": "Demote to sourced comparison or replace with a more legible medieval Asian object.",
+      "mixFlags": [
+        "bead-family",
+        "weak-hero-object",
+        "bad-maker-label",
+        "weak-date"
+      ]
+    },
+    "aic-15146": {
+      "id": "aic-15146",
+      "date": "2027-04-17",
+      "decision": "keep-with-edits",
+      "reasons": [
+        "Maker field is geography-only: United States.",
+        "Slash date format should be normalized.",
+        "Object is viable, but display label needs attribution cleanup."
+      ],
+      "suggestedHeroNote": "Keep after maker normalization; textile form is more legible than the repeated cope family.",
+      "mixFlags": [
+        "bad-maker-label",
+        "date-format"
+      ],
+      "suggestedLabelFixes": {
+        "displayMaker": "American maker",
+        "dateDisplay": "1801-1825"
+      }
+    }
+  }
+}

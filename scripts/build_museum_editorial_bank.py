@@ -9,6 +9,7 @@ from pathlib import Path
 from museum_pipeline_common import (
     DEFAULT_APPROVED_QUOTAS,
     DEFAULT_SOURCED_ONLY_QUOTAS,
+    EDITORIAL_SHARDS_DIR,
     EDITORIAL_BANK_PATH,
     SCHEDULE_PATH,
     TRACKER_PATH,
@@ -21,9 +22,12 @@ from museum_pipeline_common import (
     project_curated_payload,
     read_json,
     tracker_markdown,
+    validate_curated_quality,
     validate_editorial_payload,
     write_json,
 )
+
+EXPECTED_EDITOR_AGENTS = {"Editor A", "Editor B1", "Editor B2", "Editor B3", "Editor B4"}
 
 
 def parse_quota_pairs(raw_pairs: list[str]) -> dict[str, int]:
@@ -35,6 +39,23 @@ def parse_quota_pairs(raw_pairs: list[str]) -> dict[str, int]:
             raise ValueError(f"Invalid quota override: {pair}")
         quotas[source] = int(raw_value)
     return quotas
+
+
+def load_editor_agent_roster() -> list[str]:
+    if not EDITORIAL_SHARDS_DIR.exists():
+        raise FileNotFoundError(f"Museum editorial shard directory is missing: {EDITORIAL_SHARDS_DIR}")
+
+    agents: set[str] = set()
+    for path in sorted(EDITORIAL_SHARDS_DIR.glob("*.json")):
+        payload = read_json(path)
+        agent = str(payload.get("agent") or "").strip()
+        if agent:
+            agents.add(agent)
+
+    missing = sorted(EXPECTED_EDITOR_AGENTS - agents)
+    if missing:
+        raise ValueError(f"Museum editorial shards are missing required editor-agent approvals: {missing}")
+    return sorted(agents)
 
 
 def main() -> int:
@@ -80,17 +101,18 @@ def main() -> int:
 
     candidate_targets = {
         "smithsonian": 240,
-        "met": 40,
+        "met": 95,
         "aic": 140,
         "rijks": 45,
         "ycba": 20,
-        "nga": 20,
+        "nga": 45,
     }
     candidate_targets.update(parse_quota_pairs(args.source_target))
     approved_quotas = dict(DEFAULT_APPROVED_QUOTAS)
     approved_quotas.update(parse_quota_pairs(args.approved_quota))
     sourced_only_quotas = dict(DEFAULT_SOURCED_ONLY_QUOTAS)
     sourced_only_quotas.update(parse_quota_pairs(args.sourced_only_quota))
+    editor_agents = load_editor_agent_roster()
 
     if args.reuse_candidates and args.candidates_file.exists():
         cached = read_json(args.candidates_file)
@@ -111,12 +133,16 @@ def main() -> int:
         approved_target=approved_target,
         approved_quotas=approved_quotas,
         sourced_only_quotas=sourced_only_quotas,
+        editor_agent=f"Editor Merge ({', '.join(editor_agents)})",
     )
     errors = validate_editorial_payload(editorial_payload)
     if errors:
         raise ValueError("\n".join(errors[:50]))
 
     curated_payload = project_curated_payload(editorial_payload)
+    curated_errors = validate_curated_quality(curated_payload)
+    if curated_errors:
+        raise ValueError("\n".join(curated_errors[:50]))
     entries = build_schedule_entries(curated_payload["artworks"], parse_date(args.start), approved_target)
     schedule_payload = {
         "version": "museum-schedule-v2",

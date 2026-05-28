@@ -48,7 +48,11 @@
     "build:threadline-runtime": "node --experimental-strip-types scripts/build_threadline_runtime_pack.ts",
     "test": "vitest run",
     "test:barter": "vitest run src/data/barter/*.test.ts",
-    "studio": "cd tools/moji-mash-studio && npm run dev"
+    "studio": "cd tools/moji-mash-studio && npm run dev",
+    "cache:museum-images": "python3 scripts/cache_museum_images.py",
+    "validate:museum": "python3 scripts/validate_museum_editorial_bank.py",
+    "audit:museum": "python3 scripts/audit_museum_quality.py",
+    "audit:museum:write": "python3 scripts/audit_museum_quality.py --write-report docs/museum-365-polish-report.md --write-showcase-tracker docs/museum-365-showcase-tracker.md --schedule-regenerated"
   },
   "dependencies": {
     "@expo/metro-runtime": "^6.1.2",

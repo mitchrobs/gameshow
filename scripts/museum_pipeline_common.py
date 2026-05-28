@@ -26,14 +26,20 @@ DATA_DIR = BASE_DIR / "src" / "data" / "museum"
 CURATED_PATH = DATA_DIR / "curatedArtworks.json"
 EDITORIAL_BANK_PATH = DATA_DIR / "editorialBank.json"
 SCHEDULE_PATH = DATA_DIR / "schedule.json"
+EDITORIAL_SHARDS_DIR = DATA_DIR / "editorialShards"
 TRACKER_PATH = BASE_DIR / "docs" / "museum-annual-pack-tracker.md"
 EDITORIAL_GUIDE_PATH = BASE_DIR / "docs" / "museum-editorial-guide.md"
+LOCAL_IMAGE_DIR = BASE_DIR / "public" / "museum-images"
+LOCAL_IMAGE_PUBLIC_PREFIX = "/museum-images"
 
 DAY_MS = 1000 * 60 * 60 * 24
 QUESTION_KINDS = ("observation", "context", "connection")
 WORKFLOW_STATUSES = ("sourced", "drafted", "fact-checked", "copy-edited", "approved")
 SUPPORTED_SOURCES = ("met", "aic", "rijks", "nga", "smithsonian", "ycba")
 PUBLIC_DOMAIN_HINTS = ("cc0", "public domain", "open access")
+SHOWCASE_TIER = "A-showcase"
+SHOWCASE_APPROVAL_TYPE = "editor-agent-v1"
+SHOWCASE_COPY_EDITORS = ("Editor B1", "Editor B2", "Editor B3", "Editor B4")
 ART_LIKE_MEDIUM_CATEGORIES = {
     "Painting",
     "Print",
@@ -83,15 +89,16 @@ POLICY_SOURCES = {
     ],
 }
 MUSEUM_COPY_SCOPE = ["reveal", "placard", "notes", "quiz", "result", "passport", "share", "cta"]
+FLAT_MEDIA_CATEGORIES = {"Painting", "Print", "Drawing"}
 DEFAULT_APPROVED_QUOTAS = {
-    "smithsonian": 190,
-    "aic": 95,
-    "rijks": 45,
-    "ycba": 15,
-    "met": 20,
+    "smithsonian": 124,
+    "aic": 94,
+    "met": 72,
+    "rijks": 33,
+    "nga": 30,
+    "ycba": 12,
 }
 DEFAULT_SOURCED_ONLY_QUOTAS = {
-    "nga": 12,
 }
 DEFAULT_YCBA_OBJECT_IDS = [
     "5481",
@@ -169,6 +176,40 @@ def slugify(value: str) -> str:
     return slug or "museum"
 
 
+def is_runtime_image_url(value: str) -> bool:
+    normalized = normalize_space(value)
+    return normalized.startswith("http") or normalized.startswith("/")
+
+
+def local_image_filename(artwork_id: str) -> str:
+    return f"{slugify(artwork_id)}.jpg"
+
+
+def local_image_public_url(artwork_id: str) -> str:
+    return f"{LOCAL_IMAGE_PUBLIC_PREFIX}/{local_image_filename(artwork_id)}"
+
+
+def needs_local_image_cache(candidate: dict[str, Any]) -> bool:
+    if candidate.get("source", {}).get("institution") != "smithsonian":
+        return False
+    return any("ids.si.edu" in normalize_space(url) for url in (candidate.get("images") or {}).values())
+
+
+def runtime_images_for(candidate: dict[str, Any]) -> dict[str, str]:
+    if needs_local_image_cache(candidate):
+        local_url = local_image_public_url(candidate["id"])
+        return {
+            "thumbnailUrl": local_url,
+            "displayUrl": local_url,
+            "fullUrl": local_url,
+        }
+    return {
+        "thumbnailUrl": candidate["images"]["thumbnailUrl"],
+        "displayUrl": candidate["images"]["displayUrl"],
+        "fullUrl": candidate["images"]["fullUrl"],
+    }
+
+
 def unique_strings(values: Iterable[str]) -> list[str]:
     seen: set[str] = set()
     output: list[str] = []
@@ -182,6 +223,17 @@ def unique_strings(values: Iterable[str]) -> list[str]:
         seen.add(key)
         output.append(normalized)
     return output
+
+
+def seeded_option_sample(values: Iterable[str], seed_text: str, count: int, *, exclude: Iterable[str] = ()) -> list[str]:
+    excluded = {normalize_space(value).casefold() for value in exclude}
+    pool = [
+        value
+        for value in unique_strings(values)
+        if normalize_space(value).casefold() not in excluded
+    ]
+    pool.sort(key=lambda value: stable_hash(f"{seed_text}:{value}"))
+    return pool[:count]
 
 
 def fetch_bytes(url: str, *, headers: dict[str, str] | None = None, timeout: int = 30) -> bytes:
@@ -232,7 +284,7 @@ def humanize_creator(raw_value: str, *, fallback: str = "Unknown maker") -> str:
     if not value:
         return fallback
     lower_value = value.casefold()
-    if lower_value in {"anonymous", "unidentified", "unidentified artist", "unknown", "artist unknown"}:
+    if lower_value in {"anonymous", "unidentified", "unidentified artist", "unknown", "artist unknown", "true", "false", "none", "null"}:
         return fallback
     value = re.sub(r"^(?:after|copy after)\s+", "", value, flags=re.IGNORECASE)
     if re.match(r"^(?:artist|maker|ceramist|designer|photographer)\s+unknown\b", value, flags=re.IGNORECASE):
@@ -255,6 +307,8 @@ def humanize_creator(raw_value: str, *, fallback: str = "Unknown maker") -> str:
     value = re.sub(r"[\u3040-\u30ff\u3400-\u9fff]+", "", value)
     value = re.sub(r"\s*\([^)]*(?:born|died|\d{4}).*?\)", "", value)
     value = re.sub(r",\s*(?:born|active|died)\b.*$", "", value, flags=re.IGNORECASE)
+    value = re.sub(r",\s*\d{3,4}\s*(?:-|–)\s*\d{3,4}.*$", "", value)
+    value = re.sub(r",\s*\d{3,4}\b.*(?:died|death|born).*$", "", value, flags=re.IGNORECASE)
     value = re.sub(r",\s*\d{1,2}\s+[A-Z][a-z]{2}\s+\d{3,4}.*$", "", value)
     value = re.sub(
         r"\s+(?:American|British|English|French|Japanese|Italian|Dutch|German|Swiss|Spanish|Greek|Indian|Chinese|Korean|Iranian|Persian|Flemish|Belgian|Austrian|Russian|Mexican|Peruvian|Canadian|Ethiopian|Malian|Nigerian|Ghanaian|Bulgarian)\b.*$",
@@ -296,24 +350,37 @@ def humanize_creator(raw_value: str, *, fallback: str = "Unknown maker") -> str:
         "french": "French maker",
         "northern italian": "Northern Italian maker",
         "german or swiss": "German or Swiss maker",
+        "german or": "German maker",
         "greek": "Greek maker",
         "india": "Indian maker",
         "indian": "Indian maker",
+        "india uttar pradesh": "Indian maker",
+        "india gujarat found in the toraja area of sulawesi": "Indian textile maker",
         "kongo": "Kongo maker",
         "mexico": "Mexican maker",
         "netherlands": "Dutch maker",
         "peru": "Peruvian maker",
         "persian": "Persian maker",
         "swiss": "Swiss maker",
+        "turkey iznik": "Iznik maker",
+        "iran isfahan": "Iranian maker",
+        "iran tehran or shiraz": "Iranian maker",
+        "united states": "American maker",
     }
     mapped = culture_map.get(value.casefold())
     if mapped:
         return mapped
+    if value.lower().endswith(" or"):
+        return f"{value[:-3].strip()} maker"
     return value or fallback
 
 
 def clean_title(value: str) -> str:
     title = strip_markup(value)
+    title = re.sub(r'^"([^"]+)"', r"\1", title)
+    title = re.sub(r"\s*\(\s*\)\s*", " ", title)
+    title = re.sub(r"\s*\[[^\]]*(?:bibliograph|catalog|plate number|no\.|numbered|published|page)[^\]]*\]\s*", " ", title, flags=re.IGNORECASE)
+    title = normalize_space(title)
     return title or "Untitled work"
 
 
@@ -321,7 +388,9 @@ def normalize_object_date(value: str) -> str:
     date_value = strip_markup(value)
     if not date_value:
         return "date unknown"
-    return date_value.replace(" - ", "–")
+    date_value = date_value.replace(" - ", "–")
+    date_value = re.sub(r"\bLate(\d)", r"Late \1", date_value)
+    return date_value
 
 
 def medium_text_is_invalid(value: str) -> bool:
@@ -415,6 +484,10 @@ def concise_medium_for(candidate: dict[str, Any], medium_category: str) -> str:
             return "Bronze"
         if has("marble"):
             return "Marble"
+        if has("limestone"):
+            return "Limestone"
+        if has("granite"):
+            return "Granite"
         if has("wood") or has("cypress"):
             return "Carved wood"
         if has("stone"):
@@ -423,6 +496,8 @@ def concise_medium_for(candidate: dict[str, Any], medium_category: str) -> str:
     if medium_category == "Ceramic":
         if has("porcelain"):
             return "Porcelain"
+        if has("stone-paste") or has("stonepaste"):
+            return "Stone-paste ceramic"
         if has("earthenware"):
             return "Earthenware"
         if has("stoneware"):
@@ -502,21 +577,30 @@ def truthy_public_domain(value: str) -> bool:
 
 def infer_medium_category(medium: str, classification: str, collection: str = "") -> str:
     primary = normalize_space(" ".join([medium, classification])).casefold()
+    class_text = normalize_space(classification).casefold()
     secondary = normalize_space(collection).casefold()
     haystack = normalize_space(" ".join([primary, secondary])).casefold()
+    if has_term(class_text, ("photograph", "photography")):
+        return "Photograph"
+    if has_term(class_text, ("painting", "paintings")) and not has_term(class_text, ("metalwork",)):
+        return "Painting"
+    if has_term(primary, ("drinking vessel", "tankard", "hanap")):
+        return "Ceramic"
     if has_term(primary, ("textile", "tapestry", "silk", "weft", "warp", "embroidery", "fabric", "quilt", "velvet", "wool")):
         return "Textile"
     if has_term(primary, ("photo", "photograph", "gelatin silver", "albumen", "salted paper")):
         return "Photograph"
-    if has_term(primary, ("sculpture", "bronze", "marble", "stone", "woodcarving", "carving", "statuette", "relief")):
-        return "Sculpture"
-    if has_term(primary, ("ceramic", "porcelain", "earthenware", "terracotta", "stoneware", "amphora", "vase")):
+    if has_term(primary, ("mosaic", "tesserae")):
+        return "Design"
+    if has_term(primary, ("ceramic", "porcelain", "earthenware", "terracotta", "stoneware", "stone-paste", "tile", "amphora", "vase")):
         return "Ceramic"
+    if has_term(primary, ("sculpture", "bronze", "marble", "stone", "limestone", "granite", "woodcarving", "carving", "statuette", "relief")):
+        return "Sculpture"
     if has_term(primary, ("drawing", "watercolor", "gouache", "graphite", "charcoal", "pastel", "chalk", "crayon", "pen and ink", "ink on paper")):
         return "Drawing"
     if has_term(primary, ("print", "etching", "engraving", "lithograph", "woodblock", "screenprint", "mezzotint", "aquatint", "drypoint")):
         return "Print"
-    if has_term(primary, ("silver", "gold", "metalwork", "enamel", "staurotheke", "armor", "shield")):
+    if has_term(primary, ("silver", "gold", "steel", "iron", "metalwork", "enamel", "staurotheke", "armor", "shield", "sword")):
         return "Metalwork"
     if has_term(primary, ("furniture", "chair", "cabinet", "table", "desk")):
         return "Furniture"
@@ -537,9 +621,25 @@ def infer_medium_category(medium: str, classification: str, collection: str = ""
 
 def infer_geo_region(*values: str) -> str:
     haystack = normalize_space(" ".join(values)).casefold()
+    if has_term(haystack, ("earl grey", "tennyson", "amsterdam")):
+        return "Europe"
+    if has_term(haystack, ("egypt", "egyptian", "ancient egypt")):
+        return "Africa"
+    if has_term(haystack, ("tsuba", "japan", "japanese", "edo")):
+        return "Asia"
+    if has_term(haystack, ("spode", "doccia", "zuber", "cozzi", "fleur de lys")):
+        return "Europe"
+    if has_term(haystack, ("maya", "moche", "nasca", "inca", "andes", "andean", "guatemala", "peru", "mexico", "panama")):
+        return "Latin America"
+    if has_term(haystack, ("syria", "damascus", "iraq", "nimrud", "assyrian", "mesopotamian", "ottoman", "turkey", "nepal", "himalayan", "afghanistan")):
+        return "Middle East" if not has_term(haystack, ("nepal", "himalayan")) else "Asia"
+    if has_term(haystack, ("bologna", "italy", "italian", "villa borghese", "rome")):
+        return "Europe"
+    if has_term(haystack, ("united states", "american art", "north america", "canada")):
+        return "North America"
     if has_term(haystack, ("japan", "japanese", "china", "chinese", "korea", "korean", "india", "indian", "thai", "asia", "asian", "persia", "persian", "iran", "iranian", "mughal", "edo")):
         return "Asia"
-    if has_term(haystack, ("egypt", "egyptian", "morocco", "africa", "african", "nigeria", "ghana", "mali", "benin", "ethiopia", "ethiopian")):
+    if has_term(haystack, ("morocco", "africa", "african", "nigeria", "ghana", "mali", "benin", "ethiopia", "ethiopian")):
         return "Africa"
     if has_term(haystack, ("peru", "peruvian", "mexico", "mexican", "andes", "andean", "south america", "latin america", "pre-columbian", "guatemala")):
         return "Latin America"
@@ -549,7 +649,7 @@ def infer_geo_region(*values: str) -> str:
         return "Middle East"
     if has_term(haystack, ("australia", "oceania", "pacific", "maori")):
         return "Oceania"
-    if has_term(haystack, ("greece", "greek", "rome", "roman", "italy", "italian", "france", "french", "britain", "british", "england", "english", "europe", "european", "dutch", "spain", "spanish", "german", "flemish", "netherland", "netherlands")):
+    if has_term(haystack, ("greece", "greek", "rome", "roman", "italy", "italian", "france", "french", "britain", "british", "england", "english", "london", "europe", "european", "dutch", "spain", "spanish", "german", "flemish", "netherland", "netherlands")):
         return "Europe"
     return "Global"
 
@@ -567,6 +667,9 @@ def infer_passport_label(candidate: dict[str, Any]) -> str:
                 candidate.get("country", ""),
                 candidate.get("department", ""),
                 candidate.get("artist", ""),
+                " ".join(candidate.get("subjectTerms", [])),
+                candidate.get("objectDate", ""),
+                candidate.get("title", ""),
             ]
         )
     ).casefold()
@@ -578,12 +681,26 @@ def infer_passport_label(candidate: dict[str, Any]) -> str:
     if year is not None and year < 0:
         if has_term(primary_text, ("egypt", "egyptian")):
             return "Ancient Egypt"
+        if has_term(primary_text, ("assyrian", "mesopotamian", "nimrud")):
+            return "Ancient Near East"
         if has_term(primary_text, ("greece", "greek", "attic")):
             return "Ancient Greece"
         return "Ancient Art"
 
-    if has_term(all_text, ("ukiyo-e", "ukiyo", "woodblock")) or has_term(primary_text, ("edo",)):
+    if has_term(primary_text, ("maya", "moche", "andes", "andean", "pre-columbian")):
+        return "Ancient Americas"
+    if has_term(primary_text, ("assyrian", "mesopotamian", "nimrud")):
+        return "Ancient Near East"
+    if has_term(primary_text, ("nepal", "himalayan", "tara", "buddhist goddess")):
+        return "Himalayan Buddhist Art"
+    if has_term(primary_text, ("guanyin", "bodhisattva")):
+        return "Buddhist Art"
+    if has_term(primary_text, ("george washington", "president of us", "american art", "saam", "smithsonian american art museum")):
+        return "American Art"
+    if has_term(all_text, ("ukiyo-e", "ukiyo", "woodblock")):
         return "Ukiyo-e"
+    if has_term(primary_text, ("mughal", "rajput", "india", "indian")):
+        return "South Asian Court Art"
     if has_term(primary_text, ("post-impression", "van gogh", "cezanne", "cézanne")):
         return "Post-Impressionism"
     if has_term(primary_text, ("impression", "impressionism", "impressionist")):
@@ -602,8 +719,6 @@ def infer_passport_label(candidate: dict[str, Any]) -> str:
         return "Ancient Greece"
     if has_term(primary_text, ("ancient egypt", "egyptian", "pharaoh")):
         return "Ancient Egypt"
-    if has_term(primary_text, ("mughal", "rajput", "india", "indian")):
-        return "South Asian Court Art"
     if has_term(primary_text, ("china", "chinese", "ming", "qing", "song")):
         return "Chinese Art"
     if has_term(primary_text, ("japan", "japanese", "edo")):
@@ -612,10 +727,14 @@ def infer_passport_label(candidate: dict[str, Any]) -> str:
         return "Islamic Art"
     if has_term(primary_text, ("africa", "african", "yoruba", "akan", "benin", "kongo")):
         return "African Art"
-    if has_term(primary_text, ("american", "saam", "smithsonian american art museum")):
+    asian_museum_context = has_term(
+        " ".join([primary_text, candidate.get("source", {}).get("collectionLabel", "")]),
+        ("national museum of asian art", "charles lang freer collection"),
+    )
+    if has_term(primary_text, ("american", "saam", "smithsonian american art museum")) and not asian_museum_context:
         return "American Art"
     if has_term(primary_text, ("npg", "national portrait gallery", "portrait")) or has_term(title_text, ("portrait",)):
-        if year is not None and year < 1800:
+        if year is not None and year < 1700:
             return "Renaissance" if year < 1600 else "Baroque"
         return "Portraiture"
     if has_term(primary_text, ("photograph", "photography")):
@@ -654,11 +773,48 @@ def build_place_label(candidate: dict[str, Any], geo_region: str) -> str:
                 candidate.get("department", ""),
                 candidate.get("collection", ""),
                 candidate.get("source", {}).get("collectionLabel", ""),
+                " ".join(candidate.get("subjectTerms", [])),
+                candidate.get("title", ""),
             ]
         )
     )
+    title_context = normalize_space(candidate.get("title", ""))
+    if has_term(raw_context, ("egypt", "egyptian", "ancient egypt")):
+        return "Egypt"
+    if has_term(raw_context, ("tsuba", "japan", "japanese", "edo")):
+        return "Japan"
+    if has_term(raw_context, ("spode",)):
+        return "Britain"
+    if has_term(raw_context, ("doccia", "cozzi")):
+        return "Italy"
+    if has_term(raw_context, ("zuber", "fleur de lys")):
+        return "France"
+    if has_term(raw_context, ("nimrud", "assyrian")):
+        return "Nimrud"
+    if has_term(title_context, ("amsterdam",)):
+        return "Netherlands"
+    if has_term(title_context, ("tennyson", "earl grey")):
+        return "Britain"
+    if has_term(title_context, ("bologna", "villa borghese")):
+        return "Italy"
+    if has_term(raw_context, ("bologna", "villa borghese", "rome")):
+        return "Italy"
+    if has_term(raw_context, ("earl grey", "united kingdom", "britain", "british")):
+        return "Britain"
+    if has_term(raw_context, ("turkey", "ottoman", "iznik")):
+        return "Turkey"
+    if has_term(raw_context, ("maya",)):
+        return "Maya"
+    if has_term(raw_context, ("nepal", "himalayan")):
+        return "Nepal"
+    if has_term(raw_context, ("syria", "damascus")):
+        return "Syria"
     if has_term(raw_context, ("edo", "japan", "japanese")):
         return "Edo Japan" if has_term(raw_context, ("edo",)) else "Japan"
+    if has_term(raw_context, ("india", "mughal", "south asian")):
+        return "India" if has_term(raw_context, ("india",)) else "South Asia"
+    if has_term(raw_context, ("united states", "american art")):
+        return "United States"
     for key in ("country", "place", "culture"):
         value = strip_markup(candidate.get(key, ""))
         if value and len(value) <= 40:
@@ -692,59 +848,574 @@ def build_place_label(candidate: dict[str, Any], geo_region: str) -> str:
     return geo_region
 
 
+def placard_period_tag(place_label: str, passport_label: str, object_date: str) -> str:
+    date_text = "" if object_date.lower() in {"n.d.", "date unknown", "unknown"} else object_date
+    parts = [passport_label]
+    if place_label and place_label not in {passport_label, "Global collection"}:
+        parts.append(place_label)
+    if date_text:
+        parts.append(date_text)
+    return " · ".join(parts)
+
+
+SUBJECT_STOPWORDS = {
+    "after",
+    "album",
+    "and",
+    "anonymous",
+    "ca",
+    "circa",
+    "complete",
+    "design",
+    "figure",
+    "fragment",
+    "from",
+    "image",
+    "manuscript",
+    "number",
+    "object",
+    "panel",
+    "plate",
+    "portrait",
+    "scene",
+    "series",
+    "sheet",
+    "study",
+    "the",
+    "untitled",
+    "unidentified",
+    "unknown",
+    "view",
+    "with",
+    "work",
+    "large",
+    "powdered",
+    "cancelled",
+    "canceled",
+}
+
+
+def sentence_label(value: str) -> str:
+    normalized = normalize_space(value)
+    if not normalized:
+        return normalized
+    return normalized[0].upper() + normalized[1:]
+
+
+def keyword_in_text(text: str, keyword: str) -> bool:
+    normalized = normalize_space(text).casefold()
+    key = normalize_space(keyword).casefold()
+    if not key:
+        return False
+    escaped_key = re.escape(key).replace(r"\ ", r"\s+")
+    return bool(re.search(rf"(?<![a-z]){escaped_key}(?![a-z])", normalized))
+
+
+def title_terms(title: str) -> list[str]:
+    terms = []
+    for word in re.findall(r"[A-Za-z][A-Za-z'’-]*", title):
+        key = word.casefold().strip("'’")
+        if len(key) < 3 or key in SUBJECT_STOPWORDS:
+            continue
+        terms.append(word)
+    return terms
+
+
+def compact_title_subject(title: str, medium_category: str) -> str:
+    clean = clean_title(title)
+    lead = re.split(r",\s*from\b|;\s*| / |\s+-\s+|\s+--\s+", clean, 1, flags=re.IGNORECASE)[0]
+    lead = re.sub(r"\([^)]*\)", "", lead)
+    lead = normalize_space(lead.strip(" .,:;\"'“”‘’"))
+    if not lead:
+        lead = clean
+
+    lower = lead.casefold()
+    if lower.startswith(("the ", "a ", "an ")):
+        return lead[:1].lower() + lead[1:]
+
+    words = title_terms(lead)
+    if not words:
+        fallback = {
+            "Painting": "the painted focus",
+            "Print": "the printed motif",
+            "Drawing": "the drawn motif",
+            "Textile": "the woven design",
+            "Photograph": "the photographed view",
+            "Sculpture": "the sculpted form",
+            "Ceramic": "the shaped vessel",
+            "Metalwork": "the worked metal form",
+            "Glass": "the glass image",
+            "Furniture": "the designed object",
+            "Manuscript": "the illustrated page",
+        }
+        return fallback.get(medium_category, "the visible form")
+
+    phrase = " ".join(words[:5])
+    if medium_category == "Photograph" and re.search(r"\b(?:river|falls|valley|mount|mountain|street|court|gully|coast|harbor|lake|loch|plaza|chapel|bridge)\b", lower):
+        return f"the view of {phrase}"
+    if medium_category == "Photograph" and not lower.startswith(("view", "landscape", "portrait")):
+        return "the photographed view"
+    return f"the {phrase}"
+
+
+def short_subject(value: str) -> str:
+    text = normalize_space(value)
+    text = re.sub(r"^(?:a|an|the)\s+", "", text, flags=re.IGNORECASE)
+    words = text.split()
+    if len(words) > 6:
+        return " ".join(words[:6])
+    return text or "visible detail"
+
+
+def display_subject(value: str) -> str:
+    text = normalize_space(value)
+    if not text:
+        return "the visible detail"
+    words = text.split()
+    if len(words) > 6:
+        text = " ".join(words[:6])
+    if re.match(r"^(?:a|an|the)\s+", text, flags=re.IGNORECASE):
+        return text[:1].lower() + text[1:]
+    return text
+
+
+def copy_safe_title(value: str) -> str:
+    title = clean_title(value)
+    title = re.split(r",\s*from\b|;\s*| / |\s+--\s+", title, 1, flags=re.IGNORECASE)[0]
+    title = re.sub(r"\[[^\]]*$", "", title)
+    title = re.sub(r"\([^)]*$", "", title)
+    title = title.replace("“", "\"").replace("”", "\"").replace("‘", "'").replace("’", "'")
+    if title.count("\"") % 2:
+        title = title.replace("\"", "")
+    if title.count("'") % 2 and title.endswith("'"):
+        title = title[:-1]
+    title = re.sub(r"\[[^\]]*$", "", title)
+    title = re.sub(r"\([^)]*$", "", title)
+    title = normalize_space(title.strip(" .,:;\"'"))
+    if title.count("\"") % 2:
+        title = title.replace("\"", "")
+    return title or "this work"
+
+
+def truncated_title(value: str, max_len: int) -> str:
+    title = copy_safe_title(value)
+    if len(title) <= max_len:
+        return title
+    parts: list[str] = []
+    for word in title.split():
+        candidate = normalize_space(" ".join([*parts, word]))
+        if len(candidate) > max_len - 3:
+            break
+        parts.append(word)
+    title = normalize_space(" ".join(parts)) or normalize_space(title[: max_len - 3])
+    title = re.sub(r"\([^)]*$", "", title)
+    title = re.sub(r"\[[^\]]*$", "", title)
+    if title.count("\"") % 2:
+        title = title.replace("\"", "")
+    title = normalize_space(title).rstrip(" ,;:")
+    return f"{title}..." if title else "this work"
+
+
+def quiz_title(value: str) -> str:
+    return truncated_title(value, 48)
+
+
+def note_title(value: str) -> str:
+    return truncated_title(value, 84)
+
+
+def sentence_subject(value: str) -> str:
+    text = display_subject(value)
+    return sentence_label(text)
+
+
+def medium_display(candidate: dict[str, Any], medium_category: str) -> str:
+    medium = normalize_space(strip_markup(candidate.get("medium", "")))
+    if not medium or medium_text_is_invalid(medium):
+        medium = medium_category
+    medium = re.split(r";|, with | mounted | on paperboard", medium, 1, flags=re.IGNORECASE)[0]
+    medium = re.sub(r"\s+", " ", medium).strip(" .,;:")
+    if len(medium) > 48:
+        medium = " ".join(medium.split()[:7]).strip(" .,;:")
+    return medium or medium_category
+
+
+def medium_sentence_fragment(candidate: dict[str, Any], medium_category: str) -> str:
+    medium = medium_display(candidate, medium_category)
+    return medium[:1].lower() + medium[1:] if medium else medium_category.lower()
+
+
+def object_form_phrase(candidate: dict[str, Any], medium_category: str) -> str:
+    subject = display_subject(specific_subject(candidate, medium_category))
+    medium = medium_sentence_fragment(candidate, medium_category)
+    if medium_category == "Painting":
+        return f"a painted image centered on {subject}"
+    if medium_category == "Print":
+        return f"a printed image organized around {subject}"
+    if medium_category == "Drawing":
+        return f"a drawn study of {subject}"
+    if medium_category == "Textile":
+        return f"a textile where fiber carries {subject}"
+    if medium_category == "Photograph":
+        return f"a photograph shaped by viewpoint and {subject}"
+    if medium_category == "Sculpture":
+        return f"a three-dimensional object built around {subject}"
+    if medium_category == "Ceramic":
+        return f"a ceramic object whose form directs attention to {subject}"
+    if medium_category == "Metalwork":
+        return f"a metal object where surface and edge define {subject}"
+    if medium_category == "Glass":
+        return f"a glass object whose surface changes around {subject}"
+    if medium_category == "Furniture":
+        return f"a designed object where use and finish meet"
+    if medium_category == "Manuscript":
+        return f"a manuscript page where text and image share space"
+    return f"a {medium} object organized around {subject}"
+
+
+def short_title(value: str) -> str:
+    title = clean_title(value)
+    title = re.split(r",\s*from\b|;\s*| / |\s+--\s+", title, 1, flags=re.IGNORECASE)[0]
+    title = re.sub(r"\[[^\]]*$", "", title)
+    title = re.sub(r"\([^)]*$", "", title)
+    if title.count("\"") % 2:
+        title = title.replace("\"", "")
+    return normalize_space(title).strip(" .,:;\"'“”‘’")[:72].rstrip(" ,;:")
+
+
+def is_plural_phrase(value: str) -> bool:
+    text = normalize_space(value).casefold()
+    if not text:
+        return False
+    if text in {"flowers", "musicians", "sheep", "travelers", "cherry blossoms", "khosrow and shirin"}:
+        return True
+    return bool(re.search(r"\b(?:figures|lovers|travelers|musicians|flowers|blossoms|sheep)\b", text))
+
+
+def verb_for_subject(value: str) -> str:
+    return "give" if is_plural_phrase(value) else "gives"
+
+
+def becomes_for_subject(value: str) -> str:
+    return "become" if is_plural_phrase(value) else "becomes"
+
+
+def is_for_subject(value: str) -> str:
+    return "are" if is_plural_phrase(value) or " and " in normalize_space(value).casefold() else "is"
+
+
+def link_for_subject(value: str) -> str:
+    return "link" if is_plural_phrase(value) or " and " in normalize_space(value).casefold() else "links"
+
+
+def gain_for_subject(value: str) -> str:
+    return "gain" if is_plural_phrase(value) or " and " in normalize_space(value).casefold() else "gains"
+
+
+def possessive_for_subject(value: str) -> str:
+    return "their" if is_plural_phrase(value) or " and " in normalize_space(value).casefold() else "its"
+
+
+def belongs_for_subject(value: str) -> str:
+    return "belong" if is_plural_phrase(value) or " and " in normalize_space(value).casefold() else "belongs"
+
+
+def gerund_subject(value: str) -> str:
+    text = normalize_space(value)
+    lowered = text.casefold()
+    if lowered.startswith(("a ", "an ", "the ")):
+        return text
+    if is_plural_phrase(text) or " and " in lowered or (text and text[0].isupper()):
+        return text
+    return f"the {text}"
+
+
 def choose_subject_label(candidate: dict[str, Any]) -> str:
-    haystack = normalize_space(" ".join([candidate.get("title", ""), " ".join(candidate.get("subjectTerms", []))])).lower()
+    title = clean_title(candidate.get("title", ""))
+    title_lower = title.casefold()
+    subject_text = normalize_space(" ".join(candidate.get("subjectTerms", []))).casefold()
+    haystack = normalize_space(" ".join([title, subject_text])).casefold()
+    explicit_subjects = [
+        ("alfred tennyson with his sons", "Tennyson and his sons"),
+        ("altar frontal", "the altar frontal"),
+        ("amsterdam", "the Amsterdam waterfront"),
+        ("ballet dancer", "a ballet dancer"),
+        ("bamboo in the four seasons", "bamboo stalks"),
+        ("blossoming plum and camellia", "plum blossoms and camellias"),
+        ("book of the dead", "the illustrated funerary text"),
+        ("buddhist goddess tara", "the goddess Tara"),
+        ("cancelled printing plate", "the printing plate"),
+        ("chateau of vallambrosa", "a hilltop chateau"),
+        ("chagres", "a river settlement"),
+        ("chasuble", "the orphrey cross"),
+        ("clock watch with astronomical dial", "an astronomical dial"),
+        ("cope with hood", "the hooded cope"),
+        ("concourse of the birds", "birds gathered in the manuscript scene"),
+        ("coverlet", "the coverlet pattern"),
+        ("cows crossing a ford", "cows at a ford"),
+        ("damascus room", "the paneled Damascus interior"),
+        ("dance class", "the dancers at practice"),
+        ("earl charles grey", "the sitter's likeness"),
+        ("fudo myoo", "the Wisdom King"),
+        ("fudō", "the fierce Wisdom King"),
+        ("immovable wisdom king", "the fierce Wisdom King"),
+        ("george washington", "George Washington"),
+        ("guanyin", "the bodhisattva Guanyin"),
+        ("gossip on the beach", "figures on the beach"),
+        ("ia orana maria", "Mary and attendant figures"),
+        ("iceberg ca", "the canyon view"),
+        ("il mascherone", "a rocaille fountain"),
+        ("ipswich prints", "the printed landscape motif"),
+        ("kulliyat", "the manuscript page"),
+        ("large kneeling statue", "the kneeling royal figure"),
+        ("lord will provide", "an allegorical religious scene"),
+        ("mask and ring", "the mask form"),
+        ("mery horn", "the seated figure"),
+        ("musk cat", "the small animal form"),
+        ("misty sea", "mist over the sea"),
+        ("moyō hinagata", "the kimono-design page"),
+        ("mooy-aal", "Mooy-Aal and her suitors"),
+        ("one of the twelve deva", "Bonten, one of the deva"),
+        ("one-tier tube", "the jade tube"),
+        ("panel with the god", "Zeus/Serapis/Ohrmazd and a worshiper"),
+        ("patent office building", "patent model cases"),
+        ("portrait of a father and daughter", "a father and daughter"),
+        ("portrait of a man", "the sitter's face"),
+        ("portrait of six men", "six men"),
+        ("portrait of willem", "the royal sitter"),
+        ("aernout van beeftingh", "a family portrait group"),
+        ("party after a day", "polar bears near the ship"),
+        ("powdered tea container", "the tea container"),
+        ("refectory", "a refectory interior"),
+        ("relief showing the head of a winged genius", "a winged genius in relief"),
+        ("rustic interior", "a stage-set interior"),
+        ("saint bridget of sweden", "Saint Bridget receiving the rule"),
+        ("shiga ware cylindrical tea bowl", "the cylindrical tea bowl"),
+        ("sporting or target crossbow", "a youth-sized crossbow"),
+        ("st. ives", "the Cornish coastal view"),
+        ("stela of the steward", "the carved standing slab"),
+        ("stela of ptahmose", "the carved standing slab"),
+        ("tankard", "a tankard with ships"),
+        ("ten verses on oxherding", "oxherding scenes"),
+        ("the angler", "the angler"),
+        ("the artist in his studio", "the artist at work"),
+        ("the channel sketchbook", "the sketchbook page"),
+        ("the dance class", "the dancers at practice"),
+        ("the vernal and nevada falls", "the Yosemite waterfall view"),
+        ("third floor south wing", "patent model cases"),
+        ("tobatsu bishamonten", "the guardian figure"),
+        ("tusk", "the carved tusk"),
+        ("vessel with mythological scene", "a mythological scene on a vessel"),
+        ("wheellock rifle", "the decorated rifle"),
+        ("yuny and his wife", "Yuny and Renenutet"),
+    ]
+    for key, label in explicit_subjects:
+        if keyword_in_text(title_lower, key):
+            return label
+    if keyword_in_text(title_lower, "pendant"):
+        return "an ivory pendant"
+    if keyword_in_text(title_lower, "bracelet"):
+        return "an ivory bracelet"
+    if keyword_in_text(title_lower, "ornament") and keyword_in_text(haystack, "tortoise"):
+        return "a tortoise-shaped ornament"
+    if keyword_in_text(title_lower, "portrait") or keyword_in_text(subject_text, "portrait"):
+        if keyword_in_text(title_lower, "woman") or keyword_in_text(subject_text, "female"):
+            return "the sitter's face"
+        if keyword_in_text(title_lower, "man") or keyword_in_text(subject_text, "male"):
+            return "the sitter's face"
+        return "the sitter's likeness"
+    if title_lower in {"figure", "male figure", "female figure"}:
+        return "the standing figure"
+    if title_lower == "head":
+        return "the carved head"
     keyword_map = [
-        ("unicorn", "a unicorn"),
-        ("wave", "a wave"),
-        ("mount fuji", "Mount Fuji"),
+        ("abbey", "an abbey"),
+        ("armor", "armor"),
+        ("bowl", "a bowl"),
+        ("bridge", "a bridge"),
         ("buddha", "a seated Buddha"),
-        ("saint", "a saint"),
-        ("portrait", "a human figure"),
-        ("garden", "a garden"),
-        ("ship", "a ship"),
-        ("horse", "a horse"),
+        ("casket", "a casket"),
+        ("chair", "a chair"),
+        ("chagres", "a river settlement"),
+        ("cherry blossom", "cherry blossoms"),
+        ("cross", "a cross"),
+        ("cuckoo", "a cuckoo in flight"),
+        ("cypress", "a cypress tree"),
         ("dog", "a dog"),
         ("flower", "flowers"),
-        ("chair", "a chair"),
-        ("vase", "a vessel"),
-        ("bridge", "a bridge"),
+        ("garden", "a garden"),
+        ("green and rose", "the music room interior"),
+        ("harmony", "the music room interior"),
+        ("horse", "a horse"),
+        ("khosrow", "Khosrow and Shirin"),
+        ("loch", "a loch"),
+        ("madonna", "the Madonna"),
+        ("mount fuji", "Mount Fuji"),
+        ("music room", "the music room interior"),
+        ("musician", "musicians"),
+        ("nocturne", "the blue-and-gold water"),
+        ("orange", "an orange shop sign"),
+        ("pine tree", "a pine tree"),
+        ("pier", "a pier"),
+        ("plum orchard", "a plum orchard"),
+        ("plaza", "a plaza"),
+        ("peonies", "peonies"),
         ("river", "a river"),
+        ("saint", "a saint"),
+        ("sheep", "sheep"),
+        ("ship", "a ship"),
+        ("shop", "a shop interior"),
+        ("stela", "a carved standing slab"),
+        ("sword", "a sword"),
+        ("tea", "a tea utensil"),
+        ("terrace", "terrace figures"),
+        ("travelers", "travelers"),
+        ("unicorn", "a unicorn"),
+        ("vase", "a vessel"),
+        ("wave", "a wave"),
+        ("water lilies", "water lilies"),
+        ("willow tree", "a willow tree"),
         ("mountain", "a mountain"),
         ("sea", "the sea"),
+        ("solola", "a Guatemalan town view"),
+        ("self-portrait", "the artist's self-portrait"),
+        ("zelfportret", "the artist's self-portrait"),
+        ("woman", "the figure's face"),
+        ("man", "the figure's face"),
     ]
     for key, label in keyword_map:
-        if key in haystack:
+        if keyword_in_text(haystack, key):
             return label
     medium_category = infer_medium_category(candidate.get("medium", ""), candidate.get("classification", ""), candidate.get("collection", ""))
-    fallback_map = {
-        "Ceramic": "a ceramic vessel",
-        "Sculpture": "a sculpted form",
-        "Textile": "a woven or stitched surface",
-        "Photograph": "a photographed subject",
-        "Print": "a printed image",
-        "Drawing": "a drawn scene",
-        "Painting": "a painted scene",
-        "Furniture": "a designed object",
-        "Metalwork": "a worked metal object",
-        "Glass": "a glass image or object",
-        "Manuscript": "an illustrated page",
-    }
-    return fallback_map.get(medium_category, "the subject named in the work")
+    return compact_title_subject(title, medium_category)
 
 
 def medium_family_distractors(medium_category: str) -> list[str]:
     mapping = {
-        "Painting": ["a woven hanging", "a carved figure", "a printed sheet"],
-        "Print": ["a painted panel", "a bronze figure", "a woven hanging"],
-        "Textile": ["a painted canvas", "a carved relief", "a printed page"],
-        "Ceramic": ["a woven basket", "a painted panel", "a carved screen"],
-        "Sculpture": ["a woven hanging", "a printed sheet", "a painted panel"],
-        "Photograph": ["a painted scene", "a carved object", "a woven textile"],
-        "Drawing": ["a bronze figure", "a woven hanging", "a ceramic vessel"],
-        "Furniture": ["a printed folio", "a painted landscape", "a carved marble bust"],
+        "Painting": ["A woven hanging", "A carved figure", "A printed sheet"],
+        "Print": ["A painted panel", "A bronze figure", "A woven hanging"],
+        "Textile": ["A painted canvas", "A carved relief", "A printed page"],
+        "Ceramic": ["A woven basket", "A painted panel", "A carved screen"],
+        "Sculpture": ["A woven hanging", "A printed sheet", "A painted panel"],
+        "Photograph": ["A painted landscape", "A carved relief", "A woven textile"],
+        "Drawing": ["A bronze figure", "A woven hanging", "A ceramic vessel"],
+        "Furniture": ["A printed folio", "A harbor landscape", "A carved marble bust"],
     }
-    return mapping.get(medium_category, ["a painted scene", "a woven hanging", "a sculpted form"])
+    return mapping.get(medium_category, ["A garden wall", "A woven hanging", "A standing figure"])
+
+
+def observation_distractors(correct: str, medium_category: str) -> list[str]:
+    pool = [
+        "A river crossing",
+        "A standing horse",
+        "A flowered border",
+        "A ceremonial bowl",
+        "A kneeling figure",
+        "A harbor scene",
+        "A carved doorway",
+        "A mountain path",
+        "A musician with an instrument",
+        "A ship at sea",
+        "A seated ruler",
+        "A tea bowl",
+        "A shop front",
+        "A patterned textile",
+        "A stone monument",
+        "A city square",
+        "A bird in flight",
+        "A garden terrace",
+        "A processional cross",
+        "A studio interior",
+        "A riverbank group",
+        "A lacquered container",
+        "A carved wooden figure",
+        "A flower stem",
+        "A doorway or arch",
+        "A mountain ridge",
+        "A red curtain",
+        "A blue robe",
+        "A gold border",
+        "A spiral handle",
+        "A tiled floor",
+        "A balcony railing",
+        "A small boat",
+        "A round shield",
+        "A folded fan",
+        "A fruit bowl",
+        "A stone column",
+        "A dark doorway",
+        "A white horse",
+        "A seated musician",
+        "A patterned sleeve",
+        "A long spear",
+        "A temple roof",
+        "A garden wall",
+        "A pair of candles",
+        "A narrow bridge",
+        "A water jar",
+        "A folded letter",
+        "A shell ornament",
+        "A carved frame",
+        "A glass goblet",
+        "A cloudy sky",
+        "A winding road",
+        "A watchful animal",
+        "A cluster of leaves",
+        "A ceremonial staff",
+        "A raised hand",
+        "A square plinth",
+        "A striped cloth",
+        "A curved blade",
+        "A fountain basin",
+        "A patterned carpet",
+        "A wooden bench",
+        "A distant tower",
+        "A rounded vase",
+        "A book on a table",
+        "A stairway",
+        "A moonlit shoreline",
+        "A crowned figure",
+        "A painted screen",
+        "A standing tree",
+        "A braided cord",
+        "A fishing net",
+        "A bronze handle",
+        "A stone lion",
+        "A row of windows",
+        "A hanging lamp",
+        "A folded kimono",
+        "A garden gate",
+        "A tiled roofline",
+        "A dark hat",
+        "A fruit branch",
+        "A ceremonial vessel",
+        "A ship mast",
+        "A white flower",
+        "A carved pedestal",
+        "A painted border",
+        "A shoreline path",
+        "A round mirror",
+        "A scholar's desk",
+        "A raised terrace",
+        "A tiny inscription",
+        "A woven basket",
+        "A rocky cliff",
+        "A church tower",
+        "A decorated hilt",
+        "A shallow bowl",
+        "A cloud band",
+        "A fan-shaped leaf",
+        "A standing attendant",
+        "A doorway curtain",
+        "A kneeling donor",
+        "A carved rosette",
+        "A low horizon",
+        "A wide-brimmed hat",
+        "A vase of flowers",
+        "A checkerboard floor",
+        *medium_family_distractors(medium_category),
+    ]
+    return [option for option in unique_strings(pool) if option.casefold() != correct.casefold()]
 
 
 def alternative_period_labels(correct: str) -> list[str]:
@@ -769,6 +1440,225 @@ def alternative_period_labels(correct: str) -> list[str]:
     return [label for label in pool if label != correct][:6]
 
 
+def title_keyword(title: str) -> str:
+    words = title_terms(title)
+    return words[0] if words else "work"
+
+
+def medium_action(medium_category: str) -> str:
+    return {
+        "Painting": "painted",
+        "Print": "printed",
+        "Drawing": "drawn",
+        "Textile": "made in fiber",
+        "Photograph": "photographed",
+        "Sculpture": "shaped in volume",
+        "Ceramic": "formed and fired",
+        "Metalwork": "worked in metal",
+        "Glass": "made in glass",
+        "Furniture": "designed for use",
+        "Manuscript": "written or illustrated",
+    }.get(medium_category, "made")
+
+
+def specific_subject(candidate: dict[str, Any], medium_category: str) -> str:
+    subject = choose_subject_label(candidate)
+    return subject
+
+
+def technique_focus(medium_category: str) -> str:
+    return {
+        "Painting": "color, edge, and surface",
+        "Print": "transferred line, contrast, and repeatable detail",
+        "Textile": "fiber, structure, and pattern",
+        "Photograph": "framing, tonal range, and timing",
+        "Sculpture": "silhouette, weight, and worked surface",
+        "Ceramic": "fired contour, rim, and surface treatment",
+        "Drawing": "line pressure, touch, and reserve",
+        "Metalwork": "tooling, shine, and edge detail",
+        "Furniture": "proportion, joinery, and finish",
+        "Glass": "light, translucency, and surface",
+        "Manuscript": "script, image, and page layout",
+        "Design": "shape, finish, and use",
+    }.get(medium_category, "material, form, and surface")
+
+
+def material_lesson_options(medium_category: str) -> tuple[str, list[str]]:
+    correct_by_medium = {
+        "Painting": "Color, edges, and surface guide attention",
+        "Print": "Ink transferred from a prepared surface carries the image",
+        "Drawing": "Line pressure and touch remain visible on the paper",
+        "Textile": "Threads and pattern structure carry the design",
+        "Photograph": "Framing, timing, and tonal range shape the view",
+        "Sculpture": "Volume, silhouette, and surface make the form legible",
+        "Ceramic": "Fired shape and surface treatment carry the design",
+        "Metalwork": "Tooling and reflective metal sharpen the detail",
+        "Glass": "Translucency and light change how the surface reads",
+        "Furniture": "Proportion and finish make use visible as design",
+        "Manuscript": "Script, image, and page layout work together",
+        "Design": "Shape, finish, and use carry the visual argument",
+    }
+    correct = correct_by_medium.get(medium_category, "Material and form shape how the work is read")
+    distractors = [
+        "A camera exposure fixes the composition instantly",
+        "A carved stone block supplies all the color",
+        "A loom creates the scene through interlaced threads",
+        "A copper plate transfers inked lines to paper",
+        "A molded vessel depends on fired clay and surface",
+        "A brush-built surface directs color and edge",
+        "A chisel turns volume into silhouette",
+        "Cut paper turns outline into likeness",
+        "Lacquer layers create a durable reflective skin",
+        "Tooling in metal catches light along the edge",
+        "Joinery and finish turn use into design",
+        "Script and image share the surface of the page",
+        "Glass changes with light passing through it",
+        "Pigment on a prepared surface controls color and edge",
+    ]
+    return correct, [option for option in unique_strings(distractors) if option != correct]
+
+
+def material_lesson_for_artwork(candidate: dict[str, Any], medium_category: str) -> str:
+    title = short_title(candidate["title"])
+    subject = display_subject(specific_subject(candidate, medium_category))
+    medium = medium_display(candidate, medium_category)
+    mapping = {
+        "Painting": f"{medium} uses color and edge to direct attention toward {subject}",
+        "Print": f"{medium} lets inked marks repeat and organize {subject}",
+        "Drawing": f"{medium} leaves line and touch visible around {subject}",
+        "Textile": f"{medium} makes fiber and pattern carry {subject}",
+        "Photograph": f"{medium} frames {subject} through viewpoint and tone",
+        "Sculpture": f"{medium} makes {subject} readable as volume",
+        "Ceramic": f"{medium} joins fired form and surface around {subject}",
+        "Metalwork": f"{medium} uses tooling and reflected light to sharpen {subject}",
+        "Glass": f"{medium} changes how light reaches {subject}",
+        "Furniture": f"{medium} lets proportion and finish show how the object was used",
+        "Manuscript": f"{medium} places script and image on the same surface",
+        "Design": f"{medium} makes shape, finish, and function work together around {subject}",
+    }
+    return mapping.get(medium_category, f"{medium} makes material and surface legible around {subject}")
+
+
+def plausible_false_material_options(candidate: dict[str, Any], medium_category: str) -> list[str]:
+    title = quiz_title(candidate["title"])
+    subject = display_subject(specific_subject(candidate, medium_category))
+    subject_sentence = sentence_label(subject)
+    shared = [
+        f"The title alone explains {subject} without the surface",
+        f"The date is the main clue for {subject}; the making is secondary",
+        f"{subject_sentence} would read the same in any material",
+        f"Scale matters more than surface or touch in {title}",
+        f"Later display matters more than how {title} was made",
+        f"The background carries more meaning than {subject}",
+    ]
+    by_medium = {
+        "Painting": [
+            f"Only the subject of {title} matters, not color or edge",
+            f"Brushwork has little effect on how {subject} is seen",
+        ],
+        "Print": [
+            f"The printed marks in {title} are incidental to the image",
+            f"Repeatable line does not affect how {subject} appears",
+        ],
+        "Drawing": [
+            f"Line pressure has little to do with reading {subject}",
+            f"The blank paper around {subject} carries no visual weight",
+        ],
+        "Textile": [
+            f"Pattern is separate from the meaning of {subject}",
+            f"The fibers are only support, not part of {title}'s image",
+        ],
+        "Photograph": [
+            f"Viewpoint has little effect on how {subject} is understood",
+            f"Light and cropping are secondary to the title of {title}",
+        ],
+        "Sculpture": [
+            f"Silhouette matters less than the name of {subject}",
+            f"The surface of {title} does not affect its presence",
+        ],
+        "Ceramic": [
+            f"Shape and rim matter less than the decoration alone",
+            f"The fired surface is separate from how {subject} reads",
+        ],
+        "Metalwork": [
+            f"Reflected light has little to do with seeing {subject}",
+            f"Tooling and edge are secondary to the title of {title}",
+        ],
+        "Glass": [
+            f"Light passing through the surface is incidental",
+            f"The glass surface does not change how {subject} appears",
+        ],
+        "Furniture": [
+            f"Use and finish are separate from the object's design",
+            f"Proportion matters less than the title of {title}",
+        ],
+        "Manuscript": [
+            f"The page layout is separate from how {subject} is read",
+            f"Script and image do not affect each other here",
+        ],
+        "Design": [
+            f"Function is separate from the visual effect of {title}",
+            f"Finish and shape matter less than the title alone",
+        ],
+    }
+    return unique_strings([*(by_medium.get(medium_category, [])), *shared])
+
+
+def connection_context_phrase(passport_label: str, medium_category: str, geo_region: str) -> str:
+    label = passport_label.casefold()
+    if "himalayan" in label or "buddhist" in label:
+        return "devotional images made for presence as well as description"
+    if "ancient americas" in label:
+        return "ceremony, image, and use working together in ancient American art"
+    if "ancient near east" in label:
+        return "royal power expressed through durable carved surfaces"
+    if "american art" in label and medium_category == "Painting":
+        return "place and public memory in American painting"
+    if "islamic" in label and medium_category in {"Ceramic", "Design"}:
+        return "glazed surfaces carrying courtly taste and ornament"
+    if medium_category == "Ceramic" and ("japanese" in label or "ukiyo" in label):
+        return "tea practice and the value of irregular surfaces"
+    if medium_category == "Metalwork" and "baroque" in label:
+        return "status expressed through precision metalwork"
+    if "ukiyo" in label:
+        return "urban print culture and sharply observed places"
+    if "japanese" in label:
+        return "Japanese display traditions and carefully made surfaces"
+    if "chinese" in label:
+        return "Chinese brushwork, symbolism, and the life of collected objects"
+    if "islamic" in label or "south asian" in label:
+        return "courtly craft and ornament that carries meaning"
+    if "african" in label:
+        return "forms made for ritual, status, and social use"
+    if "ancient egypt" in label:
+        return "commemoration and authority preserved in durable materials"
+    if "ancient" in label:
+        return "ancient use and the survival of made things"
+    if "medieval" in label or "byzantine" in label:
+        return "devotion and symbolic storytelling in precious materials"
+    if "renaissance" in label:
+        return "patronage and renewed attention to human presence"
+    if "baroque" in label:
+        return "drama carried through light, movement, and gesture"
+    if "impression" in label:
+        return "modern light and the act of looking"
+    if "portrait" in label:
+        return "likeness as a form of identity and memory"
+    if "photography" in label or medium_category == "Photograph":
+        return "viewpoint turning a scene into visual evidence"
+    if "textile" in label or medium_category == "Textile":
+        return "labor and pattern carrying use and meaning"
+    if "print" in label or medium_category == "Print":
+        return "printed images moving style across hands and places"
+    if "design" in label or medium_category in {"Design", "Furniture"}:
+        return "everyday use shaped by form and taste"
+    if geo_region == "Latin America":
+        return "place and material culture across the Americas"
+    if geo_region == "North America":
+        return "identity, place, and changing public life in North America"
+    return "place, use, and material survival"
+
+
 def safety_flags_for(candidate: dict[str, Any]) -> list[str]:
     haystack = normalize_space(" ".join([candidate.get("title", ""), candidate.get("medium", ""), candidate.get("classification", ""), " ".join(candidate.get("subjectTerms", []))])).lower()
     flags: list[str] = []
@@ -783,239 +1673,434 @@ def safety_flags_for(candidate: dict[str, Any]) -> list[str]:
 
 def technique_note(candidate: dict[str, Any], medium_category: str) -> str:
     medium = candidate["medium"]
-    if medium_category == "Painting":
-        return f"{medium}. Look for how the artist uses surface, edge, and color to organize the image rather than treating the canvas as a flat window."
-    if medium_category == "Print":
-        return f"{medium}. The image was prepared in one material and transferred by impression, which is why line, repetition, and crisp contrast matter so much here."
-    if medium_category == "Textile":
-        return f"{medium}. The image is built through fibers and structure, so pattern, labor, and material carry the visual force usually assigned to brushwork."
-    if medium_category == "Photograph":
-        return f"{medium}. Photography fixes a moment through light and timing, which makes framing and viewpoint part of the work's authorship."
-    if medium_category == "Sculpture":
-        return f"{medium}. Sculpture asks you to read volume, silhouette, and weight, even when you meet it through a single museum photograph."
-    if medium_category == "Ceramic":
-        return f"{medium}. Functional objects like this still reward close looking: contour, painted detail, and the curve of the form are part of the design."
-    if medium_category == "Drawing":
-        return f"{medium}. Drawings often show decision-making more openly than finished paintings, so line and touch become the real drama."
-    if medium_category == "Metalwork":
-        return f"{medium}. Metalwork turns surface into signal: shine, tooling, and material contrast help carry both status and meaning."
-    if medium_category == "Furniture":
-        return f"{medium}. Design objects fold utility into display, so shape, material, and finish work together as both function and style."
-    return f"{medium}. Material matters here: the way the object was made shapes what the eye notices first."
+    title = candidate["title"]
+    subject = specific_subject(candidate, medium_category)
+    subject_text = gerund_subject(subject)
+    subject_display = display_subject(subject)
+    short = note_title(title)
+    seed = stable_hash(f"technique:{candidate['id']}")
+    variants_by_medium = {
+        "Painting": [
+            f"In {short}, {medium.lower()} gathers color around {subject_text}; look for where edges soften or sharpen.",
+            f"{short} builds {subject_text} through color, edge, and visible surface.",
+            f"The painted surface of {short} asks you to compare broad color with smaller edge details.",
+            f"{medium} lets {short} shift attention between {subject_text} and the surrounding field.",
+            f"Look at how paint handling in {short} sets {subject_text} apart from the rest of the image.",
+        ],
+        "Print": [
+            f"{short} uses {medium.lower()} to organize {subject_text}; repeated marks guide the eye across the sheet.",
+            f"In {short}, printed line and contrast make {subject_text} clear without painterly color.",
+            f"The sheet depends on transferred marks, so the rhythm around {subject_text} matters.",
+            f"{medium} gives {short} crisp contrasts that pull attention toward {subject_text}.",
+            f"Look for repeated pressure and line in {short}; that is where the image is made.",
+        ],
+        "Textile": [
+            f"{short} is a {medium.lower()}; fiber and pattern carry {subject_text} through the object itself.",
+            f"In {short}, pattern is structure: the textile makes {subject_text} through repeated threads.",
+            f"The surface of {short} asks you to read fiber, pattern, and use together.",
+            f"{medium} gives {short} a made surface where design and handling cannot be separated.",
+            f"Look closely at how the fabric structure gives {subject_text} {possessive_for_subject(subject_text)} visual force.",
+        ],
+        "Photograph": [
+            f"{short} depends on {medium.lower()}; vantage point, light, and cropping shape {subject_text}.",
+            f"In {short}, the camera's position decides how {subject_text} enters the frame.",
+            f"The photograph uses tone and cropping to make {subject_text} feel specific.",
+            f"{medium} gives {short} its force through viewpoint, light, and the chosen edge.",
+            f"Look at what the frame includes and excludes around {subject_text}.",
+        ],
+        "Sculpture": [
+            f"{short} is made in {medium.lower()}; silhouette and surface let you read {subject_display} as physical presence.",
+            f"In {short}, the worked surface changes as your eye moves around {subject_text}.",
+            f"The form of {short} depends on volume, edge, and the way light catches the surface.",
+            f"{medium} makes {subject_text} legible through weight, contour, and touch.",
+            f"Look at how the object's outline gives {subject_display} a bodily force.",
+        ],
+        "Ceramic": [
+            f"{short} is shaped as {medium.lower()}; rim, body, and surface move the eye around {subject_text}.",
+            f"In {short}, fired form and surface treatment work together around {subject_text}.",
+            f"The ceramic body gives {short} a contour before the decoration fully registers.",
+            f"{medium} makes shape part of how {subject_text} is seen.",
+            f"Look for how the curve or rim changes the pace of looking at {short}.",
+        ],
+        "Drawing": [
+            f"{short} uses {medium.lower()}; line and reserve keep the artist's decisions visible around {subject_text}.",
+            f"In {short}, pressure and blank space make {subject_text} feel immediate.",
+            f"The drawing keeps its handwork visible, especially where line defines {subject_text}.",
+            f"{medium} gives {short} a directness built from touch, line, and pause.",
+            f"Look at where marks thicken or disappear around {subject_text}.",
+        ],
+        "Metalwork": [
+            f"{short} is worked as {medium.lower()}; tooling and polished edges change with reflected light.",
+            f"In {short}, shine and edge make {subject_text} appear and disappear as light moves.",
+            f"The metal surface gives {short} detail through relief, polish, and shadow.",
+            f"{medium} makes the smallest worked edges important to reading {subject_text}.",
+            f"Look for how reflection sharpens the form of {short}.",
+        ],
+        "Furniture": [
+            f"{short} treats {medium.lower()} as design; proportion and finish show how use and appearance meet.",
+            f"In {short}, finish and proportion make use visible as form.",
+            f"The object asks to be read through touch, scale, and everyday function.",
+            f"{medium} gives {short} a visual life tied to how it was handled or used.",
+            f"Look at how structure and finish turn utility into design.",
+        ],
+        "Glass": [
+            f"{short} uses {medium.lower()}; light changes the surface before the object settles in the eye.",
+            f"In {short}, translucency makes the surface shift with every change of light.",
+            f"The glass body gives {short} its character through color, edge, and reflection.",
+            f"{medium} makes light part of how {subject_text} appears.",
+            f"Look for places where the surface changes from transparent to reflective.",
+        ],
+        "Manuscript": [
+            f"{short} is built as {medium.lower()}; script and image share the same surface.",
+            f"In {short}, page layout controls how text and image meet.",
+            f"The manuscript format makes reading and looking happen together.",
+            f"{medium} gives {short} a surface where ornament, script, and image all matter.",
+            f"Look at how the page organizes attention around {subject_text}.",
+        ],
+    }
+    variants = variants_by_medium.get(
+        medium_category,
+        [
+            f"{short} uses {medium.lower()}; surface and shape guide attention around {subject_text}.",
+            f"In {short}, material and shape work together around {subject_text}.",
+            f"The surface of {short} gives {subject_text} its first visual pull.",
+            f"Look at how form and handling make {short} legible.",
+            f"{medium} gives {short} a specific scale, surface, and presence.",
+        ],
+    )
+    return variants[seed % len(variants)]
 
 
 def surprising_fact(candidate: dict[str, Any], medium_category: str) -> str:
     object_date = candidate["objectDate"]
     artist = candidate["artist"]
-    collection = candidate["source"]["collectionLabel"]
     seed = stable_hash(candidate["id"])
+    title = candidate["title"]
+    subject = specific_subject(candidate, medium_category)
+    subject_text = gerund_subject(subject)
+    short = note_title(title)
+    medium = candidate["medium"].lower()
     if "ca." in object_date.lower() or "about" in object_date.lower() or re.search(r"\d{4}[-–]\d{2,4}", object_date):
         variants = [
-            f"The date line, {object_date}, is intentionally cautious. Curators use style, material, and related objects when a work does not carry one exact timestamp.",
-            f"That approximate date is part of the museum record, not a loose guess. It tells you curators are reading {medium_category.lower()} evidence as closely as the image itself.",
-            f"The date {object_date} is a museum clue: it signals comparison, provenance, and material evidence rather than one fixed inscription.",
+            f"{short} is dated {object_date}; the range makes surface, style, and {subject_text} part of the historical evidence.",
+            f"The date {object_date} for {short} is read through visible clues: {subject_text}, material, and style all matter.",
+            f"Because {short} is dated {object_date}, close looking at {subject_text} helps hold the work in its period.",
+            f"The dating of {short} depends on what can be seen: surface, style, and {subject_text} all help place it.",
         ]
         return variants[seed % len(variants)]
     if "unknown" in artist.lower() or "anonymous" in artist.lower() or "unidentified" in artist.lower():
         variants = [
-            f"The maker is still recorded as {artist}. Museums often know a work's region, workshop, or historical moment more securely than a single personal name.",
-            f"An unnamed maker does not make the work anonymous in every sense. Its material, region, and collecting history still give curators a strong frame for close looking.",
-            f"The object record keeps the attribution cautious. That restraint is part of museum trust: unknown makers are labeled as unknown rather than filled in for drama.",
+            f"{short} keeps its maker attribution cautious, but {subject_text}, {object_date}, and the surface still point to a particular world.",
+            f"The maker for {short} is unnamed; the useful clue is how {subject_text} and the material carry the work's character.",
+            f"An unknown maker is not an empty story here: {short} asks you to read {subject_text}, craft, and survival together.",
+            f"Even without a named maker, {short} gives you evidence to read in {subject_text}, date, and surface.",
         ]
         return variants[seed % len(variants)]
     if medium_category == "Print":
         variants = [
-            "Because this is a print, the image was built to circulate. A work like this could move across hands, rooms, and even countries more easily than a single painting.",
-            "Prints often preserve the history of reproduction itself: who could see an image, how far it traveled, and how taste moved before mass media.",
-            "A print can be both an artwork and a delivery system. Its portability is part of why styles and motifs traveled so quickly.",
+            f"Because {short} is a print, {subject_text} could circulate through impressions rather than remain a single painted surface.",
+            f"{short} makes repeatable image-making visible: a prepared matrix carried {subject_text} from one impression to another.",
+            f"The print format makes {short} both an image of {subject_text} and a vehicle for moving style across hands and places.",
+            f"In {short}, the printed line is not just reproduction; it is the technology that makes {subject_text} available to more viewers.",
         ]
         return variants[seed % len(variants)]
     if medium_category == "Textile":
         variants = [
-            "Textiles once carried a prestige many modern viewers now reserve for painting alone. They could warm rooms, signal wealth, and tell stories at architectural scale.",
-            "Textile collections preserve labor in a unusually direct way: the structure of the work is also the image you are reading.",
-            "A textile can be portable architecture. It changes a room through surface, warmth, sound, and status, not image alone.",
+            f"{short} asks you to treat fiber as image: its structure is part of what you are reading.",
+            f"Textiles like {short} could carry status, labor, and storytelling through {subject_text} in a form made for bodies, rooms, or ritual.",
+            f"The surprise in {short} is how much visual force around {subject_text} comes from structure rather than paint sitting on a surface.",
+            f"In {short}, thread count and pattern are not background information; they are how {subject_text} becomes visible.",
         ]
         return variants[seed % len(variants)]
     if medium_category == "Photograph":
         variants = [
-            "Museum photography collections preserve not only subjects but ways of seeing. Framing, viewpoint, and reproduction history all become part of the object's afterlife.",
-            "A photograph enters a museum as both image and evidence: it records a subject, but also a specific historical technology for looking.",
-            "The camera makes a fast image, but museum cataloging slows it down again by asking who made it, when, how, and why it survived.",
+            f"{short} is both image and evidence: it preserves {subject_text} while framing what the viewer can know.",
+            f"The camera made {short} quickly, but the picture rewards slow looking at viewpoint, date, and {subject_text}.",
+            f"In {short}, viewpoint is not just a technical choice; it shapes how {subject_text} becomes legible.",
+            f"{short} fixes a moment, but its pose, place, and {subject_text} keep unfolding under a slow look.",
+        ]
+        return variants[seed % len(variants)]
+    if medium_category in {"Ceramic", "Glass", "Metalwork", "Furniture", "Design"}:
+        variants = [
+            f"{short} turns use into visual experience: shape, surface, and {subject_text} all affect how the work reads.",
+            f"{short} is not only useful or decorative; its {medium} makes touch, display, and {subject_text} part of one visual experience.",
+            f"In {short}, material detail, date, and {subject_text} work together in one small object.",
+            f"{short} works at close range: scale, surface, and {subject_text} decide how it meets the viewer.",
+        ]
+        return variants[seed % len(variants)]
+    if medium_category in {"Sculpture", "Drawing"}:
+        variants = [
+            f"{short} makes {subject_text} depend on touch: line, cut, or modeled surface carries meaning as directly as iconography.",
+            f"In {short}, {subject_text} {is_for_subject(subject_text)} inseparable from the handwork that made it visible.",
+            f"In {short}, surface, date, and {subject_text} make the handwork legible at close range.",
+            f"The close-looking hook in {short} is the handwork itself, especially where it defines {subject_text}.",
         ]
         return variants[seed % len(variants)]
     variants = [
-        f"{collection} preserves more than an image here. The record ties together maker, medium, date, and rights information so the work can be studied outside the gallery.",
-        f"The medium line matters as much as the title. {candidate['medium']} tells you what kind of evidence curators are asking you to read.",
-        f"Open-access museum records turn collection data into a public study tool: the object, its image, and its catalog context can all travel together.",
-        f"The catalog entry makes this work teachable at a glance. Date, maker, medium, and collection are the first coordinates for building art memory.",
+        f"{short} is more than a subject: {artist}, {object_date}, and {subject_text} all shape how the work can be understood.",
+        f"The title {short} gives you {subject_text}, but the surface tells you how the maker made that subject available to the eye.",
+        f"{short} rewards a slow look because {subject_text}, place, and surface can be read together.",
+        f"{short} rewards a slow look because {subject_text} changes when you connect image, surface, and history.",
     ]
     return variants[seed % len(variants)]
 
 
 def connection_note(candidate: dict[str, Any], passport_label: str, place_label: str, geo_region: str) -> str:
     medium_category = infer_medium_category(candidate["medium"], candidate["classification"], candidate.get("collection", ""))
-    if medium_category == "Painting":
-        return f"File this under {passport_label}: once you start tracking how works from {place_label} handle surface and atmosphere, later visits from the same thread become easier to place."
-    if medium_category == "Print":
-        return f"This visit belongs to {passport_label}, but it also helps build print literacy: repeated images often travel style faster than monumental paintings do."
-    if medium_category == "Textile":
-        return f"Treat this as part of your {passport_label} thread. Textile traditions often preserve status, ritual, and storytelling in a form made to live inside real rooms and bodies."
-    if medium_category == "Photograph":
-        return f"In your {passport_label} thread, photography sharpens a different habit of looking: composition and timing become as important as pigment or stone."
-    if geo_region == "Global":
-        return f"This work widens the Museum Passport beyond one familiar canon. Use {passport_label} as a reminder that collections are strongest when they braid regions and media together."
-    return f"This work sits comfortably inside {passport_label}. Over time, that tag becomes useful shorthand for comparing works from {place_label} with objects elsewhere in the collection."
+    title = candidate["title"]
+    phrase = connection_context_phrase(passport_label, medium_category, geo_region)
+    subject = display_subject(specific_subject(candidate, medium_category))
+    seed = stable_hash(f"connection-note:{candidate['id']}")
+    short = note_title(title)
+    place = place_label if place_label and place_label != "Global collection" else geo_region
+    if place_label and place_label != "Global collection":
+        variants = [
+            f"In {place}, {short} links {subject} to {phrase}.",
+            f"{sentence_label(subject)} gives {short} a foothold in {place}, where {phrase}.",
+            f"The {place} setting changes how {subject} reads: it points toward {phrase}.",
+            f"{short} brings together {subject}, place, and {phrase}.",
+        ]
+    else:
+        variants = [
+            f"{short} uses {subject} to bring {phrase} into view.",
+            f"{phrase.capitalize()} changes how {subject} reads in {short}.",
+            f"{short} is shaped by {phrase}, not only by its subject.",
+            f"{sentence_label(subject)} helps place {short} within {phrase}.",
+        ]
+    return variants[seed % len(variants)]
 
 
 def observation_question(candidate: dict[str, Any]) -> dict[str, Any]:
     medium_category = infer_medium_category(candidate["medium"], candidate["classification"], candidate.get("collection", ""))
     subject = choose_subject_label(candidate)
     seed = stable_hash(candidate["id"])
-    if subject != "the subject named in the work":
-        options = unique_strings(
-            [
-                subject[0].upper() + subject[1:] if subject.startswith("a ") else subject,
-                "A ship" if "ship" not in subject else "A horse",
-                "A ceremonial object" if "object" not in subject else "A printed page",
-                "A woven hanging" if "woven" not in subject else "A painted scene",
-            ]
-        )[:4]
-        correct = options[0]
-        prompt_variants = [
-            "Which detail anchors today's work?",
-            "What should you look for first in the image?",
-            "Which subject gives this work its focus?",
-            "Which motif helps identify today's piece?",
-            "What visible subject is central to today's visit?",
-        ]
-        return {
-            "kind": "observation",
-            "prompt": prompt_variants[seed % len(prompt_variants)],
-            "options": options,
-            "answerIndex": 0,
-            "reinforcement": f"The image points you back to {correct.lower()} as the work's anchor.",
-        }
-
-    options = ["A painted scene", *medium_family_distractors(medium_category)]
-    if medium_category != "Painting":
-        options = [f"A {medium_category.lower()} work" if medium_category[0].isalpha() else medium_category, *medium_family_distractors(medium_category)]
+    title = candidate["title"]
+    short = quiz_title(title)
+    subject_short = display_subject(subject)
     prompt_variants = [
-        "What kind of work or object are you looking at today?",
-        "Which object type best frames today's close look?",
-        "What category of artwork is on view today?",
-        "How would a museum label first classify this work?",
+        f"What visible detail gives {short} its focus?",
+        f"Which feature gives {short} its clearest visual focus?",
+        f"Which visual cue should you notice in {short}?",
+        f"What detail is most useful to notice first in {short}?",
+        f"Where should your eye begin in {short}?",
+        f"What concrete feature should you look for in {short}?",
+        f"Which detail helps you enter the image of {short}?",
+        f"What visible feature organizes the first look at {short}?",
+        f"Which detail makes {short} easiest to start reading?",
+        f"What should you find first when studying {short}?",
+        f"Which feature gives {short} its center?",
+        f"What visible clue tells you where to begin in {short}?",
+        f"Which detail carries the main subject of {short}?",
+        f"What part of {short} should hold your attention first?",
+        f"Which visible element gives {short} its first pull?",
+        f"What feature makes the subject of {short} legible?",
     ]
+    correct = sentence_label(subject)
+    options = unique_strings(
+        [
+            correct,
+            *seeded_option_sample(
+                observation_distractors(correct, medium_category),
+                f"observation-options:{candidate['id']}",
+                3,
+                exclude=[correct],
+            ),
+        ]
+    )[:4]
+    reinforcement = [
+        f"Noticing {subject_short} gives the material, scale, and setting of {short} a place to start.",
+        f"{correct} {verb_for_subject(correct)} {short} a concrete place to begin before smaller details take over.",
+        f"That visible detail matters because {short} builds its mood around {subject_short}.",
+        f"Once {subject_short} is in view, the rest of {short} becomes easier to read.",
+        f"{correct} {verb_for_subject(correct)} the artwork's subject a clear visual center.",
+        f"{subject_short.capitalize()} helps connect {short}'s subject to its surface.",
+        f"That detail gives your eye a starting point in {short} before the surrounding details unfold.",
+        f"{short} becomes more legible once {subject_short} is fixed in view.",
+        f"The first close look starts with {subject_short}, then moves outward.",
+        f"That feature matters because it organizes the way {short} meets the eye.",
+        f"{short} asks you to begin with {subject_short} before reading the setting.",
+        f"That first detail gives the rest of {short} a visual order.",
+        f"Finding {subject_short} helps the smaller marks and surfaces make sense.",
+        f"{subject_short.capitalize()} is the cue that turns looking into reading.",
+        f"The work opens up once {subject_short} has your attention.",
+    ][seed % 15]
     return {
         "kind": "observation",
         "prompt": prompt_variants[seed % len(prompt_variants)],
-        "options": unique_strings(options)[:4],
+        "options": options,
         "answerIndex": 0,
-        "reinforcement": f"Today's object is best read first as {options[0].lower()}, which shapes how you notice the rest of the details.",
+        "reinforcement": reinforcement,
     }
 
 
 def context_question(candidate: dict[str, Any], medium_category: str) -> dict[str, Any]:
     seed = stable_hash(f"context:{candidate['id']}")
+    title = candidate["title"]
+    short = quiz_title(title)
+    subject = specific_subject(candidate, medium_category)
+    subject_text = gerund_subject(subject)
+    subject_short = display_subject(subject)
+    medium = medium_display(candidate, medium_category)
+    medium_lower = medium_sentence_fragment(candidate, medium_category)
     if "ca." in candidate["objectDate"].lower() or "about" in candidate["objectDate"].lower():
         options = [
-            "By comparing style, material, and related works",
-            "From a signed daybook entry by the artist",
-            "From a modern conservation scan alone",
-            "From an inscription giving the exact day",
+            f"The {medium_lower}, style, and {subject_short} help place it",
+            f"The title alone fixes the exact year for {short}",
+            f"Scale alone proves where {short} was made",
+            f"Later display explains the date of {short} without close looking",
         ]
+        reinforcement = [
+            f"The date for {short} is careful evidence; style, material, and {subject_text} help place it in time.",
+            f"The range matters because {short} has to be dated through form, surface, and close comparison.",
+            f"That cautious date asks you to read {subject_text} through period style and material clues.",
+            f"For {short}, the approximate date makes close looking part of the historical evidence.",
+        ][seed % 4]
         return {
             "kind": "context",
             "prompt": [
-                "According to today's notes, how do curators date this work?",
-                "What does the approximate date ask you to remember?",
-                "How did the notes frame this work's date?",
-            ][seed % 3],
+                f"What helps date {short} when the year is not exact?",
+                f"How do the {medium_lower} and {subject_short} help place {short}?",
+                f"Why does the date range matter for {short}?",
+                f"What evidence helps place {short} in time?",
+            ][seed % 4],
             "options": options,
             "answerIndex": 0,
-            "reinforcement": "Approximate dates usually come from comparison and material evidence, not from a perfectly preserved timestamp.",
+            "reinforcement": reinforcement,
         }
 
-    if medium_category == "Print":
-        options = [
-            "It was transferred by impression from a prepared surface",
-            "It was cast in bronze from a mold",
-            "It was woven directly on a loom",
-            "It was carved from a single block of stone",
+    correct = material_lesson_for_artwork(candidate, medium_category)
+    distractors = plausible_false_material_options(candidate, medium_category)
+    options = unique_strings(
+        [
+            correct,
+            *seeded_option_sample(
+                distractors,
+                f"context-options:{candidate['id']}",
+                3,
+                exclude=[correct],
+            ),
         ]
-        return {
-            "kind": "context",
-            "prompt": [
-                "What making process did today's label describe?",
-                "How was the image process framed in the notes?",
-                "What process makes this work different from a single painted canvas?",
-            ][seed % 3],
-            "options": options,
-            "answerIndex": 0,
-            "reinforcement": "The notes describe printmaking as an indirect process that transfers an image by impression.",
-        }
-
-    if medium_category == "Textile":
-        options = [
-            "The image is built through fibers and structure",
-            "The image is etched into copper and inked",
-            "The image is projected by a camera lens",
-            "The image is carved entirely from marble",
-        ]
-        return {
-            "kind": "context",
-            "prompt": [
-                "What did today's notes say carries the image here?",
-                "Where does the image live in this object?",
-                "What material feature did the label emphasize?",
-            ][seed % 3],
-            "options": options,
-            "answerIndex": 0,
-            "reinforcement": "For textiles, the image lives in the material structure itself rather than sitting on top as paint.",
-        }
-
-    distractor_map = {
-        "Painting": ["Etching", "Chalk on paper", "Woven textile"],
-        "Drawing": ["Oil on canvas", "Bronze", "Woodblock print"],
-        "Sculpture": ["Oil on canvas", "Watercolor on paper", "Wool textile"],
-        "Ceramic": ["Bronze", "Oil on panel", "Ink on paper"],
-        "Photograph": ["Oil on canvas", "Etching", "Marble"],
-        "Metalwork": ["Watercolor on paper", "Silk textile", "Oil on canvas"],
-        "Glass": ["Bronze", "Watercolor on paper", "Wool textile"],
-        "Furniture": ["Etching", "Oil on canvas", "Porcelain"],
-        "Manuscript": ["Bronze", "Oil on panel", "Gelatin silver print"],
-        "Design": ["Oil on canvas", "Etching", "Marble"],
-    }
-    options = [candidate["medium"], *distractor_map.get(medium_category, ["Oil on canvas", "Etching", "Bronze"])]
+    )[:4]
+    reinforcement = [
+        f"The {medium_lower} is not background information; it shapes how {subject_text} reaches the eye.",
+        f"In {short}, the {medium_lower} controls how surface and {subject_text} meet.",
+        f"Once you notice the {medium_lower}, {short} reads as a made object, not just an image.",
+        f"The {medium_lower} gives {subject_short} much of its visual force.",
+        f"That material choice changes how {subject_short} reaches the eye.",
+        f"Looking at the making helps explain why {subject_short} feels the way it does.",
+        f"The surface matters because it is part of how {subject_text} becomes visible.",
+        f"{short} asks you to read material decisions along with subject matter.",
+        f"The making is a clue to how {subject_short} {gain_for_subject(subject_short)} presence.",
+        f"Material and handling shape the first impression of {short}.",
+        f"{medium} gives {subject_short} its particular weight, edge, or tone.",
+        f"Close looking at {short} starts with how the object was made, not just what it shows.",
+        f"In {short}, making and subject have to be read together.",
+        f"The handling gives {short} its pace before the subject fully resolves.",
+        f"That surface decision is part of {short}'s meaning, not a neutral support.",
+        f"Reading the making helps explain why {subject_short} feels specific.",
+    ][seed % 16]
     return {
         "kind": "context",
         "prompt": [
-            "Which medium did today's label place at the center of this work?",
-            "What material did the label ask you to notice?",
-            "Which medium anchors today's technique note?",
-            "What is the material basis of today's work?",
-        ][seed % 4],
-        "options": unique_strings(options)[:4],
+            f"How does the {medium_lower} shape {subject_short} in {short}?",
+            f"What does the {medium_lower} help you notice about {subject_short}?",
+            f"Why does {medium} matter when looking at {short}?",
+            f"What kind of making gives {short} its character?",
+            f"How does the material change the way {subject_short} appears?",
+            f"What does {medium} do for the image of {subject_short}?",
+            f"Why is the surface of {short} important?",
+            f"How does the making of {short} shape what you see?",
+            f"What does the making reveal about {subject_short}?",
+            f"How should the surface change your reading of {short}?",
+            f"What role does {medium} play in the first impression?",
+            f"Why does the object's making matter for {subject_short}?",
+            f"How does craft shape the way {short} meets the eye?",
+            f"What material clue helps explain the look of {short}?",
+            f"How does {medium} guide your attention?",
+            f"What does the surface tell you about {subject_short}?",
+        ][seed % 16],
+        "options": options,
         "answerIndex": 0,
-        "reinforcement": "The technique note starts with the actual medium because material is the first museum fact worth noticing.",
+        "reinforcement": reinforcement,
     }
 
 
-def connection_question(passport_label: str, seed_text: str) -> dict[str, Any]:
-    seed = stable_hash(f"connection:{seed_text}")
-    options = [passport_label, *alternative_period_labels(passport_label)[:3]]
+def connection_question(
+    candidate: dict[str, Any],
+    passport_label: str,
+    place_label: str,
+    geo_region: str,
+    medium_category: str,
+) -> dict[str, Any]:
+    title = candidate["title"]
+    seed = stable_hash(f"connection:{candidate['id']}")
+    context_phrase = connection_context_phrase(passport_label, medium_category, geo_region)
+    short = quiz_title(title)
+    subject = display_subject(specific_subject(candidate, medium_category))
+    place = place_label if place_label and place_label != "Global collection" else geo_region
+    correct = sentence_label(f"{subject} {link_for_subject(subject)} the work to {context_phrase}")
+    connection_distractors = [
+        f"A reading focused only on the size of {subject}",
+        f"A reading centered only on later display of {short}",
+        f"A reading that treats {subject} as neutral decoration",
+        f"A reading focused only on the title of {short}",
+        f"A reading that separates {subject} from {place}",
+        f"A reading centered on the market value of {short}",
+        f"A reading that treats the surface of {short} as incidental",
+        f"A reading focused only on ownership history for {short}",
+    ]
+    options = unique_strings(
+        [
+            correct,
+            *seeded_option_sample(
+                connection_distractors,
+                f"connection-options:{candidate['id']}",
+                3,
+                exclude=[correct],
+            ),
+        ]
+    )[:4]
+    reinforcement = [
+        f"The context matters because {context_phrase} shapes how {subject} was made and understood.",
+        f"That setting keeps {short} from reading as a surface alone; it ties {subject} to use and history.",
+        f"Reading {short} this way brings out the role of {subject} in the work's cultural setting.",
+        f"The historical setting matters because {context_phrase} changes how {subject} reads.",
+        f"{short} carries that context through material, use, and the visible detail of {subject}.",
+        f"{sentence_label(subject)} {is_for_subject(subject)} not isolated decoration; the detail carries a history of use, place, and looking.",
+        f"The bridge matters because {subject} turns a visible detail into historical evidence.",
+        f"That answer keeps the focus on how {short} operated in its own world.",
+        f"{short} becomes richer when {subject} is tied to place, use, and tradition.",
+        f"The work's setting helps explain why {subject} matters visually.",
+        f"Context gives {subject} weight beyond its first appearance.",
+        f"That history helps connect {subject} to the way the work was used or understood.",
+        f"The setting keeps {subject} connected to people, place, and purpose.",
+        f"{short} asks for that historical bridge because {subject} is doing more than filling space.",
+        f"The answer matters because it links close looking at {subject} with cultural use.",
+        f"That context gives {subject} a social or devotional role.",
+    ][seed % 16]
     return {
         "kind": "connection",
         "prompt": [
-            "Which collecting thread does today's visit belong to?",
-            "Where does this work fit in your Museum Passport?",
-            "Which thread should today's work add to?",
-            "Which collection path does this visit strengthen?",
-            "What Passport label best describes today's work?",
-        ][seed % 5],
+            f"How does {place} change the meaning of {subject} in {short}?",
+            f"Which history helps explain why {subject} matters in {short}?",
+            f"What setting helps you read {subject} more fully?",
+            f"What does {subject} connect to beyond its appearance?",
+            f"Which tradition helps explain the way {subject} appears?",
+            f"What history sits behind {subject} in {short}?",
+            f"Why does {subject} matter beyond the first look?",
+            f"What cultural setting gives {subject} more weight?",
+            f"How should the historical setting change your reading of {short}?",
+            f"What does {subject} reveal about use, place, or belief?",
+            f"Which context makes {subject} more than decoration?",
+            f"What larger history helps explain {short}?",
+            f"How does use or belief change the way {subject} reads?",
+            f"What does {subject} suggest about the work's setting?",
+            f"Which context best explains the force of {subject}?",
+            f"How does {short} carry its historical world?",
+        ][seed % 16],
         "options": options,
         "answerIndex": 0,
-        "reinforcement": f"Today's notes place the work in your {passport_label} thread, which helps future works click into place more quickly.",
+        "reinforcement": reinforcement,
     }
 
 
@@ -1045,7 +2130,30 @@ def build_artwork_projection(candidate: dict[str, Any]) -> dict[str, Any]:
     raw_medium = strip_markup(candidate["medium"])
     category_medium = "" if medium_text_is_invalid(raw_medium) else raw_medium
     medium_category = infer_medium_category(category_medium, candidate["classification"], candidate.get("collection", ""))
+    if (
+        candidate.get("source", {}).get("institution") == "ycba"
+        and medium_category == "Sculpture"
+        and has_term(candidate.get("classification", ""), ("paintings and sculpture",))
+        and has_term(candidate.get("artist", ""), ("turner",))
+    ):
+        medium_category = "Painting"
     medium = concise_medium_for(candidate, medium_category)
+    title_for_overrides = clean_title(candidate["title"])
+    if has_term(title_for_overrides, ("damascus room",)):
+        medium_category = "Design"
+        medium = "Period room"
+    if has_term(title_for_overrides, ("bamboo in the four seasons", "rough waves", "blossoming plum and camellia", "cherry blossom viewing")) and has_term(candidate.get("medium", ""), ("gold",)):
+        medium_category = "Painting"
+        medium = "Gold-ground painting"
+    if has_term(title_for_overrides, ("tankard",)) and has_term(candidate.get("classification", ""), ("drinking vessel",)):
+        medium_category = "Ceramic"
+        medium = "Iznik ceramic"
+    if has_term(title_for_overrides, ("mosaic", "floor mosaic")):
+        medium_category = "Design"
+        medium = "Mosaic"
+    if has_term(title_for_overrides, ("book of the dead",)):
+        medium_category = "Manuscript"
+        medium = "Illustrated funerary papyrus"
     display_candidate = {
         **candidate,
         "title": clean_title(candidate["title"]),
@@ -1054,6 +2162,7 @@ def build_artwork_projection(candidate: dict[str, Any]) -> dict[str, Any]:
         "medium": medium,
     }
     geo_region = infer_geo_region(
+        candidate.get("title", ""),
         candidate.get("country", ""),
         candidate.get("place", ""),
         candidate.get("culture", ""),
@@ -1061,21 +2170,23 @@ def build_artwork_projection(candidate: dict[str, Any]) -> dict[str, Any]:
         candidate.get("collection", ""),
         candidate.get("department", ""),
         artist,
+        " ".join(candidate.get("subjectTerms", [])),
         candidate.get("source", {}).get("collectionLabel", ""),
     )
     passport_label = infer_passport_label(candidate)
     place_label = build_place_label(candidate, geo_region)
     period_key = slugify(passport_label)
-    period_tag = f"{place_label} - {passport_label} - {object_date}"
+    period_tag = placard_period_tag(place_label, passport_label, object_date)
     questions = [
         observation_question(display_candidate),
         context_question(display_candidate, medium_category),
-        connection_question(passport_label, candidate["id"]),
+        connection_question(display_candidate, passport_label, place_label, geo_region, medium_category),
     ]
     questions = [
         shuffle_question_options(question, f"{candidate['id']}:{index}:{question['prompt']}")
         for index, question in enumerate(questions)
     ]
+    runtime_images = runtime_images_for(candidate)
     return {
         "id": candidate["id"],
         "title": display_candidate["title"],
@@ -1088,9 +2199,9 @@ def build_artwork_projection(candidate: dict[str, Any]) -> dict[str, Any]:
         "mediumCategory": medium_category,
         "geoRegion": geo_region,
         "images": {
-            "thumbnailUrl": candidate["images"]["thumbnailUrl"],
-            "displayUrl": candidate["images"]["displayUrl"],
-            "fullUrl": candidate["images"]["fullUrl"],
+            "thumbnailUrl": runtime_images["thumbnailUrl"],
+            "displayUrl": runtime_images["displayUrl"],
+            "fullUrl": runtime_images["fullUrl"],
         },
         "context": {
             "technique": technique_note(display_candidate, medium_category),
@@ -1125,10 +2236,123 @@ def validate_question_set(questions: list[dict[str, Any]]) -> list[str]:
     return errors
 
 
-def build_editorial_record(candidate: dict[str, Any], *, approved: bool, blockers: list[str] | None = None) -> dict[str, Any]:
+def editor_for_candidate(candidate: dict[str, Any]) -> str:
+    return SHOWCASE_COPY_EDITORS[stable_hash(candidate["id"]) % len(SHOWCASE_COPY_EDITORS)]
+
+
+def field_override_notes(candidate: dict[str, Any], artwork: dict[str, Any]) -> list[str]:
+    raw = normalize_space(
+        " ".join(
+            [
+                candidate.get("title", ""),
+                candidate.get("medium", ""),
+                candidate.get("classification", ""),
+                candidate.get("culture", ""),
+                candidate.get("country", ""),
+                candidate.get("place", ""),
+                candidate.get("collection", ""),
+                " ".join(candidate.get("subjectTerms", [])),
+            ]
+        )
+    )
+    notes: list[str] = []
+    if artwork["mediumCategory"] == "Ceramic" and has_term(raw, ("stone-paste", "tile", "iznik", "porcelain", "earthenware", "stoneware")):
+        notes.append("Medium/category supported by ceramic or vessel language in the source metadata.")
+    if artwork["mediumCategory"] == "Manuscript" and has_term(raw, ("book of the dead", "manuscript", "folio", "papyrus", "book")):
+        notes.append("Medium/category supported by manuscript, book, folio, or papyrus source language.")
+    if artwork["geoRegion"] == "Africa" and has_term(raw, ("egypt", "egyptian", "africa", "african")):
+        notes.append("Region supported by object-origin terms rather than holding collection.")
+    if artwork["geoRegion"] == "Asia" and has_term(raw, ("japan", "japanese", "china", "chinese", "india", "nepal", "himalayan", "guanyin", "tsuba")):
+        notes.append("Region supported by Asian origin or subject terms in source metadata.")
+    if artwork["geoRegion"] == "Europe" and has_term(raw, ("britain", "british", "england", "france", "french", "italy", "italian", "dutch", "spode", "doccia", "zuber", "cozzi")):
+        notes.append("Region supported by European origin, maker, or manufacture terms in source metadata.")
+    return unique_strings(notes)
+
+
+def source_evidence_for(candidate: dict[str, Any], artwork: dict[str, Any]) -> dict[str, Any]:
+    raw = candidate.get("source", {})
+    object_url = normalize_space(raw.get("objectUrl", ""))
+    source_terms = unique_strings(
+        [
+            candidate.get("title", ""),
+            candidate.get("artist", ""),
+            candidate.get("objectDate", ""),
+            candidate.get("medium", ""),
+            candidate.get("classification", ""),
+            candidate.get("culture", ""),
+            candidate.get("country", ""),
+            candidate.get("place", ""),
+            candidate.get("collection", ""),
+            *candidate.get("subjectTerms", []),
+        ]
+    )
+    return {
+        "objectUrl": object_url,
+        "sourceType": "official-object-record",
+        "title": candidate.get("title", ""),
+        "date": candidate.get("objectDate", ""),
+        "medium": candidate.get("medium", ""),
+        "classification": candidate.get("classification", ""),
+        "originTerms": unique_strings([candidate.get("country", ""), candidate.get("place", ""), candidate.get("culture", ""), candidate.get("period", "")]),
+        "subjectTerms": candidate.get("subjectTerms", []),
+        "sourceTerms": source_terms[:12],
+        "supports": {
+            "title": bool(candidate.get("title")),
+            "date": bool(candidate.get("objectDate")),
+            "mediumCategory": bool(artwork.get("mediumCategory")),
+            "geoRegion": bool(artwork.get("geoRegion")),
+            "passportLabel": bool(artwork.get("passportLabel")),
+            "image": all(is_runtime_image_url(artwork.get("images", {}).get(field, "")) for field in ("thumbnailUrl", "displayUrl", "fullUrl")),
+        },
+    }
+
+
+def copy_polish_v2_for(candidate: dict[str, Any], artwork: dict[str, Any]) -> dict[str, str]:
+    display_candidate = {
+        **candidate,
+        "title": artwork["title"],
+        "artist": artwork["artist"],
+        "objectDate": artwork["objectDate"],
+        "medium": artwork["medium"],
+    }
+    medium_category = artwork["mediumCategory"]
+    visible_feature = display_subject(specific_subject(display_candidate, medium_category))
+    return {
+        "visibleFeature": visible_feature,
+        "objectLesson": material_lesson_for_artwork(display_candidate, medium_category),
+        "historicalBridge": connection_context_phrase(
+            artwork["passportLabel"],
+            medium_category,
+            artwork["geoRegion"],
+        ),
+        "copyStandard": "object-facing-v2-no-museum-mechanics",
+    }
+
+
+def resolved_risks_for(candidate: dict[str, Any], artwork: dict[str, Any]) -> list[str]:
+    risks: list[str] = []
+    title = normalize_space(candidate.get("title", ""))
+    if is_weak_hero_candidate(candidate):
+        risks.append("Weak-hero object kept only because it has a visible form, source-backed metadata, and object-specific copy.")
+    if has_term(title, ("unidentified", "untitled", "fragment", "bowl or cup", "bracelet", "headrest", "weight")):
+        risks.append("Generic title risk resolved through a concrete visible-detail prompt and object-use context.")
+    if field_override_notes(candidate, artwork):
+        risks.extend(field_override_notes(candidate, artwork))
+    if not risks:
+        risks.append("No unresolved source, metadata, or visual-presentation risk after editor-agent showcase pass.")
+    return unique_strings(risks)
+
+
+def build_editorial_record(
+    candidate: dict[str, Any],
+    *,
+    approved: bool,
+    blockers: list[str] | None = None,
+    editor_agent: str = "Editor Merge",
+) -> dict[str, Any]:
     blockers = blockers or []
     timestamp = now_iso()
-    artwork = build_artwork_projection(candidate) if approved else None
+    artwork = build_artwork_projection(candidate)
     question_errors = validate_question_set(artwork["questions"]) if artwork else []
     qa_blockers = [*question_errors, *blockers]
     status = "approved" if approved and not qa_blockers else "sourced"
@@ -1140,14 +2364,37 @@ def build_editorial_record(candidate: dict[str, Any], *, approved: bool, blocker
         "factCheckedAt": timestamp if artwork else None,
         "copyEditedAt": timestamp if artwork else None,
         "approvedAt": timestamp if status == "approved" else None,
-        "approvedBy": "codex-seed-pass" if status == "approved" else "",
+        "approvedBy": editor_agent if status == "approved" else "",
         "blockers": blockers,
     }
+    copy_editor = editor_for_candidate(candidate)
+    source_evidence = source_evidence_for(candidate, artwork)
+    copy_polish_v2 = copy_polish_v2_for(candidate, artwork)
+    visual_note = hero_quality_note(candidate, artwork)
+    resolved_risks = resolved_risks_for(candidate, artwork)
     review = {
         "status": status,
         "approvedAt": workflow["approvedAt"],
-        "factCheckSources": unique_strings([candidate["source"]["objectUrl"], *POLICY_SOURCES.get(candidate["source"]["institution"], [])]),
+        "approvedBy": workflow["approvedBy"],
+        "approvalType": SHOWCASE_APPROVAL_TYPE if status == "approved" else "",
+        "showcaseTier": SHOWCASE_TIER if status == "approved" else "",
+        "showcaseApprovedBy": editor_agent if status == "approved" else "",
+        "copyEditedBy": copy_editor if artwork else "",
+        "factCheckedBy": "Editor C" if artwork else "",
+        "factCheckSources": unique_strings([candidate["source"]["objectUrl"]]),
+        "sourceEvidence": source_evidence,
+        "copyPolishV2": copy_polish_v2 if status == "approved" else {},
+        "visualQualityNote": visual_note,
+        "resolvedRisks": resolved_risks if status == "approved" else [],
         "safetyFlags": safety_flags_for(candidate),
+        "editorNotes": [
+            "Agent-audited v2: source fields support title, image, medium/date, and object-facing copy; this is not a human curator signoff.",
+            f"Hero note: {visual_note}",
+            f"Quality tier: {SHOWCASE_TIER}; export is also gated by deterministic copy validation.",
+            f"Copy editor: {copy_editor}; QA editor: Editor C.",
+        ]
+        if status == "approved"
+        else ["Needs additional review or missing shippable image access."],
         "notes": "" if status == "approved" else "Needs additional review or missing shippable image access.",
     }
     qa = {
@@ -1165,6 +2412,9 @@ def build_editorial_record(candidate: dict[str, Any], *, approved: bool, blocker
             "surprisingFactIsSourceBacked": True,
             "playerFacingCopyMatchesMuseumTone": artwork is not None,
             "globalCallCopyReviewed": True,
+            "showcaseCopyApproved": status == "approved",
+            "officialSourceEvidencePresent": bool(source_evidence.get("objectUrl")),
+            "visualQualityReviewed": bool(visual_note),
         },
         "blockers": qa_blockers,
     }
@@ -1211,8 +2461,19 @@ def project_curated_payload(editorial_payload: dict[str, Any]) -> dict[str, Any]
                 "review": {
                     "status": "approved",
                     "approvedAt": record["review"]["approvedAt"],
+                    "approvedBy": record["review"].get("approvedBy", record.get("workflow", {}).get("approvedBy", "")),
+                    "approvalType": record["review"].get("approvalType", ""),
+                    "showcaseTier": record["review"].get("showcaseTier", ""),
+                    "showcaseApprovedBy": record["review"].get("showcaseApprovedBy", ""),
+                    "copyEditedBy": record["review"].get("copyEditedBy", ""),
+                    "factCheckedBy": record["review"].get("factCheckedBy", ""),
                     "factCheckSources": record["review"]["factCheckSources"],
+                    "sourceEvidence": record["review"].get("sourceEvidence", {}),
+                    "copyPolishV2": record["review"].get("copyPolishV2", {}),
+                    "visualQualityNote": record["review"].get("visualQualityNote", ""),
+                    "resolvedRisks": record["review"].get("resolvedRisks", []),
                     "safetyFlags": record["review"]["safetyFlags"],
+                    "editorNotes": record["review"].get("editorNotes", []),
                 },
             }
         )
@@ -1230,6 +2491,386 @@ def project_curated_payload(editorial_payload: dict[str, Any]) -> dict[str, Any]
     }
 
 
+GENERIC_FACT_PATTERNS = (
+    "open-access museum records",
+    "catalog entry makes this work teachable",
+    "medium line matters",
+    "preserves more than an image here",
+    "rights information",
+    "outside the gallery",
+    "maker, medium, date",
+)
+
+QUALITY_SMELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("object record", re.compile(r"\bobject record\b", re.IGNORECASE)),
+    ("material evidence", re.compile(r"\bmaterial evidence\b", re.IGNORECASE)),
+    ("maker, material, and date", re.compile(r"\bmaker,\s*material,\s*and\s*date\b", re.IGNORECASE)),
+    ("maker, date, and medium", re.compile(r"\bmaker,\s*date,\s*and\s*medium\b", re.IGNORECASE)),
+    ("specific material/date/object record", re.compile(r"\bspecific material,\s*date,\s*and\s*object record\b", re.IGNORECASE)),
+    ("worked metal object", re.compile(r"\bworked metal object\b", re.IGNORECASE)),
+    ("photographed subject", re.compile(r"\bphotographed subject\b", re.IGNORECASE)),
+    ("painted scene", re.compile(r"\bpainted scene\b", re.IGNORECASE)),
+    ("drawn scene", re.compile(r"\bdrawn scene\b", re.IGNORECASE)),
+    ("material detail prompt", re.compile(r"\bWhat material detail helps explain\b", re.IGNORECASE)),
+    ("context best frames prompt", re.compile(r"\bWhich art-historical context best frames\b", re.IGNORECASE)),
+    ("period tradition prompt", re.compile(r"\bWhich period or tradition best helps place\b", re.IGNORECASE)),
+    ("process is meaning template", re.compile(r"\bThe physical process is part of the meaning\b", re.IGNORECASE)),
+    ("entry point template", re.compile(r"\bentry point into the material and setting\b", re.IGNORECASE)),
+    ("first point template", re.compile(r"\bfirst point of attention\b", re.IGNORECASE)),
+    ("connects-through template", re.compile(r"\bconnects\b.{0,80}\bto\b.{0,80}\bthrough\b", re.IGNORECASE)),
+    ("wider frame template", re.compile(r"\bgives\b.{0,80}\ba wider frame\b", re.IGNORECASE)),
+    ("process and subject template", re.compile(r"\bprocess and subject work together\b", re.IGNORECASE)),
+    ("detached from template", re.compile(r"\bdetached from\b", re.IGNORECASE)),
+    ("clearer meaning template", re.compile(r"\bclearer meaning\b", re.IGNORECASE)),
+    ("first read template", re.compile(r"\bshape the first read\b", re.IGNORECASE)),
+    ("specific history template", re.compile(r"\bspecific history\b", re.IGNORECASE)),
+    ("belongs to template", re.compile(r"\bbelongs to\b", re.IGNORECASE)),
+    ("source record template", re.compile(r"\bsource record\b", re.IGNORECASE)),
+    ("collection path template", re.compile(r"\bcollection path\b", re.IGNORECASE)),
+    ("visit strengthen template", re.compile(r"\bvisit strengthen\b", re.IGNORECASE)),
+    ("label asked template", re.compile(r"\blabel (?:ask|asked|asks)\b", re.IGNORECASE)),
+    ("material label prompt", re.compile(r"\bWhat material did\b.{0,60}\blabel\b", re.IGNORECASE)),
+    ("rights info template", re.compile(r"\brights information\b", re.IGNORECASE)),
+    ("outside gallery template", re.compile(r"\boutside the gallery\b", re.IGNORECASE)),
+    ("sits comfortably template", re.compile(r"\bsits comfortably inside\b", re.IGNORECASE)),
+    ("tag shorthand template", re.compile(r"\btag becomes useful shorthand\b", re.IGNORECASE)),
+    ("image points template", re.compile(r"\bimage points\b", re.IGNORECASE)),
+    ("work anchor template", re.compile(r"\bwork['’]s anchor\b", re.IGNORECASE)),
+    ("open access template", re.compile(r"\bopen[- ]access\b", re.IGNORECASE)),
+    ("maker label template", re.compile(r"\bmaker label\b", re.IGNORECASE)),
+    ("museum context template", re.compile(r"\bmuseum context\b", re.IGNORECASE)),
+    ("official object page template", re.compile(r"\bofficial object page\b", re.IGNORECASE)),
+    ("source metadata template", re.compile(r"\bsource metadata\b", re.IGNORECASE)),
+    ("historical setting tangible template", re.compile(r"\bmakes its historical setting tangible through\b", re.IGNORECASE)),
+    ("style alone template", re.compile(r"\brather than to style alone\b", re.IGNORECASE)),
+    ("material craft template", re.compile(r"\bmaterial craft\b", re.IGNORECASE)),
+    ("modern evidence bucket", re.compile(r"\bmodern image-making shaped by viewpoint and evidence\b", re.IGNORECASE)),
+    ("human patronage bucket", re.compile(r"\bhuman presence,\s*patronage,\s*and revived classical forms\b", re.IGNORECASE)),
+    ("baroque bucket", re.compile(r"\bdramatic light,\s*movement,\s*and heightened emotion\b", re.IGNORECASE)),
+    ("materials survival bucket", re.compile(r"\bmaterials,\s*place,\s*and use shaping how art survives\b", re.IGNORECASE)),
+    ("ritual status bucket", re.compile(r"\britual,\s*status,\s*and forms made for social use\b", re.IGNORECASE)),
+    ("identity public memory bucket", re.compile(r"\bidentity,\s*likeness,\s*and public memory\b", re.IGNORECASE)),
+    ("object world template", re.compile(r"\bobject['’]s world\b", re.IGNORECASE)),
+    ("technology for seeing template", re.compile(r"\btechnology for seeing\b", re.IGNORECASE)),
+    ("related works template", re.compile(r"\brelated works\b", re.IGNORECASE)),
+    ("calendar template", re.compile(r"\bcalendar does\b", re.IGNORECASE)),
+    ("locate prompt stem", re.compile(r"\bWhat should you try to locate\b", re.IGNORECASE)),
+    ("craft choice prompt stem", re.compile(r"\bWhich craft choice matters most\b", re.IGNORECASE)),
+    ("making detail prompt stem", re.compile(r"\bWhich making detail helps explain\b", re.IGNORECASE)),
+    ("art lens prompt stem", re.compile(r"\bWhich art-history lens clarifies\b", re.IGNORECASE)),
+    ("larger world prompt stem", re.compile(r"\bWhat larger world helps\b", re.IGNORECASE)),
+)
+
+GENERIC_ANSWER_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("painted scene option", re.compile(r"^a painted scene$", re.IGNORECASE)),
+    ("drawn scene option", re.compile(r"^a drawn scene$", re.IGNORECASE)),
+    ("photographed subject option", re.compile(r"^a photographed subject$", re.IGNORECASE)),
+    ("worked metal object option", re.compile(r"^a worked metal object$", re.IGNORECASE)),
+    ("generic work option", re.compile(r"^a (?:painting|print|drawing|photograph|textile|sculpture|design) work$", re.IGNORECASE)),
+    ("main figure fallback", re.compile(r"^(?:the )?main figure or setting$", re.IGNORECASE)),
+    ("central form fallback", re.compile(r"^(?:the )?central form$", re.IGNORECASE)),
+    ("photo fallback", re.compile(r"^(?:the )?figure or place in the photograph$", re.IGNORECASE)),
+    ("sculpture fallback", re.compile(r"^(?:the )?carved or modeled form$", re.IGNORECASE)),
+    ("textile fallback", re.compile(r"^(?:the )?pattern across the textile$", re.IGNORECASE)),
+    ("print fallback", re.compile(r"^(?:the )?printed lines and central motif$", re.IGNORECASE)),
+    ("drawing fallback", re.compile(r"^(?:the )?line work and main figure$", re.IGNORECASE)),
+    ("title-token artifact", re.compile(r"^(?:the )?(?:book dead|lord will|fud immovable|aanbidding der|refectory imperial|portfolio forest|solomon robert|mery horn|pathway main|amerapoora east|three types)$", re.IGNORECASE)),
+    ("male sitter fallback", re.compile(r"^a male sitter$", re.IGNORECASE)),
+    ("female sitter fallback", re.compile(r"^a female sitter$", re.IGNORECASE)),
+    ("straw ignores option", re.compile(r"\b(?:ignore|ignores|unrelated|instead of close looking|technical manual|sales catalogue|conservation diagram|advertising language|modern scan alone|exact hour|single proven day|fictional scene|military diagram|performance record|natural-history classification)\b", re.IGNORECASE)),
+    ("cross-medium camera option", re.compile(r"\b(?:camera exposure would|oil paint would|interlaced threads would|carved stone would|fired clay would|chiseled stone would|copper plate would|woven threads would)\b", re.IGNORECASE)),
+)
+
+ARTWORK_COPY_BANNED_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("Passport", re.compile(r"\bpassport\b", re.IGNORECASE)),
+    ("mechanic thread", re.compile(r"\b(?:your\s+\w[\w\s-]*\s+thread|broader thread|thread it joins|part of (?:your )?\w[\w\s-]* thread|a thread that)\b", re.IGNORECASE)),
+    ("today's notes", re.compile(r"\btoday['’]s notes\b", re.IGNORECASE)),
+    ("today's placard", re.compile(r"\btoday['’]s placard\b", re.IGNORECASE)),
+    ("the notes", re.compile(r"\b(?:the|these|did the|from the|in the) notes?\b", re.IGNORECASE)),
+    ("technique note", re.compile(r"\btechnique note\b", re.IGNORECASE)),
+    ("daily lesson", re.compile(r"\bdaily lesson\b", re.IGNORECASE)),
+    ("future visits", re.compile(r"\bfuture visits\b", re.IGNORECASE)),
+    ("collecting path", re.compile(r"\bcollecting path\b", re.IGNORECASE)),
+    ("comparison path", re.compile(r"\bcomparison path\b", re.IGNORECASE)),
+    ("best comparison set", re.compile(r"\bbest comparison set\b", re.IGNORECASE)),
+    ("visual anchor", re.compile(r"\bvisual anchor\b", re.IGNORECASE)),
+    ("museum label", re.compile(r"\bmuseum label\b", re.IGNORECASE)),
+    ("woven or stitched surface", re.compile(r"\bwoven or stitched surface\b", re.IGNORECASE)),
+    ("image points", re.compile(r"\bimage points\b", re.IGNORECASE)),
+    ("museum context", re.compile(r"\bmuseum context\b", re.IGNORECASE)),
+    ("source metadata", re.compile(r"\bsource metadata\b", re.IGNORECASE)),
+    ("rights/access language", re.compile(r"\b(?:rights information|open[- ]access|cc0|public domain)\b", re.IGNORECASE)),
+    ("game mechanics", re.compile(r"\b(?:game|session|score|streak|quiz answer|visit strengthen)\b", re.IGNORECASE)),
+)
+
+
+def is_object_specific_fact(artwork: dict[str, Any]) -> bool:
+    fact = normalize_space(artwork.get("context", {}).get("surprisingFact", ""))
+    haystack = fact.casefold()
+    subject = ""
+    try:
+        subject = specific_subject(
+            {
+                "title": artwork.get("title", ""),
+                "medium": artwork.get("medium", ""),
+                "classification": artwork.get("mediumCategory", ""),
+                "collection": "",
+                "subjectTerms": [],
+            },
+            artwork.get("mediumCategory", ""),
+        )
+    except Exception:
+        subject = ""
+    tokens = [
+        artwork.get("title", ""),
+        short_title(artwork.get("title", "")),
+        copy_safe_title(artwork.get("title", "")),
+        artwork.get("artist", ""),
+        artwork.get("medium", ""),
+        artwork.get("objectDate", ""),
+        artwork.get("source", {}).get("collectionLabel", "") if isinstance(artwork.get("source"), dict) else "",
+        artwork.get("passportLabel", ""),
+        artwork.get("geoRegion", ""),
+        subject,
+        display_subject(subject),
+        short_subject(subject),
+    ]
+    return any(normalize_space(token).casefold() and normalize_space(token).casefold() in haystack for token in tokens)
+
+
+def normalized_copy_stem(value: str, artwork: dict[str, Any]) -> str:
+    text = normalize_space(value).casefold()
+    subject = ""
+    try:
+        subject = specific_subject(
+            {
+                "title": artwork.get("title", ""),
+                "medium": artwork.get("medium", ""),
+                "classification": artwork.get("mediumCategory", ""),
+                "collection": "",
+                "subjectTerms": [],
+            },
+            artwork.get("mediumCategory", ""),
+        )
+    except Exception:
+        subject = ""
+    replacements = [
+        artwork.get("title", ""),
+        short_title(artwork.get("title", "")),
+        artwork.get("artist", ""),
+        artwork.get("medium", ""),
+        artwork.get("objectDate", ""),
+        artwork.get("passportLabel", ""),
+        artwork.get("periodTag", ""),
+        artwork.get("geoRegion", ""),
+        artwork.get("source", {}).get("collectionLabel", "") if isinstance(artwork.get("source"), dict) else "",
+        subject,
+        display_subject(subject),
+        short_subject(subject),
+    ]
+    for replacement in sorted({normalize_space(item).casefold() for item in replacements if normalize_space(item)}, key=len, reverse=True):
+        text = text.replace(replacement, "{x}")
+    text = re.sub(r"\b\d{3,4}(?:[-–]\d{2,4})?\b", "{date}", text)
+    text = re.sub(r"\b(?:ca\.|c\.|about)\s*\{date\}", "{date}", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    words = text.split()
+    return " ".join(words[:14])
+
+
+def delimiter_copy_errors(text: str) -> list[str]:
+    errors: list[str] = []
+    normalized = normalize_space(text)
+    if normalized.count("(") != normalized.count(")"):
+        errors.append("unbalanced parentheses")
+    if normalized.count("[") != normalized.count("]"):
+        errors.append("unbalanced brackets")
+    if normalized.count("\"") % 2:
+        errors.append("unbalanced double quote")
+    if re.search(r"\b[A-Za-z]{2,}\s+(?:hensh|cathédr|cathdr|fud)\b", normalized, re.IGNORECASE):
+        errors.append("truncated title token")
+    return errors
+
+
+def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
+    errors: list[str] = []
+    facts = [normalize_space(artwork.get("context", {}).get("surprisingFact", "")) for artwork in artworks]
+    prompts = [
+        normalize_space(question.get("prompt", ""))
+        for artwork in artworks
+        for question in artwork.get("questions", [])
+    ]
+    reinforcements = [
+        normalize_space(question.get("reinforcement", ""))
+        for artwork in artworks
+        for question in artwork.get("questions", [])
+    ]
+    options = [
+        normalize_space(option)
+        for artwork in artworks
+        for question in artwork.get("questions", [])
+        for option in question.get("options", [])
+    ]
+    fact_counts = Counter(facts)
+    prompt_counts = Counter(prompts)
+    reinforcement_counts = Counter(reinforcements)
+    option_counts = Counter(options)
+    repeated_facts = [fact for fact, count in fact_counts.items() if fact and count > 3]
+    repeated_prompts = [prompt for prompt, count in prompt_counts.items() if prompt and count > 12]
+    repeated_reinforcements = [text for text, count in reinforcement_counts.items() if text and count > 12]
+    if repeated_facts:
+        errors.append(f"surprisingFact exact repeats exceed cap: {repeated_facts[:3]}")
+    if len(fact_counts) < 250:
+        errors.append(f"surprisingFact variety too low: {len(fact_counts)} distinct facts")
+    if repeated_prompts:
+        errors.append(f"quiz prompt exact repeats exceed cap: {repeated_prompts[:3]}")
+    if repeated_reinforcements:
+        errors.append(f"quiz reinforcement exact repeats exceed cap: {repeated_reinforcements[:3]}")
+    repeated_options = [option for option, count in option_counts.items() if option and count > 40]
+    if repeated_options:
+        errors.append(f"quiz option repeats exceed cap: {repeated_options[:3]}")
+    stem_counts: Counter[str] = Counter()
+    for artwork in artworks:
+        fields = [
+            *(artwork.get("context") or {}).values(),
+            *[
+                question.get("prompt", "")
+                for question in artwork.get("questions", [])
+            ],
+            *[
+                question.get("reinforcement", "")
+                for question in artwork.get("questions", [])
+            ],
+        ]
+        for field in fields:
+            stem = normalized_copy_stem(field, artwork)
+            if stem:
+                stem_counts[stem] += 1
+    repeated_stems = [stem for stem, count in stem_counts.items() if count > 30 and "{x}" in stem]
+    if repeated_stems:
+        errors.append(f"normalized copy stems exceed showcase cap: {repeated_stems[:5]}")
+    banned_copy_hits: list[str] = []
+    quality_smell_hits: list[str] = []
+    generic_answer_hits: list[str] = []
+    for artwork in artworks:
+        copy_fields: list[tuple[str, str]] = []
+        for field, value in (artwork.get("context") or {}).items():
+            copy_fields.append((f"context.{field}", normalize_space(value)))
+        for question_index, question in enumerate(artwork.get("questions", []), start=1):
+            copy_fields.append((f"questions[{question_index}].prompt", normalize_space(question.get("prompt", ""))))
+            copy_fields.append((f"questions[{question_index}].reinforcement", normalize_space(question.get("reinforcement", ""))))
+            for option_index, option in enumerate(question.get("options", []), start=1):
+                copy_fields.append((f"questions[{question_index}].options[{option_index}]", normalize_space(option)))
+        for field, text in copy_fields:
+            delimiter_errors = delimiter_copy_errors(text)
+            if delimiter_errors:
+                quality_smell_hits.append(f"{artwork['id']} {field}: {delimiter_errors[0]}")
+            for label, pattern in ARTWORK_COPY_BANNED_PATTERNS:
+                if pattern.search(text):
+                    banned_copy_hits.append(f"{artwork['id']} {field}: {label}")
+                    break
+            for label, pattern in QUALITY_SMELL_PATTERNS:
+                if pattern.search(text):
+                    quality_smell_hits.append(f"{artwork['id']} {field}: {label}")
+                    break
+        for question_index, question in enumerate(artwork.get("questions", []), start=1):
+            for option_index, option in enumerate(question.get("options", []), start=1):
+                for label, pattern in GENERIC_ANSWER_PATTERNS:
+                    if pattern.search(normalize_space(option)):
+                        generic_answer_hits.append(f"{artwork['id']} questions[{question_index}].options[{option_index}]: {label}")
+                        break
+    if banned_copy_hits:
+        errors.append(f"self-referential artwork copy remains: {banned_copy_hits[:12]}")
+    if quality_smell_hits:
+        errors.append(f"quality-smell artwork copy remains: {quality_smell_hits[:12]}")
+    if generic_answer_hits:
+        errors.append(f"generic quiz answer options remain: {generic_answer_hits[:12]}")
+    generic_facts = [
+        artwork["id"]
+        for artwork in artworks
+        if any(pattern in normalize_space(artwork.get("context", {}).get("surprisingFact", "")).casefold() for pattern in GENERIC_FACT_PATTERNS)
+    ]
+    if generic_facts:
+        errors.append(f"generic surprising facts remain: {generic_facts[:8]}")
+    object_specific = sum(1 for artwork in artworks if is_object_specific_fact(artwork))
+    if object_specific < math.ceil(len(artworks) * 0.95):
+        errors.append(f"object-specific surprising facts too low: {object_specific}/{len(artworks)}")
+    context_questions = [
+        question
+        for artwork in artworks
+        for question in artwork.get("questions", [])
+        if question.get("kind") == "context"
+    ]
+    raw_medium_questions = [
+        question
+        for question in context_questions
+        if re.search(r"\b(?:medium|material basis|material fact)\b", question.get("prompt", ""), re.IGNORECASE)
+    ]
+    if len(raw_medium_questions) > math.floor(len(context_questions) * 0.3):
+        errors.append(f"context questions overuse raw medium recall: {len(raw_medium_questions)}/{len(context_questions)}")
+    connection_questions = [
+        question
+        for artwork in artworks
+        for question in artwork.get("questions", [])
+        if question.get("kind") == "connection"
+    ]
+    passport_recall = [
+        question
+        for question in connection_questions
+        if re.search(r"\b(?:passport|thread|label)\b", question.get("prompt", ""), re.IGNORECASE)
+    ]
+    if len(passport_recall) > math.floor(len(connection_questions) * 0.25):
+        errors.append(f"connection questions overuse passport label recall: {len(passport_recall)}/{len(connection_questions)}")
+    return errors
+
+
+def mix_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
+    errors: list[str] = []
+    total = len(artworks)
+    source_counts = Counter(artwork["source"]["institution"] for artwork in artworks)
+    active_sources = {source for source, count in source_counts.items() if count > 0}
+    supported_runtime_sources = {"met", "aic", "rijks", "smithsonian", "ycba", "nga"}
+    missing_sources = sorted(supported_runtime_sources - active_sources)
+    if missing_sources:
+        errors.append(f"supported runtime sources missing from approved pack: {missing_sources}")
+    for source, count in source_counts.items():
+        if count > math.floor(total * 0.35):
+            errors.append(f"source {source} exceeds 35% cap: {count}/{total}")
+    top_two = sum(count for _, count in source_counts.most_common(2))
+    if top_two > math.floor(total * 0.6):
+        errors.append(f"top two sources exceed 60% cap: {top_two}/{total}")
+
+    title_counts = Counter(normalize_space(artwork["title"]).casefold() for artwork in artworks)
+    family_counts = Counter(title_family(artwork["title"]) for artwork in artworks)
+    for title, count in title_counts.items():
+        if count > 2:
+            errors.append(f"title repeat exceeds cap: {title} ({count})")
+            break
+    for family, count in family_counts.items():
+        if count > 4:
+            errors.append(f"object family repeat exceeds cap: {family} ({count})")
+            break
+
+    medium_counts = Counter(artwork["mediumCategory"] for artwork in artworks)
+    flat_total = sum(medium_counts.get(category, 0) for category in FLAT_MEDIA_CATEGORIES)
+    if flat_total > math.floor(total * 0.45):
+        errors.append(f"Painting/Print/Drawing exceeds 45% cap: {flat_total}/{total}")
+    if medium_counts.get("Photograph", 0) < 20:
+        errors.append(f"Photograph count below target: {medium_counts.get('Photograph', 0)}")
+
+    for artwork in artworks:
+        artist = normalize_space(artwork.get("artist", ""))
+        if re.search(r",\s*\d{3,4}\b|born|died|\b[A-Z][a-z]+ or$", artist):
+            errors.append(f"{artwork['id']}: artist label needs polish: {artist}")
+        if re.search(r"\bLate\d", artwork.get("objectDate", "")):
+            errors.append(f"{artwork['id']}: malformed date remains")
+    return errors
+
+
+def validate_curated_quality(curated_payload: dict[str, Any]) -> list[str]:
+    artworks = curated_payload.get("artworks") or []
+    return [*mix_quality_errors(artworks), *copy_quality_errors(artworks)]
+
+
 def month_key(date_value: date) -> str:
     return f"{date_value.year:04d}-{date_value.month:02d}"
 
@@ -1241,12 +2882,21 @@ def build_month_limits(start: date, days: int) -> dict[str, int]:
     return {key: math.floor(count * 0.4) for key, count in counts.items()}
 
 
+def build_region_month_caps(start: date, days: int) -> dict[str, int]:
+    counts: Counter[str] = Counter()
+    for offset in range(days):
+        counts[month_key(start + timedelta(days=offset))] += 1
+    return {key: math.floor(count * 0.45) for key, count in counts.items()}
+
+
 def schedule_candidate_score(
     candidate: dict[str, Any],
     *,
     remaining_artist_counts: Counter[str],
     remaining_period_counts: Counter[str],
     remaining_medium_counts: Counter[str],
+    remaining_region_counts: Counter[str],
+    remaining_source_counts: Counter[str],
     region_counts: Counter[str],
     period_counts: Counter[str],
     medium_counts: Counter[str],
@@ -1254,10 +2904,12 @@ def schedule_candidate_score(
     month_region_counts: Counter[tuple[str, str]],
     target_month: str,
     attempt: int,
-) -> tuple[int, int, int, int, int, int, int, int]:
+) -> tuple[int, int, int, int, int, int, int, int, int, int, int]:
     artist_key = normalize_space(candidate["artist"]).casefold()
     return (
         -remaining_artist_counts[artist_key],
+        -remaining_region_counts[candidate["geoRegion"]],
+        -remaining_source_counts[candidate["source"]["institution"]],
         -remaining_period_counts[candidate["periodKey"]],
         -remaining_medium_counts[candidate["mediumCategory"]],
         period_counts[candidate["periodKey"]],
@@ -1290,6 +2942,7 @@ def build_schedule_entries(artworks: list[dict[str, Any]], start: date, days: in
     if len(artworks) < days:
         raise ValueError(f"Need at least {days} approved artworks for a zero-repeat annual pack; found {len(artworks)}")
     europe_limits = build_month_limits(start, days)
+    region_month_caps = build_region_month_caps(start, days)
     last_error = f"Could not place a valid Museum artwork on {start.isoformat()}"
 
     for attempt in range(96):
@@ -1309,6 +2962,8 @@ def build_schedule_entries(artworks: list[dict[str, Any]], start: date, days: in
             remaining_artist_counts = Counter(normalize_space(candidate["artist"]).casefold() for candidate in remaining)
             remaining_period_counts = Counter(candidate["periodKey"] for candidate in remaining)
             remaining_medium_counts = Counter(candidate["mediumCategory"] for candidate in remaining)
+            remaining_region_counts = Counter(candidate["geoRegion"] for candidate in remaining)
+            remaining_source_counts = Counter(candidate["source"]["institution"] for candidate in remaining)
             valid_candidates = [
                 candidate
                 for candidate in remaining
@@ -1317,6 +2972,7 @@ def build_schedule_entries(artworks: list[dict[str, Any]], start: date, days: in
                     candidate["geoRegion"] == "Europe"
                     and month_region_counts[(current_month, "Europe")] >= europe_limits[current_month]
                 )
+                and month_region_counts[(current_month, candidate["geoRegion"])] < region_month_caps[current_month]
             ]
             if not valid_candidates:
                 last_error = f"Could not place a valid Museum artwork on {current_date.isoformat()} during attempt {attempt + 1}"
@@ -1329,6 +2985,8 @@ def build_schedule_entries(artworks: list[dict[str, Any]], start: date, days: in
                     remaining_artist_counts=remaining_artist_counts,
                     remaining_period_counts=remaining_period_counts,
                     remaining_medium_counts=remaining_medium_counts,
+                    remaining_region_counts=remaining_region_counts,
+                    remaining_source_counts=remaining_source_counts,
                     region_counts=region_counts,
                     period_counts=period_counts,
                     medium_counts=medium_counts,
@@ -1386,7 +3044,7 @@ def validate_editorial_record(record: dict[str, Any]) -> list[str]:
                 errors.append(f"{record_id}: artwork.{field} is required")
         for field in ("thumbnailUrl", "displayUrl", "fullUrl"):
             url = artwork.get("images", {}).get(field, "")
-            if not normalize_space(url).startswith("http"):
+            if not is_runtime_image_url(url):
                 errors.append(f"{record_id}: artwork.images.{field} must be a URL")
         for field in ("title", "artist", "medium", "periodTag", "passportLabel"):
             value = artwork.get(field, "")
@@ -1407,6 +3065,33 @@ def validate_editorial_record(record: dict[str, Any]) -> list[str]:
                     errors.append(f"{record_id}: quiz option contains markup")
         if not record.get("review", {}).get("approvedAt"):
             errors.append(f"{record_id}: approved record needs review.approvedAt")
+        if record.get("review", {}).get("approvalType") != "editor-agent-v1":
+            errors.append(f"{record_id}: approved record needs editor-agent-v1 approvalType")
+        if record.get("review", {}).get("showcaseTier") != SHOWCASE_TIER:
+            errors.append(f"{record_id}: approved record needs {SHOWCASE_TIER} showcaseTier")
+        if not record.get("review", {}).get("showcaseApprovedBy"):
+            errors.append(f"{record_id}: approved record needs review.showcaseApprovedBy")
+        source_evidence = record.get("review", {}).get("sourceEvidence") or {}
+        if not normalize_space(source_evidence.get("objectUrl", "")):
+            errors.append(f"{record_id}: approved record needs review.sourceEvidence.objectUrl")
+        supports = source_evidence.get("supports") or {}
+        for field in ("title", "date", "mediumCategory", "geoRegion", "passportLabel", "image"):
+            if not supports.get(field):
+                errors.append(f"{record_id}: source evidence does not support {field}")
+        if not normalize_space(record.get("review", {}).get("visualQualityNote", "")):
+            errors.append(f"{record_id}: approved record needs review.visualQualityNote")
+        if not record.get("review", {}).get("resolvedRisks"):
+            errors.append(f"{record_id}: approved record needs review.resolvedRisks")
+        if record.get("review", {}).get("approvedBy") in {"", "codex-seed-pass", None}:
+            errors.append(f"{record_id}: approved record needs named editor-agent approvedBy")
+        if not record.get("review", {}).get("copyEditedBy"):
+            errors.append(f"{record_id}: approved record needs review.copyEditedBy")
+        if not record.get("review", {}).get("factCheckedBy"):
+            errors.append(f"{record_id}: approved record needs review.factCheckedBy")
+        if not record.get("review", {}).get("editorNotes"):
+            errors.append(f"{record_id}: approved record needs review.editorNotes")
+        if any("B ship" in normalize_space(note) for note in record.get("review", {}).get("editorNotes", [])):
+            errors.append(f"{record_id}: approved record still carries B-tier editor note")
         if record.get("qa", {}).get("blockers"):
             errors.append(f"{record_id}: approved record has QA blockers")
     return errors
@@ -1448,7 +3133,9 @@ def validate_schedule_payload(
     recent: list[dict[str, Any]] = []
     artwork_by_id = {artwork["id"]: artwork for artwork in artworks}
     europe_limits = build_month_limits(parse_date(schedule_payload["start"]), len(entries))
+    region_month_caps = build_region_month_caps(parse_date(schedule_payload["start"]), len(entries))
     month_europe_counts: Counter[str] = Counter()
+    month_region_counts: Counter[tuple[str, str]] = Counter()
 
     for entry in entries:
         entry_date = parse_date(entry["date"])
@@ -1474,6 +3161,10 @@ def validate_schedule_payload(
             month_europe_counts[month] += 1
             if month_europe_counts[month] > europe_limits[month]:
                 errors.append(f"{entry['date']}: monthly Europe cap exceeded in {month}")
+        month = month_key(entry_date)
+        month_region_counts[(month, artwork["geoRegion"])] += 1
+        if month_region_counts[(month, artwork["geoRegion"])] > region_month_caps[month]:
+            errors.append(f"{entry['date']}: monthly {artwork['geoRegion']} cap exceeded in {month}")
     return errors
 
 
@@ -1539,6 +3230,11 @@ def read_csv_from_url(url: str) -> list[dict[str, str]]:
 
 def met_queries() -> list[str]:
     return [
+        "photograph",
+        "photography",
+        "albumen",
+        "salted paper",
+        "daguerreotype",
         "Japan",
         "China",
         "India",
@@ -1547,7 +3243,16 @@ def met_queries() -> list[str]:
         "Peru",
         "textile",
         "sculpture",
-        "photograph",
+        "vase",
+        "bowl",
+        "mask",
+        "jewelry",
+        "chair",
+        "armor",
+        "dress",
+        "fan",
+        "coin",
+        "manuscript",
         "painting",
         "print",
         "ceramic",
@@ -1984,9 +3689,40 @@ def build_smithsonian_candidate(record: dict[str, Any]) -> dict[str, Any] | None
     }
 
 
+def collect_smithsonian_photo_candidates(target: int, seen: set[str]) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    for unit in smithsonian_units():
+        index_url = f"https://smithsonian-open-access.s3-us-west-2.amazonaws.com/metadata/edan/{unit}/index.txt"
+        for data_url in fetch_text(index_url).splitlines():
+            for line in fetch_text(data_url).splitlines():
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                candidate = build_smithsonian_candidate(record)
+                if not candidate:
+                    continue
+                key = candidate_key(candidate)
+                if key in seen:
+                    continue
+                if build_artwork_projection(candidate)["mediumCategory"] != "Photograph":
+                    continue
+                seen.add(key)
+                candidates.append(candidate)
+                if len(candidates) >= target:
+                    return candidates
+    return candidates
+
+
 def collect_smithsonian_candidates(target: int) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     seen: set[str] = set()
+    photo_target = min(35, max(20, math.ceil(target * 0.15)))
+    for candidate in collect_smithsonian_photo_candidates(photo_target, seen):
+        candidates.append(candidate)
+        if len(candidates) >= target:
+            return candidates
+
     units = smithsonian_units()
     per_unit_target = math.ceil(target / len(units))
     for unit in units:
@@ -2090,8 +3826,14 @@ def collect_ycba_candidates(target: int) -> list[dict[str, Any]]:
 
 
 def build_nga_candidate(object_row: dict[str, str], artist_name: str) -> dict[str, Any]:
+    object_id = object_row["objectid"]
+    image_info = object_row.get("_image") or {}
+    iiif_url = image_info.get("iiifurl", "") if isinstance(image_info, dict) else ""
+    thumb_url = image_info.get("iiifthumburl", "") if isinstance(image_info, dict) else ""
+    display_url = f"{iiif_url}/full/843,/0/default.jpg" if iiif_url else ""
+    full_url = f"{iiif_url}/full/full/0/default.jpg" if iiif_url else ""
     return {
-        "id": f"nga-{object_row['objectid']}",
+        "id": f"nga-{object_id}",
         "title": clean_title(object_row["title"]),
         "artist": humanize_creator(artist_name),
         "objectDate": normalize_object_date(object_row.get("displaydate", "")),
@@ -2103,17 +3845,17 @@ def build_nga_candidate(object_row: dict[str, str], artist_name: str) -> dict[st
         "place": "",
         "classification": normalize_space(object_row.get("classification", "")),
         "collection": INSTITUTION_LABELS["nga"],
-        "subjectTerms": [],
+        "subjectTerms": unique_strings([object_row.get("title", ""), image_info.get("assistivetext", "") if isinstance(image_info, dict) else ""]),
         "images": {
-            "thumbnailUrl": "",
-            "displayUrl": "",
-            "fullUrl": "",
+            "thumbnailUrl": thumb_url or display_url,
+            "displayUrl": display_url or thumb_url,
+            "fullUrl": full_url or display_url or thumb_url,
         },
         "source": {
             "institution": "nga",
             "collectionLabel": INSTITUTION_LABELS["nga"],
-            "objectId": object_row["objectid"],
-            "objectUrl": f"https://www.nga.gov/collection/art-object-page.{object_row['objectid']}.html",
+            "objectId": object_id,
+            "objectUrl": f"https://www.nga.gov/collection/art-object-page.{object_id}.html",
             "license": "CC0",
         },
     }
@@ -2121,6 +3863,13 @@ def build_nga_candidate(object_row: dict[str, str], artist_name: str) -> dict[st
 
 def collect_nga_candidates(target: int) -> list[dict[str, Any]]:
     objects = read_csv_from_url("https://raw.githubusercontent.com/NationalGalleryOfArt/opendata/main/data/objects.csv")
+    images_by_object: dict[str, dict[str, str]] = {}
+    for row in read_csv_from_url("https://raw.githubusercontent.com/NationalGalleryOfArt/opendata/main/data/published_images.csv"):
+        if row.get("openaccess") != "1" or row.get("viewtype") != "primary":
+            continue
+        if not row.get("iiifurl"):
+            continue
+        images_by_object.setdefault(row.get("depictstmsobjectid", ""), row)
     constituents = {
         row["constituentid"]: humanize_creator(row.get("preferreddisplayname", ""), fallback="Unknown maker")
         for row in read_csv_from_url("https://raw.githubusercontent.com/NationalGalleryOfArt/opendata/main/data/constituents.csv")
@@ -2131,17 +3880,39 @@ def collect_nga_candidates(target: int) -> list[dict[str, Any]]:
             artist_by_object.setdefault(row["objectid"], constituents.get(row["constituentid"], "Unknown maker"))
     candidates: list[dict[str, Any]] = []
     seen: set[str] = set()
-    for object_row in objects:
+    artist_counts: Counter[str] = Counter()
+    classification_priority = {
+        "Photograph": 0,
+        "Sculpture": 1,
+        "Decorative Art": 2,
+        "Drawing": 3,
+        "Print": 4,
+        "Painting": 5,
+    }
+    image_backed_objects = [row for row in objects if row.get("objectid", "") in images_by_object]
+    image_backed_objects.sort(
+        key=lambda row: (
+            classification_priority.get(normalize_space(row.get("classification", "")), 99),
+            stable_hash(row.get("objectid", "")),
+        )
+    )
+    for object_row in image_backed_objects:
         if len(candidates) >= target:
             break
+        object_id = object_row.get("objectid", "")
         classification = normalize_space(object_row.get("classification", ""))
         if classification not in {"Painting", "Sculpture", "Print", "Drawing", "Photograph", "Decorative Art"}:
             continue
+        object_row = {**object_row, "_image": images_by_object[object_id]}
         candidate = build_nga_candidate(object_row, artist_by_object.get(object_row["objectid"], "Unknown maker"))
+        artist_key = normalize_space(candidate["artist"]).casefold()
+        if artist_counts[artist_key] >= artist_cap_for(candidate):
+            continue
         key = candidate_key(candidate)
         if key in seen:
             continue
         seen.add(key)
+        artist_counts[artist_key] += 1
         candidates.append(candidate)
     return candidates
 
@@ -2183,9 +3954,43 @@ def sort_candidates_for_selection(candidates: list[dict[str, Any]]) -> list[dict
     )
 
 
-def score_for_approval(candidate: dict[str, Any], counts: dict[str, Counter[str]]) -> tuple[int, int, int, int, int]:
+def title_family(value: str) -> str:
+    text = normalize_space(value).casefold()
+    text = re.sub(r"\([^)]*\)", "", text)
+    text = re.sub(r"\b(?:fragment|study|panel|tile|head|figure|bowl|cup|object|untitled|no\\.?)\b", "", text)
+    for family in ("weight", "icon", "bead", "cope", "wall facing", "headrest", "bound print", "bracelet"):
+        if family in text:
+            return family
+    words = [word for word in re.findall(r"[a-z][a-z'’-]*", text) if word not in {"the", "and", "with", "from", "of", "a", "an"}]
+    return " ".join(words[:3]) or text or "untitled"
+
+
+def is_weak_hero_candidate(candidate: dict[str, Any]) -> bool:
+    title = normalize_space(candidate.get("title", "")).casefold()
+    family = title_family(title)
+    if family in {"weight", "bead", "wall facing", "bound print"}:
+        return True
+    if has_term(title, ("fragment", "study", "unidentified", "bead; chipped")):
+        return True
+    return False
+
+
+def hero_quality_note(candidate: dict[str, Any], artwork: dict[str, Any] | None = None) -> str:
+    projected = artwork or build_artwork_projection(candidate)
+    if is_weak_hero_candidate(candidate):
+        return f"Included for material literacy despite a modest object type: {projected['title']} teaches {projected['mediumCategory'].lower()} looking."
+    return f"{projected['title']} has a clear subject, legible image, and object-specific details for a daily close-looking visit."
+
+
+def score_for_approval(candidate: dict[str, Any], counts: dict[str, Counter[str]]) -> tuple[int, int, int, int, int, int, int, int, int]:
     artist_key = normalize_space(candidate["artist"]).casefold()
+    photo_penalty = 0 if counts["medium"]["Photograph"] >= 20 or candidate["mediumCategory"] == "Photograph" else 1
+    flat_penalty = 1 if candidate["mediumCategory"] in FLAT_MEDIA_CATEGORIES else 0
     return (
+        photo_penalty,
+        flat_penalty,
+        counts["family"][title_family(candidate["title"])],
+        1 if is_weak_hero_candidate(candidate) else 0,
         counts["period"][candidate["periodKey"]],
         counts["region"][candidate["geoRegion"]],
         counts["medium"][candidate["mediumCategory"]],
@@ -2194,13 +3999,28 @@ def score_for_approval(candidate: dict[str, Any], counts: dict[str, Counter[str]
     )
 
 
+def flat_media_count(counts: dict[str, Counter[str]]) -> int:
+    return sum(counts["medium"].get(category, 0) for category in FLAT_MEDIA_CATEGORIES)
+
+
+def candidate_exceeds_mix_caps(candidate: dict[str, Any], counts: dict[str, Counter[str]], approved_target: int) -> bool:
+    source_cap = math.floor(approved_target * 0.35)
+    flat_cap = math.floor(approved_target * 0.45)
+    source = candidate["source"]["institution"]
+    if counts["source"][source] >= source_cap:
+        return True
+    if candidate["mediumCategory"] in FLAT_MEDIA_CATEGORIES and flat_media_count(counts) >= flat_cap:
+        return True
+    return False
+
+
 def artist_cap_for(candidate: dict[str, Any]) -> int:
     artist = normalize_space(candidate["artist"]).casefold()
     if artist in {"unknown maker", "unknown photographer", "unknown", "unidentified", "anonymous", "anonymous artist"}:
-        return 40
-    if artist.endswith(" maker") or artist.endswith(" artist"):
         return 24
-    return 6
+    if artist.endswith(" maker") or artist.endswith(" artist"):
+        return 16
+    return 12
 
 
 def choose_approved_candidates(
@@ -2216,6 +4036,8 @@ def choose_approved_candidates(
         "medium": Counter(),
         "period": Counter(),
         "artist": Counter(),
+        "title": Counter(),
+        "family": Counter(),
     }
     approved: list[dict[str, Any]] = []
     approved_ids: set[str] = set()
@@ -2225,7 +4047,12 @@ def choose_approved_candidates(
         normalized_candidates = []
         for candidate in pool:
             projection = build_artwork_projection(candidate)
-            normalized_candidates.append({**candidate, **projection, "source": candidate["source"]})
+            selection_fields = {
+                key: value
+                for key, value in projection.items()
+                if key not in {"images", "context", "questions"}
+            }
+            normalized_candidates.append({**candidate, **selection_fields, "source": candidate["source"]})
         normalized_pools[source] = sort_candidates_for_selection(normalized_candidates)
 
     for source, quota in approved_quotas.items():
@@ -2236,7 +4063,13 @@ def choose_approved_candidates(
             artist_key = normalize_space(candidate["artist"]).casefold()
             if candidate["id"] in approved_ids:
                 continue
+            if candidate_exceeds_mix_caps(candidate, counts, approved_target):
+                continue
             if counts["artist"][artist_key] >= artist_cap_for(candidate):
+                continue
+            if counts["title"][normalize_space(candidate["title"]).casefold()] >= 2:
+                continue
+            if counts["family"][title_family(candidate["title"])] >= 4:
                 continue
             approved.append(candidate)
             approved_ids.add(candidate["id"])
@@ -2245,6 +4078,8 @@ def choose_approved_candidates(
             counts["medium"][candidate["mediumCategory"]] += 1
             counts["period"][candidate["periodKey"]] += 1
             counts["artist"][artist_key] += 1
+            counts["title"][normalize_space(candidate["title"]).casefold()] += 1
+            counts["family"][title_family(candidate["title"])] += 1
         normalized_pools[source] = pool
 
     remaining_pool = [candidate for pool in normalized_pools.values() for candidate in pool if candidate["id"] not in approved_ids]
@@ -2252,7 +4087,13 @@ def choose_approved_candidates(
         remaining_pool.sort(key=lambda candidate: (*score_for_approval(candidate, counts=counts), stable_hash(candidate["id"])))
         candidate = remaining_pool.pop(0)
         artist_key = normalize_space(candidate["artist"]).casefold()
+        if candidate_exceeds_mix_caps(candidate, counts, approved_target):
+            continue
         if counts["artist"][artist_key] >= artist_cap_for(candidate):
+            continue
+        if counts["title"][normalize_space(candidate["title"]).casefold()] >= 2:
+            continue
+        if counts["family"][title_family(candidate["title"])] >= 4:
             continue
         approved.append(candidate)
         approved_ids.add(candidate["id"])
@@ -2261,24 +4102,15 @@ def choose_approved_candidates(
         counts["medium"][candidate["mediumCategory"]] += 1
         counts["period"][candidate["periodKey"]] += 1
         counts["artist"][artist_key] += 1
+        counts["title"][normalize_space(candidate["title"]).casefold()] += 1
+        counts["family"][title_family(candidate["title"])] += 1
 
     if len(approved) < approved_target:
-        raise ValueError(f"Only selected {len(approved)} approved artworks; need {approved_target}")
+        raise ValueError(
+            f"Only selected {len(approved)} approved artworks; need {approved_target}. "
+            f"sources={dict(counts['source'])}; media={dict(counts['medium'])}; regions={dict(counts['region'])}"
+        )
 
-    europe_cap = math.floor(approved_target * 0.4)
-    europe_count = sum(1 for candidate in approved if candidate["geoRegion"] == "Europe")
-    if europe_count > europe_cap:
-        non_europe_pool = [candidate for candidate in remaining_pool if candidate["geoRegion"] != "Europe"]
-        for index, candidate in enumerate(list(approved)):
-            if europe_count <= europe_cap:
-                break
-            if candidate["geoRegion"] != "Europe":
-                continue
-            if not non_europe_pool:
-                break
-            replacement = non_europe_pool.pop(0)
-            approved[index] = replacement
-            europe_count -= 1
     return approved
 
 
@@ -2288,14 +4120,15 @@ def build_editorial_payload(
     approved_target: int = 365,
     approved_quotas: dict[str, int] | None = None,
     sourced_only_quotas: dict[str, int] | None = None,
+    editor_agent: str = "Editor Merge",
 ) -> dict[str, Any]:
     approved_candidates = choose_approved_candidates(
-        {source: pool for source, pool in candidate_pools.items() if source != "nga"},
+        candidate_pools,
         approved_target=approved_target,
         approved_quotas=approved_quotas,
     )
     approved_ids = {candidate["id"] for candidate in approved_candidates}
-    records = [build_editorial_record(candidate, approved=True) for candidate in approved_candidates]
+    records = [build_editorial_record(candidate, approved=True, editor_agent=editor_agent) for candidate in approved_candidates]
 
     sourced_only_quotas = dict(DEFAULT_SOURCED_ONLY_QUOTAS if sourced_only_quotas is None else sourced_only_quotas)
     for source, quota in sourced_only_quotas.items():

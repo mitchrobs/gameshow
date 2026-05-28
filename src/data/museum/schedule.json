@@ -1,1469 +1,1469 @@
 {
   "version": "museum-schedule-v2",
-  "generatedAt": "2026-05-24T15:39:28+00:00",
+  "generatedAt": "2026-05-28T14:30:08+00:00",
   "start": "2026-04-23",
   "through": "2027-04-22",
   "days": 365,
   "entries": [
     {
       "date": "2026-04-23",
-      "artworkId": "smithsonian-nmafa_89-13-73"
-    },
-    {
-      "date": "2026-04-24",
-      "artworkId": "smithsonian-nmafa_94-21-1"
-    },
-    {
-      "date": "2026-04-25",
-      "artworkId": "aic-24880"
-    },
-    {
-      "date": "2026-04-26",
-      "artworkId": "smithsonian-nmafa_96-42-1.3"
-    },
-    {
-      "date": "2026-04-27",
-      "artworkId": "smithsonian-fsg_F1906.103a-b"
-    },
-    {
-      "date": "2026-04-28",
-      "artworkId": "ycba-5466"
-    },
-    {
-      "date": "2026-04-29",
-      "artworkId": "smithsonian-npg_S_NPG.2002.184.871"
-    },
-    {
-      "date": "2026-04-30",
-      "artworkId": "smithsonian-saam_1929.8.245.32"
-    },
-    {
-      "date": "2026-05-01",
-      "artworkId": "met-53429"
-    },
-    {
-      "date": "2026-05-02",
-      "artworkId": "smithsonian-nmafa_2004-7-2"
-    },
-    {
-      "date": "2026-05-03",
-      "artworkId": "smithsonian-nmafa_96-42-1.2"
-    },
-    {
-      "date": "2026-05-04",
-      "artworkId": "aic-25115"
-    },
-    {
-      "date": "2026-05-05",
-      "artworkId": "smithsonian-fsg_F1898.327"
-    },
-    {
-      "date": "2026-05-06",
-      "artworkId": "ycba-5464"
-    },
-    {
-      "date": "2026-05-07",
-      "artworkId": "smithsonian-saam_1929.8.171.1"
-    },
-    {
-      "date": "2026-05-08",
-      "artworkId": "smithsonian-nmafa_89-13-7"
-    },
-    {
-      "date": "2026-05-09",
-      "artworkId": "met-53449"
-    },
-    {
-      "date": "2026-05-10",
-      "artworkId": "smithsonian-nmafa_2015-7-9"
-    },
-    {
-      "date": "2026-05-11",
-      "artworkId": "smithsonian-nmafa_96-42-1.5"
-    },
-    {
-      "date": "2026-05-12",
-      "artworkId": "aic-25113"
-    },
-    {
-      "date": "2026-05-13",
-      "artworkId": "smithsonian-npg_S_NPG.74.39.4.40"
-    },
-    {
-      "date": "2026-05-14",
-      "artworkId": "smithsonian-saam_2000.47.13"
-    },
-    {
-      "date": "2026-05-15",
-      "artworkId": "met-53162"
-    },
-    {
-      "date": "2026-05-16",
-      "artworkId": "smithsonian-npg_S_NPG.2002.184.1317"
-    },
-    {
-      "date": "2026-05-17",
-      "artworkId": "smithsonian-nmafa_2003-7-1"
-    },
-    {
-      "date": "2026-05-18",
-      "artworkId": "ycba-1882"
-    },
-    {
-      "date": "2026-05-19",
-      "artworkId": "smithsonian-nmafa_73-19-18"
-    },
-    {
-      "date": "2026-05-20",
-      "artworkId": "smithsonian-fsg_F1907.176"
-    },
-    {
-      "date": "2026-05-21",
-      "artworkId": "rijks-200107778"
-    },
-    {
-      "date": "2026-05-22",
-      "artworkId": "smithsonian-npg_NPG.85.102"
-    },
-    {
-      "date": "2026-05-23",
-      "artworkId": "smithsonian-saam_1973.130.104"
-    },
-    {
-      "date": "2026-05-24",
-      "artworkId": "aic-38423"
-    },
-    {
-      "date": "2026-05-25",
-      "artworkId": "smithsonian-nmafa_2010-19-1"
-    },
-    {
-      "date": "2026-05-26",
-      "artworkId": "smithsonian-nmafa_73-19-13"
-    },
-    {
-      "date": "2026-05-27",
-      "artworkId": "aic-145884"
-    },
-    {
-      "date": "2026-05-28",
-      "artworkId": "smithsonian-saam_1970.355.354"
-    },
-    {
-      "date": "2026-05-29",
-      "artworkId": "smithsonian-npg_NPG.POB169"
-    },
-    {
-      "date": "2026-05-30",
-      "artworkId": "aic-121408"
-    },
-    {
-      "date": "2026-05-31",
-      "artworkId": "smithsonian-nmafa_2015-9-24"
-    },
-    {
-      "date": "2026-06-01",
-      "artworkId": "smithsonian-nmafa_2014-21-1"
-    },
-    {
-      "date": "2026-06-02",
-      "artworkId": "aic-35399"
-    },
-    {
-      "date": "2026-06-03",
-      "artworkId": "smithsonian-nmafa_73-19-17"
-    },
-    {
-      "date": "2026-06-04",
-      "artworkId": "smithsonian-npg_S_NPG.74.39.16.48"
-    },
-    {
-      "date": "2026-06-05",
-      "artworkId": "aic-48151"
-    },
-    {
-      "date": "2026-06-06",
       "artworkId": "smithsonian-npg_NPG.76.76"
     },
     {
-      "date": "2026-06-07",
-      "artworkId": "smithsonian-nmafa_74-20-1"
+      "date": "2026-04-24",
+      "artworkId": "ycba-30633"
     },
     {
-      "date": "2026-06-08",
-      "artworkId": "aic-138630"
-    },
-    {
-      "date": "2026-06-09",
-      "artworkId": "smithsonian-nmafa_73-24-1"
-    },
-    {
-      "date": "2026-06-10",
-      "artworkId": "smithsonian-nmafa_96-42-1.12"
-    },
-    {
-      "date": "2026-06-11",
-      "artworkId": "aic-55721"
-    },
-    {
-      "date": "2026-06-12",
-      "artworkId": "smithsonian-npg_S_NPG.2002.184.1313"
-    },
-    {
-      "date": "2026-06-13",
-      "artworkId": "smithsonian-npg_S_NPG.88.5"
-    },
-    {
-      "date": "2026-06-14",
-      "artworkId": "aic-26607"
-    },
-    {
-      "date": "2026-06-15",
-      "artworkId": "smithsonian-npg_NPG.81.M3632.3"
-    },
-    {
-      "date": "2026-06-16",
-      "artworkId": "smithsonian-nmafa_2002-21-1"
-    },
-    {
-      "date": "2026-06-17",
-      "artworkId": "aic-25102"
-    },
-    {
-      "date": "2026-06-18",
-      "artworkId": "smithsonian-nmafa_96-42-1.10"
-    },
-    {
-      "date": "2026-06-19",
-      "artworkId": "smithsonian-nmafa_69-4-1"
-    },
-    {
-      "date": "2026-06-20",
-      "artworkId": "aic-14630"
-    },
-    {
-      "date": "2026-06-21",
-      "artworkId": "smithsonian-fsg_F1904.4a-b"
-    },
-    {
-      "date": "2026-06-22",
-      "artworkId": "smithsonian-fsg_F1905.117a-b"
-    },
-    {
-      "date": "2026-06-23",
-      "artworkId": "met-53660"
-    },
-    {
-      "date": "2026-06-24",
-      "artworkId": "smithsonian-nmafa_97-19-1"
-    },
-    {
-      "date": "2026-06-25",
-      "artworkId": "aic-75557"
-    },
-    {
-      "date": "2026-06-26",
-      "artworkId": "ycba-5508"
-    },
-    {
-      "date": "2026-06-27",
+      "date": "2026-04-25",
       "artworkId": "met-544320"
     },
     {
-      "date": "2026-06-28",
-      "artworkId": "smithsonian-fsg_F1907.232"
+      "date": "2026-04-26",
+      "artworkId": "smithsonian-saam_1997.105.31"
     },
     {
-      "date": "2026-06-29",
-      "artworkId": "smithsonian-saam_1971.439.94"
-    },
-    {
-      "date": "2026-06-30",
-      "artworkId": "rijks-200106038"
-    },
-    {
-      "date": "2026-07-01",
-      "artworkId": "smithsonian-nmafa_2004-7-8"
-    },
-    {
-      "date": "2026-07-02",
-      "artworkId": "smithsonian-saam_1996.63.144"
-    },
-    {
-      "date": "2026-07-03",
-      "artworkId": "rijks-200107777"
-    },
-    {
-      "date": "2026-07-04",
-      "artworkId": "smithsonian-saam_1977.66.38"
-    },
-    {
-      "date": "2026-07-05",
-      "artworkId": "smithsonian-fsg_F1911.443a-e"
-    },
-    {
-      "date": "2026-07-06",
-      "artworkId": "rijks-200107768"
-    },
-    {
-      "date": "2026-07-07",
-      "artworkId": "smithsonian-saam_1973.130.255"
-    },
-    {
-      "date": "2026-07-08",
-      "artworkId": "smithsonian-saam_1983.83.55"
-    },
-    {
-      "date": "2026-07-09",
-      "artworkId": "rijks-200107787"
-    },
-    {
-      "date": "2026-07-10",
-      "artworkId": "smithsonian-saam_1970.355.530"
-    },
-    {
-      "date": "2026-07-11",
-      "artworkId": "smithsonian-npg_S_NPG.74.39.6.46"
-    },
-    {
-      "date": "2026-07-12",
-      "artworkId": "aic-143676"
-    },
-    {
-      "date": "2026-07-13",
-      "artworkId": "smithsonian-chndm_1926-43-4-655"
-    },
-    {
-      "date": "2026-07-14",
+      "date": "2026-04-27",
       "artworkId": "smithsonian-npg_S_NPG.2002.184.764"
     },
     {
-      "date": "2026-07-15",
-      "artworkId": "rijks-200107773"
-    },
-    {
-      "date": "2026-07-16",
-      "artworkId": "smithsonian-npg_NPG.81.M3997"
-    },
-    {
-      "date": "2026-07-17",
-      "artworkId": "smithsonian-npg_NPG.81.M1036"
-    },
-    {
-      "date": "2026-07-18",
-      "artworkId": "rijks-200107761"
-    },
-    {
-      "date": "2026-07-19",
-      "artworkId": "smithsonian-nmafa_2005-6-56"
-    },
-    {
-      "date": "2026-07-20",
-      "artworkId": "smithsonian-fsg_F1909.396"
-    },
-    {
-      "date": "2026-07-21",
-      "artworkId": "aic-154237"
-    },
-    {
-      "date": "2026-07-22",
-      "artworkId": "smithsonian-nmafa_2005-6-55"
-    },
-    {
-      "date": "2026-07-23",
-      "artworkId": "smithsonian-nmafa_75-32-1"
-    },
-    {
-      "date": "2026-07-24",
-      "artworkId": "aic-94131"
-    },
-    {
-      "date": "2026-07-25",
-      "artworkId": "smithsonian-nmafa_2004-7-11"
-    },
-    {
-      "date": "2026-07-26",
-      "artworkId": "smithsonian-chndm_1921-6-538-181"
-    },
-    {
-      "date": "2026-07-27",
-      "artworkId": "aic-116448"
-    },
-    {
-      "date": "2026-07-28",
-      "artworkId": "smithsonian-fsg_F1916.302"
-    },
-    {
-      "date": "2026-07-29",
-      "artworkId": "smithsonian-nmafa_96-42-1.11"
-    },
-    {
-      "date": "2026-07-30",
-      "artworkId": "aic-116964"
-    },
-    {
-      "date": "2026-07-31",
-      "artworkId": "smithsonian-nmafa_88-7-2"
-    },
-    {
-      "date": "2026-08-01",
-      "artworkId": "aic-121876"
-    },
-    {
-      "date": "2026-08-02",
-      "artworkId": "smithsonian-fsg_F1904.187"
-    },
-    {
-      "date": "2026-08-03",
-      "artworkId": "aic-129445"
-    },
-    {
-      "date": "2026-08-04",
-      "artworkId": "smithsonian-chndm_1926-43-5-553"
-    },
-    {
-      "date": "2026-08-05",
-      "artworkId": "smithsonian-nmafa_2005-6-7.1"
-    },
-    {
-      "date": "2026-08-06",
-      "artworkId": "aic-158680"
-    },
-    {
-      "date": "2026-08-07",
-      "artworkId": "aic-61921"
-    },
-    {
-      "date": "2026-08-08",
-      "artworkId": "met-459027"
-    },
-    {
-      "date": "2026-08-09",
-      "artworkId": "aic-140391"
-    },
-    {
-      "date": "2026-08-10",
-      "artworkId": "aic-121415"
-    },
-    {
-      "date": "2026-08-11",
-      "artworkId": "smithsonian-chndm_1926-43-6-b-202"
-    },
-    {
-      "date": "2026-08-12",
-      "artworkId": "smithsonian-fsg_F1902.132"
-    },
-    {
-      "date": "2026-08-13",
-      "artworkId": "aic-138652"
-    },
-    {
-      "date": "2026-08-14",
-      "artworkId": "smithsonian-nmafa_89-8-40"
-    },
-    {
-      "date": "2026-08-15",
-      "artworkId": "aic-64520"
-    },
-    {
-      "date": "2026-08-16",
-      "artworkId": "aic-55718"
-    },
-    {
-      "date": "2026-08-17",
-      "artworkId": "met-53187"
-    },
-    {
-      "date": "2026-08-18",
-      "artworkId": "smithsonian-fsg_F1915.81"
-    },
-    {
-      "date": "2026-08-19",
-      "artworkId": "aic-26561"
-    },
-    {
-      "date": "2026-08-20",
-      "artworkId": "aic-81555"
-    },
-    {
-      "date": "2026-08-21",
-      "artworkId": "ycba-5456"
-    },
-    {
-      "date": "2026-08-22",
-      "artworkId": "aic-87088"
-    },
-    {
-      "date": "2026-08-23",
+      "date": "2026-04-28",
       "artworkId": "aic-62808"
     },
     {
-      "date": "2026-08-24",
+      "date": "2026-04-29",
+      "artworkId": "met-53660"
+    },
+    {
+      "date": "2026-04-30",
+      "artworkId": "smithsonian-npg_NPG.POB169"
+    },
+    {
+      "date": "2026-05-01",
+      "artworkId": "ycba-1096"
+    },
+    {
+      "date": "2026-05-02",
+      "artworkId": "smithsonian-nmafa_2004-7-8"
+    },
+    {
+      "date": "2026-05-03",
       "artworkId": "met-544740"
     },
     {
-      "date": "2026-08-25",
-      "artworkId": "smithsonian-fsg_F1915.10"
+      "date": "2026-05-04",
+      "artworkId": "smithsonian-saam_1999.97.23"
     },
     {
-      "date": "2026-08-26",
-      "artworkId": "aic-65940"
+      "date": "2026-05-05",
+      "artworkId": "smithsonian-npg_S_NPG.2002.184.871"
     },
     {
-      "date": "2026-08-27",
-      "artworkId": "smithsonian-saam_1973.150"
-    },
-    {
-      "date": "2026-08-28",
-      "artworkId": "smithsonian-saam_1982.80.4"
-    },
-    {
-      "date": "2026-08-29",
-      "artworkId": "rijks-200107764"
-    },
-    {
-      "date": "2026-08-30",
-      "artworkId": "smithsonian-saam_1929.6.144"
-    },
-    {
-      "date": "2026-08-31",
-      "artworkId": "smithsonian-saam_1929.7.1"
-    },
-    {
-      "date": "2026-09-01",
-      "artworkId": "rijks-200107793"
-    },
-    {
-      "date": "2026-09-02",
-      "artworkId": "smithsonian-chndm_1936-4-207"
-    },
-    {
-      "date": "2026-09-03",
-      "artworkId": "smithsonian-saam_1970.285"
-    },
-    {
-      "date": "2026-09-04",
-      "artworkId": "met-436102"
-    },
-    {
-      "date": "2026-09-05",
-      "artworkId": "smithsonian-npg_NPG.83.176"
-    },
-    {
-      "date": "2026-09-06",
-      "artworkId": "smithsonian-saam_1985.66.455"
-    },
-    {
-      "date": "2026-09-07",
-      "artworkId": "aic-81564"
-    },
-    {
-      "date": "2026-09-08",
-      "artworkId": "smithsonian-npg_NPG.89.61"
-    },
-    {
-      "date": "2026-09-09",
-      "artworkId": "smithsonian-fsg_F1916.21"
-    },
-    {
-      "date": "2026-09-10",
-      "artworkId": "rijks-200107776"
-    },
-    {
-      "date": "2026-09-11",
-      "artworkId": "smithsonian-saam_1916.6.46"
-    },
-    {
-      "date": "2026-09-12",
-      "artworkId": "smithsonian-npg_NPG.79.200"
-    },
-    {
-      "date": "2026-09-13",
-      "artworkId": "aic-36999"
-    },
-    {
-      "date": "2026-09-14",
-      "artworkId": "smithsonian-saam_1985.66.295_540"
-    },
-    {
-      "date": "2026-09-15",
-      "artworkId": "smithsonian-npg_NPG.2019.24"
-    },
-    {
-      "date": "2026-09-16",
-      "artworkId": "met-203842"
-    },
-    {
-      "date": "2026-09-17",
-      "artworkId": "smithsonian-fsg_F1908.98"
-    },
-    {
-      "date": "2026-09-18",
-      "artworkId": "smithsonian-saam_1982.1.31"
-    },
-    {
-      "date": "2026-09-19",
-      "artworkId": "met-435848"
-    },
-    {
-      "date": "2026-09-20",
-      "artworkId": "smithsonian-npg_S_NPG.2001.58.6"
-    },
-    {
-      "date": "2026-09-21",
-      "artworkId": "smithsonian-saam_1984.50"
-    },
-    {
-      "date": "2026-09-22",
-      "artworkId": "rijks-200105889"
-    },
-    {
-      "date": "2026-09-23",
-      "artworkId": "smithsonian-npg_S_NPG.77.136.2.b"
-    },
-    {
-      "date": "2026-09-24",
-      "artworkId": "smithsonian-fsg_FSC-T-7"
-    },
-    {
-      "date": "2026-09-25",
-      "artworkId": "aic-43244"
-    },
-    {
-      "date": "2026-09-26",
-      "artworkId": "smithsonian-saam_1967.56.27"
-    },
-    {
-      "date": "2026-09-27",
-      "artworkId": "smithsonian-npg_NPG.2016.149"
-    },
-    {
-      "date": "2026-09-28",
-      "artworkId": "met-437261"
-    },
-    {
-      "date": "2026-09-29",
-      "artworkId": "smithsonian-saam_1976.103.17"
-    },
-    {
-      "date": "2026-09-30",
-      "artworkId": "smithsonian-saam_1967.136.6"
-    },
-    {
-      "date": "2026-10-01",
-      "artworkId": "aic-113794"
-    },
-    {
-      "date": "2026-10-02",
-      "artworkId": "smithsonian-fsg_F1909.1311"
-    },
-    {
-      "date": "2026-10-03",
-      "artworkId": "smithsonian-npg_NPG.77.257"
-    },
-    {
-      "date": "2026-10-04",
-      "artworkId": "rijks-200107784"
-    },
-    {
-      "date": "2026-10-05",
-      "artworkId": "smithsonian-npg_S_NPG.91.126.57.A"
-    },
-    {
-      "date": "2026-10-06",
-      "artworkId": "smithsonian-saam_1895.10.3"
-    },
-    {
-      "date": "2026-10-07",
-      "artworkId": "aic-29736"
-    },
-    {
-      "date": "2026-10-08",
-      "artworkId": "smithsonian-npg_NPG.85.158"
-    },
-    {
-      "date": "2026-10-09",
-      "artworkId": "smithsonian-fsg_F1907.115"
-    },
-    {
-      "date": "2026-10-10",
-      "artworkId": "rijks-200107767"
-    },
-    {
-      "date": "2026-10-11",
-      "artworkId": "smithsonian-saam_1929.6.46"
-    },
-    {
-      "date": "2026-10-12",
-      "artworkId": "smithsonian-nmafa_89-8-34"
-    },
-    {
-      "date": "2026-10-13",
-      "artworkId": "met-729644"
-    },
-    {
-      "date": "2026-10-14",
-      "artworkId": "smithsonian-chndm_2019-26-1"
-    },
-    {
-      "date": "2026-10-15",
-      "artworkId": "smithsonian-npg_S_NPG.74.39.7.48"
-    },
-    {
-      "date": "2026-10-16",
-      "artworkId": "met-438821"
-    },
-    {
-      "date": "2026-10-17",
-      "artworkId": "smithsonian-fsg_F1909.1309"
-    },
-    {
-      "date": "2026-10-18",
-      "artworkId": "smithsonian-saam_1958.5.3"
-    },
-    {
-      "date": "2026-10-19",
-      "artworkId": "rijks-200107762"
-    },
-    {
-      "date": "2026-10-20",
-      "artworkId": "smithsonian-nmafa_89-8-22"
-    },
-    {
-      "date": "2026-10-21",
-      "artworkId": "smithsonian-chndm_1921-6-204-30"
-    },
-    {
-      "date": "2026-10-22",
-      "artworkId": "aic-86411"
-    },
-    {
-      "date": "2026-10-23",
-      "artworkId": "smithsonian-npg_NPG.98.129.g"
-    },
-    {
-      "date": "2026-10-24",
-      "artworkId": "smithsonian-fsg_F1917.547"
-    },
-    {
-      "date": "2026-10-25",
-      "artworkId": "rijks-200107772"
-    },
-    {
-      "date": "2026-10-26",
-      "artworkId": "smithsonian-saam_1983.83.171"
-    },
-    {
-      "date": "2026-10-27",
-      "artworkId": "smithsonian-nmafa_85-19-1"
-    },
-    {
-      "date": "2026-10-28",
-      "artworkId": "rijks-200100988"
-    },
-    {
-      "date": "2026-10-29",
-      "artworkId": "smithsonian-chndm_2000-69-310"
-    },
-    {
-      "date": "2026-10-30",
-      "artworkId": "smithsonian-npg_S_NPG.2018.83.11"
-    },
-    {
-      "date": "2026-10-31",
-      "artworkId": "rijks-200107763"
-    },
-    {
-      "date": "2026-11-01",
-      "artworkId": "smithsonian-fsg_F1909.1291"
-    },
-    {
-      "date": "2026-11-02",
-      "artworkId": "smithsonian-saam_1966.39.1"
-    },
-    {
-      "date": "2026-11-03",
-      "artworkId": "aic-129447"
-    },
-    {
-      "date": "2026-11-04",
-      "artworkId": "smithsonian-nmafa_89-8-51"
-    },
-    {
-      "date": "2026-11-05",
-      "artworkId": "smithsonian-chndm_1991-17-1"
-    },
-    {
-      "date": "2026-11-06",
-      "artworkId": "aic-60819"
-    },
-    {
-      "date": "2026-11-07",
-      "artworkId": "smithsonian-npg_NPG.2008.122"
-    },
-    {
-      "date": "2026-11-08",
-      "artworkId": "smithsonian-fsg_F1911.124"
-    },
-    {
-      "date": "2026-11-09",
-      "artworkId": "rijks-200107792"
-    },
-    {
-      "date": "2026-11-10",
-      "artworkId": "smithsonian-saam_1950.2.14"
-    },
-    {
-      "date": "2026-11-11",
-      "artworkId": "smithsonian-nmafa_96-42-1.8"
-    },
-    {
-      "date": "2026-11-12",
-      "artworkId": "aic-80084"
-    },
-    {
-      "date": "2026-11-13",
-      "artworkId": "smithsonian-chndm_1921-6-538-11"
-    },
-    {
-      "date": "2026-11-14",
-      "artworkId": "rijks-200106079"
-    },
-    {
-      "date": "2026-11-15",
-      "artworkId": "smithsonian-fsg_F1909.1562"
-    },
-    {
-      "date": "2026-11-16",
-      "artworkId": "smithsonian-fsg_F1901.195"
-    },
-    {
-      "date": "2026-11-17",
-      "artworkId": "aic-195381"
-    },
-    {
-      "date": "2026-11-18",
-      "artworkId": "smithsonian-npg_S_NPG.2002.184.456"
-    },
-    {
-      "date": "2026-11-19",
-      "artworkId": "smithsonian-saam_1967.72.168"
-    },
-    {
-      "date": "2026-11-20",
-      "artworkId": "aic-24177"
-    },
-    {
-      "date": "2026-11-21",
-      "artworkId": "smithsonian-nmafa_93-5-1"
-    },
-    {
-      "date": "2026-11-22",
-      "artworkId": "smithsonian-fsg_F1916.728"
-    },
-    {
-      "date": "2026-11-23",
-      "artworkId": "rijks-200107779"
-    },
-    {
-      "date": "2026-11-24",
-      "artworkId": "aic-41375"
-    },
-    {
-      "date": "2026-11-25",
-      "artworkId": "smithsonian-chndm_1901-39-151-b"
-    },
-    {
-      "date": "2026-11-26",
-      "artworkId": "smithsonian-fsg_F1909.172"
-    },
-    {
-      "date": "2026-11-27",
-      "artworkId": "met-329077"
-    },
-    {
-      "date": "2026-11-28",
-      "artworkId": "aic-127982"
-    },
-    {
-      "date": "2026-11-29",
-      "artworkId": "smithsonian-fsg_F1899.37"
-    },
-    {
-      "date": "2026-11-30",
-      "artworkId": "aic-14768"
-    },
-    {
-      "date": "2026-12-01",
-      "artworkId": "smithsonian-saam_1977.66.24"
-    },
-    {
-      "date": "2026-12-02",
-      "artworkId": "smithsonian-nmafa_85-1-2"
-    },
-    {
-      "date": "2026-12-03",
-      "artworkId": "aic-181739"
-    },
-    {
-      "date": "2026-12-04",
-      "artworkId": "smithsonian-npg_NPG.81.M635"
-    },
-    {
-      "date": "2026-12-05",
-      "artworkId": "aic-30629"
-    },
-    {
-      "date": "2026-12-06",
-      "artworkId": "smithsonian-fsg_F1919.93"
-    },
-    {
-      "date": "2026-12-07",
-      "artworkId": "met-824771"
-    },
-    {
-      "date": "2026-12-08",
-      "artworkId": "met-76084"
-    },
-    {
-      "date": "2026-12-09",
-      "artworkId": "aic-34231"
-    },
-    {
-      "date": "2026-12-10",
-      "artworkId": "rijks-200106078"
-    },
-    {
-      "date": "2026-12-11",
-      "artworkId": "aic-116873"
-    },
-    {
-      "date": "2026-12-12",
-      "artworkId": "smithsonian-chndm_1968-101-30-22"
-    },
-    {
-      "date": "2026-12-13",
-      "artworkId": "smithsonian-fsg_F1908.119"
-    },
-    {
-      "date": "2026-12-14",
-      "artworkId": "aic-28283"
-    },
-    {
-      "date": "2026-12-15",
-      "artworkId": "aic-111059"
-    },
-    {
-      "date": "2026-12-16",
-      "artworkId": "smithsonian-saam_1970.355.484"
-    },
-    {
-      "date": "2026-12-17",
-      "artworkId": "smithsonian-nmafa_80-27-11"
-    },
-    {
-      "date": "2026-12-18",
-      "artworkId": "aic-137001"
-    },
-    {
-      "date": "2026-12-19",
-      "artworkId": "smithsonian-npg_NPG.81.M3221.3"
-    },
-    {
-      "date": "2026-12-20",
-      "artworkId": "smithsonian-fsg_F1909.902"
-    },
-    {
-      "date": "2026-12-21",
-      "artworkId": "met-206965"
-    },
-    {
-      "date": "2026-12-22",
-      "artworkId": "aic-75957"
-    },
-    {
-      "date": "2026-12-23",
-      "artworkId": "aic-21843"
-    },
-    {
-      "date": "2026-12-24",
-      "artworkId": "met-855856"
-    },
-    {
-      "date": "2026-12-25",
-      "artworkId": "smithsonian-chndm_2009-6-51"
-    },
-    {
-      "date": "2026-12-26",
-      "artworkId": "met-317877"
-    },
-    {
-      "date": "2026-12-27",
-      "artworkId": "smithsonian-fsg_F1917.597a-b"
-    },
-    {
-      "date": "2026-12-28",
-      "artworkId": "aic-62181"
-    },
-    {
-      "date": "2026-12-29",
-      "artworkId": "aic-30368"
-    },
-    {
-      "date": "2026-12-30",
-      "artworkId": "smithsonian-fsg_F1911.145a-c"
-    },
-    {
-      "date": "2026-12-31",
-      "artworkId": "smithsonian-saam_1978.108.52"
-    },
-    {
-      "date": "2027-01-01",
-      "artworkId": "aic-26487"
-    },
-    {
-      "date": "2027-01-02",
-      "artworkId": "smithsonian-nmafa_84-14-7"
-    },
-    {
-      "date": "2027-01-03",
-      "artworkId": "smithsonian-fsg_F1907.661"
-    },
-    {
-      "date": "2027-01-04",
-      "artworkId": "aic-14664"
-    },
-    {
-      "date": "2027-01-05",
-      "artworkId": "smithsonian-npg_NPG.81.M1035"
-    },
-    {
-      "date": "2027-01-06",
-      "artworkId": "aic-47580"
-    },
-    {
-      "date": "2027-01-07",
-      "artworkId": "met-451725"
-    },
-    {
-      "date": "2027-01-08",
-      "artworkId": "met-200668"
-    },
-    {
-      "date": "2027-01-09",
-      "artworkId": "aic-148788"
-    },
-    {
-      "date": "2027-01-10",
-      "artworkId": "smithsonian-fsg_F1909.1481"
-    },
-    {
-      "date": "2027-01-11",
-      "artworkId": "aic-20692"
-    },
-    {
-      "date": "2027-01-12",
-      "artworkId": "met-53222"
-    },
-    {
-      "date": "2027-01-13",
-      "artworkId": "smithsonian-npg_AD_NPG.2011.1"
-    },
-    {
-      "date": "2027-01-14",
-      "artworkId": "smithsonian-saam_1930.12.47"
-    },
-    {
-      "date": "2027-01-15",
-      "artworkId": "aic-32000"
-    },
-    {
-      "date": "2027-01-16",
-      "artworkId": "smithsonian-chndm_1981-65-39"
-    },
-    {
-      "date": "2027-01-17",
-      "artworkId": "smithsonian-fsg_F1917.628"
-    },
-    {
-      "date": "2027-01-18",
-      "artworkId": "aic-11723"
-    },
-    {
-      "date": "2027-01-19",
-      "artworkId": "smithsonian-nmafa_89-8-41"
-    },
-    {
-      "date": "2027-01-20",
-      "artworkId": "smithsonian-npg_NPG.81.M3631.1"
-    },
-    {
-      "date": "2027-01-21",
-      "artworkId": "aic-70593"
-    },
-    {
-      "date": "2027-01-22",
-      "artworkId": "met-53176"
-    },
-    {
-      "date": "2027-01-23",
-      "artworkId": "aic-103309"
-    },
-    {
-      "date": "2027-01-24",
-      "artworkId": "smithsonian-fsg_F1909.815"
-    },
-    {
-      "date": "2027-01-25",
-      "artworkId": "aic-68433"
-    },
-    {
-      "date": "2027-01-26",
-      "artworkId": "smithsonian-fsg_F1904.273"
-    },
-    {
-      "date": "2027-01-27",
-      "artworkId": "smithsonian-chndm_1992-5-51-a_b"
-    },
-    {
-      "date": "2027-01-28",
-      "artworkId": "aic-117059"
-    },
-    {
-      "date": "2027-01-29",
-      "artworkId": "aic-39920"
-    },
-    {
-      "date": "2027-01-30",
-      "artworkId": "smithsonian-npg_NPG.65.59"
-    },
-    {
-      "date": "2027-01-31",
-      "artworkId": "smithsonian-saam_1915.5.1"
-    },
-    {
-      "date": "2027-02-01",
-      "artworkId": "aic-62992"
-    },
-    {
-      "date": "2027-02-02",
-      "artworkId": "smithsonian-nmafa_88-7-3"
-    },
-    {
-      "date": "2027-02-03",
-      "artworkId": "smithsonian-npg_NPG.81.M980"
-    },
-    {
-      "date": "2027-02-04",
-      "artworkId": "aic-118570"
-    },
-    {
-      "date": "2027-02-05",
-      "artworkId": "aic-137226"
-    },
-    {
-      "date": "2027-02-06",
-      "artworkId": "met-45258"
-    },
-    {
-      "date": "2027-02-07",
-      "artworkId": "aic-9637"
-    },
-    {
-      "date": "2027-02-08",
-      "artworkId": "aic-14591"
-    },
-    {
-      "date": "2027-02-09",
-      "artworkId": "smithsonian-npg_S_NPG.75.28.2.h"
-    },
-    {
-      "date": "2027-02-10",
-      "artworkId": "met-472562"
-    },
-    {
-      "date": "2027-02-11",
-      "artworkId": "met-49068"
-    },
-    {
-      "date": "2027-02-12",
-      "artworkId": "aic-75238"
-    },
-    {
-      "date": "2027-02-13",
-      "artworkId": "aic-112100"
-    },
-    {
-      "date": "2027-02-14",
-      "artworkId": "smithsonian-saam_1991.56.271"
-    },
-    {
-      "date": "2027-02-15",
-      "artworkId": "aic-59541"
-    },
-    {
-      "date": "2027-02-16",
-      "artworkId": "aic-154238"
-    },
-    {
-      "date": "2027-02-17",
-      "artworkId": "smithsonian-chndm_1938-57-657-c"
-    },
-    {
-      "date": "2027-02-18",
-      "artworkId": "smithsonian-fsg_F1911.309"
-    },
-    {
-      "date": "2027-02-19",
-      "artworkId": "aic-270002"
-    },
-    {
-      "date": "2027-02-20",
-      "artworkId": "smithsonian-nmafa_2005-6-7.2"
-    },
-    {
-      "date": "2027-02-21",
-      "artworkId": "smithsonian-npg_NPG.81.M3648.1"
-    },
-    {
-      "date": "2027-02-22",
-      "artworkId": "aic-76890"
-    },
-    {
-      "date": "2027-02-23",
-      "artworkId": "met-452102"
-    },
-    {
-      "date": "2027-02-24",
-      "artworkId": "aic-95654"
-    },
-    {
-      "date": "2027-02-25",
-      "artworkId": "met-460281"
-    },
-    {
-      "date": "2027-02-26",
-      "artworkId": "aic-14245"
-    },
-    {
-      "date": "2027-02-27",
-      "artworkId": "aic-83613"
-    },
-    {
-      "date": "2027-02-28",
-      "artworkId": "met-53002"
-    },
-    {
-      "date": "2027-03-01",
-      "artworkId": "met-459028"
-    },
-    {
-      "date": "2027-03-02",
-      "artworkId": "smithsonian-chndm_2002-26-2"
-    },
-    {
-      "date": "2027-03-03",
-      "artworkId": "aic-132109"
-    },
-    {
-      "date": "2027-03-04",
-      "artworkId": "aic-64772"
-    },
-    {
-      "date": "2027-03-05",
-      "artworkId": "smithsonian-nmafa_68-23-13"
-    },
-    {
-      "date": "2027-03-06",
-      "artworkId": "aic-91610"
-    },
-    {
-      "date": "2027-03-07",
-      "artworkId": "smithsonian-fsg_F1916.93"
-    },
-    {
-      "date": "2027-03-08",
-      "artworkId": "smithsonian-fsg_F1902.21"
-    },
-    {
-      "date": "2027-03-09",
-      "artworkId": "aic-64936"
-    },
-    {
-      "date": "2027-03-10",
-      "artworkId": "smithsonian-saam_1974.39.27"
-    },
-    {
-      "date": "2027-03-11",
-      "artworkId": "smithsonian-npg_NPG.89.186"
-    },
-    {
-      "date": "2027-03-12",
-      "artworkId": "aic-130640"
-    },
-    {
-      "date": "2027-03-13",
-      "artworkId": "met-551786"
-    },
-    {
-      "date": "2027-03-14",
-      "artworkId": "aic-90207"
-    },
-    {
-      "date": "2027-03-15",
-      "artworkId": "ycba-5481"
-    },
-    {
-      "date": "2027-03-16",
-      "artworkId": "aic-36504"
-    },
-    {
-      "date": "2027-03-17",
-      "artworkId": "aic-26720"
-    },
-    {
-      "date": "2027-03-18",
-      "artworkId": "met-670889"
-    },
-    {
-      "date": "2027-03-19",
-      "artworkId": "aic-16568"
-    },
-    {
-      "date": "2027-03-20",
-      "artworkId": "aic-46230"
-    },
-    {
-      "date": "2027-03-21",
-      "artworkId": "smithsonian-chndm_1985-19-168"
-    },
-    {
-      "date": "2027-03-22",
-      "artworkId": "aic-57703"
-    },
-    {
-      "date": "2027-03-23",
-      "artworkId": "aic-152832"
-    },
-    {
-      "date": "2027-03-24",
-      "artworkId": "met-327830"
-    },
-    {
-      "date": "2027-03-25",
-      "artworkId": "aic-109413"
-    },
-    {
-      "date": "2027-03-26",
-      "artworkId": "aic-259173"
-    },
-    {
-      "date": "2027-03-27",
-      "artworkId": "smithsonian-fsg_F1909.202"
-    },
-    {
-      "date": "2027-03-28",
-      "artworkId": "aic-117476"
-    },
-    {
-      "date": "2027-03-29",
-      "artworkId": "smithsonian-npg_NPG.81.M670"
-    },
-    {
-      "date": "2027-03-30",
-      "artworkId": "smithsonian-nmafa_73-7-19"
-    },
-    {
-      "date": "2027-03-31",
-      "artworkId": "aic-282212"
-    },
-    {
-      "date": "2027-04-01",
-      "artworkId": "smithsonian-saam_1998.160.3"
-    },
-    {
-      "date": "2027-04-02",
+      "date": "2026-05-06",
       "artworkId": "aic-130724"
     },
     {
-      "date": "2027-04-03",
-      "artworkId": "aic-79763"
+      "date": "2026-05-07",
+      "artworkId": "smithsonian-npg_NPG.85.102"
     },
     {
-      "date": "2027-04-04",
-      "artworkId": "ycba-42740"
+      "date": "2026-05-08",
+      "artworkId": "ycba-45"
     },
     {
-      "date": "2027-04-05",
-      "artworkId": "aic-161"
+      "date": "2026-05-09",
+      "artworkId": "met-53429"
     },
     {
-      "date": "2027-04-06",
-      "artworkId": "aic-220751"
+      "date": "2026-05-10",
+      "artworkId": "smithsonian-nmafa_2002-21-1"
     },
     {
-      "date": "2027-04-07",
-      "artworkId": "met-816189"
+      "date": "2026-05-11",
+      "artworkId": "met-544449"
     },
     {
-      "date": "2027-04-08",
-      "artworkId": "aic-110879"
+      "date": "2026-05-12",
+      "artworkId": "smithsonian-saam_1999.97.20"
     },
     {
-      "date": "2027-04-09",
-      "artworkId": "smithsonian-fsg_F1909.979"
+      "date": "2026-05-13",
+      "artworkId": "aic-116964"
     },
     {
-      "date": "2027-04-10",
-      "artworkId": "met-44918"
+      "date": "2026-05-14",
+      "artworkId": "smithsonian-npg_S_NPG.88.5"
     },
     {
-      "date": "2027-04-11",
-      "artworkId": "aic-48121"
+      "date": "2026-05-15",
+      "artworkId": "ycba-5011"
     },
     {
-      "date": "2027-04-12",
-      "artworkId": "aic-141111"
+      "date": "2026-05-16",
+      "artworkId": "aic-116448"
     },
     {
-      "date": "2027-04-13",
+      "date": "2026-05-17",
+      "artworkId": "aic-127982"
+    },
+    {
+      "date": "2026-05-18",
+      "artworkId": "rijks-200107777"
+    },
+    {
+      "date": "2026-05-19",
+      "artworkId": "aic-56905"
+    },
+    {
+      "date": "2026-05-20",
+      "artworkId": "smithsonian-saam_1994.91.281"
+    },
+    {
+      "date": "2026-05-21",
+      "artworkId": "smithsonian-saam_1929.8.256"
+    },
+    {
+      "date": "2026-05-22",
+      "artworkId": "ycba-1882"
+    },
+    {
+      "date": "2026-05-23",
+      "artworkId": "smithsonian-saam_1994.91.144.15R"
+    },
+    {
+      "date": "2026-05-24",
+      "artworkId": "smithsonian-npg_S_NPG.2002.184.456"
+    },
+    {
+      "date": "2026-05-25",
+      "artworkId": "aic-26561"
+    },
+    {
+      "date": "2026-05-26",
+      "artworkId": "aic-75557"
+    },
+    {
+      "date": "2026-05-27",
+      "artworkId": "met-53162"
+    },
+    {
+      "date": "2026-05-28",
+      "artworkId": "smithsonian-fsg_F1911.443a-e"
+    },
+    {
+      "date": "2026-05-29",
+      "artworkId": "ycba-4110"
+    },
+    {
+      "date": "2026-05-30",
+      "artworkId": "smithsonian-nmafa_74-20-1"
+    },
+    {
+      "date": "2026-05-31",
+      "artworkId": "smithsonian-nmafa_2004-7-11"
+    },
+    {
+      "date": "2026-06-01",
+      "artworkId": "met-544453"
+    },
+    {
+      "date": "2026-06-02",
+      "artworkId": "smithsonian-saam_1999.97.35"
+    },
+    {
+      "date": "2026-06-03",
+      "artworkId": "aic-43244"
+    },
+    {
+      "date": "2026-06-04",
+      "artworkId": "smithsonian-fsg_F1899.37"
+    },
+    {
+      "date": "2026-06-05",
+      "artworkId": "ycba-5508"
+    },
+    {
+      "date": "2026-06-06",
+      "artworkId": "aic-140391"
+    },
+    {
+      "date": "2026-06-07",
+      "artworkId": "aic-154237"
+    },
+    {
+      "date": "2026-06-08",
+      "artworkId": "met-437422"
+    },
+    {
+      "date": "2026-06-09",
+      "artworkId": "aic-94131"
+    },
+    {
+      "date": "2026-06-10",
+      "artworkId": "aic-117059"
+    },
+    {
+      "date": "2026-06-11",
+      "artworkId": "smithsonian-fsg_F1917.547"
+    },
+    {
+      "date": "2026-06-12",
+      "artworkId": "ycba-5481"
+    },
+    {
+      "date": "2026-06-13",
+      "artworkId": "aic-121876"
+    },
+    {
+      "date": "2026-06-14",
+      "artworkId": "aic-158680"
+    },
+    {
+      "date": "2026-06-15",
+      "artworkId": "met-207157"
+    },
+    {
+      "date": "2026-06-16",
+      "artworkId": "aic-55721"
+    },
+    {
+      "date": "2026-06-17",
+      "artworkId": "aic-129445"
+    },
+    {
+      "date": "2026-06-18",
+      "artworkId": "smithsonian-fsg_F1915.81"
+    },
+    {
+      "date": "2026-06-19",
+      "artworkId": "met-459028"
+    },
+    {
+      "date": "2026-06-20",
+      "artworkId": "met-469960"
+    },
+    {
+      "date": "2026-06-21",
+      "artworkId": "nga-226783"
+    },
+    {
+      "date": "2026-06-22",
+      "artworkId": "nga-224898"
+    },
+    {
+      "date": "2026-06-23",
+      "artworkId": "smithsonian-fsg_F1902.132"
+    },
+    {
+      "date": "2026-06-24",
+      "artworkId": "nga-160658"
+    },
+    {
+      "date": "2026-06-25",
+      "artworkId": "smithsonian-fsg_F1916.21"
+    },
+    {
+      "date": "2026-06-26",
+      "artworkId": "nga-226908"
+    },
+    {
+      "date": "2026-06-27",
+      "artworkId": "smithsonian-saam_1994.89.2"
+    },
+    {
+      "date": "2026-06-28",
+      "artworkId": "smithsonian-npg_S_NPG.2002.184.1313"
+    },
+    {
+      "date": "2026-06-29",
+      "artworkId": "aic-224030"
+    },
+    {
+      "date": "2026-06-30",
+      "artworkId": "smithsonian-saam_1994.91.247"
+    },
+    {
+      "date": "2026-07-01",
+      "artworkId": "ycba-5456"
+    },
+    {
+      "date": "2026-07-02",
+      "artworkId": "smithsonian-fsg_F1916.728"
+    },
+    {
+      "date": "2026-07-03",
+      "artworkId": "aic-145884"
+    },
+    {
+      "date": "2026-07-04",
+      "artworkId": "aic-81555"
+    },
+    {
+      "date": "2026-07-05",
+      "artworkId": "met-438817"
+    },
+    {
+      "date": "2026-07-06",
+      "artworkId": "aic-61921"
+    },
+    {
+      "date": "2026-07-07",
+      "artworkId": "aic-87088"
+    },
+    {
+      "date": "2026-07-08",
+      "artworkId": "met-435997"
+    },
+    {
+      "date": "2026-07-09",
+      "artworkId": "smithsonian-fsg_F1909.396"
+    },
+    {
+      "date": "2026-07-10",
+      "artworkId": "rijks-200107761"
+    },
+    {
+      "date": "2026-07-11",
+      "artworkId": "rijks-200107776"
+    },
+    {
+      "date": "2026-07-12",
+      "artworkId": "ycba-5466"
+    },
+    {
+      "date": "2026-07-13",
+      "artworkId": "rijks-200107787"
+    },
+    {
+      "date": "2026-07-14",
+      "artworkId": "rijks-200107773"
+    },
+    {
+      "date": "2026-07-15",
+      "artworkId": "smithsonian-saam_1976.96.4.4"
+    },
+    {
+      "date": "2026-07-16",
+      "artworkId": "smithsonian-fsg_F1917.628"
+    },
+    {
+      "date": "2026-07-17",
+      "artworkId": "aic-90207"
+    },
+    {
+      "date": "2026-07-18",
+      "artworkId": "smithsonian-saam_1994.91.144.8V"
+    },
+    {
+      "date": "2026-07-19",
+      "artworkId": "smithsonian-npg_NPG.81.M1036"
+    },
+    {
+      "date": "2026-07-20",
+      "artworkId": "aic-34231"
+    },
+    {
+      "date": "2026-07-21",
+      "artworkId": "smithsonian-npg_NPG.81.M3632.3"
+    },
+    {
+      "date": "2026-07-22",
+      "artworkId": "smithsonian-fsg_F1904.187"
+    },
+    {
+      "date": "2026-07-23",
+      "artworkId": "aic-36504"
+    },
+    {
+      "date": "2026-07-24",
+      "artworkId": "smithsonian-fsg_FSC-T-7"
+    },
+    {
+      "date": "2026-07-25",
+      "artworkId": "aic-130640"
+    },
+    {
+      "date": "2026-07-26",
+      "artworkId": "met-53002"
+    },
+    {
+      "date": "2026-07-27",
+      "artworkId": "smithsonian-nmafa_2005-6-56"
+    },
+    {
+      "date": "2026-07-28",
+      "artworkId": "smithsonian-nmafa_2005-6-55"
+    },
+    {
+      "date": "2026-07-29",
+      "artworkId": "met-551786"
+    },
+    {
+      "date": "2026-07-30",
+      "artworkId": "smithsonian-nmafa_96-42-1.3"
+    },
+    {
+      "date": "2026-07-31",
+      "artworkId": "smithsonian-fsg_F1917.597a-b"
+    },
+    {
+      "date": "2026-08-01",
+      "artworkId": "rijks-200107767"
+    },
+    {
+      "date": "2026-08-02",
+      "artworkId": "smithsonian-nmafa_97-19-1"
+    },
+    {
+      "date": "2026-08-03",
+      "artworkId": "smithsonian-nmafa_2015-9-24"
+    },
+    {
+      "date": "2026-08-04",
+      "artworkId": "aic-30368"
+    },
+    {
+      "date": "2026-08-05",
+      "artworkId": "smithsonian-nmafa_88-7-2"
+    },
+    {
+      "date": "2026-08-06",
+      "artworkId": "smithsonian-nmafa_89-8-40"
+    },
+    {
+      "date": "2026-08-07",
+      "artworkId": "aic-111059"
+    },
+    {
+      "date": "2026-08-08",
+      "artworkId": "smithsonian-fsg_F1916.118"
+    },
+    {
+      "date": "2026-08-09",
+      "artworkId": "smithsonian-nmafa_75-32-1"
+    },
+    {
+      "date": "2026-08-10",
+      "artworkId": "aic-68433"
+    },
+    {
+      "date": "2026-08-11",
+      "artworkId": "smithsonian-saam_1999.97.36"
+    },
+    {
+      "date": "2026-08-12",
+      "artworkId": "smithsonian-saam_1915.5.1"
+    },
+    {
+      "date": "2026-08-13",
+      "artworkId": "aic-117476"
+    },
+    {
+      "date": "2026-08-14",
+      "artworkId": "smithsonian-npg_S_NPG.75.28.2.h"
+    },
+    {
+      "date": "2026-08-15",
+      "artworkId": "smithsonian-fsg_F1919.93"
+    },
+    {
+      "date": "2026-08-16",
+      "artworkId": "aic-20692"
+    },
+    {
+      "date": "2026-08-17",
+      "artworkId": "smithsonian-chndm_1992-5-51-a_b"
+    },
+    {
+      "date": "2026-08-18",
+      "artworkId": "smithsonian-chndm_2019-26-1"
+    },
+    {
+      "date": "2026-08-19",
+      "artworkId": "aic-195381"
+    },
+    {
+      "date": "2026-08-20",
+      "artworkId": "smithsonian-chndm_1981-65-39"
+    },
+    {
+      "date": "2026-08-21",
+      "artworkId": "aic-81564"
+    },
+    {
+      "date": "2026-08-22",
+      "artworkId": "smithsonian-fsg_F1911.124"
+    },
+    {
+      "date": "2026-08-23",
+      "artworkId": "aic-67441"
+    },
+    {
+      "date": "2026-08-24",
+      "artworkId": "aic-129447"
+    },
+    {
+      "date": "2026-08-25",
+      "artworkId": "met-268706"
+    },
+    {
+      "date": "2026-08-26",
+      "artworkId": "aic-28283"
+    },
+    {
+      "date": "2026-08-27",
+      "artworkId": "aic-75957"
+    },
+    {
+      "date": "2026-08-28",
+      "artworkId": "met-282234"
+    },
+    {
+      "date": "2026-08-29",
+      "artworkId": "smithsonian-fsg_F1907.115"
+    },
+    {
+      "date": "2026-08-30",
+      "artworkId": "aic-148788"
+    },
+    {
+      "date": "2026-08-31",
+      "artworkId": "aic-75238"
+    },
+    {
+      "date": "2026-09-01",
       "artworkId": "smithsonian-chndm_1987-50-1-d"
     },
     {
-      "date": "2027-04-14",
-      "artworkId": "aic-84092"
+      "date": "2026-09-02",
+      "artworkId": "aic-14768"
     },
     {
-      "date": "2027-04-15",
-      "artworkId": "aic-61910"
+      "date": "2026-09-03",
+      "artworkId": "smithsonian-chndm_1938-57-657-c"
     },
     {
-      "date": "2027-04-16",
-      "artworkId": "met-192770"
-    },
-    {
-      "date": "2027-04-17",
-      "artworkId": "aic-15146"
-    },
-    {
-      "date": "2027-04-18",
-      "artworkId": "aic-28860"
-    },
-    {
-      "date": "2027-04-19",
-      "artworkId": "smithsonian-npg_S_NPG.2007.50"
-    },
-    {
-      "date": "2027-04-20",
+      "date": "2026-09-04",
       "artworkId": "aic-116525"
     },
     {
+      "date": "2026-09-05",
+      "artworkId": "smithsonian-saam_1967.14.74G"
+    },
+    {
+      "date": "2026-09-06",
+      "artworkId": "aic-154238"
+    },
+    {
+      "date": "2026-09-07",
+      "artworkId": "met-436872"
+    },
+    {
+      "date": "2026-09-08",
+      "artworkId": "aic-80084"
+    },
+    {
+      "date": "2026-09-09",
+      "artworkId": "met-207032"
+    },
+    {
+      "date": "2026-09-10",
+      "artworkId": "aic-113794"
+    },
+    {
+      "date": "2026-09-11",
+      "artworkId": "met-435817"
+    },
+    {
+      "date": "2026-09-12",
+      "artworkId": "smithsonian-nmafa_91-20-1"
+    },
+    {
+      "date": "2026-09-13",
+      "artworkId": "aic-112100"
+    },
+    {
+      "date": "2026-09-14",
+      "artworkId": "met-438821"
+    },
+    {
+      "date": "2026-09-15",
+      "artworkId": "smithsonian-saam_1998.160.3"
+    },
+    {
+      "date": "2026-09-16",
+      "artworkId": "aic-62181"
+    },
+    {
+      "date": "2026-09-17",
+      "artworkId": "smithsonian-saam_2007.4.2"
+    },
+    {
+      "date": "2026-09-18",
+      "artworkId": "met-459027"
+    },
+    {
+      "date": "2026-09-19",
+      "artworkId": "smithsonian-fsg_F1908.98"
+    },
+    {
+      "date": "2026-09-20",
+      "artworkId": "smithsonian-saam_1993.34.1"
+    },
+    {
+      "date": "2026-09-21",
+      "artworkId": "aic-118570"
+    },
+    {
+      "date": "2026-09-22",
+      "artworkId": "smithsonian-npg_S_NPG.2007.50"
+    },
+    {
+      "date": "2026-09-23",
+      "artworkId": "met-824771"
+    },
+    {
+      "date": "2026-09-24",
+      "artworkId": "smithsonian-saam_1994.91.277"
+    },
+    {
+      "date": "2026-09-25",
+      "artworkId": "met-472562"
+    },
+    {
+      "date": "2026-09-26",
+      "artworkId": "smithsonian-fsg_F1909.679"
+    },
+    {
+      "date": "2026-09-27",
+      "artworkId": "smithsonian-npg_NPG.89.186"
+    },
+    {
+      "date": "2026-09-28",
+      "artworkId": "met-729644"
+    },
+    {
+      "date": "2026-09-29",
+      "artworkId": "smithsonian-saam_1995.49.16"
+    },
+    {
+      "date": "2026-09-30",
+      "artworkId": "nga-210153"
+    },
+    {
+      "date": "2026-10-01",
+      "artworkId": "aic-259173"
+    },
+    {
+      "date": "2026-10-02",
+      "artworkId": "aic-9637"
+    },
+    {
+      "date": "2026-10-03",
+      "artworkId": "met-437330"
+    },
+    {
+      "date": "2026-10-04",
+      "artworkId": "aic-116873"
+    },
+    {
+      "date": "2026-10-05",
+      "artworkId": "aic-38423"
+    },
+    {
+      "date": "2026-10-06",
+      "artworkId": "met-437423"
+    },
+    {
+      "date": "2026-10-07",
+      "artworkId": "aic-26720"
+    },
+    {
+      "date": "2026-10-08",
+      "artworkId": "met-440723"
+    },
+    {
+      "date": "2026-10-09",
+      "artworkId": "aic-137001"
+    },
+    {
+      "date": "2026-10-10",
+      "artworkId": "met-436258"
+    },
+    {
+      "date": "2026-10-11",
+      "artworkId": "aic-84092"
+    },
+    {
+      "date": "2026-10-12",
+      "artworkId": "nga-136098"
+    },
+    {
+      "date": "2026-10-13",
+      "artworkId": "smithsonian-saam_1980.124.27"
+    },
+    {
+      "date": "2026-10-14",
+      "artworkId": "smithsonian-npg_S_NPG.2002.184.1317"
+    },
+    {
+      "date": "2026-10-15",
+      "artworkId": "nga-226784"
+    },
+    {
+      "date": "2026-10-16",
+      "artworkId": "nga-135493"
+    },
+    {
+      "date": "2026-10-17",
+      "artworkId": "smithsonian-saam_1895.10.3"
+    },
+    {
+      "date": "2026-10-18",
+      "artworkId": "nga-137699"
+    },
+    {
+      "date": "2026-10-19",
+      "artworkId": "smithsonian-saam_1994.91.138"
+    },
+    {
+      "date": "2026-10-20",
+      "artworkId": "smithsonian-npg_S_NPG.2018.83.11"
+    },
+    {
+      "date": "2026-10-21",
+      "artworkId": "nga-135499"
+    },
+    {
+      "date": "2026-10-22",
+      "artworkId": "nga-135421"
+    },
+    {
+      "date": "2026-10-23",
+      "artworkId": "smithsonian-npg_NPG.85.158"
+    },
+    {
+      "date": "2026-10-24",
+      "artworkId": "smithsonian-fsg_F1902.21"
+    },
+    {
+      "date": "2026-10-25",
+      "artworkId": "nga-135425"
+    },
+    {
+      "date": "2026-10-26",
+      "artworkId": "smithsonian-saam_1994.91.149"
+    },
+    {
+      "date": "2026-10-27",
+      "artworkId": "smithsonian-fsg_F1904.273"
+    },
+    {
+      "date": "2026-10-28",
+      "artworkId": "nga-232006"
+    },
+    {
+      "date": "2026-10-29",
+      "artworkId": "smithsonian-saam_1976.96.3.3"
+    },
+    {
+      "date": "2026-10-30",
+      "artworkId": "smithsonian-fsg_F1909.172"
+    },
+    {
+      "date": "2026-10-31",
+      "artworkId": "nga-131980"
+    },
+    {
+      "date": "2026-11-01",
+      "artworkId": "met-209104"
+    },
+    {
+      "date": "2026-11-02",
+      "artworkId": "aic-86411"
+    },
+    {
+      "date": "2026-11-03",
+      "artworkId": "met-435848"
+    },
+    {
+      "date": "2026-11-04",
+      "artworkId": "aic-83613"
+    },
+    {
+      "date": "2026-11-05",
+      "artworkId": "met-438158"
+    },
+    {
+      "date": "2026-11-06",
+      "artworkId": "aic-11723"
+    },
+    {
+      "date": "2026-11-07",
+      "artworkId": "met-206989"
+    },
+    {
+      "date": "2026-11-08",
+      "artworkId": "aic-37271"
+    },
+    {
+      "date": "2026-11-09",
+      "artworkId": "met-237451"
+    },
+    {
+      "date": "2026-11-10",
+      "artworkId": "aic-14630"
+    },
+    {
+      "date": "2026-11-11",
+      "artworkId": "met-436102"
+    },
+    {
+      "date": "2026-11-12",
+      "artworkId": "aic-60819"
+    },
+    {
+      "date": "2026-11-13",
+      "artworkId": "smithsonian-npg_S_NPG.74.39.7.48"
+    },
+    {
+      "date": "2026-11-14",
+      "artworkId": "smithsonian-fsg_F1911.309"
+    },
+    {
+      "date": "2026-11-15",
+      "artworkId": "nga-194808"
+    },
+    {
+      "date": "2026-11-16",
+      "artworkId": "smithsonian-saam_1994.91.144.3R"
+    },
+    {
+      "date": "2026-11-17",
+      "artworkId": "smithsonian-fsg_F1909.202"
+    },
+    {
+      "date": "2026-11-18",
+      "artworkId": "nga-205184"
+    },
+    {
+      "date": "2026-11-19",
+      "artworkId": "smithsonian-npg_NPG.2008.122"
+    },
+    {
+      "date": "2026-11-20",
+      "artworkId": "smithsonian-fsg_F1916.93"
+    },
+    {
+      "date": "2026-11-21",
+      "artworkId": "nga-108758"
+    },
+    {
+      "date": "2026-11-22",
+      "artworkId": "smithsonian-saam_1994.91.253"
+    },
+    {
+      "date": "2026-11-23",
+      "artworkId": "smithsonian-fsg_F1911.145a-c"
+    },
+    {
+      "date": "2026-11-24",
+      "artworkId": "nga-136099"
+    },
+    {
+      "date": "2026-11-25",
+      "artworkId": "smithsonian-npg_NPG.81.M670"
+    },
+    {
+      "date": "2026-11-26",
+      "artworkId": "met-44918"
+    },
+    {
+      "date": "2026-11-27",
+      "artworkId": "nga-127858"
+    },
+    {
+      "date": "2026-11-28",
+      "artworkId": "smithsonian-saam_1999.41"
+    },
+    {
+      "date": "2026-11-29",
+      "artworkId": "aic-21843"
+    },
+    {
+      "date": "2026-11-30",
+      "artworkId": "nga-220608"
+    },
+    {
+      "date": "2026-12-01",
+      "artworkId": "met-437654"
+    },
+    {
+      "date": "2026-12-02",
+      "artworkId": "aic-61910"
+    },
+    {
+      "date": "2026-12-03",
+      "artworkId": "met-194191"
+    },
+    {
+      "date": "2026-12-04",
+      "artworkId": "aic-46230"
+    },
+    {
+      "date": "2026-12-05",
+      "artworkId": "met-203842"
+    },
+    {
+      "date": "2026-12-06",
+      "artworkId": "aic-270002"
+    },
+    {
+      "date": "2026-12-07",
+      "artworkId": "met-441227"
+    },
+    {
+      "date": "2026-12-08",
+      "artworkId": "aic-36999"
+    },
+    {
+      "date": "2026-12-09",
+      "artworkId": "met-436241"
+    },
+    {
+      "date": "2026-12-10",
+      "artworkId": "aic-14664"
+    },
+    {
+      "date": "2026-12-11",
+      "artworkId": "met-200668"
+    },
+    {
+      "date": "2026-12-12",
+      "artworkId": "aic-55718"
+    },
+    {
+      "date": "2026-12-13",
+      "artworkId": "smithsonian-npg_NPG.81.M3221.3"
+    },
+    {
+      "date": "2026-12-14",
+      "artworkId": "aic-70593"
+    },
+    {
+      "date": "2026-12-15",
+      "artworkId": "nga-232022"
+    },
+    {
+      "date": "2026-12-16",
+      "artworkId": "smithsonian-saam_1994.65"
+    },
+    {
+      "date": "2026-12-17",
+      "artworkId": "met-45258"
+    },
+    {
+      "date": "2026-12-18",
+      "artworkId": "nga-232039"
+    },
+    {
+      "date": "2026-12-19",
+      "artworkId": "smithsonian-npg_NPG.81.M1035"
+    },
+    {
+      "date": "2026-12-20",
+      "artworkId": "met-49068"
+    },
+    {
+      "date": "2026-12-21",
+      "artworkId": "nga-198750"
+    },
+    {
+      "date": "2026-12-22",
+      "artworkId": "smithsonian-saam_1998.165.1"
+    },
+    {
+      "date": "2026-12-23",
+      "artworkId": "aic-137226"
+    },
+    {
+      "date": "2026-12-24",
+      "artworkId": "nga-103376"
+    },
+    {
+      "date": "2026-12-25",
+      "artworkId": "smithsonian-npg_NPG.81.M980"
+    },
+    {
+      "date": "2026-12-26",
+      "artworkId": "met-53222"
+    },
+    {
+      "date": "2026-12-27",
+      "artworkId": "nga-160659"
+    },
+    {
+      "date": "2026-12-28",
+      "artworkId": "smithsonian-saam_1994.90.1"
+    },
+    {
+      "date": "2026-12-29",
+      "artworkId": "aic-103309"
+    },
+    {
+      "date": "2026-12-30",
+      "artworkId": "nga-133755"
+    },
+    {
+      "date": "2026-12-31",
+      "artworkId": "smithsonian-nmafa_93-5-1"
+    },
+    {
+      "date": "2027-01-01",
+      "artworkId": "met-437261"
+    },
+    {
+      "date": "2027-01-02",
+      "artworkId": "aic-95654"
+    },
+    {
+      "date": "2027-01-03",
+      "artworkId": "met-206965"
+    },
+    {
+      "date": "2027-01-04",
+      "artworkId": "aic-282212"
+    },
+    {
+      "date": "2027-01-05",
+      "artworkId": "met-436325"
+    },
+    {
+      "date": "2027-01-06",
+      "artworkId": "aic-32000"
+    },
+    {
+      "date": "2027-01-07",
+      "artworkId": "met-192770"
+    },
+    {
+      "date": "2027-01-08",
+      "artworkId": "aic-64520"
+    },
+    {
+      "date": "2027-01-09",
+      "artworkId": "met-460281"
+    },
+    {
+      "date": "2027-01-10",
+      "artworkId": "aic-14591"
+    },
+    {
+      "date": "2027-01-11",
+      "artworkId": "met-205883"
+    },
+    {
+      "date": "2027-01-12",
+      "artworkId": "aic-79763"
+    },
+    {
+      "date": "2027-01-13",
+      "artworkId": "smithsonian-npg_NPG.81.M635"
+    },
+    {
+      "date": "2027-01-14",
+      "artworkId": "nga-117621"
+    },
+    {
+      "date": "2027-01-15",
+      "artworkId": "met-855856"
+    },
+    {
+      "date": "2027-01-16",
+      "artworkId": "smithsonian-nmafa_89-8-22"
+    },
+    {
+      "date": "2027-01-17",
+      "artworkId": "smithsonian-saam_1994.91.106"
+    },
+    {
+      "date": "2027-01-18",
+      "artworkId": "nga-117620"
+    },
+    {
+      "date": "2027-01-19",
+      "artworkId": "aic-47580"
+    },
+    {
+      "date": "2027-01-20",
+      "artworkId": "smithsonian-nmafa_2005-6-7.2"
+    },
+    {
+      "date": "2027-01-21",
+      "artworkId": "smithsonian-npg_NPG.81.M3997"
+    },
+    {
+      "date": "2027-01-22",
+      "artworkId": "nga-134847"
+    },
+    {
+      "date": "2027-01-23",
+      "artworkId": "met-451725"
+    },
+    {
+      "date": "2027-01-24",
+      "artworkId": "smithsonian-nmafa_89-8-51"
+    },
+    {
+      "date": "2027-01-25",
+      "artworkId": "smithsonian-saam_2022.29"
+    },
+    {
+      "date": "2027-01-26",
+      "artworkId": "aic-41375"
+    },
+    {
+      "date": "2027-01-27",
+      "artworkId": "nga-134859"
+    },
+    {
+      "date": "2027-01-28",
+      "artworkId": "smithsonian-nmafa_89-13-7"
+    },
+    {
+      "date": "2027-01-29",
+      "artworkId": "smithsonian-chndm_2002-26-2"
+    },
+    {
+      "date": "2027-01-30",
+      "artworkId": "met-816189"
+    },
+    {
+      "date": "2027-01-31",
+      "artworkId": "nga-110211"
+    },
+    {
+      "date": "2027-02-01",
+      "artworkId": "aic-161"
+    },
+    {
+      "date": "2027-02-02",
+      "artworkId": "rijks-200107762"
+    },
+    {
+      "date": "2027-02-03",
+      "artworkId": "met-435882"
+    },
+    {
+      "date": "2027-02-04",
+      "artworkId": "aic-24177"
+    },
+    {
+      "date": "2027-02-05",
+      "artworkId": "rijks-200105889"
+    },
+    {
+      "date": "2027-02-06",
+      "artworkId": "rijks-200107763"
+    },
+    {
+      "date": "2027-02-07",
+      "artworkId": "ycba-5464"
+    },
+    {
+      "date": "2027-02-08",
+      "artworkId": "smithsonian-nmafa_68-23-13"
+    },
+    {
+      "date": "2027-02-09",
+      "artworkId": "smithsonian-npg_NPG.81.M3648.1"
+    },
+    {
+      "date": "2027-02-10",
+      "artworkId": "nga-218006"
+    },
+    {
+      "date": "2027-02-11",
+      "artworkId": "met-450605"
+    },
+    {
+      "date": "2027-02-12",
+      "artworkId": "rijks-200106079"
+    },
+    {
+      "date": "2027-02-13",
+      "artworkId": "smithsonian-nmafa_89-8-34"
+    },
+    {
+      "date": "2027-02-14",
+      "artworkId": "smithsonian-chndm_1985-19-168"
+    },
+    {
+      "date": "2027-02-15",
+      "artworkId": "aic-14245"
+    },
+    {
+      "date": "2027-02-16",
+      "artworkId": "nga-227403"
+    },
+    {
+      "date": "2027-02-17",
+      "artworkId": "rijks-200107778"
+    },
+    {
+      "date": "2027-02-18",
+      "artworkId": "smithsonian-nmafa_85-19-1"
+    },
+    {
+      "date": "2027-02-19",
+      "artworkId": "smithsonian-chndm_1991-17-1"
+    },
+    {
+      "date": "2027-02-20",
+      "artworkId": "met-327830"
+    },
+    {
+      "date": "2027-02-21",
+      "artworkId": "nga-170443"
+    },
+    {
+      "date": "2027-02-22",
+      "artworkId": "rijks-200107764"
+    },
+    {
+      "date": "2027-02-23",
+      "artworkId": "smithsonian-nmafa_89-8-41"
+    },
+    {
+      "date": "2027-02-24",
+      "artworkId": "aic-224024"
+    },
+    {
+      "date": "2027-02-25",
+      "artworkId": "met-53176"
+    },
+    {
+      "date": "2027-02-26",
+      "artworkId": "nga-227400"
+    },
+    {
+      "date": "2027-02-27",
+      "artworkId": "rijks-200106078"
+    },
+    {
+      "date": "2027-02-28",
+      "artworkId": "smithsonian-nmafa_85-1-2"
+    },
+    {
+      "date": "2027-03-01",
+      "artworkId": "aic-15146"
+    },
+    {
+      "date": "2027-03-02",
+      "artworkId": "aic-76890"
+    },
+    {
+      "date": "2027-03-03",
+      "artworkId": "nga-217718"
+    },
+    {
+      "date": "2027-03-04",
+      "artworkId": "rijks-200107784"
+    },
+    {
+      "date": "2027-03-05",
+      "artworkId": "smithsonian-nmafa_80-27-11"
+    },
+    {
+      "date": "2027-03-06",
+      "artworkId": "met-10810"
+    },
+    {
+      "date": "2027-03-07",
+      "artworkId": "met-329077"
+    },
+    {
+      "date": "2027-03-08",
+      "artworkId": "nga-231476"
+    },
+    {
+      "date": "2027-03-09",
+      "artworkId": "rijks-200107779"
+    },
+    {
+      "date": "2027-03-10",
+      "artworkId": "smithsonian-nmafa_96-42-1.8"
+    },
+    {
+      "date": "2027-03-11",
+      "artworkId": "aic-57703"
+    },
+    {
+      "date": "2027-03-12",
+      "artworkId": "smithsonian-chndm_2000-69-310"
+    },
+    {
+      "date": "2027-03-13",
+      "artworkId": "nga-169042"
+    },
+    {
+      "date": "2027-03-14",
+      "artworkId": "rijks-200107772"
+    },
+    {
+      "date": "2027-03-15",
+      "artworkId": "met-267019"
+    },
+    {
+      "date": "2027-03-16",
+      "artworkId": "aic-101781"
+    },
+    {
+      "date": "2027-03-17",
+      "artworkId": "met-53187"
+    },
+    {
+      "date": "2027-03-18",
+      "artworkId": "nga-136645"
+    },
+    {
+      "date": "2027-03-19",
+      "artworkId": "rijks-200107793"
+    },
+    {
+      "date": "2027-03-20",
+      "artworkId": "smithsonian-nmafa_84-14-7"
+    },
+    {
+      "date": "2027-03-21",
+      "artworkId": "aic-65940"
+    },
+    {
+      "date": "2027-03-22",
+      "artworkId": "aic-152832"
+    },
+    {
+      "date": "2027-03-23",
+      "artworkId": "nga-101040"
+    },
+    {
+      "date": "2027-03-24",
+      "artworkId": "rijks-200107792"
+    },
+    {
+      "date": "2027-03-25",
+      "artworkId": "smithsonian-fsg_F1908.119"
+    },
+    {
+      "date": "2027-03-26",
+      "artworkId": "met-310364"
+    },
+    {
+      "date": "2027-03-27",
+      "artworkId": "met-549236"
+    },
+    {
+      "date": "2027-03-28",
+      "artworkId": "smithsonian-chndm_2009-6-51"
+    },
+    {
+      "date": "2027-03-29",
+      "artworkId": "aic-220751"
+    },
+    {
+      "date": "2027-03-30",
+      "artworkId": "nga-228432"
+    },
+    {
+      "date": "2027-03-31",
+      "artworkId": "rijks-200107768"
+    },
+    {
+      "date": "2027-04-01",
+      "artworkId": "aic-30629"
+    },
+    {
+      "date": "2027-04-02",
+      "artworkId": "smithsonian-chndm_1968-101-30-22"
+    },
+    {
+      "date": "2027-04-03",
+      "artworkId": "met-310542"
+    },
+    {
+      "date": "2027-04-04",
+      "artworkId": "nga-136115"
+    },
+    {
+      "date": "2027-04-05",
+      "artworkId": "smithsonian-nmafa_2004-7-7"
+    },
+    {
+      "date": "2027-04-06",
+      "artworkId": "met-76084"
+    },
+    {
+      "date": "2027-04-07",
+      "artworkId": "rijks-200100988"
+    },
+    {
+      "date": "2027-04-08",
+      "artworkId": "aic-141111"
+    },
+    {
+      "date": "2027-04-09",
+      "artworkId": "nga-206149"
+    },
+    {
+      "date": "2027-04-10",
+      "artworkId": "smithsonian-saam_1999.97.32"
+    },
+    {
+      "date": "2027-04-11",
+      "artworkId": "aic-147864"
+    },
+    {
+      "date": "2027-04-12",
+      "artworkId": "met-452102"
+    },
+    {
+      "date": "2027-04-13",
+      "artworkId": "met-53449"
+    },
+    {
+      "date": "2027-04-14",
+      "artworkId": "ycba-42740"
+    },
+    {
+      "date": "2027-04-15",
+      "artworkId": "nga-218077"
+    },
+    {
+      "date": "2027-04-16",
+      "artworkId": "aic-64936"
+    },
+    {
+      "date": "2027-04-17",
+      "artworkId": "smithsonian-chndm_1901-39-151-b"
+    },
+    {
+      "date": "2027-04-18",
+      "artworkId": "aic-91610"
+    },
+    {
+      "date": "2027-04-19",
+      "artworkId": "met-670889"
+    },
+    {
+      "date": "2027-04-20",
+      "artworkId": "rijks-200106038"
+    },
+    {
       "date": "2027-04-21",
-      "artworkId": "smithsonian-saam_1973.130.78"
+      "artworkId": "smithsonian-nmafa_73-7-19"
     },
     {
       "date": "2027-04-22",
-      "artworkId": "smithsonian-nmafa_2004-7-7"
+      "artworkId": "nga-226909"
     }
   ]
 }
