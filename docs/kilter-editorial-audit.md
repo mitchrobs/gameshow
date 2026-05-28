@@ -1,4 +1,4 @@
-# Kilter Editorial Audit
+# Composed Editorial Audit
 
 - Pack: 2026-06-01 through 2027-05-31
 - Days: 365
@@ -12,7 +12,7 @@
 
 ## Verdict
 
-Pass. The live 365-day Kilter pack has zero unresolved generator, rules, or sweep-editorial warnings.
+Pass. The live 365-day Composed pack has zero unresolved generator, rules, or sweep-editorial warnings.
 
 ## Editorial Sweep Review
 

@@ -243,7 +243,7 @@ export default function HomeScreen() {
     const baseLinks = [
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash', category: 'word' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie', category: 'word' },
-      { label: 'Kilter', route: '/kilter', emoji: 'K', countKey: 'kilter', category: 'word', isNew: true },
+      { label: 'Composed', route: '/kilter', emoji: '✒️', countKey: 'kilter', category: 'word', isNew: true },
       { label: 'Subset', route: '/subset', emoji: '🟦', countKey: 'subset', category: 'word', isNew: true },
       {
         label: 'Threadline',
@@ -640,12 +640,12 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Kilter card */}
+          {/* Composed card */}
           <View style={[styles.gameSection, !shouldShowGame('word') && styles.gameSectionHidden]}>
             <View style={styles.gameLabelRow}>
               <View style={styles.gameLabel}>
                 <Text style={styles.kilterKicker}>Word Sprint</Text>
-                <Text style={styles.gameTitle}>Kilter</Text>
+                <Text style={styles.gameTitle}>Composed</Text>
               </View>
             </View>
             <Text style={styles.blurb}>

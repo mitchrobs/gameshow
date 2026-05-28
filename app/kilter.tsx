@@ -31,6 +31,7 @@ import {
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import {
   KILTER_GAME_SECONDS,
+  KILTER_RANK_COUNT,
   KILTER_SHARE_URL,
   formatKilterShareText,
   getDailyKilter,
@@ -549,7 +550,7 @@ export default function KilterScreen() {
     setFoundWords((words) => [result.word, ...words]);
     setCurrentWord('');
     if (result.isSweep) {
-      setStatusMessage(`In Kilter +${result.points}`);
+      setStatusMessage(`Composed +${result.points}`);
       triggerWordMotion('sweep');
       setSweepBurst({
         id: Date.now(),
@@ -748,7 +749,7 @@ export default function KilterScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Kilter' }} />
+      <Stack.Screen options={{ title: 'Composed' }} />
       <SafeAreaView style={styles.container}>
         <ScrollView
           style={styles.scrollView}
@@ -764,7 +765,7 @@ export default function KilterScreen() {
                     <Text style={styles.introDateText}>{dateLabel}</Text>
                   </View>
                 </View>
-                <Text style={styles.introTitle}>Kilter</Text>
+                <Text style={styles.introTitle}>Composed</Text>
                 <View style={styles.instructionsCard}>
                   <Text style={styles.instructionsTitle}>How to play</Text>
                   <Text style={styles.instructionsText}>
@@ -802,7 +803,7 @@ export default function KilterScreen() {
               <>
                 <View style={styles.headerRow}>
                   <View>
-                    <Text style={styles.title}>Kilter</Text>
+                    <Text style={styles.title}>Composed</Text>
                     <Text style={styles.dateText}>{dateLabel}</Text>
                   </View>
                   {phase === 'playing' ? (
@@ -824,8 +825,10 @@ export default function KilterScreen() {
                         <Text style={styles.statValue}>{score}</Text>
                       </View>
                       <View style={styles.statItem}>
-                        <Text style={styles.statLabel}>Rank</Text>
-                        <Text style={styles.statValue}>{rank.tier}/6</Text>
+                        <Text style={styles.statLabel}>Form</Text>
+                        <Text style={styles.statValue}>
+                          {rank.tier}/{KILTER_RANK_COUNT}
+                        </Text>
                       </View>
                       <View style={styles.statItem}>
                         <Text style={styles.statLabel}>Sweep</Text>
@@ -848,7 +851,7 @@ export default function KilterScreen() {
                           ]}
                         >
                           <View style={styles.sweepBurstRing} />
-                          <Text style={styles.sweepBurstTitle}>In Kilter</Text>
+                          <Text style={styles.sweepBurstTitle}>Composed</Text>
                           <Text
                             numberOfLines={1}
                             adjustsFontSizeToFit

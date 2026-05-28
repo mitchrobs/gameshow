@@ -5,6 +5,7 @@ import {
   KILTER_PACK,
   KILTER_PACK_DAYS,
   KILTER_PACK_START_DATE,
+  KILTER_RANK_COUNT,
   formatKilterShareText,
   getDailyKilter,
   getKilterAvailableCoreScore,
@@ -180,8 +181,10 @@ describe('Kilter rules and scoring', () => {
     expect(scoreKilterWord('TOAST', puzzle)).toBe(5);
     expect(scoreKilterWord('STET', puzzle)).toBe(1);
     expect(scoreKilterWord('NOPE', puzzle)).toBe(0);
-    expect(getKilterRank(0, puzzle.availableCoreScore).name).toBe('Off Kilter');
-    expect(getKilterRank(Math.ceil(puzzle.availableCoreScore * 0.95), puzzle.availableCoreScore).name).toBe('Mastered');
+    expect(KILTER_RANK_COUNT).toBe(4);
+    expect(getKilterRank(0, puzzle.availableCoreScore).name).toBe('Drafting');
+    expect(getKilterRank(Math.ceil(puzzle.availableCoreScore * 0.55), puzzle.availableCoreScore).name).toBe('Poised');
+    expect(getKilterRank(Math.ceil(puzzle.availableCoreScore * 0.85), puzzle.availableCoreScore).name).toBe('Mastered');
     expect(
       formatKilterShareText({
         puzzle,
@@ -199,7 +202,8 @@ describe('Kilter rules and scoring', () => {
       url: 'https://example.test/kilter',
     });
     expect(bonusOnlyShare).toContain('Score: 99 Words: 1');
-    expect(bonusOnlyShare).toContain('Rank: Off Kilter (1/6)');
+    expect(bonusOnlyShare).toContain('Composed #1');
+    expect(bonusOnlyShare).toContain('Form: Drafting (1/4)');
   });
 
   it('locks exactly after the five-minute timer expires', () => {

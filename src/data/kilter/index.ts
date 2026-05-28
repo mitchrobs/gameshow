@@ -81,13 +81,12 @@ const lastEntry = PACK.entries[PACK.entries.length - 1]!;
 
 export const KILTER_PACK = PACK;
 export const KILTER_RANKS: readonly Omit<KilterRank, 'percent'>[] = [
-  { tier: 1, name: 'Off Kilter', minPercent: 0 },
-  { tier: 2, name: 'Settling', minPercent: 15 },
-  { tier: 3, name: 'Aligned', minPercent: 35 },
-  { tier: 4, name: 'In Kilter', minPercent: 55 },
-  { tier: 5, name: 'Sharp', minPercent: 75 },
-  { tier: 6, name: 'Mastered', minPercent: 95 },
+  { tier: 1, name: 'Drafting', minPercent: 0 },
+  { tier: 2, name: 'Setting', minPercent: 25 },
+  { tier: 3, name: 'Poised', minPercent: 55 },
+  { tier: 4, name: 'Mastered', minPercent: 85 },
 ] as const;
+export const KILTER_RANK_COUNT = KILTER_RANKS.length;
 
 function pad2(value: number): string {
   return String(value).padStart(2, '0');
@@ -258,9 +257,9 @@ export function formatKilterShareText({
   const rank = getKilterRank(coreScore, puzzle.availableCoreScore);
   const sweepText = foundSweeps >= puzzle.sweeps.length ? 'Found' : `${foundSweeps}/${puzzle.sweeps.length}`;
   return [
-    `Kilter #${puzzle.dayIndex + 1}`,
+    `Composed #${puzzle.dayIndex + 1}`,
     `Score: ${score} Words: ${foundWords.length}`,
-    `Rank: ${rank.name} (${rank.tier}/6)`,
+    `Form: ${rank.name} (${rank.tier}/${KILTER_RANK_COUNT})`,
     `Sweep: ${sweepText}`,
     url,
   ].join('\n');
