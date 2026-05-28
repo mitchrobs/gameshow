@@ -39036,9 +39036,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many ballot pages pass through one precinct scanner in a busy hour?",
+        "prompt": "How many ballot pages can a U.S. precinct scanner process in a busy hour?",
         "answer": 3000,
-        "funFact": "Answer: 3,000. A precinct scanner can process about 3,000 ballot pages in a busy hour.",
+        "funFact": "Answer: 3,000. A U.S. precinct scanner can process about 3,000 pages per hour.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -39046,17 +39046,17 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "answerConfidence": "derived_estimate",
         "sources": [
           {
-            "title": "U.S. Census QuickFacts",
-            "url": "https://www.census.gov/quickfacts/",
-            "publisher": "U.S. Census Bureau",
-            "accessedDate": "2026-05-21"
+            "title": "FairVote Voting Technologies Overview",
+            "url": "https://archive.fairvote.org/administration/votetech.htm",
+            "publisher": "FairVote",
+            "accessedDate": "2026-05-28"
           }
         ],
-        "answerNote": "Rounded from precinct scanner tray capacity.",
+        "answerNote": "Rounded from optical-scan voting technology references that describe roughly 2,000 to 3,000 ballots per hour.",
         "themeKey": "county-elections",
         "questionKey": "courthouse-jury-room-q1",
         "estimationMode": "capacity",
-        "calibrationAnchor": "Estimate voters per minute and pages per voter.",
+        "calibrationAnchor": "Estimate voters per minute at a U.S. precinct, then allow for scanner speed.",
         "questionMove": "object_anatomy",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -39066,9 +39066,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many voter stickers leave a busy polling place in one day?",
+        "prompt": "How many “I Voted” stickers might a large U.S. vote center hand out in one day?",
         "answer": 12000,
-        "funFact": "Answer: 12,000. A busy polling place can hand out thousands of stickers.",
+        "funFact": "Answer: 12,000. A large U.S. vote center can hand out thousands of stickers.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 3,
         "scaleBand": "city",
@@ -39076,17 +39076,17 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "answerConfidence": "derived_estimate",
         "sources": [
           {
-            "title": "U.S. Census QuickFacts",
-            "url": "https://www.census.gov/quickfacts/",
-            "publisher": "U.S. Census Bureau",
-            "accessedDate": "2026-05-21"
+            "title": "AP: I Voted Stickers",
+            "url": "https://apnews.com/article/5d3ea40f572a18967273dbf5c9119f81",
+            "publisher": "Associated Press",
+            "accessedDate": "2026-05-28"
           }
         ],
-        "answerNote": "Rounded from high-turnout polling-place volume.",
+        "answerNote": "Modeled as one sticker per voter at a high-throughput U.S. vote center across a full election day.",
         "themeKey": "county-elections",
         "questionKey": "courthouse-jury-room-q2",
         "estimationMode": "count",
-        "calibrationAnchor": "Estimate voters per hour across a full election day.",
+        "calibrationAnchor": "Estimate voters per hour at a large U.S. vote center across a full election day.",
         "questionMove": "production_scale",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -39096,9 +39096,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many ballots were cast in Maricopa County in the 2024 general election?",
-        "answer": 1000000,
-        "funFact": "Answer: 1,000,000. Maricopa County counted about a million ballots.",
+        "prompt": "How many ballots were cast in Maricopa County, Arizona, home to Phoenix, in the 2024 general election?",
+        "answer": 2100000,
+        "funFact": "Answer: 2,100,000. Maricopa County cast just over 2 million ballots.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 4,
         "scaleBand": "world",
@@ -39106,23 +39106,24 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "answerConfidence": "strong_estimate",
         "sources": [
           {
-            "title": "U.S. Census QuickFacts",
-            "url": "https://www.census.gov/quickfacts/",
-            "publisher": "U.S. Census Bureau",
-            "accessedDate": "2026-05-21"
+            "title": "Maricopa County 2024 General Election Results Posted",
+            "url": "https://elections.maricopa.gov/news-and-information/elections-news/11-15-24-general-election-results-posted.html",
+            "publisher": "Maricopa County Elections",
+            "accessedDate": "2026-05-28",
+            "asOfDate": "2024-11-15"
           }
         ],
-        "answerNote": "Rounded from Maricopa County general-election ballot totals.",
+        "answerNote": "Rounded from Maricopa County’s reported 2,078,460 voters in the 2024 general election.",
         "themeKey": "county-elections",
         "questionKey": "courthouse-jury-room-q3",
         "estimationMode": "count",
-        "calibrationAnchor": "Start with a large county population, then estimate turnout.",
+        "calibrationAnchor": "Start with a large U.S. county anchored by Phoenix, then estimate turnout.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "county-elections-3",
-        "asOfDate": "2026-05-23",
+        "asOfDate": "2024-11-15",
         "topicFacet": "audience"
       }
     ]
