@@ -423,6 +423,16 @@ describe('Ballpark 2026 calendar', () => {
     expect(combinedAudit.categoryCounts.awkward_prompt).toBe(0);
     expect(combinedAudit.categoryCounts.generic_generated_note).toBe(0);
     expect(combinedAudit.categoryCounts.non_standalone_prompt).toBe(0);
+    expect(combinedAudit.categoryCounts.question_editorial_risk).toBe(0);
+    expect(combinedAudit.categoryCounts.generic_visitor_macro).toBe(0);
+    expect(combinedAudit.categoryCounts.repeated_visitor_anchor).toBe(0);
+    expect(combinedAudit.categoryCounts.visitor_budget).toBe(0);
+    expect(combinedAudit.qualityMetrics.visitorMacroMetrics.totalVisitorish).toBeLessThanOrEqual(130);
+    expect(combinedAudit.qualityMetrics.visitorMacroMetrics.q3Visitorish).toBeLessThanOrEqual(75);
+    expect(combinedAudit.qualityMetrics.visitorMacroMetrics.genericVisitorish).toBe(0);
+    expect(combinedAudit.qualityMetrics.visitorMacroMetrics.repeatedAnchorCounts['Gen Con']).toBeLessThanOrEqual(1);
+    expect(combinedAudit.qualityMetrics.visitorMacroMetrics.repeatedAnchorCounts['large stadium']).toBeLessThanOrEqual(2);
+    expect(combinedAudit.qualityMetrics.visitorMacroMetrics.repeatedAnchorCounts['Keukenhof visitor']).toBe(0);
     expect(combinedAudit.warningCount).toBe(0);
   });
 
@@ -568,10 +578,10 @@ describe('Ballpark 2026 calendar', () => {
     const expectedThemeByDate: Record<string, string> = {
       '2026-01-01': "New Year's Desk Calendar",
       '2026-01-19': 'Service Kitchen',
-      '2026-02-14': 'Valentine Candy Counter',
+      '2026-02-14': 'Valentine Candy',
       '2026-02-16': 'Presidents Day Landmarks',
       '2026-03-17': 'St. Patrick Parade',
-      '2026-04-01': 'Prank Desk',
+      '2026-04-01': 'April Fools Props',
       '2026-04-22': 'Earth Day Cleanup',
       '2026-05-10': 'Flower Shop',
       '2026-05-25': 'Memorial Day Cookout',
@@ -580,7 +590,7 @@ describe('Ballpark 2026 calendar', () => {
       '2026-07-04': 'Fireworks Finale',
       '2026-09-07': 'Labor Day Parade',
       '2026-10-31': 'Candy Bowl',
-      '2026-11-26': 'Thanksgiving Table',
+      '2026-11-26': 'Thanksgiving Dinner Tables',
       '2026-12-24': 'Stocking Stuffers',
       '2026-12-25': 'Under the Tree',
       '2026-12-31': 'Countdown Night',
@@ -607,11 +617,11 @@ describe('Ballpark 2026 calendar', () => {
   it('keeps the launch-window week concrete and free of generated venue residue', async () => {
     const expectedThemesByDate: Record<string, string> = {
       '2026-04-26': 'Bike Shop Tune-Up',
-      '2026-04-27': 'Rooftop Garden Beds',
+      '2026-04-27': 'Rooftop Farms',
       '2026-04-28': 'Public Art Mural',
-      '2026-04-29': 'Hotel Key Desk',
+      '2026-04-29': 'Hotel Check-In',
       '2026-04-30': 'Deep-Sea Giants',
-      '2026-05-01': 'Library Returns Desk',
+      '2026-05-01': 'Public Libraries',
     };
 
     await Promise.all(
@@ -754,7 +764,7 @@ describe('Ballpark 2026 calendar', () => {
     expect(countdownNight.questions[0].answerType).toBe('exact');
     expect(countdownNight.questions[0].prompt).toMatch(/circular crystals/i);
     expect(countdownNight.questions[2].questionMove).toBe('famous_macro');
-    expect(countdownNight.questions[2].prompt).toMatch(/Times Square New Year's broadcast/i);
+    expect(countdownNight.questions[2].prompt).toMatch(/LED lights.*Times Square Ball/i);
     expect(countdownNight.questions.filter((question) => question.answerType === 'exact')).toHaveLength(1);
   });
 
@@ -769,6 +779,10 @@ describe('Ballpark 2026 calendar', () => {
     ];
     const artificialUnitPattern =
       /\b(?:viewer|audience|listener|waiting|reader|visitor|passenger|conveyor|rise|climb|lap|lane|song|checkout|oven|blade|washer|moon-watching|table-lap|claw-machine|concert-hall|yellow-bus|passenger-seat)-?(?:minutes|seconds|feet|inches|miles|hours|beats|turns|rotations|ounces|pounds|square-inches|square inches)\b/i;
+    const generatedVehiclePromptPattern =
+      /\bone full (?:city bus depot|taxi queue|highway rest|cable car turntable|bus shelter|monarch waystation|rail signal house|commuter rail|local railways)\b/i;
+    const blandVisitorCloserPattern =
+      /\b(?:people|visitors|fans|spectators|viewers|attendees|guests|passengers)\b[^?]{0,90}\b(?:visit|welcome|draw|hold|attend|tour|watch|seat)\b|\b(?:visit|welcome|draw|hold|attend|tour|watch|seat)\b[^?]{0,90}\b(?:people|visitors|fans|spectators|viewers|attendees|guests|passengers)\b/i;
     const promptNumberPattern = /\b\d[\d,]*(?:\.\d+)?\b/g;
     const allPacks = [
       ...validateAuthoredLibrary().authoredSets,
@@ -806,6 +820,8 @@ describe('Ballpark 2026 calendar', () => {
     allQuestions.forEach((question) => {
       expect(['exact', 'strong_estimate', 'derived_estimate', 'soft_estimate']).toContain(question.answerConfidence);
       expect(question.prompt).not.toMatch(artificialUnitPattern);
+      expect(question.prompt).not.toMatch(generatedVehiclePromptPattern);
+      expect(question.prompt).not.toMatch(blandVisitorCloserPattern);
       expect(question.prompt.match(promptNumberPattern)?.length ?? 0).toBeLessThanOrEqual(1);
       expect(question.sources.some((source) => source.url.includes('mitchrobs.github.io/gameshow/ballpark'))).toBe(false);
       expect(`${question.prompt} ${question.rationale} ${question.answerNote} ${question.calibrationAnchor}`).not.toMatch(
@@ -820,6 +836,10 @@ describe('Ballpark 2026 calendar', () => {
     const museum = await getDailySet('2026-08-21');
     const candyBowl = await getDailySet('2026-10-31');
     const library = await getDailySet('2026-05-01');
+    const mothersDay = await getDailySet('2026-01-11');
+    const cityBusDepot = await getDailySet('2026-01-17');
+    const georgiaAquarium = await getDailySet('2026-06-17');
+    const localBoardwalks = await getDailySet('2026-12-26');
     const recorderReserve = validateBallparkReserveBank().reservePacks.find((pack) => pack.reserveId === 'reserve-030');
     const combinedText = [
       ...snowRoute.questions,
@@ -827,6 +847,10 @@ describe('Ballpark 2026 calendar', () => {
       ...museum.questions,
       ...candyBowl.questions,
       ...library.questions,
+      ...mothersDay.questions,
+      ...cityBusDepot.questions,
+      ...georgiaAquarium.questions,
+      ...localBoardwalks.questions,
       ...(recorderReserve?.questions ?? []),
     ].map((question) => question.prompt).join(' ');
 
@@ -837,9 +861,15 @@ describe('Ballpark 2026 calendar', () => {
     expect(museum.questions[2].prompt).toBe('How many artworks are in the Cleveland Museum of Art collection?');
     expect(candyBowl.questions[1].prompt).toBe('How many fun-size candies fit in a five-quart trick-or-treat bowl?');
     expect(library.questions[0].prompt).toBe('How many books does an average American public library branch hold?');
+    expect(mothersDay.questions[2].prompt).toMatch(/Mother’s Day flowers/i);
+    expect(mothersDay.questions[2].prompt).not.toMatch(/Christmas trees/i);
+    expect(cityBusDepot.questions[0].prompt).toBe('How many seats are on a standard city bus?');
+    expect(georgiaAquarium.questions[2].prompt).toMatch(/gallons of water.*Ocean Voyager/i);
+    expect(localBoardwalks.questions[1].sources[0].title).toMatch(/Ocean City/i);
+    expect(localBoardwalks.questions[2].sources[0].title).toMatch(/Wildwoods/i);
     expect(recorderReserve?.questions[0].prompt).toBe('How many recorders can a full elementary music cart hold?');
 
-    expect(combinedText).not.toMatch(/pool-deck rack in the tide pool|big party bowl in the candy|library cart in the library returns|Art Basel Miami Beach draw in the museum|recorder lessons backstage audio case/i);
+    expect(combinedText).not.toMatch(/pool-deck rack in the tide pool|big party bowl in the candy|library cart in the library returns|Art Basel Miami Beach draw in the museum|recorder lessons backstage audio case|one full city bus depot|people visit Georgia Aquarium|Christmas trees are sold/i);
   });
 
   it('incorporates expanded player-agent polish on high-risk generated-glue packs', async () => {

@@ -256,6 +256,19 @@ function printCombinedSummary(payload: ReturnType<typeof runBallpark400PackAudit
     console.log(`Answer confidence: ${Object.entries(payload.qualityMetrics.answerConfidenceCounts).map(([key, count]) => `${key}:${count}`).join(", ")}`);
     console.log(`Soft-estimate packs: ${payload.qualityMetrics.softEstimatePackCount}`);
     console.log(`Likely first-guess spread: normal:${payload.qualityMetrics.likelyFirstGuessSpread.normal}, wide_bonus:${payload.qualityMetrics.likelyFirstGuessSpread.wideSpreadBonus}`);
+    if (payload.qualityMetrics.visitorMacroMetrics) {
+      const visitorMetrics = payload.qualityMetrics.visitorMacroMetrics;
+      console.log(
+        `Visitor-ish prompts: total:${visitorMetrics.totalVisitorish}/${visitorMetrics.limits.totalVisitorish}, ` +
+          `Q3:${visitorMetrics.q3Visitorish}/${visitorMetrics.limits.q3Visitorish}, ` +
+          `generic:${visitorMetrics.genericVisitorish}/${visitorMetrics.limits.genericVisitorish}`
+      );
+      console.log(
+        `Repeated visitor anchors: ${Object.entries(visitorMetrics.repeatedAnchorCounts)
+          .map(([key, count]) => `${key}:${count}`)
+          .join(", ")}`
+      );
+    }
   }
   console.log("");
   console.log("Categories:");

@@ -241,11 +241,11 @@ const FAKE_GROUP_MATH_PATTERN =
 const VARIABLE_STANDARD_PATTERN =
   /\b(standard|typical|average|common|medium|classic|regular)\b/i;
 const FAMOUS_SCALE_PATTERN =
-  /\b(world|record|olympic|times square|nasa|earth|moon|mint|migration|national|major league|u\.s\.|united states|regulation|annual|season|parade|fireworks|thanksgiving|christmas|halloween|easter|juneteenth)\b/i;
+  /\b(world|record|olympic|times square|nasa|earth|moon|mint|migration|national|major league|u\.s\.|united states|regulation|annual|season|parade|fireworks|thanksgiving|christmas|halloween|easter|juneteenth|masters|smithsonian|keukenhof|saturn v|rockefeller center)\b/i;
 const VAGUE_MACRO_PROMPT_PATTERN =
   /\b(?:major|large|famous|top|busy|citywide|national)\s+(?:city|public|state|water|ski|park|resort|library|museum|aquarium|event|festival|show|district|region|county|landmark|attraction|tournament|chain|network|system|shelter|hotel|fair|beach|ride|food|health|climbing|sports|game|toy|arcade|parcel|distribution|repair|shop|market|holiday)\b/i;
 const NAMED_MACRO_ANCHOR_PATTERN =
-  /\b(?:U\.S\.|United States|USPS|FDNY|NYPL|ASPCA|MLB|Macy's|Times Square|Library of Congress|WorldCat|Toy Fair New York|Gen Con|Monopoly|Uno|Barbie|LEGO|Taco Bell|Starbucks|Waffle House|Domino's|Home Depot|Yankee Stadium|Pike Place|Rose Parade|Rockefeller Center|Dyker Heights|Las Vegas Sphere|Sphere|M&M's|Reese's|X Games|Vail|Vail Mountain|Killington|Coney Island|Great Smoky Mountains|Yellowstone|Redwood National Park|National Park Service|U\.S\. national parks|Big Ben|Galveston|Houston|Iowa|Washington|Wisconsin|Niagara Falls|BirdCast|San Diego Zoo|Georgia Aquarium|Monterey Bay Aquarium|Dodger Stadium|Five Boro Bike Tour|Citi Bike|Schlitterbahn|Minnesota State Fair|National Memorial Day Parade|National Mall|Arlington|National Museum of African American History and Culture|Smithsonian|Smithsonian National Museum of Natural History|Science Museum of Minnesota|The Strong National Museum of Play|Badlands National Park|National Toy Train Museum|Coachella|Taylor Swift|Boundary Waters|Staten Island Ferry|Wimbledon|Feeding America|World Central Kitchen|UPS Worldport|Grand Central Terminal|Hartsfield-Jackson|Denver International Airport|Cape Hatteras|Google|Oriental Trading|IFSC|MGM Grand|Walt Disney World|Dutch flower auction|Art Basel Miami Beach|Statue of Liberty|Japan's Sushi Festival|Operation Santa|Toys for Tots|Clear the Shelters|Grand Canyon|U\.S\. national seashores|Marvel|New York City|New York City Transit|New York City public schools)\b/i;
+  /\b(?:U\.S\.|United States|USPS|FDNY|NYPL|ASPCA|MLB|Macy's|Times Square|Library of Congress|WorldCat|Toy Fair New York|Gen Con|BoardGameGeek|Catan|Monopoly|Uno|Barbie|LEGO|LEGOLAND|Taco Bell|Starbucks|Waffle House|Domino's|Home Depot|Yankee Stadium|Pike Place|Rose Parade|Rockefeller Center|Dyker Heights|Las Vegas Sphere|Sphere|M&M's|Reese's|X Games|Vail|Vail Mountain|Killington|Coney Island|Great Smoky Mountains|Yellowstone|Redwood National Park|National Park Service|U\.S\. national parks|Big Ben|Galveston|Houston|Iowa|Washington|Wisconsin|Niagara Falls|BirdCast|San Diego Zoo|Georgia Aquarium|Monterey Bay Aquarium|Dodger Stadium|Five Boro Bike Tour|Citi Bike|Schlitterbahn|Minnesota State Fair|National Memorial Day Parade|National Mall|Arlington|National Museum of African American History and Culture|Smithsonian|Smithsonian National Museum of Natural History|Smithsonian Air and Space|Museum of Modern Art|MoMA|Science Museum of Minnesota|The Strong National Museum of Play|Badlands National Park|National Toy Train Museum|Coachella|Taylor Swift|Boundary Waters|Staten Island Ferry|Wimbledon|Masters|Feeding America|World Central Kitchen|UPS Worldport|Grand Central Terminal|Hartsfield-Jackson|Denver International Airport|Cape Hatteras|Google|Oriental Trading|IFSC|MGM Grand|Walt Disney World|Dutch flower auction|Art Basel Miami Beach|Statue of Liberty|Japan's Sushi Festival|Operation Santa|Toys for Tots|Clear the Shelters|Grand Canyon|U\.S\. national seashores|Marvel|New York City|New York City Transit|New York City public schools|Saturn V|Keukenhof|Storm King|Ocean City|Atlantic City Boardwalk)\b/i;
 const RECOGNIZABLE_STANDARD_ANCHOR_PATTERN =
   /\b(?:average American public library branch|NYC city bus route|city bus route|standard backyard swimming pool|standard home rain barrel|common party pack|full-size school bus|five-gallon bucket|gallon jug|one-gallon candy jar|one-gallon storage bin|bushel basket|apple bushel|jumbo laundromat washer|plastic arcade cup|full golf bag|major-league baseball|standard deck|full-size piano|regulation bowling|regulation golf|Olympic pool|Olympic swimming|drugstore card rack|workshop index case|drill-bit index|casino chip rack|board-game cafe wall|cobbler(?:'s)? repair rack|resort storage wall|city recycling facility|aging-cave shelf|fabric-store rack|hardware-store key wall|bookstore display table|bakery speed rack|archery range quiver rack|commercial kitchen speed rack|pool-storage bin|public pool|cardboard carton|toolbox|pegboard|display case|rental dock|dog-shelter gear wall|pharmacy shelf|boat-ramp parking lot|drink cooler|state fair|community kitchen)\b/i;
 const NATURAL_TOPIC_GENERATED_GLUE_PATTERN =
@@ -257,7 +257,7 @@ const CONTEXT_MISMATCH_PROMPT_PATTERN =
 const WEAK_UNIT_RELEVANCE_PATTERN =
   /\b(?:one big classroom library|big classroom library|classroom library hold|classroom's worth|full holds cart|library hold shelf|library return cart|one full library cart|pool-deck rack in the tide pool|big party bowl in the candy|Art Basel Miami Beach draw in the museum)\b/i;
 const AWKWARD_PROMPT_PATTERN =
-  /\b(?:in the (?:candy|tide pool|library returns|soccer sideline|post office|space show|toolbox|bike share systems|recorder lessons|cul-de-sac light|hospital supply|food truck lunch|bike tune-up|aquarium 2|birdwatching|ups worldport)|a (?:recorder lessons|arcade games|bike share systems|observatories)\b|how many [a-z -]+ can an [A-Z][A-Za-z ]+ draw|visitor passes are on a full|plants are on .*display bench|practice balls are in a full .*equipment rack|plays can happen in a busy .*tournament day|toy bricks are in a full .*cleanup bin|tiny parts are on a crowded .*model table|eyepieces are in .*telescope loaner case)\b/i;
+  /\b(?:in the (?:candy|tide pool|library returns|soccer sideline|post office|space show|toolbox|bike share systems|recorder lessons|cul-de-sac light|hospital supply|food truck lunch|bike tune-up|aquarium 2|birdwatching|ups worldport)|one full (?:city bus depot|taxi queue|highway rest|cable car turntable|bus shelter|monarch waystation|rail signal house|commuter rail|local railways)|a (?:recorder lessons|arcade games|bike share systems|observatories)\b|how many [a-z -]+ can an [A-Z][A-Za-z ]+ draw|visitor passes are on a full|plants are on .*display bench|practice balls are in a full .*equipment rack|plays can happen in a busy .*tournament day|toy bricks are in a full .*cleanup bin|tiny parts are on a crowded .*model table|eyepieces are in .*telescope loaner case)\b/i;
 const VAGUE_STANDALONE_VERB_PATTERN = /^How many\s+[^?]{2,80}\s+(?:count|stack|sit)\?$/i;
 const THEME_MISMATCH_SCENE_PATTERN =
   /\b(?:diner breakfast kitchen crack|stuffed animal care|sprinkler system timer repair-shop|visitors tour Big Ben and the UK Parliament|watch batteries are in one sprinkler system timer|Waffle House restaurants can [^?]*kitchen crack)\b/i;
@@ -4815,6 +4815,11 @@ const LAUNCH_READINESS_CATEGORIES = [
   "generic_generated_note",
   "non_standalone_prompt",
   "local_context",
+  "question_editorial_risk",
+  "generic_visitor_macro",
+  "duplicate_visitor_macro",
+  "repeated_visitor_anchor",
+  "visitor_budget",
 ];
 const LAUNCH_READINESS_WARNING_CATEGORIES = ["source_specificity", "source_review"];
 
@@ -4987,7 +4992,7 @@ const GENERATED_PROMPT_WRAPPER_PATTERN =
 const TOO_EASY_EXACT_RECALL_PATTERN =
   /\b(?:U\.S\. flag|flag stars|flag stripes|standard clock face|standard skateboard|regulation basketball|bowling setup|Olympic swimming pool|standard outdoor track|photo-booth strip)\b/i;
 const VISUAL_EXACT_OPENER_PATTERN =
-  /\b(Jenga tower|wooden blocks|Crayola box|crayons|full-size piano|piano keys|quarter|ridges|golf ball|dimples|baseball|stitches|bowling|pins|school bus|U\.S\. flag|flag stars|Olympic|pool lanes|skateboard|wheels|Uno deck|Scrabble|Pac-Man|maze dots|basketball|panels|egg carton|standard carton|pizza|slices|bike wheel|road-bike|spokes|photo-booth strip|clock face|standard clock|teeth|die|dice|pips|violin|guitar|frets|Monopoly|Rubik|roulette|checkers|backgammon|cribbage|face cards|card suits|suits are in|recorder|grand piano|pool table|billiards|tennis ball|tennis balls|soccer|Olympic symbol|Olympic rings|Mahjong|domino|chessboard|chess game)\b/i;
+  /\b(Jenga tower|wooden blocks|Crayola box|crayons|full-size piano|piano keys|quarter|ridges|golf ball|dimples|baseball|stitches|bowling|pins|school bus|U\.S\. flag|flag stars|Olympic|pool lanes|skateboard|wheels|Uno deck|Scrabble|Pac-Man|maze dots|basketball|panels|egg carton|standard carton|pizza|slices|bike wheel|road-bike|spokes|photo-booth strip|clock face|standard clock|teeth|die|dice|pips|violin|guitar|frets|Monopoly|Rubik|roulette|checkers|backgammon|cribbage|face cards|card suits|suits are in|recorder|grand piano|pool table|billiards|tennis ball|tennis balls|soccer|Olympic symbol|Olympic rings|Mahjong|domino|chessboard|chess game|Grand Central Terminal|train platforms)\b/i;
 const TASTE_STOP_WORDS = new Set(
   "how many about are is in on one the a an of to with for from can do does did have has by at into across during through and standard typical common full size estimate estimated rough number count ballpark terms glance quick".split(" ")
 );
@@ -5020,7 +5025,7 @@ function getTasteMacroFlavor(questionEntry) {
   if (/\b(harvest|produce|production|grow|grown|bushels|crop|factory|make|made)\b/.test(combined)) return "production";
   if (/\b(gallons|water|flow|rain|tank|pool|barrel)\b/.test(combined)) return "water";
   if (/\b(miles|feet|distance|route|trail|steps)\b/.test(combined)) return "distance";
-  if (/\b(area|acres|square)\b/.test(combined)) return "area";
+  if (/\b(?:area|acres|square (?:feet|foot|inches|inch|miles|mile|yards|yard|meters|meter))\b/.test(combined)) return "area";
   if (/\b(weight|pounds|tons)\b/.test(combined)) return "weight";
   return null;
 }
@@ -5057,7 +5062,7 @@ const WEAK_LEARNING_VALUE_PATTERN =
 const REAL_TOPIC_FACT_SIGNAL_PATTERN =
   /\b(?:standard|regulation|official|average|typical|common|midsize|packed|busy|full-size|one-year|year|daily|per day|average day|one day|one year|season|weekend|repair-shop|bike-shop|U\.S\.|United States|USPS|FDNY|NYC|New York|Arlington|Library of Congress|Smithsonian|Monopoly|Jenga|Scrabble|Pac-Man|Uno|Waffle House|Domino's|Yankee Stadium|Grand Central|Times Square|Georgia Aquarium|Olympic|Macy's|X Games|Yellowstone|Vail|Big Ben|Staten Island Ferry|Las Vegas Sphere|Citi Bike|Pike Place|San Diego Zoo|Feeding America|UPS Worldport)\b/i;
 const FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN =
-  /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|riders|visitors|students|fans|vehicles|bikes|wheels|clocks|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|photo strips|petals|bows|cranberries|tortillas|records|campers|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|timing chips|rental shoes|rental skates|watch batteries|kickboards|tires|headstones|beachgoers|seawater|water striders|pond surface|tiles|dots|pips|pieces|checkers|needles|towels|seedlings|lemons|bouquets|dice|bowling balls)\b/i;
+  /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|rides|trips|riders|visitors|students|fans|vehicles|bikes|wheels|clocks|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|photo strips|petals|bows|cranberries|tortillas|records|campers|campsites|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|timing chips|wristbands|trail maps|parking spaces|seed packets|produce crates|golf balls|food items|hot dogs|flower bulbs|flower stems|rose stems|LED lights|train platforms|artifacts|objects|works|school buildings|model kits|robots|tools|relays|signals|switches|turkeys|businesses|rental shoes|rental skates|watch batteries|kickboards|tires|headstones|beachgoers|seawater|water striders|pond surface|tiles|dots|pips|pieces|checkers|needles|towels|seedlings|lemons|bouquets|dice|bowling balls)\b/i;
 const LOCAL_CONTEXT_REQUIREMENTS = Object.freeze([
   { anchor: "Boundary Waters", pattern: /\bMinnesota\b/i },
   { anchor: "Staten Island Ferry", pattern: /\b(?:New York City|NYC)\b/i },
@@ -5093,6 +5098,7 @@ const BREADTH_FACETS = new Set([
   "production",
   "manufacturing",
   "sales",
+  "sales_volume",
   "market_footprint",
   "institution_scale",
   "collection_scale",
@@ -5101,6 +5107,9 @@ const BREADTH_FACETS = new Set([
   "natural_population",
   "area_extent",
   "harvest",
+  "operations_flow",
+  "production_scale",
+  "audience_capacity",
   "infrastructure",
   "economics",
 ]);
@@ -6271,6 +6280,63 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
   return blockers;
 }
 
+const QUESTION_EDITORIAL_RISK_REPLACEMENT_CUTOFF = 9;
+const VISITOR_MACRO_TOTAL_LIMIT = 130;
+const VISITOR_MACRO_Q3_LIMIT = 75;
+const GENERIC_VISITOR_MACRO_LIMIT = 30;
+const VISITORISH_PROMPT_PATTERN =
+  /\b(?:people|visitors|fans|riders|skiers|students|swimmers|spectators|viewers|attendees|guests|passengers)\b/i;
+const GENERIC_VISITOR_MODIFIER_PATTERN = /\b(?:major|large|popular|busy|local)\b/i;
+const BLAND_VISITOR_CLOSER_PATTERN =
+  /\b(?:people|visitors|fans|spectators|viewers|attendees|guests|passengers)\b[^?]{0,90}\b(?:visit|welcome|draw|hold|attend|tour|watch|seat)\b|\b(?:visit|welcome|draw|hold|attend|tour|watch|seat)\b[^?]{0,90}\b(?:people|visitors|fans|spectators|viewers|attendees|guests|passengers)\b/i;
+const NAMED_VISITOR_ANCHOR_PATTERN =
+  /\b(?:Monterey Bay Aquarium|Statue of Liberty|Gen Con|Dodger Stadium|Yankee Stadium|Arthur Ashe Stadium|Georgia Aquarium|San Diego Zoo|Staten Island Ferry|Grand Central Terminal|Times Square|Coney Island|Pike Place|Boundary Waters|Keukenhof|Radio City Music Hall|National Mall|Arlington|Smithsonian|Great Smoky Mountains|Yellowstone|Coachella|Macy's|Hartsfield-Jackson|Cape Hatteras)\b/i;
+const REPEATED_VISITOR_ANCHOR_RULES = Object.freeze([
+  { key: "Gen Con", pattern: /\bGen Con\b/i, max: 1 },
+  { key: "large stadium", pattern: /\blarge stadium\b/i, max: 2 },
+  { key: "Keukenhof visitor", pattern: /\bKeukenhof\b(?=[^?]*(?:visitors|welcome))/i, max: 0 },
+  { key: "generic museum visitor", pattern: /\bmajor\b[^?]*\bmuseum\b[^?]*(?:visitors|welcome|draw)/i, max: 0 },
+  { key: "generic boardwalk visitor", pattern: /\b(?:busy|local|major)\b[^?]*\bboardwalk\b[^?]*(?:people|visitors|draw|welcome)/i, max: 0 },
+  { key: "generic stadium fans", pattern: /\b(?:large|major)\b[^?]*\bstadium\b[^?]*\bfans\b|\bfans\b[^?]*\b(?:large|major)\b[^?]*\bstadium\b/i, max: 0 },
+]);
+
+function isVisitorishPrompt(questionEntry) {
+  return VISITORISH_PROMPT_PATTERN.test(questionEntry.prompt);
+}
+
+function isGenericVisitorMacroPrompt(questionEntry) {
+  const prompt = String(questionEntry.prompt ?? "");
+  return (
+    VISITORISH_PROMPT_PATTERN.test(prompt) &&
+    ((GENERIC_VISITOR_MODIFIER_PATTERN.test(prompt) && !NAMED_VISITOR_ANCHOR_PATTERN.test(prompt)) ||
+      BLAND_VISITOR_CLOSER_PATTERN.test(prompt))
+  );
+}
+
+function getBallparkVisitorMacroMetricsFromSummaries(questionSummaries) {
+  const visitorish = questionSummaries.filter(({ question }) => isVisitorishPrompt(question));
+  const q3Visitorish = visitorish.filter(({ label }) => label === "Q3");
+  const genericVisitorish = visitorish.filter(({ question }) => isGenericVisitorMacroPrompt(question));
+  const repeatedAnchorCounts = Object.fromEntries(
+    REPEATED_VISITOR_ANCHOR_RULES.map((rule) => [
+      rule.key,
+      questionSummaries.filter(({ question }) => rule.pattern.test(question.prompt)).length,
+    ])
+  );
+
+  return {
+    totalVisitorish: visitorish.length,
+    q3Visitorish: q3Visitorish.length,
+    genericVisitorish: genericVisitorish.length,
+    repeatedAnchorCounts,
+    limits: {
+      totalVisitorish: VISITOR_MACRO_TOTAL_LIMIT,
+      q3Visitorish: VISITOR_MACRO_Q3_LIMIT,
+      genericVisitorish: GENERIC_VISITOR_MACRO_LIMIT,
+    },
+  };
+}
+
 function auditCombinedPackPolish(datedSets, reserveSets) {
   const questionSummaries = collectPackQuestionSummaries([...datedSets, ...reserveSets]);
   const iconicExactCount = questionSummaries.filter(
@@ -6283,6 +6349,62 @@ function auditCombinedPackPolish(datedSets, reserveSets) {
       message: `Expected 15-70 recognizable exact facts across the 400-pack set after the low-recall audit; found ${iconicExactCount}.`,
     });
   }
+  questionSummaries.forEach(({ packId, theme, label, question }) => {
+    const riskReasons = getEditorialRiskQuestionReasons({ date: packId, reserveId: packId.startsWith?.("reserve-") ? packId : undefined, theme }, label, question);
+    const riskScore = riskReasons.reduce((sum, reason) => sum + reason.points, 0);
+    if (riskScore >= QUESTION_EDITORIAL_RISK_REPLACEMENT_CUTOFF) {
+      blockers.push({
+        category: "question_editorial_risk",
+        packId,
+        theme,
+        label,
+        questionKey: question.questionKey,
+        prompt: question.prompt,
+        message: `Question editorial risk is ${riskScore}; score ${QUESTION_EDITORIAL_RISK_REPLACEMENT_CUTOFF}+ must be replaced, not patched.`,
+        reasons: riskReasons.map((reason) => reason.category),
+        suggestedRewriteType: "replace_question_or_rebuild_day_arc",
+      });
+    }
+    if (isGenericVisitorMacroPrompt(question)) {
+      blockers.push({
+        category: "generic_visitor_macro",
+        packId,
+        theme,
+        label,
+        questionKey: question.questionKey,
+        prompt: question.prompt,
+        message: "Visitor/fan/people clue uses a generic modifier without a named institution or event.",
+        suggestedRewriteType: "replace_with_capacity_flow_production_physical_or_infrastructure_fact",
+      });
+    }
+  });
+  const visitorMetrics = getBallparkVisitorMacroMetricsFromSummaries(questionSummaries);
+  if (visitorMetrics.totalVisitorish > VISITOR_MACRO_TOTAL_LIMIT) {
+    blockers.push({
+      category: "visitor_budget",
+      message: `Visitor-ish prompts must be <= ${VISITOR_MACRO_TOTAL_LIMIT}; found ${visitorMetrics.totalVisitorish}.`,
+    });
+  }
+  if (visitorMetrics.q3Visitorish > VISITOR_MACRO_Q3_LIMIT) {
+    blockers.push({
+      category: "visitor_budget",
+      message: `Q3 visitor-ish closers must be <= ${VISITOR_MACRO_Q3_LIMIT}; found ${visitorMetrics.q3Visitorish}.`,
+    });
+  }
+  if (visitorMetrics.genericVisitorish > GENERIC_VISITOR_MACRO_LIMIT) {
+    blockers.push({
+      category: "visitor_budget",
+      message: `Generic visitor-ish prompts must be <= ${GENERIC_VISITOR_MACRO_LIMIT}; found ${visitorMetrics.genericVisitorish}.`,
+    });
+  }
+  REPEATED_VISITOR_ANCHOR_RULES.forEach((rule) => {
+    const count = visitorMetrics.repeatedAnchorCounts[rule.key] ?? 0;
+    if (count <= rule.max) return;
+    blockers.push({
+      category: "repeated_visitor_anchor",
+      message: `Repeated visitor/fan anchor "${rule.key}" appears ${count} times; maximum is ${rule.max}.`,
+    });
+  });
   return blockers;
 }
 
@@ -6316,6 +6438,7 @@ function getBallpark400PackQualityMetrics(datedSets, reserveSets) {
       wideSpreadBonus: agentDifficultyTargetCounts.wide_spread_bonus ?? 0,
     },
     questionMoveCounts,
+    visitorMacroMetrics: getBallparkVisitorMacroMetricsFromSummaries(questionSummaries),
   };
 }
 
@@ -6333,9 +6456,16 @@ function getEditorialRiskQuestionReasons(packEntry, label, questionEntry) {
   };
   const combinedText = `${questionEntry.prompt} ${questionEntry.funFact ?? ""} ${questionEntry.answerNote ?? ""} ${questionEntry.calibrationAnchor ?? ""}`;
   const sourceText = (questionEntry.sources ?? []).map((sourceEntry) => `${sourceEntry.title} ${sourceEntry.publisher}`).join(" ");
+  const hasSpecificPlayerAnchor =
+    NAMED_MACRO_ANCHOR_PATTERN.test(combinedText) ||
+    RECOGNIZABLE_STANDARD_ANCHOR_PATTERN.test(combinedText) ||
+    ["regulation", "named_standard", "iconic_object", "famous_event", "natural_scale"].includes(questionEntry.anchorType);
   const localContextBlocker = getLocalContextBlocker(questionEntry);
   if (localContextBlocker) addReason("local_context", 9, localContextBlocker);
-  if (/\b(?:NIST|Census QuickFacts|Britannica Games|National Park Service Visitor Use Statistics|U\.S\. Census QuickFacts)\b/i.test(sourceText)) {
+  if (
+    /\b(?:NIST|Census QuickFacts|Britannica Games|National Park Service Visitor Use Statistics|U\.S\. Census QuickFacts)\b/i.test(sourceText) &&
+    !hasSpecificPlayerAnchor
+  ) {
     addReason("weak_or_broad_source", 4, "Source may be too broad or mismatched for this specific clue.");
   }
   if (/\b(?:Reference benchmark|Modeled as|Modeled from|Rounded from .*context|Derived from|Converted from|rough|estimate)\b/i.test(questionEntry.answerNote ?? "")) {
@@ -6344,18 +6474,18 @@ function getEditorialRiskQuestionReasons(packEntry, label, questionEntry) {
   if (/\b\d[\d,]*\b.*\b(?:each|per|times|x|with|at)\b.*\b\d[\d,]*\b/i.test(questionEntry.prompt)) {
     addReason("formula_feel", 7, "Prompt risks reading like visible arithmetic instead of estimation trivia.");
   }
-  if (/\b(?:minutes|seconds|inches|feet|pounds|tons|miles)\b.*\b(?:happen|produce|across|total)\b/i.test(questionEntry.prompt)) {
+  if (/\b(?:minutes|seconds|inches|feet|miles)\b.*\b(?:happen|produce|across|total)\b/i.test(questionEntry.prompt)) {
     addReason("artificial_aggregate_unit", 5, "Prompt uses an aggregate unit that can feel more abstract than Ballpark.");
   }
-  if (/\b(?:busy|large|typical|average|standard|one day|one year|might|can|about how many|one full|full-size|regular|local)\b/i.test(questionEntry.prompt)) {
+  const promptHasGenericModifier = /\b(?:busy|large|one day|one year|might|one full|regular|local)\b/i.test(questionEntry.prompt);
+  const promptHasUsefulStandardModifier =
+    /\b(?:typical|average|standard|full-size)\b/i.test(questionEntry.prompt) && !hasSpecificPlayerAnchor;
+  if (promptHasGenericModifier || promptHasUsefulStandardModifier) {
     addReason("generic_prompt_shape", 1, "Prompt uses a generic modifier; check whether the anchor is specific enough.");
   }
   const answerFactBody = String(questionEntry.funFact ?? "").replace(/^Answer:\s*[0-9,]+(?:\.\d+)?[.]\s*/i, "");
   if (answerFactBody.length > 90) {
     addReason("long_answer_fact", 2, "Answer fact may be too long for the short reveal style.");
-  }
-  if (packEntry.theme.includes("Local ") || /(?:Desk|Counter|Aisle|Shelf|Rack|Wall|Table|Window|Yard|Line)$/i.test(packEntry.theme)) {
-    addReason("generic_theme_shape", 2, "Theme shape is serviceable but may feel less memorable than the stronger packs.");
   }
   if (/^(?:How many (?:people|visitors|riders|voters|swimmers|skiers|students|kids|fans|spectators|viewers))\b/i.test(questionEntry.prompt) && !EXPLICIT_GEOGRAPHY_PATTERN.test(questionEntry.prompt)) {
     addReason("people_scale_context", 5, "People-scale clue should name the geography or institution clearly.");
@@ -6368,7 +6498,7 @@ function getEditorialRiskQuestionReasons(packEntry, label, questionEntry) {
 }
 
 function getEditorialRiskPackScore(packEntry) {
-  const coreFlavors = packEntry.questions.map((questionEntry) => getTasteQuestionFlavor(questionEntry));
+  const coreFlavors = packEntry.questions.map((questionEntry) => questionEntry.topicFacet ?? getTasteQuestionFlavor(questionEntry));
   const reasons = [];
   if (new Set(coreFlavors).size < CORE_QUESTION_COUNT) {
     reasons.push({
@@ -6378,6 +6508,16 @@ function getEditorialRiskPackScore(packEntry) {
       questionKey: null,
       prompt: null,
       message: "Core questions share a flavor; whole-day arc should be checked for sameness.",
+    });
+  }
+  if (packEntry.theme.includes("Local ") || /(?:Desk|Counter|Aisle|Shelf|Rack|Wall|Table|Window|Yard|Line)$/i.test(packEntry.theme)) {
+    reasons.push({
+      category: "generic_theme_shape",
+      points: 2,
+      label: "Pack",
+      questionKey: null,
+      prompt: null,
+      message: "Theme shape is serviceable but may feel less memorable than the stronger packs.",
     });
   }
   getDailySetQuestions(packEntry).forEach(({ label, question }) => {
