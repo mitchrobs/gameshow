@@ -74,12 +74,12 @@ function assertValidEntry(entry: KilterPackEntry) {
 }
 
 describe('Kilter pack', () => {
-  it('ships 365 consecutive dates from June 1, 2026', () => {
+  it('ships 400 consecutive dates from June 1, 2026', () => {
     expect(KILTER_PACK_START_DATE).toBe('2026-06-01');
     expect(KILTER_PACK.days).toBe(KILTER_PACK_DAYS);
     expect(KILTER_PACK.entries).toHaveLength(KILTER_PACK_DAYS);
     expect(KILTER_PACK.entries[0]?.date).toBe('2026-06-01');
-    expect(KILTER_PACK.entries[KILTER_PACK.entries.length - 1]?.date).toBe('2027-05-31');
+    expect(KILTER_PACK.entries[KILTER_PACK.entries.length - 1]?.date).toBe('2027-07-05');
 
     KILTER_PACK.entries.forEach((entry, index) => {
       expect(entry.date).toBe(dateKeyForIndex(index));
@@ -98,15 +98,15 @@ describe('Kilter pack', () => {
       assertValidEntry(entry);
     });
 
-    expect(keyCounts).toEqual({ 1: 55, 2: 255, 3: 55 });
-    expect(KILTER_PACK.entries.filter((entry) => entry.sweeps.length === 1).length).toBeGreaterThanOrEqual(300);
+    expect(keyCounts).toEqual({ 1: 100, 2: 260, 3: 40 });
+    expect(KILTER_PACK.entries.filter((entry) => entry.sweeps.length === 1).length).toBeGreaterThanOrEqual(360);
   });
 
   it('looks up daily puzzles by local date and falls back to launch day before the pack starts', () => {
     expect(getKilterPackEntryForDate('2026-06-01')?.id).toBe(KILTER_PACK.entries[0]?.id);
     expect(getDailyKilter(new Date(2026, 4, 28)).date).toBe('2026-06-01');
     expect(getDailyKilter(new Date(2026, 5, 2)).date).toBe('2026-06-02');
-    expect(getDailyKilter(new Date(2027, 5, 1)).date).toBe('2026-06-01');
+    expect(getDailyKilter(new Date(2027, 6, 6)).date).toBe('2026-06-01');
   });
 });
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and audit the 365-day Kilter word-game pack."""
+"""Build and audit the 400-day Composed word-game pack."""
 
 from __future__ import annotations
 
@@ -29,13 +29,13 @@ SYSTEM_WORDS_PATH = Path("/usr/share/dict/words")
 SYSTEM_PROPER_NAMES_PATH = Path("/usr/share/dict/propernames")
 
 PACK_START = date(2026, 6, 1)
-PACK_DAYS = 365
+PACK_DAYS = 400
 WORD_SOURCE_LIMIT = 80_000
 SEED = 917_365
 SWEEP_BONUS = 15
-MIN_SWEEP_SINGLE_COUNT = 300
+MIN_SWEEP_SINGLE_COUNT = 360
 
-KEY_LENGTH_TOTALS = {1: 55, 2: 255, 3: 55}
+KEY_LENGTH_TOTALS = {1: 100, 2: 260, 3: 40}
 CORE_TARGETS = {
     1: (45, 90),
     2: (25, 55),
@@ -254,25 +254,42 @@ PROPER_NOUN_DENYLIST = {
 }
 
 KILTER_DENYLIST = {
+    "ABORIGINAL",
     "ANAL",
+    "APARTHEID",
+    "CHANDLER",
+    "CIGARETTE",
     "CISCO",
     "COCO",
     "CONN",
     "CRORE",
     "DONT",
+    "INTERCOURSE",
+    "KENSINGTON",
     "ELLE",
+    "INTERRACIAL",
     "LING",
     "LEVIN",
     "MATER",
     "MEDITERRANEAN",
+    "MURDERING",
     "NESS",
+    "ORIENTAL",
     "PARA",
     "PENIS",
+    "PROSTATE",
+    "PROTESTANT",
+    "PROSTITUTE",
     "REESE",
+    "SCREWING",
     "SLAIN",
+    "SLAUGHTER",
+    "STALKING",
     "TARA",
     "TATE",
+    "TERRORISM",
     "TITANIC",
+    "WELLINGTON",
 }
 
 SWEEP_DENYLIST = {
@@ -631,7 +648,7 @@ def build_candidates_for_key_length(
     candidates: list[Candidate] = []
 
     for sweep_entry in core:
-        if sweep_entry.frequency < 3.25:
+        if sweep_entry.frequency < 3.15:
             continue
         if len(set(sweep_entry.word)) != key_length + 6:
             continue
@@ -765,9 +782,12 @@ def choose_pack(candidates_by_key_length: dict[int, list[Candidate]]) -> list[Ca
             break
         if picked is None:
             for candidate in candidates:
-                if candidate.signature not in used_signatures:
-                    picked = candidate
-                    break
+                if candidate.signature in used_signatures:
+                    continue
+                if candidate.primary_sweep in used_primary_sweeps:
+                    continue
+                picked = candidate
+                break
         if picked is None:
             raise RuntimeError(f"No Kilter candidate for day {day_index + 1} key length {key_length}")
         chosen.append(picked)
@@ -787,7 +807,7 @@ def puzzle_id(day_index: int, candidate: Candidate) -> str:
     return f"kilter-{day_index + 1:03d}-{candidate.key.lower()}-{''.join(candidate.letters).lower()}"
 
 
-def build_pack_payload(chosen: Sequence[Candidate]) -> dict:
+def build_pack_payload(chosen: Sequence[Candidate], candidate_depth: dict[int, int]) -> dict:
     entries = []
     for day_index, (day, candidate) in enumerate(zip(date_range(PACK_START, PACK_DAYS), chosen)):
         sweeps = set(candidate.sweeps)
@@ -815,6 +835,7 @@ def build_pack_payload(chosen: Sequence[Candidate]) -> dict:
         "endDate": (PACK_START + timedelta(days=PACK_DAYS - 1)).isoformat(),
         "days": PACK_DAYS,
         "keyMix": {str(key): value for key, value in KEY_LENGTH_TOTALS.items()},
+        "candidateDepth": {str(key): value for key, value in candidate_depth.items()},
         "sweepBonus": SWEEP_BONUS,
         "entries": entries,
     }
@@ -921,13 +942,23 @@ def audit_markdown(payload: dict, errors: Sequence[str], warnings: Sequence[str]
     core_counts = [len(entry["coreWords"]) for entry in entries]
     bonus_counts = [len(entry["bonusWords"]) for entry in entries]
     score_counts = [entry["availableCoreScore"] for entry in entries]
+    candidate_depth = payload.get("candidateDepth", {})
+    key_mix_parts = [
+        f"{length}-letter {key_counts[length]} ({key_counts[length] / len(entries) * 100:.0f}%)"
+        for length in (1, 2, 3)
+    ]
 
     lines = [
-        "# Kilter Editorial Audit",
+        "# Composed Editorial Audit",
         "",
         f"- Pack: {payload.get('startDate')} through {payload.get('endDate')}",
         f"- Days: {len(entries)}",
-        f"- Key mix: 1-letter {key_counts[1]}, 2-letter {key_counts[2]}, 3-letter {key_counts[3]}",
+        f"- Key mix: {', '.join(key_mix_parts)}",
+        "- Candidate depth: "
+        + ", ".join(
+            f"{length}-letter {candidate_depth.get(str(length), 'n/a')}"
+            for length in (1, 2, 3)
+        ),
         f"- Sweep counts: 1-sweep {sweep_counts[1]}, 2-sweep {sweep_counts[2]}",
         f"- Core words: min {min(core_counts)}, max {max(core_counts)}, average {sum(core_counts) / len(core_counts):.1f}",
         f"- Bonus words: min {min(bonus_counts)}, max {max(bonus_counts)}, average {sum(bonus_counts) / len(bonus_counts):.1f}",
@@ -950,7 +981,7 @@ def audit_markdown(payload: dict, errors: Sequence[str], warnings: Sequence[str]
             [
                 "## Verdict",
                 "",
-                "Pass. The live 365-day Kilter pack has zero unresolved generator, rules, or sweep-editorial warnings.",
+                "Pass. The live 400-day Composed pack has zero unresolved generator, rules, or sweep-editorial warnings.",
                 "",
             ]
         )
@@ -979,22 +1010,43 @@ def audit_markdown(payload: dict, errors: Sequence[str], warnings: Sequence[str]
     )
     lines.append("- Longest live sweeps reviewed:")
     for word, date_key, key, letters in longest_sweeps:
-        lines.append(f"  - {date_key}: {word} ({len(word)} letters), Key {key} / {letters}")
+        lines.append(f"  - {date_key}: {word} ({len(word)} letters), center {key} / {letters}")
+    all_sweeps = sorted({word for entry in entries for word in entry["sweeps"]})
+    lines.append(f"- All live Sweep terms reviewed: {len(all_sweeps)}")
+    for index in range(0, len(all_sweeps), 20):
+        lines.append(f"  - {', '.join(all_sweeps[index:index + 20])}")
     lines.append(f"- Two-sweep days reviewed: {len(two_sweep_entries)}")
     if two_sweep_entries:
         for entry in two_sweep_entries[:12]:
             lines.append(
-                f"  - {entry['date']}: Key {entry['key']} / {''.join(entry['letters'])}, "
+                f"  - {entry['date']}: center {entry['key']} / {''.join(entry['letters'])}, "
                 f"Sweeps {', '.join(entry['sweeps'])}"
             )
         if len(two_sweep_entries) > 12:
             lines.append(f"  - ...and {len(two_sweep_entries) - 12} more")
     lines.append("")
 
-    lines.extend(["## Opening Week", ""])
-    for entry in entries[:7]:
+    lines.extend(["## Outlier Review", ""])
+    outlier_sets = [
+        ("Lowest core counts", sorted(entries, key=lambda entry: (len(entry["coreWords"]), entry["date"]))[:5]),
+        ("Highest core counts", sorted(entries, key=lambda entry: (-len(entry["coreWords"]), entry["date"]))[:5]),
+        ("Highest bonus counts", sorted(entries, key=lambda entry: (-len(entry["bonusWords"]), entry["date"]))[:5]),
+        ("Highest available scores", sorted(entries, key=lambda entry: (-entry["availableCoreScore"], entry["date"]))[:5]),
+    ]
+    for label, selected_entries in outlier_sets:
+        lines.append(f"- {label}:")
+        for entry in selected_entries:
+            lines.append(
+                f"  - {entry['date']}: center {entry['key']} / {''.join(entry['letters'])}, "
+                f"{len(entry['coreWords'])} core, {len(entry['bonusWords'])} bonus, "
+                f"{entry['availableCoreScore']} points, Sweep {', '.join(entry['sweeps'])}"
+            )
+    lines.append("")
+
+    lines.extend(["## Opening 14 Days", ""])
+    for entry in entries[:14]:
         lines.append(
-            f"- {entry['date']}: Key {entry['key']} / {''.join(entry['letters'])} "
+            f"- {entry['date']}: center {entry['key']} / {''.join(entry['letters'])} "
             f"({len(entry['coreWords'])} core, {len(entry['bonusWords'])} bonus, "
             f"Sweep {', '.join(entry['sweeps'])})"
         )
@@ -1015,13 +1067,17 @@ def main() -> None:
             key_length: build_candidates_for_key_length(key_length, core, bonus, raw_frequencies)
             for key_length in (1, 2, 3)
         }
+        candidate_depth = {
+            key_length: len(candidates)
+            for key_length, candidates in candidates_by_key_length.items()
+        }
         for key_length, candidates in candidates_by_key_length.items():
             required = KEY_LENGTH_TOTALS[key_length]
             if len(candidates) < required:
                 raise RuntimeError(
                     f"Only {len(candidates)} Kilter candidates for key length {key_length}; need {required}."
                 )
-        payload = build_pack_payload(choose_pack(candidates_by_key_length))
+        payload = build_pack_payload(choose_pack(candidates_by_key_length), candidate_depth)
         PACK_OUT.write_text(json.dumps(payload, indent=2) + "\n")
 
     errors, warnings = audit_pack(payload)

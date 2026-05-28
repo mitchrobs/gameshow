@@ -3,7 +3,7 @@ import packData from './pack.json';
 export const KILTER_GAME_SECONDS = 5 * 60;
 export const KILTER_SWEEP_BONUS = 15;
 export const KILTER_PACK_START_DATE = '2026-06-01';
-export const KILTER_PACK_DAYS = 365;
+export const KILTER_PACK_DAYS = 400;
 export const KILTER_SHARE_URL = 'https://mitchrobs.github.io/gameshow/kilter';
 
 export type KilterWordKind = 'core' | 'bonus';
@@ -40,6 +40,7 @@ export interface KilterPackPayload {
   endDate: string;
   days: number;
   keyMix: Record<string, number>;
+  candidateDepth?: Record<string, number>;
   sweepBonus: number;
   entries: KilterPackEntry[];
 }
