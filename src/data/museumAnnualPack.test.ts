@@ -89,6 +89,14 @@ const BANNED_ARTWORK_COPY_PATTERNS = [
   /\bmuseum context\b/i,
   /\bofficial object page\b/i,
   /\bsource metadata\b/i,
+  /\bbrings together\b/i,
+  /\bgives .{0,80} a foothold\b/i,
+  /\bsetting changes how\b/i,
+  /\bkeeps its maker attribution cautious\b/i,
+  /\bstill point to a particular world\b/i,
+  /\bread through visible clues\b/i,
+  /\bsurface,\s*style,\s*and\b/i,
+  /\bsurface,\s*date,\s*and\b/i,
   /\bmakes its historical setting tangible through\b/i,
   /\brather than to style alone\b/i,
   /\bmaterial craft\b/i,
@@ -183,6 +191,9 @@ function isObjectSpecificFact(artwork: MuseumArtwork): boolean {
     artwork.source.collectionLabel,
     artwork.passportLabel,
     artwork.geoRegion,
+    artwork.review.copyPolishV2?.visibleFeature ?? '',
+    artwork.review.copyPolishV2?.objectLesson ?? '',
+    artwork.review.copyPolishV2?.historicalBridge ?? '',
   ]
     .map((token) => token.trim().toLowerCase())
     .filter(Boolean);
@@ -201,6 +212,9 @@ function normalizedCopyStem(copy: string, artwork: MuseumArtwork): string {
     artwork.periodTag,
     artwork.geoRegion,
     artwork.source.collectionLabel,
+    artwork.review.copyPolishV2?.visibleFeature ?? '',
+    artwork.review.copyPolishV2?.objectLesson ?? '',
+    artwork.review.copyPolishV2?.historicalBridge ?? '',
   ]
     .map((token) => token.trim().toLowerCase())
     .filter(Boolean)

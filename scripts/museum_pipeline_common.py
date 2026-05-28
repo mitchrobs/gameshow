@@ -30,7 +30,7 @@ EDITORIAL_SHARDS_DIR = DATA_DIR / "editorialShards"
 TRACKER_PATH = BASE_DIR / "docs" / "museum-annual-pack-tracker.md"
 EDITORIAL_GUIDE_PATH = BASE_DIR / "docs" / "museum-editorial-guide.md"
 LOCAL_IMAGE_DIR = BASE_DIR / "public" / "museum-images"
-LOCAL_IMAGE_PUBLIC_PREFIX = "/museum-images"
+LOCAL_IMAGE_PUBLIC_PREFIX = "museum-images"
 
 DAY_MS = 1000 * 60 * 60 * 24
 QUESTION_KINDS = ("observation", "context", "connection")
@@ -178,7 +178,7 @@ def slugify(value: str) -> str:
 
 def is_runtime_image_url(value: str) -> bool:
     normalized = normalize_space(value)
-    return normalized.startswith("http") or normalized.startswith("/")
+    return normalized.startswith("http") or normalized.startswith("/") or normalized.startswith("museum-images/")
 
 
 def local_image_filename(artwork_id: str) -> str:
@@ -1659,6 +1659,71 @@ def connection_context_phrase(passport_label: str, medium_category: str, geo_reg
     return "place, use, and material survival"
 
 
+def readable_context_phrase(phrase: str) -> str:
+    text = normalize_space(phrase).rstrip(".")
+    if not text:
+        return "its historical setting"
+    if re.match(r"^(?:the|a|an)\s+", text, flags=re.IGNORECASE):
+        return text
+    return text
+
+
+def context_area_phrase(passport_label: str, medium_category: str, geo_region: str) -> str:
+    label = passport_label.casefold()
+    if "ukiyo" in label:
+        return "Edo-period print culture"
+    if "japanese" in label:
+        return "Japanese art"
+    if "chinese" in label:
+        return "Chinese art"
+    if "islamic" in label:
+        return "Islamic art"
+    if "south asian" in label:
+        return "South Asian art"
+    if "african" in label:
+        return "African art"
+    if "ancient egypt" in label:
+        return "ancient Egyptian art"
+    if "ancient americas" in label:
+        return "ancient American art"
+    if "medieval" in label:
+        return "medieval art"
+    if "renaissance" in label:
+        return "Renaissance art"
+    if "baroque" in label:
+        return "Baroque art"
+    if "impression" in label:
+        return "modern painting"
+    if medium_category == "Photograph":
+        return "photography"
+    if medium_category == "Textile":
+        return "textile history"
+    if medium_category == "Print":
+        return "print culture"
+    if geo_region == "North America":
+        return "North American art"
+    if geo_region == "Latin America":
+        return "art of the Americas"
+    return "art history"
+
+
+def object_use_phrase(medium_category: str) -> str:
+    return {
+        "Painting": "a picture made for sustained looking",
+        "Print": "an image designed to travel through impressions",
+        "Drawing": "a sheet where touch and decision remain visible",
+        "Textile": "an object where structure and pattern carry meaning",
+        "Photograph": "a picture shaped by a particular viewpoint",
+        "Sculpture": "a physical presence read through contour and light",
+        "Ceramic": "an object where fired form and surface meet",
+        "Metalwork": "an object whose edges answer to light",
+        "Glass": "an object that changes as light passes through it",
+        "Furniture": "a useful object shaped into design",
+        "Manuscript": "a page where reading and looking meet",
+        "Design": "a designed object where function shapes appearance",
+    }.get(medium_category, "an object whose material matters")
+
+
 def safety_flags_for(candidate: dict[str, Any]) -> list[str]:
     haystack = normalize_space(" ".join([candidate.get("title", ""), candidate.get("medium", ""), candidate.get("classification", ""), " ".join(candidate.get("subjectTerms", []))])).lower()
     flags: list[str] = []
@@ -1672,100 +1737,192 @@ def safety_flags_for(candidate: dict[str, Any]) -> list[str]:
 
 
 def technique_note(candidate: dict[str, Any], medium_category: str) -> str:
-    medium = candidate["medium"]
+    medium = medium_display(candidate, medium_category)
     title = candidate["title"]
     subject = specific_subject(candidate, medium_category)
     subject_text = gerund_subject(subject)
     subject_display = display_subject(subject)
     short = note_title(title)
     seed = stable_hash(f"technique:{candidate['id']}")
+    focus = technique_focus(medium_category)
     variants_by_medium = {
         "Painting": [
-            f"In {short}, {medium.lower()} gathers color around {subject_text}; look for where edges soften or sharpen.",
-            f"{short} builds {subject_text} through color, edge, and visible surface.",
-            f"The painted surface of {short} asks you to compare broad color with smaller edge details.",
-            f"{medium} lets {short} shift attention between {subject_text} and the surrounding field.",
-            f"Look at how paint handling in {short} sets {subject_text} apart from the rest of the image.",
+            f"Paint carries the first drama here: color, edge, and surface pull attention toward {subject_text}.",
+            f"Look for the shift between broad painted areas and sharper details around {subject_text}.",
+            f"{medium} lets small changes in edge and color decide how {subject_display} comes forward.",
+            f"The surface is active, not neutral; brushwork sets the pace of looking around {subject_text}.",
+            f"Color does much of the work before the subject settles into focus.",
+            f"The brushwork does not merely fill the scene; it gives {subject_text} weight and tempo.",
+            f"Edges soften and sharpen in turn, making {subject_display} feel deliberately staged.",
+            f"The painted surface rewards a slow scan from broad color to small, decisive marks.",
+            f"Light and paint meet around {subject_text}, guiding the eye without a written explanation.",
+            f"Start with the color relationships, then notice how the surface holds {subject_text} in place.",
+            f"The composition depends on paint handling as much as on what the title names.",
+            f"Small shifts of tone make {subject_display} read as atmosphere, form, and subject at once.",
         ],
         "Print": [
-            f"{short} uses {medium.lower()} to organize {subject_text}; repeated marks guide the eye across the sheet.",
-            f"In {short}, printed line and contrast make {subject_text} clear without painterly color.",
-            f"The sheet depends on transferred marks, so the rhythm around {subject_text} matters.",
-            f"{medium} gives {short} crisp contrasts that pull attention toward {subject_text}.",
-            f"Look for repeated pressure and line in {short}; that is where the image is made.",
+            f"Printed marks do the organizing: line, pressure, and contrast lead the eye toward {subject_text}.",
+            f"The sheet keeps the evidence of transfer, especially in the repeated marks around {subject_text}.",
+            f"{medium} gives the image its crisp rhythm without relying on painterly color.",
+            f"Follow the lines first; their pressure and spacing make {subject_display} legible.",
+            f"The image is built from repeatable marks, so pattern and edge matter as much as subject.",
+            f"Inked line carries the drama here, tightening attention around {subject_text}.",
+            f"The print's contrast makes {subject_display} arrive through rhythm rather than blended color.",
+            f"Look at the edges of the marks; they show how the image moved from matrix to paper.",
+            f"The sheet asks for close looking because pressure and spacing keep changing the view.",
+            f"Repetition is part of the craft: each mark helps hold {subject_text} together.",
+            f"The image feels graphic because dark and light are doing so much structural work.",
+            f"The printed surface turns small decisions of line into the main visual event.",
         ],
         "Textile": [
-            f"{short} is a {medium.lower()}; fiber and pattern carry {subject_text} through the object itself.",
-            f"In {short}, pattern is structure: the textile makes {subject_text} through repeated threads.",
-            f"The surface of {short} asks you to read fiber, pattern, and use together.",
-            f"{medium} gives {short} a made surface where design and handling cannot be separated.",
-            f"Look closely at how the fabric structure gives {subject_text} {possessive_for_subject(subject_text)} visual force.",
+            f"Fiber is the image system here; pattern and structure carry {subject_text} through the object.",
+            f"The design is not laid on top of the textile. It is built through repeated threads and surface.",
+            f"Read the fabric as construction: pattern, touch, and use all help explain {subject_display}.",
+            f"{medium} makes handling part of the visual effect, especially where pattern tightens or opens.",
+            f"The textile surface gives {subject_text} {possessive_for_subject(subject_text)} force through repetition and touch.",
+            f"The eye follows structure before image; threads and pattern make {subject_display} possible.",
+            f"Texture does visible work here, turning repeated making into an image you can read.",
+            f"The surface carries memory of use as well as design, especially around {subject_text}.",
+            f"Pattern is not background here; it is the method that gives the object its presence.",
+            f"Look for changes in density, direction, and edge where the textile builds {subject_display}.",
+            f"The object depends on touch as much as sight, with fiber shaping the whole encounter.",
+            f"Construction and ornament are inseparable; the textile makes its image through material choices.",
         ],
         "Photograph": [
-            f"{short} depends on {medium.lower()}; vantage point, light, and cropping shape {subject_text}.",
-            f"In {short}, the camera's position decides how {subject_text} enters the frame.",
-            f"The photograph uses tone and cropping to make {subject_text} feel specific.",
-            f"{medium} gives {short} its force through viewpoint, light, and the chosen edge.",
-            f"Look at what the frame includes and excludes around {subject_text}.",
+            f"The camera's position matters first: light, crop, and distance shape how {subject_text} appears.",
+            f"Notice the chosen edge of the frame; it decides what {subject_display} can tell you.",
+            f"{medium} turns viewpoint into meaning, with tone and cropping doing quiet work.",
+            f"Look at what is included and what is withheld around {subject_text}.",
+            f"The photograph's force comes from timing and vantage point as much as from the subject.",
+            f"The image depends on a chosen instant; light and framing make {subject_display} specific.",
+            f"Tonal contrast guides the eye before the subject fully settles into place.",
+            f"The crop creates pressure around {subject_text}, making the edge of the picture matter.",
+            f"Distance is part of the technique here, shaping how close the viewer can feel.",
+            f"The camera organizes space through angle, light, and the moment it preserves.",
+            f"The photograph asks you to read viewpoint as a choice, not as a neutral window.",
+            f"Focus and framing turn {subject_display} into a carefully held piece of evidence.",
         ],
         "Sculpture": [
-            f"{short} is made in {medium.lower()}; silhouette and surface let you read {subject_display} as physical presence.",
-            f"In {short}, the worked surface changes as your eye moves around {subject_text}.",
-            f"The form of {short} depends on volume, edge, and the way light catches the surface.",
-            f"{medium} makes {subject_text} legible through weight, contour, and touch.",
-            f"Look at how the object's outline gives {subject_display} a bodily force.",
+            f"Volume carries the meaning; silhouette and surface make {subject_display} feel physically present.",
+            f"The worked surface changes with light, so the form unfolds as your eye moves.",
+            f"{medium} gives {subject_text} weight, contour, and a sense of touch.",
+            f"Begin with the outline, then watch how the surface catches light.",
+            f"The object asks to be read as presence, not only as an image.",
+            f"The form is understood in pieces: contour first, then surface, then the play of shadow.",
+            f"Light activates the worked surface, making the object's edges feel especially important.",
+            f"The sculptural force comes from how mass and detail hold each other in tension.",
+            f"Look around the silhouette; it carries much of the object's visual authority.",
+            f"The material gives {subject_display} a bodily presence that flat description cannot supply.",
+            f"Surface marks and shadows make the form feel handled, carved, modeled, or worn.",
+            f"The object reads through depth and contour before iconography takes over.",
         ],
         "Ceramic": [
-            f"{short} is shaped as {medium.lower()}; rim, body, and surface move the eye around {subject_text}.",
-            f"In {short}, fired form and surface treatment work together around {subject_text}.",
-            f"The ceramic body gives {short} a contour before the decoration fully registers.",
-            f"{medium} makes shape part of how {subject_text} is seen.",
-            f"Look for how the curve or rim changes the pace of looking at {short}.",
+            f"Fired form sets the silhouette before the surface detail fully registers.",
+            f"Rim, body, and surface treatment move the eye around {subject_text}.",
+            f"{medium} makes shape part of the image; the curve changes how {subject_display} is seen.",
+            f"Look for the point where form and surface decoration begin to work together.",
+            f"The ceramic body gives the work its pace before ornament or subject takes over.",
+            f"The vessel's contour matters as much as any decoration placed on it.",
+            f"Firing, curve, and surface finish make the object feel shaped for hand and eye.",
+            f"The form controls the viewing path, carrying attention around {subject_text}.",
+            f"Surface and body meet at the edges, where the object becomes most legible.",
+            f"The fired surface gives color and touch a durable, close-range presence.",
+            f"Look at how the object's curve changes the rhythm of its design.",
+            f"The ceramic technique makes use, weight, and ornament part of one reading.",
         ],
         "Drawing": [
-            f"{short} uses {medium.lower()}; line and reserve keep the artist's decisions visible around {subject_text}.",
-            f"In {short}, pressure and blank space make {subject_text} feel immediate.",
-            f"The drawing keeps its handwork visible, especially where line defines {subject_text}.",
-            f"{medium} gives {short} a directness built from touch, line, and pause.",
-            f"Look at where marks thicken or disappear around {subject_text}.",
+            f"Line is the evidence: pressure, pause, and blank space shape {subject_text}.",
+            f"The hand stays visible where marks thicken, fade, or stop around {subject_text}.",
+            f"{medium} gives the work a directness built from touch and reserve.",
+            f"Follow the places where line does less; the open paper is part of the looking.",
+            f"The drawing's surface lets you see decisions being made in real time.",
+            f"Marks vary in pressure, making {subject_display} feel searched for rather than simply filled in.",
+            f"The sheet preserves hesitation and emphasis, especially where the line changes speed.",
+            f"Blank space is active here; it helps the drawn forms breathe.",
+            f"Touch is the technique, with every heavier or lighter mark changing the image.",
+            f"The drawing asks you to notice what the hand chooses to leave open.",
+            f"Line and reserve work together, giving {subject_display} clarity without overstatement.",
+            f"The paper holds both image and process, so looking means following decisions.",
         ],
         "Metalwork": [
-            f"{short} is worked as {medium.lower()}; tooling and polished edges change with reflected light.",
-            f"In {short}, shine and edge make {subject_text} appear and disappear as light moves.",
-            f"The metal surface gives {short} detail through relief, polish, and shadow.",
-            f"{medium} makes the smallest worked edges important to reading {subject_text}.",
-            f"Look for how reflection sharpens the form of {short}.",
+            f"Reflected light is part of the design; tooling and edge sharpen {subject_text}.",
+            f"The worked metal changes as light moves across relief, polish, and shadow.",
+            f"{medium} makes small edges important, especially where the surface catches light.",
+            f"Look for detail that appears through shine rather than color.",
+            f"The material turns touch into brightness, edge, and contour.",
+            f"Tool marks and polished areas make the object change as the viewer moves.",
+            f"The metal's shine is not incidental; it draws attention to relief and edge.",
+            f"Small raised or cut details carry much of the object's visual charge.",
+            f"The surface asks to be read through light, shadow, and handled detail.",
+            f"Brightness makes the form feel alert, especially around {subject_text}.",
+            f"The making is legible in edges, joins, and places where light catches.",
+            f"Metal gives the design a hard clarity that color alone could not provide.",
         ],
         "Furniture": [
-            f"{short} treats {medium.lower()} as design; proportion and finish show how use and appearance meet.",
-            f"In {short}, finish and proportion make use visible as form.",
-            f"The object asks to be read through touch, scale, and everyday function.",
-            f"{medium} gives {short} a visual life tied to how it was handled or used.",
-            f"Look at how structure and finish turn utility into design.",
+            f"Use becomes visible through proportion, finish, and the way parts meet.",
+            f"Read the object through touch and scale; function is part of its visual design.",
+            f"{medium} gives everyday use a deliberate shape.",
+            f"Structure and finish do the expressive work before ornament does.",
+            f"The design turns utility into a thing meant to be looked at closely.",
+            f"The object's proportions reveal how use and display were meant to meet.",
+            f"Joinery, finish, and scale make the practical object feel composed.",
+            f"Look at where parts meet; those decisions make function visible.",
+            f"The surface finish turns handling into part of the visual experience.",
+            f"Design lives in the object's stance as much as in any ornament.",
+            f"The useful form has been carefully staged for the eye.",
+            f"Proportion carries the first impression before decorative detail enters.",
         ],
         "Glass": [
-            f"{short} uses {medium.lower()}; light changes the surface before the object settles in the eye.",
-            f"In {short}, translucency makes the surface shift with every change of light.",
-            f"The glass body gives {short} its character through color, edge, and reflection.",
-            f"{medium} makes light part of how {subject_text} appears.",
-            f"Look for places where the surface changes from transparent to reflective.",
+            f"Light changes the object before your eye settles on its form.",
+            f"Translucency makes color, edge, and reflection shift together.",
+            f"{medium} turns light into part of how {subject_text} appears.",
+            f"Look for the move from transparent surface to reflective edge.",
+            f"The glass body is active: it bends, catches, and releases light.",
+            f"The object changes with illumination, making the surface feel unstable in the best way.",
+            f"Reflection and transparency work together, so edge and color never sit still.",
+            f"Light passing through the material gives the form its real drama.",
+            f"The glass surface makes looking a matter of angle as well as shape.",
+            f"Color gathers where the material thickens, especially along the edges.",
+            f"The technique turns fragility and brightness into the object's presence.",
+            f"Look for places where the surface catches light rather than simply showing form.",
         ],
         "Manuscript": [
-            f"{short} is built as {medium.lower()}; script and image share the same surface.",
-            f"In {short}, page layout controls how text and image meet.",
-            f"The manuscript format makes reading and looking happen together.",
-            f"{medium} gives {short} a surface where ornament, script, and image all matter.",
-            f"Look at how the page organizes attention around {subject_text}.",
+            f"Reading and looking share the page; script, image, and ornament organize attention.",
+            f"The layout controls how your eye moves between text and image.",
+            f"{medium} makes the page a visual field, not just a carrier for words.",
+            f"Look at how ornament frames the movement from script to image.",
+            f"The page format turns sequence and surface into part of the artwork.",
+            f"The page asks to be read visually: margins, script, and image all guide attention.",
+            f"Text and image share authority here, each shaping how the other is understood.",
+            f"Ornament slows the eye, making the act of reading feel ceremonial.",
+            f"The layout gives the page rhythm before the words are even read.",
+            f"Look at how the page divides space between script, image, and decoration.",
+            f"The manuscript surface turns knowledge into a designed visual encounter.",
+            f"Sequence matters here; the page is built for movement across its surface.",
+        ],
+        "Design": [
+            f"Shape and finish do the first work, making {subject_text} feel purposeful before any ornament appears.",
+            f"The object is designed for close attention: use, surface, and scale all matter.",
+            f"{medium} turns function into visual form, especially around {subject_text}.",
+            f"Look at how the object's silhouette explains its intended use.",
+            f"The design depends on proportion, touch, and the way the surface meets light.",
+            f"Function is visible here, not hidden; the form tells you how the object was meant to live.",
+            f"The surface and contour make {subject_display} feel both useful and carefully composed.",
+            f"Small decisions of finish carry much of the object's character.",
+            f"The object rewards looking from edge to center, where form and use meet.",
+            f"Design is the technique here: material, proportion, and handling work together.",
+            f"The piece makes everyday use feel deliberate through its scale and surface.",
+            f"Look for the balance between practical shape and visual refinement.",
         ],
     }
     variants = variants_by_medium.get(
         medium_category,
         [
-            f"{short} uses {medium.lower()}; surface and shape guide attention around {subject_text}.",
-            f"In {short}, material and shape work together around {subject_text}.",
-            f"The surface of {short} gives {subject_text} its first visual pull.",
-            f"Look at how form and handling make {short} legible.",
-            f"{medium} gives {short} a specific scale, surface, and presence.",
+            f"Material and form guide the first look, especially around {subject_text}.",
+            f"The surface gives {subject_text} its first visual pull.",
+            f"Look at how handling and shape make the object legible.",
+            f"{medium} gives the work a specific scale, surface, and presence.",
+            f"{focus.capitalize()} are the best clues for reading the object closely.",
         ],
     )
     return variants[seed % len(variants)]
@@ -1779,68 +1936,135 @@ def surprising_fact(candidate: dict[str, Any], medium_category: str) -> str:
     subject = specific_subject(candidate, medium_category)
     subject_text = gerund_subject(subject)
     short = note_title(title)
-    medium = candidate["medium"].lower()
+    medium = medium_sentence_fragment(candidate, medium_category)
+    form = object_form_phrase(candidate, medium_category)
+    if keyword_in_text(title, "powdered tea container"):
+        return f"A natsume is a small lidded container for powdered tea; in {short}, the lacquered surface was meant for close, repeated handling."
     if "ca." in object_date.lower() or "about" in object_date.lower() or re.search(r"\d{4}[-–]\d{2,4}", object_date):
         variants = [
-            f"{short} is dated {object_date}; the range makes surface, style, and {subject_text} part of the historical evidence.",
-            f"The date {object_date} for {short} is read through visible clues: {subject_text}, material, and style all matter.",
-            f"Because {short} is dated {object_date}, close looking at {subject_text} helps hold the work in its period.",
-            f"The dating of {short} depends on what can be seen: surface, style, and {subject_text} all help place it.",
+            f"{short} is dated {object_date}, a range that makes close details around {subject_text} especially important.",
+            f"Because {short} is placed in {object_date}, the work asks you to read clues in form, surface, and subject.",
+            f"{subject_text.capitalize()} becomes part of the historical evidence because the date is a range, not a single year.",
+            f"The broad date, {object_date}, makes the visible choices in {short} carry more weight.",
+            f"Dating {short} to {object_date} shifts attention toward what the object itself can tell you.",
+            f"The range {object_date} in {short} is a reminder that close looking often supplies the sharpest evidence.",
+            f"For {short}, the date is not a pin on a calendar; it is a bracket around technique, subject, and use.",
+            f"The approximate date makes {subject_text} more than a motif: it becomes a clue to the work's world.",
+            f"{short}'s date range leaves room for uncertainty, so the surface has to speak clearly.",
+            f"In {short}, details of making and subject help narrow the historical picture around {object_date}.",
+            f"The date range matters because {subject_text} can be read alongside {short}'s material choices.",
+            f"{short} carries its period through visible evidence rather than through one exact recorded year.",
         ]
         return variants[seed % len(variants)]
     if "unknown" in artist.lower() or "anonymous" in artist.lower() or "unidentified" in artist.lower():
         variants = [
-            f"{short} keeps its maker attribution cautious, but {subject_text}, {object_date}, and the surface still point to a particular world.",
-            f"The maker for {short} is unnamed; the useful clue is how {subject_text} and the material carry the work's character.",
-            f"An unknown maker is not an empty story here: {short} asks you to read {subject_text}, craft, and survival together.",
-            f"Even without a named maker, {short} gives you evidence to read in {subject_text}, date, and surface.",
+            f"No individual maker is named for {short}, so the object's character comes through {subject_text} and its worked surface.",
+            f"The maker may be unnamed, but {short} is not anonymous in feeling; its form gives it a clear presence.",
+            f"Without a signed name, craft becomes the signature of {short}, especially in the handling of {subject_text}.",
+            f"The cautious attribution makes {short}'s visible choices feel especially important.",
+            f"{short} shows how an unnamed maker can still leave a strong trace through material and form.",
+            f"The absence of a named artist moves attention toward {short}'s use, surface, and shape.",
+            f"Authorship is quiet here; the more vivid evidence is how {subject_text} has been made.",
+            f"The strongest voice in {short} is the object itself, from its scale to its surface.",
+            f"No signature is needed for {short} to feel specific; its making carries the identity.",
+            f"The unnamed maker is part of {short}'s story, but the object is anything but generic.",
+            f"Here, attribution gives way to close evidence: edge, finish, and the treatment of {subject_text}.",
+            f"{short} reminds us that important objects often survive without a named hand attached.",
         ]
         return variants[seed % len(variants)]
     if medium_category == "Print":
         variants = [
-            f"Because {short} is a print, {subject_text} could circulate through impressions rather than remain a single painted surface.",
-            f"{short} makes repeatable image-making visible: a prepared matrix carried {subject_text} from one impression to another.",
-            f"The print format makes {short} both an image of {subject_text} and a vehicle for moving style across hands and places.",
-            f"In {short}, the printed line is not just reproduction; it is the technology that makes {subject_text} available to more viewers.",
+            f"As a print, {short} could travel through multiple impressions; {subject_text} was made to move beyond one unique surface.",
+            f"The prepared matrix behind {short} matters: it could carry {subject_text} from one impression to another.",
+            f"In {short}, {subject_text} reaches the viewer through a technology of repeatable marks.",
+            f"The printed line is the surprise in {short}, turning {subject_text} into an image that could circulate.",
+            f"{short} comes from an art of multiplication, where one designed surface could generate many views.",
+            f"The print process gives {subject_text} a special kind of mobility: image, paper, and audience could separate.",
+            f"What feels immediate in {short} was built through a repeatable technical process.",
+            f"{short}'s sheet preserves a chain of decisions from design to matrix to impression.",
+            f"{short} makes line portable, allowing style and subject to move beyond a single studio.",
+            f"{short}'s crispness comes from pressure and transfer, not from brushwork on the final sheet.",
+            f"Repeatability is part of {short}'s meaning, shaping how {subject_text} could be encountered.",
+            f"{short} turns a prepared surface into a vehicle for circulation and close looking.",
         ]
         return variants[seed % len(variants)]
     if medium_category == "Textile":
         variants = [
-            f"{short} asks you to treat fiber as image: its structure is part of what you are reading.",
-            f"Textiles like {short} could carry status, labor, and storytelling through {subject_text} in a form made for bodies, rooms, or ritual.",
-            f"The surprise in {short} is how much visual force around {subject_text} comes from structure rather than paint sitting on a surface.",
-            f"In {short}, thread count and pattern are not background information; they are how {subject_text} becomes visible.",
+            f"In {short}, the image is built into the structure; fiber and pattern are the way {subject_text} becomes visible.",
+            f"{short} shows how textiles could carry status, labor, and storytelling for bodies, rooms, or ritual.",
+            f"The visual force in {short} comes from structure rather than pigment sitting on top of a surface.",
+            f"Pattern is doing historical work in {short}, preserving choices of labor, use, and design.",
+            f"The making of {short} is slow by nature, with repeated structure turning labor into image.",
+            f"{short} carries history through touch: fiber, pattern, and use are all part of the evidence.",
+            f"{short} does not separate decoration from construction; the two arrive together.",
+            f"In {short}, pattern records both design intelligence and the discipline of handwork.",
+            f"The surface of {short} holds more than ornament; it preserves a way of making and using an object.",
+            f"{subject_text.capitalize()} comes into view through structure, which makes the textile feel active.",
+            f"{short}'s material memory is part of its appeal, especially where pattern and wear meet.",
+            f"{short} turns repeated making into a durable visual language.",
         ]
         return variants[seed % len(variants)]
     if medium_category == "Photograph":
         variants = [
-            f"{short} is both image and evidence: it preserves {subject_text} while framing what the viewer can know.",
-            f"The camera made {short} quickly, but the picture rewards slow looking at viewpoint, date, and {subject_text}.",
-            f"In {short}, viewpoint is not just a technical choice; it shapes how {subject_text} becomes legible.",
-            f"{short} fixes a moment, but its pose, place, and {subject_text} keep unfolding under a slow look.",
+            f"{short} preserves a moment, but viewpoint decides what can be known about {subject_text}.",
+            f"A quick exposure in {short} still rewards slow looking: pose, place, and crop keep changing the story.",
+            f"Viewpoint is not just technical in {short}; it shapes how {subject_text} becomes legible.",
+            f"The camera fixes {subject_text}, but {short}'s frame keeps directing what the viewer notices.",
+            f"{short} depends on a split-second choice, yet its composition keeps unfolding slowly.",
+            f"{short}'s evidence is selective: light and cropping determine what the viewer receives.",
+            f"In {short}, {subject_text} becomes meaningful because the camera chooses distance and edge.",
+            f"The surprise in {short} is how much interpretation can live inside a seemingly direct view.",
+            f"{short} reminds us that photographs are made decisions, not neutral windows.",
+            f"The frame gives {short} its force, turning a moment into a structured image.",
+            f"What the camera leaves out of {short} matters nearly as much as what it preserves.",
+            f"The subject feels factual, but the viewpoint gives {short} its point of view.",
         ]
         return variants[seed % len(variants)]
     if medium_category in {"Ceramic", "Glass", "Metalwork", "Furniture", "Design"}:
         variants = [
-            f"{short} turns use into visual experience: shape, surface, and {subject_text} all affect how the work reads.",
-            f"{short} is not only useful or decorative; its {medium} makes touch, display, and {subject_text} part of one visual experience.",
-            f"In {short}, material detail, date, and {subject_text} work together in one small object.",
-            f"{short} works at close range: scale, surface, and {subject_text} decide how it meets the viewer.",
+            f"Use is part of {short}'s visual story: shape, surface, and {subject_text} all affect how the object reads.",
+            f"The {medium} in {short} makes touch and display part of the same experience.",
+            f"Scale matters here; this is {form}, meant to work at close range.",
+            f"Surface is not decoration after the fact in {short}. It decides how {subject_text} meets the viewer.",
+            f"{short} turns function into something visually exact, from contour to finish.",
+            f"{short} may be practical, but its design choices make it worthy of slow looking.",
+            f"Close range matters for {short}; the most revealing details live in surface and proportion.",
+            f"{short}'s purpose does not reduce its artistry. It gives the form a reason to exist.",
+            f"{short} makes use visible, showing how design can carry cultural meaning.",
+            f"The surprise in {short} is how much expression can fit into an object made for handling or display.",
+            f"Material choice changes the whole experience of {short}, from weight to shine to touch.",
+            f"{short} asks to be understood through use as well as appearance.",
         ]
         return variants[seed % len(variants)]
     if medium_category in {"Sculpture", "Drawing"}:
         variants = [
-            f"{short} makes {subject_text} depend on touch: line, cut, or modeled surface carries meaning as directly as iconography.",
+            f"Touch carries meaning in {short}: line, cut, or modeled surface matters as much as iconography.",
             f"In {short}, {subject_text} {is_for_subject(subject_text)} inseparable from the handwork that made it visible.",
-            f"In {short}, surface, date, and {subject_text} make the handwork legible at close range.",
-            f"The close-looking hook in {short} is the handwork itself, especially where it defines {subject_text}.",
+            f"Surface and date meet in {short}'s details, especially where the handwork defines {subject_text}.",
+            f"The close-looking reward in {short} is the handwork itself, where the surface turns into evidence.",
+            f"{short} makes process visible; the viewer can almost follow the hand through the surface.",
+            f"{short}'s force comes from touch made durable, whether through line, cut, or modeled form.",
+            f"{subject_text.capitalize()} matters because the making leaves its own visible trail.",
+            f"The surface of {short} is not passive; it records pressure, removal, or build-up.",
+            f"What looks still in {short} becomes active once the marks and contours start to register.",
+            f"{short} holds a direct conversation between hand, material, and image.",
+            f"{short} rewards noticing how little changes in surface can shift the whole reading.",
+            f"The physical act of making remains legible in {short}, giving the work much of its intimacy.",
         ]
         return variants[seed % len(variants)]
     variants = [
-        f"{short} is more than a subject: {artist}, {object_date}, and {subject_text} all shape how the work can be understood.",
-        f"The title {short} gives you {subject_text}, but the surface tells you how the maker made that subject available to the eye.",
-        f"{short} rewards a slow look because {subject_text}, place, and surface can be read together.",
-        f"{short} rewards a slow look because {subject_text} changes when you connect image, surface, and history.",
+        f"{artist} gives {short} a particular date and surface; {subject_text} is only the beginning of the reading.",
+        f"The title of {short} names {subject_text}, but the surface shows how the maker wanted that subject to be seen.",
+        f"Slow looking changes {short} because place, surface, and {subject_text} begin to answer one another.",
+        f"The memorable detail in {short} is not just what is shown, but how {subject_text} is made available to the eye.",
+        f"{short} becomes richer once the named subject and the handling of the surface are read together.",
+        f"{short}'s subject is clear, but its real intelligence appears in the choices around it.",
+        f"Look beyond recognition: the way {subject_text} is staged changes the whole encounter.",
+        f"{artist}'s choices make {subject_text} feel specific to this moment, not merely illustrative.",
+        f"{short} turns a familiar subject into a particular act of looking.",
+        f"{short} holds attention because subject, surface, and setting keep adjusting one another.",
+        f"The first read of {short} may be simple; the lasting interest is how the work makes that read happen.",
+        f"The surprise in {short} lies in the handling, where {subject_text} becomes more than a label.",
     ]
     return variants[seed % len(variants)]
 
@@ -1848,24 +2072,75 @@ def surprising_fact(candidate: dict[str, Any], medium_category: str) -> str:
 def connection_note(candidate: dict[str, Any], passport_label: str, place_label: str, geo_region: str) -> str:
     medium_category = infer_medium_category(candidate["medium"], candidate["classification"], candidate.get("collection", ""))
     title = candidate["title"]
-    phrase = connection_context_phrase(passport_label, medium_category, geo_region)
+    phrase = readable_context_phrase(connection_context_phrase(passport_label, medium_category, geo_region))
+    area = context_area_phrase(passport_label, medium_category, geo_region)
     subject = display_subject(specific_subject(candidate, medium_category))
     seed = stable_hash(f"connection-note:{candidate['id']}")
     short = note_title(title)
     place = place_label if place_label and place_label != "Global collection" else geo_region
+    if keyword_in_text(title, "powdered tea container"):
+        return "In Japanese tea culture, a natsume holds powdered tea; its small lacquered form turns use, handling, and surface into the point of attention."
     if place_label and place_label != "Global collection":
         variants = [
-            f"In {place}, {short} links {subject} to {phrase}.",
-            f"{sentence_label(subject)} gives {short} a foothold in {place}, where {phrase}.",
-            f"The {place} setting changes how {subject} reads: it points toward {phrase}.",
-            f"{short} brings together {subject}, place, and {phrase}.",
+            f"The {place} context matters because {subject} points toward {phrase}.",
+            f"Seen within {area}, {short} reads as {object_use_phrase(medium_category)} with roots in {place}.",
+            f"{sentence_label(subject)} is the bridge from close looking to {place}'s larger visual culture.",
+            f"In {place}, {subject} comes out of a world of {phrase}.",
+            f"The work's {place} setting turns {subject} into evidence of {phrase}.",
+            f"{subject.capitalize()} carries traces of {place}'s traditions of {phrase}.",
+            f"A local clue matters here: {subject} comes from a world shaped by {phrase}.",
+            f"From {place}, the object points toward {phrase} through material and form.",
+            f"{short} keeps close looking tied to {place}, especially through {subject}.",
+            f"The place of origin sharpens the reading: {subject} is connected to {phrase}.",
+            f"{place} is not just a map label here; it helps explain the choices around {subject}.",
+            f"The work opens a small window onto {place}'s visual habits, especially in {subject}.",
+            f"Look at {subject} as a historical clue to {place}'s practices of {phrase}.",
+            f"Within {area}, {short} shows how place can shape material, use, and image.",
+            f"The connection to {place} gives the object's details a more specific cultural setting.",
+            f"{subject.capitalize()} links the close view to a larger tradition of {phrase}.",
+            f"The object emerges from {place}'s history of making, where {phrase} mattered visually.",
+            f"Seen through its origin, {short} becomes a compact lesson in {phrase}.",
+            f"{place}'s context gives the work depth without taking attention away from {subject}.",
+            f"The artwork's local setting helps explain why {subject} carries so much visual weight.",
+            f"Origin matters here because {subject} carries habits of making tied to {place}.",
+            f"{short} makes {place}'s visual culture feel specific through {subject}.",
+            f"Place, material, and use meet in {subject}, giving the work its historical charge.",
+            f"The object's roots in {place} help explain why {subject} is treated with such care.",
+            f"Rather than floating free of context, {subject} points back to {place} and {phrase}.",
+            f"The details around {subject} make more sense when seen against {place}'s artistic world.",
+            f"{short} invites a local reading: {subject} carries the pressure of {phrase}.",
+            f"Through {subject}, the work turns {place}'s making traditions into something visible.",
+            f"The cultural setting is concrete here, held in the way {subject} is formed.",
+            f"{place} matters because the object's visual choices come from a lived world of {phrase}.",
+            f"Look closely at {subject}; it is where place and artistic practice meet.",
+            f"The work's origin sharpens the reading without reducing it to geography.",
+            f"{subject.capitalize()} lets the viewer move from a single object toward {phrase}.",
+            f"The place label becomes meaningful through the object itself, especially {subject}.",
+            f"{short} carries {place}'s setting in material details rather than in explanation.",
+            f"What looks like a single object also preserves a trace of {place}'s visual culture.",
+            f"The connection to {place} is visible first in how {subject} has been shaped.",
+            f"{subject.capitalize()} gives {phrase} a concrete form inside the work.",
+            f"{short} turns local practice into close-looking evidence.",
+            f"The object speaks from {place} through surface, use, and the treatment of {subject}.",
         ]
     else:
         variants = [
-            f"{short} uses {subject} to bring {phrase} into view.",
-            f"{phrase.capitalize()} changes how {subject} reads in {short}.",
-            f"{short} is shaped by {phrase}, not only by its subject.",
-            f"{sentence_label(subject)} helps place {short} within {phrase}.",
+            f"{sentence_label(subject)} opens onto {phrase}, which gives the work its historical pressure.",
+            f"Seen within {area}, the work is about {phrase} as much as about {subject}.",
+            f"The larger context is {phrase}; {subject} is the visible way into it.",
+            f"{short} uses {subject} to make {phrase} concrete.",
+            f"The work's setting gives {subject} a role beyond decoration or subject matter.",
+            f"{subject.capitalize()} helps turn a broad art-historical idea into something visible.",
+            f"The work can be read through {phrase}, but the entry point remains {subject}.",
+            f"Here, historical context is not abstract; it is carried by {subject}.",
+            f"In {short}, choices of subject and surface open onto {phrase}.",
+            f"The object makes {phrase} tangible by giving it a specific visual form.",
+            f"{subject.capitalize()} anchors the artwork in a larger conversation about {phrase}.",
+            f"The historical bridge is built from the details you can see first.",
+            f"Within {area}, {short} shows how one object can hold a wider visual tradition.",
+            f"The work's larger significance begins with noticing how {subject} is presented.",
+            f"{subject.capitalize()} gives the viewer a concrete way into {phrase}.",
+            f"The connection is visual before it is textual: subject, surface, and context meet here.",
         ]
     return variants[seed % len(variants)]
 
@@ -2601,6 +2876,9 @@ ARTWORK_COPY_BANNED_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("source metadata", re.compile(r"\bsource metadata\b", re.IGNORECASE)),
     ("rights/access language", re.compile(r"\b(?:rights information|open[- ]access|cc0|public domain)\b", re.IGNORECASE)),
     ("game mechanics", re.compile(r"\b(?:game|session|score|streak|quiz answer|visit strengthen)\b", re.IGNORECASE)),
+    ("repeated bridge template", re.compile(r"\bbrings together\b|\bgives .{0,80} a foothold\b|\bsetting changes how\b", re.IGNORECASE)),
+    ("cautious-maker template", re.compile(r"\bkeeps its maker attribution cautious\b|\bstill point to a particular world\b", re.IGNORECASE)),
+    ("visible-clues template", re.compile(r"\bread through visible clues\b|\bsurface,\s*style,\s*and\b|\bsurface,\s*date,\s*and\b", re.IGNORECASE)),
 )
 
 

@@ -6,7 +6,7 @@
 - Runtime artworks: 365
 - Scheduled days: 365
 - Unique scheduled artwork IDs: 365
-- Object-specific surprising facts: 365/365
+- Object-specific surprising facts: 361/365
 - A-showcase approvals: 365/365
 - Validation errors: 0
 - Replacements made in this pass: 0
@@ -20,7 +20,7 @@
 | 2 | 2026-04-24 | A ship | Sheep-Washing, Windsor | Yale Center for British Art | Print | Europe |
 | 3 | 2026-04-25 | A ship | Stela of the Steward Mentuwoser | The Met | Sculpture | Africa |
 | 4 | 2026-04-26 | A ship | Solola, Guatemala | Smithsonian American Art Museum | Photograph | Latin America |
-| 5 | 2026-04-27 | A ship | Unidentified Woman | National Portrait Gallery | Design | North America |
+| 5 | 2026-04-27 | B ship after polish | Unidentified Woman | National Portrait Gallery | Design | North America |
 | 6 | 2026-04-28 | A ship | Khosrow and Shirin in a Garden, a Scene from the Khamsa of Nizami | Art Institute of Chicago | Painting | Asia |
 | 7 | 2026-04-29 | A ship | Ten Verses on Oxherding | The Met | Painting | Asia |
 | 8 | 2026-04-30 | A ship | Third Floor South Wing of the Patent Office Building, Showing Patent Model Cases and Model of Washington Monument | National Portrait Gallery | Photograph | North America |
@@ -123,7 +123,10 @@
 
 ## Weak/Replacement List
 
-- No records require replacement under the current automated gates.
+- Day 5 (2026-04-27) `smithsonian-npg_S_NPG.2002.184.764`: B ship after polish.
+- Day 32 (2026-05-24) `smithsonian-npg_S_NPG.2002.184.456`: B ship after polish.
+- Day 33 (2026-05-25) `aic-26561`: B ship after polish.
+- Day 217 (2026-11-25) `smithsonian-npg_NPG.81.M670`: B ship after polish.
 
 ## Validation
 

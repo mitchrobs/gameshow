@@ -199,9 +199,22 @@ function reorderQuestionOptions(question: MuseumQuestion, seed: string): MuseumQ
   };
 }
 
+function resolveMuseumImageUrl(url: string): string {
+  const normalized = url.trim();
+  if (normalized.startsWith('/museum-images/')) {
+    return normalized.slice(1);
+  }
+  return normalized;
+}
+
 function prepareArtwork(artwork: MuseumArtwork): MuseumArtwork {
   return {
     ...artwork,
+    images: {
+      thumbnailUrl: resolveMuseumImageUrl(artwork.images.thumbnailUrl),
+      displayUrl: resolveMuseumImageUrl(artwork.images.displayUrl),
+      fullUrl: resolveMuseumImageUrl(artwork.images.fullUrl),
+    },
     questions: artwork.questions.map((question, index) =>
       reorderQuestionOptions(question, `${artwork.id}:${index}:${question.prompt}`)
     ),
