@@ -258,6 +258,9 @@ const WEAK_UNIT_RELEVANCE_PATTERN =
   /\b(?:one big classroom library|big classroom library|classroom library hold|classroom's worth|full holds cart|library hold shelf|library return cart|one full library cart|pool-deck rack in the tide pool|big party bowl in the candy|Art Basel Miami Beach draw in the museum)\b/i;
 const AWKWARD_PROMPT_PATTERN =
   /\b(?:in the (?:candy|tide pool|library returns|soccer sideline|post office|space show|toolbox|bike share systems|recorder lessons|cul-de-sac light|hospital supply|food truck lunch|bike tune-up|aquarium 2|birdwatching|ups worldport)|a (?:recorder lessons|arcade games|bike share systems|observatories)\b|how many [a-z -]+ can an [A-Z][A-Za-z ]+ draw|visitor passes are on a full|plants are on .*display bench|practice balls are in a full .*equipment rack|plays can happen in a busy .*tournament day|toy bricks are in a full .*cleanup bin|tiny parts are on a crowded .*model table|eyepieces are in .*telescope loaner case)\b/i;
+const VAGUE_STANDALONE_VERB_PATTERN = /^How many\s+[^?]{2,80}\s+(?:count|stack|sit)\?$/i;
+const THEME_MISMATCH_SCENE_PATTERN =
+  /\b(?:diner breakfast kitchen crack|stuffed animal care|sprinkler system timer repair-shop|visitors tour Big Ben and the UK Parliament|watch batteries are in one sprinkler system timer|Waffle House restaurants can [^?]*kitchen crack)\b/i;
 const FOR_A_THEME_PREFIX_PATTERN = /^For an? [a-z][a-z -]+, how many\b/i;
 const NON_STANDALONE_PROMPT_PATTERN =
   /\b(?:How many .* in the \w+\?|Picture a [a-z -]+, then estimate|Use a [a-z -]+ as the day's anchor)\b/i;
@@ -4811,6 +4814,7 @@ const LAUNCH_READINESS_CATEGORIES = [
   "awkward_prompt",
   "generic_generated_note",
   "non_standalone_prompt",
+  "local_context",
 ];
 const LAUNCH_READINESS_WARNING_CATEGORIES = ["source_specificity", "source_review"];
 
@@ -5054,6 +5058,33 @@ const REAL_TOPIC_FACT_SIGNAL_PATTERN =
   /\b(?:standard|regulation|official|average|typical|common|midsize|packed|busy|full-size|one-year|year|daily|per day|average day|one day|one year|season|weekend|repair-shop|bike-shop|U\.S\.|United States|USPS|FDNY|NYC|New York|Arlington|Library of Congress|Smithsonian|Monopoly|Jenga|Scrabble|Pac-Man|Uno|Waffle House|Domino's|Yankee Stadium|Grand Central|Times Square|Georgia Aquarium|Olympic|Macy's|X Games|Yellowstone|Vail|Big Ben|Staten Island Ferry|Las Vegas Sphere|Citi Bike|Pike Place|San Diego Zoo|Feeding America|UPS Worldport)\b/i;
 const FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN =
   /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|riders|visitors|students|fans|vehicles|bikes|wheels|clocks|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|photo strips|petals|bows|cranberries|tortillas|records|campers|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|timing chips|rental shoes|rental skates|watch batteries|kickboards|tires|headstones|beachgoers|seawater|water striders|pond surface|tiles|dots|pips|pieces|checkers|needles|towels|seedlings|lemons|bouquets|dice|bowling balls)\b/i;
+const LOCAL_CONTEXT_REQUIREMENTS = Object.freeze([
+  { anchor: "Boundary Waters", pattern: /\bMinnesota\b/i },
+  { anchor: "Staten Island Ferry", pattern: /\b(?:New York City|NYC)\b/i },
+  { anchor: "UPS Worldport", pattern: /\b(?:Louisville|Kentucky)\b/i },
+  { anchor: "Grand Central Terminal", pattern: /\b(?:New York City|NYC|Manhattan)\b/i },
+  { anchor: "Citi Bike", pattern: /\b(?:New York City|NYC)\b/i },
+  { anchor: "Cape Hatteras", pattern: /\bNorth Carolina\b/i },
+  { anchor: "Radio City Music Hall", pattern: /\b(?:New York City|NYC|Manhattan)\b/i },
+  { anchor: "Coney Island", pattern: /\b(?:Brooklyn|New York City|NYC)\b/i },
+  { anchor: "Las Vegas Sphere", pattern: /\bNevada\b/i },
+  { anchor: "Maricopa County", pattern: /\b(?:Arizona|Phoenix)\b/i },
+  { anchor: "Vail", pattern: /\bColorado\b/i },
+  { anchor: "Badlands National Park", pattern: /\bSouth Dakota\b/i },
+  { anchor: "MGM Grand", pattern: /\bLas Vegas\b/i },
+  { anchor: "Dyker Heights", pattern: /\b(?:Brooklyn|New York City|NYC)\b/i },
+  { anchor: "Pike Place", pattern: /\bSeattle\b/i },
+  { anchor: "Hartsfield-Jackson", pattern: /\bAtlanta\b/i },
+  { anchor: "Schlitterbahn", pattern: /\bTexas\b/i },
+  { anchor: "The Strong National Museum of Play", pattern: /\b(?:Rochester|New York)\b/i },
+  { anchor: "Queen Mary’s Dolls’ House", pattern: /\b(?:London|British|Royal)\b/i },
+  { anchor: "Miniatur Wunderland", pattern: /\b(?:Hamburg|Germany)\b/i },
+  { anchor: "Mercedes-Benz Stadium", pattern: /\bAtlanta\b/i },
+]);
+const US_CONTEXT_REQUIRED_PEOPLE_SCALE_PATTERN =
+  /\bHow many\s+(?:people|visitors|riders|voters|swimmers|skiers|students|kids|fans|spectators|viewers|campers)\b/i;
+const EXPLICIT_GEOGRAPHY_PATTERN =
+  /\b(?:U\.S\.|United States|American|America|worldwide|global|New York City|NYC|Chicago|Los Angeles|Phoenix|Arizona|Texas|California|Florida|Georgia|Illinois|Nevada|Colorado|Minnesota|North Carolina|South Dakota|Kentucky|Atlanta|Seattle|Brooklyn|Manhattan|Las Vegas|London|Germany|Hamburg|National|World|FIFA|Olympic)\b/i;
 const SINGLE_OBJECT_FACETS = new Set(["object_structure", "small_capacity", "physical_size"]);
 const BREADTH_FACETS = new Set([
   "usage",
@@ -5185,6 +5216,36 @@ function hasStrongFermiAnchor(questionEntry) {
   if (questionEntry.anchorType === "sourced_typical" && FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN.test(combinedText)) return true;
   if (questionEntry.anchorType === "iconic_object" && FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN.test(combinedText)) return true;
   return false;
+}
+
+function getLocalContextBlocker(questionEntry) {
+  const prompt = String(questionEntry.prompt ?? "");
+  const contextRequirement = LOCAL_CONTEXT_REQUIREMENTS.find(({ anchor }) =>
+    new RegExp(`\\b${anchor.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(prompt)
+  );
+  if (contextRequirement && !contextRequirement.pattern.test(prompt)) {
+    return `Named place "${contextRequirement.anchor}" needs short geography/context in the prompt for broad U.S. players.`;
+  }
+  return null;
+}
+
+export function getBallparkPromptContextIssue(prompt) {
+  return getLocalContextBlocker({ prompt });
+}
+
+function getHumanClueFloorIssue(questionEntry) {
+  const prompt = String(questionEntry.prompt ?? "");
+  if (VAGUE_STANDALONE_VERB_PATTERN.test(prompt)) {
+    return "Prompt has no standalone scope; name the container, institution, place, or time window.";
+  }
+  if (THEME_MISMATCH_SCENE_PATTERN.test(prompt)) {
+    return "Prompt mixes unrelated topic frames; rebuild the clue around one natural topic.";
+  }
+  return null;
+}
+
+export function getBallparkPromptHumanClueIssue(prompt) {
+  return getHumanClueFloorIssue({ prompt });
 }
 
 function getFermiTopicFacet(questionEntry) {
@@ -5356,6 +5417,21 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
       });
     }
   }
+  dailySet.questions.forEach((firstQuestion, firstIndex) => {
+    dailySet.questions.slice(firstIndex + 1).forEach((secondQuestion, offset) => {
+      const secondIndex = firstIndex + offset + 1;
+      const sameAnswer = Number(firstQuestion.answer) === Number(secondQuestion.answer);
+      const sameFlavor = getTasteQuestionFlavor(firstQuestion) === getTasteQuestionFlavor(secondQuestion);
+      const promptSimilarity = getTastePromptSimilarity(firstQuestion.prompt, secondQuestion.prompt);
+      if (sameAnswer && sameFlavor && promptSimilarity >= 0.3) {
+        record("question_move_repetition", {
+          date: auditPackId,
+          theme: dailySet.theme,
+          message: `Q${firstIndex + 1} and Q${secondIndex + 1} repeat the same answer/flavor shape; one clue needs a different estimation hook.`,
+        });
+      }
+    });
+  });
   const forcedMacroQuestions = dailySet.questions.filter(
     (questionEntry) => questionEntry.questionMove === "famous_macro" && !hasStrongFermiAnchor(questionEntry)
   );
@@ -5485,6 +5561,10 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         "Prompt reads awkwardly or self-referentially instead of like a human-authored clue."
       );
     }
+    const humanClueFloorIssue = getHumanClueFloorIssue(questionEntry);
+    if (humanClueFloorIssue) {
+      recordQuestionLaunchBlocker(record, "awkward_prompt", dailySet, label, questionEntry, humanClueFloorIssue);
+    }
     if (FOR_A_THEME_PREFIX_PATTERN.test(questionEntry.prompt)) {
       recordQuestionLaunchBlocker(
         record,
@@ -5513,6 +5593,17 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         label,
         questionEntry,
         "Rationale, note, or calibration anchor still uses generated scaffold language instead of specific editorial support."
+      );
+    }
+    const localContextBlocker = getLocalContextBlocker(questionEntry);
+    if (localContextBlocker) {
+      recordQuestionLaunchBlocker(
+        record,
+        "local_context",
+        dailySet,
+        label,
+        questionEntry,
+        localContextBlocker
       );
     }
     if (WEAK_UNIT_RELEVANCE_PATTERN.test(combinedText)) {
@@ -6225,6 +6316,124 @@ function getBallpark400PackQualityMetrics(datedSets, reserveSets) {
       wideSpreadBonus: agentDifficultyTargetCounts.wide_spread_bonus ?? 0,
     },
     questionMoveCounts,
+  };
+}
+
+function getEditorialRiskQuestionReasons(packEntry, label, questionEntry) {
+  const reasons = [];
+  const addReason = (category, points, message) => {
+    reasons.push({
+      category,
+      points,
+      label,
+      questionKey: questionEntry.questionKey,
+      prompt: questionEntry.prompt,
+      message,
+    });
+  };
+  const combinedText = `${questionEntry.prompt} ${questionEntry.funFact ?? ""} ${questionEntry.answerNote ?? ""} ${questionEntry.calibrationAnchor ?? ""}`;
+  const sourceText = (questionEntry.sources ?? []).map((sourceEntry) => `${sourceEntry.title} ${sourceEntry.publisher}`).join(" ");
+  const localContextBlocker = getLocalContextBlocker(questionEntry);
+  if (localContextBlocker) addReason("local_context", 9, localContextBlocker);
+  if (/\b(?:NIST|Census QuickFacts|Britannica Games|National Park Service Visitor Use Statistics|U\.S\. Census QuickFacts)\b/i.test(sourceText)) {
+    addReason("weak_or_broad_source", 4, "Source may be too broad or mismatched for this specific clue.");
+  }
+  if (/\b(?:Reference benchmark|Modeled as|Modeled from|Rounded from .*context|Derived from|Converted from|rough|estimate)\b/i.test(questionEntry.answerNote ?? "")) {
+    addReason("soft_derivation_note", 1, "Answer note is defensible but may need more player-useful specificity.");
+  }
+  if (/\b\d[\d,]*\b.*\b(?:each|per|times|x|with|at)\b.*\b\d[\d,]*\b/i.test(questionEntry.prompt)) {
+    addReason("formula_feel", 7, "Prompt risks reading like visible arithmetic instead of estimation trivia.");
+  }
+  if (/\b(?:minutes|seconds|inches|feet|pounds|tons|miles)\b.*\b(?:happen|produce|across|total)\b/i.test(questionEntry.prompt)) {
+    addReason("artificial_aggregate_unit", 5, "Prompt uses an aggregate unit that can feel more abstract than Ballpark.");
+  }
+  if (/\b(?:busy|large|typical|average|standard|one day|one year|might|can|about how many|one full|full-size|regular|local)\b/i.test(questionEntry.prompt)) {
+    addReason("generic_prompt_shape", 1, "Prompt uses a generic modifier; check whether the anchor is specific enough.");
+  }
+  const answerFactBody = String(questionEntry.funFact ?? "").replace(/^Answer:\s*[0-9,]+(?:\.\d+)?[.]\s*/i, "");
+  if (answerFactBody.length > 90) {
+    addReason("long_answer_fact", 2, "Answer fact may be too long for the short reveal style.");
+  }
+  if (packEntry.theme.includes("Local ") || /(?:Desk|Counter|Aisle|Shelf|Rack|Wall|Table|Window|Yard|Line)$/i.test(packEntry.theme)) {
+    addReason("generic_theme_shape", 2, "Theme shape is serviceable but may feel less memorable than the stronger packs.");
+  }
+  if (/^(?:How many (?:people|visitors|riders|voters|swimmers|skiers|students|kids|fans|spectators|viewers))\b/i.test(questionEntry.prompt) && !EXPLICIT_GEOGRAPHY_PATTERN.test(questionEntry.prompt)) {
+    addReason("people_scale_context", 5, "People-scale clue should name the geography or institution clearly.");
+  }
+  const humanClueIssue = getHumanClueFloorIssue(questionEntry);
+  if (humanClueIssue || AWKWARD_PROMPT_PATTERN.test(questionEntry.prompt) || NON_STANDALONE_PROMPT_PATTERN.test(combinedText)) {
+    addReason("human_clue_floor", 8, humanClueIssue ?? "Prompt should be rewritten to stand alone as a human-authored clue.");
+  }
+  return reasons;
+}
+
+function getEditorialRiskPackScore(packEntry) {
+  const coreFlavors = packEntry.questions.map((questionEntry) => getTasteQuestionFlavor(questionEntry));
+  const reasons = [];
+  if (new Set(coreFlavors).size < CORE_QUESTION_COUNT) {
+    reasons.push({
+      category: "samey_core_facets",
+      points: 10,
+      label: "Pack",
+      questionKey: null,
+      prompt: null,
+      message: "Core questions share a flavor; whole-day arc should be checked for sameness.",
+    });
+  }
+  getDailySetQuestions(packEntry).forEach(({ label, question }) => {
+    reasons.push(...getEditorialRiskQuestionReasons(packEntry, label, question));
+  });
+  const riskScore = reasons.reduce((sum, reason) => sum + reason.points, 0);
+  const averageAgentScore = (packEntry.playerAgentReviews ?? [])
+    .flatMap((review) => Object.values(review.scores ?? {}).filter(Number.isFinite))
+    .reduce(
+      (summary, score, index, scores) => ({
+        sum: summary.sum + score,
+        count: scores.length,
+      }),
+      { sum: 0, count: 0 }
+    );
+  return {
+    packId: packEntry.reserveId ?? packEntry.date,
+    date: packEntry.date ?? null,
+    reserveId: packEntry.reserveId ?? null,
+    theme: packEntry.theme,
+    riskScore,
+    suggestedRepairType: riskScore >= 20 ? "whole_day_repair" : "targeted_context_polish",
+    averageAgentScore: averageAgentScore.count > 0 ? averageAgentScore.sum / averageAgentScore.count : null,
+    reasons: reasons
+      .sort((first, second) => second.points - first.points || first.category.localeCompare(second.category))
+      .slice(0, 12),
+    prompts: packEntry.questions.map((questionEntry) => questionEntry.prompt),
+  };
+}
+
+export function getBallparkEditorialRiskReport(options = {}) {
+  const datedSummary = validateAuthoredLibrary();
+  const reserveSummary = validateBallparkReserveBank();
+  const packs = [...datedSummary.authoredSets, ...reserveSummary.reservePacks];
+  const limit = Math.min(
+    packs.length,
+    Math.max(1, Number.isFinite(options.limit) ? Math.floor(options.limit) : Math.ceil(packs.length * 0.2))
+  );
+  const rankedPacks = packs
+    .map((packEntry) => getEditorialRiskPackScore(packEntry))
+    .sort((first, second) => second.riskScore - first.riskScore || first.packId.localeCompare(second.packId));
+  const bottomPacks = rankedPacks.slice(0, limit);
+  const categoryCounts = {};
+  bottomPacks.forEach((packEntry) => {
+    packEntry.reasons.forEach((reason) => {
+      categoryCounts[reason.category] = (categoryCounts[reason.category] ?? 0) + 1;
+    });
+  });
+  return {
+    generatedAt: new Date().toISOString(),
+    totalPacks: packs.length,
+    limit,
+    bottomCount: bottomPacks.length,
+    thresholdScore: bottomPacks.at(-1)?.riskScore ?? 0,
+    categoryCounts,
+    packs: bottomPacks,
   };
 }
 

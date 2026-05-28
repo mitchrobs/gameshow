@@ -2,6 +2,7 @@ import { writeFileSync } from "node:fs";
 import {
   classifyBallparkContentForRemediation,
   classifyBallparkReserveContentForRemediation,
+  getBallparkEditorialRiskReport,
   getBallparkReservePool,
   getBallparkReviewPacket,
   getBallparkRemediationBatch,
@@ -25,6 +26,7 @@ type CliOptions = {
   reservePool: boolean;
   reserveBank: boolean;
   combined: boolean;
+  editorialRisk: boolean;
 };
 
 function parseArgs(argv: string[]): CliOptions {
@@ -37,6 +39,7 @@ function parseArgs(argv: string[]): CliOptions {
     reservePool: false,
     reserveBank: false,
     combined: false,
+    editorialRisk: false,
   };
 
   argv.forEach((arg) => {
@@ -47,6 +50,7 @@ function parseArgs(argv: string[]): CliOptions {
     if (arg === "--reserve-pool") options.reservePool = true;
     if (arg === "--reserve-bank") options.reserveBank = true;
     if (arg === "--combined") options.combined = true;
+    if (arg === "--editorial-risk") options.editorialRisk = true;
     if (arg.startsWith("--month=")) options.month = arg.slice("--month=".length);
     if (arg.startsWith("--from=")) options.from = arg.slice("--from=".length);
     if (arg.startsWith("--category=")) options.category = arg.slice("--category=".length);
@@ -268,6 +272,29 @@ function printCombinedSummary(payload: ReturnType<typeof runBallpark400PackAudit
   });
 }
 
+function printEditorialRiskSummary(payload: ReturnType<typeof getBallparkEditorialRiskReport>, limit: number) {
+  console.log("Ballpark editorial risk report");
+  console.log(`Packs ranked: ${payload.totalPacks}`);
+  console.log(`Bottom pack count: ${payload.bottomCount}/${payload.totalPacks}`);
+  console.log(`Threshold score: ${payload.thresholdScore}`);
+  console.log("");
+  console.log("Categories in displayed bottom set:");
+  Object.entries(payload.categoryCounts)
+    .filter(([, count]) => count > 0)
+    .forEach(([category, count]) => {
+      console.log(`  ${category}: ${count}`);
+    });
+  console.log("");
+  console.log(`Top ${Math.min(limit, payload.packs.length)} editorial-risk packs:`);
+  payload.packs.slice(0, limit).forEach((pack) => {
+    const reasons = pack.reasons
+      .slice(0, 3)
+      .map((reason) => `${reason.category}:${reason.points}`)
+      .join(", ");
+    console.log(`  ${pack.packId} ${pack.theme} score:${pack.riskScore} [${pack.suggestedRepairType}] ${reasons}`);
+  });
+}
+
 const options = parseArgs(process.argv.slice(2));
 const payload = options.reviewPacket
   ? getBallparkReviewPacket({
@@ -276,6 +303,8 @@ const payload = options.reviewPacket
       reserveIds: options.reserveIds,
       includeReserveBank: options.reserveBank,
     })
+  : options.editorialRisk
+  ? getBallparkEditorialRiskReport({ limit: options.limit })
   : options.combined
   ? runBallpark400PackAudit()
   : options.reserveBank
@@ -302,6 +331,8 @@ if (options.json || options.reviewPacket) {
   printReserveBankSummary(payload as ReturnType<typeof classifyBallparkReserveContentForRemediation>, options.limit);
 } else if (options.combined) {
   printCombinedSummary(payload as ReturnType<typeof runBallpark400PackAudit>, options.limit);
+} else if (options.editorialRisk) {
+  printEditorialRiskSummary(payload as ReturnType<typeof getBallparkEditorialRiskReport>, options.limit);
 } else if (options.month) {
   printMonthSummary(payload as ReturnType<typeof getBallparkRemediationBatch>, options.limit);
 } else {

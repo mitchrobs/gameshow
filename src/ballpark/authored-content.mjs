@@ -7604,9 +7604,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many pizza boxes stack?",
+        "prompt": "How many empty pizza boxes can a busy pizzeria stack before a Friday-night rush?",
         "answer": 3600,
-        "funFact": "Answer: 3,600. A pizza rush can stack thousands of boxes.",
+        "funFact": "Answer: 3,600. A busy pizzeria can prep thousands of boxes for a rush.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 3,
         "scaleBand": "city",
@@ -7620,11 +7620,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: pizza boxes stack.",
+        "answerNote": "Reference benchmark: empty boxes staged before a busy pizzeria rush.",
         "themeKey": "pizza-oven-line",
         "questionKey": "pizza-oven-line-q2",
         "estimationMode": "count",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate boxes per stack, then scale across a prep area.",
         "questionMove": "production_scale",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -7956,9 +7956,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     }
   },
   "2026-01-31": {
-    "theme": "Fire Engine Pump",
+    "theme": "Fire Station Gear Bay",
     "playability": "tactile",
-    "themeKey": "fire-engine-pump",
+    "themeKey": "fire-station-gear-bay",
     "rebuiltPack": true,
     "editorialStatus": "launch_ready",
     "playerAgentSignoff": [
@@ -8124,9 +8124,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many gallons of water can a fire engine pump in one minute?",
-        "answer": 1500,
-        "funFact": "Answer: 1,500. A fire engine can pump about 1,500 gallons per minute.",
+        "prompt": "How many turnout coats can a city fire-station gear bay hold?",
+        "answer": 80,
+        "funFact": "Answer: 80. A gear bay can hold dozens of turnout coats.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "pocket",
@@ -8140,23 +8140,23 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Rounded from common fire-engine pump ratings.",
+        "answerNote": "Estimated from turnout-gear lockers across a multi-company city fire station.",
         "themeKey": "fire-engine-pump",
         "questionKey": "fire-engine-pump-q1",
         "estimationMode": "capacity",
-        "calibrationAnchor": "Compare a garden hose with a fire hose, then scale by flow.",
-        "questionMove": "physical_capacity",
+        "calibrationAnchor": "Estimate lockers per wall, then scale around the gear bay.",
+        "questionMove": "familiar_anchor",
         "anchorType": "named_standard",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "fire-engine-pump-1",
         "asOfDate": "2026-05-23",
-        "topicFacet": "operations"
+        "topicFacet": "gear"
       },
       {
-        "prompt": "How many feet of hose can one FDNY engine carry?",
-        "answer": 1200,
-        "funFact": "Answer: 1,200. A fire engine carries more than 1,000 feet of hose.",
+        "prompt": "How many spare air cylinders can a fire-station gear bay store?",
+        "answer": 120,
+        "funFact": "Answer: 120. A busy gear bay can store about 120 spare cylinders.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 3,
         "scaleBand": "city",
@@ -8170,23 +8170,23 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: feet of hose can one fdny engine carry.",
+        "answerNote": "Estimated from spare breathing-air cylinder racks in a busy station gear bay.",
         "themeKey": "fire-engine-pump",
         "questionKey": "fire-engine-pump-q2",
-        "estimationMode": "distance",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
-        "questionMove": "object_anatomy",
+        "estimationMode": "capacity",
+        "calibrationAnchor": "Estimate cylinders per rack, then multiply by rack count.",
+        "questionMove": "physical_capacity",
         "anchorType": "named_standard",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "fire-engine-pump-2",
         "asOfDate": "2026-05-23",
-        "topicFacet": "operations"
+        "topicFacet": "safety_supply"
       },
       {
-        "prompt": "How many emergency calls can FDNY answer in one year?",
-        "answer": 1800000,
-        "funFact": "Answer: 1,800,000. FDNY handles calls at a seven-figure scale.",
+        "prompt": "How many firefighters can FDNY outfit with turnout gear?",
+        "answer": 11000,
+        "funFact": "Answer: 11,000. FDNY outfits more than 10,000 firefighters.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 4,
         "scaleBand": "world",
@@ -8200,18 +8200,18 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: emergency calls can fdny answer in one year.",
+        "answerNote": "Rounded from FDNY uniformed firefighter staffing, used as a gear-scale estimate.",
         "themeKey": "fire-engine-pump",
         "questionKey": "fire-engine-pump-q3",
-        "estimationMode": "rate",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "estimationMode": "count",
+        "calibrationAnchor": "Estimate firefighters per station, then scale to a large city department.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "fire-engine-pump-3",
         "asOfDate": "2026-05-23",
-        "topicFacet": "audience"
+        "topicFacet": "department_scale"
       }
     ]
   },
@@ -9257,9 +9257,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     ]
   },
   "2026-02-05": {
-    "theme": "Fire Station Gear Bay",
+    "theme": "Fire Engine Pump",
     "playability": "tactile",
-    "themeKey": "fire-station-gear-bay",
+    "themeKey": "fire-engine-pump",
     "rebuiltPack": true,
     "editorialStatus": "launch_ready",
     "playerAgentSignoff": [
@@ -10495,9 +10495,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many bulbs glow on a Las Vegas Sphere test panel?",
+        "prompt": "How many LED pucks cover a small section of the Las Vegas Sphere in Nevada?",
         "answer": 1800,
-        "funFact": "Answer: 1,800. A small stage wall uses around 1,800 bulbs.",
+        "funFact": "Answer: 1,800. A small Sphere screen section uses about 1,800 LED pucks.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -10511,7 +10511,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: bulbs glow on a las vegas sphere test panel.",
+        "answerNote": "Reference benchmark: a small Las Vegas Sphere screen section, rounded for play.",
         "themeKey": "las-vegas-sphere-screen",
         "questionKey": "las-vegas-sphere-screen-q1",
         "estimationMode": "count",
@@ -10525,7 +10525,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many feet tall is the Las Vegas Sphere?",
+        "prompt": "How many feet tall is the Las Vegas Sphere in Nevada?",
         "answer": 365,
         "funFact": "Answer: 365. The Las Vegas Sphere is about 366 feet tall.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -10555,7 +10555,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many LED lights cover the Las Vegas Sphere exterior?",
+        "prompt": "How many LED lights cover the Las Vegas Sphere exterior in Nevada?",
         "answer": 1200000,
         "funFact": "Answer: 1,200,000. The Las Vegas Sphere uses about 1.2 million exterior lights.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -11045,7 +11045,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "route_infrastructure"
       },
       {
-        "prompt": "How many riders can pass through Grand Central Terminal in one hour?",
+        "prompt": "How many riders can pass through Grand Central Terminal in New York City in one hour?",
         "answer": 50000,
         "funFact": "Answer: 50,000. Grand Central can move tens of thousands of riders hourly.",
         "rationale": "This clue uses a real hourly_operations benchmark with a natural estimating anchor.",
@@ -12177,9 +12177,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     ]
   },
   "2026-02-16": {
-    "theme": "Presidents Day Desk",
+    "theme": "Presidents Day Landmarks",
     "playability": "tactile",
-    "themeKey": "presidents-day-desk",
+    "themeKey": "presidents-day-landmarks",
     "rebuiltPack": true,
     "editorialStatus": "launch_ready",
     "playerAgentSignoff": [
@@ -12345,9 +12345,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many ballots are in one presidents desk precinct scanner tray?",
-        "answer": 3000,
-        "funFact": "Answer: 3,000. A scanner tray holds thousands of ballots.",
+        "prompt": "How many rooms are inside the White House?",
+        "answer": 132,
+        "funFact": "Answer: 132. The White House has 132 rooms.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -12361,23 +12361,23 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: ballots are in one presidents desk precinct scanner tray.",
+        "answerNote": "Rounded from White House Historical Association room-count facts.",
         "themeKey": "presidents-day-desk",
         "questionKey": "presidents-day-desk-q1",
-        "estimationMode": "capacity",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "estimationMode": "count",
+        "calibrationAnchor": "Picture a large mansion floor by floor, then scale the room count.",
         "questionMove": "familiar_anchor",
         "anchorType": "named_standard",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "presidents-day-desk-1",
         "asOfDate": "2026-05-23",
-        "topicFacet": "operations"
+        "topicFacet": "physical_size"
       },
       {
-        "prompt": "How many voter stickers get handed out at one busy presidents desk polling place?",
-        "answer": 12000,
-        "funFact": "Answer: 12,000. A busy polling place can hand out thousands of stickers.",
+        "prompt": "How many people can visit the White House on a busy public-tour day?",
+        "answer": 6000,
+        "funFact": "Answer: 6,000. A busy White House tour day can host thousands.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 3,
         "scaleBand": "city",
@@ -12391,23 +12391,23 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: voter stickers get handed out at one busy presidents desk polling place.",
+        "answerNote": "Estimated from public-tour group throughput across a full visiting day.",
         "themeKey": "presidents-day-desk",
         "questionKey": "presidents-day-desk-q2",
-        "estimationMode": "count",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "estimationMode": "crowd",
+        "calibrationAnchor": "Estimate people per tour group, then groups per day.",
         "questionMove": "production_scale",
         "anchorType": "named_standard",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "presidents-day-desk-2",
         "asOfDate": "2026-05-23",
-        "topicFacet": "operations"
+        "topicFacet": "usage"
       },
       {
-        "prompt": "How many ballots count?",
-        "answer": 1000000,
-        "funFact": "Answer: 1,000,000. A large county election can count about a million ballots.",
+        "prompt": "How many people visit the Lincoln Memorial in one year?",
+        "answer": 8000000,
+        "funFact": "Answer: 8,000,000. The Lincoln Memorial draws millions yearly.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 4,
         "scaleBand": "world",
@@ -12421,11 +12421,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: ballots count.",
+        "answerNote": "Rounded from National Park Service visitor-use figures for the Lincoln Memorial.",
         "themeKey": "presidents-day-desk",
         "questionKey": "presidents-day-desk-q3",
-        "estimationMode": "count",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "estimationMode": "crowd",
+        "calibrationAnchor": "Estimate a busy memorial day, then scale to a year.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
@@ -12605,9 +12605,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many bulbs glow on a Las Vegas Sphere test panel?",
+        "prompt": "How many LED pucks cover a small section of the Las Vegas Sphere in Nevada?",
         "answer": 1800,
-        "funFact": "Answer: 1,800. A small stage wall uses around 1,800 bulbs.",
+        "funFact": "Answer: 1,800. A small Sphere screen section uses about 1,800 LED pucks.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -12621,7 +12621,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: bulbs glow on a las vegas sphere test panel.",
+        "answerNote": "Reference benchmark: a small Las Vegas Sphere screen section, rounded for play.",
         "themeKey": "stage-crew-light-grid",
         "questionKey": "stage-crew-light-grid-q1",
         "estimationMode": "count",
@@ -12635,7 +12635,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many feet tall is the Las Vegas Sphere?",
+        "prompt": "How many feet tall is the Las Vegas Sphere in Nevada?",
         "answer": 365,
         "funFact": "Answer: 365. The Las Vegas Sphere is about 366 feet tall.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -12665,7 +12665,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many LED lights cover the Las Vegas Sphere exterior?",
+        "prompt": "How many LED lights cover the Las Vegas Sphere exterior in Nevada?",
         "answer": 1200000,
         "funFact": "Answer: 1,200,000. The Las Vegas Sphere uses about 1.2 million exterior lights.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -13996,9 +13996,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many visitors tour Big Ben and the UK Parliament in one year?",
+        "prompt": "How many watch batteries can Batteries Plus replace in one year?",
         "answer": 1000000,
-        "funFact": "Answer: 1,000,000. Big Ben and Parliament draws about a million visitors yearly.",
+        "funFact": "Answer: 1,000,000. Batteries Plus can replace watch batteries at a million-a-year scale.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 4,
         "scaleBand": "world",
@@ -14012,18 +14012,18 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: visitors tour big ben and the uk parliament in one year.",
+        "answerNote": "Estimated from Batteries Plus store count and watch-battery jobs per store.",
         "themeKey": "clock-repair-tray",
         "questionKey": "clock-repair-tray-q3",
-        "estimationMode": "crowd",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "estimationMode": "rate",
+        "calibrationAnchor": "Estimate daily battery jobs per shop, then scale the Batteries Plus network.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "clock-repair-tray-3",
         "asOfDate": "2026-05-23",
-        "topicFacet": "audience"
+        "topicFacet": "service_volume"
       }
     ]
   },
@@ -16337,9 +16337,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "asOfDate": "2026-05-23"
       },
       {
-        "prompt": "How many pairs of shoes sit behind one bowling-alley rental counter?",
-        "answer": 1100,
-        "funFact": "Answer: 1,100. A rental counter holds more than 1,000 pairs of shoes.",
+        "prompt": "How many house bowling balls sit on the racks in a large bowling alley?",
+        "answer": 600,
+        "funFact": "Answer: 600. A large bowling alley can rack hundreds of house balls.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 3,
         "scaleBand": "city",
@@ -16353,11 +16353,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: pairs of shoes sit behind one bowling-alley rental counter.",
+        "answerNote": "Estimated from ball racks across the lanes at a large bowling alley.",
         "themeKey": "bowling-lane-night",
         "questionKey": "bowling-lane-night-q2",
-        "estimationMode": "capacity",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "estimationMode": "count",
+        "calibrationAnchor": "Estimate balls per rack, then scale across a large alley.",
         "questionMove": "object_anatomy",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -18217,7 +18217,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many riders can the Staten Island Ferry carry in one day?",
+        "prompt": "How many riders can the Staten Island Ferry in New York City carry in one day?",
         "answer": 70000,
         "funFact": "Answer: 70,000. A famous city ferry carries tens of thousands daily.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -18677,9 +18677,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many bulbs glow on a Las Vegas Sphere test panel?",
+        "prompt": "How many LED pucks cover a small section of the Las Vegas Sphere in Nevada?",
         "answer": 1800,
-        "funFact": "Answer: 1,800. A small stage wall uses around 1,800 bulbs.",
+        "funFact": "Answer: 1,800. A small Sphere screen section uses about 1,800 LED pucks.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -18693,7 +18693,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: bulbs glow on a las vegas sphere test panel.",
+        "answerNote": "Reference benchmark: a small Las Vegas Sphere screen section, rounded for play.",
         "themeKey": "campground-lantern-loop",
         "questionKey": "campground-lantern-loop-q1",
         "estimationMode": "count",
@@ -18707,7 +18707,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many feet tall is the Las Vegas Sphere?",
+        "prompt": "How many feet tall is the Las Vegas Sphere in Nevada?",
         "answer": 365,
         "funFact": "Answer: 365. The Las Vegas Sphere is about 366 feet tall.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -18737,7 +18737,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many LED lights cover the Las Vegas Sphere exterior?",
+        "prompt": "How many LED lights cover the Las Vegas Sphere exterior in Nevada?",
         "answer": 1200000,
         "funFact": "Answer: 1,200,000. The Las Vegas Sphere uses about 1.2 million exterior lights.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -20819,7 +20819,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many feet tall is Coney Island's Wonder Wheel?",
+        "prompt": "How many feet tall is the Wonder Wheel at Coney Island in Brooklyn?",
         "answer": 150,
         "funFact": "Answer: 150. The Wonder Wheel stands about 150 feet tall.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -21859,7 +21859,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many pancakes can cook at once?",
+        "prompt": "How many pancakes can a Waffle House griddle cook at once?",
         "answer": 48,
         "funFact": "Answer: 48. A full griddle can cook about four dozen pancakes.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -21875,11 +21875,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: pancakes can cook at once.",
+        "answerNote": "Reference benchmark: pancakes on a full Waffle House-style griddle.",
         "themeKey": "diner-breakfast-window",
         "questionKey": "diner-breakfast-window-q1",
         "estimationMode": "capacity",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate pancakes per griddle row, then rows on the cooktop.",
         "questionMove": "familiar_anchor",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -21919,7 +21919,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many Waffle House restaurants can a diner breakfast kitchen crack in one week?",
+        "prompt": "How many Waffle House restaurants are open across the U.S.?",
         "answer": 2000,
         "funFact": "Answer: 2,000. Waffle House has roughly 2,000 U.S. restaurants.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -21935,11 +21935,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: waffle house restaurants can a diner breakfast kitchen crack in one week.",
+        "answerNote": "Rounded from Waffle House U.S. restaurant-count references.",
         "themeKey": "diner-breakfast-window",
         "questionKey": "diner-breakfast-window-q3",
         "estimationMode": "count",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate restaurants per state across the chain's core region.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
@@ -22119,9 +22119,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many bikes fit on one full bike-share dock block?",
-        "answer": 120,
-        "funFact": "Answer: 120. A full dock block holds more than a hundred bikes.",
+        "prompt": "How many pounds does a sturdy bike-share bicycle weigh?",
+        "answer": 45,
+        "funFact": "Answer: 45. A bike-share bicycle weighs around 45 pounds.",
         "rationale": "Replaces spoke recall with a bike-share capacity fact players can picture.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -22135,21 +22135,21 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Estimated from a long city block of bike-share docks.",
+        "answerNote": "Rounded from typical heavy-duty bike-share bicycle weights.",
         "themeKey": "bike-share-corral",
         "questionKey": "bike-share-corral-q1",
-        "estimationMode": "capacity",
-        "calibrationAnchor": "Estimate bikes per dock segment, then scale to the block.",
-        "questionMove": "physical_capacity",
+        "estimationMode": "weight",
+        "calibrationAnchor": "Compare a bike-share bike with a regular bicycle, then adjust upward.",
+        "questionMove": "familiar_anchor",
         "anchorType": "named_standard",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "bike-share-corral-1",
-        "topicFacet": "infrastructure:transit",
+        "topicFacet": "vehicle_weight",
         "asOfDate": "2026-05-23"
       },
       {
-        "prompt": "How many bikes fit on one full Citi Bike docking block?",
+        "prompt": "How many bikes fit on one full Citi Bike docking block in New York City?",
         "answer": 120,
         "funFact": "Answer: 120. A full bike-share block holds about 120 bikes.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -24489,9 +24489,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many bulbs glow on a Las Vegas Sphere test panel?",
+        "prompt": "How many LED pucks cover a small section of the Las Vegas Sphere in Nevada?",
         "answer": 1800,
-        "funFact": "Answer: 1,800. A small stage wall uses around 1,800 bulbs.",
+        "funFact": "Answer: 1,800. A small Sphere screen section uses about 1,800 LED pucks.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -24505,7 +24505,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: bulbs glow on a las vegas sphere test panel.",
+        "answerNote": "Reference benchmark: a small Las Vegas Sphere screen section, rounded for play.",
         "themeKey": "solstice-lantern-walk",
         "questionKey": "solstice-lantern-walk-q1",
         "estimationMode": "count",
@@ -24519,7 +24519,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many feet tall is the Las Vegas Sphere?",
+        "prompt": "How many feet tall is the Las Vegas Sphere in Nevada?",
         "answer": 365,
         "funFact": "Answer: 365. The Las Vegas Sphere is about 366 feet tall.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -24549,7 +24549,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many LED lights cover the Las Vegas Sphere exterior?",
+        "prompt": "How many LED lights cover the Las Vegas Sphere exterior in Nevada?",
         "answer": 1200000,
         "funFact": "Answer: 1,200,000. The Las Vegas Sphere uses about 1.2 million exterior lights.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -24580,7 +24580,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
       }
     ],
     "extraInning": {
-      "prompt": "Extra Innings: how many LEDs glow across the Las Vegas Sphere exterior?",
+      "prompt": "Extra Innings: how many LEDs glow across the Las Vegas Sphere exterior in Nevada?",
       "answer": 48000000,
       "funFact": "Answer: 48,000,000. The Sphere exterior uses tens of millions of LEDs.",
       "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -26430,7 +26430,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
       }
     ],
     "extraInning": {
-      "prompt": "Extra Innings: how many visitors can Schlitterbahn welcome in one year?",
+      "prompt": "Extra Innings: how many visitors can Schlitterbahn in Texas welcome in one year?",
       "answer": 2000000,
       "funFact": "Answer: 2,000,000. A famous water park can welcome millions yearly.",
       "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -26659,7 +26659,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "lift_throughput"
       },
       {
-        "prompt": "How many feet of vertical drop does Vail Mountain have?",
+        "prompt": "How many feet of vertical drop does Vail Mountain in Colorado have?",
         "answer": 3400,
         "funFact": "Answer: 3,400. Vail’s vertical drop is about 3,400 feet.",
         "rationale": "This clue uses a real mountain_size benchmark with a natural estimating anchor.",
@@ -29839,7 +29839,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "daily_operations"
       },
       {
-        "prompt": "How many visitors paddle the Boundary Waters in one year?",
+        "prompt": "How many visitors paddle the Boundary Waters wilderness in Minnesota in one year?",
         "answer": 150000,
         "funFact": "Answer: 150,000. Boundary Waters gets about 150,000 paddling visits yearly.",
         "rationale": "This clue uses a real natural_audience benchmark with a natural estimating anchor.",
@@ -30619,7 +30619,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "asOfDate": "2026-05-23"
       },
       {
-        "prompt": "How many bikes fit on one full Citi Bike docking block?",
+        "prompt": "How many bikes fit on one full Citi Bike docking block in New York City?",
         "answer": 120,
         "funFact": "Answer: 120. A full bike-share block holds about 120 bikes.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -31429,7 +31429,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many guests can a MGM Grand host in one sold-out night?",
+        "prompt": "How many guests can the MGM Grand in Las Vegas host in one sold-out night?",
         "answer": 5000,
         "funFact": "Answer: 5,000. A large convention hotel can sleep thousands of guests.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -32959,7 +32959,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many ballots are in one election desk precinct scanner tray?",
+        "prompt": "How many paper ballots can fit in one full precinct scanner bin?",
         "answer": 3000,
         "funFact": "Answer: 3,000. A scanner tray holds thousands of ballots.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -32975,11 +32975,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: ballots are in one election desk precinct scanner tray.",
+        "answerNote": "Reference benchmark: paper ballots held in a full precinct scanner bin.",
         "themeKey": "election-night-desk",
         "questionKey": "election-night-desk-q1",
         "estimationMode": "capacity",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate ballot-sheet thickness, then scale a full bin.",
         "questionMove": "familiar_anchor",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -32989,7 +32989,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many voter stickers get handed out at one busy election desk polling place?",
+        "prompt": "How many “I Voted” stickers can a busy U.S. vote center hand out in one day?",
         "answer": 12000,
         "funFact": "Answer: 12,000. A busy polling place can hand out thousands of stickers.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -33005,11 +33005,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: voter stickers get handed out at one busy election desk polling place.",
+        "answerNote": "Reference benchmark: stickers handed out at a busy U.S. vote center.",
         "themeKey": "election-night-desk",
         "questionKey": "election-night-desk-q2",
         "estimationMode": "count",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate voters per hour, then a full day of voting.",
         "questionMove": "production_scale",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -33019,7 +33019,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many ballots count?",
+        "prompt": "How many ballots can a large U.S. county count in a general election?",
         "answer": 1000000,
         "funFact": "Answer: 1,000,000. A large county election can count about a million ballots.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -33035,11 +33035,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: ballots count.",
+        "answerNote": "Reference benchmark: total ballots counted by a large U.S. county in a high-turnout election.",
         "themeKey": "election-night-desk",
         "questionKey": "election-night-desk-q3",
         "estimationMode": "count",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Start with a large county population, then estimate turnout.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
@@ -36720,7 +36720,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many pounds of laundry does the MGM Grand wash in one month?",
+        "prompt": "How many pounds of laundry does the MGM Grand in Las Vegas wash in one month?",
         "answer": 1000000,
         "funFact": "Answer: 1,000,000. The MGM Grand can wash laundry at a million-pound scale.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -39297,7 +39297,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many seats are inside the Las Vegas Sphere?",
+        "prompt": "How many seats are inside the Las Vegas Sphere in Nevada?",
         "answer": 18000,
         "funFact": "Answer: 18,000. The Sphere seats about eighteen thousand people.",
         "rationale": "This clue uses a real seating_capacity benchmark with a natural estimating anchor.",
@@ -39327,7 +39327,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "seating_capacity"
       },
       {
-        "prompt": "How many feet tall is the Las Vegas Sphere?",
+        "prompt": "How many feet tall is the Las Vegas Sphere in Nevada?",
         "answer": 365,
         "funFact": "Answer: 365. The Sphere is about 365 feet tall.",
         "rationale": "This clue uses a real physical_dimension benchmark with a natural estimating anchor.",
@@ -39357,7 +39357,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "physical_dimension"
       },
       {
-        "prompt": "How many LED pucks cover the Las Vegas Sphere exterior?",
+        "prompt": "How many LED pucks cover the Las Vegas Sphere exterior in Nevada?",
         "answer": 1200000,
         "funFact": "Answer: 1,200,000. The exterior uses about 1.2 million LED pucks.",
         "rationale": "This clue uses a real display_infrastructure benchmark with a natural estimating anchor.",
@@ -39388,7 +39388,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
       }
     ],
     "extraInning": {
-      "prompt": "Extra Innings: how many watts can the Las Vegas Sphere exterior draw?",
+      "prompt": "Extra Innings: how many watts can the Las Vegas Sphere exterior in Nevada draw?",
       "answer": 28000000,
       "funFact": "Answer: 28,000,000. The Sphere exterior draws tens of millions of watts.",
       "rationale": "This clue uses a real bonus_power_scale benchmark with a natural estimating anchor.",
@@ -40947,7 +40947,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "object_weight"
       },
       {
-        "prompt": "How many visitors tour Cape Hatteras Lighthouse in a year?",
+        "prompt": "How many visitors tour Cape Hatteras Lighthouse in North Carolina in a year?",
         "answer": 500000,
         "funFact": "Answer: 500,000. Cape Hatteras draws hundreds of thousands of visitors.",
         "rationale": "This clue uses a real site_audience benchmark with a natural estimating anchor.",
@@ -41957,7 +41957,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many seats fill Radio City Music Hall?",
+        "prompt": "How many seats fill Radio City Music Hall in New York City?",
         "answer": 6000,
         "funFact": "Answer: 6,000. Radio City Music Hall seats about 6,000 people.",
         "rationale": "This clue uses a named real-world benchmark with a natural estimating anchor.",
@@ -42017,7 +42017,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "cast_size"
       },
       {
-        "prompt": "How many people can Radio City Music Hall welcome in a busy year?",
+        "prompt": "How many people can Radio City Music Hall in New York City welcome in a busy year?",
         "answer": 2000000,
         "funFact": "Answer: 2,000,000. Radio City can welcome about two million guests yearly.",
         "rationale": "This clue uses a named real-world benchmark with a natural estimating anchor.",
@@ -46987,7 +46987,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many skiable acres does Vail Mountain cover?",
+        "prompt": "How many skiable acres does Vail Mountain in Colorado cover?",
         "answer": 5317,
         "funFact": "Answer: 5,317. Vail Mountain covers 5,317 skiable acres.",
         "rationale": "This clue uses a named real-world benchmark with a natural estimating anchor.",
@@ -47017,7 +47017,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "resort_size"
       },
       {
-        "prompt": "How many vertical feet can skiers drop at Vail Mountain?",
+        "prompt": "How many vertical feet can skiers drop at Vail Mountain in Colorado?",
         "answer": 3450,
         "funFact": "Answer: 3,450. Vail Mountain has about 3,450 vertical feet.",
         "rationale": "This clue uses a real winter_operations benchmark with a natural estimating anchor.",
@@ -48027,7 +48027,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many passengers fit on one Staten Island Ferry boat?",
+        "prompt": "How many passengers fit on one Staten Island Ferry boat in New York City?",
         "answer": 4500,
         "funFact": "Answer: 4,500. One Staten Island Ferry carries thousands of passengers.",
         "rationale": "This clue uses a real vessel_capacity benchmark with a natural estimating anchor.",
@@ -48057,7 +48057,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "vessel_capacity"
       },
       {
-        "prompt": "How many trips does the Staten Island Ferry make on a typical weekday?",
+        "prompt": "How many trips does the Staten Island Ferry in New York City make on a typical weekday?",
         "answer": 117,
         "funFact": "Answer: 117. The ferry makes more than 100 trips on a weekday.",
         "rationale": "This clue uses a real daily_operations benchmark with a natural estimating anchor.",
@@ -48087,7 +48087,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "daily_operations"
       },
       {
-        "prompt": "How many riders use the Staten Island Ferry in one year?",
+        "prompt": "How many riders use the Staten Island Ferry in New York City in one year?",
         "answer": 15000000,
         "funFact": "Answer: 15,000,000. The ferry carries millions of riders each year.",
         "rationale": "This clue uses a real system_ridership benchmark with a natural estimating anchor.",
@@ -48347,7 +48347,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "burrow_structure"
       },
       {
-        "prompt": "How many acres are inside Badlands National Park?",
+        "prompt": "How many acres are inside Badlands National Park in South Dakota?",
         "answer": 244000,
         "funFact": "Answer: 244,000. Badlands National Park covers about 244,000 acres.",
         "rationale": "This clue uses a named real-world benchmark with a natural estimating anchor.",
@@ -50139,7 +50139,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many tiny books are in Queen Mary’s Dolls’ House library?",
+        "prompt": "How many tiny books are in Queen Mary’s Dolls’ House in London?",
         "answer": 200,
         "funFact": "Answer: 200. Queen Mary’s Dolls’ House has about 200 miniature books.",
         "rationale": "This clue uses a real collection_detail benchmark with a natural estimating anchor.",
@@ -50169,7 +50169,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "collection_detail"
       },
       {
-        "prompt": "About how many miniature objects are packed into Queen Mary’s Dolls’ House?",
+        "prompt": "About how many miniature objects are packed into Queen Mary’s Dolls’ House in London?",
         "answer": 1000,
         "funFact": "Answer: 1,000. Queen Mary’s Dolls’ House holds over 1,000 miniature objects.",
         "rationale": "This clue uses a named real-world benchmark with a natural estimating anchor.",
@@ -50199,7 +50199,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "object_collection"
       },
       {
-        "prompt": "How many people visit The Strong National Museum of Play in one year?",
+        "prompt": "How many people visit The Strong National Museum of Play in Rochester, New York, in one year?",
         "answer": 900000,
         "funFact": "Answer: 900,000. The Strong National Museum of Play welcomes close to a million visitors yearly.",
         "rationale": "This clue uses a real institution_audience benchmark with a natural estimating anchor.",
@@ -50459,7 +50459,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many skiable acres does Vail Mountain cover?",
+        "prompt": "How many skiable acres does Vail Mountain in Colorado cover?",
         "answer": 5300,
         "funFact": "Answer: 5,300. Vail covers more than 5,000 skiable acres.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -52859,7 +52859,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many packages can UPS Worldport move in one day?",
+        "prompt": "How many packages can UPS Worldport in Louisville move in one day?",
         "answer": 1000000,
         "funFact": "Answer: 1,000,000. UPS Worldport can move packages at a million-a-day scale.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -53319,9 +53319,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many animals can a busy stuffed animal care room handle?",
+        "prompt": "How many plush animals can fit on a toy-store display shelf?",
         "answer": 120,
-        "funFact": "Answer: 120. A busy care room can handle more than 100 animals.",
+        "funFact": "Answer: 120. A full toy-store shelf can hold about 120 plush animals.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "pocket",
@@ -53335,11 +53335,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: animals can a busy stuffed animal care room handle.",
+        "answerNote": "Reference benchmark: plush animals arranged on a full toy-store display shelf.",
         "themeKey": "stuffed-animal-shelf",
         "questionKey": "stuffed-animal-shelf-q1",
         "estimationMode": "capacity",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate plush toys per row, then stack rows on a shelf.",
         "questionMove": "physical_capacity",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -53349,9 +53349,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many pounds of animal food get prepped in one busy stuffed animal care day?",
+        "prompt": "How many pounds of stuffing can a small plush-toy workshop use in a busy day?",
         "answer": 2400,
-        "funFact": "Answer: 2,400. A large animal-care day can prep more than a ton of food.",
+        "funFact": "Answer: 2,400. A plush-toy workshop can use more than a ton of stuffing.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 3,
         "scaleBand": "city",
@@ -53365,11 +53365,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: pounds of animal food get prepped in one busy stuffed animal care day.",
+        "answerNote": "Estimated from stuffing weight per plush toy and a busy workshop production day.",
         "themeKey": "stuffed-animal-shelf",
         "questionKey": "stuffed-animal-shelf-q2",
         "estimationMode": "weight",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate stuffing per toy, then scale a busy production day.",
         "questionMove": "object_anatomy",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -53379,9 +53379,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many visitors does a major stuffed animal attraction welcome in one year?",
+        "prompt": "How many plush toys can Build-A-Bear sell in one year?",
         "answer": 2000000,
-        "funFact": "Answer: 2,000,000. A major animal attraction can welcome millions of visitors.",
+        "funFact": "Answer: 2,000,000. Build-A-Bear can sell plush toys by the millions.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 4,
         "scaleBand": "world",
@@ -53395,11 +53395,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: visitors does a major stuffed animal attraction welcome in one year.",
+        "answerNote": "Estimated from Build-A-Bear annual revenue and average plush-toy prices.",
         "themeKey": "stuffed-animal-shelf",
         "questionKey": "stuffed-animal-shelf-q3",
-        "estimationMode": "crowd",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "estimationMode": "count",
+        "calibrationAnchor": "Estimate stores and sales per store, then scale to a year.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
@@ -53839,9 +53839,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many fish are in Georgia Aquarium's Ocean Voyager exhibit?",
+        "prompt": "How many salmon can Seattle's Pike Place Fish Market handle on a busy day?",
         "answer": 1200,
-        "funFact": "Answer: 1,200. A large exhibit holds thousands of fish.",
+        "funFact": "Answer: 1,200. A busy fish-market day can move over a thousand salmon.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -53855,7 +53855,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: fish are in georgia aquarium's ocean voyager exhibit.",
+        "answerNote": "Reference benchmark: a busy Pike Place fish-counter day, rounded for play.",
         "themeKey": "pike-place-fish-toss",
         "questionKey": "pike-place-fish-toss-q1",
         "estimationMode": "capacity",
@@ -53869,9 +53869,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many pounds of seafood can a busy pike place fish toss pier land in a day?",
+        "prompt": "How many pounds of seafood can Seattle's Pike Place Fish Market sell in a busy day?",
         "answer": 12000,
-        "funFact": "Answer: 12,000. A busy pier can land thousands of pounds of seafood.",
+        "funFact": "Answer: 12,000. A busy fish market can sell thousands of pounds of seafood.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 3,
         "scaleBand": "city",
@@ -53885,7 +53885,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: pounds of seafood can a busy pike place fish toss pier land in a day.",
+        "answerNote": "Reference benchmark: seafood sold at a busy Pike Place-style fish counter in one day.",
         "themeKey": "pike-place-fish-toss",
         "questionKey": "pike-place-fish-toss-q2",
         "estimationMode": "weight",
@@ -53899,9 +53899,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many visitors does the Georgia Aquarium welcome in one year?",
-        "answer": 2000000,
-        "funFact": "Answer: 2,000,000. A major aquarium can welcome millions of visitors.",
+        "prompt": "How many visitors does Seattle's Pike Place Market draw in one year?",
+        "answer": 10000000,
+        "funFact": "Answer: 10,000,000. Pike Place Market draws around 10 million visits yearly.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 4,
         "scaleBand": "world",
@@ -53915,7 +53915,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: visitors does the georgia aquarium welcome in one year.",
+        "answerNote": "Reference benchmark: annual visits to Seattle's Pike Place Market.",
         "themeKey": "pike-place-fish-toss",
         "questionKey": "pike-place-fish-toss-q3",
         "estimationMode": "crowd",
@@ -55949,7 +55949,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many packages can UPS Worldport sort in one hour?",
+        "prompt": "How many packages can UPS Worldport in Louisville sort in one hour?",
         "answer": 416000,
         "funFact": "Answer: 416,000. UPS Worldport sorts about 416,000 packages per hour.",
         "rationale": "This clue uses a real sort_rate benchmark with a natural estimating anchor.",
@@ -55979,7 +55979,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "sort_rate"
       },
       {
-        "prompt": "How many aircraft doors can feed packages into UPS Worldport?",
+        "prompt": "How many aircraft doors can feed packages into UPS Worldport in Louisville?",
         "answer": 300,
         "funFact": "Answer: 300. Worldport has hundreds of aircraft loading positions.",
         "rationale": "This clue uses a real hub_infrastructure benchmark with a natural estimating anchor.",
@@ -56009,7 +56009,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "hub_infrastructure"
       },
       {
-        "prompt": "How many packages can UPS Worldport process in one day?",
+        "prompt": "How many packages can UPS Worldport in Louisville process in one day?",
         "answer": 2000000,
         "funFact": "Answer: 2,000,000. Worldport can process millions of packages daily.",
         "rationale": "This clue uses a real daily_operations benchmark with a natural estimating anchor.",
@@ -59709,7 +59709,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many pounds of laundry does the MGM Grand wash in one month?",
+        "prompt": "How many pounds of laundry does the MGM Grand in Las Vegas wash in one month?",
         "answer": 1000000,
         "funFact": "Answer: 1,000,000. The MGM Grand can wash laundry at a million-pound scale.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -62109,7 +62109,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many pounds of laundry does the MGM Grand wash in one month?",
+        "prompt": "How many pounds of laundry does the MGM Grand in Las Vegas wash in one month?",
         "answer": 1000000,
         "funFact": "Answer: 1,000,000. The MGM Grand can wash laundry at a million-pound scale.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -63410,7 +63410,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "daily_operations"
       },
       {
-        "prompt": "How many riders pass through Grand Central Terminal in one day?",
+        "prompt": "How many riders pass through Grand Central Terminal in New York City in one day?",
         "answer": 750000,
         "funFact": "Answer: 750,000. Grand Central serves about 750,000 riders daily.",
         "rationale": "This clue uses a real station_audience benchmark with a natural estimating anchor.",
@@ -67920,7 +67920,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many pounds of laundry does the MGM Grand wash in one month?",
+        "prompt": "How many pounds of laundry does the MGM Grand in Las Vegas wash in one month?",
         "answer": 1000000,
         "funFact": "Answer: 1,000,000. The MGM Grand can wash laundry at a million-pound scale.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -69250,7 +69250,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many riders can the Staten Island Ferry carry in one day?",
+        "prompt": "How many riders can the Staten Island Ferry in New York City carry in one day?",
         "answer": 70000,
         "funFact": "Answer: 70,000. A famous city ferry carries tens of thousands daily.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -69480,9 +69480,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "asOfDate": "2026-05-23"
       },
       {
-        "prompt": "How many watch batteries are in one sprinkler system timer repair-shop counter tray?",
+        "prompt": "How many feet of drip-irrigation tubing can one large sprinkler zone use?",
         "answer": 850,
-        "funFact": "Answer: 850. A repair tray holds hundreds of watch batteries.",
+        "funFact": "Answer: 850. A large yard zone can use hundreds of feet of tubing.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 3,
         "scaleBand": "city",
@@ -69496,12 +69496,12 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: watch batteries are in one sprinkler system timer repair-shop counter tray.",
+        "answerNote": "Estimated from drip-line runs across one large residential sprinkler zone.",
         "themeKey": "sprinkler-system-timer",
         "questionKey": "sprinkler-system-timer-q2",
-        "estimationMode": "capacity",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
-        "questionMove": "object_anatomy",
+        "estimationMode": "distance",
+        "calibrationAnchor": "Estimate tubing per planting bed, then scale across a large zone.",
+        "questionMove": "physical_capacity",
         "anchorType": "named_standard",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
@@ -69510,9 +69510,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many visitors tour Big Ben and the UK Parliament in one year?",
-        "answer": 1000000,
-        "funFact": "Answer: 1,000,000. Big Ben and Parliament draws about a million visitors yearly.",
+        "prompt": "How many U.S. homes use in-ground sprinkler systems?",
+        "answer": 10000000,
+        "funFact": "Answer: 10,000,000. Millions of U.S. homes use in-ground sprinklers.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 4,
         "scaleBand": "world",
@@ -69526,18 +69526,18 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: visitors tour big ben and the uk parliament in one year.",
+        "answerNote": "Estimated from U.S. household counts and lawn-irrigation adoption rates.",
         "themeKey": "sprinkler-system-timer",
         "questionKey": "sprinkler-system-timer-q3",
-        "estimationMode": "crowd",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "estimationMode": "count",
+        "calibrationAnchor": "Start with U.S. households, then estimate the share with built-in sprinklers.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "sprinkler-system-timer-3",
         "asOfDate": "2026-05-23",
-        "topicFacet": "audience"
+        "topicFacet": "household_scale"
       }
     ]
   },
@@ -70030,7 +70030,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many stars sit?",
+        "prompt": "How many stars are in the Milky Way galaxy?",
         "answer": 100000000000,
         "funFact": "Answer: 100,000,000,000. The Milky Way has roughly 100 billion stars.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -70046,11 +70046,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: stars sit.",
+        "answerNote": "Rounded from NASA estimates of the Milky Way's star count.",
         "themeKey": "asteroid-model-table",
         "questionKey": "asteroid-model-table-q3",
         "estimationMode": "count",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Start from visible night-sky stars, then widen to a galaxy scale.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
@@ -70230,9 +70230,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many bulbs glow on a Las Vegas Sphere test panel?",
+        "prompt": "How many LED pucks cover a small section of the Las Vegas Sphere in Nevada?",
         "answer": 1800,
-        "funFact": "Answer: 1,800. A small stage wall uses around 1,800 bulbs.",
+        "funFact": "Answer: 1,800. A small Sphere screen section uses about 1,800 LED pucks.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -70246,7 +70246,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: bulbs glow on a las vegas sphere test panel.",
+        "answerNote": "Reference benchmark: a small Las Vegas Sphere screen section, rounded for play.",
         "themeKey": "holiday-market-booths",
         "questionKey": "holiday-market-booths-q1",
         "estimationMode": "count",
@@ -70260,7 +70260,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many feet tall is the Las Vegas Sphere?",
+        "prompt": "How many feet tall is the Las Vegas Sphere in Nevada?",
         "answer": 365,
         "funFact": "Answer: 365. The Las Vegas Sphere is about 366 feet tall.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -70290,7 +70290,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many LED lights cover the Las Vegas Sphere exterior?",
+        "prompt": "How many LED lights cover the Las Vegas Sphere exterior in Nevada?",
         "answer": 1200000,
         "funFact": "Answer: 1,200,000. The Las Vegas Sphere uses about 1.2 million exterior lights.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -70810,7 +70810,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many pounds of laundry does the MGM Grand wash in one month?",
+        "prompt": "How many pounds of laundry does the MGM Grand in Las Vegas wash in one month?",
         "answer": 1000000,
         "funFact": "Answer: 1,000,000. The MGM Grand can wash laundry at a million-pound scale.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -71620,9 +71620,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "asOfDate": "2026-05-23"
       },
       {
-        "prompt": "How many visitors tour Big Ben and the UK Parliament in one year?",
+        "prompt": "How many people tour the Elizabeth Tower and UK Parliament in one year?",
         "answer": 1000000,
-        "funFact": "Answer: 1,000,000. Big Ben and Parliament draws about a million visitors yearly.",
+        "funFact": "Answer: 1,000,000. UK Parliament tours draw about a million visitors yearly.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 4,
         "scaleBand": "world",
@@ -71636,11 +71636,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: visitors tour big ben and the uk parliament in one year.",
+        "answerNote": "Rounded from UK Parliament and Elizabeth Tower annual visitor estimates.",
         "themeKey": "big-ben-clock-tower",
         "questionKey": "big-ben-clock-tower-q3",
         "estimationMode": "crowd",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate tour groups per day, then scale to a year.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
@@ -72080,7 +72080,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many people pass through Grand Central Terminal on a busy day?",
+        "prompt": "How many people pass through Grand Central Terminal in New York City on a busy day?",
         "answer": 750000,
         "funFact": "Answer: 750,000. Grand Central can serve hundreds of thousands daily.",
         "rationale": "This clue uses a real station_audience benchmark with a natural estimating anchor.",
@@ -72110,7 +72110,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "station_audience"
       },
       {
-        "prompt": "How many tracks does Grand Central Terminal have?",
+        "prompt": "How many tracks does Grand Central Terminal in New York City have?",
         "answer": 67,
         "funFact": "Answer: 67. Grand Central has 67 tracks.",
         "rationale": "This clue uses a real station_infrastructure benchmark with a natural estimating anchor.",
@@ -72140,7 +72140,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "station_infrastructure"
       },
       {
-        "prompt": "How many train platforms are inside Grand Central Terminal?",
+        "prompt": "How many train platforms are inside Grand Central Terminal in New York City?",
         "answer": 44,
         "funFact": "Answer: 44. Grand Central has 44 platforms.",
         "rationale": "This clue uses a real station_structure benchmark with a natural estimating anchor.",
@@ -74190,7 +74190,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many steps are inside Cape Hatteras Lighthouse?",
+        "prompt": "How many steps are inside Cape Hatteras Lighthouse in North Carolina?",
         "answer": 257,
         "funFact": "Answer: 257. Cape Hatteras Lighthouse has 257 steps.",
         "rationale": "This clue uses a real visitor_climb benchmark with a natural estimating anchor.",
@@ -74220,7 +74220,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "visitor_climb"
       },
       {
-        "prompt": "How many feet tall is Cape Hatteras Lighthouse?",
+        "prompt": "How many feet tall is Cape Hatteras Lighthouse in North Carolina?",
         "answer": 198,
         "funFact": "Answer: 198. Cape Hatteras Lighthouse is about 198 feet tall.",
         "rationale": "This clue uses a real physical_height benchmark with a natural estimating anchor.",
@@ -74250,7 +74250,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "physical_height"
       },
       {
-        "prompt": "How many visitors does Cape Hatteras National Seashore get in one year?",
+        "prompt": "How many visitors does Cape Hatteras National Seashore in North Carolina get in one year?",
         "answer": 2500000,
         "funFact": "Answer: 2,500,000. The seashore draws a few million visits a year.",
         "rationale": "This clue uses a real site_audience benchmark with a natural estimating anchor.",
@@ -74740,9 +74740,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many bikes fit across a full Citi Bike station block?",
-        "answer": 120,
-        "funFact": "Answer: 120. A full bike-share station block holds more than a hundred bikes.",
+        "prompt": "How many pounds does a Citi Bike e-bike weigh in New York City?",
+        "answer": 70,
+        "funFact": "Answer: 70. A Citi Bike e-bike weighs around 70 pounds.",
         "rationale": "Replaces spoke recall with a bike-share infrastructure estimate.",
         "difficultyScore": 2,
         "scaleBand": "room",
@@ -74756,21 +74756,21 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Estimated from a long Citi Bike-style station block.",
+        "answerNote": "Rounded from public Citi Bike e-bike weight references.",
         "themeKey": "citi-bike-dock",
         "questionKey": "citi-bike-dock-q1",
-        "estimationMode": "capacity",
-        "calibrationAnchor": "Estimate docks per segment, then scale across the station.",
-        "questionMove": "physical_capacity",
+        "estimationMode": "weight",
+        "calibrationAnchor": "Compare an e-bike with a regular bicycle, then adjust for battery weight.",
+        "questionMove": "familiar_anchor",
         "anchorType": "famous_event",
         "iconicExact": false,
         "agentDifficultyTarget": "normal",
         "id": "citi-bike-dock-1",
-        "topicFacet": "infrastructure:transit",
+        "topicFacet": "vehicle_weight",
         "asOfDate": "2026-05-23"
       },
       {
-        "prompt": "How many bikes fit on one full Citi Bike docking block?",
+        "prompt": "How many bikes fit on one full Citi Bike docking block in New York City?",
         "answer": 120,
         "funFact": "Answer: 120. A full bike-share block holds about 120 bikes.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -76850,7 +76850,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many feet long is the Coney Island Boardwalk?",
+        "prompt": "How many feet long is the Coney Island Boardwalk in Brooklyn?",
         "answer": 13000,
         "funFact": "Answer: 13,000. The Coney Island Boardwalk is about 13,000 feet long.",
         "rationale": "This clue uses a real landmark_size benchmark with a natural estimating anchor.",
@@ -76910,7 +76910,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "venue_operations"
       },
       {
-        "prompt": "How many people visit Coney Island in one summer?",
+        "prompt": "How many people visit Coney Island in Brooklyn in one summer?",
         "answer": 5000000,
         "funFact": "Answer: 5,000,000. Coney Island draws millions of summer visitors.",
         "rationale": "This clue uses a real season_audience benchmark with a natural estimating anchor.",
@@ -77660,9 +77660,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "asOfDate": "2026-05-23"
       },
       {
-        "prompt": "How many watch batteries are in one beach tide clock repair-shop counter tray?",
-        "answer": 850,
-        "funFact": "Answer: 850. A repair tray holds hundreds of watch batteries.",
+        "prompt": "How many high tides happen at a beach in one year?",
+        "answer": 730,
+        "funFact": "Answer: 730. Most beaches see about two high tides per day.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 3,
         "scaleBand": "city",
@@ -77676,11 +77676,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: watch batteries are in one beach tide clock repair-shop counter tray.",
+        "answerNote": "Derived from the usual two daily high tides across a year, rounded for play.",
         "themeKey": "beach-tide-clock",
         "questionKey": "beach-tide-clock-q2",
-        "estimationMode": "capacity",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "estimationMode": "count",
+        "calibrationAnchor": "Start with high tides per day, then scale across a year.",
         "questionMove": "physical_capacity",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -77690,9 +77690,9 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many visitors tour Big Ben and the UK Parliament in one year?",
+        "prompt": "How many people visit Cabrillo National Monument in San Diego in one year?",
         "answer": 1000000,
-        "funFact": "Answer: 1,000,000. Big Ben and Parliament draws about a million visitors yearly.",
+        "funFact": "Answer: 1,000,000. Cabrillo draws about a million visits yearly.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
         "difficultyScore": 4,
         "scaleBand": "world",
@@ -77706,11 +77706,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: visitors tour big ben and the uk parliament in one year.",
+        "answerNote": "Rounded from National Park Service visitor-use figures for Cabrillo National Monument.",
         "themeKey": "beach-tide-clock",
         "questionKey": "beach-tide-clock-q3",
         "estimationMode": "crowd",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate a coastal park's busy days, then scale to a year.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
@@ -80610,7 +80610,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "daily_operations"
       },
       {
-        "prompt": "How many visitors paddle the Boundary Waters in one year?",
+        "prompt": "How many visitors paddle the Boundary Waters wilderness in Minnesota in one year?",
         "answer": 150000,
         "funFact": "Answer: 150,000. Boundary Waters gets about 150,000 paddling visits yearly.",
         "rationale": "This clue uses a real natural_audience benchmark with a natural estimating anchor.",
@@ -81650,7 +81650,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many packages can UPS Worldport move in one day?",
+        "prompt": "How many packages can UPS Worldport in Louisville move in one day?",
         "answer": 1000000,
         "funFact": "Answer: 1,000,000. UPS Worldport can move packages at a million-a-day scale.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -82460,7 +82460,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many skiable acres does Vail Mountain cover?",
+        "prompt": "How many skiable acres does Vail Mountain in Colorado cover?",
         "answer": 5300,
         "funFact": "Answer: 5,300. Vail covers more than 5,000 skiable acres.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -82920,7 +82920,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many lakes are inside the Boundary Waters Canoe Area Wilderness?",
+        "prompt": "How many lakes are inside the Boundary Waters Canoe Area Wilderness in Minnesota?",
         "answer": 1100,
         "funFact": "Answer: 1,100. The Boundary Waters has about 1,100 lakes.",
         "rationale": "This clue uses a real natural_structure benchmark with a natural estimating anchor.",
@@ -82950,7 +82950,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "natural_structure"
       },
       {
-        "prompt": "How many portage miles cross the Boundary Waters?",
+        "prompt": "How many portage miles cross the Boundary Waters wilderness in Minnesota?",
         "answer": 1500,
         "funFact": "Answer: 1,500. The Boundary Waters has roughly 1,500 portage miles.",
         "rationale": "This clue uses a real route_infrastructure benchmark with a natural estimating anchor.",
@@ -82980,7 +82980,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "route_infrastructure"
       },
       {
-        "prompt": "How many visitors paddle the Boundary Waters in one year?",
+        "prompt": "How many visitors paddle the Boundary Waters wilderness in Minnesota in one year?",
         "answer": 150000,
         "funFact": "Answer: 150,000. Boundary Waters paddling visits is about six figures.",
         "rationale": "This clue uses a real natural_audience benchmark with a natural estimating anchor.",
@@ -83791,7 +83791,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
       }
     ],
     "extraInning": {
-      "prompt": "Extra Innings: how many rides can Citi Bike log in one busy year?",
+      "prompt": "Extra Innings: how many rides can Citi Bike in New York City log in one busy year?",
       "answer": 30000000,
       "funFact": "Answer: 30,000,000. Citi Bike can log tens of millions of rides in one year.",
       "rationale": "This clue uses a real bonus_system_volume benchmark with a natural estimating anchor.",
@@ -85060,7 +85060,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many cups of coffee can a waffle house morning rush pour?",
+        "prompt": "How many cups of coffee can a busy Waffle House morning rush pour?",
         "answer": 960,
         "funFact": "Answer: 960. A breakfast rush can pour close to a thousand cups.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -85076,11 +85076,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: cups of coffee can a waffle house morning rush pour.",
+        "answerNote": "Reference benchmark: cups poured during a busy Waffle House breakfast rush.",
         "themeKey": "waffle-house-counter",
         "questionKey": "waffle-house-counter-q2",
         "estimationMode": "rate",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate seats turning over, then cups per guest.",
         "questionMove": "production_scale",
         "anchorType": "named_standard",
         "iconicExact": false,
@@ -85090,7 +85090,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many Waffle House restaurants can a waffle house kitchen crack in one week?",
+        "prompt": "How many Waffle House restaurants are open in the United States?",
         "answer": 2000,
         "funFact": "Answer: 2,000. Waffle House has roughly 2,000 U.S. restaurants.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -85106,11 +85106,11 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
             "accessedDate": "2026-05-21"
           }
         ],
-        "answerNote": "Reference benchmark: waffle house restaurants can a waffle house kitchen crack in one week.",
+        "answerNote": "Rounded from Waffle House restaurant-count references.",
         "themeKey": "waffle-house-counter",
         "questionKey": "waffle-house-counter-q3",
         "estimationMode": "count",
-        "calibrationAnchor": "Start from the named benchmark, then estimate the order of magnitude.",
+        "calibrationAnchor": "Estimate restaurants per state across the chain's core region.",
         "questionMove": "famous_macro",
         "anchorType": "famous_event",
         "iconicExact": false,
@@ -89860,7 +89860,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "daily_operations"
       },
       {
-        "prompt": "How many passengers use the Staten Island Ferry in one year?",
+        "prompt": "How many passengers use the Staten Island Ferry in New York City in one year?",
         "answer": 15000000,
         "funFact": "Answer: 15,000,000. The Staten Island Ferry carries millions yearly.",
         "rationale": "This clue uses a real system_ridership benchmark with a natural estimating anchor.",
@@ -91710,7 +91710,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "daily_operations"
       },
       {
-        "prompt": "How many visitors does Pike Place Market draw in one year?",
+        "prompt": "How many visitors does Seattle's Pike Place Market draw in one year?",
         "answer": 10000000,
         "funFact": "Answer: 10,000,000. Pike Place Market draws around 10 million visits yearly.",
         "rationale": "This clue uses a real market_audience benchmark with a natural estimating anchor.",
@@ -92750,7 +92750,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many skiable acres does Vail Mountain cover?",
+        "prompt": "How many skiable acres does Vail Mountain in Colorado cover?",
         "answer": 5300,
         "funFact": "Answer: 5,300. Vail covers more than 5,000 skiable acres.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -95151,7 +95151,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "daily_audience"
       },
       {
-        "prompt": "How many people visit Coney Island in one summer?",
+        "prompt": "How many people visit Coney Island in Brooklyn in one summer?",
         "answer": 5000000,
         "funFact": "Answer: 5,000,000. Coney Island draws millions of summer visitors.",
         "rationale": "This clue uses a real season_audience benchmark with a natural estimating anchor.",
@@ -95931,7 +95931,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "operations"
       },
       {
-        "prompt": "How many packages can UPS Worldport move in one day?",
+        "prompt": "How many packages can UPS Worldport in Louisville move in one day?",
         "answer": 1000000,
         "funFact": "Answer: 1,000,000. UPS Worldport can move packages at a million-a-day scale.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -96191,7 +96191,7 @@ export const AUTHORED_BALLPARK_CALENDAR = Object.freeze({
         "topicFacet": "object_weight"
       },
       {
-        "prompt": "How many visitors does Cape Hatteras Lighthouse welcome in one year?",
+        "prompt": "How many visitors does Cape Hatteras Lighthouse in North Carolina welcome in one year?",
         "answer": 500000,
         "funFact": "Answer: 500,000. Cape Hatteras draws hundreds of thousands of visitors.",
         "rationale": "This clue uses a real site_audience benchmark with a natural estimating anchor.",
@@ -97270,7 +97270,7 @@ export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
         "asOfDate": "2026-05-23"
       },
       {
-        "prompt": "How many bikes fit on one full Citi Bike docking block?",
+        "prompt": "How many bikes fit on one full Citi Bike docking block in New York City?",
         "answer": 120,
         "funFact": "Answer: 120. A full bike-share block holds about 120 bikes.",
         "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -97331,7 +97331,7 @@ export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
       }
     ],
     "extraInning": {
-      "prompt": "Extra Innings: How many rides can Citi Bike log in one busy year?",
+      "prompt": "Extra Innings: How many rides can Citi Bike in New York City log in one busy year?",
       "answer": 30000000,
       "funFact": "Answer: 30,000,000. Citi Bike can log tens of millions of rides yearly.",
       "rationale": "Final human-clue pass: standalone wording, natural unit, and modelable topic fact.",
@@ -101944,7 +101944,7 @@ export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
         "topicFacet": "display_set_piece_count"
       },
       {
-        "prompt": "How many trains run on Miniatur Wunderland’s model railway?",
+        "prompt": "How many trains run on Miniatur Wunderland in Hamburg, Germany?",
         "answer": 1200,
         "funFact": "Answer: 1,200. Miniatur Wunderland runs about 1,200 model trains.",
         "rationale": "This clue uses a real display_capacity benchmark with a natural estimating anchor.",
@@ -101974,7 +101974,7 @@ export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
         "topicFacet": "layout_train_count"
       },
       {
-        "prompt": "How many feet of track run through Miniatur Wunderland’s model railway?",
+        "prompt": "How many feet of track run through Miniatur Wunderland in Hamburg, Germany?",
         "answer": 52000,
         "funFact": "Answer: 52,000. Miniatur Wunderland has about 52,000 feet of model track.",
         "rationale": "This clue uses a real real_train_scale benchmark with a natural estimating anchor.",
@@ -103760,7 +103760,7 @@ export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
       }
     ],
     "extraInning": {
-      "prompt": "Extra Innings: how many square feet of LEDs cover the Las Vegas Sphere exterior?",
+      "prompt": "Extra Innings: how many square feet of LEDs cover the Las Vegas Sphere exterior in Nevada?",
       "answer": 580000,
       "funFact": "Answer: 580,000. The Sphere’s exterior display covers hundreds of thousands of square feet.",
       "rationale": "This clue uses a real bonus_display_scale benchmark with a natural estimating anchor.",
@@ -106005,7 +106005,7 @@ export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
     "playerAgentFindings": [],
     "questions": [
       {
-        "prompt": "How many docks fit in one large Citi Bike station?",
+        "prompt": "How many docks fit in one large Citi Bike station in New York City?",
         "answer": 120,
         "funFact": "Answer: 120. A large Citi Bike station holds about 120 docks.",
         "rationale": "This clue uses a real station_capacity benchmark with a natural estimating anchor.",
@@ -106035,7 +106035,7 @@ export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze([
         "topicFacet": "station_capacity"
       },
       {
-        "prompt": "How many rides can Citi Bike log on a busy weekday?",
+        "prompt": "How many rides can Citi Bike in New York City log on a busy weekday?",
         "answer": 150000,
         "funFact": "Answer: 150,000. Citi Bike can log six-figure rides on a busy weekday.",
         "rationale": "This clue uses a real daily_operations benchmark with a natural estimating anchor.",

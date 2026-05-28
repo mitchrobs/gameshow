@@ -14,6 +14,9 @@ import {
   classifyBallparkContentForRemediation,
   classifyBallparkReserveContentForRemediation,
   getBallparkPlayableStatus,
+  getBallparkEditorialRiskReport,
+  getBallparkPromptHumanClueIssue,
+  getBallparkPromptContextIssue,
   getBallparkReservePool,
   getBallparkReviewPacket,
   getBallparkRemediationBatch,
@@ -183,6 +186,7 @@ describe('Ballpark 2026 calendar', () => {
       'arbitrary_container',
       'weak_macro',
       'reveal_scaffold',
+      'local_context',
     ].forEach((category) => {
       expect(launchSummary.categories[category].count).toBe(0);
       expect(launchSummary.categories[category].examples.length).toBe(0);
@@ -446,6 +450,71 @@ describe('Ballpark 2026 calendar', () => {
     });
   });
 
+  it('reports a reproducible bottom-20 editorial-risk queue with actionable reasons', () => {
+    const report = getBallparkEditorialRiskReport();
+
+    expect(report.totalPacks).toBe(400);
+    expect(report.limit).toBe(80);
+    expect(report.bottomCount).toBe(80);
+    expect(report.packs).toHaveLength(80);
+    report.packs.forEach((pack, index) => {
+      if (index > 0) {
+        expect(pack.riskScore).toBeLessThanOrEqual(report.packs[index - 1].riskScore);
+      }
+      expect(pack.packId).toMatch(/^(2026-\d{2}-\d{2}|reserve-\d{3})$/);
+      expect(pack.theme.length).toBeGreaterThan(2);
+      expect(pack.reasons.length).toBeGreaterThan(0);
+      expect(pack.prompts).toHaveLength(3);
+      pack.reasons.forEach((reason) => {
+        expect(reason.category.length).toBeGreaterThan(2);
+        expect(reason.points).toBeGreaterThan(0);
+        expect(reason.message.length).toBeGreaterThan(10);
+      });
+    });
+  });
+
+  it('blocks local-knowledge clues that omit short geographic context', () => {
+    expect(
+      getBallparkPromptContextIssue('How many ballots were cast in Maricopa County in the 2024 general election?')
+    ).toMatch(/Maricopa County/);
+    expect(
+      getBallparkPromptContextIssue(
+        'How many ballots were cast in Maricopa County, Arizona, home to Phoenix, in the 2024 general election?'
+      )
+    ).toBeNull();
+    expect(
+      getBallparkPromptContextIssue('How many riders use the Staten Island Ferry in one year?')
+    ).toMatch(/Staten Island Ferry/);
+    expect(
+      getBallparkPromptContextIssue('How many riders use the Staten Island Ferry in New York City in one year?')
+    ).toBeNull();
+    expect(runBallparkLaunchReadinessAudit().categories.local_context.count).toBe(0);
+  });
+
+  it('blocks vague standalone clues and topic-mismatch seams from the bottom-20 review', () => {
+    [
+      'How many ballots count?',
+      'How many pizza boxes stack?',
+      'How many stars sit?',
+      'How many Waffle House restaurants can a diner breakfast kitchen crack in one week?',
+      'How many watch batteries are in one sprinkler system timer repair-shop counter tray?',
+      'How many animals can a busy stuffed animal care room handle?',
+    ].forEach((prompt) => {
+      expect(getBallparkPromptHumanClueIssue(prompt)).toEqual(expect.any(String));
+    });
+
+    [
+      'How many ballots can a large U.S. county count in a general election?',
+      'How many empty pizza boxes can a busy pizzeria stack before a Friday-night rush?',
+      'How many stars are in the Milky Way galaxy?',
+      'How many Waffle House restaurants are open across the U.S.?',
+    ].forEach((prompt) => {
+      expect(getBallparkPromptHumanClueIssue(prompt)).toBeNull();
+    });
+    expect(runBallparkLaunchReadinessAudit().categories.awkward_prompt.count).toBe(0);
+    expect(runBallparkLaunchReadinessAudit().categories.question_move_repetition.count).toBe(0);
+  });
+
   it('blocks the too-easy exact-recall pattern that made the Memorial Day opener weak', async () => {
     const memorialDay = await getDailySet('2026-05-25');
     const combinedAudit = runBallpark400PackAudit();
@@ -500,7 +569,7 @@ describe('Ballpark 2026 calendar', () => {
       '2026-01-01': "New Year's Desk Calendar",
       '2026-01-19': 'Service Kitchen',
       '2026-02-14': 'Valentine Candy Counter',
-      '2026-02-16': 'Presidents Day Desk',
+      '2026-02-16': 'Presidents Day Landmarks',
       '2026-03-17': 'St. Patrick Parade',
       '2026-04-01': 'Prank Desk',
       '2026-04-22': 'Earth Day Cleanup',
