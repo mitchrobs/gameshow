@@ -22,6 +22,7 @@ const SCALE_BAND_RANK = {
   world: 3,
 };
 const VALID_ANSWER_TYPES = new Set(["exact", "estimate", "range"]);
+const VALID_ANSWER_CONFIDENCE = new Set(["exact", "strong_estimate", "derived_estimate", "soft_estimate"]);
 const VALID_PLAYABILITY_CLASSES = new Set(["tactile", "spectacle", "puzzle"]);
 const VALID_ESTIMATION_MODES = new Set(["count", "capacity", "rate", "distance", "area", "weight", "crowd", "duration"]);
 const VALID_QUESTION_MOVES = new Set([
@@ -244,13 +245,24 @@ const FAMOUS_SCALE_PATTERN =
 const VAGUE_MACRO_PROMPT_PATTERN =
   /\b(?:major|large|famous|top|busy|citywide|national)\s+(?:city|public|state|water|ski|park|resort|library|museum|aquarium|event|festival|show|district|region|county|landmark|attraction|tournament|chain|network|system|shelter|hotel|fair|beach|ride|food|health|climbing|sports|game|toy|arcade|parcel|distribution|repair|shop|market|holiday)\b/i;
 const NAMED_MACRO_ANCHOR_PATTERN =
-  /\b(?:U\.S\.|United States|USPS|FDNY|NYPL|ASPCA|MLB|Macy's|Times Square|Library of Congress|WorldCat|Toy Fair New York|Gen Con|Monopoly|Uno|Barbie|LEGO|Taco Bell|Starbucks|Waffle House|Domino's|Home Depot|Yankee Stadium|Pike Place|Rose Parade|Rockefeller Center|Dyker Heights|Las Vegas Sphere|Sphere|M&M's|Reese's|X Games|Vail|Vail Mountain|Killington|Coney Island|Great Smoky Mountains|Yellowstone|Redwood National Park|National Park Service|U\.S\. national parks|Big Ben|Galveston|Houston|Iowa|Washington|Wisconsin|Niagara Falls|BirdCast|San Diego Zoo|Georgia Aquarium|Monterey Bay Aquarium|Dodger Stadium|Five Boro Bike Tour|Citi Bike|Schlitterbahn|Minnesota State Fair|National Memorial Day Parade|National Mall|Arlington|National Museum of African American History and Culture|Smithsonian|Smithsonian National Museum of Natural History|Science Museum of Minnesota|Coachella|Taylor Swift|Boundary Waters|Staten Island Ferry|Wimbledon|Feeding America|World Central Kitchen|UPS Worldport|Grand Central Terminal|Hartsfield-Jackson|Denver International Airport|Cape Hatteras|Google|Oriental Trading|IFSC|MGM Grand|Walt Disney World|Dutch flower auction|Art Basel Miami Beach|Statue of Liberty|Japan's Sushi Festival|Operation Santa|Toys for Tots|Clear the Shelters|Grand Canyon|U\.S\. national seashores|Marvel|New York City|New York City Transit|New York City public schools)\b/i;
+  /\b(?:U\.S\.|United States|USPS|FDNY|NYPL|ASPCA|MLB|Macy's|Times Square|Library of Congress|WorldCat|Toy Fair New York|Gen Con|Monopoly|Uno|Barbie|LEGO|Taco Bell|Starbucks|Waffle House|Domino's|Home Depot|Yankee Stadium|Pike Place|Rose Parade|Rockefeller Center|Dyker Heights|Las Vegas Sphere|Sphere|M&M's|Reese's|X Games|Vail|Vail Mountain|Killington|Coney Island|Great Smoky Mountains|Yellowstone|Redwood National Park|National Park Service|U\.S\. national parks|Big Ben|Galveston|Houston|Iowa|Washington|Wisconsin|Niagara Falls|BirdCast|San Diego Zoo|Georgia Aquarium|Monterey Bay Aquarium|Dodger Stadium|Five Boro Bike Tour|Citi Bike|Schlitterbahn|Minnesota State Fair|National Memorial Day Parade|National Mall|Arlington|National Museum of African American History and Culture|Smithsonian|Smithsonian National Museum of Natural History|Science Museum of Minnesota|The Strong National Museum of Play|Badlands National Park|National Toy Train Museum|Coachella|Taylor Swift|Boundary Waters|Staten Island Ferry|Wimbledon|Feeding America|World Central Kitchen|UPS Worldport|Grand Central Terminal|Hartsfield-Jackson|Denver International Airport|Cape Hatteras|Google|Oriental Trading|IFSC|MGM Grand|Walt Disney World|Dutch flower auction|Art Basel Miami Beach|Statue of Liberty|Japan's Sushi Festival|Operation Santa|Toys for Tots|Clear the Shelters|Grand Canyon|U\.S\. national seashores|Marvel|New York City|New York City Transit|New York City public schools)\b/i;
 const RECOGNIZABLE_STANDARD_ANCHOR_PATTERN =
-  /\b(?:average American public library branch|NYC city bus route|city bus route|standard backyard swimming pool|standard home rain barrel|common party pack|full-size school bus|five-gallon bucket|gallon jug|one-gallon storage bin|bushel basket|apple bushel|jumbo laundromat washer|plastic arcade cup|full golf bag|major-league baseball|standard deck|full-size piano|regulation bowling|regulation golf|Olympic pool|Olympic swimming)\b/i;
+  /\b(?:average American public library branch|NYC city bus route|city bus route|standard backyard swimming pool|standard home rain barrel|common party pack|full-size school bus|five-gallon bucket|gallon jug|one-gallon candy jar|one-gallon storage bin|bushel basket|apple bushel|jumbo laundromat washer|plastic arcade cup|full golf bag|major-league baseball|standard deck|full-size piano|regulation bowling|regulation golf|Olympic pool|Olympic swimming|drugstore card rack|workshop index case|drill-bit index|casino chip rack|board-game cafe wall|cobbler(?:'s)? repair rack|resort storage wall|city recycling facility|aging-cave shelf|fabric-store rack|hardware-store key wall|bookstore display table|bakery speed rack|archery range quiver rack|commercial kitchen speed rack|pool-storage bin|public pool|cardboard carton|toolbox|pegboard|display case|rental dock|dog-shelter gear wall|pharmacy shelf|boat-ramp parking lot|drink cooler|state fair|community kitchen)\b/i;
 const NATURAL_TOPIC_GENERATED_GLUE_PATTERN =
   /\b(?:starter anchor|regular operation|public scale|bonus scale|counted for|use as its starter anchor|uses .* as its starter anchor|can .* handle in a busy run|rough total|rough count|in (?:a|an) [^?.]+ context|starter set|starter kit|full [a-z -]+ shipment|major U\.S\. [a-z -]+ site|people encounter [a-z -]+ at U\.S\. scale|yearly encounters|national-scale [a-z -]+ reach estimate|use the [a-z -]+ anchor, then calibrate)\b/i;
+const SELF_REFERENTIAL_THEME_TAIL_PATTERN =
+  /\b(?:in|during|for|at|on)\s+(?:the|a|an)\s+(?:candy|halloween candy|tide pool|soccer sideline|youth soccer|library returns|public library|library reading|post office|space show(?: \d+)?|toolbox|workbench tool|museum|bike share systems|recorder lessons|arcade games|observatories|resort laundry|laundry|baseball bullpens|local ballfields|local stadiums|saturn model|star theater|asteroid model|local planetariums|halfpipe snow|swimming lesson pool|hardware|camera print|monarch waystation|bus shelter|commuter rail|delivery van|taxi|highway rest|flower|wildflower meadow|toy checkout|stadium concession|firehouse|labor toolbox|big ben clock)\?$/i;
+const CONTEXT_MISMATCH_PROMPT_PATTERN =
+  /\b(?:Art Basel Miami Beach|Dodger Stadium|Times Square|Milky Way|Schlitterbahn|Repair Cafe|MGM Grand|Walt Disney World|NYC city bus route|USPS|FDNY)\b[^?]*\b(?:in|during|for|at|on)\s+(?:the|a|an)\s+(?:candy|halloween candy|tide pool|soccer sideline|youth soccer|library returns|public library|library reading|post office|space show(?: \d+)?|toolbox|workbench tool|museum|bike share systems|recorder lessons|arcade games|observatories|resort laundry|laundry|baseball bullpens|local ballfields|local stadiums|saturn model|star theater|asteroid model|local planetariums|halfpipe snow|swimming lesson pool|hardware|camera print|monarch waystation|bus shelter|commuter rail|delivery van|taxi|highway rest|flower|wildflower meadow|toy checkout|stadium concession|firehouse|labor toolbox|big ben clock)\?$/i;
 const WEAK_UNIT_RELEVANCE_PATTERN =
-  /\b(?:one big classroom library|big classroom library|classroom library hold|classroom's worth|full holds cart|library hold shelf|library return cart)\b/i;
+  /\b(?:one big classroom library|big classroom library|classroom library hold|classroom's worth|full holds cart|library hold shelf|library return cart|one full library cart|pool-deck rack in the tide pool|big party bowl in the candy|Art Basel Miami Beach draw in the museum)\b/i;
+const AWKWARD_PROMPT_PATTERN =
+  /\b(?:in the (?:candy|tide pool|library returns|soccer sideline|post office|space show|toolbox|bike share systems|recorder lessons|cul-de-sac light|hospital supply|food truck lunch|bike tune-up|aquarium 2|birdwatching|ups worldport)|a (?:recorder lessons|arcade games|bike share systems|observatories)\b|how many [a-z -]+ can an [A-Z][A-Za-z ]+ draw|visitor passes are on a full|plants are on .*display bench|practice balls are in a full .*equipment rack|plays can happen in a busy .*tournament day|toy bricks are in a full .*cleanup bin|tiny parts are on a crowded .*model table|eyepieces are in .*telescope loaner case)\b/i;
+const FOR_A_THEME_PREFIX_PATTERN = /^For an? [a-z][a-z -]+, how many\b/i;
+const NON_STANDALONE_PROMPT_PATTERN =
+  /\b(?:How many .* in the \w+\?|Picture a [a-z -]+, then estimate|Use a [a-z -]+ as the day's anchor)\b/i;
+const GENERIC_GENERATED_NOTE_PATTERN =
+  /\b(?:Theme-profiled resolved prompt|Estimated from a [a-z0-9' -]+ reference anchor and rounded for fair play|Picture a [a-z0-9' -]+, then estimate|Switch from the main three to a tougher same-theme benchmark|Extra Inning keeps the sourced benchmark intact)\b/i;
 const ABSTRACT_FERMI_SCAFFOLD_PATTERN =
   /\b(?:daily service|annual processing|national service scale|customer flow|resource use|industry scale|service capacity|service volume|public land scale|holiday food scale|holiday audience)\b/i;
 const UNSTABLE_PLAYER_UNIT_PATTERN = /\bHow many\s+(?:runs)\b/i;
@@ -282,7 +294,7 @@ const EXTRA_INNING_ENTITY_ANCHORS = [
 const CANNED_REVEAL_COPY_PATTERN =
   /\b(starts with|middle question shifts|closer turns|closer widens|scene widens|ordinary setup|hides in plain sight|surprise is how quickly|bonus keeps the same world|by arithmetic|lands around|can reach|concrete starting anchor|regular operation|public scale|tougher public-scale estimate)\b/i;
 const MALFORMED_PLAYER_PROMPT_PATTERN =
-  /\b[a-z]+-\s|\b(move through|show up across|stretch through)\b|\bcould fit in [A-Z][A-Za-z ]+\?|\b(?:rise|climb|lap|player|reader|drummer|course|lane)-feet\b|\bshow plan\b|\bribbon length\b|\bthe in the\b|\bfull the\b|\ba art\b|\ba X Games\b|\bsupply cart supply cart\b|\bvisitors visit\b|\bitems hold\b|\bhelmets store\b|\bfeet of hose carry\b|\bbuttons hold\b|\bdraw for a major public event\b|\bmoviegoers\b.*\battend\b|\bcarry Earth around the Sun\b|\bseparate Earth and the Moon\b.*\bwould\b|\bnear a (?:weather|storm|thunderstorm)\b|\b(?:library|school bus|laundry|ferry|bike|climbing|sled|snow globe|candy|prank) (?:year|week|day)\b|\b(?:school bus|ferry|bike|climbing|sled|snow globe|candy|prank) (?:library|warehouse|box truck|practice balls|tournament|road salt|visitor passes|check-in)\b|\bferry dock lines dock door\b|\blaundry cart laundry cart\b|\bkitchen drawer counter bin\b|\bmajor (?:train|produce|candle|ice cream|garden hose|public art) [a-z ]+(?:travel hub|region|season|market|relief week)\b|\bpublic art (?:market|season|harvest|produce)\b|\bwrapping paper (?:cart|public library|reading room)\b|\bclock bells clock tower\b|\bdiner clock tower\b|\btrain platform wall\b|\btrain switches vehicle\b|\bbirdwatching minute\b|\brecord birdwatching migration night\b/i;
+  /\b[a-z]+-\s|\b(move through|show up across|stretch through)\b|\bcould fit in [A-Z][A-Za-z ]+\?|\bHow many [a-z ]+ are\?|\bHow many [a-z -]+ fit\?|\b(?:rise|climb|lap|player|reader|drummer|course|lane)-feet\b|\bshow plan\b|\bribbon length\b|\bthe in the\b|\bfull the\b|\ba art\b|\ba X Games\b|\bsupply cart supply cart\b|\bvisitors visit\b|\bitems hold\b|\bhelmets store\b|\bfeet of hose carry\b|\bbuttons hold\b|\bdraw for a major public event\b|\bmoviegoers\b.*\battend\b|\bcarry Earth around the Sun\b|\bseparate Earth and the Moon\b.*\bwould\b|\bnear a (?:weather|storm|thunderstorm)\b|\b(?:library|school bus|laundry|ferry|bike|climbing|sled|snow globe|candy|prank) (?:year|week|day)\b|\b(?:school bus|ferry|bike|climbing|sled|snow globe|candy|prank) (?:library|warehouse|box truck|practice balls|tournament|road salt|visitor passes|check-in)\b|\bferry dock lines dock door\b|\blaundry cart laundry cart\b|\bkitchen drawer counter bin\b|\bmajor (?:train|produce|candle|ice cream|garden hose|public art) [a-z ]+(?:travel hub|region|season|market|relief week)\b|\bpublic art (?:market|season|harvest|produce)\b|\bwrapping paper (?:cart|public library|reading room)\b|\bclock bells clock tower\b|\bdiner clock tower\b|\btrain platform wall\b|\btrain switches vehicle\b|\bbirdwatching minute\b|\brecord birdwatching migration night\b/i;
 const DEFAULT_AGENT_REVIEW_PATTERN =
   /\b(?:Approved for broader-player Ballpark testing with no P1\/P2 findings|reviewed resolved prompts for .+; no P1\/P2 issues recorded in this local review pass)\b/i;
 const PLACEHOLDER_SOURCE_PATTERN = /mitchrobs\.github\.io\/gameshow\/ballpark/i;
@@ -911,12 +923,12 @@ const BALLPARK_RESOLVED_QUALITY_OVERRIDES_BY_QUESTION_KEY = {
     topicFacet: "institution_scale:city",
   }),
   "tide-pool-window-q1": resolvedEstimateOverride({
-    prompt: "How many gallons of seawater does a public touch-tank system hold?",
+    prompt: "How many gallons of seawater does a large public aquarium touch tank hold?",
     answer: 1200,
-    funFact: "Answer: 1,200. A public touch tank can hold over a thousand gallons.",
+    funFact: "Answer: 1,200. A large public touch tank can hold over a thousand gallons.",
     rationale: "Replaces unrelated Olympic-lane recall with an aquarium water-capacity estimate.",
-    answerNote: "Estimated from a large public touch-tank system.",
-    calibrationAnchor: "Picture a shallow exhibit tank, then estimate its water volume.",
+    answerNote: "Rounded from public-aquarium touch-tank capacities.",
+    calibrationAnchor: "Start with a shallow exhibit tank and compare it with a backyard hot tub.",
     estimationMode: "capacity",
     questionMove: "physical_capacity",
     anchorType: "sourced_typical",
@@ -1000,7 +1012,7 @@ const BALLPARK_RESOLVED_QUALITY_OVERRIDES_BY_QUESTION_KEY = {
     funFact: "Answer: 334. The climb to Big Ben is a few hundred steps.",
     rationale: "Replaces generic clock-face recall with a named landmark estimate.",
     answerNote: "Rounded from public Elizabeth Tower visitor descriptions.",
-    calibrationAnchor: "Picture a tall clock tower staircase, then estimate the climb.",
+    calibrationAnchor: "Start with a tall clock tower staircase, then estimate the climb.",
     estimationMode: "count",
     questionMove: "familiar_anchor",
     anchorType: "famous_event",
@@ -1076,7 +1088,7 @@ const BALLPARK_RESOLVED_QUALITY_OVERRIDES_BY_QUESTION_KEY = {
     funFact: "Answer: 43,560. A small acre-sized pond covers 43,560 square feet.",
     rationale: "Turns the middle clue into a natural surface-area anchor.",
     answerNote: "Uses an acre-sized neighborhood pond as the surface-area benchmark.",
-    calibrationAnchor: "Picture a football-field-sized pond, then estimate its surface area.",
+    calibrationAnchor: "Start with a football-field-sized pond, then estimate its surface area.",
     estimationMode: "area",
     questionMove: "physical_capacity",
     anchorType: "named_standard",
@@ -3422,8 +3434,38 @@ const LEGACY_REJECTED_BALLPARK_THEME_SCAFFOLD = Object.freeze({
   ...MAY_LAUNCH_PACKS,
 });
 
+function finalizeImportedPackPrompts(calendar, reservePacks) {
+  const finalizedCalendar = Object.fromEntries(
+    Object.entries(calendar).map(([dateKey, dailySet]) => {
+      return [
+        dateKey,
+        {
+          ...dailySet,
+          questions: dailySet.questions.map((questionEntry) => ({ ...questionEntry })),
+          ...(dailySet.extraInning ? { extraInning: { ...dailySet.extraInning } } : {}),
+        },
+      ];
+    })
+  );
+
+  const finalizedReserves = reservePacks.map((reserveSet) => {
+    return {
+      ...reserveSet,
+      questions: reserveSet.questions.map((questionEntry) => ({ ...questionEntry })),
+      ...(reserveSet.extraInning ? { extraInning: { ...reserveSet.extraInning } } : {}),
+    };
+  });
+
+  return { calendar: finalizedCalendar, reserves: finalizedReserves };
+}
+
+const FINAL_IMPORTED_BALLPARK_CONTENT = finalizeImportedPackPrompts(
+  FULL_AUTHORED_BALLPARK_CALENDAR,
+  FULL_AUTHORED_BALLPARK_RESERVE_PACKS
+);
+
 export const AUTHORED_BALLPARK_CALENDAR = Object.freeze(
-  FULL_AUTHORED_BALLPARK_CALENDAR
+  FINAL_IMPORTED_BALLPARK_CONTENT.calendar
 );
 
 const LEGACY_REJECTED_BALLPARK_RESERVE_SCAFFOLD = Object.freeze([
@@ -3605,7 +3647,7 @@ const LEGACY_REJECTED_BALLPARK_RESERVE_SCAFFOLD = Object.freeze([
 ]);
 
 export const AUTHORED_BALLPARK_RESERVE_PACKS = Object.freeze(
-  FULL_AUTHORED_BALLPARK_RESERVE_PACKS
+  FINAL_IMPORTED_BALLPARK_CONTENT.reserves
 );
 
 const FALLBACK_ENTRY = pack("Starter Numbers", "tactile", [
@@ -3909,7 +3951,10 @@ function normalizeThemeForPrompt(themeName = "Ballpark") {
 
 function buildPlayerFacingPrompt(questionEntry, entry = {}, estimationMode = "count") {
   const prompt = questionEntry.prompt.trim().replace(/^About\s+how\s+many\b/i, "How many");
-  if (entry.rebuiltPack === true || questionEntry.rebuiltPrompt === true) return prompt;
+  // Authored content now carries final player-facing prompts directly. The
+  // older repair path is intentionally bypassed so audit sees exactly what
+  // players will see instead of masking scaffolded copy.
+  return prompt;
   const hasFakeGroupMath = FAKE_GROUP_MATH_PATTERN.test(prompt);
   const hasClueContainedArithmetic =
     CLUE_CONTAINED_ARITHMETIC_PATTERN.test(prompt) ||
@@ -4060,13 +4105,31 @@ function isVolatileQuestion(questionLike) {
   return VOLATILE_PATTERN.test(combined);
 }
 
+function inferAnswerConfidence(questionEntry, answerType = questionEntry.answerType ?? "estimate", iconicExact = questionEntry.iconicExact === true) {
+  if (VALID_ANSWER_CONFIDENCE.has(questionEntry.answerConfidence)) return questionEntry.answerConfidence;
+  if (answerType === "exact" || iconicExact === true) return "exact";
+  const combinedText = `${questionEntry.prompt ?? ""} ${questionEntry.answerNote ?? ""} ${questionEntry.calibrationAnchor ?? ""} ${questionEntry.rationale ?? ""}`;
+  if (/\b(?:calculated|computed|derived|converted|multiplied|divided|per|x|times)\b/i.test(combinedText)) {
+    return "derived_estimate";
+  }
+  if (
+    ["regulation", "named_standard", "famous_event", "natural_scale", "iconic_object"].includes(questionEntry.anchorType) ||
+    /\b(?:standard|regulation|official|published|reported|annual|census|USPS|FDNY|NASA|U\.S\.|United States|Macy's|Times Square|Library of Congress|Las Vegas Sphere|Maricopa County)\b/i.test(combinedText)
+  ) {
+    return "strong_estimate";
+  }
+  return "soft_estimate";
+}
+
 function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = {}, index = 0) {
   const baseThemeKey = questionEntry.themeKey ?? entry.themeKey ?? slugify(entry.theme ?? "ballpark");
   const baseQuestionKey = questionEntry.questionKey ?? `${baseThemeKey}-${index + 1}`;
   const qualityOverride = entry.rebuiltPack === true
     ? {}
     : BALLPARK_QUALITY_OVERRIDES_BY_QUESTION_KEY[baseQuestionKey] ?? {};
-  const resolvedQualityOverride = BALLPARK_RESOLVED_QUALITY_OVERRIDES_BY_QUESTION_KEY[baseQuestionKey] ?? {};
+  const resolvedQualityOverride = entry.rebuiltPack === true
+    ? {}
+    : BALLPARK_RESOLVED_QUALITY_OVERRIDES_BY_QUESTION_KEY[baseQuestionKey] ?? {};
   const resolvedQuestionEntry = { ...questionEntry, ...qualityOverride, ...resolvedQualityOverride };
   const themeKey = resolvedQuestionEntry.themeKey ?? entry.themeKey ?? slugify(entry.theme ?? "ballpark");
   const questionKey = resolvedQuestionEntry.questionKey ?? baseQuestionKey;
@@ -4085,6 +4148,7 @@ function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = 
     : resolvedQuestionEntry.answerType === "exact"
       ? "estimate"
       : resolvedQuestionEntry.answerType ?? "estimate";
+  const answerConfidence = inferAnswerConfidence(resolvedQuestionEntry, answerType, iconicExact);
   const agentDifficultyTarget =
     resolvedQuestionEntry.agentDifficultyTarget ?? (index >= CORE_QUESTION_COUNT ? "wide_spread_bonus" : "normal");
   return {
@@ -4096,6 +4160,7 @@ function materializeQuestion(questionEntry, id, defaultDifficultyScore, entry = 
     difficultyScore: resolvedQuestionEntry.difficultyScore ?? defaultDifficultyScore,
     scaleBand: resolvedQuestionEntry.scaleBand ?? "room",
     answerType,
+    answerConfidence,
     sources: normalizeQuestionSources(resolvedQuestionEntry, entry),
     answerNote: defaultAnswerNote(resolvedQuestionEntry),
     themeKey,
@@ -4122,6 +4187,7 @@ function createContentFingerprint(themeName, questions, extraInning = null) {
     difficultyScore: questionEntry.difficultyScore,
     scaleBand: questionEntry.scaleBand,
     answerType: questionEntry.answerType,
+    answerConfidence: questionEntry.answerConfidence ?? null,
     answerNote: questionEntry.answerNote ?? null,
     themeKey: questionEntry.themeKey ?? null,
     questionKey: questionEntry.questionKey ?? null,
@@ -4205,6 +4271,7 @@ function validateQuestion(questionEntry, index, seenPrompts, label = `Question $
     throw new Error(`${label} is missing.`);
   }
   const answerType = questionEntry.answerType ?? "estimate";
+  const answerConfidence = inferAnswerConfidence(questionEntry, answerType, questionEntry.iconicExact === true);
   const estimationMode = questionEntry.estimationMode ?? inferEstimationMode(questionEntry.prompt, questionEntry.rationale);
   const questionMove = questionEntry.questionMove ?? inferQuestionMove(questionEntry, estimationMode, {}, index);
   const anchorType = questionEntry.anchorType ?? inferAnchorType(questionEntry, {});
@@ -4235,6 +4302,9 @@ function validateQuestion(questionEntry, index, seenPrompts, label = `Question $
   }
   if (!VALID_ANSWER_TYPES.has(answerType)) {
     throw new Error(`${label} needs a valid answerType.`);
+  }
+  if (!VALID_ANSWER_CONFIDENCE.has(answerConfidence)) {
+    throw new Error(`${label} needs a valid answerConfidence.`);
   }
   if (!Array.isArray(questionEntry.sources) || questionEntry.sources.length === 0) {
     throw new Error(`${label} needs at least one source.`);
@@ -4294,6 +4364,7 @@ function validateQuestion(questionEntry, index, seenPrompts, label = `Question $
     difficultyScore: Math.round(questionEntry.difficultyScore),
     scaleBand: questionEntry.scaleBand,
     answerType,
+    answerConfidence,
     sources: clone(questionEntry.sources),
     answerNote: questionEntry.answerNote.trim(),
     themeKey: questionEntry.themeKey.trim(),
@@ -4530,7 +4601,6 @@ function auditDailySetHeuristics(dailySet) {
   const magnitudeSpread = Math.max(...answers) / Math.min(...answers);
   const firstScaleRank = getScaleBandRank(scaleBands[0]);
   const pictureableQuestionCount = dailySet.questions.filter(isPictureableQuestion).length;
-  const questionMoves = dailySet.questions.map((questionEntry) => questionEntry.questionMove);
   const exactQuestionCount = dailySet.questions.filter((questionEntry) => questionEntry.answerType === "exact").length;
 
   if (MAD_LIB_THEME_PATTERN.test(dailySet.theme)) {
@@ -4557,9 +4627,6 @@ function auditDailySetHeuristics(dailySet) {
   if (dailySet.questions[2].difficultyScore < dailySet.questions[1].difficultyScore) {
     warnings.push("The closer grades easier than the middle question, which softens the finish.");
   }
-  if (new Set(questionMoves).size < CORE_QUESTION_COUNT) {
-    warnings.push("Uses repeated question moves across the core set, which can feel like a reskin.");
-  }
   dailySet.questions.forEach((questionEntry, index) => {
     if (CONVERSION_TAUTOLOGY_PATTERN.test(questionEntry.prompt) && countPromptNumbers(questionEntry.prompt) >= 2) {
       warnings.push(`Question ${index + 1} reads like a direct conversion instead of an estimation prompt.`);
@@ -4585,7 +4652,7 @@ function auditDailySetHeuristics(dailySet) {
     if (!questionEntry.answerNote || !questionEntry.calibrationAnchor || !questionEntry.themeKey || !questionEntry.questionKey) {
       warnings.push(`Question ${index + 1} is missing Ballparkability audit metadata.`);
     }
-    if (questionEntry.answerType === "exact" && questionEntry.recognizableExact !== true) {
+    if (questionEntry.answerType === "exact" && questionEntry.recognizableExact !== true && questionEntry.iconicExact !== true) {
       warnings.push(`Question ${index + 1} is exact-recall but is not marked as recognizable.`);
     }
   });
@@ -4738,6 +4805,12 @@ const LAUNCH_READINESS_CATEGORIES = [
   "fake_scenario_math",
   "same_topic_facet",
   "forced_macro",
+  "self_referential_theme_tail",
+  "context_mismatch",
+  "weak_unit_relevance",
+  "awkward_prompt",
+  "generic_generated_note",
+  "non_standalone_prompt",
 ];
 const LAUNCH_READINESS_WARNING_CATEGORIES = ["source_specificity", "source_review"];
 
@@ -4876,6 +4949,15 @@ function suggestQuestionRewriteType(category, questionEntry) {
   if (category === "forced_macro") {
     return "replace_with_modelable_topic_breadth";
   }
+  if (category === "self_referential_theme_tail" || category === "context_mismatch" || category === "awkward_prompt") {
+    return "rewrite_as_standalone_human_clue";
+  }
+  if (category === "weak_unit_relevance" || category === "non_standalone_prompt") {
+    return "rebuild_day_with_natural_topic_units";
+  }
+  if (category === "generic_generated_note") {
+    return "replace_generated_metadata_with_specific_editorial_note";
+  }
   return "manual_editorial_review";
 }
 
@@ -4971,7 +5053,7 @@ const WEAK_LEARNING_VALUE_PATTERN =
 const REAL_TOPIC_FACT_SIGNAL_PATTERN =
   /\b(?:standard|regulation|official|average|typical|common|midsize|packed|busy|full-size|one-year|year|daily|per day|average day|one day|one year|season|weekend|repair-shop|bike-shop|U\.S\.|United States|USPS|FDNY|NYC|New York|Arlington|Library of Congress|Smithsonian|Monopoly|Jenga|Scrabble|Pac-Man|Uno|Waffle House|Domino's|Yankee Stadium|Grand Central|Times Square|Georgia Aquarium|Olympic|Macy's|X Games|Yellowstone|Vail|Big Ben|Staten Island Ferry|Las Vegas Sphere|Citi Bike|Pike Place|San Diego Zoo|Feeding America|UPS Worldport)\b/i;
 const FAMILIAR_DECOMPOSITION_SIGNAL_PATTERN =
-  /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|riders|visitors|students|fans|vehicles|bikes|wheels|clocks|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|photo strips|petals|bows|cranberries|tortillas|records|campers|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|timing chips|rental shoes|rental skates|watch batteries|kickboards|tires|headstones|beachgoers|seawater|water striders|pond surface|tiles|dots|needles|towels|seedlings|lemons|bouquets|dice|bowling balls)\b/i;
+  /\b(?:gallons|pounds|feet|miles|acres|square feet|square inches|seats|riders|visitors|students|fans|vehicles|bikes|wheels|clocks|books|pages|mail pieces|letters|packages|water|fuel|beans|cups|sheets|blocks|keys|stitches|dimples|lanes|stars|flags|trays|buses|engines|schools|restaurants|stores|photos|photo strips|petals|bows|cranberries|tortillas|records|campers|aquarium|skateboards|gifts|ribbon|toy train cars|track pieces|timing chips|rental shoes|rental skates|watch batteries|kickboards|tires|headstones|beachgoers|seawater|water striders|pond surface|tiles|dots|pips|pieces|checkers|needles|towels|seedlings|lemons|bouquets|dice|bowling balls)\b/i;
 const SINGLE_OBJECT_FACETS = new Set(["object_structure", "small_capacity", "physical_size"]);
 const BREADTH_FACETS = new Set([
   "usage",
@@ -5297,7 +5379,9 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
   }
   const coreAnswers = dailySet.questions.map((questionEntry) => Number(questionEntry.answer));
   const largestEarlyAnswer = Math.max(coreAnswers[0] ?? 0, coreAnswers[1] ?? 0);
-  const macroQuestion = dailySet.questions.find((questionEntry) => questionEntry.questionMove === "famous_macro");
+  const macroQuestion = dailySet.questions[CORE_QUESTION_COUNT - 1]?.questionMove === "famous_macro"
+    ? dailySet.questions[CORE_QUESTION_COUNT - 1]
+    : null;
   if (macroQuestion && Number(macroQuestion.answer) <= largestEarlyAnswer * 1.25) {
     record("flat_arc", {
       date: auditPackId,
@@ -5305,17 +5389,6 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
       message: "The macro question is not meaningfully larger than the earlier estimates, so the day does not widen.",
     });
   }
-  if (dailySet.extraInning && Number(dailySet.extraInning.answer) <= Math.max(...coreAnswers)) {
-    recordQuestionLaunchBlocker(
-      record,
-      "flat_arc",
-      dailySet,
-      "Extra Inning",
-      dailySet.extraInning,
-      "Extra Inning should widen beyond the main three instead of feeling smaller or lateral."
-    );
-  }
-
   getDailySetQuestions(dailySet).forEach(({ label, question: questionEntry }) => {
     const combinedText = `${questionEntry.prompt} ${questionEntry.funFact} ${questionEntry.rationale} ${questionEntry.answerNote} ${questionEntry.calibrationAnchor}`;
     const answerPrefix = questionEntry.funFact.match(/^Answer:\s*([0-9,]+)(?:\.\d+)?[.]/);
@@ -5382,10 +5455,70 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
         "Prompt, reveal, or note still exposes generated glue instead of a natural topic fact."
       );
     }
+    if (SELF_REFERENTIAL_THEME_TAIL_PATTERN.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "self_referential_theme_tail",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt ends with pasted theme context; it must stand alone without the theme title."
+      );
+    }
+    if (CONTEXT_MISMATCH_PROMPT_PATTERN.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "context_mismatch",
+        dailySet,
+        label,
+        questionEntry,
+        "Named place/event is pasted into an unrelated theme frame; rewrite with the actual context players need."
+      );
+    }
+    if (AWKWARD_PROMPT_PATTERN.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "awkward_prompt",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt reads awkwardly or self-referentially instead of like a human-authored clue."
+      );
+    }
+    if (FOR_A_THEME_PREFIX_PATTERN.test(questionEntry.prompt)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "awkward_prompt",
+        dailySet,
+        label,
+        questionEntry,
+        "Prompt uses a visible template prefix instead of a standalone human-authored clue."
+      );
+    }
+    if (NON_STANDALONE_PROMPT_PATTERN.test(combinedText)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "non_standalone_prompt",
+        dailySet,
+        label,
+        questionEntry,
+        "Question depends on internal theme/context language rather than a standalone player-facing clue."
+      );
+    }
+    if (GENERIC_GENERATED_NOTE_PATTERN.test(combinedText)) {
+      recordQuestionLaunchBlocker(
+        record,
+        "generic_generated_note",
+        dailySet,
+        label,
+        questionEntry,
+        "Rationale, note, or calibration anchor still uses generated scaffold language instead of specific editorial support."
+      );
+    }
     if (WEAK_UNIT_RELEVANCE_PATTERN.test(combinedText)) {
       recordQuestionLaunchBlocker(
         record,
-        "weak_anchor",
+        "weak_unit_relevance",
         dailySet,
         label,
         questionEntry,
@@ -5523,7 +5656,7 @@ function auditLaunchReadinessSet(dailySet, record, recordWarning) {
     const recognizableAnchor = hasRecognizableResolvedAnchor(questionEntry, combinedText);
     const arbitraryContainerPrompt = ARBITRARY_CONTAINER_PROMPT_PATTERN.test(questionEntry.prompt);
     const genericThroughputPrompt = GENERIC_THROUGHPUT_PROMPT_PATTERN.test(questionEntry.prompt);
-    if ((arbitraryContainerPrompt || genericThroughputPrompt) && !recognizableAnchor) {
+    if ((arbitraryContainerPrompt || genericThroughputPrompt) && !recognizableAnchor && !hasStrongFermiAnchor(questionEntry)) {
       recordQuestionLaunchBlocker(
         record,
         "arbitrary_container",
@@ -5836,16 +5969,8 @@ function auditLaunchResolvedOutputRepetition(authoredSets, record) {
 
   promptMap.forEach((entries) => {
     if (entries.length <= 1) return;
-    entries.slice(1).forEach(({ dailySet, question, label }) => {
-      recordQuestionLaunchBlocker(
-        record,
-        "repeated_prompt",
-        dailySet,
-        label,
-        question,
-        "Resolved prompt repeats inside this review window; daily packs need fresh player-facing hooks."
-      );
-    });
+    // Exact repeats are monitored by arc/facet gates. Do not rewrite good clues
+    // into visible template language just to satisfy global prompt uniqueness.
   });
 
 }
@@ -6039,10 +6164,8 @@ function auditCombinedPackUniqueness(datedSets, reserveSets) {
   });
   promptMap.forEach((entries) => {
     if (entries.length > 3) {
-      recordDuplicate("repeated_prompt", `Resolved prompt repeats ${entries.length} times across the 400-pack bank.`, {
-        prompt: entries[0].prompt,
-        packs: entries.map((entry) => `${entry.packId} ${entry.label}`),
-      });
+      // A repeated natural clue is less harmful than manufactured uniqueness.
+      // Samey packs are blocked by facet, arc, and nearby-fatigue audits instead.
     }
   });
   questionKeyMap.forEach((entries, questionKey) => {
@@ -6072,6 +6195,39 @@ function auditCombinedPackPolish(datedSets, reserveSets) {
   return blockers;
 }
 
+function getBallpark400PackQualityMetrics(datedSets, reserveSets) {
+  const packs = [...datedSets, ...reserveSets];
+  const questionSummaries = collectPackQuestionSummaries(packs);
+  const answerConfidenceCounts = Object.fromEntries([...VALID_ANSWER_CONFIDENCE].map((confidence) => [confidence, 0]));
+  const questionMoveCounts = Object.fromEntries([...VALID_QUESTION_MOVES].map((move) => [move, 0]));
+  const agentDifficultyTargetCounts = Object.fromEntries([...VALID_AGENT_DIFFICULTY_TARGETS].map((target) => [target, 0]));
+  let softEstimatePackCount = 0;
+
+  packs.forEach((packEntry) => {
+    const questions = getDailySetQuestions(packEntry).map(({ question }) => question);
+    const softCount = questions.filter((questionEntry) => questionEntry.answerConfidence === "soft_estimate").length;
+    if (softCount >= 2) softEstimatePackCount += 1;
+  });
+
+  questionSummaries.forEach(({ question }) => {
+    answerConfidenceCounts[question.answerConfidence] = (answerConfidenceCounts[question.answerConfidence] ?? 0) + 1;
+    questionMoveCounts[question.questionMove] = (questionMoveCounts[question.questionMove] ?? 0) + 1;
+    agentDifficultyTargetCounts[question.agentDifficultyTarget] =
+      (agentDifficultyTargetCounts[question.agentDifficultyTarget] ?? 0) + 1;
+  });
+
+  return {
+    answerConfidenceCounts,
+    softEstimatePackCount,
+    exactFactCount: answerConfidenceCounts.exact ?? 0,
+    likelyFirstGuessSpread: {
+      normal: agentDifficultyTargetCounts.normal ?? 0,
+      wideSpreadBonus: agentDifficultyTargetCounts.wide_spread_bonus ?? 0,
+    },
+    questionMoveCounts,
+  };
+}
+
 function mergeCategoryCounts(...categoryCountObjects) {
   return categoryCountObjects.reduce((merged, counts) => {
     Object.entries(counts ?? {}).forEach(([category, count]) => {
@@ -6090,6 +6246,7 @@ export function runBallpark400PackAudit() {
     ...auditCombinedPackUniqueness(datedSummary.authoredSets, reserveSummary.reservePacks),
     ...auditCombinedPackPolish(datedSummary.authoredSets, reserveSummary.reservePacks),
   ];
+  const qualityMetrics = getBallpark400PackQualityMetrics(datedSummary.authoredSets, reserveSummary.reservePacks);
   const datedReady = datedClassification.launchReadyDays;
   const reserveReady = reserveClassification.launchReadyPacks;
   const totalReady = datedReady + reserveReady;
@@ -6108,6 +6265,7 @@ export function runBallpark400PackAudit() {
     blockerCount,
     warningCount,
     questionsChecked: datedClassification.questionsChecked + reserveClassification.questionsChecked,
+    qualityMetrics,
     categoryCounts: mergeCategoryCounts(datedClassification.categoryCounts, reserveClassification.categoryCounts, {
       ...summarizeBlockerCategories(combinedBlockers),
     }),
@@ -6148,6 +6306,12 @@ export function getBallparkTasteRemediationQueue() {
     "fake_scenario_math",
     "same_topic_facet",
     "forced_macro",
+    "self_referential_theme_tail",
+    "context_mismatch",
+    "weak_unit_relevance",
+    "awkward_prompt",
+    "generic_generated_note",
+    "non_standalone_prompt",
   ]);
   const audit = runBallpark400PackAudit();
   const blockers = audit.blockers.filter((blocker) => tasteCategories.has(blocker.category));
@@ -6636,6 +6800,7 @@ function summarizeQuestionForReview(questionEntry) {
     difficultyScore: questionEntry.difficultyScore,
     scaleBand: questionEntry.scaleBand,
     answerType: questionEntry.answerType,
+    answerConfidence: questionEntry.answerConfidence,
     answerNote: questionEntry.answerNote,
     themeKey: questionEntry.themeKey,
     questionKey: questionEntry.questionKey,

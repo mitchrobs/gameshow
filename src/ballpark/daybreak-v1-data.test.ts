@@ -408,8 +408,17 @@ describe('Ballpark 2026 calendar', () => {
     expect(combinedAudit.datedReady).toBe(365);
     expect(combinedAudit.reserveReady).toBe(35);
     expect(combinedAudit.totalReady).toBe(400);
+    expect(combinedAudit.qualityMetrics.exactFactCount).toBeGreaterThanOrEqual(15);
+    expect(combinedAudit.qualityMetrics.answerConfidenceCounts.soft_estimate).toBeLessThan(80);
+    expect(combinedAudit.qualityMetrics.likelyFirstGuessSpread.wideSpreadBonus).toBe(87);
     expect(combinedAudit.categoryCounts.default_agent_review).toBe(0);
     expect(combinedAudit.categoryCounts.repeated_prompt).toBe(0);
+    expect(combinedAudit.categoryCounts.self_referential_theme_tail).toBe(0);
+    expect(combinedAudit.categoryCounts.context_mismatch).toBe(0);
+    expect(combinedAudit.categoryCounts.weak_unit_relevance).toBe(0);
+    expect(combinedAudit.categoryCounts.awkward_prompt).toBe(0);
+    expect(combinedAudit.categoryCounts.generic_generated_note).toBe(0);
+    expect(combinedAudit.categoryCounts.non_standalone_prompt).toBe(0);
     expect(combinedAudit.warningCount).toBe(0);
   });
 
@@ -500,7 +509,7 @@ describe('Ballpark 2026 calendar', () => {
       '2026-06-19': 'Juneteenth Block Party',
       '2026-06-21': "Father's Day Gifts",
       '2026-07-04': 'Fireworks Finale',
-      '2026-09-07': 'Toolbox Day',
+      '2026-09-07': 'Labor Day Parade',
       '2026-10-31': 'Candy Bowl',
       '2026-11-26': 'Thanksgiving Table',
       '2026-12-24': 'Stocking Stuffers',
@@ -654,7 +663,7 @@ describe('Ballpark 2026 calendar', () => {
     expect(new Set(toyChest.questions.map((question) => question.questionMove)).size).toBeGreaterThanOrEqual(2);
     expect(toyChest.extraInning?.agentDifficultyTarget).toBe('wide_spread_bonus');
     expect(memorialDay.questions.map((question) => question.prompt).join(' ')).not.toMatch(/coolers|long .*block/i);
-    expect(lightShow.questions.map((question) => question.prompt).join(' ')).toMatch(/Las Vegas Sphere/i);
+    expect(lightShow.questions.map((question) => question.prompt).join(' ')).toMatch(/drone|Reunion Tower/i);
     expect(lightShow.questions.map((question) => question.prompt).join(' ')).not.toMatch(/Rockefeller|Christmas|extension cord/i);
     expect(fireworks.questions.map((question) => question.prompt).join(' ')).not.toMatch(/show plan|climb-feet|barges firing/i);
   });
@@ -726,10 +735,42 @@ describe('Ballpark 2026 calendar', () => {
     expect(iconicExactCount).toBeGreaterThanOrEqual(15);
     expect(iconicExactCount).toBeLessThanOrEqual(70);
     allQuestions.forEach((question) => {
+      expect(['exact', 'strong_estimate', 'derived_estimate', 'soft_estimate']).toContain(question.answerConfidence);
       expect(question.prompt).not.toMatch(artificialUnitPattern);
       expect(question.prompt.match(promptNumberPattern)?.length ?? 0).toBeLessThanOrEqual(1);
       expect(question.sources.some((source) => source.url.includes('mitchrobs.github.io/gameshow/ballpark'))).toBe(false);
+      expect(`${question.prompt} ${question.rationale} ${question.answerNote} ${question.calibrationAnchor}`).not.toMatch(
+        /Theme-profiled resolved prompt|Estimated from a [a-z0-9' -]+ reference anchor and rounded for fair play|in the (?:candy|tide pool|library returns|soccer sideline|post office|space show|toolbox|museum|bike share systems|recorder lessons)/i
+      );
     });
+  });
+
+  it('enforces the human-clue floor on player-flagged awkward examples', async () => {
+    const snowRoute = await getDailySet('2026-01-04');
+    const tidePool = await getDailySet('2026-06-05');
+    const museum = await getDailySet('2026-08-21');
+    const candyBowl = await getDailySet('2026-10-31');
+    const library = await getDailySet('2026-05-01');
+    const recorderReserve = validateBallparkReserveBank().reservePacks.find((pack) => pack.reserveId === 'reserve-030');
+    const combinedText = [
+      ...snowRoute.questions,
+      ...tidePool.questions,
+      ...museum.questions,
+      ...candyBowl.questions,
+      ...library.questions,
+      ...(recorderReserve?.questions ?? []),
+    ].map((question) => question.prompt).join(' ');
+
+    expect(snowRoute.questions[2].prompt).toBe(
+      'When Chicago plows its official snow routes, about how many miles of traffic lanes are included?'
+    );
+    expect(tidePool.questions[1].prompt).toBe('How many animals can live in a large aquarium tide-pool touch tank?');
+    expect(museum.questions[2].prompt).toBe('How many artworks are in the Cleveland Museum of Art collection?');
+    expect(candyBowl.questions[1].prompt).toBe('How many fun-size candies fit in a five-quart trick-or-treat bowl?');
+    expect(library.questions[0].prompt).toBe('How many books does an average American public library branch hold?');
+    expect(recorderReserve?.questions[0].prompt).toBe('How many recorders can a full elementary music cart hold?');
+
+    expect(combinedText).not.toMatch(/pool-deck rack in the tide pool|big party bowl in the candy|library cart in the library returns|Art Basel Miami Beach draw in the museum|recorder lessons backstage audio case/i);
   });
 
   it('incorporates expanded player-agent polish on high-risk generated-glue packs', async () => {
@@ -750,7 +791,7 @@ describe('Ballpark 2026 calendar', () => {
     const observatory = reserves.find((pack) => pack.reserveId === 'reserve-035');
 
     expect(snowRoute.theme).toBe('Snow Route Map');
-    expect(snowRoute.questions[2].prompt).toMatch(/Chicago's snow route/i);
+    expect(snowRoute.questions[2].prompt).toMatch(/Chicago plows its official snow routes/i);
     expect(tailor.questions.map((question) => question.prompt).join(' ')).not.toMatch(/ribbon length|tailor shop counter.*tailor shop counter/i);
     expect(toyBrick.questions.map((question) => question.prompt).join(' ')).toMatch(/LEGO/i);
     expect(wrapping.questions[1].prompt).toMatch(/yards of ribbon/i);

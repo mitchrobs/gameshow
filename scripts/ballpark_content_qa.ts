@@ -248,6 +248,11 @@ function printCombinedSummary(payload: ReturnType<typeof runBallpark400PackAudit
   console.log(`Questions checked: ${payload.questionsChecked}`);
   console.log(`Blockers: ${payload.blockerCount}`);
   console.log(`Warnings: ${payload.warningCount}`);
+  if (payload.qualityMetrics) {
+    console.log(`Answer confidence: ${Object.entries(payload.qualityMetrics.answerConfidenceCounts).map(([key, count]) => `${key}:${count}`).join(", ")}`);
+    console.log(`Soft-estimate packs: ${payload.qualityMetrics.softEstimatePackCount}`);
+    console.log(`Likely first-guess spread: normal:${payload.qualityMetrics.likelyFirstGuessSpread.normal}, wide_bonus:${payload.qualityMetrics.likelyFirstGuessSpread.wideSpreadBonus}`);
+  }
   console.log("");
   console.log("Categories:");
   Object.entries(payload.categoryCounts)
