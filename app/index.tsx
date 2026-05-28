@@ -11,6 +11,7 @@ import {
 } from '../src/constants/theme';
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { BUILD_ID } from '../src/constants/build';
+import { getDailyKilter } from '../src/data/kilter';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
 import { getUtcDateKey } from '../src/utils/dailyUtc';
 
@@ -225,6 +226,7 @@ export default function HomeScreen() {
   const styles = useMemo(() => createStyles(theme, screenAccent), [theme, screenAccent]);
   const [isHydrated, setIsHydrated] = useState(Platform.OS !== 'web');
   const router = useRouter();
+  const kilter = getDailyKilter();
   const sudokuPreviewCellSize = HOME_SUDOKU_PREVIEW.size === 9 ? 16 : 26;
   const sudokuPreviewBaseGap = HOME_SUDOKU_PREVIEW.size === 9 ? 3 : 4;
   const sudokuPreviewBlockGap = HOME_SUDOKU_PREVIEW.size === 9 ? 7 : 4;
@@ -247,6 +249,7 @@ export default function HomeScreen() {
     const baseLinks = [
       { label: 'Moji Mash', route: '/moji-mash', emoji: '🧩', countKey: 'mojimash', category: 'word' },
       { label: 'Wordie', route: '/wordie', emoji: '🔤', countKey: 'wordie', category: 'word' },
+      { label: 'Kilter', route: '/kilter', emoji: 'K', countKey: 'kilter', category: 'word', isNew: true },
       { label: 'Subset', route: '/subset', emoji: '🟦', countKey: 'subset', category: 'word', isNew: true },
       {
         label: 'Threadline',
@@ -353,6 +356,7 @@ export default function HomeScreen() {
       return (
         storage.getItem(`mojimash:daily:${key}`) === '1' ||
         storage.getItem(`wordie:daily:${key}`) === '1' ||
+        storage.getItem(`kilter:daily:${key}`) === '1' ||
         storage.getItem(`subset:daily:${key}`) === '1' ||
         storage.getItem(`threadline:daily:${key}`) === '1' ||
         storage.getItem(`crossword:daily:${key}`) === '1' ||
@@ -394,6 +398,7 @@ export default function HomeScreen() {
     getGlobalPlayCounts([
       'mojimash',
       'wordie',
+      'kilter',
       'subset',
       'threadline',
       'crossword',
@@ -635,6 +640,54 @@ export default function HomeScreen() {
                   pressed && styles.playButtonPressed,
                 ]}
                 onPress={() => router.push('/wordie')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Kilter card */}
+          <View style={[styles.gameSection, !shouldShowGame('word') && styles.gameSectionHidden]}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.kilterKicker}>Word Sprint</Text>
+                <Text style={styles.gameTitle}>Kilter</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              Build as many words as you can in five minutes, using today's green letters every time.
+            </Text>
+            {(playCounts['kilter'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['kilter']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.kilterPreview}>
+                <View style={styles.kilterAnchorPreview}>
+                  {kilter.key.split('').map((letter, index) => (
+                    <Text key={`kilter-anchor-${letter}-${index}`} style={styles.kilterAnchorText}>
+                      {letter}
+                    </Text>
+                  ))}
+                </View>
+                <View style={styles.kilterLooseRow}>
+                  {kilter.letters.map((letter) => (
+                    <View key={`kilter-${letter}`} style={styles.kilterLooseTile}>
+                      <Text style={styles.kilterLooseText}>{letter}</Text>
+                    </View>
+                  ))}
+                </View>
+                <Text style={styles.kilterPreviewMeta}>
+                  {kilter.coreWords.length} core - Sweep 0/{kilter.sweeps.length}
+                </Text>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/kilter')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </Pressable>
@@ -1279,6 +1332,7 @@ const createStyles = (
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
   const subsetAccent = resolveScreenAccent('wordie', theme);
+  const kilterAccent = resolveScreenAccent('kilter', theme);
   const threadlineAccent = resolveScreenAccent('threadline', theme);
   const museumAccent = resolveScreenAccent('museum', theme);
   const ballparkAccent = resolveScreenAccent('trivia', theme);
@@ -1544,6 +1598,14 @@ const createStyles = (
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
   },
+  kilterKicker: {
+    color: kilterAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
   threadlineKicker: {
     color: threadlineAccent.main,
     fontSize: FontSize.sm,
@@ -1633,6 +1695,59 @@ const createStyles = (
     fontSize: FontSize.lg,
     fontWeight: '800',
     color: Colors.text,
+  },
+  kilterPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  kilterAnchorPreview: {
+    minWidth: 96,
+    minHeight: 60,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: kilterAccent.main,
+    backgroundColor: kilterAccent.main,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+  },
+  kilterAnchorText: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: Colors.white,
+  },
+  kilterLooseRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 7,
+  },
+  kilterLooseTile: {
+    width: 34,
+    height: 34,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kilterLooseText: {
+    fontSize: FontSize.md,
+    fontWeight: '900',
+    color: Colors.text,
+  },
+  kilterPreviewMeta: {
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '700',
   },
   subsetPreview: {
     alignItems: 'center',

@@ -88,6 +88,7 @@ export type ScreenAccentId =
   | 'home'
   | 'moji-mash'
   | 'wordie'
+  | 'kilter'
   | 'threadline'
   | 'mini-crossword'
   | 'sudoku'
@@ -365,6 +366,7 @@ const SCREEN_ACCENT_HEX: Record<ScreenAccentId, string> = {
   home: '#ff3b30',
   'moji-mash': '#6d4aff',
   wordie: '#2f6bff',
+  kilter: '#2d6a66',
   threadline: '#f08a24',
   'mini-crossword': '#c95f23',
   sudoku: '#4fb477',
