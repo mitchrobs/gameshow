@@ -40,6 +40,11 @@ PUBLIC_DOMAIN_HINTS = ("cc0", "public domain", "open access")
 SHOWCASE_TIER = "A-showcase"
 SHOWCASE_APPROVAL_TYPE = "editor-agent-v1"
 SHOWCASE_COPY_EDITORS = ("Editor B1", "Editor B2", "Editor B3", "Editor B4")
+NATURAL_LANGUAGE_REVIEWERS = (
+    "First-Time Art Novice",
+    "Returning Daybreak Player",
+    "Museum-Language Editor",
+)
 ART_LIKE_MEDIUM_CATEGORIES = {
     "Painting",
     "Print",
@@ -2745,6 +2750,7 @@ def project_curated_payload(editorial_payload: dict[str, Any]) -> dict[str, Any]
                     "factCheckSources": record["review"]["factCheckSources"],
                     "sourceEvidence": record["review"].get("sourceEvidence", {}),
                     "copyPolishV2": record["review"].get("copyPolishV2", {}),
+                    "naturalLanguageV1": record["review"].get("naturalLanguageV1", {}),
                     "visualQualityNote": record["review"].get("visualQualityNote", ""),
                     "resolvedRisks": record["review"].get("resolvedRisks", []),
                     "safetyFlags": record["review"]["safetyFlags"],
@@ -2834,6 +2840,16 @@ QUALITY_SMELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("making detail prompt stem", re.compile(r"\bWhich making detail helps explain\b", re.IGNORECASE)),
     ("art lens prompt stem", re.compile(r"\bWhich art-history lens clarifies\b", re.IGNORECASE)),
     ("larger world prompt stem", re.compile(r"\bWhat larger world helps\b", re.IGNORECASE)),
+    ("visual evidence abstraction", re.compile(r"\bvisual evidence\b", re.IGNORECASE)),
+    ("identity memory abstraction", re.compile(r"\bidentity and memory\b", re.IGNORECASE)),
+    ("historical pressure abstraction", re.compile(r"\bhistorical pressure\b", re.IGNORECASE)),
+    ("people place purpose abstraction", re.compile(r"\bpeople,\s*place,\s*and\s*purpose\b", re.IGNORECASE)),
+    ("matters because abstraction", re.compile(r"\bmatters because\b", re.IGNORECASE)),
+    ("feel specific abstraction", re.compile(r"\bfeel specific\b", re.IGNORECASE)),
+    ("sitter face generic anchor", re.compile(r"\bthe sitter['’]s face\b", re.IGNORECASE)),
+    ("photographed view generic anchor", re.compile(r"\bthe photographed view\b", re.IGNORECASE)),
+    ("seen within category stem", re.compile(r"\bSeen within\b", re.IGNORECASE)),
+    ("reads as category stem", re.compile(r"\breads as\b", re.IGNORECASE)),
 )
 
 GENERIC_ANSWER_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -2879,6 +2895,7 @@ ARTWORK_COPY_BANNED_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("repeated bridge template", re.compile(r"\bbrings together\b|\bgives .{0,80} a foothold\b|\bsetting changes how\b", re.IGNORECASE)),
     ("cautious-maker template", re.compile(r"\bkeeps its maker attribution cautious\b|\bstill point to a particular world\b", re.IGNORECASE)),
     ("visible-clues template", re.compile(r"\bread through visible clues\b|\bsurface,\s*style,\s*and\b|\bsurface,\s*date,\s*and\b", re.IGNORECASE)),
+    ("approved-template language", re.compile(r"\bclear subject,\s*legible image,\s*and object-specific details\b", re.IGNORECASE)),
 )
 
 
@@ -2988,6 +3005,12 @@ def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
         for question in artwork.get("questions", [])
         for option in question.get("options", [])
     ]
+    context_field_counts: dict[str, Counter[str]] = {
+        "technique": Counter(),
+        "surprisingFact": Counter(),
+        "connection": Counter(),
+    }
+    prompt_stem_counts: Counter[str] = Counter()
     fact_counts = Counter(facts)
     prompt_counts = Counter(prompts)
     reinforcement_counts = Counter(reinforcements)
@@ -3003,11 +3026,13 @@ def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
         errors.append(f"quiz prompt exact repeats exceed cap: {repeated_prompts[:3]}")
     if repeated_reinforcements:
         errors.append(f"quiz reinforcement exact repeats exceed cap: {repeated_reinforcements[:3]}")
-    repeated_options = [option for option, count in option_counts.items() if option and count > 40]
+    repeated_options = [option for option, count in option_counts.items() if option and count > 10]
     if repeated_options:
         errors.append(f"quiz option repeats exceed cap: {repeated_options[:3]}")
     stem_counts: Counter[str] = Counter()
     for artwork in artworks:
+        if normalize_space(artwork.get("geoRegion", "")).casefold() == "global":
+            errors.append(f"{artwork['id']}: player-facing geoRegion cannot be Global")
         fields = [
             *(artwork.get("context") or {}).values(),
             *[
@@ -3023,9 +3048,34 @@ def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
             stem = normalized_copy_stem(field, artwork)
             if stem:
                 stem_counts[stem] += 1
+        for field_name, field_value in (artwork.get("context") or {}).items():
+            if field_name in context_field_counts:
+                stem = normalized_copy_stem(field_value, artwork)
+                if stem:
+                    context_field_counts[field_name][stem] += 1
+        for question in artwork.get("questions", []):
+            stem = normalized_copy_stem(question.get("prompt", ""), artwork)
+            if stem:
+                prompt_stem_counts[stem] += 1
+        natural_language = artwork.get("review", {}).get("naturalLanguageV1") or {}
+        if natural_language.get("status") != "resolved":
+            errors.append(f"{artwork['id']}: missing resolved naturalLanguageV1 review")
+        if not natural_language.get("reviewers"):
+            errors.append(f"{artwork['id']}: naturalLanguageV1 reviewers are required")
     repeated_stems = [stem for stem, count in stem_counts.items() if count > 30 and "{x}" in stem]
     if repeated_stems:
         errors.append(f"normalized copy stems exceed showcase cap: {repeated_stems[:5]}")
+    repeated_prompt_stems = [stem for stem, count in prompt_stem_counts.items() if count > 8]
+    if repeated_prompt_stems:
+        errors.append(f"normalized prompt stems exceed natural-language cap: {repeated_prompt_stems[:5]}")
+    repeated_context_stems = [
+        f"{field}:{stem}"
+        for field, counts in context_field_counts.items()
+        for stem, count in counts.items()
+        if count > 5
+    ]
+    if repeated_context_stems:
+        errors.append(f"T/N/C stems exceed natural-language cap: {repeated_context_stems[:5]}")
     banned_copy_hits: list[str] = []
     quality_smell_hits: list[str] = []
     generic_answer_hits: list[str] = []
@@ -3070,7 +3120,7 @@ def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
     if generic_facts:
         errors.append(f"generic surprising facts remain: {generic_facts[:8]}")
     object_specific = sum(1 for artwork in artworks if is_object_specific_fact(artwork))
-    if object_specific < math.ceil(len(artworks) * 0.95):
+    if object_specific < len(artworks):
         errors.append(f"object-specific surprising facts too low: {object_specific}/{len(artworks)}")
     context_questions = [
         question
@@ -3368,8 +3418,18 @@ def validate_editorial_record(record: dict[str, Any]) -> list[str]:
             errors.append(f"{record_id}: approved record needs review.factCheckedBy")
         if not record.get("review", {}).get("editorNotes"):
             errors.append(f"{record_id}: approved record needs review.editorNotes")
+        notes_text = "\n".join(record.get("review", {}).get("editorNotes", []))
         if any("B ship" in normalize_space(note) for note in record.get("review", {}).get("editorNotes", [])):
             errors.append(f"{record_id}: approved record still carries B-tier editor note")
+        if re.search(r"\bclear subject,\s*legible image,\s*and object-specific details\b", notes_text, re.IGNORECASE):
+            errors.append(f"{record_id}: approved record still carries generic review boilerplate")
+        natural_language = record.get("review", {}).get("naturalLanguageV1") or {}
+        if natural_language.get("status") != "resolved":
+            errors.append(f"{record_id}: approved record needs resolved naturalLanguageV1 review")
+        if not natural_language.get("reviewers"):
+            errors.append(f"{record_id}: approved record needs naturalLanguageV1 reviewers")
+        if not natural_language.get("resolvedAt"):
+            errors.append(f"{record_id}: approved record needs naturalLanguageV1.resolvedAt")
         if record.get("qa", {}).get("blockers"):
             errors.append(f"{record_id}: approved record has QA blockers")
     return errors

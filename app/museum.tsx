@@ -464,7 +464,7 @@ function getMuseumLabel(artwork: MuseumArtwork): string {
 function getResultHeadline(score: number): string {
   if (score === 3) return 'A close study';
   if (score === 2) return 'A strong reading';
-  if (score === 1) return 'A detail remained';
+  if (score === 1) return 'One detail slipped by';
   return 'An unhurried first look';
 }
 
@@ -476,9 +476,9 @@ function getResultAccent(score: number, palette: MuseumPalette): string {
 
 function getResultNote(score: number): string {
   if (score === 3) return 'A close reading of the work, held with confidence.';
-  if (score === 2) return 'A thoughtful visit. One more detail and it would have been exact.';
+  if (score === 2) return 'A strong visit. One detail stayed just out of reach.';
   if (score === 1) return 'Something from the work stayed with you, which is how collections grow in memory.';
-  return 'Time spent looking still counts. The questions simply sharpen the next visit.';
+  return 'A quiet first look still counts.';
 }
 
 function getPeriodLabelMap(): Map<string, string> {
@@ -534,8 +534,8 @@ function getRevealHintText(contextUnlocked: boolean, elapsedSeconds: number): st
 
 function getQuestionKindLabel(question: MuseumQuestion): string {
   if (question.kind === 'observation') return 'From the work';
-  if (question.kind === 'context') return 'Material & context';
-  return 'Art history';
+  if (question.kind === 'context') return 'How it was made';
+  return 'Why it matters';
 }
 
 function splitPeriodTag(periodTag: string): [string, string, string] {
@@ -560,7 +560,6 @@ function getPlacardFacts(artwork: MuseumArtwork): Array<{ label: string; value: 
     { label: 'Date', value: date || artwork.objectDate },
     { label: 'Medium', value: artwork.mediumCategory },
     { label: 'Collection', value: getMuseumLabel(artwork) },
-    { label: 'Access', value: 'Open access (CC0)' },
   ];
 }
 
@@ -1183,7 +1182,7 @@ function MuseumArtworkStage({
               style={({ pressed }) => [styles.fallbackButton, pressed && styles.fallbackButtonPressed]}
               onPress={() => Linking.openURL(artwork.source.objectUrl)}
             >
-              <Text style={styles.fallbackButtonText}>Source record</Text>
+              <Text style={styles.fallbackButtonText}>Museum page</Text>
             </Pressable>
           </View>
         </View>
@@ -1573,7 +1572,7 @@ export default function MuseumScreen() {
                     ]}
                     onPress={() => setPhase('quiz')}
                   >
-                    <Text style={styles.primaryButtonText}>Museum Quiz</Text>
+                    <Text style={styles.primaryButtonText}>Close-looking questions</Text>
                   </Pressable>
                 </View>
               </View>
@@ -1686,7 +1685,7 @@ export default function MuseumScreen() {
                           {showResult && (isCorrect || isSelected)
                             ? isCorrect
                               ? 'OK'
-                              : 'NO'
+                              : 'Not this one'
                             : letter}
                         </Text>
                       </View>
@@ -1717,7 +1716,7 @@ export default function MuseumScreen() {
                   >
                     <Text style={styles.primaryButtonText}>
                       {currentQuestionIndex >= artwork.questions.length - 1
-                        ? 'View summary'
+                        ? 'Finish visit'
                         : 'Continue'}
                     </Text>
                   </Pressable>
@@ -1771,10 +1770,10 @@ export default function MuseumScreen() {
 
               <View style={styles.resultProgressCard}>
                 <Text style={styles.resultProgressLine}>
-                  You have now seen {periodSeen} work{periodSeen === 1 ? '' : 's'} in{' '}
-                  {passportSummary.currentLabel}
+                  Your passport now holds {periodSeen} {passportSummary.currentLabel} visit
+                  {periodSeen === 1 ? '' : 's'}
                   {passportSummary.currentAccuracy !== null
-                    ? ` and answered ${passportSummary.currentAccuracy}% correctly here.`
+                    ? ` · ${passportSummary.currentAccuracy}% remembered.`
                     : '.'}
                 </Text>
               </View>
@@ -1788,27 +1787,27 @@ export default function MuseumScreen() {
                   <View style={styles.passportBadge}>
                     <Text style={styles.passportBadgeText}>
                       {passportSummary.currentAccuracy !== null
-                        ? `${passportSummary.currentAccuracy}% correct here`
+                        ? `${passportSummary.currentAccuracy}% remembered`
                         : 'First work here'}
                     </Text>
                   </View>
                 </View>
                 <Text style={styles.passportIntroCompact}>
                   {passportSummary.currentSeen > 0
-                    ? `${passportSummary.currentLabel}: ${passportSummary.currentSeen} work${passportSummary.currentSeen === 1 ? '' : 's'} seen`
+                    ? `${passportSummary.currentLabel}: ${passportSummary.currentSeen} visit${passportSummary.currentSeen === 1 ? '' : 's'}`
                     : `Today begins your ${passportSummary.currentLabel} collection`}
                   {passportSummary.currentAccuracy !== null
-                    ? ` · ${passportSummary.currentAccuracy}% correct`
+                    ? ` · ${passportSummary.currentAccuracy}% remembered`
                     : ''}
                 </Text>
 
                 <View style={styles.passportQuickRow}>
                   <View style={styles.passportQuickPill}>
-                    <Text style={styles.passportQuickLabel}>Material focus</Text>
+                    <Text style={styles.passportQuickLabel}>Frequent medium</Text>
                     <Text style={styles.passportQuickValue}>{passportSummary.topMediumLabel}</Text>
                   </View>
                   <View style={styles.passportQuickPill}>
-                    <Text style={styles.passportQuickLabel}>Quiz recall</Text>
+                    <Text style={styles.passportQuickLabel}>Remembered</Text>
                     <Text style={styles.passportQuickValue}>
                       {passportSummary.metrics.find((item) => item.key === 'accuracy')?.value ?? '0%'}
                     </Text>
@@ -1862,7 +1861,7 @@ export default function MuseumScreen() {
                   ]}
                   onPress={handleShare}
                 >
-                  <Text style={styles.primaryButtonText}>Share result</Text>
+                  <Text style={styles.primaryButtonText}>Share visit</Text>
                 </Pressable>
                 {shareStatus ? <Text style={styles.shareStatus}>{shareStatus}</Text> : null}
               </View>

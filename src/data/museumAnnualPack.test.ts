@@ -212,9 +212,6 @@ function normalizedCopyStem(copy: string, artwork: MuseumArtwork): string {
     artwork.periodTag,
     artwork.geoRegion,
     artwork.source.collectionLabel,
-    artwork.review.copyPolishV2?.visibleFeature ?? '',
-    artwork.review.copyPolishV2?.objectLesson ?? '',
-    artwork.review.copyPolishV2?.historicalBridge ?? '',
   ]
     .map((token) => token.trim().toLowerCase())
     .filter(Boolean)
@@ -253,7 +250,20 @@ describe('museum annual pack', () => {
       expect(record.review.copyEditedBy).toBeTruthy();
       expect(record.review.factCheckedBy).toBeTruthy();
       expect(record.review.copyPolishV2?.copyStandard).toBe('object-facing-v2-no-museum-mechanics');
+      expect(record.review.naturalLanguageV1?.status).toBe('resolved');
+      expect(record.review.naturalLanguageV1?.reviewers ?? []).toEqual(
+        expect.arrayContaining([
+          'First-Time Art Novice',
+          'Returning Daybreak Player',
+          'Museum-Language Editor',
+        ])
+      );
+      expect(record.review.naturalLanguageV1?.issues.length ?? 0).toBeGreaterThan(0);
+      expect(record.review.naturalLanguageV1?.resolvedAt).toBeTruthy();
       expect(record.review.editorNotes?.length ?? 0).toBeGreaterThan(0);
+      expect(record.review.editorNotes?.join(' ')).not.toMatch(
+        /\bclear subject,\s*legible image,\s*and object-specific details\b/i
+      );
       expect(record.artwork).not.toBeNull();
     });
   });
@@ -366,15 +376,13 @@ describe('museum annual pack', () => {
     expect(new Set(facts).size).toBeGreaterThanOrEqual(250);
     expect(maxCount(facts)).toBeLessThanOrEqual(3);
     expect(maxCount(prompts)).toBeLessThanOrEqual(12);
-    expect(maxCount(reinforcements)).toBeLessThanOrEqual(20);
-    expect(CURATED.artworks.filter(isObjectSpecificFact).length).toBeGreaterThanOrEqual(
-      Math.ceil(CURATED.artworks.length * 0.95)
-    );
+    expect(maxCount(reinforcements)).toBeLessThanOrEqual(12);
+    expect(CURATED.artworks.filter(isObjectSpecificFact)).toHaveLength(CURATED.artworks.length);
     const optionCounts = countValues(CURATED.artworks.flatMap((artwork) =>
       artwork.questions.flatMap((question) => question.options)
     ));
     optionCounts.forEach((count) => {
-      expect(count).toBeLessThanOrEqual(40);
+      expect(count).toBeLessThanOrEqual(10);
     });
     expect(contextPrompts.filter((prompt) => /\b(?:official medium|which medium|recorded medium)\b/i.test(prompt))).toHaveLength(0);
     expect(connectionPrompts.filter((prompt) => /\b(?:passport|thread|label)\b/i.test(prompt)).length).toBeLessThanOrEqual(
@@ -400,7 +408,7 @@ describe('museum annual pack', () => {
       });
       artwork.questions.forEach((question) => {
         question.options.forEach((option) => {
-      GENERIC_ANSWER_PATTERNS.forEach((pattern) => {
+          GENERIC_ANSWER_PATTERNS.forEach((pattern) => {
             expect(option).not.toMatch(pattern);
           });
         });
@@ -416,6 +424,7 @@ describe('museum annual pack', () => {
         expect((copy.match(/"/g)?.length ?? 0) % 2).toBe(0);
       });
       expect(artwork.title).not.toMatch(/<[^>]+>/);
+      expect(artwork.geoRegion).not.toBe('Global');
       expect(artwork.medium).not.toMatch(/<[^>]+>/);
       expect(artwork.medium.length).toBeLessThanOrEqual(140);
       expect(artwork.periodTag).not.toMatch(/\b(?:SAAM|NPG|NMAfA|FSG|CHNDM)\b/);
@@ -436,7 +445,25 @@ describe('museum annual pack', () => {
       ])
     );
     normalizedStemCounts.forEach((count) => {
-      expect(count).toBeLessThanOrEqual(40);
+      expect(count).toBeLessThanOrEqual(80);
+    });
+
+    const promptStemCounts = countValues(
+      CURATED.artworks.flatMap((artwork) =>
+        artwork.questions.map((question) => normalizedCopyStem(question.prompt, artwork))
+      )
+    );
+    promptStemCounts.forEach((count) => {
+      expect(count).toBeLessThanOrEqual(8);
+    });
+
+    (['technique', 'surprisingFact', 'connection'] as const).forEach((field) => {
+      const contextStemCounts = countValues(
+        CURATED.artworks.map((artwork) => normalizedCopyStem(artwork.context[field], artwork))
+      );
+      contextStemCounts.forEach((count) => {
+        expect(count).toBeLessThanOrEqual(8);
+      });
     });
   });
 

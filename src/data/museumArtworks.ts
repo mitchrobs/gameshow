@@ -78,6 +78,12 @@ export interface MuseumArtworkReview {
     historicalBridge?: string;
     copyStandard?: string;
   };
+  naturalLanguageV1?: {
+    status: 'resolved';
+    reviewers: string[];
+    issues: string[];
+    resolvedAt: string;
+  };
   visualQualityNote?: string;
   resolvedRisks?: string[];
   safetyFlags: string[];
@@ -126,6 +132,7 @@ export interface MuseumEditorialRecord {
     factCheckSources: string[];
     sourceEvidence?: MuseumArtworkReview['sourceEvidence'];
     copyPolishV2?: MuseumArtworkReview['copyPolishV2'];
+    naturalLanguageV1?: MuseumArtworkReview['naturalLanguageV1'];
     visualQualityNote?: string;
     resolvedRisks?: string[];
     safetyFlags: string[];
