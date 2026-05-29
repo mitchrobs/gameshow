@@ -13,6 +13,7 @@
     "build:dawn-cabinet-schedule": "tsx scripts/build_dawn_cabinet_schedule.ts",
     "build:kilter-pack": "python3 scripts/build_kilter_pack.py",
     "audit:kilter-pack": "python3 scripts/build_kilter_pack.py --audit-only",
+    "review:kilter-editorial": "python3 scripts/review_kilter_editorial.py",
     "build:liberties-pack": "tsx scripts/build_liberties_pack.ts",
     "audit:liberties-pack": "tsx scripts/audit_liberties_pack.ts",
     "audit:liberties-personas": "tsx scripts/audit_liberties_personas.ts",

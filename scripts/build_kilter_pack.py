@@ -34,6 +34,9 @@ WORD_SOURCE_LIMIT = 80_000
 SEED = 917_365
 SWEEP_BONUS = 15
 MIN_SWEEP_SINGLE_COUNT = 360
+CORE_MIN_FREQUENCY = 3.07
+BONUS_MIN_FREQUENCY = 2.55
+SOURCE_MIN_FREQUENCY = 2.45
 
 KEY_LENGTH_TOTALS = {1: 100, 2: 260, 3: 40}
 CORE_TARGETS = {
@@ -257,6 +260,7 @@ KILTER_DENYLIST = {
     "ABORIGINAL",
     "ANAL",
     "APARTHEID",
+    "BARCELONA",
     "CHANDLER",
     "CIGARETTE",
     "CISCO",
@@ -268,6 +272,8 @@ KILTER_DENYLIST = {
     "KENSINGTON",
     "ELLE",
     "INTERRACIAL",
+    "LAMBERT",
+    "LEIGHTON",
     "LING",
     "LEVIN",
     "MATER",
@@ -282,6 +288,7 @@ KILTER_DENYLIST = {
     "PROSTITUTE",
     "REESE",
     "SCREWING",
+    "SCHNEIDER",
     "SLAIN",
     "SLAUGHTER",
     "STALKING",
@@ -292,7 +299,7 @@ KILTER_DENYLIST = {
     "WELLINGTON",
 }
 
-SWEEP_DENYLIST = {
+SWEEP_ONLY_DENYLIST = {
     "APPLICATION",
     "APPROPRIATE",
     "ARGUMENT",
@@ -351,15 +358,233 @@ SWEEP_DENYLIST = {
     "TRANSACTION",
 }
 
+# These words can remain valid core/bonus answers, but they should not be the
+# starred prestige solve in a five-minute Composed puzzle.
+DRY_SWEEP_DENYLIST = {
+    "ACCOUNTING",
+    "ADVISER",
+    "ANARCHIST",
+    "APPARENTLY",
+    "ARMISTICE",
+    "ARISTOCRACY",
+    "ATTORNEY",
+    "BILATERAL",
+    "CARTILAGE",
+    "CENTRALLY",
+    "CERTIFIED",
+    "CHEATING",
+    "COGNITIVE",
+    "COMMENTATOR",
+    "COMMERCIAL",
+    "COMPENSATE",
+    "CONDEMNING",
+    "CONFEDERATE",
+    "CONCLUSIVE",
+    "CONSTRAINT",
+    "CONSORTIUM",
+    "CONSTITUENCY",
+    "CONSTITUENT",
+    "CONSTITUTE",
+    "CONSULATE",
+    "CONSULTING",
+    "CONTINENTAL",
+    "CONTINGENCY",
+    "CONTRACTUAL",
+    "CONNECTIVITY",
+    "CONTROVERSY",
+    "COUNTERFEIT",
+    "COUNSELOR",
+    "CORRELATED",
+    "DERIVATIVE",
+    "DEMOCRATIC",
+    "DENTISTRY",
+    "DIETARY",
+    "DIRECTOR",
+    "DIRECTORATE",
+    "DISCONTENT",
+    "DISRESPECT",
+    "DOCTRINE",
+    "DISTRIBUTE",
+    "DISTRIBUTED",
+    "EDUCATOR",
+    "EDITORIAL",
+    "ELECTRICIAN",
+    "ESSENTIALLY",
+    "EXISTENTIAL",
+    "EXTERNALLY",
+    "FORENSIC",
+    "FRATERNITY",
+    "GENERALLY",
+    "HEADMASTER",
+    "HEREDITARY",
+    "IMPERATIVE",
+    "IMPERIAL",
+    "INDICATIVE",
+    "INACCURATE",
+    "INCOMPETENT",
+    "INCORPORATE",
+    "INDICATOR",
+    "INSUFFICIENT",
+    "INSPECTOR",
+    "INSURED",
+    "INTERFACE",
+    "INTERNSHIP",
+    "INTERNALLY",
+    "IRRESPECTIVE",
+    "IRRELEVANT",
+    "INVESTOR",
+    "LIBERTARIAN",
+    "MAGISTRATE",
+    "MANAGERIAL",
+    "MARKETING",
+    "MEDIATOR",
+    "MEANINGLESS",
+    "MARGINALLY",
+    "MATERIALLY",
+    "NATIONALISM",
+    "OBSTACLE",
+    "OPERATIVE",
+    "ORNAMENTAL",
+    "PANCREATIC",
+    "PATRONAGE",
+    "PEDIATRIC",
+    "PERSONNEL",
+    "PERSPECTIVE",
+    "POTENTIALLY",
+    "PRACTITIONER",
+    "PREPARATORY",
+    "PREDICTIVE",
+    "PRIVILEGED",
+    "PROSPECTIVE",
+    "PROTRACTED",
+    "RECEPTIONIST",
+    "REPEATEDLY",
+    "REPOSITORY",
+    "RECRUITING",
+    "REGULATED",
+    "REGULATOR",
+    "RELIGION",
+    "RESPECTIVE",
+    "RESIDUAL",
+    "RESIDENCY",
+    "RESPONSIVE",
+    "SECTARIAN",
+    "SECONDLY",
+    "SEMANTIC",
+    "SHAREHOLDER",
+    "SOCIETAL",
+    "SPECIALIST",
+    "SPECTRAL",
+    "SPECTROSCOPY",
+    "SUPERVISOR",
+    "SURROGATE",
+    "SYSTEMATIC",
+    "TEMPORAL",
+    "TERMINAL",
+    "TERRITORIAL",
+    "THERAPIST",
+    "TRADEMARK",
+    "TREASURY",
+    "TESTIMONY",
+    "UNCERTAINTY",
+    "UNILATERAL",
+    "UNPROTECTED",
+    "UNRESTRICTED",
+    "VETERINARY",
+    "VISCERAL",
+    "WAITRESS",
+    "WHATSOEVER",
+    "YOURSELVES",
+}
+
+SENSITIVE_SWEEP_DENYLIST = {
+    "ADVERSELY",
+    "BACTERIA",
+    "BACTERIAL",
+    "BATTLEFIELD",
+    "BETRAYAL",
+    "CONSENSUAL",
+    "CONGENITAL",
+    "CONTAGIOUS",
+    "CRETACEOUS",
+    "CRUSHING",
+    "DEMONSTRATE",
+    "DEPRESSING",
+    "DISASTER",
+    "DIVORCE",
+    "DESTRUCTIVE",
+    "DETRIMENTAL",
+    "DEVASTATING",
+    "ESPIONAGE",
+    "FRIGHTENING",
+    "HEARTLESS",
+    "HYSTERIA",
+    "INDIGENOUS",
+    "MIGRAINE",
+    "MISCONDUCT",
+    "MORTGAGE",
+    "OUTPATIENT",
+    "PANDEMIC",
+    "PARASITE",
+    "POINTLESS",
+    "PREDATOR",
+    "PREDATORY",
+    "PREGNANT",
+    "POSTERIOR",
+    "RESPIRATORY",
+    "NIGHTMARE",
+    "OVERWATCH",
+    "SACRIFICING",
+    "SOLDIER",
+    "STEROID",
+    "SUFFERING",
+    "STRICKEN",
+    "STRUGGLING",
+    "TERMINATOR",
+    "TERRIFYING",
+    "THERAPY",
+    "THREATENING",
+    "TRAGEDY",
+    "UNPLEASANT",
+    "UNANSWERED",
+    "UNFORTUNATE",
+    "UNMARRIED",
+    "UNSTABLE",
+    "UNSETTLING",
+    "UPSETTING",
+    "VIGILANTE",
+    "WASTEFUL",
+}
+
+GEOGRAPHIC_SWEEP_DENYLIST = {
+    "NORTHEAST",
+    "NORTHEASTERN",
+    "NORTHWEST",
+    "NORTHWESTERN",
+    "SOUTHEASTERN",
+    "SOUTHWESTERN",
+}
+
+SWEEP_DENYLIST = (
+    SWEEP_ONLY_DENYLIST
+    | DRY_SWEEP_DENYLIST
+    | SENSITIVE_SWEEP_DENYLIST
+    | GEOGRAPHIC_SWEEP_DENYLIST
+)
+
 SWEEP_SUFFIX_DENYLIST = (
     "ANCE",
     "ENCE",
+    "ENCY",
     "ICAL",
+    "ISM",
     "ISTIC",
+    "ITY",
     "IZATION",
     "ISATION",
     "ITION",
     "MENT",
+    "NESS",
     "SION",
     "TIONAL",
     "TION",
@@ -539,7 +764,7 @@ def load_word_entries() -> tuple[list[WordEntry], list[WordEntry], dict[str, flo
         if dictionary_words and normalized not in dictionary_words:
             continue
         frequency = rank_frequency(rank)
-        if frequency < 2.45:
+        if frequency < SOURCE_MIN_FREQUENCY:
             continue
         raw.setdefault(normalized, frequency)
 
@@ -557,9 +782,9 @@ def load_word_entries() -> tuple[list[WordEntry], list[WordEntry], dict[str, flo
         plain_plural = is_simple_plural(word, plural_base_words)
         low_value = is_low_value_inflection(word, word_set)
         is_function = word in FUNCTION_WORDS
-        if frequency >= 3.15 and not plain_plural and not low_value and not is_function:
+        if frequency >= CORE_MIN_FREQUENCY and not plain_plural and not low_value and not is_function:
             core.append(entry)
-        elif frequency >= 2.55 and not plain_plural:
+        elif frequency >= BONUS_MIN_FREQUENCY and not plain_plural:
             bonus.append(entry)
 
     return core, bonus, raw
@@ -648,7 +873,7 @@ def build_candidates_for_key_length(
     candidates: list[Candidate] = []
 
     for sweep_entry in core:
-        if sweep_entry.frequency < 3.15:
+        if sweep_entry.frequency < CORE_MIN_FREQUENCY:
             continue
         if len(set(sweep_entry.word)) != key_length + 6:
             continue

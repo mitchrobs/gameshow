@@ -28,6 +28,31 @@ const KILTER_ROUTE_SOURCE = readFileSync(
   new URL('../../../app/kilter.tsx', import.meta.url),
   'utf8'
 );
+const KILTER_REVIEW_QUEUE_SOURCE = readFileSync(
+  new URL('../../../docs/composed-editorial-review-queue.md', import.meta.url),
+  'utf8'
+);
+const HARD_SWEEP_DENY_FIXTURES = [
+  'CONSTITUENCY',
+  'CONNECTIVITY',
+  'NORTHEASTERN',
+  'SOUTHWESTERN',
+  'DISASTER',
+  'PREDATOR',
+  'PARASITE',
+  'THERAPIST',
+  'INTERNSHIP',
+  'PEDIATRIC',
+  'NATIONALISM',
+  'RESIDENCY',
+  'LEIGHTON',
+  'TRADEMARK',
+  'SHAREHOLDER',
+  'OUTPATIENT',
+  'IRRESPECTIVE',
+  'RESPIRATORY',
+  'CONGENITAL',
+] as const;
 
 function dateKeyForIndex(index: number): string {
   const date = new Date(Date.UTC(2026, 5, 1 + index));
@@ -90,16 +115,28 @@ describe('Kilter pack', () => {
   it('uses the required key mix and validates every puzzle shape', () => {
     const keyCounts: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
     const signatures = new Set<string>();
+    const primarySweeps = new Set<string>();
 
     KILTER_PACK.entries.forEach((entry) => {
       keyCounts[entry.key.length] += 1;
       expect(signatures.has(entry.signature)).toBe(false);
       signatures.add(entry.signature);
+      expect(primarySweeps.has(entry.sweeps[0]!)).toBe(false);
+      primarySweeps.add(entry.sweeps[0]!);
       assertValidEntry(entry);
     });
 
     expect(keyCounts).toEqual({ 1: 100, 2: 260, 3: 40 });
     expect(KILTER_PACK.entries.filter((entry) => entry.sweeps.length === 1).length).toBeGreaterThanOrEqual(360);
+  });
+
+  it('has no unresolved hard Sweep blockers in the generated editorial queue', () => {
+    const sweepWords = new Set(KILTER_PACK.entries.flatMap((entry) => entry.sweeps));
+
+    expect(KILTER_REVIEW_QUEUE_SOURCE).toContain('- Hard Sweep blockers: 0');
+    HARD_SWEEP_DENY_FIXTURES.forEach((word) => {
+      expect(sweepWords.has(word)).toBe(false);
+    });
   });
 
   it('looks up daily puzzles by local date and falls back to launch day before the pack starts', () => {
