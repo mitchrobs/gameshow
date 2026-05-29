@@ -280,8 +280,11 @@ describe('Kilter route presentation contracts', () => {
     expect(KILTER_ROUTE_SOURCE).not.toContain('wordStageRule');
     expect(KILTER_ROUTE_SOURCE).not.toContain('keyCluster');
     expect(KILTER_ROUTE_SOURCE).not.toContain('Use the Key');
+    expect(KILTER_ROUTE_SOURCE).toContain('Make words fast');
     expect(KILTER_ROUTE_SOURCE).toContain('Every word needs the green letter or green letters.');
-    expect(KILTER_ROUTE_SOURCE).toContain('A Sweep uses all six outside letters.');
+    expect(KILTER_ROUTE_SOURCE).toContain('If there are 2 or 3 green letters, use them together in that order.');
+    expect(KILTER_ROUTE_SOURCE).toContain('A Sweep uses all six outside letters. It adds a star and helps you reach Mastered.');
+    expect(KILTER_ROUTE_SOURCE).toContain('Bonus words are accepted for +1.');
   });
 
   it('keeps input tap-first and starts clock urgency at one minute', () => {

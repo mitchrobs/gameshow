@@ -70,6 +70,39 @@ interface SweepBurst {
 
 type FeedbackTone = 'neutral' | 'invalid' | 'valid' | 'bonus' | 'sweep';
 
+const INTRO_RULES = [
+  {
+    label: '1',
+    title: 'Make words fast',
+    body: 'You have 5 minutes. Tap letters to spell a word, then press Enter.',
+  },
+  {
+    label: '2',
+    title: 'Use the green center',
+    body: 'Every word needs the green letter or green letters.',
+  },
+  {
+    label: '3',
+    title: 'Keep greens together',
+    body: 'If there are 2 or 3 green letters, use them together in that order.',
+  },
+  {
+    label: '4',
+    title: 'Reuse letters',
+    body: 'Use only the letters on the board. You can use any letter more than once.',
+  },
+  {
+    label: '5',
+    title: 'Find the Sweep',
+    body: 'A Sweep uses all six outside letters. It adds a star and helps you reach Mastered.',
+  },
+  {
+    label: '6',
+    title: 'Score and form',
+    body: 'Core words raise your score. Bonus words are accepted for +1.',
+  },
+] as const;
+
 interface LetterPosition {
   left: number;
   top: number;
@@ -713,23 +746,30 @@ export default function KilterScreen() {
                   </View>
                 </View>
                 <Text style={styles.introTitle}>Composed</Text>
-                <View style={styles.instructionsCard}>
+                <View style={styles.instructionsBlock}>
                   <Text style={styles.instructionsTitle}>How to play</Text>
-                  <Text style={styles.instructionsText}>
-                    Make as many words as you can in 5 minutes.
+                  <Text style={styles.instructionsDeck}>
+                    Build as many real words as you can before the clock runs out.
                   </Text>
-                  <Text style={styles.instructionsText}>
-                    Every word needs the green letter or green letters.
-                  </Text>
-                  <Text style={styles.instructionsText}>
-                    If there are 2 or 3 green letters, keep them together.
-                  </Text>
-                  <Text style={styles.instructionsText}>
-                    Use only these letters. You can reuse letters.
-                  </Text>
-                  <Text style={styles.instructionsText}>
-                    A Sweep uses all six outside letters.
-                  </Text>
+                  <View style={styles.instructionsList}>
+                    {INTRO_RULES.map((rule, index) => (
+                      <View
+                        key={rule.label}
+                        style={[
+                          styles.instructionRow,
+                          index > 0 && styles.instructionRowDivider,
+                        ]}
+                      >
+                        <View style={styles.instructionBadge}>
+                          <Text style={styles.instructionBadgeText}>{rule.label}</Text>
+                        </View>
+                        <View style={styles.instructionCopy}>
+                          <Text style={styles.instructionHeading}>{rule.title}</Text>
+                          <Text style={styles.instructionsText}>{rule.body}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
                 </View>
                 <Pressable
                   testID="kilter-start"
@@ -1162,25 +1202,64 @@ const createStyles = (
 	      fontSize: 42,
 	      fontWeight: '900',
 	    },
-	    instructionsCard: {
-	      borderRadius: 18,
-	      borderWidth: 1,
-	      borderColor: Colors.line,
-	      backgroundColor: material,
-	      padding: Spacing.lg,
-	      gap: 8,
+	    instructionsBlock: {
+	      gap: 10,
 	    },
 	    instructionsTitle: {
 	      color: Colors.text,
 	      fontSize: FontSize.lg,
 	      fontWeight: '900',
-	      marginBottom: 2,
 	    },
+    instructionsDeck: {
+      color: Colors.textSecondary,
+      fontSize: FontSize.md,
+      fontWeight: '700',
+      lineHeight: 21,
+    },
+    instructionsList: {
+      marginTop: 2,
+      borderTopWidth: 1,
+      borderTopColor: Colors.line,
+    },
+    instructionRow: {
+      flexDirection: 'row',
+      gap: 12,
+      paddingVertical: 12,
+    },
+    instructionRowDivider: {
+      borderTopWidth: 1,
+      borderTopColor: Colors.line,
+    },
+    instructionBadge: {
+      width: 28,
+      height: 28,
+      borderRadius: BorderRadius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: screenAccent.badgeBg,
+      borderWidth: 1,
+      borderColor: screenAccent.badgeBorder,
+    },
+    instructionBadgeText: {
+      color: screenAccent.main,
+      fontSize: 12,
+      fontWeight: '900',
+      fontVariant: ['tabular-nums'],
+    },
+    instructionCopy: {
+      flex: 1,
+      gap: 3,
+    },
+    instructionHeading: {
+      color: Colors.text,
+      fontSize: FontSize.sm,
+      fontWeight: '900',
+    },
 	    instructionsText: {
 	      color: Colors.textSecondary,
-	      fontSize: FontSize.md,
+	      fontSize: FontSize.sm,
 	      fontWeight: '700',
-	      lineHeight: 21,
+	      lineHeight: 19,
 	    },
 	    headerRow: {
 	      flexDirection: 'row',
