@@ -497,6 +497,7 @@ export default function DawnCabinetScreen() {
   const [firstCorrectCells, setFirstCorrectCells] = useState<string[]>([]);
   const hasCountedRef = useRef(false);
   const practiceAutoFocusPuzzleRef = useRef<string | null>(null);
+  const playScrollRef = useRef<ScrollView | null>(null);
 
   const placements = useMemo(() => {
     return createPlacements(puzzle, bankByID, placedEntryIdsByCell);
@@ -625,6 +626,16 @@ export default function DawnCabinetScreen() {
     setFirstCorrectCells([]);
     hasCountedRef.current = false;
   }, [bankByID, bankEntries, puzzle]);
+
+  useEffect(() => {
+    if (!hasStartedPuzzle) return undefined;
+
+    const frame = requestAnimationFrame(() => {
+      playScrollRef.current?.scrollTo({ y: 0, animated: false });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [hasStartedPuzzle, puzzle.id]);
 
   useEffect(() => {
     if (!isPractice || puzzle.difficulty !== 'Easy' || !puzzle.dawnTile || gameState !== 'playing') return;
@@ -888,7 +899,11 @@ export default function DawnCabinetScreen() {
             headerBackTitle: 'Today',
           }}
         />
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          key="dawn-cabinet-start-scroll"
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+        >
           <View style={styles.page}>
             <StartScreen
               puzzle={puzzle}
@@ -923,6 +938,8 @@ export default function DawnCabinetScreen() {
         }}
       />
       <ScrollView
+        key={`dawn-cabinet-play-scroll-${puzzle.id}`}
+        ref={playScrollRef}
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
