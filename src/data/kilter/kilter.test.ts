@@ -197,13 +197,9 @@ describe('Kilter rules and scoring', () => {
     });
     expect(sweepShare).toBe(
       [
-        'Composed',
-        'June 1st 2026',
-        '',
+        'Composed June 1st 2026',
         'Found Words: 2 ⭐️',
-        'Score: 28',
-        'Form: Poised (3/4)',
-        '',
+        'Score: 28 - Poised (3/4)',
         'https://example.test/kilter',
       ].join('\n')
     );
@@ -214,10 +210,9 @@ describe('Kilter rules and scoring', () => {
       foundSweeps: 0,
       url: 'https://example.test/kilter',
     });
-    expect(bonusOnlyShare).toContain('Composed\nJune 1st 2026');
+    expect(bonusOnlyShare).toContain('Composed June 1st 2026');
     expect(bonusOnlyShare).toContain('Found Words: 1');
-    expect(bonusOnlyShare).toContain('Score: 99');
-    expect(bonusOnlyShare).toContain('Form: Drafting (1/4)');
+    expect(bonusOnlyShare).toContain('Score: 99 - Drafting (1/4)');
     expect(bonusOnlyShare).not.toContain('⭐️');
   });
 

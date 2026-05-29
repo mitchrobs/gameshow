@@ -299,13 +299,9 @@ export function formatKilterShareText({
   const rank = getKilterRank(coreScore, puzzle.availableCoreScore, foundSweeps > 0);
   const sweepBadge = foundSweeps > 0 ? ' ⭐️' : '';
   return [
-    'Composed',
-    formatKilterShareDate(puzzle.date),
-    '',
+    `Composed ${formatKilterShareDate(puzzle.date)}`,
     `Found Words: ${foundWords.length}${sweepBadge}`,
-    `Score: ${score}`,
-    `Form: ${rank.name} (${rank.tier}/${KILTER_RANK_COUNT})`,
-    '',
+    `Score: ${score} - ${rank.name} (${rank.tier}/${KILTER_RANK_COUNT})`,
     url,
   ].join('\n');
 }
