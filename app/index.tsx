@@ -12,8 +12,11 @@ import {
 import { createDaybreakPrimitives } from '../src/ui/daybreakPrimitives';
 import { BUILD_ID } from '../src/constants/build';
 import { getDailyKilter } from '../src/data/kilter';
+import { getDailyPostmarkPackEntry } from '../src/data/postmarkPuzzles';
+import { getPostmarkStampForStart } from '../src/data/postmarkStamps';
 import { getDailyMuseumArtwork } from '../src/data/museumArtworks';
 import { getGlobalPlayCounts } from '../src/globalPlayCount';
+import { PostmarkStampSvg } from '../src/ui/PostmarkStamp';
 import { getUtcDateKey } from '../src/utils/dailyUtc';
 
 const WEB_NO_SELECT =
@@ -28,6 +31,8 @@ const WEB_NO_SELECT =
     : {};
 
 const SUBSET_HOME_PILLAR_WORD = 'JAM';
+const POSTMARK_BLUE = '#1547D6';
+const HOME_POSTMARK_ROUTE_COLORS = ['#cf6682', '#9274d7', '#52b99e', '#e4b63f', '#c87564', '#579fdb'];
 const HOME_MOJI_PREVIEW_IMAGE = require('../assets/genmoji/spicy-curry.png');
 const HOME_WORDIE_PREVIEW = { length: 5, guessesAllowed: 6, firstLetter: 'P' };
 const HOME_THREADLINE_PREVIEW = {
@@ -220,6 +225,26 @@ export default function HomeScreen() {
   const [isHydrated, setIsHydrated] = useState(Platform.OS !== 'web');
   const router = useRouter();
   const kilter = getDailyKilter();
+  const postmarkEntry = getDailyPostmarkPackEntry();
+  const postmark = postmarkEntry.puzzle;
+  const postmarkPreviewCells = useMemo(() => {
+    const postMap = new Map(
+      postmark.posts.map((post) => [`${post.row}:${post.col}`, post.capacity])
+    );
+    return Array.from({ length: postmark.size }, (_, row) =>
+      Array.from({ length: postmark.size }, (_, col) => {
+        const key = `${row}:${col}`;
+        return {
+          postCapacity: postMap.get(key),
+        };
+      })
+    );
+  }, [postmark]);
+  const postmarkPreviewCellSize = postmark.size === 7 ? 21 : 25;
+  const postmarkPreviewGap = 3;
+  const postmarkPreviewGridSize =
+    postmark.size * postmarkPreviewCellSize + (postmark.size - 1) * postmarkPreviewGap;
+  const postmarkPreviewGutter = 34;
   const sudokuPreviewCellSize = HOME_SUDOKU_PREVIEW.size === 9 ? 16 : 26;
   const sudokuPreviewBaseGap = HOME_SUDOKU_PREVIEW.size === 9 ? 3 : 4;
   const sudokuPreviewBlockGap = HOME_SUDOKU_PREVIEW.size === 9 ? 7 : 4;
@@ -278,6 +303,7 @@ export default function HomeScreen() {
         category: 'logic',
         isNew: true,
       },
+      { label: 'Postmark', route: '/postmark', emoji: '📮', countKey: 'postmark', category: 'logic', isNew: true },
       { label: 'Bridges', route: '/bridges', emoji: '🏝️', countKey: 'bridges', category: 'logic' },
       { label: 'Museum', route: '/museum', emoji: '🖼️', countKey: 'museum', category: 'trivia', isNew: true },
       { label: 'Whodunit', route: '/whodunit', emoji: '🔍', countKey: 'whodunit', category: 'logic' },
@@ -369,6 +395,8 @@ export default function HomeScreen() {
         storage.getItem(`dawn-cabinet-v10:daily:${utcKey}:Standard`) === '1' ||
         storage.getItem(`dawn-cabinet-v10:daily:${utcKey}:Hard`) === '1' ||
         storage.getItem(`dawn-cabinet-v10:daily:${utcKey}:Expert`) === '1' ||
+        storage.getItem(`postmark:daily:${key}`) === '1' ||
+        storage.getItem(`postmark:daily:${utcKey}`) === '1' ||
         storage.getItem(`sudoku:daily:${key}`) === '1' ||
         storage.getItem(`sudoku:daily:${utcKey}`) === '1' ||
         storage.getItem(`bridges:daily:${key}`) === '1' ||
@@ -399,6 +427,7 @@ export default function HomeScreen() {
       'sudoku',
       'dawn-cabinet',
       'liberties',
+      'postmark',
       'bridges',
       'museum',
       'whodunit',
@@ -1033,6 +1062,126 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Postmark card */}
+          <View style={[styles.gameSection, !shouldShowGame('logic') && styles.gameSectionHidden]}>
+            <View style={styles.gameLabelRow}>
+              <View style={styles.gameLabel}>
+                <Text style={styles.postmarkKicker}>Path Logic</Text>
+                <Text style={styles.gameTitle}>Postmark</Text>
+              </View>
+            </View>
+            <Text style={styles.blurb}>
+              Draw exact-length routes from edge stamps to blue destination marks.
+            </Text>
+            {(playCounts['postmark'] ?? 0) > 0 && (
+              <View style={styles.streakPill}>
+                <Text style={styles.streakText}>{playCounts['postmark']} plays today</Text>
+              </View>
+            )}
+            <View style={styles.dailyCard}>
+              <View style={styles.postmarkPreview}>
+                <Text style={styles.postmarkPreviewMeta}>
+                  #{postmarkEntry.dayNumber} · {postmark.difficulty} · {postmark.starts.length} routes
+                </Text>
+                <View
+                  style={[
+                    styles.postmarkPreviewBoard,
+                    {
+                      width: postmarkPreviewGridSize + postmarkPreviewGutter * 2,
+                      height: postmarkPreviewGridSize + postmarkPreviewGutter * 2,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.postmarkPreviewGrid,
+                      {
+                        left: postmarkPreviewGutter,
+                        top: postmarkPreviewGutter,
+                      },
+                    ]}
+                  >
+                    {postmarkPreviewCells.map((row, rowIndex) => (
+                      <View key={`postmark-row-${rowIndex}`} style={styles.postmarkPreviewRow}>
+                        {row.map((cell, colIndex) => (
+                          <View
+                            key={`postmark-${rowIndex}-${colIndex}`}
+                            style={[
+                              styles.postmarkPreviewCell,
+                              postmark.size === 7 && styles.postmarkPreviewCellCompact,
+                              cell.postCapacity !== undefined && styles.postmarkPreviewCellPost,
+                              cell.postCapacity === 2 && styles.postmarkPreviewCellPostDouble,
+                            ]}
+                          />
+                        ))}
+                      </View>
+                    ))}
+                  </View>
+                  {postmark.starts.map((start, index) => {
+                    const center =
+                      postmarkPreviewGutter +
+                      start.index * (postmarkPreviewCellSize + postmarkPreviewGap) +
+                      postmarkPreviewCellSize / 2;
+                    const portSize = postmarkPreviewCellSize + 8;
+                    const position =
+                      start.side === 'left'
+                        ? { left: postmarkPreviewGutter - portSize + 1, top: center - portSize / 2 }
+                        : start.side === 'right'
+                          ? {
+                              left: postmarkPreviewGutter + postmarkPreviewGridSize - 1,
+                              top: center - portSize / 2,
+                            }
+                          : start.side === 'top'
+                            ? {
+                                left: center - portSize / 2,
+                                top: postmarkPreviewGutter - portSize + 1,
+                              }
+                            : {
+                                left: center - portSize / 2,
+                                top: postmarkPreviewGutter + postmarkPreviewGridSize - 1,
+                              };
+                    const spec = getPostmarkStampForStart({
+                      date: postmarkEntry.date,
+                      dayNumber: postmarkEntry.dayNumber,
+                      startId: start.id,
+                      startIndex: index,
+                    });
+                    return (
+                      <View
+                        key={`postmark-port-${start.id}`}
+                        style={[
+                          styles.postmarkPreviewStartTile,
+                          {
+                            width: portSize,
+                            height: portSize,
+                          },
+                          position,
+                        ]}
+                      >
+                        <PostmarkStampSvg
+                          spec={spec}
+                          number={start.length}
+                          fill={HOME_POSTMARK_ROUTE_COLORS[index % HOME_POSTMARK_ROUTE_COLORS.length]}
+                          size={portSize}
+                          shadow={false}
+                        />
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.playButton,
+                  pressed && styles.playButtonPressed,
+                ]}
+                onPress={() => router.push('/postmark')}
+              >
+                <Text style={styles.playButtonText}>Play</Text>
+              </Pressable>
+            </View>
+          </View>
+
           {/* Bridges card */}
           <View style={[styles.gameSection, !shouldShowGame('logic') && styles.gameSectionHidden]}>
             <View style={styles.gameLabel}>
@@ -1323,6 +1472,7 @@ const createStyles = (
   const ui = createDaybreakPrimitives(theme, screenAccent);
   const bridgesAccent = resolveScreenAccent('bridges', theme);
   const libertiesAccent = resolveScreenAccent('liberties', theme);
+  const postmarkAccent = resolveScreenAccent('postmark', theme);
   const barterAccent = resolveScreenAccent('barter', theme);
   const crosswordAccent = resolveScreenAccent('mini-crossword', theme);
   const subsetAccent = resolveScreenAccent('wordie', theme);
@@ -1562,6 +1712,14 @@ const createStyles = (
   },
   libertiesKicker: {
     color: libertiesAccent.main,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
+  postmarkKicker: {
+    color: postmarkAccent.main,
     fontSize: FontSize.sm,
     fontWeight: '700',
     letterSpacing: 1.2,
@@ -1972,6 +2130,63 @@ const createStyles = (
     height: 18,
     borderRadius: 5,
     backgroundColor: theme.mode === 'dark' ? '#35404a' : '#c9d2d7',
+  },
+  postmarkPreview: {
+    alignItems: 'center',
+    marginVertical: Spacing.md,
+    backgroundColor: theme.mode === 'dark' ? Colors.surfaceLight : '#fffaf1',
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: theme.mode === 'dark' ? Colors.border : 'rgba(64, 49, 38, 0.14)',
+  },
+  postmarkPreviewMeta: {
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: '800',
+  },
+  postmarkPreviewBoard: {
+    position: 'relative',
+  },
+  postmarkPreviewGrid: {
+    position: 'absolute',
+    gap: 3,
+  },
+  postmarkPreviewRow: {
+    flexDirection: 'row',
+    gap: 3,
+  },
+  postmarkPreviewCell: {
+    width: 25,
+    height: 25,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: theme.mode === 'dark' ? Colors.border : 'rgba(64, 49, 38, 0.16)',
+    backgroundColor: theme.mode === 'dark' ? Colors.surface : '#fffdf8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  postmarkPreviewCellCompact: {
+    width: 21,
+    height: 21,
+    borderRadius: 4,
+  },
+  postmarkPreviewCellPost: {
+    borderColor: POSTMARK_BLUE,
+    backgroundColor: theme.mode === 'dark' ? 'rgba(21, 71, 214, 0.26)' : 'rgba(21, 71, 214, 0.1)',
+  },
+  postmarkPreviewCellPostDouble: {
+    borderWidth: 2,
+    borderColor: POSTMARK_BLUE,
+    backgroundColor: theme.mode === 'dark' ? 'rgba(21, 71, 214, 0.34)' : 'rgba(21, 71, 214, 0.16)',
+  },
+  postmarkPreviewStartTile: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
   },
   bridgesPreview: {
     alignItems: 'center',

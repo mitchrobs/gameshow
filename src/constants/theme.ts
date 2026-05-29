@@ -92,6 +92,7 @@ export type ScreenAccentId =
   | 'threadline'
   | 'mini-crossword'
   | 'sudoku'
+  | 'postmark'
   | 'trivia'
   | 'bridges'
   | 'liberties'
@@ -370,6 +371,7 @@ const SCREEN_ACCENT_HEX: Record<ScreenAccentId, string> = {
   threadline: '#f08a24',
   'mini-crossword': '#c95f23',
   sudoku: '#4fb477',
+  postmark: '#1547D6',
   trivia: '#00a48a',
   bridges: '#e8a838',
   liberties: '#2f8f83',
