@@ -2,8 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
-  type LayoutChangeEvent,
-  PanResponder,
   Platform,
   Pressable,
   ScrollView,
@@ -71,15 +69,6 @@ interface SweepBurst {
 }
 
 type FeedbackTone = 'neutral' | 'invalid' | 'valid' | 'bonus' | 'sweep';
-
-interface LetterHitBox {
-  id: string;
-  letter: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 
 interface LetterPosition {
   left: number;
@@ -208,16 +197,13 @@ export default function KilterScreen() {
   const [feedbackTone, setFeedbackTone] = useState<FeedbackTone>('neutral');
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [sweepBurst, setSweepBurst] = useState<SweepBurst | null>(null);
-  const [swipeTileId, setSwipeTileId] = useState<string | null>(null);
   const [isLoaded, setLoaded] = useState(Platform.OS !== 'web');
   const hasCountedRef = useRef(false);
   const sweepScale = useRef(new Animated.Value(0.92)).current;
   const sweepOpacity = useRef(new Animated.Value(0)).current;
   const wordScale = useRef(new Animated.Value(1)).current;
-	  const wordShift = useRef(new Animated.Value(0)).current;
-	  const tileLayoutsRef = useRef<Record<string, LetterHitBox>>({});
-	  const swipeLastTileRef = useRef<string | null>(null);
-	  const swipeStartPointRef = useRef<{ x: number; y: number } | null>(null);
+  const wordShift = useRef(new Animated.Value(0)).current;
+  const timerPulse = useRef(new Animated.Value(1)).current;
   const shareUrl = useMemo(() => getShareUrl(), []);
   const dateLabel = useMemo(() => formatDateLabel(puzzle.date), [puzzle.date]);
   const allowedLetters = useMemo(() => getKilterAllowedLetters(puzzle), [puzzle]);
@@ -249,6 +235,7 @@ export default function KilterScreen() {
     () => puzzle.sweeps.filter((word) => !foundWords.includes(word)),
     [foundWords, puzzle.sweeps]
   );
+  const isClockUrgent = phase === 'playing' && remainingSeconds <= 60;
   const shareText = useMemo(
     () =>
       formatKilterShareText({
@@ -505,6 +492,34 @@ export default function KilterScreen() {
     return () => animation.stop();
   }, [sweepBurst, sweepOpacity, sweepScale]);
 
+  useEffect(() => {
+    if (!isClockUrgent || prefersReducedMotion()) {
+      timerPulse.stopAnimation();
+      timerPulse.setValue(1);
+      return;
+    }
+
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(timerPulse, {
+          toValue: 1.08,
+          duration: 420,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(timerPulse, {
+          toValue: 1,
+          duration: 520,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    animation.start();
+    return () => animation.stop();
+  }, [isClockUrgent, timerPulse]);
+
   const startGame = useCallback(() => {
     const now = Date.now();
     setStartedAtMs(now);
@@ -626,70 +641,6 @@ export default function KilterScreen() {
     }
   }, [shareText]);
 
-  const registerTileLayout = useCallback(
-    (id: string, letter: string, event: LayoutChangeEvent) => {
-      const { x, y, width, height } = event.nativeEvent.layout;
-      tileLayoutsRef.current[id] = { id, letter, x, y, width, height };
-    },
-    []
-  );
-
-  const appendTileAtPoint = useCallback(
-    (x: number, y: number) => {
-      if (phase !== 'playing') return;
-      const hit = Object.values(tileLayoutsRef.current).find(
-        (box) =>
-          x >= box.x &&
-          x <= box.x + box.width &&
-          y >= box.y &&
-          y <= box.y + box.height
-      );
-      if (!hit || hit.id === swipeLastTileRef.current) return;
-
-      swipeLastTileRef.current = hit.id;
-      setSwipeTileId(hit.id);
-      appendLetter(hit.letter);
-    },
-    [appendLetter, phase]
-  );
-
-  const letterPanResponder = useMemo(
-	    () =>
-	      PanResponder.create({
-	        onStartShouldSetPanResponderCapture: (event) => {
-	          swipeStartPointRef.current = {
-	            x: event.nativeEvent.locationX,
-	            y: event.nativeEvent.locationY,
-	          };
-	          return false;
-	        },
-	        onStartShouldSetPanResponder: () => false,
-	        onMoveShouldSetPanResponder: (_, gestureState) =>
-	          phase === 'playing' && Math.hypot(gestureState.dx, gestureState.dy) > 7,
-	        onPanResponderGrant: (event) => {
-	          swipeLastTileRef.current = null;
-	          if (swipeStartPointRef.current) {
-	            appendTileAtPoint(swipeStartPointRef.current.x, swipeStartPointRef.current.y);
-	          }
-	          appendTileAtPoint(event.nativeEvent.locationX, event.nativeEvent.locationY);
-	        },
-        onPanResponderMove: (event) => {
-          appendTileAtPoint(event.nativeEvent.locationX, event.nativeEvent.locationY);
-        },
-	        onPanResponderRelease: () => {
-	          swipeLastTileRef.current = null;
-	          swipeStartPointRef.current = null;
-	          setSwipeTileId(null);
-	        },
-	        onPanResponderTerminate: () => {
-	          swipeLastTileRef.current = null;
-	          swipeStartPointRef.current = null;
-	          setSwipeTileId(null);
-	        },
-      }),
-    [appendTileAtPoint, phase]
-  );
-
   const renderLooseLetterButton = (
     letter: string,
     id: string,
@@ -701,11 +652,9 @@ export default function KilterScreen() {
       accessibilityRole="button"
       accessibilityLabel={`Add ${letter}`}
       disabled={phase !== 'playing'}
-      onLayout={(event) => registerTileLayout(id, letter, event)}
       style={({ pressed }) => [
         styles.looseLetterButton,
         { left: position.left, top: position.top },
-        swipeTileId === id && styles.swipedLetterButton,
         phase !== 'playing' && styles.letterButtonDisabled,
         pressed && phase === 'playing' && styles.letterButtonPressed,
       ]}
@@ -729,14 +678,12 @@ export default function KilterScreen() {
 	      accessibilityRole="button"
 	      accessibilityLabel={`Add green letter ${letter}`}
 	      disabled={phase !== 'playing'}
-	      onLayout={(event) => registerTileLayout(id, letter, event)}
 	      style={({ pressed }) => [
 	        styles.keyLetterButton,
 	        { left: requiredLeft + index * REQUIRED_TILE_WIDTH, top: REQUIRED_ROW_Y },
 	        index === 0 && styles.keyLetterButtonFirst,
 	        index === total - 1 && styles.keyLetterButtonLast,
 	        total === 1 && styles.keyLetterButtonSingle,
-	        swipeTileId === id && styles.swipedKeyLetterButton,
 	        phase !== 'playing' && styles.letterButtonDisabled,
 	        pressed && phase === 'playing' && styles.keyLetterButtonPressed,
       ]}
@@ -807,9 +754,22 @@ export default function KilterScreen() {
                     <Text style={styles.dateText}>{dateLabel}</Text>
                   </View>
                   {phase === 'playing' ? (
-                    <View style={[styles.timerPill, remainingSeconds <= 30 && styles.timerPillHot]}>
-                      <Text style={styles.timerText}>{formatSeconds(remainingSeconds)}</Text>
-                    </View>
+                    <Animated.View
+                      style={[
+                        styles.timerPill,
+                        isClockUrgent && styles.timerPillHot,
+                        { transform: [{ scale: timerPulse }] },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.timerText,
+                          isClockUrgent && styles.timerTextUrgent,
+                        ]}
+                      >
+                        {formatSeconds(remainingSeconds)}
+                      </Text>
+                    </Animated.View>
                   ) : (
                     <View style={styles.finalPill}>
                       <Text style={styles.finalPillText}>Final</Text>
@@ -907,7 +867,6 @@ export default function KilterScreen() {
                         <View
                           testID="kilter-letter-stage"
                           style={styles.letterStage}
-                          {...letterPanResponder.panHandlers}
                         >
                           <View
                             testID="kilter-required-group"
@@ -1258,6 +1217,9 @@ const createStyles = (
 	      fontWeight: '900',
 	      fontVariant: ['tabular-nums'],
 	    },
+    timerTextUrgent: {
+      color: danger,
+    },
 	    finalPill: {
 	      ...ui.pill,
 	      minWidth: 76,
@@ -1445,15 +1407,6 @@ const createStyles = (
     keyLetterButtonPressed: {
       transform: [{ scale: 0.97 }],
       backgroundColor: theme.mode === 'dark' ? '#397c77' : '#244f4b',
-    },
-    swipedLetterButton: {
-      borderColor: screenAccent.badgeBorder,
-      backgroundColor: screenAccent.badgeBg,
-      transform: [{ scale: 0.97 }],
-    },
-    swipedKeyLetterButton: {
-      backgroundColor: theme.mode === 'dark' ? '#397c77' : '#244f4b',
-      transform: [{ scale: 0.97 }],
     },
     letterButtonDisabled: {
       opacity: 0.55,

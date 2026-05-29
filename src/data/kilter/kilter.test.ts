@@ -283,4 +283,12 @@ describe('Kilter route presentation contracts', () => {
     expect(KILTER_ROUTE_SOURCE).toContain('Every word needs the green letter or green letters.');
     expect(KILTER_ROUTE_SOURCE).toContain('A Sweep uses all six outside letters.');
   });
+
+  it('keeps input tap-first and starts clock urgency at one minute', () => {
+    expect(KILTER_ROUTE_SOURCE).not.toContain('PanResponder');
+    expect(KILTER_ROUTE_SOURCE).not.toContain('panHandlers');
+    expect(KILTER_ROUTE_SOURCE).toContain("remainingSeconds <= 60");
+    expect(KILTER_ROUTE_SOURCE).toContain('timerPulse');
+    expect(KILTER_ROUTE_SOURCE).toContain('timerTextUrgent');
+  });
 });
