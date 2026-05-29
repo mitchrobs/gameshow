@@ -108,18 +108,18 @@
 
 | Option | Count |
 |---|---:|
-| The flower forms | 9 |
-| The standing figure | 9 |
-| A inked ship mast | 7 |
-| The vessel's curved body | 7 |
-| The textile context keeps attention on labor and handling, not just decoration | 6 |
-| A raised cloud band | 6 |
-| A reflective stairway | 6 |
-| A painted robe fold | 6 |
-| The cross form | 6 |
-| A wooden bridge span | 6 |
-| A low ship mast | 6 |
-| A polished roofline | 5 |
+| Paint, color, and light concentrate attention on the repeated color notes | 6 |
+| A cast bronze form supplies the weight around the deepest shadow | 6 |
+| The camera's viewpoint holds attention on the receding view | 6 |
+| The camera's viewpoint holds attention on the brightest highlight | 6 |
+| blossoms | 5 |
+| Fiber and pattern carry the border rhythm across the surface | 5 |
+| Fiber and pattern carry the repeated pattern across the surface | 5 |
+| Paint, color, and light concentrate attention on the edge where forms meet | 5 |
+| Oil paint supplies every mark around the deepest shadow | 5 |
+| Line pressure keeps the quick contour close to the artist's hand | 5 |
+| The camera's viewpoint holds attention on the nearest edge of the view | 5 |
+| The camera's viewpoint holds attention on the deepest shadow | 5 |
 
 ## Weak/Replacement List
 

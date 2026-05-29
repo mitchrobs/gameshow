@@ -2751,6 +2751,11 @@ def project_curated_payload(editorial_payload: dict[str, Any]) -> dict[str, Any]
                     "sourceEvidence": record["review"].get("sourceEvidence", {}),
                     "copyPolishV2": record["review"].get("copyPolishV2", {}),
                     "naturalLanguageV1": record["review"].get("naturalLanguageV1", {}),
+                    "evidenceV1": record["review"].get("evidenceV1", {}),
+                    "copySystemV2": record["review"].get("copySystemV2", {}),
+                    "adversarialReviewV2": record["review"].get("adversarialReviewV2", {}),
+                    "curatorSourceReviewV1": record["review"].get("curatorSourceReviewV1", {}),
+                    "curatorLineReviewV1": record["review"].get("curatorLineReviewV1", {}),
                     "visualQualityNote": record["review"].get("visualQualityNote", ""),
                     "resolvedRisks": record["review"].get("resolvedRisks", []),
                     "safetyFlags": record["review"]["safetyFlags"],
@@ -2817,11 +2822,32 @@ QUALITY_SMELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("tag shorthand template", re.compile(r"\btag becomes useful shorthand\b", re.IGNORECASE)),
     ("image points template", re.compile(r"\bimage points\b", re.IGNORECASE)),
     ("work anchor template", re.compile(r"\bwork['’]s anchor\b", re.IGNORECASE)),
+    ("anchor template", re.compile(r"\bas (?:its|the)\s+anchor\b", re.IGNORECASE)),
+    ("strongest where template", re.compile(r"\bstrongest where\b", re.IGNORECASE)),
+    ("carries history template", re.compile(r"\bcarries its history\b", re.IGNORECASE)),
+    ("camera position matters template", re.compile(r"\bcamera position matters here\b", re.IGNORECASE)),
     ("open access template", re.compile(r"\bopen[- ]access\b", re.IGNORECASE)),
     ("maker label template", re.compile(r"\bmaker label\b", re.IGNORECASE)),
     ("museum context template", re.compile(r"\bmuseum context\b", re.IGNORECASE)),
     ("official object page template", re.compile(r"\bofficial object page\b", re.IGNORECASE)),
     ("source metadata template", re.compile(r"\bsource metadata\b", re.IGNORECASE)),
+    ("official scaffolding template", re.compile(r"\bofficial scaffolding\b", re.IGNORECASE)),
+    ("label basics template", re.compile(r"\blabel basics\b", re.IGNORECASE)),
+    ("visible clue deserves template", re.compile(r"\bvisible clue deserves\b", re.IGNORECASE)),
+    ("not floating on style alone template", re.compile(r"\bnot floating on style alone\b", re.IGNORECASE)),
+    ("recorded conditions template", re.compile(r"\brecorded conditions\b", re.IGNORECASE)),
+    ("date place maker evidence template", re.compile(r"\bdate,\s*place,\s*or\s*maker evidence\b", re.IGNORECASE)),
+    ("connects object category template", re.compile(r"\bconnects the object to\b", re.IGNORECASE)),
+    ("becomes historical template", re.compile(r"\bobject becomes historical\b", re.IGNORECASE)),
+    ("official facts template", re.compile(r"\bofficial facts\b", re.IGNORECASE)),
+    ("process clearly template", re.compile(r"\bshows the process clearly\b", re.IGNORECASE)),
+    ("concrete place template", re.compile(r"\bgives the eye a concrete place\b", re.IGNORECASE)),
+    ("organize first look template", re.compile(r"\borganize the first look\b", re.IGNORECASE)),
+    ("use place history template", re.compile(r"\bspeak to use,\s*place,\s*and history\b", re.IGNORECASE)),
+    ("double possessive its", re.compile(r"\bits its\b|\bthe its\b", re.IGNORECASE)),
+    ("asks you to read template", re.compile(r"\basks you to read\b", re.IGNORECASE)),
+    ("camera framing fallback", re.compile(r"\bcamera framing in\b", re.IGNORECASE)),
+    ("controlled vocabulary artifact", re.compile(r"\b(?:Animal bird|Architecture bridge)\b", re.IGNORECASE)),
     ("historical setting tangible template", re.compile(r"\bmakes its historical setting tangible through\b", re.IGNORECASE)),
     ("style alone template", re.compile(r"\brather than to style alone\b", re.IGNORECASE)),
     ("material craft template", re.compile(r"\bmaterial craft\b", re.IGNORECASE)),
@@ -2850,6 +2876,56 @@ QUALITY_SMELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("photographed view generic anchor", re.compile(r"\bthe photographed view\b", re.IGNORECASE)),
     ("seen within category stem", re.compile(r"\bSeen within\b", re.IGNORECASE)),
     ("reads as category stem", re.compile(r"\breads as\b", re.IGNORECASE)),
+    ("maker attribution as fact", re.compile(r"\bnamed as maker\b|\battribution feel visible\b|\bname gives .{0,80} a maker\b", re.IGNORECASE)),
+    ("materials legible template", re.compile(r"\bmaterials become legible\b", re.IGNORECASE)),
+    ("making collect template", re.compile(r"\blets the making collect\b", re.IGNORECASE)),
+    ("best entry into making template", re.compile(r"\bbest entry point into the making\b", re.IGNORECASE)),
+    ("one context another template", re.compile(r"\bone context\b.{0,100}\banother\b", re.IGNORECASE)),
+    ("more precise template", re.compile(r"\bbecomes more precise\b", re.IGNORECASE)),
+    ("attention on work template", re.compile(r"\bkeeps your attention on the work itself\b", re.IGNORECASE)),
+    ("less anonymous template", re.compile(r"\bless anonymous\b", re.IGNORECASE)),
+    ("visible fact template", re.compile(r"\bdate or maker into a visible fact\b", re.IGNORECASE)),
+    ("generic clue template", re.compile(r"\bmost useful clue\b|\bsmall enough to miss\b|\bcan begin with one detail\b", re.IGNORECASE)),
+    ("larger world template", re.compile(r"\blarger world\b|\bkeeps that world concrete\b", re.IGNORECASE)),
+    ("point of entry template", re.compile(r"\bphysical point of entry\b", re.IGNORECASE)),
+    ("maker setting template", re.compile(r"\bmaker['’]s setting\b", re.IGNORECASE)),
+    ("malformed origin label", re.compile(r"\b(?:India,\s*Gujarat|textile maker India|maker India)\b", re.IGNORECASE)),
+    ("toy foil language", re.compile(r"\b(?:frame color|wall color|weather report|shipping route|theatre prop|furniture plan)\b", re.IGNORECASE)),
+    ("generated form noun", re.compile(r"\b(?:cluster of forms|flower forms)\b", re.IGNORECASE)),
+    ("wrong-object near-title foil", re.compile(r"\b(?:glazed ceramic lip|cast metal handle|woven border|mounted photo corner|raised brushstroke|carved stone base|woven floral border|gilded manuscript initial|camera lens|carved marble foot|printed skyline|ceramic glaze pool|photo mount edge|painted canvas corner|camera shadow|manuscript margin|distant mountain|painted saint|printed riverbank|woven robe edge)\s+near the\b", re.IGNORECASE)),
+    ("connection sentence factory", re.compile(r"\bconnects\b.{0,90}\bwith\b", re.IGNORECASE)),
+    ("thought in motion abstraction", re.compile(r"\bthought in motion\b", re.IGNORECASE)),
+    ("photographed places abstraction", re.compile(r"\bhistory of photographed places\b", re.IGNORECASE)),
+    ("cross-cultural design abstraction", re.compile(r"\bcross-cultural design history\b", re.IGNORECASE)),
+    ("global design abstraction", re.compile(r"\bglobal design exchange\b", re.IGNORECASE)),
+    ("flat backdrop filler", re.compile(r"\bflat backdrop\b", re.IGNORECASE)),
+    ("context as place misuse", re.compile(r"\b(?:distance from|turns)\s+(?:documentary photography|designed-object history|textile exchange|print culture|works on paper|world art)\b", re.IGNORECASE)),
+    ("viewpoint does work filler", re.compile(r"\bviewpoint does real work\b", re.IGNORECASE)),
+    ("nearby forms reinforcement", re.compile(r"\bnearby forms easier to read\b", re.IGNORECASE)),
+    ("work opens up reinforcement", re.compile(r"\bwork opens up\b", re.IGNORECASE)),
+    ("beyond first glance reinforcement", re.compile(r"\bbeyond first glance\b", re.IGNORECASE)),
+    ("attached to place reinforcement", re.compile(r"\battached to place,\s*handling,\s*or display\b", re.IGNORECASE)),
+    ("visible character reinforcement", re.compile(r"\bvisible character\b", re.IGNORECASE)),
+    ("close to hand formula", re.compile(r"\bclose to the artist['’]s hand\b", re.IGNORECASE)),
+    ("treated as context foil", re.compile(r"\bwith .{0,80}\btreated as\b", re.IGNORECASE)),
+    ("read through context foil", re.compile(r"\bread through\b", re.IGNORECASE)),
+    ("seen through context foil", re.compile(r"\bseen through\b", re.IGNORECASE)),
+    ("understood through context foil", re.compile(r"\bunderstood through\b", re.IGNORECASE)),
+    ("fits-which-context prompt", re.compile(r"\bfits which context\b", re.IGNORECASE)),
+    ("what-history-helps prompt", re.compile(r"\bwhat history helps\b", re.IGNORECASE)),
+    ("surrounding-story prompt", re.compile(r"\bsurrounding story helps\b", re.IGNORECASE)),
+    ("notice-the-making prompt", re.compile(r"\bwhat should you notice about the making\b", re.IGNORECASE)),
+    ("medium-work prompt", re.compile(r"\bhow does the medium work\b", re.IGNORECASE)),
+    ("cultural-weight reinforcement", re.compile(r"\bcultural weight\b", re.IGNORECASE)),
+    ("reason-to-matter reinforcement", re.compile(r"\breason to matter\b", re.IGNORECASE)),
+    ("holds-light-weight-line reinforcement", re.compile(r"\bholds? light,\s*weight,\s*or line\b", re.IGNORECASE)),
+    ("looks-the-way reinforcement", re.compile(r"\blooks? the way\b", re.IGNORECASE)),
+    ("sets-looking-motion reinforcement", re.compile(r"\bsets? the looking in motion\b", re.IGNORECASE)),
+    ("main-structure reinforcement", re.compile(r"\bmain structure is easier to follow\b", re.IGNORECASE)),
+    ("shaped-by-generic context", re.compile(r"\bshaped by (?:camera position|working line|pattern,\s*touch|scale,\s*light|[^.,;!?]{0,35}use,\s*and form)\b", re.IGNORECASE)),
+    ("long title option", re.compile(r"\b(?:a|an|the)\s+[a-z][a-z'’.-]*(?:\s+[a-z][a-z'’.-]*){1,5}\s+in\s+[A-Z][^.,;!?]{55,}\b")),
+    ("plural agreement artifact", re.compile(r"\b(?:forms|buildings|columns|ruins|trees|flowers|figures|marks|lines|mountains)\s+(?:suggests|connects|turns|gives|keeps|shows|carries|points|sits|holds|shares)\b", re.IGNORECASE)),
+    ("collective agreement artifact", re.compile(r"\b(?:arcade|arrangement|cluster|field|group|line|pair|row|series|set)\s+of\s+\w+\s+(?:share|suggest|connect|turn|give|keep|show|carry|point|sit|hold)\b", re.IGNORECASE)),
 )
 
 GENERIC_ANSWER_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -2870,6 +2946,17 @@ GENERIC_ANSWER_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("female sitter fallback", re.compile(r"^a female sitter$", re.IGNORECASE)),
     ("straw ignores option", re.compile(r"\b(?:ignore|ignores|unrelated|instead of close looking|technical manual|sales catalogue|conservation diagram|advertising language|modern scan alone|exact hour|single proven day|fictional scene|military diagram|performance record|natural-history classification)\b", re.IGNORECASE)),
     ("cross-medium camera option", re.compile(r"\b(?:camera exposure would|oil paint would|interlaced threads would|carved stone would|fired clay would|chiseled stone would|copper plate would|woven threads would)\b", re.IGNORECASE)),
+    ("wrong-object near-title option", re.compile(r"\b(?:glazed ceramic lip|cast metal handle|woven border|mounted photo corner|raised brushstroke|carved stone base|woven floral border|gilded manuscript initial|camera lens|carved marble foot|printed skyline|ceramic glaze pool|photo mount edge|painted canvas corner|camera shadow|manuscript margin|distant mountain|painted saint|printed riverbank|woven robe edge)\s+near the\b", re.IGNORECASE)),
+    ("connection sentence factory option", re.compile(r"\bconnects\b.{0,90}\bwith\b", re.IGNORECASE)),
+    ("culture or abstract label as option", re.compile(r"^(?:the\s+)?(?:japanese|south asian|late assyrian|louis xv|roman|moche|japanism|nayarit|american|european|french|british|italian|chinese|korean|islamic|egyptian|greek|persian|indian|african|japan|korea|casting|incising|iridescence|cloisonné|cloisonne|status|initiation|leadership|warfare|commemorative|human|agricultural|allegory|poetry|adornment|household|healing|tobacco|gilding|farm|mine|self|syria|brocading|interior)$", re.IGNORECASE)),
+)
+
+CULTURE_OR_ABSTRACT_LABEL_VISIBLE_DETAIL_PATTERN = re.compile(
+    r"^(?:the\s+)?(?:japanese|south asian|late assyrian|louis xv|roman|moche|japanism|nayarit|"
+    r"american|european|french|british|italian|chinese|korean|islamic|egyptian|greek|persian|indian|african|"
+    r"japan|korea|casting|incising|iridescence|cloisonné|cloisonne|status|initiation|leadership|warfare|"
+    r"commemorative|human|agricultural|allegory|poetry|adornment|household|healing|tobacco|gilding|farm|mine|self|syria|brocading|interior)$",
+    re.IGNORECASE,
 )
 
 ARTWORK_COPY_BANNED_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -2926,6 +3013,10 @@ def is_object_specific_fact(artwork: dict[str, Any]) -> bool:
         artwork.get("source", {}).get("collectionLabel", "") if isinstance(artwork.get("source"), dict) else "",
         artwork.get("passportLabel", ""),
         artwork.get("geoRegion", ""),
+        *((artwork.get("review", {}).get("evidenceV1", {}) or {}).get("visibleDetails", []) if isinstance(artwork.get("review", {}).get("evidenceV1", {}), dict) else []),
+        *((artwork.get("review", {}).get("evidenceV1", {}) or {}).get("sourceAnchors", []) if isinstance(artwork.get("review", {}).get("evidenceV1", {}), dict) else []),
+        (artwork.get("review", {}).get("evidenceV1", {}) or {}).get("makingDetail", "") if isinstance(artwork.get("review", {}).get("evidenceV1", {}), dict) else "",
+        (artwork.get("review", {}).get("evidenceV1", {}) or {}).get("historicalBridge", "") if isinstance(artwork.get("review", {}).get("evidenceV1", {}), dict) else "",
         subject,
         display_subject(subject),
         short_subject(subject),
@@ -2986,6 +3077,71 @@ def delimiter_copy_errors(text: str) -> list[str]:
     return errors
 
 
+def sentence_opening(value: str) -> str:
+    return " ".join(normalize_space(value).casefold().split()[:4])
+
+
+def evidence_first_errors(artwork: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    artwork_id = artwork.get("id", "<missing>")
+    review = artwork.get("review") or {}
+    evidence = review.get("evidenceV1") or {}
+    copy_system = review.get("copySystemV2") or {}
+    adversarial = review.get("adversarialReviewV2") or {}
+    if evidence.get("status") != "complete":
+        errors.append(f"{artwork_id}: evidenceV1.status must be complete")
+    visible_details = [normalize_space(detail) for detail in evidence.get("visibleDetails", []) if normalize_space(detail)]
+    if len(visible_details) < 3 or len(visible_details) > 5:
+        errors.append(f"{artwork_id}: evidenceV1.visibleDetails must contain 3-5 details")
+    for detail in visible_details:
+        if CULTURE_OR_ABSTRACT_LABEL_VISIBLE_DETAIL_PATTERN.match(detail):
+            errors.append(f"{artwork_id}: evidenceV1.visibleDetails cannot use culture/style/abstract labels as visible details: {detail}")
+    for field in ("makingDetail", "objectSpecificFact", "historicalBridge"):
+        if not normalize_space(evidence.get(field, "")):
+            errors.append(f"{artwork_id}: evidenceV1.{field} is required")
+    quiz_evidence = evidence.get("quizEvidence") or {}
+    questions_by_kind = {question.get("kind"): question for question in artwork.get("questions", [])}
+    for kind in QUESTION_KINDS:
+        expected = quiz_evidence.get(kind) or {}
+        if not normalize_space(expected.get("target", "")):
+            errors.append(f"{artwork_id}: quizEvidence.{kind}.target is required")
+        expected_answer = normalize_space(expected.get("answer", ""))
+        question = questions_by_kind.get(kind)
+        if not question:
+            errors.append(f"{artwork_id}: missing {kind} question for evidence mapping")
+            continue
+        answer_index = question.get("answerIndex")
+        options = question.get("options") or []
+        actual_answer = ""
+        if isinstance(answer_index, int) and 0 <= answer_index < len(options):
+            actual_answer = normalize_space(options[answer_index])
+        if not expected_answer or actual_answer != expected_answer:
+            errors.append(f"{artwork_id}: {kind} answer must match quizEvidence")
+    observation_answer = normalize_space((quiz_evidence.get("observation") or {}).get("answer", ""))
+    if observation_answer and observation_answer not in visible_details and not any(
+        observation_answer.casefold() in detail.casefold() or detail.casefold() in observation_answer.casefold()
+        or observation_answer.casefold() in re.sub(r"^(?:a|an|the)\s+", "", detail, flags=re.IGNORECASE).casefold()
+        or re.sub(r"^(?:a|an|the)\s+", "", detail, flags=re.IGNORECASE).casefold() in observation_answer.casefold()
+        for detail in visible_details
+    ):
+        errors.append(f"{artwork_id}: observation answer must map to visibleDetails")
+    if copy_system.get("status") != "rewritten" or copy_system.get("system") != "museum-evidence-first-v1":
+        errors.append(f"{artwork_id}: copySystemV2 must record museum-evidence-first-v1 rewrite")
+    if adversarial.get("status") != "resolved":
+        errors.append(f"{artwork_id}: adversarialReviewV2.status must be resolved")
+    if adversarial.get("unresolvedIssues"):
+        errors.append(f"{artwork_id}: adversarialReviewV2 has unresolved issues")
+    context = artwork.get("context") or {}
+    openings = {
+        sentence_opening(context.get("technique", "")),
+        sentence_opening(context.get("surprisingFact", "")),
+        sentence_opening(context.get("connection", "")),
+    }
+    if len([opening for opening in openings if opening]) < 3:
+        errors.append(f"{artwork_id}: Technique/Note/Connection sentence openings are too similar")
+    return errors
+
+
 def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
     errors: list[str] = []
     facts = [normalize_space(artwork.get("context", {}).get("surprisingFact", "")) for artwork in artworks]
@@ -3031,6 +3187,7 @@ def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
         errors.append(f"quiz option repeats exceed cap: {repeated_options[:3]}")
     stem_counts: Counter[str] = Counter()
     for artwork in artworks:
+        errors.extend(evidence_first_errors(artwork))
         if normalize_space(artwork.get("geoRegion", "")).casefold() == "global":
             errors.append(f"{artwork['id']}: player-facing geoRegion cannot be Global")
         fields = [
@@ -3079,6 +3236,7 @@ def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
     banned_copy_hits: list[str] = []
     quality_smell_hits: list[str] = []
     generic_answer_hits: list[str] = []
+    review_metadata_hits: list[str] = []
     for artwork in artworks:
         copy_fields: list[tuple[str, str]] = []
         for field, value in (artwork.get("context") or {}).items():
@@ -3100,6 +3258,19 @@ def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
                 if pattern.search(text):
                     quality_smell_hits.append(f"{artwork['id']} {field}: {label}")
                     break
+        review = artwork.get("review") or {}
+        review_fields: list[tuple[str, str]] = [
+            ("review.visualQualityNote", normalize_space(review.get("visualQualityNote", ""))),
+            *[(f"review.editorNotes[{index}]", normalize_space(value)) for index, value in enumerate(review.get("editorNotes", []), start=1)],
+            *[(f"review.resolvedRisks[{index}]", normalize_space(value)) for index, value in enumerate(review.get("resolvedRisks", []), start=1)],
+            *[(f"review.naturalLanguageV1.issues[{index}]", normalize_space(value)) for index, value in enumerate((review.get("naturalLanguageV1") or {}).get("issues", []), start=1)],
+            *[(f"review.adversarialReviewV2.issues[{index}]", normalize_space(value)) for index, value in enumerate((review.get("adversarialReviewV2") or {}).get("issues", []), start=1)],
+        ]
+        for field, text in review_fields:
+            for label, pattern in QUALITY_SMELL_PATTERNS:
+                if pattern.search(text):
+                    review_metadata_hits.append(f"{artwork['id']} {field}: {label}")
+                    break
         for question_index, question in enumerate(artwork.get("questions", []), start=1):
             for option_index, option in enumerate(question.get("options", []), start=1):
                 for label, pattern in GENERIC_ANSWER_PATTERNS:
@@ -3110,6 +3281,8 @@ def copy_quality_errors(artworks: list[dict[str, Any]]) -> list[str]:
         errors.append(f"self-referential artwork copy remains: {banned_copy_hits[:12]}")
     if quality_smell_hits:
         errors.append(f"quality-smell artwork copy remains: {quality_smell_hits[:12]}")
+    if review_metadata_hits:
+        errors.append(f"quality-smell review metadata remains: {review_metadata_hits[:12]}")
     if generic_answer_hits:
         errors.append(f"generic quiz answer options remain: {generic_answer_hits[:12]}")
     generic_facts = [
@@ -3430,6 +3603,41 @@ def validate_editorial_record(record: dict[str, Any]) -> list[str]:
             errors.append(f"{record_id}: approved record needs naturalLanguageV1 reviewers")
         if not natural_language.get("resolvedAt"):
             errors.append(f"{record_id}: approved record needs naturalLanguageV1.resolvedAt")
+        curator_source_review = record.get("review", {}).get("curatorSourceReviewV1") or {}
+        if curator_source_review.get("status") != "reviewed":
+            errors.append(f"{record_id}: approved record needs clean curatorSourceReviewV1 review")
+        if curator_source_review.get("approvalType") != "agent-source-review-v1":
+            errors.append(f"{record_id}: curatorSourceReviewV1 must use agent-source-review-v1 approvalType")
+        if curator_source_review.get("isHumanCurator") is not False:
+            errors.append(f"{record_id}: curatorSourceReviewV1 must not claim human curator approval")
+        if not normalize_space(curator_source_review.get("objectUrl", "")):
+            errors.append(f"{record_id}: curatorSourceReviewV1.objectUrl is required")
+        if len(curator_source_review.get("anchorsUsed") or []) < 3:
+            errors.append(f"{record_id}: curatorSourceReviewV1 needs at least 3 anchorsUsed")
+        if curator_source_review.get("unsupportedClaims"):
+            errors.append(f"{record_id}: curatorSourceReviewV1 has unsupported claims")
+        curator_line_review = record.get("review", {}).get("curatorLineReviewV1") or {}
+        if curator_line_review.get("status") != "verified":
+            errors.append(f"{record_id}: approved record needs verified curatorLineReviewV1")
+        if curator_line_review.get("reviewerType") != "agent-curator-line-v1":
+            errors.append(f"{record_id}: curatorLineReviewV1 must use agent-curator-line-v1 reviewerType")
+        if curator_line_review.get("isHumanCurator") is not False:
+            errors.append(f"{record_id}: curatorLineReviewV1 must not claim human curator approval")
+        if not normalize_space(curator_line_review.get("objectUrl", "")):
+            errors.append(f"{record_id}: curatorLineReviewV1.objectUrl is required")
+        if normalize_space(curator_line_review.get("resolvedFact", "")) != normalize_space(artwork.get("context", {}).get("surprisingFact", "")):
+            errors.append(f"{record_id}: curatorLineReviewV1.resolvedFact must match artwork.context.surprisingFact")
+        line_evidence_items = curator_line_review.get("evidenceItems") or []
+        if len(line_evidence_items) < 4:
+            errors.append(f"{record_id}: curatorLineReviewV1 needs at least 4 evidenceItems")
+        if not any(normalize_space(item.get("type", "")).startswith("official-") for item in line_evidence_items if isinstance(item, dict)):
+            errors.append(f"{record_id}: curatorLineReviewV1 needs official evidence")
+        if not any(item.get("type") == "visible-detail" for item in line_evidence_items if isinstance(item, dict)):
+            errors.append(f"{record_id}: curatorLineReviewV1 needs visible-detail evidence")
+        if curator_line_review.get("unsupportedClaims"):
+            errors.append(f"{record_id}: curatorLineReviewV1 has unsupported claims")
+        artwork_with_review = {**artwork, "review": record.get("review", {})}
+        errors.extend(evidence_first_errors(artwork_with_review))
         if record.get("qa", {}).get("blockers"):
             errors.append(f"{record_id}: approved record has QA blockers")
     return errors

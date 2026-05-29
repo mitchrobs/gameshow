@@ -89,6 +89,19 @@ const BANNED_ARTWORK_COPY_PATTERNS = [
   /\bmuseum context\b/i,
   /\bofficial object page\b/i,
   /\bsource metadata\b/i,
+  /\brecorded conditions\b/i,
+  /\bdate,\s*place,\s*or\s*maker evidence\b/i,
+  /\bconnects the object to\b/i,
+  /\bobject becomes historical\b/i,
+  /\bofficial facts\b/i,
+  /\bshows the process clearly\b/i,
+  /\bgives the eye a concrete place\b/i,
+  /\borganize the first look\b/i,
+  /\bspeak to use,\s*place,\s*and history\b/i,
+  /\bits its\b|\bthe its\b/i,
+  /\basks you to read\b/i,
+  /\bcamera framing in\b/i,
+  /\b(?:Animal bird|Architecture bridge)\b/i,
   /\bbrings together\b/i,
   /\bgives .{0,80} a foothold\b/i,
   /\bsetting changes how\b/i,
@@ -117,6 +130,59 @@ const BANNED_ARTWORK_COPY_PATTERNS = [
   /\bWhat larger world helps\b/i,
   /\bcc0\b/i,
   /\bpublic domain\b/i,
+  /\bnamed as maker\b/i,
+  /\battribution feel visible\b/i,
+  /\bname gives .{0,80} a maker\b/i,
+  /\bmaterials become legible\b/i,
+  /\blets the making collect\b/i,
+  /\bbest entry point into the making\b/i,
+  /\bone context\b.{0,100}\banother\b/i,
+  /\bbecomes more precise\b/i,
+  /\bkeeps your attention on the work itself\b/i,
+  /\bless anonymous\b/i,
+  /\bdate or maker into a visible fact\b/i,
+  /\bmost useful clue\b/i,
+  /\bsmall enough to miss\b/i,
+  /\bcan begin with one detail\b/i,
+  /\blarger world\b/i,
+  /\bkeeps that world concrete\b/i,
+  /\bphysical point of entry\b/i,
+  /\bmaker['’]s setting\b/i,
+  /\b(?:India,\s*Gujarat|textile maker India|maker India)\b/i,
+  /\b(?:frame color|wall color|weather report|shipping route|theatre prop|furniture plan)\b/i,
+  /\b(?:cluster of forms|flower forms)\b/i,
+  /\b(?:glazed ceramic lip|cast metal handle|woven border|mounted photo corner|raised brushstroke|carved stone base|woven floral border|gilded manuscript initial|camera lens|carved marble foot|printed skyline|ceramic glaze pool|photo mount edge|painted canvas corner|camera shadow|manuscript margin|distant mountain|painted saint|printed riverbank|woven robe edge)\s+near the\b/i,
+  /\bconnects\b.{0,90}\bwith\b/i,
+  /\bthought in motion\b/i,
+  /\bhistory of photographed places\b/i,
+  /\bcross-cultural design history\b/i,
+  /\bglobal design exchange\b/i,
+  /\bflat backdrop\b/i,
+  /\b(?:distance from|turns)\s+(?:documentary photography|designed-object history|textile exchange|print culture|works on paper|world art)\b/i,
+  /\bviewpoint does real work\b/i,
+  /\bnearby forms easier to read\b/i,
+  /\bwork opens up\b/i,
+  /\bbeyond first glance\b/i,
+  /\battached to place,\s*handling,\s*or display\b/i,
+  /\bvisible character\b/i,
+  /\bclose to the artist['’]s hand\b/i,
+  /\bwith .{0,80}\btreated as\b/i,
+  /\bread through\b/i,
+  /\bseen through\b/i,
+  /\bunderstood through\b/i,
+  /\bfits which context\b/i,
+  /\bwhat history helps\b/i,
+  /\bsurrounding story helps\b/i,
+  /\bwhat should you notice about the making\b/i,
+  /\bhow does the medium work\b/i,
+  /\bcultural weight\b/i,
+  /\breason to matter\b/i,
+  /\bholds? light,\s*weight,\s*or line\b/i,
+  /\blooks? the way\b/i,
+  /\bsets? the looking in motion\b/i,
+  /\bmain structure is easier to follow\b/i,
+  /\bshaped by (?:camera position|working line|pattern,\s*touch|scale,\s*light|[^.,;!?]{0,35}use,\s*and form)\b/i,
+  /\b(?:a|an|the)\s+[a-z][a-z'’.-]*(?:\s+[a-z][a-z'’.-]*){1,5}\s+in\s+[A-Z][^.,;!?]{55,}\b/,
 ];
 
 const GENERIC_ANSWER_PATTERNS = [
@@ -127,8 +193,11 @@ const GENERIC_ANSWER_PATTERNS = [
   /^a (?:painting|print|drawing|photograph|textile|sculpture|design) work$/i,
   /^a male sitter$/i,
   /^a female sitter$/i,
+  /^(?:the\s+)?(?:japanese|south asian|late assyrian|louis xv|roman|moche|japanism|nayarit|american|european|french|british|italian|chinese|korean|islamic|egyptian|greek|persian|indian|african|japan|korea|casting|incising|iridescence|cloisonné|cloisonne|status|initiation|leadership|warfare|commemorative|human|agricultural|allegory|poetry|adornment|household|healing|tobacco|gilding|farm|mine|self|syria|brocading|interior)$/i,
   /\b(?:ignore|ignores|unrelated|instead of close looking|technical manual|sales catalogue|conservation diagram|advertising language|modern scan alone|exact hour|single proven day|fictional scene|military diagram|performance record|natural-history classification)\b/i,
   /\b(?:camera exposure would|oil paint would|interlaced threads would|carved stone would|fired clay would|chiseled stone would|copper plate would|woven threads would)\b/i,
+  /\b(?:glazed ceramic lip|cast metal handle|woven border|mounted photo corner|raised brushstroke|carved stone base|woven floral border|gilded manuscript initial|camera lens|carved marble foot|printed skyline|ceramic glaze pool|photo mount edge|painted canvas corner|camera shadow|manuscript margin|distant mountain|painted saint|printed riverbank|woven robe edge)\s+near the\b/i,
+  /\bconnects\b.{0,90}\bwith\b/i,
 ];
 
 function parseDate(value: string): Date {
@@ -194,6 +263,10 @@ function isObjectSpecificFact(artwork: MuseumArtwork): boolean {
     artwork.review.copyPolishV2?.visibleFeature ?? '',
     artwork.review.copyPolishV2?.objectLesson ?? '',
     artwork.review.copyPolishV2?.historicalBridge ?? '',
+    ...(artwork.review.evidenceV1?.visibleDetails ?? []),
+    ...(artwork.review.evidenceV1?.sourceAnchors ?? []),
+    artwork.review.evidenceV1?.makingDetail ?? '',
+    artwork.review.evidenceV1?.historicalBridge ?? '',
   ]
     .map((token) => token.trim().toLowerCase())
     .filter(Boolean);
@@ -249,7 +322,33 @@ describe('museum annual pack', () => {
       expect(record.review.approvedBy).not.toBe('codex-seed-pass');
       expect(record.review.copyEditedBy).toBeTruthy();
       expect(record.review.factCheckedBy).toBeTruthy();
-      expect(record.review.copyPolishV2?.copyStandard).toBe('object-facing-v2-no-museum-mechanics');
+      expect(record.review.copyPolishV2?.copyStandard).toBe('evidence-first-v1');
+      expect(record.review.evidenceV1?.status).toBe('complete');
+      expect(record.review.evidenceV1?.visibleDetails.length ?? 0).toBeGreaterThanOrEqual(3);
+      expect(record.review.evidenceV1?.visibleDetails.length ?? 0).toBeLessThanOrEqual(5);
+      record.review.evidenceV1?.visibleDetails.forEach((detail) => {
+        expect(detail).not.toMatch(/^(?:the\s+)?(?:japanese|south asian|late assyrian|louis xv|roman|moche|japanism|nayarit|american|european|french|british|italian|chinese|korean|islamic|egyptian|greek|persian|indian|african|japan|korea|casting|incising|iridescence|cloisonné|cloisonne|status|initiation|leadership|warfare|commemorative|human|agricultural|allegory|poetry|adornment|household|healing|tobacco|gilding|farm|mine|self|syria|brocading|interior)$/i);
+      });
+      expect(record.review.evidenceV1?.makingDetail).toBeTruthy();
+      expect(record.review.evidenceV1?.objectSpecificFact).toBeTruthy();
+      expect(record.review.evidenceV1?.historicalBridge).toBeTruthy();
+      expect(record.review.copySystemV2?.status).toBe('rewritten');
+      expect(record.review.copySystemV2?.system).toBe('museum-evidence-first-v1');
+      expect(record.review.adversarialReviewV2?.status).toBe('resolved');
+      expect(record.review.adversarialReviewV2?.unresolvedIssues ?? []).toHaveLength(0);
+      expect(record.review.curatorLineReviewV1?.status).toBe('verified');
+      expect(record.review.curatorLineReviewV1?.reviewerType).toBe('agent-curator-line-v1');
+      expect(record.review.curatorLineReviewV1?.isHumanCurator).toBe(false);
+      expect(record.review.curatorLineReviewV1?.objectUrl).toBe(record.source.objectUrl);
+      expect(record.review.curatorLineReviewV1?.resolvedFact).toBe(record.artwork?.context.surprisingFact);
+      expect(record.review.curatorLineReviewV1?.unsupportedClaims ?? []).toHaveLength(0);
+      expect(record.review.curatorLineReviewV1?.evidenceItems.length ?? 0).toBeGreaterThanOrEqual(4);
+      expect(
+        record.review.curatorLineReviewV1?.evidenceItems.some((item) => item.type.startsWith('official-'))
+      ).toBe(true);
+      expect(
+        record.review.curatorLineReviewV1?.evidenceItems.some((item) => item.type === 'visible-detail')
+      ).toBe(true);
       expect(record.review.naturalLanguageV1?.status).toBe('resolved');
       expect(record.review.naturalLanguageV1?.reviewers ?? []).toEqual(
         expect.arrayContaining([
@@ -343,6 +442,8 @@ describe('museum annual pack', () => {
       expect(getMuseumArtworkById(entry.artworkId)?.id).toBe(entry.artworkId);
       expect(artwork.source.collectionLabel.length).toBeGreaterThan(2);
       expect(artwork.review.status).toBe('approved');
+      expect(artwork.review.curatorLineReviewV1?.status).toBe('verified');
+      expect(artwork.review.curatorLineReviewV1?.resolvedFact).toBe(artwork.context.surprisingFact);
       expect(artwork.questions).toHaveLength(3);
       expect(new Set(artwork.questions.map((question) => question.kind))).toEqual(
         new Set(['observation', 'context', 'connection'])
@@ -350,6 +451,8 @@ describe('museum annual pack', () => {
       artwork.questions.forEach((question) => {
         expect(question.options).toHaveLength(4);
         expect(new Set(question.options.map((option) => option.trim().toLowerCase())).size).toBe(4);
+        const evidenceAnswer = artwork.review.evidenceV1?.quizEvidence[question.kind]?.answer;
+        expect(question.options[question.answerIndex]).toBe(evidenceAnswer);
         answerPositions.add(question.answerIndex);
       });
     });
@@ -433,6 +536,7 @@ describe('museum annual pack', () => {
       expect(artwork.artist).not.toMatch(/[\u3040-\u30ff\u3400-\u9fff]/);
       expect(artwork.artist).not.toMatch(/^anonymous$/i);
       expect(artwork.artist).not.toMatch(/^unidentified(?: artist)?$/i);
+      expect(artwork.artist).not.toMatch(/\b(?:India,\s*Gujarat|textile maker India|maker India)\b/i);
     });
 
     const normalizedStemCounts = countValues(
@@ -465,7 +569,7 @@ describe('museum annual pack', () => {
         expect(count).toBeLessThanOrEqual(8);
       });
     });
-  });
+  }, 20000);
 
   it('meets annual source, medium, and object-family mix gates', () => {
     const sourceCounts = countValues(CURATED.artworks.map((artwork) => artwork.source.institution));

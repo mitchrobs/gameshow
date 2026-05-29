@@ -84,6 +84,60 @@ export interface MuseumArtworkReview {
     issues: string[];
     resolvedAt: string;
   };
+  evidenceV1?: {
+    status: 'complete';
+    sourceMode: string;
+    visibleDetails: string[];
+    makingDetail: string;
+    objectSpecificFact: string;
+    historicalBridge: string;
+    sourceAnchors: string[];
+    quizEvidence: Record<MuseumQuestionKind, { target: string; answer: string }>;
+  };
+  copySystemV2?: {
+    status: 'rewritten';
+    system: 'museum-evidence-first-v1';
+    inputs: string[];
+    rewrittenAt: string;
+  };
+  adversarialReviewV2?: {
+    status: 'resolved';
+    reviewers: string[];
+    role: string;
+    issues: string[];
+    unresolvedIssues: string[];
+    resolvedAt: string;
+  };
+  curatorSourceReviewV1?: {
+    status: 'reviewed' | 'needs-review';
+    reviewer: string;
+    approvalType: 'agent-source-review-v1';
+    isHumanCurator: false;
+    reviewedAt: string;
+    scheduledDay?: number;
+    objectUrl: string;
+    sourceType: string;
+    fieldsReviewed: string[];
+    anchorsUsed: string[];
+    unsupportedClaims: string[];
+    verdict: string;
+  };
+  curatorLineReviewV1?: {
+    status: 'verified' | 'rewrite-needed' | 'replacement-needed';
+    reviewer: string;
+    reviewerType: 'agent-curator-line-v1';
+    isHumanCurator: false;
+    reviewedAt: string;
+    scheduledDay?: number;
+    objectUrl: string;
+    claimReviewed: string;
+    resolvedFact: string;
+    sourceFields: Array<{ type: string; field: string; value: string }>;
+    visibleEvidence: string[];
+    evidenceItems: Array<{ type: string; field?: string; value: string }>;
+    unsupportedClaims: string[];
+    verdict: string;
+  };
   visualQualityNote?: string;
   resolvedRisks?: string[];
   safetyFlags: string[];
@@ -133,6 +187,11 @@ export interface MuseumEditorialRecord {
     sourceEvidence?: MuseumArtworkReview['sourceEvidence'];
     copyPolishV2?: MuseumArtworkReview['copyPolishV2'];
     naturalLanguageV1?: MuseumArtworkReview['naturalLanguageV1'];
+    evidenceV1?: MuseumArtworkReview['evidenceV1'];
+    copySystemV2?: MuseumArtworkReview['copySystemV2'];
+    adversarialReviewV2?: MuseumArtworkReview['adversarialReviewV2'];
+    curatorSourceReviewV1?: MuseumArtworkReview['curatorSourceReviewV1'];
+    curatorLineReviewV1?: MuseumArtworkReview['curatorLineReviewV1'];
     visualQualityNote?: string;
     resolvedRisks?: string[];
     safetyFlags: string[];
