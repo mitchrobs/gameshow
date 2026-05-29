@@ -233,13 +233,13 @@ export default function KilterScreen() {
         .reduce((total, entry) => total + entry.points, 0),
     [foundViews]
   );
-  const rank = useMemo(
-    () => getKilterRank(coreScore, puzzle.availableCoreScore),
-    [coreScore, puzzle.availableCoreScore]
-  );
   const foundSweeps = useMemo(
     () => foundWords.filter((word) => puzzle.sweeps.includes(word)).length,
     [foundWords, puzzle.sweeps]
+  );
+  const rank = useMemo(
+    () => getKilterRank(coreScore, puzzle.availableCoreScore, foundSweeps > 0),
+    [coreScore, foundSweeps, puzzle.availableCoreScore]
   );
   const foundBonusWords = useMemo(
     () => foundViews.filter((entry) => entry.kind === 'bonus'),

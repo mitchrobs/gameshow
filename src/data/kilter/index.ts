@@ -50,6 +50,7 @@ export interface KilterRank {
   name: string;
   minPercent: number;
   percent: number;
+  requiresSweep?: boolean;
 }
 
 export type KilterValidationResult =
@@ -83,11 +84,26 @@ const lastEntry = PACK.entries[PACK.entries.length - 1]!;
 export const KILTER_PACK = PACK;
 export const KILTER_RANKS: readonly Omit<KilterRank, 'percent'>[] = [
   { tier: 1, name: 'Drafting', minPercent: 0 },
-  { tier: 2, name: 'Setting', minPercent: 25 },
-  { tier: 3, name: 'Poised', minPercent: 55 },
-  { tier: 4, name: 'Mastered', minPercent: 85 },
+  { tier: 2, name: 'Composed', minPercent: 20 },
+  { tier: 3, name: 'Poised', minPercent: 40 },
+  { tier: 4, name: 'Mastered', minPercent: 75, requiresSweep: true },
 ] as const;
 export const KILTER_RANK_COUNT = KILTER_RANKS.length;
+
+const SHARE_MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+] as const;
 
 function pad2(value: number): string {
   return String(value).padStart(2, '0');
@@ -100,6 +116,26 @@ export function getLocalKilterDateKey(date: Date = new Date()): string {
 function parseLocalDateKey(dateKey: string): Date {
   const [year, month, day] = dateKey.split('-').map((part) => parseInt(part, 10));
   return new Date(year, month - 1, day);
+}
+
+function getOrdinalSuffix(day: number): string {
+  if (day >= 11 && day <= 13) return 'th';
+  switch (day % 10) {
+    case 1:
+      return 'st';
+    case 2:
+      return 'nd';
+    case 3:
+      return 'rd';
+    default:
+      return 'th';
+  }
+}
+
+function formatKilterShareDate(dateKey: string): string {
+  const date = parseLocalDateKey(dateKey);
+  const day = date.getDate();
+  return `${SHARE_MONTH_NAMES[date.getMonth()]} ${day}${getOrdinalSuffix(day)} ${date.getFullYear()}`;
 }
 
 function dateDiffDays(left: string, right: string): number {
@@ -175,12 +211,17 @@ export function getKilterAvailableCoreScore(puzzle: Pick<KilterPuzzle, 'coreWord
   }, 0);
 }
 
-export function getKilterRank(score: number, availableCoreScore: number): KilterRank {
+export function getKilterRank(
+  score: number,
+  availableCoreScore: number,
+  hasFoundSweep = false
+): KilterRank {
   const percent =
     availableCoreScore <= 0 ? 0 : Math.max(0, Math.floor((score / availableCoreScore) * 100));
   const rank = [...KILTER_RANKS]
     .reverse()
-    .find((candidate) => percent >= candidate.minPercent) ?? KILTER_RANKS[0]!;
+    .find((candidate) => percent >= candidate.minPercent && (!candidate.requiresSweep || hasFoundSweep)) ??
+    KILTER_RANKS[0]!;
   return { ...rank, percent };
 }
 
@@ -255,13 +296,12 @@ export function formatKilterShareText({
       ? total + scoreKilterWord(normalized, puzzle)
       : total;
   }, 0);
-  const rank = getKilterRank(coreScore, puzzle.availableCoreScore);
-  const sweepText = foundSweeps >= puzzle.sweeps.length ? 'Found' : `${foundSweeps}/${puzzle.sweeps.length}`;
+  const rank = getKilterRank(coreScore, puzzle.availableCoreScore, foundSweeps > 0);
+  const sweepBadge = foundSweeps > 0 ? ' ⭐️' : '';
   return [
-    `Composed #${puzzle.dayIndex + 1}`,
-    `Score: ${score} Words: ${foundWords.length}`,
-    `Form: ${rank.name} (${rank.tier}/${KILTER_RANK_COUNT})`,
-    `Sweep: ${sweepText}`,
+    `Composed ${formatKilterShareDate(puzzle.date)}`,
+    `Score: ${score} - ${rank.name} (${rank.tier}/${KILTER_RANK_COUNT})`,
+    `Found Words: ${foundWords.length}${sweepBadge}`,
     url,
   ].join('\n');
 }

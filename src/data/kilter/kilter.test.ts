@@ -182,18 +182,27 @@ describe('Kilter rules and scoring', () => {
     expect(scoreKilterWord('STET', puzzle)).toBe(1);
     expect(scoreKilterWord('NOPE', puzzle)).toBe(0);
     expect(KILTER_RANK_COUNT).toBe(4);
-    expect(getKilterRank(0, puzzle.availableCoreScore).name).toBe('Drafting');
-    expect(getKilterRank(Math.ceil(puzzle.availableCoreScore * 0.55), puzzle.availableCoreScore).name).toBe('Poised');
-    expect(getKilterRank(Math.ceil(puzzle.availableCoreScore * 0.85), puzzle.availableCoreScore).name).toBe('Mastered');
-    expect(
-      formatKilterShareText({
-        puzzle,
-        score: 28,
-        foundWords: ['STARE', 'EARNEST'],
-        foundSweeps: 1,
-        url: 'https://example.test/kilter',
-      })
-    ).toContain('Sweep: Found');
+    expect(getKilterRank(0, 100).name).toBe('Drafting');
+    expect(getKilterRank(19, 100).name).toBe('Drafting');
+    expect(getKilterRank(20, 100).name).toBe('Composed');
+    expect(getKilterRank(40, 100).name).toBe('Poised');
+    expect(getKilterRank(75, 100).name).toBe('Poised');
+    expect(getKilterRank(75, 100, true).name).toBe('Mastered');
+    const sweepShare = formatKilterShareText({
+      puzzle,
+      score: 28,
+      foundWords: ['STARE', 'EARNEST'],
+      foundSweeps: 1,
+      url: 'https://example.test/kilter',
+    });
+    expect(sweepShare).toBe(
+      [
+        'Composed June 1st 2026',
+        'Score: 28 - Poised (3/4)',
+        'Found Words: 2 ⭐️',
+        'https://example.test/kilter',
+      ].join('\n')
+    );
     const bonusOnlyShare = formatKilterShareText({
       puzzle,
       score: 99,
@@ -201,9 +210,10 @@ describe('Kilter rules and scoring', () => {
       foundSweeps: 0,
       url: 'https://example.test/kilter',
     });
-    expect(bonusOnlyShare).toContain('Score: 99 Words: 1');
-    expect(bonusOnlyShare).toContain('Composed #1');
-    expect(bonusOnlyShare).toContain('Form: Drafting (1/4)');
+    expect(bonusOnlyShare).toContain('Composed June 1st 2026');
+    expect(bonusOnlyShare).toContain('Score: 99 - Drafting (1/4)');
+    expect(bonusOnlyShare).toContain('Found Words: 1');
+    expect(bonusOnlyShare).not.toContain('⭐️');
   });
 
   it('locks exactly after the five-minute timer expires', () => {
