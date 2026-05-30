@@ -1,4 +1,6 @@
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   KILTER_GAME_SECONDS,
@@ -32,6 +34,8 @@ const KILTER_REVIEW_QUEUE_SOURCE = readFileSync(
   new URL('../../../docs/composed-editorial-review-queue.md', import.meta.url),
   'utf8'
 );
+const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url));
+const WORD_TRUST_SAMPLE_WORDS = ['CODING', 'SIGNING', 'PRICING', 'NOTING'] as const;
 const HARD_SWEEP_DENY_FIXTURES = [
   'CONSTITUENCY',
   'CONNECTIVITY',
@@ -98,6 +102,15 @@ function assertValidEntry(entry: KilterPackEntry) {
   expect(entry.availableCoreScore).toBe(getKilterAvailableCoreScore(entry));
 }
 
+function canMakeWord(entry: KilterPackEntry, word: string): boolean {
+  const allowed = new Set([...entry.key.split(''), ...entry.letters]);
+  return word.includes(entry.key) && word.split('').every((letter) => allowed.has(letter));
+}
+
+function acceptedWords(entry: KilterPackEntry): Set<string> {
+  return new Set([...entry.coreWords, ...entry.bonusWords]);
+}
+
 describe('Kilter pack', () => {
   it('ships 400 consecutive dates from June 1, 2026', () => {
     expect(KILTER_PACK_START_DATE).toBe('2026-06-01');
@@ -137,6 +150,33 @@ describe('Kilter pack', () => {
     HARD_SWEEP_DENY_FIXTURES.forEach((word) => {
       expect(sweepWords.has(word)).toBe(false);
     });
+  });
+
+  it('accepts obvious common words that the system dictionary used to omit', () => {
+    const launchDay = KILTER_PACK.entries[0]!;
+    expect(launchDay.date).toBe('2026-06-01');
+    expect(launchDay.key).toBe('IN');
+    expect(launchDay.letters.join('')).toBe('ACDGOR');
+    expect(launchDay.coreWords).toContain('CARING');
+    expect(launchDay.coreWords).toContain('RAINING');
+
+    let legalSampleDays = 0;
+    WORD_TRUST_SAMPLE_WORDS.forEach((word) => {
+      const legalDays = KILTER_PACK.entries.filter((entry) => canMakeWord(entry, word));
+      legalDays.forEach((entry) => {
+        legalSampleDays += 1;
+        expect(acceptedWords(entry).has(word)).toBe(true);
+      });
+    });
+    expect(legalSampleDays).toBeGreaterThan(0);
+  });
+
+  it('fails the generator self-test when an obvious legal word is omitted', () => {
+    const output = execFileSync('python3', ['scripts/build_kilter_pack.py', '--self-test-omitted-obvious'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+    });
+    expect(output).toContain('omitted obvious word audit self-test passed');
   });
 
   it('looks up daily puzzles by local date and falls back to launch day before the pack starts', () => {

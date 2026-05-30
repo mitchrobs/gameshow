@@ -37,8 +37,20 @@ MIN_SWEEP_SINGLE_COUNT = 360
 CORE_MIN_FREQUENCY = 3.07
 BONUS_MIN_FREQUENCY = 2.55
 SOURCE_MIN_FREQUENCY = 2.45
+TRUSTED_NON_DICTIONARY_MIN_ZIPF = 2.9
+COMMON_OMITTED_SAMPLE_WORDS = {
+    "CARING",
+    "CODING",
+    "NOTING",
+    "PRICING",
+    "RAINING",
+    "SIGNING",
+}
 
 KEY_LENGTH_TOTALS = {1: 100, 2: 260, 3: 40}
+PINNED_SIGNATURES = {
+    0: "IN:ACDGOR",
+}
 CORE_TARGETS = {
     1: (45, 90),
     2: (25, 55),
@@ -260,16 +272,33 @@ KILTER_DENYLIST = {
     "ABORIGINAL",
     "ANAL",
     "APARTHEID",
+    "ABUSING",
     "BARCELONA",
+    "BITCHING",
+    "BOMBING",
     "CHANDLER",
+    "CHOKING",
     "CIGARETTE",
     "CISCO",
     "COCO",
     "CONN",
+    "COCKING",
+    "CRASHING",
+    "ATTACKING",
+    "DAMNING",
+    "DOGGING",
+    "DROWNING",
     "CRORE",
     "DONT",
+    "FIGHTING",
+    "FREAKING",
+    "FRIGGING",
+    "GAGGING",
+    "GROOMING",
+    "HARASSING",
     "INTERCOURSE",
     "KENSINGTON",
+    "KILLING",
     "ELLE",
     "INTERRACIAL",
     "LAMBERT",
@@ -283,20 +312,36 @@ KILTER_DENYLIST = {
     "ORIENTAL",
     "PARA",
     "PENIS",
+    "POOPING",
+    "PISSING",
+    "PRICKING",
     "PROSTATE",
     "PROTESTANT",
+    "PROTESTING",
     "PROSTITUTE",
+    "PUNISHING",
     "REESE",
     "SCREWING",
     "SCHNEIDER",
+    "SHOOTING",
     "SLAIN",
+    "SLASHING",
     "SLAUGHTER",
+    "SLAUGHTERING",
+    "SLAVING",
     "STALKING",
+    "STABBING",
+    "STARVING",
+    "SWEARING",
     "TARA",
     "TATE",
     "TERRORISM",
     "TITANIC",
+    "VIOLATING",
     "WELLINGTON",
+    "BEGINING",
+    "REFERING",
+    "WRITTING",
 }
 
 SWEEP_ONLY_DENYLIST = {
@@ -657,6 +702,7 @@ class Candidate:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--audit-only", action="store_true")
+    parser.add_argument("--self-test-omitted-obvious", action="store_true")
     return parser.parse_args()
 
 
@@ -736,6 +782,30 @@ def is_low_value_inflection(word: str, word_set: set[str]) -> bool:
     return False
 
 
+def ing_base_candidates(word: str) -> set[str]:
+    if not word.endswith("ING") or len(word) <= 6:
+        return set()
+    stem = word[:-3]
+    candidates = {stem, f"{stem}E"}
+    if len(stem) >= 2 and stem[-1] == stem[-2]:
+        candidates.add(stem[:-1])
+    return candidates
+
+
+def is_common_natural_ing_form(word: str, dictionary_words: set[str]) -> bool:
+    return bool(ing_base_candidates(word) & dictionary_words)
+
+
+def is_trusted_word_source(word: str, dictionary_words: set[str]) -> bool:
+    if word in dictionary_words:
+        return True
+    if word in COMMON_OMITTED_SAMPLE_WORDS:
+        return True
+    if not is_common_natural_ing_form(word, dictionary_words):
+        return False
+    return zipf_frequency(word.lower(), "en") >= TRUSTED_NON_DICTIONARY_MIN_ZIPF
+
+
 def has_bad_shape(word: str) -> bool:
     if re.search(r"(.)\1\1", word):
         return True
@@ -761,10 +831,10 @@ def load_word_entries() -> tuple[list[WordEntry], list[WordEntry], dict[str, flo
             continue
         if normalized in blacklists or has_bad_shape(normalized):
             continue
-        if dictionary_words and normalized not in dictionary_words:
-            continue
         frequency = rank_frequency(rank)
         if frequency < SOURCE_MIN_FREQUENCY:
+            continue
+        if not is_trusted_word_source(normalized, dictionary_words):
             continue
         raw.setdefault(normalized, frequency)
 
@@ -788,6 +858,79 @@ def load_word_entries() -> tuple[list[WordEntry], list[WordEntry], dict[str, flo
             bonus.append(entry)
 
     return core, bonus, raw
+
+
+def find_omitted_obvious_words(
+    entry: dict,
+    core_by_mask: dict[int, list[WordEntry]],
+) -> list[str]:
+    key = str(entry.get("key", ""))
+    letters = entry.get("letters", [])
+    if len(key) not in (1, 2, 3) or not isinstance(letters, list):
+        return []
+
+    allowed_mask = 0
+    for letter in set(key) | set(letters):
+        if letter not in ALPHABET:
+            return []
+        allowed_mask |= bit_for(letter)
+
+    accepted = set(entry.get("coreWords", [])) | set(entry.get("bonusWords", []))
+    omitted = [
+        candidate.word
+        for candidate in words_for_allowed_mask(allowed_mask, core_by_mask)
+        if key in candidate.word and candidate.word not in accepted
+    ]
+    return sorted_words(omitted)
+
+
+def run_omitted_obvious_self_test() -> None:
+    core, _, _ = load_word_entries()
+    core_by_mask = index_by_mask(core)
+    fixtures = [
+        (
+            {
+                "key": "IN",
+                "letters": ["A", "C", "D", "G", "O", "R"],
+                "coreWords": ["DARING"],
+                "bonusWords": [],
+            },
+            {"CARING", "CODING", "RAINING"},
+        ),
+        (
+            {
+                "key": "IN",
+                "letters": ["A", "C", "G", "O", "P", "R"],
+                "coreWords": [],
+                "bonusWords": [],
+            },
+            {"PRICING"},
+        ),
+        (
+            {
+                "key": "IN",
+                "letters": ["A", "C", "D", "G", "O", "S"],
+                "coreWords": [],
+                "bonusWords": [],
+            },
+            {"SIGNING"},
+        ),
+        (
+            {
+                "key": "IN",
+                "letters": ["A", "C", "G", "N", "O", "T"],
+                "coreWords": [],
+                "bonusWords": [],
+            },
+            {"NOTING"},
+        ),
+    ]
+    for fixture, expected in fixtures:
+        omitted = set(find_omitted_obvious_words(fixture, core_by_mask))
+        if not expected.issubset(omitted):
+            missing = ", ".join(sorted(expected - omitted))
+            raise SystemExit(f"omitted obvious self-test failed; missing {missing}")
+    print("omitted obvious word audit self-test passed")
 
 
 def index_by_mask(entries: Sequence[WordEntry]) -> dict[int, list[WordEntry]]:
@@ -996,7 +1139,17 @@ def choose_pack(candidates_by_key_length: dict[int, list[Candidate]]) -> list[Ca
     for day_index, key_length in enumerate(schedule):
         candidates = candidates_by_key_length[key_length]
         picked: Candidate | None = None
+        pinned_signature = PINNED_SIGNATURES.get(day_index)
+        if pinned_signature:
+            picked = next(
+                (candidate for candidate in candidates if candidate.signature == pinned_signature),
+                None,
+            )
+            if picked is None:
+                raise RuntimeError(f"No pinned Kilter candidate for day {day_index + 1}: {pinned_signature}")
         for candidate in candidates:
+            if picked is not None:
+                break
             if candidate.signature in used_signatures:
                 continue
             if candidate.primary_sweep in used_primary_sweeps:
@@ -1074,6 +1227,8 @@ def audit_pack(payload: dict) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
     entries = payload.get("entries", [])
+    common_core, _, _ = load_word_entries()
+    common_core_by_mask = index_by_mask(common_core)
 
     if len(entries) != PACK_DAYS:
         errors.append(f"Expected {PACK_DAYS} entries, found {len(entries)}.")
@@ -1131,6 +1286,12 @@ def audit_pack(payload: dict) -> tuple[list[str], list[str]]:
                 if any(letter not in allowed for letter in word):
                     errors.append(f"{prefix}: {bucket_name} word `{word}` uses letters outside bank.")
         accepted_word_set = set(core_words) | set(bonus_words)
+        omitted_obvious = find_omitted_obvious_words(entry, common_core_by_mask)
+        if omitted_obvious:
+            preview = ", ".join(omitted_obvious[:8])
+            if len(omitted_obvious) > 8:
+                preview += f", +{len(omitted_obvious) - 8} more"
+            errors.append(f"{prefix}: omitted obvious core words {preview}.")
         for word in sweeps:
             if word not in core_words:
                 errors.append(f"{prefix}: sweep `{word}` is not a core word.")
@@ -1160,8 +1321,31 @@ def audit_pack(payload: dict) -> tuple[list[str], list[str]]:
     return errors, warnings
 
 
+def trusted_non_dictionary_words(entry: dict, dictionary_words: set[str]) -> list[str]:
+    words = set(entry.get("coreWords", [])) | set(entry.get("bonusWords", []))
+    return sorted_words(
+        word
+        for word in words
+        if word not in dictionary_words and is_trusted_word_source(word, dictionary_words)
+    )
+
+
+def table(rows: Sequence[dict], columns: Sequence[tuple[str, str]]) -> list[str]:
+    if not rows:
+        return ["None."]
+    lines = [
+        "| " + " | ".join(label for label, _ in columns) + " |",
+        "| " + " | ".join("---" for _ in columns) + " |",
+    ]
+    for row in rows:
+        values = [str(row.get(key, "")).replace("\n", " ") for _, key in columns]
+        lines.append("| " + " | ".join(values) + " |")
+    return lines
+
+
 def audit_markdown(payload: dict, errors: Sequence[str], warnings: Sequence[str]) -> str:
     entries = payload.get("entries", [])
+    dictionary_words = read_system_dictionary()
     key_counts = Counter(len(entry["key"]) for entry in entries)
     sweep_counts = Counter(len(entry["sweeps"]) for entry in entries)
     core_counts = [len(entry["coreWords"]) for entry in entries]
@@ -1210,6 +1394,44 @@ def audit_markdown(payload: dict, errors: Sequence[str], warnings: Sequence[str]
                 "",
             ]
         )
+
+    trust_rows = []
+    for entry in entries:
+        trusted_words = trusted_non_dictionary_words(entry, dictionary_words)
+        if trusted_words:
+            trust_rows.append(
+                {
+                    "date": entry["date"],
+                    "center": entry["key"],
+                    "letters": "".join(entry["letters"]),
+                    "count": len(trusted_words),
+                    "words": ", ".join(trusted_words[:16])
+                    + (f", +{len(trusted_words) - 16} more" if len(trusted_words) > 16 else ""),
+                }
+            )
+    lines.extend(
+        [
+            "## Word-Trust Additions",
+            "",
+            "These accepted words come from wordfreq plus Composed trust rules rather than the local system dictionary.",
+            f"- Days with trust additions: {len(trust_rows)}",
+            f"- Total trust additions: {sum(row['count'] for row in trust_rows)}",
+            "",
+        ]
+    )
+    lines.extend(
+        table(
+            sorted(trust_rows, key=lambda row: (-row["count"], row["date"]))[:30],
+            [
+                ("Date", "date"),
+                ("Center", "center"),
+                ("Letters", "letters"),
+                ("Count", "count"),
+                ("Words", "words"),
+            ],
+        )
+    )
+    lines.append("")
 
     lines.extend(["## Editorial Sweep Review", ""])
     flagged_sweeps = sorted(
@@ -1281,6 +1503,10 @@ def audit_markdown(payload: dict, errors: Sequence[str], warnings: Sequence[str]
 
 def main() -> None:
     args = parse_args()
+
+    if args.self_test_omitted_obvious:
+        run_omitted_obvious_self_test()
+        return
 
     if args.audit_only:
         if not PACK_OUT.exists():
