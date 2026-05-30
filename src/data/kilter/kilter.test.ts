@@ -218,12 +218,13 @@ describe('Kilter rules and scoring', () => {
     expect(scoreKilterWord('TOAST', puzzle)).toBe(5);
     expect(scoreKilterWord('STET', puzzle)).toBe(1);
     expect(scoreKilterWord('NOPE', puzzle)).toBe(0);
-    expect(KILTER_RANK_COUNT).toBe(4);
+    expect(KILTER_RANK_COUNT).toBe(5);
     expect(getKilterRank(0, 100).name).toBe('Drafting');
-    expect(getKilterRank(19, 100).name).toBe('Drafting');
-    expect(getKilterRank(20, 100).name).toBe('Composed');
-    expect(getKilterRank(40, 100).name).toBe('Poised');
-    expect(getKilterRank(75, 100).name).toBe('Poised');
+    expect(getKilterRank(14, 100).name).toBe('Drafting');
+    expect(getKilterRank(15, 100).name).toBe('Steady');
+    expect(getKilterRank(35, 100).name).toBe('Posed');
+    expect(getKilterRank(55, 100).name).toBe('Composed');
+    expect(getKilterRank(75, 100).name).toBe('Composed');
     expect(getKilterRank(75, 100, true).name).toBe('Mastered');
     const sweepShare = formatKilterShareText({
       puzzle,
@@ -236,7 +237,7 @@ describe('Kilter rules and scoring', () => {
       [
         'Composed June 1st 2026',
         'Found Words: 2 ⭐️',
-        'Score: 28 - Poised (3/4)',
+        'Score: 28 - Composed (4/5)',
         'https://example.test/kilter',
       ].join('\n')
     );
@@ -249,7 +250,7 @@ describe('Kilter rules and scoring', () => {
     });
     expect(bonusOnlyShare).toContain('Composed June 1st 2026');
     expect(bonusOnlyShare).toContain('Found Words: 1');
-    expect(bonusOnlyShare).toContain('Score: 99 - Drafting (1/4)');
+    expect(bonusOnlyShare).toContain('Score: 99 - Drafting (1/5)');
     expect(bonusOnlyShare).not.toContain('⭐️');
   });
 

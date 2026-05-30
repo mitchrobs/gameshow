@@ -84,9 +84,10 @@ const lastEntry = PACK.entries[PACK.entries.length - 1]!;
 export const KILTER_PACK = PACK;
 export const KILTER_RANKS: readonly Omit<KilterRank, 'percent'>[] = [
   { tier: 1, name: 'Drafting', minPercent: 0 },
-  { tier: 2, name: 'Composed', minPercent: 20 },
-  { tier: 3, name: 'Poised', minPercent: 40 },
-  { tier: 4, name: 'Mastered', minPercent: 75, requiresSweep: true },
+  { tier: 2, name: 'Steady', minPercent: 15 },
+  { tier: 3, name: 'Posed', minPercent: 35 },
+  { tier: 4, name: 'Composed', minPercent: 55 },
+  { tier: 5, name: 'Mastered', minPercent: 75, requiresSweep: true },
 ] as const;
 export const KILTER_RANK_COUNT = KILTER_RANKS.length;
 
