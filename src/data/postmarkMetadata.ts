@@ -20,18 +20,18 @@ export const POSTMARK_ROUTE_TARGETS: Record<
   Record<PostmarkDifficulty, { min: number; max: number }>
 > = {
   5: {
-    Easy: { min: 3, max: 4 },
-    Medium: { min: 3, max: 4 },
-    Hard: { min: 4, max: 5 },
+    Easy: { min: 3, max: 3 },
+    Medium: { min: 4, max: 4 },
+    Hard: { min: 4, max: 4 },
   },
   6: {
-    Easy: { min: 4, max: 4 },
-    Medium: { min: 4, max: 5 },
+    Easy: { min: 5, max: 5 },
+    Medium: { min: 5, max: 5 },
     Hard: { min: 5, max: 5 },
   },
   7: {
     Easy: { min: 6, max: 6 },
-    Medium: { min: 7, max: 7 },
-    Hard: { min: 8, max: 8 },
+    Medium: { min: 6, max: 6 },
+    Hard: { min: 7, max: 7 },
   },
 };

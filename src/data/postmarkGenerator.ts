@@ -390,15 +390,67 @@ function generateCandidatesForStart(
   return candidates;
 }
 
+type CandidatePressureProfile = {
+  counts: number[];
+  total: number;
+  max: number;
+  min: number;
+  branchingScore: number;
+};
+
+function getCandidatePressureProfile(puzzle: PostmarkPuzzle): CandidatePressureProfile {
+  const counts = puzzle.starts.map((start) => generateCandidatesForStart(puzzle, start).length);
+  const total = counts.reduce((sum, count) => sum + count, 0);
+  return {
+    counts,
+    total,
+    max: Math.max(...counts),
+    min: Math.min(...counts),
+    branchingScore: counts.reduce((sum, count) => sum + Math.max(0, Math.min(count, 24) - 1), 0),
+  };
+}
+
+function candidatePressureLimits(
+  size: 5 | 6 | 7,
+  difficulty: PostmarkDifficulty,
+  routeCount: number,
+  stage: number
+) {
+  const base = {
+    Easy: { minPerRoute: 3, maxPerRoute: 54, maxSingle: 82 },
+    Medium: { minPerRoute: 6, maxPerRoute: 66, maxSingle: 104 },
+    Hard: { minPerRoute: 8, maxPerRoute: 78, maxSingle: 126 },
+  }[difficulty];
+  const sizeAdjustment = size === 5 ? -10 : size === 7 ? 22 : 0;
+  const stageAdjustment = stage * 16;
+
+  return {
+    minTotal: Math.max(routeCount, routeCount * Math.max(1, base.minPerRoute - stage)),
+    maxTotal: routeCount * (base.maxPerRoute + sizeAdjustment + stageAdjustment),
+    maxSingle: base.maxSingle + sizeAdjustment + stageAdjustment,
+  };
+}
+
+function puzzleHasManageableCandidatePressure(
+  puzzle: PostmarkPuzzle,
+  profile: CandidatePressureProfile,
+  stage: number
+): boolean {
+  if (profile.min <= 0) return false;
+  const limits = candidatePressureLimits(puzzle.size, puzzle.difficulty, puzzle.starts.length, stage);
+  return (
+    profile.total >= limits.minTotal &&
+    profile.total <= limits.maxTotal &&
+    profile.max <= limits.maxSingle
+  );
+}
+
 export function countPostmarkSolutions(
   puzzle: PostmarkPuzzle,
   limit = 2
 ): PostmarkSolveResult {
   const postIndexById = new Map(puzzle.posts.map((post, index) => [post.id, index]));
-  const postByKey = new Map(puzzle.posts.map((post) => [coordKey(post), post]));
-  const postIndexByKey = new Map(puzzle.posts.map((post, index) => [coordKey(post), index]));
   const postCapacities = puzzle.posts.map((post) => post.capacity);
-  const entryKeys = new Map(puzzle.starts.map((start) => [coordKey(start.entry), start.id]));
   const solutionSignatureByStart = new Map(
     puzzle.solution.map((route) => [
       route.startId,
@@ -409,79 +461,27 @@ export function countPostmarkSolutions(
   let solutionCount = 0;
   let firstSolution: PostmarkRoute[] | null = null;
   const startById = new Map(puzzle.starts.map((start) => [start.id, start]));
+  const candidatesByStart = new Map<
+    string,
+    Array<{ route: PostmarkRoute; postIndex: number; mask: bigint }>
+  >();
 
-  const generateViableCandidates = (
-    start: PostmarkStart,
-    usedTiles: bigint,
-    postUsage: number[]
-  ): Array<{ route: PostmarkRoute; postIndex: number; mask: bigint }> => {
-    const entryBit = coordBit(start.entry, puzzle.size);
-    if ((entryBit & usedTiles) !== 0n) return [];
-
-    const candidates: Array<{ route: PostmarkRoute; postIndex: number; mask: bigint }> = [];
-    const path: PostmarkCoord[] = [start.entry];
-    const used = new Set([coordKey(start.entry)]);
-
-    const canStillReachOpenPost = (coord: PostmarkCoord, remainingSteps: number): boolean => {
-      return puzzle.posts.some((post, index) => {
-        if (postUsage[index]! >= postCapacities[index]!) return false;
-        const distance = manhattan(coord, post);
-        return distance <= remainingSteps && (remainingSteps - distance) % 2 === 0;
-      });
-    };
-
-    const dfs = (coord: PostmarkCoord, step: number, mask: bigint) => {
-      const remainingSteps = start.length - step;
-      if (remainingSteps === 0) {
-        const post = postByKey.get(coordKey(coord));
-        if (!post) return;
-        const postIndex = postIndexById.get(post.id);
-        if (postIndex === undefined || postUsage[postIndex]! >= postCapacities[postIndex]!) {
-          return;
-        }
-        candidates.push({
-          route: {
-            startId: start.id,
-            postId: post.id,
-            cells: path.map((cell) => ({ ...cell })),
-          },
-          postIndex,
-          mask,
-        });
-        return;
-      }
-
-      if (!canStillReachOpenPost(coord, remainingSteps)) return;
-
-      getNeighbors(coord, puzzle.size).forEach((next) => {
-        const key = coordKey(next);
-        const nextStep = step + 1;
-        const isFinalStep = nextStep === start.length;
-        const post = postByKey.get(key);
-        const postIndex = postIndexByKey.get(key);
-        if (used.has(key)) return;
-        if (entryKeys.has(key) && entryKeys.get(key) !== start.id) return;
-        if (post && !isFinalStep) return;
-        if (!post && isFinalStep) return;
-        if (post && isFinalStep && postIndex !== undefined && postUsage[postIndex]! >= post.capacity) {
-          return;
-        }
-
-        const bit = coordBit(next, puzzle.size);
-        const nextMask = post && isFinalStep ? mask : mask | bit;
-        if ((!post || !isFinalStep) && (bit & usedTiles) !== 0n) return;
-
-        used.add(key);
-        path.push(next);
-        dfs(next, nextStep, nextMask);
-        path.pop();
-        used.delete(key);
-      });
-    };
-
-    dfs(start.entry, 1, entryBit);
-
+  puzzle.starts.forEach((start) => {
     const solutionSignature = solutionSignatureByStart.get(start.id);
+    const candidates = generateCandidatesForStart(puzzle, start)
+      .map((route) => {
+        const postIndex = postIndexById.get(route.postId);
+        if (postIndex === undefined) return null;
+        const finalIndex = route.cells.length - 1;
+        const mask = route.cells.reduce((bits, cell, index) => {
+          return index === finalIndex ? bits : bits | coordBit(cell, puzzle.size);
+        }, 0n);
+        return { route, postIndex, mask };
+      })
+      .filter((candidate): candidate is { route: PostmarkRoute; postIndex: number; mask: bigint } =>
+        candidate !== null
+      );
+
     if (solutionSignature) {
       candidates.sort((left, right) => {
         const leftIsSolution = left.route.cells.map(coordKey).join('|') === solutionSignature;
@@ -490,7 +490,18 @@ export function countPostmarkSolutions(
       });
     }
 
-    return candidates;
+    candidatesByStart.set(start.id, candidates);
+  });
+
+  const generateViableCandidates = (
+    start: PostmarkStart,
+    usedTiles: bigint,
+    postUsage: number[]
+  ): Array<{ route: PostmarkRoute; postIndex: number; mask: bigint }> => {
+    return (candidatesByStart.get(start.id) ?? []).filter((candidate) => {
+      if ((candidate.mask & usedTiles) !== 0n) return false;
+      return postUsage[candidate.postIndex]! < postCapacities[candidate.postIndex]!;
+    });
   };
 
   const search = (
@@ -514,6 +525,21 @@ export function countPostmarkSolutions(
         }
       }
       return;
+    }
+
+    for (let postIndex = 0; postIndex < postCapacities.length; postIndex += 1) {
+      const remainingCapacity = postCapacities[postIndex]! - postUsage[postIndex]!;
+      if (remainingCapacity < 0) return;
+      if (remainingCapacity === 0) continue;
+
+      let possibleStarts = 0;
+      for (const startId of pendingIds) {
+        const hasCandidate = (candidatesByStart.get(startId) ?? []).some((candidate) => {
+          return candidate.postIndex === postIndex && (candidate.mask & usedTiles) === 0n;
+        });
+        if (hasCandidate) possibleStarts += 1;
+      }
+      if (possibleStarts < remainingCapacity) return;
     }
 
     let bestIndex = 0;
@@ -550,42 +576,42 @@ export function countPostmarkSolutions(
 
 function routeLengthRange(size: 5 | 6 | 7, difficulty: PostmarkDifficulty) {
   if (size === 5) {
-    if (difficulty === 'Easy') return { min: 4, max: 8 };
-    if (difficulty === 'Medium') return { min: 4, max: 9 };
-    return { min: 4, max: 10 };
+    if (difficulty === 'Easy') return { min: 5, max: 9 };
+    if (difficulty === 'Medium') return { min: 4, max: 11 };
+    return { min: 4, max: 12 };
   }
   if (size === 6) {
-    if (difficulty === 'Easy') return { min: 4, max: 8 };
-    if (difficulty === 'Medium') return { min: 5, max: 11 };
-    return { min: 5, max: 12 };
+    if (difficulty === 'Easy') return { min: 5, max: 10 };
+    if (difficulty === 'Medium') return { min: 5, max: 14 };
+    return { min: 5, max: 14 };
   }
-  if (difficulty === 'Easy') return { min: 5, max: 9 };
-  if (difficulty === 'Medium') return { min: 5, max: 11 };
-  return { min: 5, max: 12 };
+  if (difficulty === 'Easy') return { min: 5, max: 10 };
+  if (difficulty === 'Medium') return { min: 5, max: 14 };
+  return { min: 5, max: 14 };
 }
 
 function usageTargetRange(difficulty: PostmarkDifficulty, stage: number): [number, number] {
   const base: Record<PostmarkDifficulty, [number, number]> = {
-    Easy: [0.56, 0.72],
-    Medium: [0.7, 0.85],
-    Hard: [0.8, 0.92],
+    Easy: [0.72, 0.82],
+    Medium: [0.8, 0.91],
+    Hard: [0.88, 0.95],
   };
   const minimumFloor: Record<PostmarkDifficulty, number> = {
-    Easy: 0.52,
-    Medium: 0.68,
-    Hard: 0.78,
+    Easy: 0.68,
+    Medium: 0.76,
+    Hard: 0.86,
   };
   const [min, max] = base[difficulty];
   return [
-    Math.max(minimumFloor[difficulty], min - stage * 0.02),
-    Math.min(0.94, max + stage * 0.018),
+    Math.max(minimumFloor[difficulty], min - stage * 0.018),
+    Math.min(0.97, max + stage * 0.012),
   ];
 }
 
 function longRouteTarget(size: 5 | 6 | 7, difficulty: PostmarkDifficulty): number {
-  if (difficulty === 'Easy') return 0;
-  if (difficulty === 'Medium') return size === 5 ? 8 : size === 6 ? 9 : 10;
-  return size === 5 ? 9 : size === 6 ? 10 : 11;
+  if (difficulty === 'Easy') return size === 5 ? 7 : 8;
+  if (difficulty === 'Medium') return size === 5 ? 8 : size === 6 ? 12 : 13;
+  return size === 5 ? 9 : size === 6 ? 12 : 13;
 }
 
 function longRouteTargetFor(size: 5 | 6 | 7, difficulty: PostmarkDifficulty): number {
@@ -607,13 +633,13 @@ function chooseDoublePostCount(
 ) {
   if (routeCount < 3) return 0;
   if (size === 5) {
-    if (difficulty === 'Hard') return rand() < 0.35 ? 1 : 0;
-    if (difficulty === 'Medium') return rand() < 0.22 ? 1 : 0;
-    return rand() < 0.08 ? 1 : 0;
+    if (difficulty === 'Hard') return 1;
+    if (difficulty === 'Medium') return rand() < 0.9 ? 1 : 0;
+    return rand() < 0.75 ? 1 : 0;
   }
-  if (difficulty === 'Easy') return rand() < 0.16 ? 1 : 0;
-  if (difficulty === 'Medium') return 1;
-  return routeCount >= 6 && rand() < 0.46 ? 2 : 1;
+  if (difficulty === 'Easy') return rand() < 0.75 ? 1 : 0;
+  if (difficulty === 'Medium') return routeCount >= 5 && rand() < 0.38 ? 2 : 1;
+  return routeCount >= 5 && rand() < 0.7 ? 2 : 1;
 }
 
 function buildPostCapacities(
@@ -736,10 +762,10 @@ function scoreCandidatePath(
   const straightPenalty = turns === 0 ? 24 : 0;
   const edgeHugPenalty = Math.max(0, edgeCells - 1) * 3;
   return (
-    turns * 13 +
-    detour * 8 +
-    adjacency * 13 +
-    routeCells.length * 2 -
+    turns * 18 +
+    detour * 11 +
+    adjacency * 17 +
+    routeCells.length * 2.5 -
     straightPenalty -
     edgeHugPenalty +
     rand() * 4
@@ -794,12 +820,15 @@ function chooseRouteLengths(
   const requiredLongGoals: number[] = [];
   if (longTarget > 0) {
     const longVariance = Math.max(0, range.max - longTarget);
-    const primaryLongGoal =
+    const primaryVariance =
       difficulty === 'Hard'
-        ? longTarget + Math.floor(rand() * (longVariance + 1))
-        : longTarget + Math.floor(rand() * (Math.min(1, longVariance) + 1));
+        ? longVariance
+        : difficulty === 'Medium'
+          ? Math.min(2, longVariance)
+          : Math.min(size === 6 && rand() < 0.18 ? 2 : 1, longVariance);
+    const primaryLongGoal = longTarget + Math.floor(rand() * (primaryVariance + 1));
     requiredLongGoals.push(primaryLongGoal);
-    if (difficulty === 'Hard' && routeCount >= 5 && rand() < 0.38) {
+    if (difficulty === 'Hard' && routeCount >= 4 && rand() < 0.52) {
       requiredLongGoals.push(Math.min(range.max, Math.max(longTarget, primaryLongGoal - 1)));
     }
   }
@@ -839,7 +868,14 @@ function buildRouteDrafts(
     (left, right) => right - left
   );
   const doublePostCount = capacities.filter((capacity) => capacity === 2).length;
-  const routeLengths = chooseRouteLengths(routeCount, doublePostCount, size, difficulty, stage, rand);
+  const routeLengths = chooseRouteLengths(
+    routeCount,
+    doublePostCount,
+    size,
+    difficulty,
+    stage,
+    rand
+  ).sort((left, right) => left - right);
   const occupied = new Set<string>();
   const postKeys = new Set<string>();
   const reservedEntries = new Set<string>();
@@ -882,8 +918,12 @@ function buildRouteDrafts(
             scoreCandidatePath(right, post, size, localOccupied, rand) -
             scoreCandidatePath(left, post, size, localOccupied, rand)
         );
-        const topCandidates = candidatePaths.slice(0, Math.min(6, candidatePaths.length));
-        const selected = topCandidates[Math.floor(rand() * topCandidates.length)];
+        const topCandidates = candidatePaths.slice(
+          0,
+          Math.min(difficulty === 'Easy' ? 6 : 4, candidatePaths.length)
+        );
+        const selected =
+          topCandidates[Math.floor(Math.pow(rand(), difficulty === 'Hard' ? 1.9 : 1.45) * topCandidates.length)];
         if (!selected) {
           routeWasBlocked = true;
           break;
@@ -1042,28 +1082,28 @@ function minimumQualityFor(
 ) {
   if (difficulty === 'Easy') {
     return {
-      totalTurns: Math.max(3, routeCount - 1 - Math.floor(stage / 2)),
-      maxStraightRoutes: 1,
-      endpointAmbiguityScore: stage >= 3 ? 0 : 1,
-      candidateBranchingScore: 0,
-      routeAdjacencyScore: stage >= 3 ? 0 : 1,
-    };
-  }
-  if (difficulty === 'Medium') {
-    return {
-      totalTurns: Math.max(7, routeCount + 2 - stage),
-      maxStraightRoutes: stage >= 3 ? 1 : 0,
-      endpointAmbiguityScore: stage >= 3 ? 2 : 3,
+      totalTurns: Math.max(6, routeCount + 3 - Math.floor(stage / 2)),
+      maxStraightRoutes: 0,
+      endpointAmbiguityScore: stage >= 3 ? 1 : 2,
       candidateBranchingScore: 0,
       routeAdjacencyScore: stage >= 2 ? 1 : 2,
     };
   }
+  if (difficulty === 'Medium') {
+    return {
+      totalTurns: Math.max(10, routeCount + 6 - stage),
+      maxStraightRoutes: 0,
+      endpointAmbiguityScore: stage >= 3 ? 3 : 4,
+      candidateBranchingScore: 0,
+      routeAdjacencyScore: stage >= 2 ? 3 : 4,
+    };
+  }
   return {
-    totalTurns: Math.max(9, routeCount + 4 - stage),
+    totalTurns: Math.max(13, routeCount + 9 - stage),
     maxStraightRoutes: 0,
-    endpointAmbiguityScore: stage >= 3 ? 3 : 4,
+    endpointAmbiguityScore: stage >= 3 ? 4 : 5,
     candidateBranchingScore: 0,
-    routeAdjacencyScore: stage >= 2 ? 2 : 3,
+    routeAdjacencyScore: stage >= 2 ? 4 : 5,
   };
 }
 
@@ -1104,24 +1144,24 @@ function qualityScoreFor(puzzle: PostmarkPuzzle, quality: PostmarkQualityMetadat
   const multiTurnRouteCount = routeTurns.filter((turns) => turns >= 2).length;
   const singleTurnRouteCount = routeTurns.filter((turns) => turns === 1).length;
   const shortRoutePenalty = puzzle.solution.filter((route) => {
-    if (puzzle.difficulty === 'Easy') return route.cells.length <= 3;
-    if (puzzle.difficulty === 'Medium') return route.cells.length <= 4;
-    return route.cells.length <= 5;
+    if (puzzle.difficulty === 'Easy') return route.cells.length <= 4;
+    if (puzzle.difficulty === 'Medium') return route.cells.length <= 5;
+    return route.cells.length <= 6;
   }).length;
   const usageScore = 90 - Math.abs(quality.usedTileRatio - usageCenter) * 210;
   return (
     usageScore +
-    quality.totalTurns * 20 +
-    quality.longestRouteLength * 10 +
-    longRouteCount * 22 +
-    multiTurnRouteCount * 16 +
-    singleTurnRouteCount * 5 +
-    quality.endpointAmbiguityScore * 8 +
+    quality.totalTurns * 26 +
+    quality.longestRouteLength * 13 +
+    longRouteCount * 32 +
+    multiTurnRouteCount * 22 +
+    singleTurnRouteCount * 4 +
+    quality.endpointAmbiguityScore * 12 +
     quality.candidateBranchingScore * 1.4 +
-    quality.routeAdjacencyScore * 14 -
-    quality.straightRouteCount * 32 -
-    shortRoutePenalty * 14 +
-    puzzle.posts.filter((post) => post.capacity === 2).length * 14
+    quality.routeAdjacencyScore * 22 -
+    quality.straightRouteCount * 80 -
+    shortRoutePenalty * 24 +
+    puzzle.posts.filter((post) => post.capacity === 2).length * 24
   );
 }
 
@@ -1184,7 +1224,7 @@ function liftSixPuzzleToSeven(
     };
   });
 
-  if (liftedRoutes.some((route) => route.cells.length > 12)) return null;
+  if (liftedRoutes.some((route) => route.cells.length > 14)) return null;
 
   const liftedPuzzle = makePuzzleFromRoutes(
     dateKey,
@@ -1201,9 +1241,9 @@ function liftedPuzzleMeetsQuality(
   quality: PostmarkQualityMetadata
 ): boolean {
   const minimumUsage: Record<PostmarkDifficulty, number> = {
-    Easy: 0.52,
-    Medium: 0.65,
-    Hard: 0.72,
+    Easy: 0.64,
+    Medium: 0.76,
+    Hard: 0.84,
   };
 
   if (quality.totalTurns === 0) return false;
@@ -1217,7 +1257,9 @@ function liftedPuzzleMeetsQuality(
   if (puzzle.difficulty === 'Medium' && puzzle.posts.every((post) => post.capacity === 1)) {
     return false;
   }
-  if (puzzle.difficulty === 'Hard' && quality.totalTurns < 5) return false;
+  if (quality.straightRouteCount > 0) return false;
+  if (puzzle.difficulty === 'Medium' && quality.totalTurns < 10) return false;
+  if (puzzle.difficulty === 'Hard' && quality.totalTurns < 13) return false;
   return true;
 }
 
@@ -1322,7 +1364,7 @@ function generateParameterFirstPuzzle(
   size: 5 | 6 | 7,
   seed: number
 ): PostmarkPuzzle | null {
-  const attemptsByStage = [80, 140, 220, 360];
+  const attemptsByStage = [120, 220, 360, 620];
   for (let stage = 0; stage < attemptsByStage.length; stage += 1) {
     let bestPuzzle: PostmarkPuzzle | null = null;
     let bestScore = Number.NEGATIVE_INFINITY;
@@ -1369,11 +1411,12 @@ function generatePuzzle(
     if (liftedPuzzle) return liftedPuzzle;
   }
 
-  const stageAttempts = [160, 200, 240, MAX_GENERATION_ATTEMPTS];
+  const stageAttempts = [260, 420, 760, MAX_GENERATION_ATTEMPTS];
   const debugStats = {
     drafts: 0,
     invalid: 0,
     lowQuality: 0,
+    unmanageablePressure: 0,
     notUnique: 0,
     bestQualityScore: Number.NEGATIVE_INFINITY,
     bestNotUniqueSolutionCount: 0,
@@ -1405,6 +1448,16 @@ function generatePuzzle(
         continue;
       }
 
+      const pressureProfile = getCandidatePressureProfile(puzzle);
+      if (!puzzleHasManageableCandidatePressure(puzzle, pressureProfile, stage)) {
+        debugStats.unmanageablePressure += 1;
+        continue;
+      }
+      const scoredQuality = {
+        ...quality,
+        candidateBranchingScore: pressureProfile.branchingScore,
+      };
+
       const solutionCount = countPostmarkSolutions(puzzle, 2).solutionCount;
       if (solutionCount !== 1) {
         debugStats.notUnique += 1;
@@ -1412,7 +1465,7 @@ function generatePuzzle(
           debugStats.bestNotUniqueSolutionCount,
           solutionCount
         );
-        const rejectedScore = qualityScoreFor(puzzle, quality);
+        const rejectedScore = qualityScoreFor(puzzle, scoredQuality);
         if (rejectedScore > bestRejectedScore) {
           bestRejectedPuzzle = puzzle;
           bestRejectedScore = rejectedScore;
@@ -1420,7 +1473,7 @@ function generatePuzzle(
         continue;
       }
 
-      const score = qualityScoreFor(puzzle, quality);
+      const score = qualityScoreFor(puzzle, scoredQuality);
       if (stage >= 2) {
         if (process.env.POSTMARK_DEBUG_GENERATOR === '1') {
           console.info(`[postmark-generator] ${dateKey} success`, JSON.stringify({ stage, attempt }));
@@ -1544,7 +1597,7 @@ export function buildPostmarkEntry(
   source: 'pack' | 'fallback' = 'pack',
   salt = ''
 ): PostmarkPackEntry {
-  const seed = hashString(`${dateKey}:${dayNumber}:${difficulty}:${size}:${salt}:postmark-v3`);
+  const seed = hashString(`${dateKey}:${dayNumber}:${difficulty}:${size}:${salt}:postmark-v4`);
   const puzzle = generatePuzzle(dateKey, difficulty, size, seed);
   const usedTileCount = getUsedTileCount(puzzle.solution);
   const doublePostCount = puzzle.posts.filter((post) => post.capacity === 2).length;

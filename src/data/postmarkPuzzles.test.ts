@@ -228,14 +228,16 @@ describe('Postmark 500-day pack', () => {
     expect(entry.difficulty).toBe('Medium');
     expect(entry.size).toBe(7);
     expect(entry.doublePostCount).toBeGreaterThanOrEqual(1);
-    expect(entry.quality.longestRouteLength).toBeGreaterThanOrEqual(10);
-    expect(entry.quality.totalTurns).toBeGreaterThanOrEqual(12);
-    expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.8);
+    expect(entry.quality.longestRouteLength).toBeGreaterThanOrEqual(13);
+    expect(entry.quality.totalTurns).toBeGreaterThanOrEqual(20);
+    expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.88);
     expect(entry.quality.straightRouteCount).toBe(0);
-    expect(entry.quality.routeAdjacencyScore).toBeGreaterThanOrEqual(5);
+    expect(entry.quality.endpointAmbiguityScore).toBeGreaterThanOrEqual(10);
+    expect(entry.quality.candidateBranchingScore).toBeGreaterThanOrEqual(50);
+    expect(entry.quality.routeAdjacencyScore).toBeGreaterThanOrEqual(7);
   });
 
-  it('matches the harder-gentle difficulty and board-size targets', () => {
+  it('matches the harder daily difficulty and board-size targets', () => {
     const difficulties: Record<PostmarkDifficulty, number> = {
       Easy: 0,
       Medium: 0,
@@ -258,12 +260,20 @@ describe('Postmark 500-day pack', () => {
 
   it('keeps every shipped puzzle valid, uniquely solvable, and structurally useful', () => {
     const signatures = new Set<string>();
-    let easyDoublePosts = 0;
-    let mediumDoublePosts = 0;
-    let hardDoublePosts = 0;
+    let easyDoublePuzzles = 0;
+    let mediumDoublePuzzles = 0;
+    let hardDoublePuzzles = 0;
+    let easyDoubleMarks = 0;
+    let mediumDoubleMarks = 0;
+    let hardDoubleMarks = 0;
     let hardLongTenDays = 0;
     let hardLongTwelveDays = 0;
+    let hardLongThirteenDays = 0;
+    let hardLongFourteenDays = 0;
+    let mediumLongTwelveDays = 0;
+    let mediumLongThirteenDays = 0;
     const sevenDays: number[] = [];
+    let maxRouteLength = 0;
 
     postmarkPack.forEach((entry) => {
       expect(signatures.has(entry.signature)).toBe(false);
@@ -283,16 +293,37 @@ describe('Postmark 500-day pack', () => {
         entry.routeCount
       );
 
-      if (entry.difficulty === 'Easy') easyDoublePosts += entry.doublePostCount;
-      if (entry.difficulty === 'Medium') mediumDoublePosts += entry.doublePostCount;
-      if (entry.difficulty === 'Hard') hardDoublePosts += entry.doublePostCount;
+      if (entry.doublePostCount > 0) {
+        if (entry.difficulty === 'Easy') easyDoublePuzzles += 1;
+        if (entry.difficulty === 'Medium') mediumDoublePuzzles += 1;
+        if (entry.difficulty === 'Hard') hardDoublePuzzles += 1;
+      }
+      if (entry.difficulty === 'Easy') easyDoubleMarks += entry.doublePostCount;
+      if (entry.difficulty === 'Medium') mediumDoubleMarks += entry.doublePostCount;
+      if (entry.difficulty === 'Hard') hardDoubleMarks += entry.doublePostCount;
+      if (entry.difficulty === 'Medium' && entry.quality.longestRouteLength >= 12) {
+        mediumLongTwelveDays += 1;
+      }
+      if (entry.difficulty === 'Medium' && entry.quality.longestRouteLength >= 13) {
+        mediumLongThirteenDays += 1;
+      }
       if (entry.difficulty === 'Hard' && entry.quality.longestRouteLength >= 10) {
         hardLongTenDays += 1;
       }
       if (entry.difficulty === 'Hard' && entry.quality.longestRouteLength >= 12) {
         hardLongTwelveDays += 1;
       }
+      if (entry.difficulty === 'Hard' && entry.quality.longestRouteLength >= 13) {
+        hardLongThirteenDays += 1;
+      }
+      if (entry.difficulty === 'Hard' && entry.quality.longestRouteLength >= 14) {
+        hardLongFourteenDays += 1;
+      }
       if (entry.size === 7) sevenDays.push(entry.dayNumber);
+      maxRouteLength = Math.max(
+        maxRouteLength,
+        ...entry.puzzle.starts.map((start) => start.length)
+      );
 
       const startKeys = new Set(
         entry.puzzle.starts.map((start) => `${start.entry.row}:${start.entry.col}`)
@@ -323,9 +354,9 @@ describe('Postmark 500-day pack', () => {
       expect('stepMarks' in entry.puzzle).toBe(false);
       expect('blockedCells' in entry.puzzle).toBe(false);
 
-      expect(entry.puzzle.starts.every((start) => start.length <= 12)).toBe(true);
+      expect(entry.puzzle.starts.every((start) => start.length <= 14)).toBe(true);
       expect(entry.quality.totalTurns).toBeGreaterThan(0);
-      expect(entry.quality.straightRouteCount).toBeLessThan(entry.routeCount);
+      expect(entry.quality.straightRouteCount).toBe(0);
       expect(entry.quality.endpointAmbiguityScore).toBeGreaterThan(0);
       expect(entry.quality.routeAdjacencyScore).toBeGreaterThan(0);
       expect(entry.puzzle.solution.reduce((sum, route) => sum + countRouteTurns(route.cells), 0)).toBe(
@@ -333,40 +364,52 @@ describe('Postmark 500-day pack', () => {
       );
       if (entry.difficulty === 'Easy') {
         expect(entry.size).not.toBe(7);
-        expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.52);
-        expect(entry.quality.totalTurns).toBeGreaterThanOrEqual(5);
-        expect(entry.quality.straightRouteCount).toBeLessThanOrEqual(1);
+        expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.72);
+        expect(entry.quality.totalTurns).toBeGreaterThanOrEqual(7);
+        expect(entry.quality.endpointAmbiguityScore).toBeGreaterThanOrEqual(2);
+        expect(entry.quality.candidateBranchingScore).toBeGreaterThanOrEqual(6);
+        expect(entry.quality.routeAdjacencyScore).toBeGreaterThanOrEqual(2);
       } else {
         expect(entry.quality.longestRouteLength).toBeGreaterThan(7);
       }
       if (entry.difficulty === 'Medium') {
-        expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.68);
-        expect(entry.quality.straightRouteCount).toBeLessThanOrEqual(1);
-        expect(entry.quality.endpointAmbiguityScore).toBeGreaterThanOrEqual(2);
+        expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.84);
+        expect(entry.quality.totalTurns).toBeGreaterThanOrEqual(10);
+        expect(entry.quality.endpointAmbiguityScore).toBeGreaterThanOrEqual(3);
+        expect(entry.quality.candidateBranchingScore).toBeGreaterThanOrEqual(8);
+        expect(entry.quality.routeAdjacencyScore).toBeGreaterThanOrEqual(3);
       }
       if (entry.difficulty === 'Hard') {
-        expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.78);
-        expect(entry.quality.straightRouteCount).toBe(0);
-        expect(entry.quality.longestRouteLength).toBeGreaterThanOrEqual(
-          entry.size === 5 ? 9 : 10
-        );
-        expect(entry.quality.endpointAmbiguityScore).toBeGreaterThanOrEqual(3);
+        expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.86);
+        expect(entry.quality.totalTurns).toBeGreaterThanOrEqual(13);
+        expect(entry.quality.longestRouteLength).toBeGreaterThanOrEqual(10);
+        expect(entry.quality.endpointAmbiguityScore).toBeGreaterThanOrEqual(4);
+        expect(entry.quality.candidateBranchingScore).toBeGreaterThanOrEqual(18);
+        expect(entry.quality.routeAdjacencyScore).toBeGreaterThanOrEqual(4);
       }
       if (entry.size === 7) {
         expect(entry.difficulty).not.toBe('Easy');
-        expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.8);
-        expect(entry.quality.longestRouteLength).toBeGreaterThanOrEqual(10);
-        expect(entry.quality.totalTurns).toBeGreaterThanOrEqual(12);
+        expect(entry.quality.usedTileRatio).toBeGreaterThanOrEqual(0.85);
+        expect(entry.quality.longestRouteLength).toBeGreaterThanOrEqual(13);
+        expect(entry.quality.totalTurns).toBeGreaterThanOrEqual(17);
       }
 
       expect(countPostmarkSolutions(entry.puzzle, 2).solutionCount).toBe(1);
     });
 
-    expect(easyDoublePosts).toBeGreaterThanOrEqual(8);
-    expect(mediumDoublePosts).toBeGreaterThanOrEqual(220);
-    expect(hardDoublePosts).toBeGreaterThanOrEqual(85);
-    expect(hardLongTenDays).toBeGreaterThanOrEqual(100);
-    expect(hardLongTwelveDays).toBeGreaterThanOrEqual(30);
+    expect(maxRouteLength).toBe(14);
+    expect(easyDoublePuzzles).toBeGreaterThanOrEqual(30);
+    expect(easyDoubleMarks).toBeGreaterThanOrEqual(30);
+    expect(mediumDoublePuzzles).toBeGreaterThanOrEqual(275);
+    expect(mediumDoubleMarks).toBeGreaterThanOrEqual(300);
+    expect(hardDoublePuzzles).toBe(POSTMARK_DIFFICULTY_TOTALS.Hard);
+    expect(hardDoubleMarks).toBeGreaterThanOrEqual(140);
+    expect(mediumLongTwelveDays).toBeGreaterThanOrEqual(220);
+    expect(mediumLongThirteenDays).toBeGreaterThanOrEqual(160);
+    expect(hardLongTenDays).toBe(POSTMARK_DIFFICULTY_TOTALS.Hard);
+    expect(hardLongTwelveDays).toBeGreaterThanOrEqual(90);
+    expect(hardLongThirteenDays).toBeGreaterThanOrEqual(65);
+    expect(hardLongFourteenDays).toBeGreaterThanOrEqual(35);
     expect(sevenDays).toContain(36);
     expect(Math.min(...sevenDays)).toBe(36);
     sevenDays.slice(1).forEach((day, index) => {

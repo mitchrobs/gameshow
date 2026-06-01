@@ -1132,8 +1132,7 @@ export default function PostmarkScreen() {
       [
         `${POSTMARK_EMOJI} Postmark #${dailyEntry.dayNumber}`,
         `Solved in ${formatTime(elapsedSeconds)}`,
-        cleanLabel,
-        `${puzzle.starts.length} routes`,
+        `${cleanLabel} · ${puzzle.starts.length} routes`,
       ].join('\n'),
     [cleanLabel, dailyEntry.dayNumber, elapsedSeconds, puzzle.starts.length]
   );

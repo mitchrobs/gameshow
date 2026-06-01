@@ -61,6 +61,23 @@ describe('Postmark stamp direction specs', () => {
     });
   });
 
+  it('keeps notification numbers readable through 14', () => {
+    postmarkStampDirectionSpecs.forEach((spec) => {
+      ['1', '6', '12', '13', '14'].forEach((label) => {
+        const digits = label.length;
+        const fontSize = Math.min(
+          spec.numberBox.height * 0.58,
+          spec.numberBox.width / (digits * 0.58)
+        );
+        const estimatedTextWidth = digits * fontSize * 0.58;
+
+        expect(fontSize).toBeGreaterThanOrEqual(23);
+        expect(estimatedTextWidth).toBeLessThanOrEqual(spec.numberBox.width);
+        expect(fontSize * 1.15).toBeLessThanOrEqual(spec.numberBox.height);
+      });
+    });
+  });
+
   it('selects stamps deterministically from date, day, and start id', () => {
     const seed = {
       date: '2026-05-29',
