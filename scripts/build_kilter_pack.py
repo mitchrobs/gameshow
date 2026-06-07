@@ -30,7 +30,7 @@ SYSTEM_PROPER_NAMES_PATH = Path("/usr/share/dict/propernames")
 
 PACK_START = date(2026, 6, 1)
 PACK_DAYS = 400
-WORD_SOURCE_LIMIT = 80_000
+WORD_SOURCE_LIMIT = 250_000
 SEED = 917_365
 SWEEP_BONUS = 15
 MIN_SWEEP_SINGLE_COUNT = 360
@@ -38,10 +38,14 @@ CORE_MIN_FREQUENCY = 3.07
 BONUS_MIN_FREQUENCY = 2.55
 SOURCE_MIN_FREQUENCY = 2.45
 TRUSTED_NON_DICTIONARY_MIN_ZIPF = 2.9
+EXPANDED_BONUS_MIN_ZIPF = 1.6
+EXPANDED_BONUS_CAP = 320
 COMMON_OMITTED_SAMPLE_WORDS = {
     "CARING",
+    "COMPOSED",
     "CODING",
     "NOTING",
+    "POSED",
     "PRICING",
     "RAINING",
     "SIGNING",
@@ -288,6 +292,7 @@ KILTER_DENYLIST = {
     "DAMNING",
     "DOGGING",
     "DROWNING",
+    "DROPED",
     "CRORE",
     "DONT",
     "FIGHTING",
@@ -309,12 +314,16 @@ KILTER_DENYLIST = {
     "MEDITERRANEAN",
     "MURDERING",
     "NESS",
+    "ODDNESS",
     "ORIENTAL",
     "PARA",
     "PENIS",
+    "POOPED",
+    "POOPER",
     "POOPING",
     "PISSING",
     "PRICKING",
+    "PORNO",
     "PROSTATE",
     "PROTESTANT",
     "PROTESTING",
@@ -332,6 +341,7 @@ KILTER_DENYLIST = {
     "STALKING",
     "STABBING",
     "STARVING",
+    "STOPED",
     "SWEARING",
     "TARA",
     "TATE",
@@ -783,7 +793,7 @@ def is_low_value_inflection(word: str, word_set: set[str]) -> bool:
 
 
 def ing_base_candidates(word: str) -> set[str]:
-    if not word.endswith("ING") or len(word) <= 6:
+    if not word.endswith("ING") or len(word) <= 5:
         return set()
     stem = word[:-3]
     candidates = {stem, f"{stem}E"}
@@ -792,11 +802,29 @@ def ing_base_candidates(word: str) -> set[str]:
     return candidates
 
 
+def inflection_base_candidates(word: str) -> set[str]:
+    candidates = set(ing_base_candidates(word))
+    for suffix in ("ED", "ER"):
+        if not word.endswith(suffix) or len(word) <= 4:
+            continue
+        stem = word[: -len(suffix)]
+        candidates.update({stem, f"{stem}E"})
+        if len(stem) >= 2 and stem[-1] == stem[-2]:
+            candidates.add(stem[:-1])
+        if stem.endswith("I"):
+            candidates.add(f"{stem[:-1]}Y")
+    return candidates
+
+
 def is_common_natural_ing_form(word: str, dictionary_words: set[str]) -> bool:
     return bool(ing_base_candidates(word) & dictionary_words)
 
 
-def is_trusted_word_source(word: str, dictionary_words: set[str]) -> bool:
+def is_common_natural_inflection_form(word: str, dictionary_words: set[str]) -> bool:
+    return bool(inflection_base_candidates(word) & dictionary_words)
+
+
+def is_core_trusted_word_source(word: str, dictionary_words: set[str]) -> bool:
     if word in dictionary_words:
         return True
     if word in COMMON_OMITTED_SAMPLE_WORDS:
@@ -804,6 +832,14 @@ def is_trusted_word_source(word: str, dictionary_words: set[str]) -> bool:
     if not is_common_natural_ing_form(word, dictionary_words):
         return False
     return zipf_frequency(word.lower(), "en") >= TRUSTED_NON_DICTIONARY_MIN_ZIPF
+
+
+def is_bonus_trusted_word_source(word: str, dictionary_words: set[str]) -> bool:
+    return (
+        word in dictionary_words
+        or word in COMMON_OMITTED_SAMPLE_WORDS
+        or is_common_natural_inflection_form(word, dictionary_words)
+    )
 
 
 def has_bad_shape(word: str) -> bool:
@@ -821,7 +857,8 @@ def rank_frequency(rank: int) -> float:
 def load_word_entries() -> tuple[list[WordEntry], list[WordEntry], dict[str, float]]:
     blacklists = read_blacklists()
     dictionary_words = read_system_dictionary()
-    raw: dict[str, float] = {}
+    core_raw: dict[str, float] = {}
+    bonus_raw: dict[str, float] = {}
 
     for rank, word in enumerate(top_n_list("en", WORD_SOURCE_LIMIT, ascii_only=True)):
         normalized = word.upper()
@@ -832,29 +869,45 @@ def load_word_entries() -> tuple[list[WordEntry], list[WordEntry], dict[str, flo
         if normalized in blacklists or has_bad_shape(normalized):
             continue
         frequency = rank_frequency(rank)
-        if frequency < SOURCE_MIN_FREQUENCY:
-            continue
-        if not is_trusted_word_source(normalized, dictionary_words):
-            continue
-        raw.setdefault(normalized, frequency)
+        zipf = zipf_frequency(word, "en")
+        if (
+            frequency >= SOURCE_MIN_FREQUENCY
+            and is_core_trusted_word_source(normalized, dictionary_words)
+        ):
+            core_raw.setdefault(normalized, frequency)
+        if (
+            zipf >= EXPANDED_BONUS_MIN_ZIPF
+            and is_bonus_trusted_word_source(normalized, dictionary_words)
+        ):
+            bonus_raw.setdefault(normalized, max(frequency, zipf))
 
     for word in REQUIRED_SAMPLE_WORDS:
         if re.fullmatch(r"[A-Z]+", word) and word not in blacklists:
-            raw.setdefault(word, max(3.4, zipf_frequency(word.lower(), "en")))
+            frequency = max(3.4, zipf_frequency(word.lower(), "en"))
+            core_raw.setdefault(word, frequency)
+            bonus_raw.setdefault(word, frequency)
 
-    word_set = set(raw)
+    word_set = set(core_raw) | set(bonus_raw)
     plural_base_words = word_set | dictionary_words
     core: list[WordEntry] = []
     bonus: list[WordEntry] = []
+    raw = {**bonus_raw, **core_raw}
 
-    for word, frequency in raw.items():
-        entry = WordEntry(word, frequency, word_mask(word))
+    for word in sorted(word_set):
+        core_frequency = core_raw.get(word, 0)
+        bonus_frequency = bonus_raw.get(word, 0)
+        entry = WordEntry(word, max(core_frequency, bonus_frequency), word_mask(word))
         plain_plural = is_simple_plural(word, plural_base_words)
         low_value = is_low_value_inflection(word, word_set)
         is_function = word in FUNCTION_WORDS
-        if frequency >= CORE_MIN_FREQUENCY and not plain_plural and not low_value and not is_function:
-            core.append(entry)
-        elif frequency >= BONUS_MIN_FREQUENCY and not plain_plural:
+        if (
+            core_frequency >= CORE_MIN_FREQUENCY
+            and not plain_plural
+            and not low_value
+            and not is_function
+        ):
+            core.append(WordEntry(word, core_frequency, entry.mask))
+        elif bonus_frequency >= EXPANDED_BONUS_MIN_ZIPF and not plain_plural:
             bonus.append(entry)
 
     return core, bonus, raw
@@ -884,10 +937,35 @@ def find_omitted_obvious_words(
     return sorted_words(omitted)
 
 
+def find_omitted_accepted_words(
+    entry: dict,
+    accepted_by_mask: dict[int, list[WordEntry]],
+) -> list[str]:
+    key = str(entry.get("key", ""))
+    letters = entry.get("letters", [])
+    if len(key) not in (1, 2, 3) or not isinstance(letters, list):
+        return []
+
+    allowed_mask = 0
+    for letter in set(key) | set(letters):
+        if letter not in ALPHABET:
+            return []
+        allowed_mask |= bit_for(letter)
+
+    accepted = set(entry.get("coreWords", [])) | set(entry.get("bonusWords", []))
+    omitted = [
+        candidate.word
+        for candidate in words_for_allowed_mask(allowed_mask, accepted_by_mask)
+        if key in candidate.word and candidate.word not in accepted
+    ]
+    return sorted_words(omitted)
+
+
 def run_omitted_obvious_self_test() -> None:
-    core, _, _ = load_word_entries()
+    core, bonus, _ = load_word_entries()
     core_by_mask = index_by_mask(core)
-    fixtures = [
+    accepted_by_mask = index_by_mask([*core, *bonus])
+    core_fixtures = [
         (
             {
                 "key": "IN",
@@ -925,11 +1003,45 @@ def run_omitted_obvious_self_test() -> None:
             {"NOTING"},
         ),
     ]
-    for fixture, expected in fixtures:
+    for fixture, expected in core_fixtures:
         omitted = set(find_omitted_obvious_words(fixture, core_by_mask))
         if not expected.issubset(omitted):
             missing = ", ".join(sorted(expected - omitted))
             raise SystemExit(f"omitted obvious self-test failed; missing {missing}")
+    accepted_fixtures = [
+        (
+            {
+                "key": "O",
+                "letters": ["D", "E", "N", "P", "R", "S"],
+                "coreWords": [],
+                "bonusWords": [],
+            },
+            {"DOSED", "NOSED", "POSED", "SNORED"},
+        ),
+        (
+            {
+                "key": "O",
+                "letters": ["D", "E", "P", "R", "S", "T"],
+                "coreWords": [],
+                "bonusWords": [],
+            },
+            {"OPTED", "POSED", "POSTED", "RESTORED"},
+        ),
+        (
+            {
+                "key": "COM",
+                "letters": ["A", "D", "E", "P", "R", "S"],
+                "coreWords": [],
+                "bonusWords": [],
+            },
+            {"COMPOSED"},
+        ),
+    ]
+    for fixture, expected in accepted_fixtures:
+        omitted = set(find_omitted_accepted_words(fixture, accepted_by_mask))
+        if not expected.issubset(omitted):
+            missing = ", ".join(sorted(expected - omitted))
+            raise SystemExit(f"omitted accepted self-test failed; missing {missing}")
     print("omitted obvious word audit self-test passed")
 
 
@@ -1061,7 +1173,7 @@ def build_candidates_for_key_length(
                 for entry in words_for_allowed_mask(allowed_mask, bonus_by_mask)
                 if key in entry.word and entry.word not in core_words
             ]
-            if len(bonus_words) > max(70, len(core_words) * 2):
+            if len(bonus_words) > max(EXPANDED_BONUS_CAP, len(core_words) * 5):
                 continue
 
             total_core_score = sum(core_score(word, set(sweeps)) for word in core_words)
@@ -1227,8 +1339,9 @@ def audit_pack(payload: dict) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
     entries = payload.get("entries", [])
-    common_core, _, _ = load_word_entries()
+    common_core, expanded_bonus, _ = load_word_entries()
     common_core_by_mask = index_by_mask(common_core)
+    accepted_by_mask = index_by_mask([*common_core, *expanded_bonus])
 
     if len(entries) != PACK_DAYS:
         errors.append(f"Expected {PACK_DAYS} entries, found {len(entries)}.")
@@ -1292,6 +1405,12 @@ def audit_pack(payload: dict) -> tuple[list[str], list[str]]:
             if len(omitted_obvious) > 8:
                 preview += f", +{len(omitted_obvious) - 8} more"
             errors.append(f"{prefix}: omitted obvious core words {preview}.")
+        omitted_accepted = find_omitted_accepted_words(entry, accepted_by_mask)
+        if omitted_accepted:
+            preview = ", ".join(omitted_accepted[:8])
+            if len(omitted_accepted) > 8:
+                preview += f", +{len(omitted_accepted) - 8} more"
+            errors.append(f"{prefix}: omitted accepted words {preview}.")
         for word in sweeps:
             if word not in core_words:
                 errors.append(f"{prefix}: sweep `{word}` is not a core word.")
@@ -1326,7 +1445,7 @@ def trusted_non_dictionary_words(entry: dict, dictionary_words: set[str]) -> lis
     return sorted_words(
         word
         for word in words
-        if word not in dictionary_words and is_trusted_word_source(word, dictionary_words)
+        if word not in dictionary_words and is_bonus_trusted_word_source(word, dictionary_words)
     )
 
 
@@ -1371,6 +1490,7 @@ def audit_markdown(payload: dict, errors: Sequence[str], warnings: Sequence[str]
         f"- Sweep counts: 1-sweep {sweep_counts[1]}, 2-sweep {sweep_counts[2]}",
         f"- Core words: min {min(core_counts)}, max {max(core_counts)}, average {sum(core_counts) / len(core_counts):.1f}",
         f"- Bonus words: min {min(bonus_counts)}, max {max(bonus_counts)}, average {sum(bonus_counts) / len(bonus_counts):.1f}",
+        f"- Expanded bonus gate: Zipf >= {EXPANDED_BONUS_MIN_ZIPF}, dictionary-backed or natural inflection, audit-enforced",
         f"- Available core score: min {min(score_counts)}, max {max(score_counts)}, average {sum(score_counts) / len(score_counts):.1f}",
         f"- Live errors: {len(errors)}",
         f"- Live warnings: {len(warnings)}",

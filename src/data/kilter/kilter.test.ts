@@ -36,6 +36,7 @@ const KILTER_REVIEW_QUEUE_SOURCE = readFileSync(
 );
 const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 const WORD_TRUST_SAMPLE_WORDS = ['CODING', 'SIGNING', 'PRICING', 'NOTING'] as const;
+const BONUS_TRUST_SAMPLE_WORDS = ['DOSED', 'NOSED', 'POSED', 'SNORED', 'RESTORED'] as const;
 const HARD_SWEEP_DENY_FIXTURES = [
   'CONSTITUENCY',
   'CONNECTIVITY',
@@ -169,6 +170,18 @@ describe('Kilter pack', () => {
       });
     });
     expect(legalSampleDays).toBeGreaterThan(0);
+  });
+
+  it('accepts expanded bonus inflections whenever they are legal', () => {
+    let legalBonusSampleDays = 0;
+    BONUS_TRUST_SAMPLE_WORDS.forEach((word) => {
+      const legalDays = KILTER_PACK.entries.filter((entry) => canMakeWord(entry, word));
+      legalDays.forEach((entry) => {
+        legalBonusSampleDays += 1;
+        expect(acceptedWords(entry).has(word)).toBe(true);
+      });
+    });
+    expect(legalBonusSampleDays).toBeGreaterThan(0);
   });
 
   it('fails the generator self-test when an obvious legal word is omitted', () => {
