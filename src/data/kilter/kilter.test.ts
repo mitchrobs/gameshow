@@ -273,12 +273,14 @@ describe('Kilter rules and scoring', () => {
     expect(scoreKilterWord('NOPE', puzzle)).toBe(0);
     expect(KILTER_RANK_COUNT).toBe(5);
     expect(getKilterRank(0, 100).name).toBe('Drafting');
-    expect(getKilterRank(14, 100).name).toBe('Drafting');
-    expect(getKilterRank(15, 100).name).toBe('Steady');
-    expect(getKilterRank(35, 100).name).toBe('Posed');
-    expect(getKilterRank(55, 100).name).toBe('Composed');
-    expect(getKilterRank(75, 100).name).toBe('Composed');
-    expect(getKilterRank(75, 100, true).name).toBe('Mastered');
+    expect(getKilterRank(9, 100).name).toBe('Drafting');
+    expect(getKilterRank(10, 100).name).toBe('Steady');
+    expect(getKilterRank(24, 100).name).toBe('Steady');
+    expect(getKilterRank(25, 100).name).toBe('Posed');
+    expect(getKilterRank(44, 100).name).toBe('Posed');
+    expect(getKilterRank(45, 100).name).toBe('Composed');
+    expect(getKilterRank(65, 100).name).toBe('Composed');
+    expect(getKilterRank(65, 100, true).name).toBe('Mastered');
     const sweepShare = formatKilterShareText({
       puzzle,
       score: 28,
@@ -290,7 +292,7 @@ describe('Kilter rules and scoring', () => {
       [
         'Composed June 1st 2026',
         'Found Words: 2 ⭐️',
-        'Score: 28 - Composed (4/5)',
+        'Score: 28 - Mastered (5/5)',
         'https://example.test/kilter',
       ].join('\n')
     );
