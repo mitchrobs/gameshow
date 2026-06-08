@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>supertime sounds</title>
+  <style>
+    :root {
+      --paper: #f0ede6;
+      --surface: #fafaf7;
+      --ink: #080808;
+      --muted: #625d55;
+      --ruby: #b8132f;
+      --line: rgba(8, 8, 8, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Inter Tight", "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(980px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 30px 0 48px;
+    }
+
+    header {
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(40px, 12vw, 76px);
+      line-height: 0.9;
+      letter-spacing: 0;
+    }
+
+    .summary {
+      max-width: 680px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.42;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    article {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      padding: 16px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--ruby);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 12px 0 4px;
+      font-size: 23px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .role {
+      margin: 0 0 10px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>supertime sounds</h1>
+      <p class="summary">Eight short notification candidates for the supertime iOS app, shaped around daily ritual, polished puzzle completion, warm paper/ink texture, and the ruby brand accent.</p>
+    </header>
+
+    <section class="grid">
+      <article>
+        <div class="meta"><span>01 daily ruby tick</span><span>0.82s</span></div>
+        <h2>Daily Ruby Tick</h2>
+        <p class="role">Flagship candidate</p>
+        <p>Crisp clock tick into a warm two-note ruby chime. Precise, polished, and recognizably supertime.</p>
+        <audio controls preload="metadata" src="audio/01_daily_ruby_tick.m4a"></audio>
+      </article>
+
+      <article>
+        <div class="meta"><span>02 paper lantern</span><span>0.94s</span></div>
+        <h2>Paper Lantern</h2>
+        <p class="role">Soft daily ritual</p>
+        <p>Paper-like tap with a warm, restrained bell tail. Best for frequent notifications.</p>
+        <audio controls preload="metadata" src="audio/02_paper_lantern.m4a"></audio>
+      </article>
+
+      <article>
+        <div class="meta"><span>03 wordie win</span><span>0.92s</span></div>
+        <h2>Wordie Win</h2>
+        <p class="role">Puzzle-complete energy</p>
+        <p>Three tight rising plucks with a small sparkle, tuned for an accomplished daily-game feeling.</p>
+        <audio controls preload="metadata" src="audio/03_wordie_win.m4a"></audio>
+      </article>
+
+      <article>
+        <div class="meta"><span>04 tomorrow gate</span><span>1.12s</span></div>
+        <h2>Tomorrow Gate</h2>
+        <p class="role">Curious return cue</p>
+        <p>Soft movement into an open bell. More reflective and less task-like.</p>
+        <audio controls preload="metadata" src="audio/04_tomorrow_gate.m4a"></audio>
+      </article>
+
+      <article>
+        <div class="meta"><span>05 focus nudge</span><span>0.58s</span></div>
+        <h2>Focus Nudge</h2>
+        <p class="role">Most restrained</p>
+        <p>A minimal tick-pluck pair. Designed to be audible without becoming part of the room.</p>
+        <audio controls preload="metadata" src="audio/05_focus_nudge.m4a"></audio>
+      </article>
+
+      <article>
+        <div class="meta"><span>06 group spark</span><span>0.74s</span></div>
+        <h2>Group Spark</h2>
+        <p class="role">Social notification</p>
+        <p>Syncopated pair of pings that feels social without copying chat-app sounds.</p>
+        <audio controls preload="metadata" src="audio/06_group_spark.m4a"></audio>
+      </article>
+
+      <article>
+        <div class="meta"><span>07 super lift</span><span>1.00s</span></div>
+        <h2>Super Lift</h2>
+        <p class="role">Most elevated</p>
+        <p>Tiny lift into a bright chime. Stronger brand color, useful if the app needs a more memorable hook.</p>
+        <audio controls preload="metadata" src="audio/07_super_lift.m4a"></audio>
+      </article>
+
+      <article>
+        <div class="meta"><span>08 endgame stamp</span><span>0.90s</span></div>
+        <h2>Endgame Stamp</h2>
+        <p class="role">Completion/streak</p>
+        <p>Confident tap and open chime. More decisive than the flagship, still not alarm-like.</p>
+        <audio controls preload="metadata" src="audio/08_endgame_stamp.m4a"></audio>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
