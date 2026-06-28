@@ -59,7 +59,8 @@
     "build:threadline-runtime": "node --experimental-strip-types scripts/build_threadline_runtime_pack.ts",
     "test": "vitest run",
     "test:barter": "vitest run src/data/barter/*.test.ts",
-    "studio": "cd tools/moji-mash-studio && npm run dev"
+    "studio": "cd tools/moji-mash-studio && npm run dev",
+    "audit:mini-crossword-quality": "python3 scripts/audit_mini_crossword_quality_pack.py"
   },
   "dependencies": {
     "@expo/metro-runtime": "^6.1.2",

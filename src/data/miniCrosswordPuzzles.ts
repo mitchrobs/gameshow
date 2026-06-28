@@ -411,6 +411,7 @@ function buildPuzzleFromSchedule(scheduleInfo: MiniCrosswordScheduleEntry): Mini
     };
 
   const rawBonus =
+    bonusByThemeId.get(theme.id)?.find((bonus) => bonus.answer === scheduleInfo.bonusAnswer) ??
     bonusByAnswer.get(scheduleInfo.bonusAnswer) ??
     (bonusByThemeId.get(theme.id)?.[0] as BankBonusWord | undefined);
 

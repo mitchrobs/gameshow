@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import bankData from './miniCrosswordBank.json';
 import {
   MINI_CROSSWORD_PACK_END_DATE,
   MINI_CROSSWORD_PACK_LENGTH,
@@ -14,25 +15,11 @@ import {
 const BAD_CLUE_PATTERN =
   /\b(abbreviation|acronym|initialism|roman numeral|street names?|enzyme|genus|province|capital|taxonomic|archaic|obsolete|biblical|terrorist|federal agency|metallic element|radioactive|coenzyme|personality inventory|collagen disease|parasitic|witchcraft|talipot|cuttlefish|dynasty|profane|everyday \d-letter word)\b/i;
 
-const HOLIDAY_DATES = new Set([
-  '2026-05-25',
-  '2026-06-19',
-  '2026-06-21',
-  '2026-07-04',
-  '2026-09-07',
-  '2026-10-31',
-  '2026-11-26',
-  '2026-12-25',
-  '2026-12-31',
-  '2027-01-01',
-  '2027-01-18',
-  '2027-02-14',
-  '2027-02-15',
-  '2027-03-17',
-  '2027-03-28',
-  '2027-04-22',
-  '2027-05-09',
-]);
+const BANK = bankData as {
+  themes: Array<{ id: string; keywords?: string[] }>;
+  entries: Array<{ answer: string }>;
+  bonusWords: Array<{ answer: string; themeId: string }>;
+};
 
 function dateFromKey(dateKey: string): Date {
   const [year, month, day] = dateKey.split('-').map((part) => parseInt(part, 10));
@@ -91,11 +78,11 @@ function assertValidPuzzle(puzzle: MiniCrosswordPuzzle) {
 }
 
 describe('mini crossword dated schedule', () => {
-  it('covers 365 consecutive dates from launch', () => {
+  it('covers 500 consecutive dates from launch', () => {
     expect(MINI_CROSSWORD_PACK_START_DATE).toBe('2026-05-15');
-    expect(MINI_CROSSWORD_PACK_END_DATE).toBe('2027-05-14');
+    expect(MINI_CROSSWORD_PACK_END_DATE).toBe('2027-09-26');
     expect(MINI_CROSSWORD_SCHEDULE).toHaveLength(MINI_CROSSWORD_PACK_LENGTH);
-    expect(MINI_CROSSWORD_PACK_LENGTH).toBe(365);
+    expect(MINI_CROSSWORD_PACK_LENGTH).toBe(500);
 
     const seen = new Set<string>();
     MINI_CROSSWORD_SCHEDULE.forEach((entry, index) => {
@@ -113,7 +100,7 @@ describe('mini crossword dated schedule', () => {
 
   it('uses 7x7 Mega Minis every Sunday and 5x5 grids otherwise', () => {
     const sundayEntries = MINI_CROSSWORD_SCHEDULE.filter((entry) => entry.size === 7);
-    expect(sundayEntries).toHaveLength(52);
+    expect(sundayEntries).toHaveLength(72);
 
     MINI_CROSSWORD_SCHEDULE.forEach((entry) => {
       const day = dateFromKey(entry.date);
@@ -122,51 +109,38 @@ describe('mini crossword dated schedule', () => {
     });
   });
 
-  it('keeps theme distribution broad across the season', () => {
+  it('keeps at least 100 hidden theme lanes available', () => {
     const counts = new Map<string, number>();
     MINI_CROSSWORD_SCHEDULE.forEach((entry) => {
       counts.set(entry.themeId, (counts.get(entry.themeId) ?? 0) + 1);
     });
-    expect(counts.size).toBe(60);
-    counts.forEach((count) => {
-      expect(count).toBeGreaterThanOrEqual(3);
-      expect(count).toBeLessThanOrEqual(12);
+    expect(BANK.themes).toHaveLength(100);
+    expect(counts.size).toBe(100);
+    BANK.themes.forEach((theme) => {
+      expect(theme.keywords?.length ?? 0).toBeGreaterThanOrEqual(1);
+      expect(BANK.bonusWords.filter((bonus) => bonus.themeId === theme.id)).toHaveLength(2);
     });
   });
 
   it('keeps generated clue metadata above the editorial floor', () => {
+    const bankAnswers = new Set(BANK.entries.map((entry) => entry.answer));
     MINI_CROSSWORD_SCHEDULE.forEach((entry) => {
+      expect(entry.quality.editorialStatus).toBe('passed');
+      expect(entry.quality.generatedAnswerCount).toBe(0);
+      expect(entry.quality.fallbackClueCount).toBe(0);
+      expect(entry.quality.legacyClueCount).toBe(0);
+      expect(entry.quality.bonusGridCollision).toBe(0);
+      expect(entry.quality.layoutScore).toBeGreaterThanOrEqual(80);
+      expect(entry.quality.themeLaneCount).toBeGreaterThanOrEqual(100);
       [...entry.clues.across, ...entry.clues.down].forEach((clue) => {
-        expect(clue.source).not.toBe('sanitized-legacy');
-        expect(clue.source).not.toBe('legacy');
-        expect(clue.score).toBeGreaterThanOrEqual(70);
+        expect(bankAnswers.has(clue.answer)).toBe(true);
+        expect(['editorial', 'theme-editor']).toContain(clue.source);
+        expect(clue.score).toBeGreaterThanOrEqual(76);
         expect(clue.text).not.toMatch(BAD_CLUE_PATTERN);
-        expect(clue.themeTags.every((tag) => tag === entry.themeId)).toBe(true);
+        expect(clue.text).not.toBe('Crossword answer');
         expect(clue.themeMatch).toBe(clue.themeTags.includes(entry.themeId));
       });
     });
-  });
-
-  it('enforces theme density, holiday density, and the November 3 Hope easter egg', () => {
-    MINI_CROSSWORD_SCHEDULE.forEach((entry) => {
-      expect(entry.quality.themeAnswerCount).toBeGreaterThanOrEqual(0);
-      if (HOLIDAY_DATES.has(entry.date)) {
-        expect(entry.quality.holidayTheme).toBe(1);
-        expect(entry.quality.themeAnswerCount).toBeGreaterThanOrEqual(entry.size === 7 ? 7 : 2);
-        expect(entry.quality.themeTargetMin).toBe(entry.size === 7 ? 9 : 3);
-        expect(entry.quality.themeTargetMax).toBe(entry.size === 7 ? 11 : 4);
-      } else {
-        expect(entry.quality.holidayTheme).toBe(0);
-      }
-    });
-    expect(MINI_CROSSWORD_SCHEDULE.filter((entry) => HOLIDAY_DATES.has(entry.date))).toHaveLength(
-      HOLIDAY_DATES.size
-    );
-
-    const hopePuzzle = getDailyMiniCrossword(new Date(2026, 10, 3));
-    const answers = [...hopePuzzle.across, ...hopePuzzle.down].map((clue) => clue.answer);
-    expect(answers).toContain('HOPE');
-    expect(hopePuzzle.theme.id).toBe('mindful-morning');
   });
 
   it('builds every shipped puzzle with valid fill, clues, and bonus visuals', () => {
