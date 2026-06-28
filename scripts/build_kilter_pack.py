@@ -20,6 +20,8 @@ except ImportError as exc:  # pragma: no cover - local tooling guard
         "Kilter pack generation requires the Python package `wordfreq`."
     ) from exc
 
+from word_safety import read_blacklist_dir, severe_guess_blacklist
+
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 WORDIE_BLACKLIST_DIR = BASE_DIR / "src" / "data" / "wordie" / "blacklist"
@@ -31,6 +33,7 @@ SYSTEM_PROPER_NAMES_PATH = Path("/usr/share/dict/propernames")
 PACK_START = date(2026, 6, 1)
 PACK_DAYS = 400
 WORD_SOURCE_LIMIT = 80_000
+ACCEPTED_BONUS_WORD_SOURCE_LIMIT = 400_000
 SEED = 917_365
 SWEEP_BONUS = 15
 MIN_SWEEP_SINGLE_COUNT = 360
@@ -339,6 +342,12 @@ KILTER_DENYLIST = {
     "TITANIC",
     "VIOLATING",
     "WELLINGTON",
+    "BEGINING",
+    "REFERING",
+    "WRITTING",
+}
+
+KILTER_INVALID_WORDS = {
     "BEGINING",
     "REFERING",
     "WRITTING",
@@ -706,13 +715,10 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def read_blacklists() -> set[str]:
+def read_curated_blacklists() -> set[str]:
     words: set[str] = set()
-    for path in sorted(WORDIE_BLACKLIST_DIR.glob("*.txt")):
-        for raw_line in path.read_text().splitlines():
-            word = raw_line.split("#", 1)[0].strip().upper()
-            if word:
-                words.add(word)
+    for blacklist in read_blacklist_dir(WORDIE_BLACKLIST_DIR).values():
+        words.update(blacklist)
     words.update(PROPER_NOUN_DENYLIST)
     words.update(KILTER_DENYLIST)
     if SYSTEM_PROPER_NAMES_PATH.exists():
@@ -723,14 +729,18 @@ def read_blacklists() -> set[str]:
     return words
 
 
+def read_guess_blacklist() -> set[str]:
+    return severe_guess_blacklist(read_blacklist_dir(WORDIE_BLACKLIST_DIR))
+
+
 def read_system_dictionary() -> set[str]:
     if not SYSTEM_WORDS_PATH.exists():
         return set()
     words: set[str] = set()
     for raw_line in SYSTEM_WORDS_PATH.read_text(errors="ignore").splitlines():
-        word = raw_line.strip()
-        if re.fullmatch(r"[a-z]+", word):
-            words.add(word.upper())
+        word = raw_line.strip().upper()
+        if re.fullmatch(r"[A-Z]+", word):
+            words.add(word)
     return words
 
 
@@ -818,36 +828,56 @@ def rank_frequency(rank: int) -> float:
     return max(2.35, 7.2 - math.log10(rank + 2) * 0.95)
 
 
-def load_word_entries() -> tuple[list[WordEntry], list[WordEntry], dict[str, float]]:
-    blacklists = read_blacklists()
+def load_word_entries() -> tuple[list[WordEntry], list[WordEntry], list[WordEntry], dict[str, float]]:
+    curated_blacklists = read_curated_blacklists()
+    guess_blacklist = read_guess_blacklist()
     dictionary_words = read_system_dictionary()
     raw: dict[str, float] = {}
+    accepted_raw: dict[str, float] = {}
 
-    for rank, word in enumerate(top_n_list("en", WORD_SOURCE_LIMIT, ascii_only=True)):
+    def is_accepted_guess_word(word: str) -> bool:
+        return (
+            re.fullmatch(r"[A-Z]+", word) is not None
+            and 4 <= len(word) <= 14
+            and word not in guess_blacklist
+            and word not in KILTER_INVALID_WORDS
+            and not has_bad_shape(word)
+        )
+
+    for rank, word in enumerate(top_n_list("en", ACCEPTED_BONUS_WORD_SOURCE_LIMIT, ascii_only=True)):
         normalized = word.upper()
-        if not re.fullmatch(r"[A-Z]+", normalized):
-            continue
-        if len(normalized) < 4 or len(normalized) > 14:
-            continue
-        if normalized in blacklists or has_bad_shape(normalized):
+        if not is_accepted_guess_word(normalized):
             continue
         frequency = rank_frequency(rank)
-        if frequency < SOURCE_MIN_FREQUENCY:
-            continue
+        accepted_raw.setdefault(normalized, max(BONUS_MIN_FREQUENCY, frequency))
         if not is_trusted_word_source(normalized, dictionary_words):
+            continue
+        if rank >= WORD_SOURCE_LIMIT or frequency < SOURCE_MIN_FREQUENCY:
             continue
         raw.setdefault(normalized, frequency)
 
+    for word in dictionary_words:
+        if is_accepted_guess_word(word):
+            accepted_raw.setdefault(word, BONUS_MIN_FREQUENCY)
+
     for word in REQUIRED_SAMPLE_WORDS:
-        if re.fullmatch(r"[A-Z]+", word) and word not in blacklists:
-            raw.setdefault(word, max(3.4, zipf_frequency(word.lower(), "en")))
+        if is_accepted_guess_word(word):
+            frequency = max(3.4, zipf_frequency(word.lower(), "en"))
+            accepted_raw.setdefault(word, frequency)
+            raw.setdefault(word, frequency)
 
     word_set = set(raw)
     plural_base_words = word_set | dictionary_words
     core: list[WordEntry] = []
     bonus: list[WordEntry] = []
+    accepted_bonus: list[WordEntry] = [
+        WordEntry(word, frequency, word_mask(word))
+        for word, frequency in accepted_raw.items()
+    ]
 
     for word, frequency in raw.items():
+        if word in curated_blacklists:
+            continue
         entry = WordEntry(word, frequency, word_mask(word))
         plain_plural = is_simple_plural(word, plural_base_words)
         low_value = is_low_value_inflection(word, word_set)
@@ -857,7 +887,7 @@ def load_word_entries() -> tuple[list[WordEntry], list[WordEntry], dict[str, flo
         elif frequency >= BONUS_MIN_FREQUENCY and not plain_plural:
             bonus.append(entry)
 
-    return core, bonus, raw
+    return core, bonus, accepted_bonus, raw
 
 
 def find_omitted_obvious_words(
@@ -885,7 +915,7 @@ def find_omitted_obvious_words(
 
 
 def run_omitted_obvious_self_test() -> None:
-    core, _, _ = load_word_entries()
+    core, _, _, _ = load_word_entries()
     core_by_mask = index_by_mask(core)
     fixtures = [
         (
@@ -1007,12 +1037,14 @@ def build_candidates_for_key_length(
     key_length: int,
     core: Sequence[WordEntry],
     bonus: Sequence[WordEntry],
+    accepted_bonus: Sequence[WordEntry],
     raw_frequencies: dict[str, float],
 ) -> list[Candidate]:
     target_min, target_max = CORE_TARGETS[key_length]
     target_mid = (target_min + target_max) / 2
     core_by_mask = index_by_mask(core)
     bonus_by_mask = index_by_mask(bonus)
+    accepted_bonus_by_mask = index_by_mask(accepted_bonus)
     candidates: list[Candidate] = []
 
     for sweep_entry in core:
@@ -1063,6 +1095,11 @@ def build_candidates_for_key_length(
             ]
             if len(bonus_words) > max(70, len(core_words) * 2):
                 continue
+            expanded_bonus_words = [
+                entry.word
+                for entry in words_for_allowed_mask(allowed_mask, accepted_bonus_by_mask)
+                if key in entry.word and entry.word not in core_words
+            ]
 
             total_core_score = sum(core_score(word, set(sweeps)) for word in core_words)
             if total_core_score <= 0:
@@ -1085,7 +1122,7 @@ def build_candidates_for_key_length(
                     key=key,
                     letters=loose_letters,
                     core_words=sorted_words(core_words),
-                    bonus_words=sorted_words(bonus_words),
+                    bonus_words=sorted_words(expanded_bonus_words),
                     sweeps=sweeps,
                     primary_sweep=sweep_entry.word,
                     quality_score=quality,
@@ -1227,7 +1264,7 @@ def audit_pack(payload: dict) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
     entries = payload.get("entries", [])
-    common_core, _, _ = load_word_entries()
+    common_core, _, _, _ = load_word_entries()
     common_core_by_mask = index_by_mask(common_core)
 
     if len(entries) != PACK_DAYS:
@@ -1513,9 +1550,9 @@ def main() -> None:
             raise SystemExit("No Kilter pack found. Run `npm run build:kilter-pack` first.")
         payload = json.loads(PACK_OUT.read_text())
     else:
-        core, bonus, raw_frequencies = load_word_entries()
+        core, bonus, accepted_bonus, raw_frequencies = load_word_entries()
         candidates_by_key_length = {
-            key_length: build_candidates_for_key_length(key_length, core, bonus, raw_frequencies)
+            key_length: build_candidates_for_key_length(key_length, core, bonus, accepted_bonus, raw_frequencies)
             for key_length in (1, 2, 3)
         }
         candidate_depth = {

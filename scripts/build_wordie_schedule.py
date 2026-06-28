@@ -14,6 +14,13 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Iterable
 
+try:
+    from wordfreq import top_n_list
+except ImportError as exc:  # pragma: no cover - local tooling guard
+    raise SystemExit("Wordie guess-bank generation requires the Python package `wordfreq`.") from exc
+
+from word_safety import read_blacklist_dir, severe_guess_blacklist
+
 BASE_DIR = Path(__file__).resolve().parents[1]
 WORDIE_DIR = BASE_DIR / "src" / "data" / "wordie"
 CANDIDATES_PATH = WORDIE_DIR / "candidates.json"
@@ -25,18 +32,13 @@ PRIOR_WORDS_PATH = WORDIE_DIR / "priorWords.json"
 BLACKLIST_DIR = WORDIE_DIR / "blacklist"
 SCHEDULE_OUT = BASE_DIR / "src" / "data" / "wordieSchedule.json"
 ALLOWED_OUT = BASE_DIR / "src" / "data" / "wordieAllowedGuesses.json"
+SYSTEM_WORDS_PATH = Path("/usr/share/dict/words")
 
 RARE_LETTERS = set("QJXZ")
 VOWELS = set("AEIOU")
 SUPPORTED_LENGTHS = (4, 5, 6)
 SAFE_SWAP_COUNT = 50
-GUESS_BLACKLIST_CATEGORIES = {
-    "medical_trauma",
-    "political_religious",
-    "previously_flagged",
-    "slurs_profanity",
-    "violence_harm",
-}
+GUESS_SOURCE_WORD_FREQ_LIMIT = 400_000
 MIN_ANSWER_FREQUENCY = {
     4: 4.0,
     5: 3.8,
@@ -187,15 +189,48 @@ def date_range(start: date, end: date) -> Iterable[date]:
 
 
 def load_blacklists() -> dict[str, set[str]]:
-    out: dict[str, set[str]] = {}
-    for path in sorted(BLACKLIST_DIR.glob("*.txt")):
-        words: set[str] = set()
-        for raw_line in path.read_text().splitlines():
-            line = raw_line.split("#", 1)[0].strip().upper()
-            if line:
-                words.add(line)
-        out[path.stem] = words
-    return out
+    return read_blacklist_dir(BLACKLIST_DIR)
+
+
+def read_system_dictionary() -> set[str]:
+    if not SYSTEM_WORDS_PATH.exists():
+        return set()
+    words: set[str] = set()
+    for raw_line in SYSTEM_WORDS_PATH.read_text(errors="ignore").splitlines():
+        word = raw_line.strip().upper()
+        if re.fullmatch(r"[A-Z]+", word):
+            words.add(word)
+    return words
+
+
+def build_allowed_guess_extras(
+    raw_candidates: dict,
+    guess_blacklist: set[str],
+) -> dict[int, set[str]]:
+    checked_in = {
+        str(item["word"]).upper()
+        for entries in raw_candidates["words"].values()
+        for item in entries
+    }
+    extras: dict[int, set[str]] = {length: set() for length in SUPPORTED_LENGTHS}
+
+    def add_word(raw_word: str) -> None:
+        word = raw_word.strip().upper()
+        length = len(word)
+        if length not in extras:
+            return
+        if not re.fullmatch(r"[A-Z]+", word):
+            return
+        if word in checked_in or word in guess_blacklist:
+            return
+        extras[length].add(word)
+
+    for word in read_system_dictionary():
+        add_word(word)
+    for word in top_n_list("en", GUESS_SOURCE_WORD_FREQ_LIMIT, ascii_only=True):
+        add_word(word)
+
+    return extras
 
 
 def stable_random(seed: int, label: str) -> float:
@@ -278,7 +313,8 @@ def is_structurally_excluded_answer(word: str, all_words: set[str]) -> bool:
 
 def build_candidates(
     raw_candidates: dict,
-    allowed_extras: dict,
+    allowed_extras: dict[int, set[str]],
+    guess_blacklist: set[str],
     blacklists: dict[str, set[str]],
     prior_words: set[str],
 ) -> tuple[dict[int, list[Candidate]], dict[int, list[str]]]:
@@ -287,9 +323,6 @@ def build_candidates(
         for entries in raw_candidates["words"].values()
         for item in entries
     }
-    guess_blacklist = set().union(
-        *(words for name, words in blacklists.items() if name in GUESS_BLACKLIST_CATEGORIES)
-    )
     answer_blacklist = set().union(*blacklists.values())
 
     answer_pools: dict[int, list[Candidate]] = {}
@@ -324,10 +357,7 @@ def build_candidates(
             answer_pool,
             key=lambda candidate: (candidate.difficulty_score, -candidate.frequency, candidate.word),
         )
-        for word in allowed_extras["words"].get(str(length), []):
-            word = str(word).upper()
-            if len(word) == length and re.fullmatch(r"[A-Z]+", word) and word not in guess_blacklist:
-                allowed.append(word)
+        allowed.extend(allowed_extras[length])
 
         allowed_words[length] = sorted(dict.fromkeys(allowed))
 
@@ -570,14 +600,15 @@ def main() -> None:
 
     config = read_json(CONFIG_PATH)
     raw_candidates = read_json(CANDIDATES_PATH)
-    allowed_extras = read_json(ALLOWED_EXTRA_PATH)
     key_dates = {item["date"]: item for item in read_json(KEY_DATES_PATH)["dates"]}
     prior_words = set(read_json(PRIOR_WORDS_PATH)["words"])
     blacklists = load_blacklists()
     override_items = read_json(OVERRIDES_PATH).get("overrides", [])
     overrides = {item["date"]: str(item["word"]).upper() for item in override_items}
+    guess_blacklist = severe_guess_blacklist(blacklists)
+    allowed_extras = build_allowed_guess_extras(raw_candidates, guess_blacklist)
 
-    answer_pools, allowed_words = build_candidates(raw_candidates, allowed_extras, blacklists, prior_words)
+    answer_pools, allowed_words = build_candidates(raw_candidates, allowed_extras, guess_blacklist, blacklists, prior_words)
     for length in SUPPORTED_LENGTHS:
         if len(answer_pools[length]) < 365:
             raise SystemExit(f"Filtered answer pool for length {length} is too small: {len(answer_pools[length])}.")
@@ -596,8 +627,13 @@ def main() -> None:
     allowed_payload = {
         "version": config["version"],
         "generated_at": config["generated_at"],
-        "source": "Generated from checked-in Wordie candidate pools plus allowed-guess additions after guess-safety filtering.",
+        "source": "Generated from checked-in Wordie candidate pools plus wordfreq and /usr/share/dict/words after severe-only guess-safety filtering. Used for guesses only; answers keep the full editorial blacklist.",
         "words": {str(length): allowed_words[length] for length in SUPPORTED_LENGTHS},
+    }
+    allowed_extras_payload = {
+        "version": config["version"],
+        "source": "Generated from wordfreq top_n_list(en, 400000, ascii_only=True) and /usr/share/dict/words: ASCII alphabetic entries, normalized uppercase, 4-6 letters, excluding checked-in candidate words and the severe-only guess blacklist. Used for guess validation only, never answers.",
+        "words": {str(length): sorted(allowed_extras[length]) for length in SUPPORTED_LENGTHS},
     }
 
     validate_schedule(schedule_payload, prior_words, blacklists)
@@ -605,6 +641,7 @@ def main() -> None:
     if not args.check:
         write_json(SCHEDULE_OUT, schedule_payload)
         write_json(ALLOWED_OUT, allowed_payload)
+        write_json(ALLOWED_EXTRA_PATH, allowed_extras_payload)
 
     print(
         json.dumps(

@@ -171,6 +171,27 @@ describe('Kilter pack', () => {
     expect(legalSampleDays).toBeGreaterThan(0);
   });
 
+  it('accepts broad valid bonus words while keeping them out of core progress', () => {
+    ['BIBLE', 'CANCER', 'ARMOR'].forEach((word) => {
+      const legalDays = KILTER_PACK.entries.filter((entry) => canMakeWord(entry, word));
+      expect(legalDays.length).toBeGreaterThan(0);
+      legalDays.forEach((entry) => {
+        expect(acceptedWords(entry).has(word)).toBe(true);
+        expect(entry.coreWords).not.toContain(word);
+      });
+    });
+  });
+
+  it('keeps severe guess-safety words out of the accepted pack surface', () => {
+    ['ANAL', 'PENIS', 'RAPES'].forEach((word) => {
+      const legalDays = KILTER_PACK.entries.filter((entry) => canMakeWord(entry, word));
+      expect(legalDays.length).toBeGreaterThan(0);
+      legalDays.forEach((entry) => {
+        expect(acceptedWords(entry).has(word)).toBe(false);
+      });
+    });
+  });
+
   it('fails the generator self-test when an obvious legal word is omitted', () => {
     const output = execFileSync('python3', ['scripts/build_kilter_pack.py', '--self-test-omitted-obvious'], {
       cwd: REPO_ROOT,

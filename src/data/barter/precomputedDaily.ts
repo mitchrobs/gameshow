@@ -468,12 +468,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-02",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -1982,12 +1982,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-05",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -2535,7 +2535,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "timber",
       "name": "Bamboo Frames",
-      "emoji": "🎋",
+      "emoji": "🪵",
       "tier": "common"
     },
     {
@@ -2993,7 +2993,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-07",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -4460,7 +4460,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-10",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "wool",
@@ -4936,7 +4936,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-11",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "spice",
@@ -5429,7 +5429,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-12",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "wool",
@@ -5903,7 +5903,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-13",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
@@ -5919,14 +5919,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -6859,7 +6859,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-15",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "spice",
@@ -7349,12 +7349,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-16",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -8405,7 +8405,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-18",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "spice",
@@ -9368,12 +9368,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-20",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "spice",
-      "name": "Sunrise Bundles",
-      "emoji": "🌅",
+      "name": "Dawn Bundles",
+      "emoji": "📦",
       "tier": "common"
     },
     {
@@ -9882,7 +9882,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-21",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "spice",
@@ -10358,7 +10358,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-22",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "tea",
@@ -10393,7 +10393,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "jade",
       "name": "Crown Warrants",
-      "emoji": "👑",
+      "emoji": "📜",
       "tier": "rare"
     }
   ],
@@ -10849,7 +10849,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-23",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
@@ -12282,8 +12282,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Crocus",
-      "emoji": "🌺",
+      "name": "Saffron Threads",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -13260,18 +13260,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-28",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -14835,12 +14835,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-05-31",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -15307,7 +15307,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-01",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "wool",
@@ -17792,12 +17792,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-06",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -19259,12 +19259,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-09",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -20289,7 +20289,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-11",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "wool",
@@ -21267,8 +21267,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Mint Halls",
-      "emoji": "🏛️",
+      "name": "Mint Cards",
+      "emoji": "🪪",
       "tier": "rare"
     }
   ],
@@ -21736,12 +21736,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-14",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -22226,7 +22226,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-15",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "spice",
@@ -22724,7 +22724,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-16",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "spice",
@@ -23217,7 +23217,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-17",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "wool",
@@ -23233,14 +23233,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -24122,7 +24122,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-19",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "wool",
@@ -24616,12 +24616,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-20",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -25644,7 +25644,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-22",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "spice",
@@ -26656,12 +26656,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-24",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "spice",
-      "name": "Sunrise Bundles",
-      "emoji": "🌅",
+      "name": "Dawn Bundles",
+      "emoji": "📦",
       "tier": "common"
     },
     {
@@ -27126,7 +27126,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-25",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "spice",
@@ -27641,7 +27641,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-26",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "spice",
@@ -27676,7 +27676,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "jade",
       "name": "Crown Warrants",
-      "emoji": "👑",
+      "emoji": "📜",
       "tier": "rare"
     }
   ],
@@ -28131,7 +28131,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-06-27",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "wool",
@@ -30481,7 +30481,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-02",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "wool",
@@ -30971,7 +30971,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-03",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "wool",
@@ -31483,7 +31483,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-04",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "spice",
@@ -32019,7 +32019,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-05",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "tea",
@@ -34454,18 +34454,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-10",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -35889,7 +35889,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-13",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "tea",
@@ -36400,7 +36400,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "timber",
       "name": "Bamboo Frames",
-      "emoji": "🎋",
+      "emoji": "🪵",
       "tier": "common"
     },
     {
@@ -36417,8 +36417,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Moon Crescents",
-      "emoji": "🌙",
+      "name": "Moon Amulets",
+      "emoji": "🧿",
       "tier": "rare"
     }
   ],
@@ -36891,7 +36891,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-15",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "tea",
@@ -38421,7 +38421,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-18",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "wool",
@@ -38893,7 +38893,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-19",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "wool",
@@ -39408,7 +39408,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-20",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "spice",
@@ -39864,7 +39864,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-21",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
@@ -39880,14 +39880,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -40847,7 +40847,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-23",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "wool",
@@ -41338,12 +41338,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-24",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -42293,7 +42293,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-26",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "spice",
@@ -43318,7 +43318,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-28",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "wool",
@@ -43858,7 +43858,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-29",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "wool",
@@ -44353,7 +44353,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-30",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "wool",
@@ -44388,7 +44388,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "jade",
       "name": "Crown Warrants",
-      "emoji": "👑",
+      "emoji": "📜",
       "tier": "rare"
     }
   ],
@@ -44812,7 +44812,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-07-31",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
@@ -45326,7 +45326,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-01",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "wool",
@@ -45816,12 +45816,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-02",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -46800,7 +46800,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-04",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "spice",
@@ -47736,12 +47736,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-06",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "spice",
-      "name": "Sunrise Bundles",
-      "emoji": "🌅",
+      "name": "Dawn Bundles",
+      "emoji": "📦",
       "tier": "common"
     },
     {
@@ -48230,7 +48230,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-07",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "spice",
@@ -48732,7 +48732,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-08",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "wool",
@@ -48767,7 +48767,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "jade",
       "name": "Crown Warrants",
-      "emoji": "👑",
+      "emoji": "📜",
       "tier": "rare"
     }
   ],
@@ -49248,7 +49248,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-09",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "wool",
@@ -50757,8 +50757,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Crocus",
-      "emoji": "🌺",
+      "name": "Saffron Threads",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -51756,18 +51756,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-14",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -53199,12 +53199,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-17",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -53678,7 +53678,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "timber",
       "name": "Bamboo Frames",
-      "emoji": "🎋",
+      "emoji": "🪵",
       "tier": "common"
     },
     {
@@ -54155,7 +54155,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-19",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -55680,7 +55680,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-22",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "wool",
@@ -56155,7 +56155,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-23",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "wool",
@@ -56638,7 +56638,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-24",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "spice",
@@ -57153,7 +57153,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-25",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
@@ -57175,8 +57175,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -58104,7 +58104,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-27",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "spice",
@@ -58598,12 +58598,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-28",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -59536,7 +59536,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-08-30",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "wool",
@@ -60542,7 +60542,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-01",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "spice",
@@ -61058,7 +61058,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-02",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "spice",
@@ -61594,7 +61594,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-03",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "wool",
@@ -61610,14 +61610,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -62539,7 +62539,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-05",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "spice",
@@ -63053,12 +63053,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-06",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -64023,7 +64023,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-08",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "tea",
@@ -64955,12 +64955,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-10",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "spice",
-      "name": "Sunrise Bundles",
-      "emoji": "🌅",
+      "name": "Dawn Bundles",
+      "emoji": "📦",
       "tier": "common"
     },
     {
@@ -65422,7 +65422,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-11",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "spice",
@@ -65915,7 +65915,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-12",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "spice",
@@ -65950,7 +65950,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "jade",
       "name": "Crown Warrants",
-      "emoji": "👑",
+      "emoji": "📜",
       "tier": "rare"
     }
   ],
@@ -66423,7 +66423,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-13",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
@@ -68935,12 +68935,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-18",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -70396,7 +70396,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-21",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "wool",
@@ -70852,7 +70852,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "timber",
       "name": "Bamboo Frames",
-      "emoji": "🎋",
+      "emoji": "🪵",
       "tier": "common"
     },
     {
@@ -70869,8 +70869,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Moon Crescents",
-      "emoji": "🌙",
+      "name": "Moon Amulets",
+      "emoji": "🧿",
       "tier": "rare"
     }
   ],
@@ -71297,7 +71297,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-23",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -72793,7 +72793,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-26",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "wool",
@@ -73329,7 +73329,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-27",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "wool",
@@ -73815,7 +73815,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-28",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "spice",
@@ -74287,7 +74287,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-09-29",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
@@ -74303,14 +74303,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -75291,7 +75291,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-01",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -76295,8 +76295,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Mint Halls",
-      "emoji": "🏛️",
+      "name": "Mint Cards",
+      "emoji": "🪪",
       "tier": "rare"
     }
   ],
@@ -76724,12 +76724,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-04",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -77186,7 +77186,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-05",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "wool",
@@ -77679,7 +77679,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-06",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "tea",
@@ -78187,7 +78187,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-07",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "tea",
@@ -78203,14 +78203,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -79217,7 +79217,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-09",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "tea",
@@ -79695,12 +79695,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-10",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -80688,7 +80688,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-12",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "spice",
@@ -81652,12 +81652,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-14",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "spice",
-      "name": "Sunrise Bundles",
-      "emoji": "🌅",
+      "name": "Dawn Bundles",
+      "emoji": "📦",
       "tier": "common"
     },
     {
@@ -82149,7 +82149,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-15",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "spice",
@@ -82625,7 +82625,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-16",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "spice",
@@ -83087,7 +83087,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-17",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "wool",
@@ -85607,12 +85607,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-22",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -87071,12 +87071,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-25",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -87622,8 +87622,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Moon Crescents",
-      "emoji": "🌙",
+      "name": "Moon Amulets",
+      "emoji": "🧿",
       "tier": "rare"
     }
   ],
@@ -88080,7 +88080,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-27",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -89044,8 +89044,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Mint Halls",
-      "emoji": "🏛️",
+      "name": "Mint Cards",
+      "emoji": "🪪",
       "tier": "rare"
     }
   ],
@@ -89504,12 +89504,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-30",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -89994,7 +89994,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-10-31",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "spice",
@@ -91495,12 +91495,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-03",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -91984,7 +91984,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "timber",
       "name": "Bamboo Frames",
-      "emoji": "🎋",
+      "emoji": "🪵",
       "tier": "common"
     },
     {
@@ -92481,7 +92481,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-05",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -93485,8 +93485,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Mint Halls",
-      "emoji": "🏛️",
+      "name": "Mint Cards",
+      "emoji": "🪪",
       "tier": "rare"
     }
   ],
@@ -93943,12 +93943,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-08",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -94418,7 +94418,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-09",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "wool",
@@ -94880,7 +94880,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-10",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "spice",
@@ -95374,7 +95374,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-11",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "wool",
@@ -95390,14 +95390,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -96379,7 +96379,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-13",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "wool",
@@ -96915,7 +96915,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-14",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "wool",
@@ -97850,7 +97850,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-16",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "spice",
@@ -98835,7 +98835,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-18",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "wool",
@@ -99333,7 +99333,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-19",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "tea",
@@ -99827,7 +99827,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-20",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "spice",
@@ -99862,7 +99862,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "jade",
       "name": "Crown Warrants",
-      "emoji": "👑",
+      "emoji": "📜",
       "tier": "rare"
     }
   ],
@@ -100318,7 +100318,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-21",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
@@ -101790,8 +101790,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Crocus",
-      "emoji": "🌺",
+      "name": "Saffron Threads",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -102839,18 +102839,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-26",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -104310,7 +104310,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-11-29",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "wool",
@@ -104832,8 +104832,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Moon Crescents",
-      "emoji": "🌙",
+      "name": "Moon Amulets",
+      "emoji": "🧿",
       "tier": "rare"
     }
   ],
@@ -105793,8 +105793,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Crocus",
-      "emoji": "🌺",
+      "name": "Saffron Threads",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -106694,18 +106694,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-04",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -108212,12 +108212,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-07",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -108763,7 +108763,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "timber",
       "name": "Bamboo Frames",
-      "emoji": "🎋",
+      "emoji": "🪵",
       "tier": "common"
     },
     {
@@ -108780,8 +108780,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Moon Crescents",
-      "emoji": "🌙",
+      "name": "Moon Amulets",
+      "emoji": "🧿",
       "tier": "rare"
     }
   ],
@@ -109224,7 +109224,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-09",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -110722,12 +110722,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-12",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -111185,7 +111185,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-13",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "spice",
@@ -111678,7 +111678,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-14",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "tea",
@@ -112117,7 +112117,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-15",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
@@ -112139,8 +112139,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -113073,7 +113073,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-17",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "tea",
@@ -113563,12 +113563,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-18",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -114573,7 +114573,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-20",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "spice",
@@ -115534,7 +115534,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-22",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "wool",
@@ -116037,7 +116037,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-23",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "wool",
@@ -116527,7 +116527,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-24",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "wool",
@@ -117044,7 +117044,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-25",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
@@ -118484,8 +118484,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Crocus",
-      "emoji": "🌺",
+      "name": "Saffron Threads",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -119486,18 +119486,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2026-12-30",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -120538,7 +120538,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-01",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -122014,12 +122014,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-04",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -122489,7 +122489,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-05",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "wool",
@@ -122984,7 +122984,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-06",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "wool",
@@ -123477,7 +123477,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-07",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
@@ -123493,14 +123493,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -124430,7 +124430,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-09",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "spice",
@@ -124924,12 +124924,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-10",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -125945,7 +125945,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-12",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "spice",
@@ -126960,7 +126960,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-14",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "wool",
@@ -127427,7 +127427,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-15",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "wool",
@@ -127942,7 +127942,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-16",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "spice",
@@ -128424,7 +128424,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-17",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "wool",
@@ -129865,8 +129865,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Crocus",
-      "emoji": "🌺",
+      "name": "Saffron Threads",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -130817,18 +130817,18 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-22",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -132338,12 +132338,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-25",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -132830,7 +132830,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "timber",
       "name": "Bamboo Frames",
-      "emoji": "🎋",
+      "emoji": "🪵",
       "tier": "common"
     },
     {
@@ -133303,7 +133303,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-27",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -134784,12 +134784,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-30",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -135276,7 +135276,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-01-31",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "spice",
@@ -136696,7 +136696,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-03",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "wool",
@@ -137201,7 +137201,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "timber",
       "name": "Bamboo Frames",
-      "emoji": "🎋",
+      "emoji": "🪵",
       "tier": "common"
     },
     {
@@ -137696,7 +137696,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-05",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "wool",
@@ -139189,12 +139189,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-08",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -139702,7 +139702,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-09",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "spice",
@@ -140173,7 +140173,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-10",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "tea",
@@ -140672,7 +140672,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-11",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
@@ -140688,14 +140688,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -141661,7 +141661,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-13",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "spice",
@@ -142123,12 +142123,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-14",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -143125,7 +143125,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-16",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "tea",
@@ -143675,8 +143675,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "North Stars",
-      "emoji": "✨",
+      "name": "North Lenses",
+      "emoji": "🔭",
       "tier": "rare"
     }
   ],
@@ -144181,7 +144181,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-18",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "wool",
@@ -144667,7 +144667,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-19",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "spice",
@@ -145126,7 +145126,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-20",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "wool",
@@ -145161,7 +145161,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "jade",
       "name": "Crown Warrants",
-      "emoji": "👑",
+      "emoji": "📜",
       "tier": "rare"
     }
   ],
@@ -145640,7 +145640,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-21",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
@@ -148009,12 +148009,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-02-26",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -150070,8 +150070,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Crocus",
-      "emoji": "🌺",
+      "name": "Saffron Threads",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -151019,12 +151019,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-04",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -152503,12 +152503,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-07",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -153029,8 +153029,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Moon Crescents",
-      "emoji": "🌙",
+      "name": "Moon Amulets",
+      "emoji": "🧿",
       "tier": "rare"
     }
   ],
@@ -153438,7 +153438,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-09",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -154909,12 +154909,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-12",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -155422,7 +155422,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-13",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "wool",
@@ -155962,7 +155962,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-14",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "wool",
@@ -156440,7 +156440,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-15",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "tea",
@@ -156456,14 +156456,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -157430,7 +157430,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-17",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "wool",
@@ -157920,12 +157920,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-18",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "spice",
-      "name": "Palm Dates",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -158890,7 +158890,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-20",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "wool",
@@ -159823,7 +159823,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-22",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "tea",
@@ -160317,7 +160317,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-23",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "wool",
@@ -160825,7 +160825,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-24",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "tea",
@@ -161319,7 +161319,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-25",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
@@ -162824,8 +162824,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Crocus",
-      "emoji": "🌺",
+      "name": "Saffron Threads",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -163811,12 +163811,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-03-30",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -164784,7 +164784,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-01",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "spice",
@@ -165260,7 +165260,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-02",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "spice",
@@ -165722,7 +165722,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-03",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "wool",
@@ -167236,8 +167236,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "goods": [
     {
       "id": "spice",
-      "name": "Saffron Crocus",
-      "emoji": "🌺",
+      "name": "Saffron Threads",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -168235,12 +168235,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-08",
   "difficulty": "Hard",
   "marketName": "Gold Exchange",
-  "marketEmoji": "🐪",
+  "marketEmoji": "🪙",
   "goods": [
     {
       "id": "wool",
-      "name": "Pack Camels",
-      "emoji": "🐪",
+      "name": "Trail Packs",
+      "emoji": "🎒",
       "tier": "common"
     },
     {
@@ -169681,12 +169681,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-11",
   "difficulty": "Hard",
   "marketName": "Saffron Market",
-  "marketEmoji": "🟧",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
       "name": "Saffron Threads",
-      "emoji": "🌺",
+      "emoji": "🌶️",
       "tier": "common"
     },
     {
@@ -170210,8 +170210,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "jade",
-      "name": "Moon Crescents",
-      "emoji": "🌙",
+      "name": "Moon Amulets",
+      "emoji": "🧿",
       "tier": "rare"
     }
   ],
@@ -170668,7 +170668,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-13",
   "difficulty": "Hard",
   "marketName": "Amber Market",
-  "marketEmoji": "🟠",
+  "marketEmoji": "🧿",
   "goods": [
     {
       "id": "spice",
@@ -172099,12 +172099,12 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-16",
   "difficulty": "Hard",
   "marketName": "Date Market",
-  "marketEmoji": "🌙",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
-      "name": "Date Palms",
-      "emoji": "🌴",
+      "name": "Date Baskets",
+      "emoji": "🧺",
       "tier": "common"
     },
     {
@@ -172589,7 +172589,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-17",
   "difficulty": "Hard",
   "marketName": "River Pearl Exchange",
-  "marketEmoji": "🌊",
+  "marketEmoji": "🦪",
   "goods": [
     {
       "id": "spice",
@@ -173105,7 +173105,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-18",
   "difficulty": "Hard",
   "marketName": "Ink Market",
-  "marketEmoji": "🟥",
+  "marketEmoji": "🖋️",
   "goods": [
     {
       "id": "spice",
@@ -173645,7 +173645,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-19",
   "difficulty": "Hard",
   "marketName": "Fig Market",
-  "marketEmoji": "✨",
+  "marketEmoji": "🧺",
   "goods": [
     {
       "id": "spice",
@@ -173661,14 +173661,14 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "timber",
-      "name": "Stone Pillars",
-      "emoji": "🏛️",
+      "name": "Marble Blocks",
+      "emoji": "🪨",
       "tier": "common"
     },
     {
       "id": "silk",
-      "name": "Star Sparks",
-      "emoji": "✨",
+      "name": "Star Tokens",
+      "emoji": "🎟️",
       "tier": "uncommon"
     },
     {
@@ -174580,7 +174580,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-21",
   "difficulty": "Hard",
   "marketName": "Rye Market",
-  "marketEmoji": "🌬️",
+  "marketEmoji": "🌾",
   "goods": [
     {
       "id": "wool",
@@ -175094,7 +175094,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-22",
   "difficulty": "Hard",
   "marketName": "Oasis Water Market",
-  "marketEmoji": "🌴",
+  "marketEmoji": "🏺",
   "goods": [
     {
       "id": "wool",
@@ -176064,7 +176064,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-24",
   "difficulty": "Hard",
   "marketName": "Rope & Salt Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🪢",
   "goods": [
     {
       "id": "spice",
@@ -176590,8 +176590,8 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     },
     {
       "id": "gems",
-      "name": "North Stars",
-      "emoji": "✨",
+      "name": "North Lenses",
+      "emoji": "🔭",
       "tier": "rare"
     }
   ],
@@ -177031,7 +177031,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-26",
   "difficulty": "Hard",
   "marketName": "Pack Market",
-  "marketEmoji": "🌅",
+  "marketEmoji": "🎒",
   "goods": [
     {
       "id": "wool",
@@ -177493,7 +177493,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-27",
   "difficulty": "Hard",
   "marketName": "Antarctic Supply Market",
-  "marketEmoji": "❄️",
+  "marketEmoji": "🥫",
   "goods": [
     {
       "id": "spice",
@@ -177987,7 +177987,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-28",
   "difficulty": "Hard",
   "marketName": "London Cloth Exchange",
-  "marketEmoji": "👑",
+  "marketEmoji": "🧶",
   "goods": [
     {
       "id": "wool",
@@ -178022,7 +178022,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
     {
       "id": "jade",
       "name": "Crown Warrants",
-      "emoji": "👑",
+      "emoji": "📜",
       "tier": "rare"
     }
   ],
@@ -178479,7 +178479,7 @@ export const PRECOMPUTED_BARTER_PUZZLES: Record<string, BarterPuzzle> = {
   "dateKey": "2027-04-29",
   "difficulty": "Hard",
   "marketName": "Amsterdam Spice Exchange",
-  "marketEmoji": "⚓️",
+  "marketEmoji": "🌶️",
   "goods": [
     {
       "id": "spice",
