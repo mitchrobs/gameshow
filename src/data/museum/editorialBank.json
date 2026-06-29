@@ -164420,6 +164420,1194 @@
         },
         "blockers": []
       }
+    },
+    {
+      "id": "aic-28560",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "28560",
+        "objectUrl": "https://www.artic.edu/artworks/28560",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "The Bedroom",
+        "artist": "Vincent van Gogh (Dutch, 1853–1890)",
+        "objectDate": "1889",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "Saint-Rémy-de-Provence",
+        "place": "Saint-Rémy-de-Provence",
+        "classification": "oil on canvas",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "Saint-Rémy-de-Provence",
+          "oil on canvas",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/6644829f-f292-c5c4-a73c-0356a6fdbf0d/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/6644829f-f292-c5c4-a73c-0356a6fdbf0d/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/6644829f-f292-c5c4-a73c-0356a6fdbf0d/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-28560",
+        "title": "The Bedroom",
+        "artist": "Vincent van Gogh (Dutch, 1853–1890)",
+        "objectDate": "1889",
+        "medium": "Oil on canvas",
+        "periodKey": "world-art",
+        "periodTag": "World Art · Saint-Rémy-de-Provence · 1889",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Global",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/6644829f-f292-c5c4-a73c-0356a6fdbf0d/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/6644829f-f292-c5c4-a73c-0356a6fdbf0d/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/6644829f-f292-c5c4-a73c-0356a6fdbf0d/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "28560",
+          "objectUrl": "https://www.artic.edu/artworks/28560",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-20684",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "20684",
+        "objectUrl": "https://www.artic.edu/artworks/20684",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Paris Street; Rainy Day",
+        "artist": "Gustave Caillebotte (French, 1848–1894)",
+        "objectDate": "1877",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "Paris",
+        "place": "Paris",
+        "classification": "oil on canvas",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "Paris",
+          "oil on canvas",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/f8fd76e9-c396-5678-36ed-6a348c904d27/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/f8fd76e9-c396-5678-36ed-6a348c904d27/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/f8fd76e9-c396-5678-36ed-6a348c904d27/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-20684",
+        "title": "Paris Street; Rainy Day",
+        "artist": "Gustave Caillebotte (French, 1848–1894)",
+        "objectDate": "1877",
+        "medium": "Oil on canvas",
+        "periodKey": "world-art",
+        "periodTag": "World Art · Paris · 1877",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/f8fd76e9-c396-5678-36ed-6a348c904d27/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/f8fd76e9-c396-5678-36ed-6a348c904d27/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/f8fd76e9-c396-5678-36ed-6a348c904d27/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "20684",
+          "objectUrl": "https://www.artic.edu/artworks/20684",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-27992",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "27992",
+        "objectUrl": "https://www.artic.edu/artworks/27992",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "A Sunday on La Grande Jatte — 1884",
+        "artist": "Georges Seurat (French, 1859–1891)",
+        "objectDate": "1884–86, border added 1888–89",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "France",
+        "place": "France",
+        "classification": "oil on canvas",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "France",
+          "oil on canvas",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/2d484387-2509-5e8e-2c43-22f9981972eb/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/2d484387-2509-5e8e-2c43-22f9981972eb/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/2d484387-2509-5e8e-2c43-22f9981972eb/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-27992",
+        "title": "A Sunday on La Grande Jatte — 1884",
+        "artist": "Georges Seurat (French, 1859–1891)",
+        "objectDate": "1884–86, border added 1888–89",
+        "medium": "Oil on canvas",
+        "periodKey": "world-art",
+        "periodTag": "World Art · France · 1884–86, border added 1888–89",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/2d484387-2509-5e8e-2c43-22f9981972eb/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/2d484387-2509-5e8e-2c43-22f9981972eb/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/2d484387-2509-5e8e-2c43-22f9981972eb/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "27992",
+          "objectUrl": "https://www.artic.edu/artworks/27992",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-75644",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "75644",
+        "objectUrl": "https://www.artic.edu/artworks/75644",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Coronation Stone of Moctezuma Xocoyotzin",
+        "artist": "Maker unknown (Mexica, Aztec)",
+        "objectDate": "c. 1503",
+        "medium": "Basalt",
+        "department": "Arts of the Americas",
+        "culture": "",
+        "period": "",
+        "country": "Tenochtitlan",
+        "place": "Tenochtitlan",
+        "classification": "ceremonial object",
+        "collection": "Arts of the Americas",
+        "subjectTerms": [
+          "Tenochtitlan",
+          "ceremonial object",
+          "painting"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/ea8c5d62-6ce8-88e8-feb1-e0053cf534c5/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/ea8c5d62-6ce8-88e8-feb1-e0053cf534c5/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/ea8c5d62-6ce8-88e8-feb1-e0053cf534c5/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-75644",
+        "title": "Coronation Stone of Moctezuma Xocoyotzin",
+        "artist": "Maker unknown (Mexica, Aztec)",
+        "objectDate": "c. 1503",
+        "medium": "Basalt",
+        "periodKey": "american art",
+        "periodTag": "American Art · Tenochtitlan · c. 1503",
+        "passportLabel": "American Art",
+        "mediumCategory": "painting",
+        "geoRegion": "North America",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/ea8c5d62-6ce8-88e8-feb1-e0053cf534c5/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/ea8c5d62-6ce8-88e8-feb1-e0053cf534c5/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/ea8c5d62-6ce8-88e8-feb1-e0053cf534c5/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "75644",
+          "objectUrl": "https://www.artic.edu/artworks/75644",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-102611",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "102611",
+        "objectUrl": "https://www.artic.edu/artworks/102611",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Veranda Post (Òpó Ògògá)",
+        "artist": "Olowe of Ise (died 1938)",
+        "objectDate": "1910-14",
+        "medium": "Wood and pigment",
+        "department": "Arts of Africa",
+        "culture": "",
+        "period": "",
+        "country": "Ikere",
+        "place": "Ikere",
+        "classification": "sculpture",
+        "collection": "Arts of Africa",
+        "subjectTerms": [
+          "Ikere",
+          "sculpture",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/fec5d023-0b46-45df-eb57-cbf64e24121d/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/fec5d023-0b46-45df-eb57-cbf64e24121d/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/fec5d023-0b46-45df-eb57-cbf64e24121d/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-102611",
+        "title": "Veranda Post (Òpó Ògògá)",
+        "artist": "Olowe of Ise (died 1938)",
+        "objectDate": "1910-14",
+        "medium": "Wood and pigment",
+        "periodKey": "african art",
+        "periodTag": "African Art · Ikere · 1910-14",
+        "passportLabel": "African Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Africa",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/fec5d023-0b46-45df-eb57-cbf64e24121d/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/fec5d023-0b46-45df-eb57-cbf64e24121d/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/fec5d023-0b46-45df-eb57-cbf64e24121d/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "102611",
+          "objectUrl": "https://www.artic.edu/artworks/102611",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-89503",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "89503",
+        "objectUrl": "https://www.artic.edu/artworks/89503",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Under the Wave off Kanagawa (Kanagawa oki nami ura), also known as The Great Wave, from the series \"Thirty-Six Views of Mount Fuji (Fugaku sanjurokkei)\"",
+        "artist": "Katsushika Hokusai 葛飾 北斎",
+        "objectDate": "1830/33",
+        "medium": "Color woodblock print; oban",
+        "department": "Arts of Asia",
+        "culture": "",
+        "period": "",
+        "country": "Japan",
+        "place": "Japan",
+        "classification": "woodblock print",
+        "collection": "Arts of Asia",
+        "subjectTerms": [
+          "Japan",
+          "woodblock print",
+          "print"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/2fa24f36-cc26-41b6-4b49-12bba2a6c1c8/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/2fa24f36-cc26-41b6-4b49-12bba2a6c1c8/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/2fa24f36-cc26-41b6-4b49-12bba2a6c1c8/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-89503",
+        "title": "Under the Wave off Kanagawa (Kanagawa oki nami ura), also known as The Great Wave, from the series \"Thirty-Six Views of Mount Fuji (Fugaku sanjurokkei)\"",
+        "artist": "Katsushika Hokusai 葛飾 北斎",
+        "objectDate": "1830/33",
+        "medium": "Color woodblock print; oban",
+        "periodKey": "asian art",
+        "periodTag": "Asian Art · Japan · 1830/33",
+        "passportLabel": "Asian Art",
+        "mediumCategory": "print",
+        "geoRegion": "Asia",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/2fa24f36-cc26-41b6-4b49-12bba2a6c1c8/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/2fa24f36-cc26-41b6-4b49-12bba2a6c1c8/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/2fa24f36-cc26-41b6-4b49-12bba2a6c1c8/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "89503",
+          "objectUrl": "https://www.artic.edu/artworks/89503",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-87479",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "87479",
+        "objectUrl": "https://www.artic.edu/artworks/87479",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "The Assumption of the Virgin",
+        "artist": "El Greco (Doménikos Theotokópoulos; Greek, active in Spain, 1541–1614)",
+        "objectDate": "1577–79",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "Greece",
+        "place": "Greece",
+        "classification": "oil on canvas",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "Greece",
+          "oil on canvas",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/47fd1564-93f5-f30b-7786-013421133b4a/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/47fd1564-93f5-f30b-7786-013421133b4a/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/47fd1564-93f5-f30b-7786-013421133b4a/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-87479",
+        "title": "The Assumption of the Virgin",
+        "artist": "El Greco (Doménikos Theotokópoulos; Greek, active in Spain, 1541–1614)",
+        "objectDate": "1577–79",
+        "medium": "Oil on canvas",
+        "periodKey": "ancient art",
+        "periodTag": "Ancient Art · Greece · 1577–79",
+        "passportLabel": "Ancient Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/47fd1564-93f5-f30b-7786-013421133b4a/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/47fd1564-93f5-f30b-7786-013421133b4a/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/47fd1564-93f5-f30b-7786-013421133b4a/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "87479",
+          "objectUrl": "https://www.artic.edu/artworks/87479",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-64818",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "64818",
+        "objectUrl": "https://www.artic.edu/artworks/64818",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Stacks of Wheat (End of Summer)",
+        "artist": "Claude Monet (French, 1840–1926)",
+        "objectDate": "1890–91",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "France",
+        "place": "France",
+        "classification": "oil on canvas",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "France",
+          "oil on canvas",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/a38e2828-ec6f-ece1-a30f-70243449197b/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/a38e2828-ec6f-ece1-a30f-70243449197b/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/a38e2828-ec6f-ece1-a30f-70243449197b/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-64818",
+        "title": "Stacks of Wheat (End of Summer)",
+        "artist": "Claude Monet (French, 1840–1926)",
+        "objectDate": "1890–91",
+        "medium": "Oil on canvas",
+        "periodKey": "world-art",
+        "periodTag": "World Art · France · 1890–91",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/a38e2828-ec6f-ece1-a30f-70243449197b/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/a38e2828-ec6f-ece1-a30f-70243449197b/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/a38e2828-ec6f-ece1-a30f-70243449197b/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "64818",
+          "objectUrl": "https://www.artic.edu/artworks/64818",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-16568",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "16568",
+        "objectUrl": "https://www.artic.edu/artworks/16568",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Water Lilies",
+        "artist": "Claude Monet (French, 1840–1926)",
+        "objectDate": "1906",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "France",
+        "place": "France",
+        "classification": "oil on canvas",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "France",
+          "oil on canvas",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/3c27b499-af56-f0d5-93b5-a7f2f1ad5813/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/3c27b499-af56-f0d5-93b5-a7f2f1ad5813/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/3c27b499-af56-f0d5-93b5-a7f2f1ad5813/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-16568",
+        "title": "Water Lilies",
+        "artist": "Claude Monet (French, 1840–1926)",
+        "objectDate": "1906",
+        "medium": "Oil on canvas",
+        "periodKey": "world-art",
+        "periodTag": "World Art · France · 1906",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/3c27b499-af56-f0d5-93b5-a7f2f1ad5813/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/3c27b499-af56-f0d5-93b5-a7f2f1ad5813/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/3c27b499-af56-f0d5-93b5-a7f2f1ad5813/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "16568",
+          "objectUrl": "https://www.artic.edu/artworks/16568",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-14655",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "14655",
+        "objectUrl": "https://www.artic.edu/artworks/14655",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Two Sisters (On the Terrace)",
+        "artist": "Pierre-Auguste Renoir (French, 1841–1919)",
+        "objectDate": "1881",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "France",
+        "place": "France",
+        "classification": "painting",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "France",
+          "painting",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/3a608f55-d76e-fa96-d0b1-0789fbc48f1e/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/3a608f55-d76e-fa96-d0b1-0789fbc48f1e/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/3a608f55-d76e-fa96-d0b1-0789fbc48f1e/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-14655",
+        "title": "Two Sisters (On the Terrace)",
+        "artist": "Pierre-Auguste Renoir (French, 1841–1919)",
+        "objectDate": "1881",
+        "medium": "Oil on canvas",
+        "periodKey": "world-art",
+        "periodTag": "World Art · France · 1881",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/3a608f55-d76e-fa96-d0b1-0789fbc48f1e/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/3a608f55-d76e-fa96-d0b1-0789fbc48f1e/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/3a608f55-d76e-fa96-d0b1-0789fbc48f1e/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "14655",
+          "objectUrl": "https://www.artic.edu/artworks/14655",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-80607",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "80607",
+        "objectUrl": "https://www.artic.edu/artworks/80607",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Self-Portrait",
+        "artist": "Vincent van Gogh (Dutch, 1853–1890)",
+        "objectDate": "1887",
+        "medium": "Oil on artist's board, mounted on cradled panel",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "Netherlands",
+        "place": "Netherlands",
+        "classification": "oil on board",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "Netherlands",
+          "oil on board",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/47c5bcb8-62ef-e5d7-55e7-f5121f409a30/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/47c5bcb8-62ef-e5d7-55e7-f5121f409a30/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/47c5bcb8-62ef-e5d7-55e7-f5121f409a30/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-80607",
+        "title": "Self-Portrait",
+        "artist": "Vincent van Gogh (Dutch, 1853–1890)",
+        "objectDate": "1887",
+        "medium": "Oil on artist's board, mounted on cradled panel",
+        "periodKey": "world-art",
+        "periodTag": "World Art · Netherlands · 1887",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/47c5bcb8-62ef-e5d7-55e7-f5121f409a30/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/47c5bcb8-62ef-e5d7-55e7-f5121f409a30/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/47c5bcb8-62ef-e5d7-55e7-f5121f409a30/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "80607",
+          "objectUrl": "https://www.artic.edu/artworks/80607",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-111442",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "111442",
+        "objectUrl": "https://www.artic.edu/artworks/111442",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "The Child's Bath",
+        "artist": "Mary Cassatt (American, 1844–1926)",
+        "objectDate": "1893",
+        "medium": "Oil on canvas",
+        "department": "Arts of the Americas",
+        "culture": "",
+        "period": "",
+        "country": "France",
+        "place": "France",
+        "classification": "painting",
+        "collection": "Arts of the Americas",
+        "subjectTerms": [
+          "France",
+          "painting",
+          "painting"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/3b885ae0-4d46-5fe4-d70a-00474827f02c/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/3b885ae0-4d46-5fe4-d70a-00474827f02c/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/3b885ae0-4d46-5fe4-d70a-00474827f02c/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-111442",
+        "title": "The Child's Bath",
+        "artist": "Mary Cassatt (American, 1844–1926)",
+        "objectDate": "1893",
+        "medium": "Oil on canvas",
+        "periodKey": "american art",
+        "periodTag": "American Art · France · 1893",
+        "passportLabel": "American Art",
+        "mediumCategory": "painting",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/3b885ae0-4d46-5fe4-d70a-00474827f02c/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/3b885ae0-4d46-5fe4-d70a-00474827f02c/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/3b885ae0-4d46-5fe4-d70a-00474827f02c/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "111442",
+          "objectUrl": "https://www.artic.edu/artworks/111442",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-61128",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "61128",
+        "objectUrl": "https://www.artic.edu/artworks/61128",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "At the Moulin Rouge",
+        "artist": "Henri de Toulouse-Lautrec (French, 1864–1901)",
+        "objectDate": "1892–95",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "France",
+        "place": "France",
+        "classification": "oil on canvas",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "France",
+          "oil on canvas",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/defb4004-b500-218d-3d9b-9a02423f097d/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/defb4004-b500-218d-3d9b-9a02423f097d/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/defb4004-b500-218d-3d9b-9a02423f097d/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-61128",
+        "title": "At the Moulin Rouge",
+        "artist": "Henri de Toulouse-Lautrec (French, 1864–1901)",
+        "objectDate": "1892–95",
+        "medium": "Oil on canvas",
+        "periodKey": "world-art",
+        "periodTag": "World Art · France · 1892–95",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/defb4004-b500-218d-3d9b-9a02423f097d/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/defb4004-b500-218d-3d9b-9a02423f097d/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/defb4004-b500-218d-3d9b-9a02423f097d/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "61128",
+          "objectUrl": "https://www.artic.edu/artworks/61128",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-16571",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "16571",
+        "objectUrl": "https://www.artic.edu/artworks/16571",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Arrival of the Normandy Train, Gare Saint-Lazare",
+        "artist": "Claude Monet (French, 1840–1926)",
+        "objectDate": "1877",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "France",
+        "place": "France",
+        "classification": "painting",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "France",
+          "painting",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/0f1cc0e0-e42e-be16-3f71-2022da38cb93/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/0f1cc0e0-e42e-be16-3f71-2022da38cb93/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/0f1cc0e0-e42e-be16-3f71-2022da38cb93/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-16571",
+        "title": "Arrival of the Normandy Train, Gare Saint-Lazare",
+        "artist": "Claude Monet (French, 1840–1926)",
+        "objectDate": "1877",
+        "medium": "Oil on canvas",
+        "periodKey": "world-art",
+        "periodTag": "World Art · France · 1877",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/0f1cc0e0-e42e-be16-3f71-2022da38cb93/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/0f1cc0e0-e42e-be16-3f71-2022da38cb93/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/0f1cc0e0-e42e-be16-3f71-2022da38cb93/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "16571",
+          "objectUrl": "https://www.artic.edu/artworks/16571",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-111436",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "111436",
+        "objectUrl": "https://www.artic.edu/artworks/111436",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "The Basket of Apples",
+        "artist": "Paul Cezanne (French, 1839–1906)",
+        "objectDate": "c. 1893",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "France",
+        "place": "France",
+        "classification": "oil on canvas",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "France",
+          "oil on canvas",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/52ac8996-3460-cf71-cb42-5c4d0aa29b74/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/52ac8996-3460-cf71-cb42-5c4d0aa29b74/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/52ac8996-3460-cf71-cb42-5c4d0aa29b74/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-111436",
+        "title": "The Basket of Apples",
+        "artist": "Paul Cezanne (French, 1839–1906)",
+        "objectDate": "c. 1893",
+        "medium": "Oil on canvas",
+        "periodKey": "world-art",
+        "periodTag": "World Art · France · c. 1893",
+        "passportLabel": "World Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/52ac8996-3460-cf71-cb42-5c4d0aa29b74/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/52ac8996-3460-cf71-cb42-5c4d0aa29b74/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/52ac8996-3460-cf71-cb42-5c4d0aa29b74/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "111436",
+          "objectUrl": "https://www.artic.edu/artworks/111436",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-15468",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "15468",
+        "objectUrl": "https://www.artic.edu/artworks/15468",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "Saint George and the Dragon",
+        "artist": "Bernat Martorell (Spanish, active from 1427–died 1452)",
+        "objectDate": "1434–35",
+        "medium": "Tempera on panel",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "Spain",
+        "place": "Spain",
+        "classification": "painting",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "Spain",
+          "painting",
+          "sculpture"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/8a0e4ac9-43ea-bc3e-884b-ee27f8a10501/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/8a0e4ac9-43ea-bc3e-884b-ee27f8a10501/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/8a0e4ac9-43ea-bc3e-884b-ee27f8a10501/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-15468",
+        "title": "Saint George and the Dragon",
+        "artist": "Bernat Martorell (Spanish, active from 1427–died 1452)",
+        "objectDate": "1434–35",
+        "medium": "Tempera on panel",
+        "periodKey": "ancient art",
+        "periodTag": "Ancient Art · Spain · 1434–35",
+        "passportLabel": "Ancient Art",
+        "mediumCategory": "sculpture",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/8a0e4ac9-43ea-bc3e-884b-ee27f8a10501/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/8a0e4ac9-43ea-bc3e-884b-ee27f8a10501/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/8a0e4ac9-43ea-bc3e-884b-ee27f8a10501/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "15468",
+          "objectUrl": "https://www.artic.edu/artworks/15468",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-14572",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "14572",
+        "objectUrl": "https://www.artic.edu/artworks/14572",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "The Millinery Shop",
+        "artist": "Hilaire Germain Edgar Degas",
+        "objectDate": "1879-86",
+        "medium": "Oil on canvas",
+        "department": "Painting and Sculpture of Europe",
+        "culture": "",
+        "period": "",
+        "country": "France",
+        "place": "France",
+        "classification": "painting",
+        "collection": "Painting and Sculpture of Europe",
+        "subjectTerms": [
+          "France",
+          "oil on canvas",
+          "painting"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/6f513908-03cc-b974-633b-adfce56b7936/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/6f513908-03cc-b974-633b-adfce56b7936/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/6f513908-03cc-b974-633b-adfce56b7936/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-14572",
+        "title": "The Millinery Shop",
+        "artist": "Hilaire Germain Edgar Degas",
+        "objectDate": "1879-86",
+        "medium": "Oil on canvas",
+        "periodKey": "impressionism",
+        "periodTag": "Impressionism · France · 1879-86",
+        "passportLabel": "Impressionism",
+        "mediumCategory": "Painting",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/6f513908-03cc-b974-633b-adfce56b7936/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/6f513908-03cc-b974-633b-adfce56b7936/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/6f513908-03cc-b974-633b-adfce56b7936/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "14572",
+          "objectUrl": "https://www.artic.edu/artworks/14572",
+          "license": "CC0"
+        }
+      }
+    },
+    {
+      "id": "aic-90036",
+      "source": {
+        "institution": "aic",
+        "collectionLabel": "Art Institute of Chicago",
+        "objectId": "90036",
+        "objectUrl": "https://www.artic.edu/artworks/90036",
+        "license": "CC0"
+      },
+      "rawSource": {
+        "title": "The Parson's Hobby, or Comfort for a Welch Curate",
+        "artist": "Charles Williams",
+        "objectDate": "1819",
+        "medium": "Etching in black, with hand-colored additions, on cream wove paper",
+        "department": "Prints and Drawings",
+        "culture": "",
+        "period": "",
+        "country": "England",
+        "place": "England",
+        "classification": "etching",
+        "collection": "Prints and Drawings",
+        "subjectTerms": [
+          "England",
+          "etching",
+          "print"
+        ],
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/4776354a-774d-afcd-d87a-63e3523b8910/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/4776354a-774d-afcd-d87a-63e3523b8910/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/4776354a-774d-afcd-d87a-63e3523b8910/full/1686,/0/default.jpg"
+        },
+        "thumbnail": {
+          "lqip": ""
+        }
+      },
+      "artwork": {
+        "id": "aic-90036",
+        "title": "The Parson's Hobby, or Comfort for a Welch Curate",
+        "artist": "Charles Williams",
+        "objectDate": "1819",
+        "medium": "Etching in black, with hand-colored additions, on cream wove paper",
+        "periodKey": "print-culture",
+        "periodTag": "Print Culture · England · 1819",
+        "passportLabel": "Print Culture",
+        "mediumCategory": "Print",
+        "geoRegion": "Europe",
+        "images": {
+          "thumbnailUrl": "https://www.artic.edu/iiif/2/4776354a-774d-afcd-d87a-63e3523b8910/full/200,/0/default.jpg",
+          "displayUrl": "https://www.artic.edu/iiif/2/4776354a-774d-afcd-d87a-63e3523b8910/full/843,/0/default.jpg",
+          "fullUrl": "https://www.artic.edu/iiif/2/4776354a-774d-afcd-d87a-63e3523b8910/full/1686,/0/default.jpg"
+        },
+        "context": {
+          "technique": "",
+          "surprisingFact": "",
+          "connection": ""
+        },
+        "questions": [],
+        "source": {
+          "institution": "aic",
+          "collectionLabel": "Art Institute of Chicago",
+          "objectId": "90036",
+          "objectUrl": "https://www.artic.edu/artworks/90036",
+          "license": "CC0"
+        }
+      }
     }
   ]
 }
