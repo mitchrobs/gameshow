@@ -12,7 +12,7 @@ import {
   THREADLINE_RUNTIME_READY_RESERVE_INDEXES,
 } from './threadlineRuntimePackData.ts';
 
-const THREADLINE_RUNTIME_GRID_COLS = 8;
+export const THREADLINE_RUNTIME_GRID_COLS = 8;
 
 type CompactLeadSegment = ['t', string] | ['b', string];
 type CompactThread = [string, string, string];
