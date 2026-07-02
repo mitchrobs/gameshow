@@ -4091,11 +4091,11 @@
     {
       "answer": "AIDED",
       "clueOptions": [
-        "Give help or assistance"
+        "Gave help or assistance"
       ],
       "clueMetadata": [
         {
-          "text": "Give help or assistance",
+          "text": "Gave help or assistance",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -4113,11 +4113,11 @@
     {
       "answer": "AIDS",
       "clueOptions": [
-        "A resource"
+        "Resources"
       ],
       "clueMetadata": [
         {
-          "text": "A resource",
+          "text": "Resources",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -4291,13 +4291,13 @@
     {
       "answer": "AIRED",
       "clueOptions": [
-        "Expose to fresh air, maybe?",
-        "Expose to fresh air",
+        "Exposed to fresh air, maybe?",
+        "Exposed to fresh air",
         "Be broadcast"
       ],
       "clueMetadata": [
         {
-          "text": "Expose to fresh air, maybe?",
+          "text": "Exposed to fresh air, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -4307,7 +4307,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Expose to fresh air",
+          "text": "Exposed to fresh air",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -4335,11 +4335,11 @@
     {
       "answer": "AIRES",
       "clueOptions": [
-        "Expose to fresh air"
+        "Buenos ___"
       ],
       "clueMetadata": [
         {
-          "text": "Expose to fresh air",
+          "text": "Buenos ___",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -4776,11 +4776,11 @@
     {
       "answer": "ALIGNED",
       "clueOptions": [
-        "Be or come into adjustment with"
+        "Came into adjustment with"
       ],
       "clueMetadata": [
         {
-          "text": "Be or come into adjustment with",
+          "text": "Came into adjustment with",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -5341,11 +5341,11 @@
     {
       "answer": "ALTERED",
       "clueOptions": [
-        "Cause to change"
+        "Caused to change"
       ],
       "clueMetadata": [
         {
-          "text": "Cause to change",
+          "text": "Caused to change",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -5675,11 +5675,11 @@
     {
       "answer": "ANATOMY",
       "clueOptions": [
-        "Alternative names for the body of a human being"
+        "Alternative name for the body of a human being"
       ],
       "clueMetadata": [
         {
-          "text": "Alternative names for the body of a human being",
+          "text": "Alternative name for the body of a human being",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -6016,11 +6016,11 @@
     {
       "answer": "ANNOYED",
       "clueOptions": [
-        "Cause annoyance in"
+        "Caused annoyance in"
       ],
       "clueMetadata": [
         {
-          "text": "Cause annoyance in",
+          "text": "Caused annoyance in",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -6497,11 +6497,11 @@
     {
       "answer": "APPLIES",
       "clueOptions": [
-        "Put into service"
+        "Puts into service"
       ],
       "clueMetadata": [
         {
-          "text": "Put into service",
+          "text": "Puts into service",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -6926,11 +6926,11 @@
     {
       "answer": "ARISING",
       "clueOptions": [
-        "Come into existence"
+        "Coming into existence"
       ],
       "clueMetadata": [
         {
-          "text": "Come into existence",
+          "text": "Coming into existence",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -7149,11 +7149,11 @@
     {
       "answer": "AROSE",
       "clueOptions": [
-        "Come into existence"
+        "Came into existence"
       ],
       "clueMetadata": [
         {
-          "text": "Come into existence",
+          "text": "Came into existence",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -7365,11 +7365,11 @@
     {
       "answer": "ARRIVED",
       "clueOptions": [
-        "Reach a destination"
+        "Reached a destination"
       ],
       "clueMetadata": [
         {
-          "text": "Reach a destination",
+          "text": "Reached a destination",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -7387,11 +7387,11 @@
     {
       "answer": "ARRIVES",
       "clueOptions": [
-        "Reach a destination"
+        "Reaches a destination"
       ],
       "clueMetadata": [
         {
-          "text": "Reach a destination",
+          "text": "Reaches a destination",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -7799,12 +7799,12 @@
     {
       "answer": "ASKED",
       "clueOptions": [
-        "Inquire about, maybe?",
-        "Inquire about"
+        "Inquired about, maybe?",
+        "Inquired about"
       ],
       "clueMetadata": [
         {
-          "text": "Inquire about, maybe?",
+          "text": "Inquired about, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -7814,7 +7814,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Inquire about",
+          "text": "Inquired about",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -7832,11 +7832,11 @@
     {
       "answer": "ASKS",
       "clueOptions": [
-        "Inquire about"
+        "Inquires about"
       ],
       "clueMetadata": [
         {
-          "text": "Inquire about",
+          "text": "Inquires about",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -7874,28 +7874,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "ASS",
-      "clueOptions": [
-        "The fleshy part of the human body that you sit on"
-      ],
-      "clueMetadata": [
-        {
-          "text": "The fleshy part of the human body that you sit on",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "ASSAULT",
       "clueOptions": [
         "Thoroughbred that won the triple crown in 1946"
@@ -7913,28 +7891,6 @@
         }
       ],
       "difficulty": "medium",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "ASSES",
-      "clueOptions": [
-        "The fleshy part of the human body that you sit on"
-      ],
-      "clueMetadata": [
-        {
-          "text": "The fleshy part of the human body that you sit on",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
       "themeTags": [],
       "isModern": true,
       "isBonusEligible": false
@@ -7975,11 +7931,11 @@
     {
       "answer": "ASSISTS",
       "clueOptions": [
-        "Give help or assistance"
+        "Gives help or assistance"
       ],
       "clueMetadata": [
         {
-          "text": "Give help or assistance",
+          "text": "Gives help or assistance",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -7997,11 +7953,11 @@
     {
       "answer": "ASSUMED",
       "clueOptions": [
-        "Take to be the case or to be true"
+        "Took to be the case or to be true"
       ],
       "clueMetadata": [
         {
-          "text": "Take to be the case or to be true",
+          "text": "Took to be the case or to be true",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -8019,11 +7975,11 @@
     {
       "answer": "ASSUMES",
       "clueOptions": [
-        "Take to be the case or to be true"
+        "Takes to be the case or to be true"
       ],
       "clueMetadata": [
         {
-          "text": "Take to be the case or to be true",
+          "text": "Takes to be the case or to be true",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -8041,11 +7997,11 @@
     {
       "answer": "ASSURED",
       "clueOptions": [
-        "Make certain of"
+        "Made certain of"
       ],
       "clueMetadata": [
         {
-          "text": "Make certain of",
+          "text": "Made certain of",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -8588,11 +8544,11 @@
     {
       "answer": "AVOIDED",
       "clueOptions": [
-        "Stay clear from"
+        "Stayed clear from"
       ],
       "clueMetadata": [
         {
-          "text": "Stay clear from",
+          "text": "Stayed clear from",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -8632,11 +8588,11 @@
     {
       "answer": "AWAITED",
       "clueOptions": [
-        "Look forward to the probable occurrence of"
+        "Looked forward to the probable occurrence of"
       ],
       "clueMetadata": [
         {
-          "text": "Look forward to the probable occurrence of",
+          "text": "Looked forward to the probable occurrence of",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -9052,11 +9008,11 @@
     {
       "answer": "BACKS",
       "clueOptions": [
-        "The side that goes last or is not normally seen"
+        "Sides that go last or are not normally seen"
       ],
       "clueMetadata": [
         {
-          "text": "The side that goes last or is not normally seen",
+          "text": "Sides that go last or are not normally seen",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -9557,11 +9513,11 @@
     {
       "answer": "BALLS",
       "clueOptions": [
-        "Round object that is hit or thrown or kicked in games"
+        "Round objects that are hit or thrown or kicked in games"
       ],
       "clueMetadata": [
         {
-          "text": "Round object that is hit or thrown or kicked in games",
+          "text": "Round objects that are hit or thrown or kicked in games",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -9689,11 +9645,11 @@
     {
       "answer": "BANDS",
       "clueOptions": [
-        "An unofficial association of people or groups"
+        "Unofficial associations of people or groups"
       ],
       "clueMetadata": [
         {
-          "text": "An unofficial association of people or groups",
+          "text": "Unofficial associations of people or groups",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -10408,28 +10364,6 @@
         }
       ],
       "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "BASTARD",
-      "clueOptions": [
-        "The illegitimate offspring of unmarried parents"
-      ],
-      "clueMetadata": [
-        {
-          "text": "The illegitimate offspring of unmarried parents",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
       "themeTags": [],
       "isModern": true,
       "isBonusEligible": false
@@ -11175,11 +11109,11 @@
     {
       "answer": "BECOMES",
       "clueOptions": [
-        "Enter or assume a certain state or condition"
+        "Enters or assumes a certain state or condition"
       ],
       "clueMetadata": [
         {
-          "text": "Enter or assume a certain state or condition",
+          "text": "Enters or assumes a certain state or condition",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -11462,11 +11396,11 @@
     {
       "answer": "BEGAN",
       "clueOptions": [
-        "Take the first step or steps in carrying out an action"
+        "Took the first step or steps in carrying out an action"
       ],
       "clueMetadata": [
         {
-          "text": "Take the first step or steps in carrying out an action",
+          "text": "Took the first step or steps in carrying out an action",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -11484,11 +11418,11 @@
     {
       "answer": "BEGGING",
       "clueOptions": [
-        "Call upon in supplication"
+        "Calling upon in supplication"
       ],
       "clueMetadata": [
         {
-          "text": "Call upon in supplication",
+          "text": "Calling upon in supplication",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -11528,11 +11462,11 @@
     {
       "answer": "BEGUN",
       "clueOptions": [
-        "Take the first step or steps in carrying out an action"
+        "Taken the first step or steps in carrying out an action"
       ],
       "clueMetadata": [
         {
-          "text": "Take the first step or steps in carrying out an action",
+          "text": "Taken the first step or steps in carrying out an action",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -11737,11 +11671,11 @@
     {
       "answer": "BELLS",
       "clueOptions": [
-        "The sound of a bell being struck"
+        "Sounds of chimes being struck"
       ],
       "clueMetadata": [
         {
-          "text": "The sound of a bell being struck",
+          "text": "Sounds of chimes being struck",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -11869,11 +11803,11 @@
     {
       "answer": "BELTS",
       "clueOptions": [
-        "A vigorous blow"
+        "Vigorous blows"
       ],
       "clueMetadata": [
         {
-          "text": "A vigorous blow",
+          "text": "Vigorous blows",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -12913,50 +12847,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "BITCH",
-      "clueOptions": [
-        "An unpleasant difficulty"
-      ],
-      "clueMetadata": [
-        {
-          "text": "An unpleasant difficulty",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "BITCHES",
-      "clueOptions": [
-        "An unpleasant difficulty"
-      ],
-      "clueMetadata": [
-        {
-          "text": "An unpleasant difficulty",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "BITE",
       "clueOptions": [
         "Nibble",
@@ -13444,11 +13334,11 @@
     {
       "answer": "BLESSED",
       "clueOptions": [
-        "Give a benediction to"
+        "Gave a benediction to"
       ],
       "clueMetadata": [
         {
-          "text": "Give a benediction to",
+          "text": "Gave a benediction to",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -13466,11 +13356,11 @@
     {
       "answer": "BLEW",
       "clueOptions": [
-        "Exhale hard"
+        "Exhaled hard"
       ],
       "clueMetadata": [
         {
-          "text": "Exhale hard",
+          "text": "Exhaled hard",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -13679,11 +13569,11 @@
     {
       "answer": "BLOGS",
       "clueOptions": [
-        "Read, write, or edit a shared on-line journal"
+        "Reads, writes, or edits a shared on-line journal"
       ],
       "clueMetadata": [
         {
-          "text": "Read, write, or edit a shared on-line journal",
+          "text": "Reads, writes, or edits a shared on-line journal",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -13847,11 +13737,11 @@
     {
       "answer": "BLOWING",
       "clueOptions": [
-        "Exhale hard"
+        "Exhaling hard"
       ],
       "clueMetadata": [
         {
-          "text": "Exhale hard",
+          "text": "Exhaling hard",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -13869,13 +13759,13 @@
     {
       "answer": "BLOWN",
       "clueOptions": [
-        "Exhale hard, maybe?",
+        "Exhaled hard, maybe?",
         "Be blowing or storming",
-        "Exhale hard"
+        "Exhaled hard"
       ],
       "clueMetadata": [
         {
-          "text": "Exhale hard, maybe?",
+          "text": "Exhaled hard, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -13895,7 +13785,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Exhale hard",
+          "text": "Exhaled hard",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -14436,11 +14326,11 @@
     {
       "answer": "BOMBS",
       "clueOptions": [
-        "Strong sealed vessel for measuring heat of combustion"
+        "Strong sealed vessels for measuring heat of combustion"
       ],
       "clueMetadata": [
         {
-          "text": "Strong sealed vessel for measuring heat of combustion",
+          "text": "Strong sealed vessels for measuring heat of combustion",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -14557,11 +14447,11 @@
     {
       "answer": "BONES",
       "clueOptions": [
-        "Study intensively, as before an exam"
+        "Studies intensively, as before an exam"
       ],
       "clueMetadata": [
         {
-          "text": "Study intensively, as before an exam",
+          "text": "Studies intensively, as before an exam",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -14579,11 +14469,11 @@
     {
       "answer": "BONUS",
       "clueOptions": [
-        "Anything that tends to arouse"
+        "Something extra that serves as an incentive"
       ],
       "clueMetadata": [
         {
-          "text": "Anything that tends to arouse",
+          "text": "Something extra that serves as an incentive",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -14601,11 +14491,11 @@
     {
       "answer": "BONUSES",
       "clueOptions": [
-        "Anything that tends to arouse"
+        "Extras that serve as incentives"
       ],
       "clueMetadata": [
         {
-          "text": "Anything that tends to arouse",
+          "text": "Extras that serve as incentives",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -14618,28 +14508,6 @@
       "difficulty": "medium",
       "themeTags": [],
       "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "BOOBS",
-      "clueOptions": [
-        "Commit a faux pas or a fault or make a"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Commit a faux pas or a fault or make a",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": false,
       "isBonusEligible": false
     },
     {
@@ -15100,11 +14968,11 @@
     {
       "answer": "BORN",
       "clueOptions": [
-        "Put up with something or somebody unpleasant"
+        "Delivered into the world"
       ],
       "clueMetadata": [
         {
-          "text": "Put up with something or somebody unpleasant",
+          "text": "Delivered into the world",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -15537,12 +15405,12 @@
     {
       "answer": "BOXES",
       "clueOptions": [
-        "Container, maybe?",
-        "Container"
+        "Containers, maybe?",
+        "Containers"
       ],
       "clueMetadata": [
         {
-          "text": "Container, maybe?",
+          "text": "Containers, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -15552,7 +15420,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Container",
+          "text": "Containers",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -16024,28 +15892,6 @@
       "clueMetadata": [
         {
           "text": "Coming apart",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "BREASTS",
-      "clueOptions": [
-        "The front of the trunk from the neck to the abdomen"
-      ],
-      "clueMetadata": [
-        {
-          "text": "The front of the trunk from the neck to the abdomen",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -16553,11 +16399,11 @@
     {
       "answer": "BROADER",
       "clueOptions": [
-        "Broad in scope or content"
+        "More wide in scope or content"
       ],
       "clueMetadata": [
         {
-          "text": "Broad in scope or content",
+          "text": "More wide in scope or content",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -17253,7 +17099,7 @@
       "answer": "BULLS",
       "clueOptions": [
         "Obscene words for unacceptable behavior",
-        "Uncastrated adult male of domestic cattle"
+        "Uncastrated adult males of domestic cattle"
       ],
       "clueMetadata": [
         {
@@ -17267,7 +17113,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Uncastrated adult male of domestic cattle",
+          "text": "Uncastrated adult males of domestic cattle",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -18062,11 +17908,11 @@
     {
       "answer": "CABBAGE",
       "clueOptions": [
-        "Informal terms for money"
+        "Informal term for money"
       ],
       "clueMetadata": [
         {
-          "text": "Informal terms for money",
+          "text": "Informal term for money",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -18561,11 +18407,11 @@
     {
       "answer": "CAME",
       "clueOptions": [
-        "Reach a destination"
+        "Reached a destination"
       ],
       "clueMetadata": [
         {
-          "text": "Reach a destination",
+          "text": "Reached a destination",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -19763,11 +19609,11 @@
     {
       "answer": "CARS",
       "clueOptions": [
-        "A motor vehicle with four wheels"
+        "Motor vehicles with four wheels"
       ],
       "clueMetadata": [
         {
-          "text": "A motor vehicle with four wheels",
+          "text": "Motor vehicles with four wheels",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -19972,11 +19818,11 @@
     {
       "answer": "CASTS",
       "clueOptions": [
-        "The actors in a play"
+        "Groups of actors in plays"
       ],
       "clueMetadata": [
         {
-          "text": "The actors in a play",
+          "text": "Groups of actors in plays",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -20126,11 +19972,11 @@
     {
       "answer": "CATS",
       "clueOptions": [
-        "An informal term for a youth or man"
+        "Youths or men, informally"
       ],
       "clueMetadata": [
         {
-          "text": "An informal term for a youth or man",
+          "text": "Youths or men, informally",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -20346,12 +20192,12 @@
     {
       "answer": "CELLS",
       "clueOptions": [
-        "Any small compartment, maybe?",
-        "Any small compartment"
+        "Small compartments, maybe?",
+        "Small compartments"
       ],
       "clueMetadata": [
         {
-          "text": "Any small compartment, maybe?",
+          "text": "Small compartments, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -20361,7 +20207,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Any small compartment",
+          "text": "Small compartments",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -20745,11 +20591,11 @@
     {
       "answer": "CHANGED",
       "clueOptions": [
-        "Cause to change"
+        "Caused to change"
       ],
       "clueMetadata": [
         {
-          "text": "Cause to change",
+          "text": "Caused to change",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -21124,11 +20970,11 @@
     {
       "answer": "CHASING",
       "clueOptions": [
-        "Go after with the intent to catch"
+        "Going after with the intent to catch"
       ],
       "clueMetadata": [
         {
-          "text": "Go after with the intent to catch",
+          "text": "Going after with the intent to catch",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -21403,11 +21249,11 @@
     {
       "answer": "CHEFS",
       "clueOptions": [
-        "A professional cook"
+        "Professional cooks"
       ],
       "clueMetadata": [
         {
-          "text": "A professional cook",
+          "text": "Professional cooks",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -21814,11 +21660,11 @@
     {
       "answer": "CHOKING",
       "clueOptions": [
-        "Be too tight"
+        "Being too tight"
       ],
       "clueMetadata": [
         {
-          "text": "Be too tight",
+          "text": "Being too tight",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -21836,11 +21682,11 @@
     {
       "answer": "CHOOSES",
       "clueOptions": [
-        "Select as an alternative over another"
+        "Selects as an alternative over another"
       ],
       "clueMetadata": [
         {
-          "text": "Select as an alternative over another",
+          "text": "Selects as an alternative over another",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -21916,11 +21762,11 @@
     {
       "answer": "CHOSE",
       "clueOptions": [
-        "Select as an alternative over another"
+        "Selected as an alternative over another"
       ],
       "clueMetadata": [
         {
-          "text": "Select as an alternative over another",
+          "text": "Selected as an alternative over another",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -22037,11 +21883,11 @@
     {
       "answer": "CINEMAS",
       "clueOptions": [
-        "A medium that disseminates moving pictures"
+        "Media that disseminate moving pictures"
       ],
       "clueMetadata": [
         {
-          "text": "A medium that disseminates moving pictures",
+          "text": "Media that disseminate moving pictures",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -22114,13 +21960,13 @@
     {
       "answer": "CITED",
       "clueOptions": [
-        "Make reference to, maybe?",
-        "Make reference to",
+        "Made reference to, maybe?",
+        "Made reference to",
         "Commend"
       ],
       "clueMetadata": [
         {
-          "text": "Make reference to, maybe?",
+          "text": "Made reference to, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -22130,7 +21976,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Make reference to",
+          "text": "Made reference to",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -22158,11 +22004,11 @@
     {
       "answer": "CITES",
       "clueOptions": [
-        "Make reference to"
+        "Makes reference to"
       ],
       "clueMetadata": [
         {
-          "text": "Make reference to",
+          "text": "Makes reference to",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -22415,11 +22261,11 @@
     {
       "answer": "CLASSES",
       "clueOptions": [
-        "A collection of things sharing a common attribute"
+        "Collections of things sharing a common attribute"
       ],
       "clueMetadata": [
         {
-          "text": "A collection of things sharing a common attribute",
+          "text": "Collections of things sharing a common attribute",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -23381,11 +23227,11 @@
     {
       "answer": "CLUBS",
       "clueOptions": [
-        "A formal association of people with similar interests"
+        "Formal associations of people with similar interests"
       ],
       "clueMetadata": [
         {
-          "text": "A formal association of people with similar interests",
+          "text": "Formal associations of people with similar interests",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -23425,11 +23271,11 @@
     {
       "answer": "CLUES",
       "clueOptions": [
-        "A slight indication"
+        "Slight indications"
       ],
       "clueMetadata": [
         {
-          "text": "A slight indication",
+          "text": "Slight indications",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -23513,11 +23359,11 @@
     {
       "answer": "COACHES",
       "clueOptions": [
-        "A railcar where passengers ride"
+        "Railcars where passengers ride"
       ],
       "clueMetadata": [
         {
-          "text": "A railcar where passengers ride",
+          "text": "Railcars where passengers ride",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -23709,11 +23555,11 @@
     {
       "answer": "COATS",
       "clueOptions": [
-        "A thin layer covering something"
+        "Thin layers covering something"
       ],
       "clueMetadata": [
         {
-          "text": "A thin layer covering something",
+          "text": "Thin layers covering something",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -23764,57 +23610,13 @@
       "isBonusEligible": false
     },
     {
-      "answer": "COCAINE",
-      "clueOptions": [
-        "A narcotic (alkaloid) extracted from coca leaves"
-      ],
-      "clueMetadata": [
-        {
-          "text": "A narcotic (alkaloid) extracted from coca leaves",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "COCK",
-      "clueOptions": [
-        "Obscene terms for penis"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Obscene terms for penis",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "COCKPIT",
       "clueOptions": [
-        "A pit for cockfights"
+        "Compartment where the pilot sits"
       ],
       "clueMetadata": [
         {
-          "text": "A pit for cockfights",
+          "text": "Compartment where the pilot sits",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -24375,11 +24177,11 @@
     {
       "answer": "COMES",
       "clueOptions": [
-        "Reach a destination"
+        "Reaches a destination"
       ],
       "clueMetadata": [
         {
-          "text": "Reach a destination",
+          "text": "Reaches a destination",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -25360,11 +25162,11 @@
     {
       "answer": "COOKS",
       "clueOptions": [
-        "Prepare a hot meal"
+        "Prepares a hot meal"
       ],
       "clueMetadata": [
         {
-          "text": "Prepare a hot meal",
+          "text": "Prepares a hot meal",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -25756,11 +25558,11 @@
     {
       "answer": "COSTS",
       "clueOptions": [
-        "Be priced at"
+        "Is priced at"
       ],
       "clueMetadata": [
         {
-          "text": "Be priced at",
+          "text": "Is priced at",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -26037,11 +25839,11 @@
     {
       "answer": "COUNTED",
       "clueOptions": [
-        "Determine the number or amount of"
+        "Determined the number or amount of"
       ],
       "clueMetadata": [
         {
-          "text": "Determine the number or amount of",
+          "text": "Determined the number or amount of",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -26560,28 +26362,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "CRAP",
-      "clueOptions": [
-        "Obscene terms for feces"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Obscene terms for feces",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "CRASH",
       "clueOptions": [
         "Loud resonant repeating noise, maybe?",
@@ -26818,11 +26598,11 @@
     {
       "answer": "CREATED",
       "clueOptions": [
-        "Make or cause to be or to become"
+        "Made or caused to be or to become"
       ],
       "clueMetadata": [
         {
-          "text": "Make or cause to be or to become",
+          "text": "Made or caused to be or to become",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -26840,11 +26620,11 @@
     {
       "answer": "CREATES",
       "clueOptions": [
-        "Make or cause to be or to become"
+        "Makes or causes to be or to become"
       ],
       "clueMetadata": [
         {
-          "text": "Make or cause to be or to become",
+          "text": "Makes or causes to be or to become",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -27073,12 +26853,12 @@
     {
       "answer": "CRIED",
       "clueOptions": [
-        "Utter a sudden loud cry, maybe?",
-        "Utter a sudden loud cry"
+        "Uttered a sudden loud cry, maybe?",
+        "Uttered a sudden loud cry"
       ],
       "clueMetadata": [
         {
-          "text": "Utter a sudden loud cry, maybe?",
+          "text": "Uttered a sudden loud cry, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -27088,7 +26868,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Utter a sudden loud cry",
+          "text": "Uttered a sudden loud cry",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -27106,13 +26886,13 @@
     {
       "answer": "CRIES",
       "clueOptions": [
-        "Loud utterance, maybe?",
+        "Loud utterances, maybe?",
         "Loud utterance of emotion",
-        "Loud utterance"
+        "Loud utterances"
       ],
       "clueMetadata": [
         {
-          "text": "Loud utterance, maybe?",
+          "text": "Loud utterances, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -27132,7 +26912,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Loud utterance",
+          "text": "Loud utterances",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -27304,11 +27084,11 @@
     {
       "answer": "CROPS",
       "clueOptions": [
-        "The yield from plants in a single growing season"
+        "Yields from plants in a single growing season"
       ],
       "clueMetadata": [
         {
-          "text": "The yield from plants in a single growing season",
+          "text": "Yields from plants in a single growing season",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -29302,11 +29082,11 @@
     {
       "answer": "DEBATED",
       "clueOptions": [
-        "Argue with one another"
+        "Argued with one another"
       ],
       "clueMetadata": [
         {
-          "text": "Argue with one another",
+          "text": "Argued with one another",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -29324,11 +29104,11 @@
     {
       "answer": "DEBATES",
       "clueOptions": [
-        "Argue with one another"
+        "Argues with one another"
       ],
       "clueMetadata": [
         {
-          "text": "Argue with one another",
+          "text": "Argues with one another",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -29390,11 +29170,11 @@
     {
       "answer": "DEBTS",
       "clueOptions": [
-        "The state of owing something (especially money)"
+        "Sums of money owed"
       ],
       "clueMetadata": [
         {
-          "text": "The state of owing something (especially money)",
+          "text": "Sums of money owed",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -29513,11 +29293,11 @@
     {
       "answer": "DECIDED",
       "clueOptions": [
-        "Reach, make, or come to a decision about something"
+        "Reached, made, or came to a decision about something"
       ],
       "clueMetadata": [
         {
-          "text": "Reach, make, or come to a decision about something",
+          "text": "Reached, made, or came to a decision about something",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -29535,11 +29315,11 @@
     {
       "answer": "DECIDES",
       "clueOptions": [
-        "Reach, make, or come to a decision about something"
+        "Reaches, makes, or comes to a decision about something"
       ],
       "clueMetadata": [
         {
-          "text": "Reach, make, or come to a decision about something",
+          "text": "Reaches, makes, or comes to a decision about something",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -29579,11 +29359,11 @@
     {
       "answer": "DECKS",
       "clueOptions": [
-        "Any of various platforms built into a vessel"
+        "Platforms built into a vessel"
       ],
       "clueMetadata": [
         {
-          "text": "Any of various platforms built into a vessel",
+          "text": "Platforms built into a vessel",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -29821,11 +29601,11 @@
     {
       "answer": "DEFINED",
       "clueOptions": [
-        "Determine the essential quality of"
+        "Determined the essential quality of"
       ],
       "clueMetadata": [
         {
-          "text": "Determine the essential quality of",
+          "text": "Determined the essential quality of",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -29843,11 +29623,11 @@
     {
       "answer": "DEFINES",
       "clueOptions": [
-        "Determine the essential quality of"
+        "Determines the essential quality of"
       ],
       "clueMetadata": [
         {
-          "text": "Determine the essential quality of",
+          "text": "Determines the essential quality of",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -30267,11 +30047,11 @@
     {
       "answer": "DENYING",
       "clueOptions": [
-        "Declare untrue"
+        "Declaring untrue"
       ],
       "clueMetadata": [
         {
-          "text": "Declare untrue",
+          "text": "Declaring untrue",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -30465,11 +30245,11 @@
     {
       "answer": "DESIGNS",
       "clueOptions": [
-        "An arrangement scheme"
+        "Arrangement schemes"
       ],
       "clueMetadata": [
         {
-          "text": "An arrangement scheme",
+          "text": "Arrangement schemes",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -30487,11 +30267,11 @@
     {
       "answer": "DESIRED",
       "clueOptions": [
-        "Feel or have a desire for"
+        "Felt or had a desire for"
       ],
       "clueMetadata": [
         {
-          "text": "Feel or have a desire for",
+          "text": "Felt or had a desire for",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -30791,11 +30571,11 @@
     {
       "answer": "DEVISED",
       "clueOptions": [
-        "Arrange by systematic planning and united effort"
+        "Arranged by systematic planning and united effort"
       ],
       "clueMetadata": [
         {
-          "text": "Arrange by systematic planning and united effort",
+          "text": "Arranged by systematic planning and united effort",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -30956,28 +30736,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "DICKS",
-      "clueOptions": [
-        "Someone who is a detective"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Someone who is a detective",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "DICTATE",
       "clueOptions": [
         "An authoritative rule"
@@ -31123,11 +30881,11 @@
     {
       "answer": "DIETS",
       "clueOptions": [
-        "A prescribed selection of foods"
+        "Prescribed selections of foods"
       ],
       "clueMetadata": [
         {
-          "text": "A prescribed selection of foods",
+          "text": "Prescribed selections of foods",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -31549,11 +31307,11 @@
     {
       "answer": "DISCS",
       "clueOptions": [
-        "A flat circular plate"
+        "Flat circular plates"
       ],
       "clueMetadata": [
         {
-          "text": "A flat circular plate",
+          "text": "Flat circular plates",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -31992,11 +31750,11 @@
     {
       "answer": "DOCTORS",
       "clueOptions": [
-        "A licensed medical practitioner"
+        "Licensed medical practitioners"
       ],
       "clueMetadata": [
         {
-          "text": "A licensed medical practitioner",
+          "text": "Licensed medical practitioners",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -32135,13 +31893,13 @@
     {
       "answer": "DOING",
       "clueOptions": [
-        "Engage in, maybe?",
+        "Engaging in, maybe?",
         "Carry out or perform an action",
-        "Engage in"
+        "Engaging in"
       ],
       "clueMetadata": [
         {
-          "text": "Engage in, maybe?",
+          "text": "Engaging in, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -32161,7 +31919,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Engage in",
+          "text": "Engaging in",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -32223,11 +31981,11 @@
     {
       "answer": "DOLLS",
       "clueOptions": [
-        "A small replica of a person"
+        "Small replicas of a person"
       ],
       "clueMetadata": [
         {
-          "text": "A small replica of a person",
+          "text": "Small replicas of a person",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -32245,11 +32003,11 @@
     {
       "answer": "DOMAINS",
       "clueOptions": [
-        "A particular environment or walk of life"
+        "Particular environments or walks of life"
       ],
       "clueMetadata": [
         {
-          "text": "A particular environment or walk of life",
+          "text": "Particular environments or walks of life",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -32322,11 +32080,11 @@
     {
       "answer": "DONE",
       "clueOptions": [
-        "Engage in"
+        "Engaged in"
       ],
       "clueMetadata": [
         {
-          "text": "Engage in",
+          "text": "Engaged in",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -32479,11 +32237,11 @@
     {
       "answer": "DOSES",
       "clueOptions": [
-        "A measured portion of medicine taken at any one time"
+        "Measured portions of medicine taken at any one time"
       ],
       "clueMetadata": [
         {
-          "text": "A measured portion of medicine taken at any one time",
+          "text": "Measured portions of medicine taken at any one time",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -32600,11 +32358,11 @@
     {
       "answer": "DOUGH",
       "clueOptions": [
-        "Informal terms for money"
+        "Informal term for money"
       ],
       "clueMetadata": [
         {
-          "text": "Informal terms for money",
+          "text": "Informal term for money",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -32644,13 +32402,13 @@
     {
       "answer": "DOWNS",
       "clueOptions": [
-        "Soft fine feathers, maybe?",
-        "Complete play to advance the football",
-        "Soft fine feathers"
+        "Swallows quickly, as a drink, maybe?",
+        "Complete plays to advance the football",
+        "Swallows quickly, as a drink"
       ],
       "clueMetadata": [
         {
-          "text": "Soft fine feathers, maybe?",
+          "text": "Swallows quickly, as a drink, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -32660,7 +32418,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Complete play to advance the football",
+          "text": "Complete plays to advance the football",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -32670,7 +32428,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Soft fine feathers",
+          "text": "Swallows quickly, as a drink",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -32930,13 +32688,13 @@
     {
       "answer": "DRANK",
       "clueOptions": [
-        "Take in liquids, maybe?",
-        "Take in liquids",
-        "Consume alcohol"
+        "Took in liquids, maybe?",
+        "Took in liquids",
+        "Consumed alcohol"
       ],
       "clueMetadata": [
         {
-          "text": "Take in liquids, maybe?",
+          "text": "Took in liquids, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -32946,7 +32704,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Take in liquids",
+          "text": "Took in liquids",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -32956,7 +32714,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Consume alcohol",
+          "text": "Consumed alcohol",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -33734,11 +33492,11 @@
     {
       "answer": "DROWNED",
       "clueOptions": [
-        "Cover completely or make imperceptible"
+        "Covered completely or made imperceptible"
       ],
       "clueMetadata": [
         {
-          "text": "Cover completely or make imperceptible",
+          "text": "Covered completely or made imperceptible",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -33879,13 +33637,13 @@
     {
       "answer": "DRUNK",
       "clueOptions": [
-        "Take in liquids, maybe?",
-        "Take in liquids",
-        "Consume alcohol"
+        "Taken in liquids, maybe?",
+        "Taken in liquids",
+        "Consumed alcohol"
       ],
       "clueMetadata": [
         {
-          "text": "Take in liquids, maybe?",
+          "text": "Taken in liquids, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -33895,7 +33653,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Take in liquids",
+          "text": "Taken in liquids",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -33905,7 +33663,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Consume alcohol",
+          "text": "Consumed alcohol",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -34097,11 +33855,11 @@
     {
       "answer": "DUDES",
       "clueOptions": [
-        "An informal form of address for a man"
+        "Informal forms of address for men"
       ],
       "clueMetadata": [
         {
-          "text": "An informal form of address for a man",
+          "text": "Informal forms of address for men",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -34200,28 +33958,6 @@
         }
       ],
       "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "DUMBASS",
-      "clueOptions": [
-        "A stupid person"
-      ],
-      "clueMetadata": [
-        {
-          "text": "A stupid person",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
       "themeTags": [],
       "isModern": true,
       "isBonusEligible": false
@@ -34452,11 +34188,11 @@
     {
       "answer": "DWARF",
       "clueOptions": [
-        "A person who is markedly small"
+        "Snow White companion"
       ],
       "clueMetadata": [
         {
-          "text": "A person who is markedly small",
+          "text": "Snow White companion",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -34906,11 +34642,11 @@
     {
       "answer": "EARNS",
       "clueOptions": [
-        "Earn on some commercial or business transaction"
+        "Gains from some commercial or business transaction"
       ],
       "clueMetadata": [
         {
-          "text": "Earn on some commercial or business transaction",
+          "text": "Gains from some commercial or business transaction",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -35050,11 +34786,11 @@
     {
       "answer": "EASIEST",
       "clueOptions": [
-        "Posing no difficulty"
+        "Posing the least difficulty"
       ],
       "clueMetadata": [
         {
-          "text": "Posing no difficulty",
+          "text": "Posing the least difficulty",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -35678,39 +35414,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "EFF",
-      "clueOptions": [
-        "Have sexual intercourse with, maybe?",
-        "Have sexual intercourse with"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Have sexual intercourse with, maybe?",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        },
-        {
-          "text": "Have sexual intercourse with",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": false,
-      "isBonusEligible": false
-    },
-    {
       "answer": "EFFECTS",
       "clueOptions": [
         "An outward appearance"
@@ -36315,11 +36018,11 @@
     {
       "answer": "EMERGED",
       "clueOptions": [
-        "Come out into view, as from concealment"
+        "Came out into view, as from concealment"
       ],
       "clueMetadata": [
         {
-          "text": "Come out into view, as from concealment",
+          "text": "Came out into view, as from concealment",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -36337,11 +36040,11 @@
     {
       "answer": "EMERGES",
       "clueOptions": [
-        "Come out into view, as from concealment"
+        "Comes out into view, as from concealment"
       ],
       "clueMetadata": [
         {
-          "text": "Come out into view, as from concealment",
+          "text": "Comes out into view, as from concealment",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -36491,11 +36194,11 @@
     {
       "answer": "ENABLED",
       "clueOptions": [
-        "Render capable or able for some task"
+        "Rendered capable or able for some task"
       ],
       "clueMetadata": [
         {
-          "text": "Render capable or able for some task",
+          "text": "Rendered capable or able for some task",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -36513,11 +36216,11 @@
     {
       "answer": "ENABLES",
       "clueOptions": [
-        "Render capable or able for some task"
+        "Renders capable or able for some task"
       ],
       "clueMetadata": [
         {
-          "text": "Render capable or able for some task",
+          "text": "Renders capable or able for some task",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -36942,11 +36645,11 @@
     {
       "answer": "ENJOYED",
       "clueOptions": [
-        "Derive or receive pleasure from"
+        "Derived or received pleasure from"
       ],
       "clueMetadata": [
         {
-          "text": "Derive or receive pleasure from",
+          "text": "Derived or received pleasure from",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -36964,11 +36667,11 @@
     {
       "answer": "ENSURES",
       "clueOptions": [
-        "Make certain of"
+        "Makes certain of"
       ],
       "clueMetadata": [
         {
-          "text": "Make certain of",
+          "text": "Makes certain of",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -37765,11 +37468,11 @@
     {
       "answer": "EVOLVED",
       "clueOptions": [
-        "Work out"
+        "Worked out"
       ],
       "clueMetadata": [
         {
-          "text": "Work out",
+          "text": "Worked out",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -38887,11 +38590,11 @@
     {
       "answer": "FACTS",
       "clueOptions": [
-        "A concept whose truth can be proved"
+        "Concepts whose truth can be proved"
       ],
       "clueMetadata": [
         {
-          "text": "A concept whose truth can be proved",
+          "text": "Concepts whose truth can be proved",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -39043,7 +38746,7 @@
       "clueOptions": [
         "Fail to do something, maybe?",
         "Fail to do something",
-        "Be unsuccessful"
+        "Is unsuccessful"
       ],
       "clueMetadata": [
         {
@@ -39067,7 +38770,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Be unsuccessful",
+          "text": "Is unsuccessful",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -40541,11 +40244,11 @@
     {
       "answer": "FEES",
       "clueOptions": [
-        "An interest in land capable of being inherited"
+        "Interests in land capable of being inherited"
       ],
       "clueMetadata": [
         {
-          "text": "An interest in land capable of being inherited",
+          "text": "Interests in land capable of being inherited",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -40563,11 +40266,11 @@
     {
       "answer": "FEET",
       "clueOptions": [
-        "The lower part of anything"
+        "The lower parts of things"
       ],
       "clueMetadata": [
         {
-          "text": "The lower part of anything",
+          "text": "The lower parts of things",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -40607,11 +40310,11 @@
     {
       "answer": "FELLOWS",
       "clueOptions": [
-        "A boy or man"
+        "Boys or men"
       ],
       "clueMetadata": [
         {
-          "text": "A boy or man",
+          "text": "Boys or men",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -41311,11 +41014,11 @@
     {
       "answer": "FILLS",
       "clueOptions": [
-        "A quantity sufficient to satisfy"
+        "Makes full"
       ],
       "clueMetadata": [
         {
-          "text": "A quantity sufficient to satisfy",
+          "text": "Makes full",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -41390,11 +41093,11 @@
     {
       "answer": "FILMS",
       "clueOptions": [
-        "A medium that disseminates moving pictures"
+        "Media that disseminate moving pictures"
       ],
       "clueMetadata": [
         {
-          "text": "A medium that disseminates moving pictures",
+          "text": "Media that disseminate moving pictures",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -41665,11 +41368,11 @@
     {
       "answer": "FINES",
       "clueOptions": [
-        "Money extracted as a penalty"
+        "Money extracted as penalties"
       ],
       "clueMetadata": [
         {
-          "text": "Money extracted as a penalty",
+          "text": "Money extracted as penalties",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -41929,11 +41632,11 @@
     {
       "answer": "FIRMS",
       "clueOptions": [
-        "Become taut or tauter"
+        "Becomes taut or tauter"
       ],
       "clueMetadata": [
         {
-          "text": "Become taut or tauter",
+          "text": "Becomes taut or tauter",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -42325,11 +42028,11 @@
     {
       "answer": "FLAGS",
       "clueOptions": [
-        "A conspicuously marked or shaped tail"
+        "Conspicuously marked or shaped tails"
       ],
       "clueMetadata": [
         {
-          "text": "A conspicuously marked or shaped tail",
+          "text": "Conspicuously marked or shaped tails",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -42503,11 +42206,11 @@
     {
       "answer": "FLATS",
       "clueOptions": [
-        "A level tract of land"
+        "Level tracts of land"
       ],
       "clueMetadata": [
         {
-          "text": "A level tract of land",
+          "text": "Level tracts of land",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -42547,11 +42250,11 @@
     {
       "answer": "FLAVOUR",
       "clueOptions": [
-        "(physics) the six kinds of quarks"
+        "(physics) one of the six kinds of quarks"
       ],
       "clueMetadata": [
         {
-          "text": "(physics) the six kinds of quarks",
+          "text": "(physics) one of the six kinds of quarks",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -42569,12 +42272,12 @@
     {
       "answer": "FLAWS",
       "clueOptions": [
-        "Imperfection in an object or machine",
+        "Imperfections in an object or machine",
         "Defect or weakness in a person's character"
       ],
       "clueMetadata": [
         {
-          "text": "Imperfection in an object or machine",
+          "text": "Imperfections in an object or machine",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -42602,11 +42305,11 @@
     {
       "answer": "FLED",
       "clueOptions": [
-        "Run away quickly"
+        "Ran away quickly"
       ],
       "clueMetadata": [
         {
-          "text": "Run away quickly",
+          "text": "Ran away quickly",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -42624,11 +42327,11 @@
     {
       "answer": "FLEEING",
       "clueOptions": [
-        "Run away quickly"
+        "Running away quickly"
       ],
       "clueMetadata": [
         {
-          "text": "Run away quickly",
+          "text": "Running away quickly",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -42690,11 +42393,11 @@
     {
       "answer": "FLESH",
       "clueOptions": [
-        "Alternative names for the body of a human being"
+        "Alternative name for the body of a human being"
       ],
       "clueMetadata": [
         {
-          "text": "Alternative names for the body of a human being",
+          "text": "Alternative name for the body of a human being",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -42712,11 +42415,11 @@
     {
       "answer": "FLEW",
       "clueOptions": [
-        "Travel through the air"
+        "Traveled through the air"
       ],
       "clueMetadata": [
         {
-          "text": "Travel through the air",
+          "text": "Traveled through the air",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -43123,11 +42826,11 @@
     {
       "answer": "FLOWN",
       "clueOptions": [
-        "Travel through the air"
+        "Traveled through the air"
       ],
       "clueMetadata": [
         {
-          "text": "Travel through the air",
+          "text": "Traveled through the air",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -43145,11 +42848,11 @@
     {
       "answer": "FLOWS",
       "clueOptions": [
-        "The motion characteristic of fluids (liquids or gases)"
+        "Motions characteristic of fluids (liquids or gases)"
       ],
       "clueMetadata": [
         {
-          "text": "The motion characteristic of fluids (liquids or gases)",
+          "text": "Motions characteristic of fluids (liquids or gases)",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -44196,11 +43899,11 @@
     {
       "answer": "FORMS",
       "clueOptions": [
-        "A perceptual structure"
+        "Perceptual structures"
       ],
       "clueMetadata": [
         {
-          "text": "A perceptual structure",
+          "text": "Perceptual structures",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -44526,11 +44229,11 @@
     {
       "answer": "FRAME",
       "clueOptions": [
-        "Alternative names for the body of a human being"
+        "Alternative name for the body of a human being"
       ],
       "clueMetadata": [
         {
-          "text": "Alternative names for the body of a human being",
+          "text": "Alternative name for the body of a human being",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -44896,13 +44599,13 @@
     {
       "answer": "FRIED",
       "clueOptions": [
-        "Be excessively hot, maybe?",
-        "Be excessively hot",
-        "Cook on a hot surface using fat"
+        "Was excessively hot, maybe?",
+        "Was excessively hot",
+        "Cooked on a hot surface using fat"
       ],
       "clueMetadata": [
         {
-          "text": "Be excessively hot, maybe?",
+          "text": "Was excessively hot, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -44912,7 +44615,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Be excessively hot",
+          "text": "Was excessively hot",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -44922,7 +44625,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Cook on a hot surface using fat",
+          "text": "Cooked on a hot surface using fat",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -45177,28 +44880,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "FUCKING",
-      "clueOptions": [
-        "Informal intensifiers"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Informal intensifiers",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "FUEL",
       "clueOptions": [
         "A substance that can be consumed to produce energy"
@@ -45223,11 +44904,11 @@
     {
       "answer": "FUELS",
       "clueOptions": [
-        "A substance that can be consumed to produce energy"
+        "Substances that can be consumed to produce energy"
       ],
       "clueMetadata": [
         {
-          "text": "A substance that can be consumed to produce energy",
+          "text": "Substances that can be consumed to produce energy",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -45695,11 +45376,11 @@
     {
       "answer": "GAINS",
       "clueOptions": [
-        "A quantity that is added"
+        "Quantities that are added"
       ],
       "clueMetadata": [
         {
-          "text": "A quantity that is added",
+          "text": "Quantities that are added",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -45879,11 +45560,11 @@
     {
       "answer": "GANGS",
       "clueOptions": [
-        "An association of criminals"
+        "Associations of criminals"
       ],
       "clueMetadata": [
         {
-          "text": "An association of criminals",
+          "text": "Associations of criminals",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -46202,11 +45883,11 @@
     {
       "answer": "GAVE",
       "clueOptions": [
-        "Cause to have, in the abstract sense or physical sense"
+        "Caused to have, in the abstract sense or physical sense"
       ],
       "clueMetadata": [
         {
-          "text": "Cause to have, in the abstract sense or physical sense",
+          "text": "Caused to have, in the abstract sense or physical sense",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -46301,11 +45982,11 @@
     {
       "answer": "GEARS",
       "clueOptions": [
-        "Set the level or character of"
+        "Sets the level or character of"
       ],
       "clueMetadata": [
         {
-          "text": "Set the level or character of",
+          "text": "Sets the level or character of",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -46682,11 +46363,11 @@
     {
       "answer": "GETS",
       "clueOptions": [
-        "Enter or assume a certain state or condition"
+        "Enters or assumes a certain state or condition"
       ],
       "clueMetadata": [
         {
-          "text": "Enter or assume a certain state or condition",
+          "text": "Enters or assumes a certain state or condition",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -47091,11 +46772,11 @@
     {
       "answer": "GIRLS",
       "clueOptions": [
-        "A young woman"
+        "Young women"
       ],
       "clueMetadata": [
         {
-          "text": "A young woman",
+          "text": "Young women",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -47278,11 +46959,11 @@
     {
       "answer": "GLASSES",
       "clueOptions": [
-        "A container for holding liquids while drinking"
+        "Containers for holding liquids while drinking"
       ],
       "clueMetadata": [
         {
-          "text": "A container for holding liquids while drinking",
+          "text": "Containers for holding liquids while drinking",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -47624,28 +47305,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "GODDAMN",
-      "clueOptions": [
-        "Used as expletives"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Used as expletives",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "GODDESS",
       "clueOptions": [
         "A female deity"
@@ -47670,11 +47329,11 @@
     {
       "answer": "GODS",
       "clueOptions": [
-        "A material effigy that is worshipped"
+        "Material effigies that are worshipped"
       ],
       "clueMetadata": [
         {
-          "text": "A material effigy that is worshipped",
+          "text": "Material effigies that are worshipped",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -47692,11 +47351,11 @@
     {
       "answer": "GOES",
       "clueOptions": [
-        "A usually brief attempt"
+        "Usually brief attempts"
       ],
       "clueMetadata": [
         {
-          "text": "A usually brief attempt",
+          "text": "Usually brief attempts",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -47758,11 +47417,11 @@
     {
       "answer": "GONE",
       "clueOptions": [
-        "Change location"
+        "Changed location"
       ],
       "clueMetadata": [
         {
-          "text": "Change location",
+          "text": "Changed location",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -48003,11 +47662,11 @@
     {
       "answer": "GOT",
       "clueOptions": [
-        "Enter or assume a certain state or condition"
+        "Entered or assumed a certain state or condition"
       ],
       "clueMetadata": [
         {
-          "text": "Enter or assume a certain state or condition",
+          "text": "Entered or assumed a certain state or condition",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -48069,11 +47728,11 @@
     {
       "answer": "GRABS",
       "clueOptions": [
-        "A mechanical device for gripping an object"
+        "Mechanical devices for gripping an object"
       ],
       "clueMetadata": [
         {
-          "text": "A mechanical device for gripping an object",
+          "text": "Mechanical devices for gripping an object",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -48731,11 +48390,11 @@
     {
       "answer": "GREW",
       "clueOptions": [
-        "Become larger, greater, or bigger"
+        "Became larger, greater, or bigger"
       ],
       "clueMetadata": [
         {
-          "text": "Become larger, greater, or bigger",
+          "text": "Became larger, greater, or bigger",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -49126,11 +48785,11 @@
     {
       "answer": "GROWING",
       "clueOptions": [
-        "Become larger, greater, or bigger"
+        "Becoming larger, greater, or bigger"
       ],
       "clueMetadata": [
         {
-          "text": "Become larger, greater, or bigger",
+          "text": "Becoming larger, greater, or bigger",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -49170,11 +48829,11 @@
     {
       "answer": "GROWS",
       "clueOptions": [
-        "Become larger, greater, or bigger"
+        "Becomes larger, greater, or bigger"
       ],
       "clueMetadata": [
         {
-          "text": "Become larger, greater, or bigger",
+          "text": "Becomes larger, greater, or bigger",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -49258,11 +48917,11 @@
     {
       "answer": "GUESSED",
       "clueOptions": [
-        "Expect, believe, or suppose"
+        "Expected, believed, or supposed"
       ],
       "clueMetadata": [
         {
-          "text": "Expect, believe, or suppose",
+          "text": "Expected, believed, or supposed",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -49546,11 +49205,11 @@
     {
       "answer": "GUYS",
       "clueOptions": [
-        "An informal term for a youth or man"
+        "Youths or men, informally"
       ],
       "clueMetadata": [
         {
-          "text": "An informal term for a youth or man",
+          "text": "Youths or men, informally",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -49766,11 +49425,11 @@
     {
       "answer": "HAIRS",
       "clueOptions": [
-        "A very small distance or space"
+        "Very small distances or spaces"
       ],
       "clueMetadata": [
         {
-          "text": "A very small distance or space",
+          "text": "Very small distances or spaces",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -49909,11 +49568,11 @@
     {
       "answer": "HALLS",
       "clueOptions": [
-        "Large entrance or reception room or area"
+        "Large entrance or reception rooms or areas"
       ],
       "clueMetadata": [
         {
-          "text": "Large entrance or reception room or area",
+          "text": "Large entrance or reception rooms or areas",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -50291,11 +49950,11 @@
     {
       "answer": "HANGS",
       "clueOptions": [
-        "A special way of doing something"
+        "Suspends, as a picture"
       ],
       "clueMetadata": [
         {
-          "text": "A special way of doing something",
+          "text": "Suspends, as a picture",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -50313,11 +49972,11 @@
     {
       "answer": "HAPPENS",
       "clueOptions": [
-        "Come to pass"
+        "Comes to pass"
       ],
       "clueMetadata": [
         {
-          "text": "Come to pass",
+          "text": "Comes to pass",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -50458,11 +50117,11 @@
     {
       "answer": "HARDEST",
       "clueOptions": [
-        "Not easy"
+        "Least easy"
       ],
       "clueMetadata": [
         {
-          "text": "Not easy",
+          "text": "Least easy",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -50848,13 +50507,13 @@
     {
       "answer": "HATED",
       "clueOptions": [
-        "Dislike intensely, maybe?",
+        "Disliked intensely, maybe?",
         "Put on or wear a hat",
-        "Dislike intensely"
+        "Disliked intensely"
       ],
       "clueMetadata": [
         {
-          "text": "Dislike intensely, maybe?",
+          "text": "Disliked intensely, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -50874,7 +50533,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Dislike intensely",
+          "text": "Disliked intensely",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -50894,7 +50553,7 @@
       "clueOptions": [
         "Emotion of intense dislike, maybe?",
         "Emotion of intense dislike",
-        "Dislike intensely"
+        "Dislikes intensely"
       ],
       "clueMetadata": [
         {
@@ -50918,7 +50577,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Dislike intensely",
+          "text": "Dislikes intensely",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -51169,11 +50828,11 @@
     {
       "answer": "HAZARDS",
       "clueOptions": [
-        "A source of danger"
+        "Sources of danger"
       ],
       "clueMetadata": [
         {
-          "text": "A source of danger",
+          "text": "Sources of danger",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -51403,11 +51062,11 @@
     {
       "answer": "HEARS",
       "clueOptions": [
-        "Perceive (sound) via the auditory sense"
+        "Perceives (sound) via the auditory sense"
       ],
       "clueMetadata": [
         {
-          "text": "Perceive (sound) via the auditory sense",
+          "text": "Perceives (sound) via the auditory sense",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -51702,11 +51361,11 @@
     {
       "answer": "HELD",
       "clueOptions": [
-        "Keep in a certain state, position, or activity"
+        "Kept in a certain state, position, or activity"
       ],
       "clueMetadata": [
         {
-          "text": "Keep in a certain state, position, or activity",
+          "text": "Kept in a certain state, position, or activity",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -51878,11 +51537,11 @@
     {
       "answer": "HELPING",
       "clueOptions": [
-        "Give help or assistance"
+        "Giving help or assistance"
       ],
       "clueMetadata": [
         {
-          "text": "Give help or assistance",
+          "text": "Giving help or assistance",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -52200,11 +51859,11 @@
     {
       "answer": "HIDES",
       "clueOptions": [
-        "Body covering of a living animal"
+        "Body coverings of living animals"
       ],
       "clueMetadata": [
         {
-          "text": "Body covering of a living animal",
+          "text": "Body coverings of living animals",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -52266,11 +51925,11 @@
     {
       "answer": "HIGHS",
       "clueOptions": [
-        "A lofty level or position or degree"
+        "Lofty levels or positions or degrees"
       ],
       "clueMetadata": [
         {
-          "text": "A lofty level or position or degree",
+          "text": "Lofty levels or positions or degrees",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -52647,11 +52306,11 @@
     {
       "answer": "HITS",
       "clueOptions": [
-        "The act of contacting one thing with another"
+        "Acts of contacting one thing with another"
       ],
       "clueMetadata": [
         {
-          "text": "The act of contacting one thing with another",
+          "text": "Acts of contacting one thing with another",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -52691,11 +52350,11 @@
     {
       "answer": "HOBBIES",
       "clueOptions": [
-        "An auxiliary activity"
+        "Auxiliary activities"
       ],
       "clueMetadata": [
         {
-          "text": "An auxiliary activity",
+          "text": "Auxiliary activities",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -52913,11 +52572,11 @@
     {
       "answer": "HOLDS",
       "clueOptions": [
-        "The act of grasping"
+        "Acts of grasping"
       ],
       "clueMetadata": [
         {
-          "text": "The act of grasping",
+          "text": "Acts of grasping",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -53539,33 +53198,11 @@
     {
       "answer": "HORNS",
       "clueOptions": [
-        "A brass musical instrument with a brilliant tone"
+        "Brass musical instruments with a brilliant tone"
       ],
       "clueMetadata": [
         {
-          "text": "A brass musical instrument with a brilliant tone",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "HORNY",
-      "clueOptions": [
-        "Having horns or hornlike projections"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Having horns or hornlike projections",
+          "text": "Brass musical instruments with a brilliant tone",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -54352,11 +53989,11 @@
     {
       "answer": "HURTS",
       "clueOptions": [
-        "Psychological suffering"
+        "Causes psychological suffering"
       ],
       "clueMetadata": [
         {
-          "text": "Psychological suffering",
+          "text": "Causes psychological suffering",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -54701,11 +54338,11 @@
     {
       "answer": "IDIOT",
       "clueOptions": [
-        "A person of subnormal intelligence"
+        "A very foolish person"
       ],
       "clueMetadata": [
         {
-          "text": "A person of subnormal intelligence",
+          "text": "A very foolish person",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -54723,11 +54360,11 @@
     {
       "answer": "IGNORED",
       "clueOptions": [
-        "Refuse to acknowledge"
+        "Refused to acknowledge"
       ],
       "clueMetadata": [
         {
-          "text": "Refuse to acknowledge",
+          "text": "Refused to acknowledge",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -54745,11 +54382,11 @@
     {
       "answer": "IGNORES",
       "clueOptions": [
-        "Refuse to acknowledge"
+        "Refuses to acknowledge"
       ],
       "clueMetadata": [
         {
-          "text": "Refuse to acknowledge",
+          "text": "Refuses to acknowledge",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -54992,11 +54629,11 @@
     {
       "answer": "IMPLIED",
       "clueOptions": [
-        "Express or state indirectly"
+        "Expressed or stated indirectly"
       ],
       "clueMetadata": [
         {
-          "text": "Express or state indirectly",
+          "text": "Expressed or stated indirectly",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -55014,11 +54651,11 @@
     {
       "answer": "IMPLIES",
       "clueOptions": [
-        "Express or state indirectly"
+        "Expresses or states indirectly"
       ],
       "clueMetadata": [
         {
-          "text": "Express or state indirectly",
+          "text": "Expresses or states indirectly",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -55434,11 +55071,11 @@
     {
       "answer": "INJURED",
       "clueOptions": [
-        "Cause injuries or bodily harm to"
+        "Caused injuries or bodily harm to"
       ],
       "clueMetadata": [
         {
-          "text": "Cause injuries or bodily harm to",
+          "text": "Caused injuries or bodily harm to",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -55507,11 +55144,11 @@
     {
       "answer": "INMATES",
       "clueOptions": [
-        "A person serving a sentence in a jail or prison"
+        "People serving a sentence in a jail or prison"
       ],
       "clueMetadata": [
         {
-          "text": "A person serving a sentence in a jail or prison",
+          "text": "People serving a sentence in a jail or prison",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -56032,11 +55669,11 @@
     {
       "answer": "INVALID",
       "clueOptions": [
-        "Injure permanently"
+        "Like an expired coupon or password"
       ],
       "clueMetadata": [
         {
-          "text": "Injure permanently",
+          "text": "Like an expired coupon or password",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -57184,11 +56821,11 @@
     {
       "answer": "JOBS",
       "clueOptions": [
-        "A workplace"
+        "Workplaces"
       ],
       "clueMetadata": [
         {
-          "text": "A workplace",
+          "text": "Workplaces",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -57366,11 +57003,11 @@
     {
       "answer": "JOINING",
       "clueOptions": [
-        "Become part of"
+        "Becoming part of"
       ],
       "clueMetadata": [
         {
-          "text": "Become part of",
+          "text": "Becoming part of",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -57388,11 +57025,11 @@
     {
       "answer": "JOINS",
       "clueOptions": [
-        "Become part of"
+        "Becomes part of"
       ],
       "clueMetadata": [
         {
-          "text": "Become part of",
+          "text": "Becomes part of",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -57498,11 +57135,11 @@
     {
       "answer": "JOKES",
       "clueOptions": [
-        "Activity characterized by good humor"
+        "Activities characterized by good humor"
       ],
       "clueMetadata": [
         {
-          "text": "Activity characterized by good humor",
+          "text": "Activities characterized by good humor",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -58278,11 +57915,11 @@
     {
       "answer": "KEPT",
       "clueOptions": [
-        "Keep in a certain state, position, or activity"
+        "Held in a certain state, position, or activity"
       ],
       "clueMetadata": [
         {
-          "text": "Keep in a certain state, position, or activity",
+          "text": "Held in a certain state, position, or activity",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -58435,11 +58072,11 @@
     {
       "answer": "KICKS",
       "clueOptions": [
-        "The act of delivering a blow with the foot"
+        "Delivers a blow with the foot"
       ],
       "clueMetadata": [
         {
-          "text": "The act of delivering a blow with the foot",
+          "text": "Delivers a blow with the foot",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -58600,11 +58237,11 @@
     {
       "answer": "KILLS",
       "clueOptions": [
-        "The act of terminating a life"
+        "Acts of terminating a life"
       ],
       "clueMetadata": [
         {
-          "text": "The act of terminating a life",
+          "text": "Acts of terminating a life",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -59002,11 +58639,11 @@
     {
       "answer": "KNEES",
       "clueOptions": [
-        "Joint between the femur and tibia in a quadruped"
+        "Joints between the femur and tibia in a quadruped"
       ],
       "clueMetadata": [
         {
-          "text": "Joint between the femur and tibia in a quadruped",
+          "text": "Joints between the femur and tibia in a quadruped",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -59024,11 +58661,11 @@
     {
       "answer": "KNEW",
       "clueOptions": [
-        "Know how to do or perform something"
+        "Understood how to do or perform something"
       ],
       "clueMetadata": [
         {
-          "text": "Know how to do or perform something",
+          "text": "Understood how to do or perform something",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -59235,11 +58872,11 @@
     {
       "answer": "KNOWN",
       "clueOptions": [
-        "Know how to do or perform something"
+        "Understood how to do or perform something"
       ],
       "clueMetadata": [
         {
-          "text": "Know how to do or perform something",
+          "text": "Understood how to do or perform something",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -59257,11 +58894,11 @@
     {
       "answer": "KNOWS",
       "clueOptions": [
-        "Know how to do or perform something"
+        "Understands how to do or perform something"
       ],
       "clueMetadata": [
         {
-          "text": "Know how to do or perform something",
+          "text": "Understands how to do or perform something",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -59411,11 +59048,11 @@
     {
       "answer": "LACKING",
       "clueOptions": [
-        "Be without"
+        "Being without"
       ],
       "clueMetadata": [
         {
-          "text": "Be without",
+          "text": "Being without",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -59433,11 +59070,11 @@
     {
       "answer": "LACKS",
       "clueOptions": [
-        "Be without"
+        "Is without"
       ],
       "clueMetadata": [
         {
-          "text": "Be without",
+          "text": "Is without",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -60773,11 +60410,11 @@
     {
       "answer": "LEAKS",
       "clueOptions": [
-        "A euphemism for urination"
+        "Euphemisms for urination"
       ],
       "clueMetadata": [
         {
-          "text": "A euphemism for urination",
+          "text": "Euphemisms for urination",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -60938,11 +60575,11 @@
     {
       "answer": "LEASING",
       "clueOptions": [
-        "Let for money"
+        "Letting for money"
       ],
       "clueMetadata": [
         {
-          "text": "Let for money",
+          "text": "Letting for money",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -61613,11 +61250,11 @@
     {
       "answer": "LETS",
       "clueOptions": [
-        "Actively cause something to happen"
+        "Actively causes something to happen"
       ],
       "clueMetadata": [
         {
-          "text": "Actively cause something to happen",
+          "text": "Actively causes something to happen",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -61694,11 +61331,11 @@
     {
       "answer": "LETTUCE",
       "clueOptions": [
-        "Informal terms for money"
+        "Informal term for money"
       ],
       "clueMetadata": [
         {
-          "text": "Informal terms for money",
+          "text": "Informal term for money",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -61939,11 +61576,11 @@
     {
       "answer": "LIED",
       "clueOptions": [
-        "Be located or situated somewhere"
+        "Told a fib"
       ],
       "clueMetadata": [
         {
-          "text": "Be located or situated somewhere",
+          "text": "Told a fib",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -61961,11 +61598,11 @@
     {
       "answer": "LIES",
       "clueOptions": [
-        "A statement that deviates from or perverts the truth"
+        "Statements that deviate from or pervert the truth"
       ],
       "clueMetadata": [
         {
-          "text": "A statement that deviates from or perverts the truth",
+          "text": "Statements that deviate from or pervert the truth",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -62637,11 +62274,11 @@
     {
       "answer": "LINKING",
       "clueOptions": [
-        "Make a logical or causal connection"
+        "Making a logical or causal connection"
       ],
       "clueMetadata": [
         {
-          "text": "Make a logical or causal connection",
+          "text": "Making a logical or causal connection",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -62659,11 +62296,11 @@
     {
       "answer": "LINKS",
       "clueOptions": [
-        "A fastener that serves to join or connect"
+        "Fasteners that serve to join or connect"
       ],
       "clueMetadata": [
         {
-          "text": "A fastener that serves to join or connect",
+          "text": "Fasteners that serve to join or connect",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -63019,7 +62656,7 @@
       "clueOptions": [
         "Inhabit or live in, maybe?",
         "Inhabit or live in",
-        "Lead a certain kind of life"
+        "Led a certain kind of life"
       ],
       "clueMetadata": [
         {
@@ -63043,7 +62680,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Lead a certain kind of life",
+          "text": "Led a certain kind of life",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -63150,8 +62787,8 @@
       "answer": "LOADS",
       "clueOptions": [
         "Goods carried by a large vehicle",
-        "Weight to be borne or conveyed",
-        "Weight to be borne or conveyed, maybe?"
+        "Weights to be borne or conveyed",
+        "Weights to be borne or conveyed, maybe?"
       ],
       "clueMetadata": [
         {
@@ -63165,7 +62802,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Weight to be borne or conveyed",
+          "text": "Weights to be borne or conveyed",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -63175,7 +62812,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Weight to be borne or conveyed, maybe?",
+          "text": "Weights to be borne or conveyed, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -63800,11 +63437,11 @@
     {
       "answer": "LOOPS",
       "clueOptions": [
-        "The basic pattern of the human fingerprint"
+        "Basic patterns of the human fingerprint"
       ],
       "clueMetadata": [
         {
-          "text": "The basic pattern of the human fingerprint",
+          "text": "Basic patterns of the human fingerprint",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -63954,13 +63591,13 @@
     {
       "answer": "LOSES",
       "clueOptions": [
-        "Fail to keep or to maintain",
+        "Fails to keep or to maintain",
         "Fail to win",
-        "Fail to keep or to maintain, maybe?"
+        "Fails to keep or to maintain, maybe?"
       ],
       "clueMetadata": [
         {
-          "text": "Fail to keep or to maintain",
+          "text": "Fails to keep or to maintain",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -63980,7 +63617,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Fail to keep or to maintain, maybe?",
+          "text": "Fails to keep or to maintain, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -64075,11 +63712,11 @@
     {
       "answer": "LOTS",
       "clueOptions": [
-        "A large number or amount"
+        "Large numbers or amounts"
       ],
       "clueMetadata": [
         {
-          "text": "A large number or amount",
+          "text": "Large numbers or amounts",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -64656,11 +64293,11 @@
     {
       "answer": "LYING",
       "clueOptions": [
-        "Be located or situated somewhere"
+        "Being located or situated somewhere"
       ],
       "clueMetadata": [
         {
-          "text": "Be located or situated somewhere",
+          "text": "Being located or situated somewhere",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -64671,39 +64308,6 @@
         }
       ],
       "difficulty": "easy",
-      "themeTags": [],
-      "isModern": false,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "LYNCH",
-      "clueOptions": [
-        "Kill without legal sanction, maybe?",
-        "Kill without legal sanction"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Kill without legal sanction, maybe?",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        },
-        {
-          "text": "Kill without legal sanction",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
       "themeTags": [],
       "isModern": false,
       "isBonusEligible": false
@@ -64846,11 +64450,11 @@
     {
       "answer": "MADE",
       "clueOptions": [
-        "Engage in"
+        "Engaged in"
       ],
       "clueMetadata": [
         {
-          "text": "Engage in",
+          "text": "Engaged in",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -65267,12 +64871,12 @@
     {
       "answer": "MAKES",
       "clueOptions": [
-        "Recognizable kind, maybe?",
-        "Recognizable kind"
+        "Recognizable kinds, maybe?",
+        "Recognizable kinds"
       ],
       "clueMetadata": [
         {
-          "text": "Recognizable kind, maybe?",
+          "text": "Recognizable kinds, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -65282,7 +64886,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Recognizable kind",
+          "text": "Recognizable kinds",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -65344,11 +64948,11 @@
     {
       "answer": "MAMA",
       "clueOptions": [
-        "Informal terms for a mother"
+        "Informal term for a mother"
       ],
       "clueMetadata": [
         {
-          "text": "Informal terms for a mother",
+          "text": "Informal term for a mother",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -65388,11 +64992,11 @@
     {
       "answer": "MANAGED",
       "clueOptions": [
-        "Be successful"
+        "Was successful"
       ],
       "clueMetadata": [
         {
-          "text": "Be successful",
+          "text": "Was successful",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -65432,11 +65036,11 @@
     {
       "answer": "MANAGES",
       "clueOptions": [
-        "Be successful"
+        "Is successful"
       ],
       "clueMetadata": [
         {
-          "text": "Be successful",
+          "text": "Is successful",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -65909,11 +65513,11 @@
     {
       "answer": "MARKERS",
       "clueOptions": [
-        "A distinguishing symbol"
+        "Distinguishing symbols"
       ],
       "clueMetadata": [
         {
-          "text": "A distinguishing symbol",
+          "text": "Distinguishing symbols",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -65997,11 +65601,11 @@
     {
       "answer": "MARRIED",
       "clueOptions": [
-        "Take in marriage"
+        "Took in marriage"
       ],
       "clueMetadata": [
         {
-          "text": "Take in marriage",
+          "text": "Took in marriage",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -66396,11 +66000,11 @@
     {
       "answer": "MATCHES",
       "clueOptions": [
-        "A burning piece of wood or cardboard"
+        "Burning pieces of wood or cardboard"
       ],
       "clueMetadata": [
         {
-          "text": "A burning piece of wood or cardboard",
+          "text": "Burning pieces of wood or cardboard",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -66484,12 +66088,12 @@
     {
       "answer": "MAW",
       "clueOptions": [
-        "Informal terms for the mouth, maybe?",
-        "Informal terms for the mouth"
+        "Informal term for the mouth, maybe?",
+        "Informal term for the mouth"
       ],
       "clueMetadata": [
         {
-          "text": "Informal terms for the mouth, maybe?",
+          "text": "Informal term for the mouth, maybe?",
           "type": "direct",
           "difficulty": "hard",
           "tone": "straight",
@@ -66499,7 +66103,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Informal terms for the mouth",
+          "text": "Informal term for the mouth",
           "type": "direct",
           "difficulty": "hard",
           "tone": "straight",
@@ -66759,12 +66363,12 @@
     {
       "answer": "MEANT",
       "clueOptions": [
-        "Have as a logical consequence",
+        "Had as a logical consequence",
         "Mean or intend to express or convey"
       ],
       "clueMetadata": [
         {
-          "text": "Have as a logical consequence",
+          "text": "Had as a logical consequence",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -66973,11 +66577,11 @@
     {
       "answer": "MEETS",
       "clueOptions": [
-        "Come together"
+        "Comes together"
       ],
       "clueMetadata": [
         {
-          "text": "Come together",
+          "text": "Comes together",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -67930,11 +67534,11 @@
     {
       "answer": "MILLS",
       "clueOptions": [
-        "The act of grinding to a powder or dust"
+        "Grinds to a powder or dust"
       ],
       "clueMetadata": [
         {
-          "text": "The act of grinding to a powder or dust",
+          "text": "Grinds to a powder or dust",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -67996,11 +67600,11 @@
     {
       "answer": "MINDS",
       "clueOptions": [
-        "Recall or remembrance"
+        "Looks after, as a shop"
       ],
       "clueMetadata": [
         {
-          "text": "Recall or remembrance",
+          "text": "Looks after, as a shop",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -68084,11 +67688,11 @@
     {
       "answer": "MINES",
       "clueOptions": [
-        "Explosive device that explodes on contact"
+        "Explosive devices that explode on contact"
       ],
       "clueMetadata": [
         {
-          "text": "Explosive device that explodes on contact",
+          "text": "Explosive devices that explode on contact",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -68673,11 +68277,11 @@
     {
       "answer": "MODES",
       "clueOptions": [
-        "How something is done or how it happens"
+        "How things are done or how they happen"
       ],
       "clueMetadata": [
         {
-          "text": "How something is done or how it happens",
+          "text": "How things are done or how they happen",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -68842,11 +68446,11 @@
     {
       "answer": "MOMMY",
       "clueOptions": [
-        "Informal terms for a mother"
+        "Informal term for a mother"
       ],
       "clueMetadata": [
         {
-          "text": "Informal terms for a mother",
+          "text": "Informal term for a mother",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -69265,11 +68869,11 @@
     {
       "answer": "MORON",
       "clueOptions": [
-        "A person of subnormal intelligence"
+        "A very foolish person"
       ],
       "clueMetadata": [
         {
-          "text": "A person of subnormal intelligence",
+          "text": "A very foolish person",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -69595,12 +69199,12 @@
     {
       "answer": "MOVED",
       "clueOptions": [
-        "Change location, maybe?",
-        "Change location"
+        "Changed location, maybe?",
+        "Changed location"
       ],
       "clueMetadata": [
         {
-          "text": "Change location, maybe?",
+          "text": "Changed location, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -69610,7 +69214,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Change location",
+          "text": "Changed location",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -69905,11 +69509,11 @@
     {
       "answer": "MUMMY",
       "clueOptions": [
-        "Informal terms for a mother"
+        "Informal term for a mother"
       ],
       "clueMetadata": [
         {
-          "text": "Informal terms for a mother",
+          "text": "Informal term for a mother",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -70152,11 +69756,11 @@
     {
       "answer": "MYTHS",
       "clueOptions": [
-        "A traditional story accepted as history"
+        "Traditional stories accepted as history"
       ],
       "clueMetadata": [
         {
-          "text": "A traditional story accepted as history",
+          "text": "Traditional stories accepted as history",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -70262,11 +69866,11 @@
     {
       "answer": "NAILS",
       "clueOptions": [
-        "Take into custody"
+        "Takes into custody"
       ],
       "clueMetadata": [
         {
-          "text": "Take into custody",
+          "text": "Takes into custody",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -70301,50 +69905,6 @@
       "difficulty": "easy",
       "themeTags": [],
       "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "NAKED",
-      "clueOptions": [
-        "Completely unclothed, maybe?",
-        "Having no protecting or concealing cover",
-        "Completely unclothed"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Completely unclothed, maybe?",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        },
-        {
-          "text": "Having no protecting or concealing cover",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        },
-        {
-          "text": "Completely unclothed",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": false,
       "isBonusEligible": false
     },
     {
@@ -70726,28 +70286,6 @@
       "difficulty": "easy",
       "themeTags": [],
       "isModern": false,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "NAZIS",
-      "clueOptions": [
-        "A German member of Adolf Hitler's political party"
-      ],
-      "clueMetadata": [
-        {
-          "text": "A German member of Adolf Hitler's political party",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
       "isBonusEligible": false
     },
     {
@@ -71261,13 +70799,13 @@
     {
       "answer": "NEWER",
       "clueOptions": [
-        "Not of long duration, maybe?",
-        "Not of long duration",
+        "More recent, maybe?",
+        "More recent",
         "Original and of a kind not seen before"
       ],
       "clueMetadata": [
         {
-          "text": "Not of long duration, maybe?",
+          "text": "More recent, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -71277,7 +70815,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Not of long duration",
+          "text": "More recent",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -71678,28 +71216,6 @@
       "difficulty": "easy",
       "themeTags": [],
       "isModern": false,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "NIPPLES",
-      "clueOptions": [
-        "The small projection of a mammary gland"
-      ],
-      "clueMetadata": [
-        {
-          "text": "The small projection of a mammary gland",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": true,
       "isBonusEligible": false
     },
     {
@@ -72228,13 +71744,13 @@
     {
       "answer": "NOTED",
       "clueOptions": [
-        "Make mention of, maybe?",
-        "Make mention of",
-        "Notice or perceive"
+        "Made mention of, maybe?",
+        "Made mention of",
+        "Noticed or perceived"
       ],
       "clueMetadata": [
         {
-          "text": "Make mention of, maybe?",
+          "text": "Made mention of, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -72244,7 +71760,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Make mention of",
+          "text": "Made mention of",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -72254,7 +71770,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Notice or perceive",
+          "text": "Noticed or perceived",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -72366,11 +71882,11 @@
     {
       "answer": "NOTICED",
       "clueOptions": [
-        "Notice or perceive"
+        "Noted or perceived"
       ],
       "clueMetadata": [
         {
-          "text": "Notice or perceive",
+          "text": "Noted or perceived",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -74186,11 +73702,11 @@
     {
       "answer": "OPTED",
       "clueOptions": [
-        "Select as an alternative over another"
+        "Selected as an alternative over another"
       ],
       "clueMetadata": [
         {
-          "text": "Select as an alternative over another",
+          "text": "Selected as an alternative over another",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -75030,13 +74546,13 @@
     {
       "answer": "OWNED",
       "clueOptions": [
-        "Have ownership or possession of, maybe?",
-        "Have ownership or possession of",
+        "Had ownership or possession of, maybe?",
+        "Had ownership or possession of",
         "Having an owner"
       ],
       "clueMetadata": [
         {
-          "text": "Have ownership or possession of, maybe?",
+          "text": "Had ownership or possession of, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -75046,7 +74562,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Have ownership or possession of",
+          "text": "Had ownership or possession of",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -75096,11 +74612,11 @@
     {
       "answer": "OWNS",
       "clueOptions": [
-        "Have ownership or possession of"
+        "Has ownership or possession of"
       ],
       "clueMetadata": [
         {
-          "text": "Have ownership or possession of",
+          "text": "Has ownership or possession of",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -75773,11 +75289,11 @@
     {
       "answer": "PALMS",
       "clueOptions": [
-        "Touch, lift, or hold with the hands"
+        "Touches, lifts, or holds with the hands"
       ],
       "clueMetadata": [
         {
-          "text": "Touch, lift, or hold with the hands",
+          "text": "Touches, lifts, or holds with the hands",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -76683,11 +76199,11 @@
     {
       "answer": "PATCHES",
       "clueOptions": [
-        "A small contrasting part of something"
+        "Small contrasting parts of something"
       ],
       "clueMetadata": [
         {
-          "text": "A small contrasting part of something",
+          "text": "Small contrasting parts of something",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -77133,11 +76649,11 @@
     {
       "answer": "PAYS",
       "clueOptions": [
-        "Something that remunerates"
+        "Remunerates"
       ],
       "clueMetadata": [
         {
-          "text": "Something that remunerates",
+          "text": "Remunerates",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -77617,39 +77133,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "PENIS",
-      "clueOptions": [
-        "Male organ of copulation, maybe?",
-        "Male organ of copulation"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Male organ of copulation, maybe?",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        },
-        {
-          "text": "Male organ of copulation",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": false,
-      "isBonusEligible": false
-    },
-    {
       "answer": "PENNY",
       "clueOptions": [
         "Copper-colored coin",
@@ -77962,11 +77445,11 @@
     {
       "answer": "PERSONS",
       "clueOptions": [
-        "A human being"
+        "Human beings"
       ],
       "clueMetadata": [
         {
-          "text": "A human being",
+          "text": "Human beings",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -78017,11 +77500,11 @@
     {
       "answer": "PETS",
       "clueOptions": [
-        "A special loved one"
+        "Special loved ones"
       ],
       "clueMetadata": [
         {
-          "text": "A special loved one",
+          "text": "Special loved ones",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -78576,11 +78059,11 @@
     {
       "answer": "PILES",
       "clueOptions": [
-        "A large number or amount"
+        "Large numbers or amounts"
       ],
       "clueMetadata": [
         {
-          "text": "A large number or amount",
+          "text": "Large numbers or amounts",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -78928,50 +78411,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "PISS",
-      "clueOptions": [
-        "Liquid excretory product"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Liquid excretory product",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "PISSING",
-      "clueOptions": [
-        "Informal terms for urination"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Informal terms for urination",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "PIT",
       "clueOptions": [
         "Deep hole",
@@ -79029,11 +78468,11 @@
     {
       "answer": "PITCHED",
       "clueOptions": [
-        "Throw or toss with a light motion"
+        "Threw or tossed with a light motion"
       ],
       "clueMetadata": [
         {
-          "text": "Throw or toss with a light motion",
+          "text": "Threw or tossed with a light motion",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -79187,11 +78626,11 @@
     {
       "answer": "PLACING",
       "clueOptions": [
-        "Put into a certain place or abstract location"
+        "Putting into a certain place or abstract location"
       ],
       "clueMetadata": [
         {
-          "text": "Put into a certain place or abstract location",
+          "text": "Putting into a certain place or abstract location",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -79834,11 +79273,11 @@
     {
       "answer": "PLEADED",
       "clueOptions": [
-        "Appeal or request earnestly"
+        "Appealed or requested earnestly"
       ],
       "clueMetadata": [
         {
-          "text": "Appeal or request earnestly",
+          "text": "Appealed or requested earnestly",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -80683,11 +80122,11 @@
     {
       "answer": "POSE",
       "clueOptions": [
-        "Affected manners intended to impress others"
+        "Affected manner intended to impress others"
       ],
       "clueMetadata": [
         {
-          "text": "Affected manners intended to impress others",
+          "text": "Affected manner intended to impress others",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -80815,11 +80254,11 @@
     {
       "answer": "POSTERS",
       "clueOptions": [
-        "A sign posted in a public place as an advertisement"
+        "Signs posted in a public place as an advertisement"
       ],
       "clueMetadata": [
         {
-          "text": "A sign posted in a public place as an advertisement",
+          "text": "Signs posted in a public place as an advertisement",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -81258,11 +80697,11 @@
     {
       "answer": "PRAYING",
       "clueOptions": [
-        "Call upon in supplication"
+        "Calling upon in supplication"
       ],
       "clueMetadata": [
         {
-          "text": "Call upon in supplication",
+          "text": "Calling upon in supplication",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -82634,11 +82073,11 @@
     {
       "answer": "PROVING",
       "clueOptions": [
-        "Be shown or be found to be"
+        "Being shown or found to be"
       ],
       "clueMetadata": [
         {
-          "text": "Be shown or be found to be",
+          "text": "Being shown or found to be",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -82898,11 +82337,11 @@
     {
       "answer": "PUMPS",
       "clueOptions": [
-        "A low-cut shoe without fastenings"
+        "Low-cut shoes without fastenings"
       ],
       "clueMetadata": [
         {
-          "text": "A low-cut shoe without fastenings",
+          "text": "Low-cut shoes without fastenings",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -83325,28 +82764,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "PUSSY",
-      "clueOptions": [
-        "Informal terms referring to a domestic cat"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Informal terms referring to a domestic cat",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": false,
-      "isBonusEligible": false
-    },
-    {
       "answer": "PUT",
       "clueOptions": [
         "Cause to be in a certain state"
@@ -83371,11 +82788,11 @@
     {
       "answer": "PUTS",
       "clueOptions": [
-        "Put into a certain place or abstract location"
+        "Sets in a certain place or abstract location"
       ],
       "clueMetadata": [
         {
-          "text": "Put into a certain place or abstract location",
+          "text": "Sets in a certain place or abstract location",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -83393,11 +82810,11 @@
     {
       "answer": "PUTTING",
       "clueOptions": [
-        "Put into a certain place or abstract location"
+        "Setting in a certain place or abstract location"
       ],
       "clueMetadata": [
         {
-          "text": "Put into a certain place or abstract location",
+          "text": "Setting in a certain place or abstract location",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -83545,28 +82962,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "QUEER",
-      "clueOptions": [
-        "Hinder or prevent (the efforts, plans, or desires) of"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Hinder or prevent (the efforts, plans, or desires) of",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "QUERY",
       "clueOptions": [
         "An instance of questioning"
@@ -83657,11 +83052,11 @@
     {
       "answer": "QUICKER",
       "clueOptions": [
-        "Accomplished rapidly and without delay"
+        "Accomplished more rapidly and without delay"
       ],
       "clueMetadata": [
         {
-          "text": "Accomplished rapidly and without delay",
+          "text": "Accomplished more rapidly and without delay",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -83851,11 +83246,11 @@
     {
       "answer": "QUOTING",
       "clueOptions": [
-        "Repeat a passage from"
+        "Repeating a passage from"
       ],
       "clueMetadata": [
         {
-          "text": "Repeat a passage from",
+          "text": "Repeating a passage from",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -84165,11 +83560,11 @@
     {
       "answer": "RAIDERS",
       "clueOptions": [
-        "Someone who takes spoils or plunder (as in war)"
+        "People who take spoils or plunder (as in war)"
       ],
       "clueMetadata": [
         {
-          "text": "Someone who takes spoils or plunder (as in war)",
+          "text": "People who take spoils or plunder (as in war)",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -84187,11 +83582,11 @@
     {
       "answer": "RAIDS",
       "clueOptions": [
-        "A sudden short attack"
+        "Sudden short attacks"
       ],
       "clueMetadata": [
         {
-          "text": "A sudden short attack",
+          "text": "Sudden short attacks",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -84231,11 +83626,11 @@
     {
       "answer": "RAILS",
       "clueOptions": [
-        "A barrier consisting of a horizontal bar and supports"
+        "Barriers consisting of a horizontal bar and supports"
       ],
       "clueMetadata": [
         {
-          "text": "A barrier consisting of a horizontal bar and supports",
+          "text": "Barriers consisting of a horizontal bar and supports",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -84481,11 +83876,11 @@
     {
       "answer": "RALLIES",
       "clueOptions": [
-        "The feat of mustering strength for a renewed effort"
+        "Feats of mustering strength for a renewed effort"
       ],
       "clueMetadata": [
         {
-          "text": "The feat of mustering strength for a renewed effort",
+          "text": "Feats of mustering strength for a renewed effort",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -84749,11 +84144,11 @@
     {
       "answer": "RANKS",
       "clueOptions": [
-        "Relative status"
+        "Relative statuses"
       ],
       "clueMetadata": [
         {
-          "text": "Relative status",
+          "text": "Relative statuses",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -84800,61 +84195,6 @@
       "themeTags": [
         "soundtrack"
       ],
-      "isModern": false,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "RAPE",
-      "clueOptions": [
-        "The act of despoiling a country in warfare"
-      ],
-      "clueMetadata": [
-        {
-          "text": "The act of despoiling a country in warfare",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "RAPED",
-      "clueOptions": [
-        "Destroy and strip of its possession",
-        "Force to have sex against their will"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Destroy and strip of its possession",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        },
-        {
-          "text": "Force to have sex against their will",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
       "isModern": false,
       "isBonusEligible": false
     },
@@ -85275,11 +84615,11 @@
     {
       "answer": "REACH",
       "clueOptions": [
-        "The limits within which something can be effective"
+        "The limit within which something can be effective"
       ],
       "clueMetadata": [
         {
-          "text": "The limits within which something can be effective",
+          "text": "The limit within which something can be effective",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -85876,11 +85216,11 @@
     {
       "answer": "REBUILT",
       "clueOptions": [
-        "Build again"
+        "Built again"
       ],
       "clueMetadata": [
         {
-          "text": "Build again",
+          "text": "Built again",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -86107,11 +85447,11 @@
     {
       "answer": "REDUCES",
       "clueOptions": [
-        "Cut down on"
+        "Cuts down on"
       ],
       "clueMetadata": [
         {
-          "text": "Cut down on",
+          "text": "Cuts down on",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -86393,11 +85733,11 @@
     {
       "answer": "REFUSES",
       "clueOptions": [
-        "Food that is discarded (as from a kitchen)"
+        "Declines to accept"
       ],
       "clueMetadata": [
         {
-          "text": "Food that is discarded (as from a kitchen)",
+          "text": "Declines to accept",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -86415,11 +85755,11 @@
     {
       "answer": "REGARDS",
       "clueOptions": [
-        "(usually preceded by `in') a detail or point"
+        "Good wishes, as sent in a letter"
       ],
       "clueMetadata": [
         {
-          "text": "(usually preceded by `in') a detail or point",
+          "text": "Good wishes, as sent in a letter",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -86547,11 +85887,11 @@
     {
       "answer": "RELATED",
       "clueOptions": [
-        "Make a logical or causal connection"
+        "Made a logical or causal connection"
       ],
       "clueMetadata": [
         {
-          "text": "Make a logical or causal connection",
+          "text": "Made a logical or causal connection",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -86569,11 +85909,11 @@
     {
       "answer": "RELATES",
       "clueOptions": [
-        "Make a logical or causal connection"
+        "Makes a logical or causal connection"
       ],
       "clueMetadata": [
         {
-          "text": "Make a logical or causal connection",
+          "text": "Makes a logical or causal connection",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -86737,11 +86077,11 @@
     {
       "answer": "RELYING",
       "clueOptions": [
-        "Have confidence or faith in"
+        "Having confidence or faith in"
       ],
       "clueMetadata": [
         {
-          "text": "Have confidence or faith in",
+          "text": "Having confidence or faith in",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -86935,11 +86275,11 @@
     {
       "answer": "RENEWED",
       "clueOptions": [
-        "Cause to appear in a new form"
+        "Caused to appear in a new form"
       ],
       "clueMetadata": [
         {
-          "text": "Cause to appear in a new form",
+          "text": "Caused to appear in a new form",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -86979,11 +86319,11 @@
     {
       "answer": "RENTING",
       "clueOptions": [
-        "Let for money"
+        "Letting for money"
       ],
       "clueMetadata": [
         {
-          "text": "Let for money",
+          "text": "Letting for money",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -87001,11 +86341,11 @@
     {
       "answer": "RENTS",
       "clueOptions": [
-        "An opening made forcibly as by pulling apart"
+        "Openings made forcibly as by pulling apart"
       ],
       "clueMetadata": [
         {
-          "text": "An opening made forcibly as by pulling apart",
+          "text": "Openings made forcibly as by pulling apart",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -87155,11 +86495,11 @@
     {
       "answer": "REPLIED",
       "clueOptions": [
-        "React verbally"
+        "Reacted verbally"
       ],
       "clueMetadata": [
         {
-          "text": "React verbally",
+          "text": "Reacted verbally",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -88608,11 +87948,11 @@
     {
       "answer": "RINGS",
       "clueOptions": [
-        "A characteristic sound"
+        "Characteristic sounds"
       ],
       "clueMetadata": [
         {
-          "text": "A characteristic sound",
+          "text": "Characteristic sounds",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -88652,11 +87992,11 @@
     {
       "answer": "RIOTS",
       "clueOptions": [
-        "A public act of violence by an unruly mob"
+        "Public acts of violence by an unruly mob"
       ],
       "clueMetadata": [
         {
-          "text": "A public act of violence by an unruly mob",
+          "text": "Public acts of violence by an unruly mob",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -89457,11 +88797,11 @@
     {
       "answer": "ROCKS",
       "clueOptions": [
-        "A lump or mass of hard consolidated mineral matter"
+        "Lumps or masses of hard consolidated mineral matter"
       ],
       "clueMetadata": [
         {
-          "text": "A lump or mass of hard consolidated mineral matter",
+          "text": "Lumps or masses of hard consolidated mineral matter",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -89778,11 +89118,11 @@
     {
       "answer": "ROOFS",
       "clueOptions": [
-        "Protective covering on top of a motor vehicle"
+        "Protective coverings on top of motor vehicles"
       ],
       "clueMetadata": [
         {
-          "text": "Protective covering on top of a motor vehicle",
+          "text": "Protective coverings on top of motor vehicles",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -89940,11 +89280,11 @@
     {
       "answer": "ROPES",
       "clueOptions": [
-        "A strong line"
+        "Strong lines"
       ],
       "clueMetadata": [
         {
-          "text": "A strong line",
+          "text": "Strong lines",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -90672,11 +90012,11 @@
     {
       "answer": "RULES",
       "clueOptions": [
-        "Something regarded as a normative example"
+        "Things regarded as normative examples"
       ],
       "clueMetadata": [
         {
-          "text": "Something regarded as a normative example",
+          "text": "Things regarded as normative examples",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -91803,11 +91143,11 @@
     {
       "answer": "SANG",
       "clueOptions": [
-        "Deliver by singing"
+        "Delivered by singing"
       ],
       "clueMetadata": [
         {
-          "text": "Deliver by singing",
+          "text": "Delivered by singing",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -93611,11 +92951,11 @@
     {
       "answer": "SEEN",
       "clueOptions": [
-        "Perceive (an idea or situation) mentally"
+        "Perceived (an idea or situation) mentally"
       ],
       "clueMetadata": [
         {
-          "text": "Perceive (an idea or situation) mentally",
+          "text": "Perceived (an idea or situation) mentally",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -93633,11 +92973,11 @@
     {
       "answer": "SEES",
       "clueOptions": [
-        "Perceive (an idea or situation) mentally"
+        "Perceives (an idea or situation) mentally"
       ],
       "clueMetadata": [
         {
-          "text": "Perceive (an idea or situation) mentally",
+          "text": "Perceives (an idea or situation) mentally",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -93941,11 +93281,11 @@
     {
       "answer": "SENDING",
       "clueOptions": [
-        "Cause to go somewhere"
+        "Causing to go somewhere"
       ],
       "clueMetadata": [
         {
-          "text": "Cause to go somewhere",
+          "text": "Causing to go somewhere",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -93963,12 +93303,12 @@
     {
       "answer": "SENDS",
       "clueOptions": [
-        "Cause to go somewhere, maybe?",
-        "Cause to go somewhere"
+        "Causes to go somewhere, maybe?",
+        "Causes to go somewhere"
       ],
       "clueMetadata": [
         {
-          "text": "Cause to go somewhere, maybe?",
+          "text": "Causes to go somewhere, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -93978,7 +93318,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Cause to go somewhere",
+          "text": "Causes to go somewhere",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -94095,11 +93435,11 @@
     {
       "answer": "SENT",
       "clueOptions": [
-        "Cause to go somewhere"
+        "Caused to go somewhere"
       ],
       "clueMetadata": [
         {
-          "text": "Cause to go somewhere",
+          "text": "Caused to go somewhere",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -95343,11 +94683,11 @@
     {
       "answer": "SHINING",
       "clueOptions": [
-        "Be bright by reflecting or casting light"
+        "Being bright by reflecting or casting light"
       ],
       "clueMetadata": [
         {
-          "text": "Be bright by reflecting or casting light",
+          "text": "Being bright by reflecting or casting light",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -95420,11 +94760,11 @@
     {
       "answer": "SHIPPED",
       "clueOptions": [
-        "Transport commercially"
+        "Transported commercially"
       ],
       "clueMetadata": [
         {
-          "text": "Transport commercially",
+          "text": "Transported commercially",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -95442,11 +94782,11 @@
     {
       "answer": "SHIPS",
       "clueOptions": [
-        "Transport commercially"
+        "Transports commercially"
       ],
       "clueMetadata": [
         {
-          "text": "Transport commercially",
+          "text": "Transports commercially",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -95481,50 +94821,6 @@
       "difficulty": "easy",
       "themeTags": [],
       "isModern": false,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "SHIT",
-      "clueOptions": [
-        "Obscene terms for feces"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Obscene terms for feces",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "SHITS",
-      "clueOptions": [
-        "Obscene terms for feces"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Obscene terms for feces",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
       "isBonusEligible": false
     },
     {
@@ -96027,11 +95323,11 @@
     {
       "answer": "SHOUTED",
       "clueOptions": [
-        "Utter in a loud voice"
+        "Uttered in a loud voice"
       ],
       "clueMetadata": [
         {
-          "text": "Utter in a loud voice",
+          "text": "Uttered in a loud voice",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -96159,11 +95455,11 @@
     {
       "answer": "SHOWS",
       "clueOptions": [
-        "The act of publicly exhibiting or entertaining"
+        "Acts of publicly exhibiting or entertaining"
       ],
       "clueMetadata": [
         {
-          "text": "The act of publicly exhibiting or entertaining",
+          "text": "Acts of publicly exhibiting or entertaining",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -96869,13 +96165,13 @@
     {
       "answer": "SINGS",
       "clueOptions": [
-        "Deliver by singing, maybe?",
-        "Deliver by singing",
+        "Delivers by singing, maybe?",
+        "Delivers by singing",
         "Produce tones with the voice"
       ],
       "clueMetadata": [
         {
-          "text": "Deliver by singing, maybe?",
+          "text": "Delivers by singing, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -96885,7 +96181,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Deliver by singing",
+          "text": "Delivers by singing",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -97086,11 +96382,11 @@
     {
       "answer": "SITES",
       "clueOptions": [
-        "Physical position in relation to the surroundings"
+        "Physical positions in relation to the surroundings"
       ],
       "clueMetadata": [
         {
-          "text": "Physical position in relation to the surroundings",
+          "text": "Physical positions in relation to the surroundings",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -97108,11 +96404,11 @@
     {
       "answer": "SITS",
       "clueOptions": [
-        "Be seated"
+        "Is seated"
       ],
       "clueMetadata": [
         {
-          "text": "Be seated",
+          "text": "Is seated",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -97385,11 +96681,11 @@
     {
       "answer": "SKIES",
       "clueOptions": [
-        "Throw or toss with a light motion"
+        "Throws or tosses with a light motion"
       ],
       "clueMetadata": [
         {
-          "text": "Throw or toss with a light motion",
+          "text": "Throws or tosses with a light motion",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -97497,11 +96793,11 @@
     {
       "answer": "SKINS",
       "clueOptions": [
-        "An outer surface (usually thin)"
+        "Outer surfaces (usually thin)"
       ],
       "clueMetadata": [
         {
-          "text": "An outer surface (usually thin)",
+          "text": "Outer surfaces (usually thin)",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -98168,11 +97464,11 @@
     {
       "answer": "SLIPS",
       "clueOptions": [
-        "A socially awkward or tactless act"
+        "Socially awkward or tactless acts"
       ],
       "clueMetadata": [
         {
-          "text": "A socially awkward or tactless act",
+          "text": "Socially awkward or tactless acts",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -98245,11 +97541,11 @@
     {
       "answer": "SLOTS",
       "clueOptions": [
-        "A time assigned on a schedule or agenda"
+        "Times assigned on a schedule or agenda"
       ],
       "clueMetadata": [
         {
-          "text": "A time assigned on a schedule or agenda",
+          "text": "Times assigned on a schedule or agenda",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -98771,11 +98067,11 @@
     {
       "answer": "SNAPS",
       "clueOptions": [
-        "The act of catching an object with the hands"
+        "Acts of catching an object with the hands"
       ],
       "clueMetadata": [
         {
-          "text": "The act of catching an object with the hands",
+          "text": "Acts of catching an object with the hands",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -99097,11 +98393,11 @@
     {
       "answer": "SOILS",
       "clueOptions": [
-        "The state of being covered with unclean things"
+        "Covers with unclean things"
       ],
       "clueMetadata": [
         {
-          "text": "The state of being covered with unclean things",
+          "text": "Covers with unclean things",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -100453,28 +99749,6 @@
       "difficulty": "medium",
       "themeTags": [],
       "isModern": false,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "SPERM",
-      "clueOptions": [
-        "The male reproductive cell"
-      ],
-      "clueMetadata": [
-        {
-          "text": "The male reproductive cell",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
       "isBonusEligible": false
     },
     {
@@ -101962,11 +101236,11 @@
     {
       "answer": "STARTED",
       "clueOptions": [
-        "Take the first step or steps in carrying out an action"
+        "Took the first step or steps in carrying out an action"
       ],
       "clueMetadata": [
         {
-          "text": "Take the first step or steps in carrying out an action",
+          "text": "Took the first step or steps in carrying out an action",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -102063,11 +101337,11 @@
     {
       "answer": "STATING",
       "clueOptions": [
-        "Express in words"
+        "Expressing in words"
       ],
       "clueMetadata": [
         {
-          "text": "Express in words",
+          "text": "Expressing in words",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -102443,11 +101717,11 @@
     {
       "answer": "STEMS",
       "clueOptions": [
-        "Cylinder forming a long narrow part of something"
+        "Cylinders forming a long narrow part of something"
       ],
       "clueMetadata": [
         {
-          "text": "Cylinder forming a long narrow part of something",
+          "text": "Cylinders forming a long narrow part of something",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -102641,13 +101915,13 @@
     {
       "answer": "STIFF",
       "clueOptions": [
-        "Dead body of a human being",
+        "Rigid; hard to bend",
         "Not moving or operating freely",
-        "Dead body of a human being, maybe?"
+        "Overly formal in manner, maybe?"
       ],
       "clueMetadata": [
         {
-          "text": "Dead body of a human being",
+          "text": "Rigid; hard to bend",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -102667,7 +101941,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Dead body of a human being, maybe?",
+          "text": "Overly formal in manner, maybe?",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -103669,11 +102943,11 @@
     {
       "answer": "STUDIES",
       "clueOptions": [
-        "A detailed critical inspection"
+        "Detailed critical inspections"
       ],
       "clueMetadata": [
         {
-          "text": "A detailed critical inspection",
+          "text": "Detailed critical inspections",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -104042,11 +103316,11 @@
     {
       "answer": "SUCKING",
       "clueOptions": [
-        "Draw something in by or as if by a vacuum"
+        "Drawing something in by or as if by a vacuum"
       ],
       "clueMetadata": [
         {
-          "text": "Draw something in by or as if by a vacuum",
+          "text": "Drawing something in by or as if by a vacuum",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -104883,11 +104157,11 @@
     {
       "answer": "SURVEYS",
       "clueOptions": [
-        "A detailed critical inspection"
+        "Detailed critical inspections"
       ],
       "clueMetadata": [
         {
-          "text": "A detailed critical inspection",
+          "text": "Detailed critical inspections",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -105780,11 +105054,11 @@
     {
       "answer": "TAKES",
       "clueOptions": [
-        "Carry out"
+        "Carries out"
       ],
       "clueMetadata": [
         {
-          "text": "Carry out",
+          "text": "Carries out",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -105876,28 +105150,6 @@
         "book-nook"
       ],
       "isModern": false,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "TALIBAN",
-      "clueOptions": [
-        "A fundamentalist Islamic militia"
-      ],
-      "clueMetadata": [
-        {
-          "text": "A fundamentalist Islamic militia",
-          "type": "direct",
-          "difficulty": "medium",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "medium",
-      "themeTags": [],
-      "isModern": true,
       "isBonusEligible": false
     },
     {
@@ -106392,11 +105644,11 @@
     {
       "answer": "TARIFFS",
       "clueOptions": [
-        "A government tax on imports or exports"
+        "Government taxes on imports or exports"
       ],
       "clueMetadata": [
         {
-          "text": "A government tax on imports or exports",
+          "text": "Government taxes on imports or exports",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -106436,11 +105688,11 @@
     {
       "answer": "TASKS",
       "clueOptions": [
-        "Any piece of work that is undertaken or attempted"
+        "Pieces of work that are undertaken or attempted"
       ],
       "clueMetadata": [
         {
-          "text": "Any piece of work that is undertaken or attempted",
+          "text": "Pieces of work that are undertaken or attempted",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -106906,12 +106158,12 @@
     {
       "answer": "TEAMS",
       "clueOptions": [
-        "Cooperative unit, maybe?",
-        "Cooperative unit"
+        "Cooperative units, maybe?",
+        "Cooperative units"
       ],
       "clueMetadata": [
         {
-          "text": "Cooperative unit, maybe?",
+          "text": "Cooperative units, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -106921,7 +106173,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Cooperative unit",
+          "text": "Cooperative units",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -107020,11 +106272,11 @@
     {
       "answer": "TEARS",
       "clueOptions": [
-        "An opening made forcibly as by pulling apart"
+        "Openings made forcibly as by pulling apart"
       ],
       "clueMetadata": [
         {
-          "text": "An opening made forcibly as by pulling apart",
+          "text": "Openings made forcibly as by pulling apart",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -107262,13 +106514,13 @@
     {
       "answer": "TELLS",
       "clueOptions": [
-        "Express in words, maybe?",
-        "Express in words",
+        "Expresses in words, maybe?",
+        "Expresses in words",
         "Let something be known"
       ],
       "clueMetadata": [
         {
-          "text": "Express in words, maybe?",
+          "text": "Expresses in words, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -107278,7 +106530,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Express in words",
+          "text": "Expresses in words",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -107950,11 +107202,11 @@
     {
       "answer": "THANKED",
       "clueOptions": [
-        "Express gratitude or show appreciation to"
+        "Expressed gratitude or showed appreciation to"
       ],
       "clueMetadata": [
         {
-          "text": "Express gratitude or show appreciation to",
+          "text": "Expressed gratitude or showed appreciation to",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -108217,11 +107469,11 @@
     {
       "answer": "THICKER",
       "clueOptions": [
-        "Not thin"
+        "Less thin"
       ],
       "clueMetadata": [
         {
-          "text": "Not thin",
+          "text": "Less thin",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -108712,11 +107964,11 @@
     {
       "answer": "THUGS",
       "clueOptions": [
-        "An aggressive and violent young criminal"
+        "Aggressive and violent young criminals"
       ],
       "clueMetadata": [
         {
-          "text": "An aggressive and violent young criminal",
+          "text": "Aggressive and violent young criminals",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -108974,11 +108226,11 @@
     {
       "answer": "TIED",
       "clueOptions": [
-        "Fasten or secure with a rope, string, or cord"
+        "Fastened or secured with a rope, string, or cord"
       ],
       "clueMetadata": [
         {
-          "text": "Fasten or secure with a rope, string, or cord",
+          "text": "Fastened or secured with a rope, string, or cord",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -109084,11 +108336,11 @@
     {
       "answer": "TIGHTER",
       "clueOptions": [
-        "Closely constrained or constricted or constricting"
+        "More closely constrained or constricted or constricting"
       ],
       "clueMetadata": [
         {
-          "text": "Closely constrained or constricted or constricting",
+          "text": "More closely constrained or constricted or constricting",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -109849,11 +109101,11 @@
     {
       "answer": "TOLD",
       "clueOptions": [
-        "Express in words"
+        "Expressed in words"
       ],
       "clueMetadata": [
         {
-          "text": "Express in words",
+          "text": "Expressed in words",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -109915,11 +109167,11 @@
     {
       "answer": "TONES",
       "clueOptions": [
-        "The quality of a person's voice"
+        "Qualities of a person's voice"
       ],
       "clueMetadata": [
         {
-          "text": "The quality of a person's voice",
+          "text": "Qualities of a person's voice",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -109970,11 +109222,11 @@
     {
       "answer": "TONS",
       "clueOptions": [
-        "A large number or amount"
+        "Large numbers or amounts"
       ],
       "clueMetadata": [
         {
-          "text": "A large number or amount",
+          "text": "Large numbers or amounts",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -110014,11 +109266,11 @@
     {
       "answer": "TOOK",
       "clueOptions": [
-        "Carry out"
+        "Carried out"
       ],
       "clueMetadata": [
         {
-          "text": "Carry out",
+          "text": "Carried out",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -110388,11 +109640,11 @@
     {
       "answer": "TOUCHES",
       "clueOptions": [
-        "The event of something coming in contact with the body"
+        "Events of something coming in contact with the body"
       ],
       "clueMetadata": [
         {
-          "text": "The event of something coming in contact with the body",
+          "text": "Events of something coming in contact with the body",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -110443,11 +109695,11 @@
     {
       "answer": "TOUGHER",
       "clueOptions": [
-        "Not given to gentleness or sentimentality"
+        "Less given to gentleness or sentimentality"
       ],
       "clueMetadata": [
         {
-          "text": "Not given to gentleness or sentimentality",
+          "text": "Less given to gentleness or sentimentality",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -110553,11 +109805,11 @@
     {
       "answer": "TOURS",
       "clueOptions": [
-        "A period of time spent in military service"
+        "Periods of time spent in military service"
       ],
       "clueMetadata": [
         {
-          "text": "A period of time spent in military service",
+          "text": "Periods of time spent in military service",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -110687,11 +109939,11 @@
     {
       "answer": "TOWNS",
       "clueOptions": [
-        "An administrative division of a county"
+        "Administrative divisions of a county"
       ],
       "clueMetadata": [
         {
-          "text": "An administrative division of a county",
+          "text": "Administrative divisions of a county",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -111273,11 +110525,11 @@
     {
       "answer": "TRAP",
       "clueOptions": [
-        "Informal terms for the mouth"
+        "Informal term for the mouth"
       ],
       "clueMetadata": [
         {
-          "text": "Informal terms for the mouth",
+          "text": "Informal term for the mouth",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -112191,11 +111443,11 @@
     {
       "answer": "TRUSTED",
       "clueOptions": [
-        "Have confidence or faith in"
+        "Had confidence or faith in"
       ],
       "clueMetadata": [
         {
-          "text": "Have confidence or faith in",
+          "text": "Had confidence or faith in",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -112312,11 +111564,11 @@
     {
       "answer": "TUBES",
       "clueOptions": [
-        "A hollow cylindrical shape"
+        "Hollow cylindrical shapes"
       ],
       "clueMetadata": [
         {
-          "text": "A hollow cylindrical shape",
+          "text": "Hollow cylindrical shapes",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -113069,11 +112321,11 @@
     {
       "answer": "TYING",
       "clueOptions": [
-        "Fasten or secure with a rope, string, or cord"
+        "Fastening or securing with a rope, string, or cord"
       ],
       "clueMetadata": [
         {
-          "text": "Fasten or secure with a rope, string, or cord",
+          "text": "Fastening or securing with a rope, string, or cord",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -113390,11 +112642,11 @@
     {
       "answer": "UNIFIED",
       "clueOptions": [
-        "Become one"
+        "Became one"
       ],
       "clueMetadata": [
         {
-          "text": "Become one",
+          "text": "Became one",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -113621,11 +112873,11 @@
     {
       "answer": "UPDATED",
       "clueOptions": [
-        "Modernize or bring up to date"
+        "Modernized or brought up to date"
       ],
       "clueMetadata": [
         {
-          "text": "Modernize or bring up to date",
+          "text": "Modernized or brought up to date",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -113643,11 +112895,11 @@
     {
       "answer": "UPDATES",
       "clueOptions": [
-        "Modernize or bring up to date"
+        "Modernizes or brings up to date"
       ],
       "clueMetadata": [
         {
-          "text": "Modernize or bring up to date",
+          "text": "Modernizes or brings up to date",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -113942,33 +113194,11 @@
     {
       "answer": "URGES",
       "clueOptions": [
-        "An instinctive motive"
+        "Instinctive motives"
       ],
       "clueMetadata": [
         {
-          "text": "An instinctive motive",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
-      "answer": "URINE",
-      "clueOptions": [
-        "Liquid excretory product"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Liquid excretory product",
+          "text": "Instinctive motives",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -114140,11 +113370,11 @@
     {
       "answer": "USERS",
       "clueOptions": [
-        "A person who makes use of a thing"
+        "People who make use of a thing"
       ],
       "clueMetadata": [
         {
-          "text": "A person who makes use of a thing",
+          "text": "People who make use of a thing",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -114162,11 +113392,11 @@
     {
       "answer": "USES",
       "clueOptions": [
-        "The act of using"
+        "Acts of using"
       ],
       "clueMetadata": [
         {
-          "text": "The act of using",
+          "text": "Acts of using",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -114184,11 +113414,11 @@
     {
       "answer": "USING",
       "clueOptions": [
-        "Put into service"
+        "Putting into service"
       ],
       "clueMetadata": [
         {
-          "text": "Put into service",
+          "text": "Putting into service",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -114683,11 +113913,11 @@
     {
       "answer": "VARYING",
       "clueOptions": [
-        "Be at variance with"
+        "Being at variance with"
       ],
       "clueMetadata": [
         {
-          "text": "Be at variance with",
+          "text": "Being at variance with",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -116159,11 +115389,11 @@
     {
       "answer": "VOLUMES",
       "clueOptions": [
-        "The property of something that is great in magnitude"
+        "Bound books in a series"
       ],
       "clueMetadata": [
         {
-          "text": "The property of something that is great in magnitude",
+          "text": "Bound books in a series",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -116368,11 +115598,11 @@
     {
       "answer": "WAGES",
       "clueOptions": [
-        "Something that remunerates"
+        "Things that remunerate"
       ],
       "clueMetadata": [
         {
-          "text": "Something that remunerates",
+          "text": "Things that remunerate",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -116535,11 +115765,11 @@
     {
       "answer": "WAKES",
       "clueOptions": [
-        "A vigil held over a corpse the night before burial"
+        "Vigils held over a corpse the night before burial"
       ],
       "clueMetadata": [
         {
-          "text": "A vigil held over a corpse the night before burial",
+          "text": "Vigils held over a corpse the night before burial",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -116772,11 +116002,11 @@
     {
       "answer": "WALLS",
       "clueOptions": [
-        "A difficult or awkward situation"
+        "Difficult or awkward situations"
       ],
       "clueMetadata": [
         {
-          "text": "A difficult or awkward situation",
+          "text": "Difficult or awkward situations",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -116838,11 +116068,11 @@
     {
       "answer": "WANTING",
       "clueOptions": [
-        "Feel or have a desire for"
+        "Feeling or having a desire for"
       ],
       "clueMetadata": [
         {
-          "text": "Feel or have a desire for",
+          "text": "Feeling or having a desire for",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -116860,11 +116090,11 @@
     {
       "answer": "WANTS",
       "clueOptions": [
-        "Anything that is necessary but lacking"
+        "Things that are necessary but lacking"
       ],
       "clueMetadata": [
         {
-          "text": "Anything that is necessary but lacking",
+          "text": "Things that are necessary but lacking",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -116904,11 +116134,11 @@
     {
       "answer": "WARDS",
       "clueOptions": [
-        "English economist and conservationist (1914-1981)"
+        "Divisions of a hospital"
       ],
       "clueMetadata": [
         {
-          "text": "English economist and conservationist (1914-1981)",
+          "text": "Divisions of a hospital",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -117106,11 +116336,11 @@
     {
       "answer": "WARS",
       "clueOptions": [
-        "The waging of armed conflict against an enemy"
+        "Armed conflicts between enemies"
       ],
       "clueMetadata": [
         {
-          "text": "The waging of armed conflict against an enemy",
+          "text": "Armed conflicts between enemies",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -117502,11 +116732,11 @@
     {
       "answer": "WAYS",
       "clueOptions": [
-        "How something is done or how it happens"
+        "How things are done or how they happen"
       ],
       "clueMetadata": [
         {
-          "text": "How something is done or how it happens",
+          "text": "How things are done or how they happen",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -117546,11 +116776,11 @@
     {
       "answer": "WEAKEST",
       "clueOptions": [
-        "Wanting in physical strength"
+        "Most wanting in physical strength"
       ],
       "clueMetadata": [
         {
-          "text": "Wanting in physical strength",
+          "text": "Most wanting in physical strength",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -117612,11 +116842,11 @@
     {
       "answer": "WEARING",
       "clueOptions": [
-        "Be dressed in"
+        "Being dressed in"
       ],
       "clueMetadata": [
         {
-          "text": "Be dressed in",
+          "text": "Being dressed in",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -117634,11 +116864,11 @@
     {
       "answer": "WEARS",
       "clueOptions": [
-        "Impairment resulting from long use"
+        "Is dressed in"
       ],
       "clueMetadata": [
         {
-          "text": "Impairment resulting from long use",
+          "text": "Is dressed in",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -118282,11 +117512,11 @@
     {
       "answer": "WENT",
       "clueOptions": [
-        "Change location"
+        "Changed location"
       ],
       "clueMetadata": [
         {
-          "text": "Change location",
+          "text": "Changed location",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -118638,28 +117868,6 @@
       "isBonusEligible": false
     },
     {
-      "answer": "WHORE",
-      "clueOptions": [
-        "Work as a prostitute"
-      ],
-      "clueMetadata": [
-        {
-          "text": "Work as a prostitute",
-          "type": "direct",
-          "difficulty": "easy",
-          "tone": "straight",
-          "source": "editorial",
-          "score": 78,
-          "themeTags": [],
-          "rejectionNotes": []
-        }
-      ],
-      "difficulty": "easy",
-      "themeTags": [],
-      "isModern": true,
-      "isBonusEligible": false
-    },
-    {
       "answer": "WICKETS",
       "clueOptions": [
         "A small arch used as croquet equipment"
@@ -118706,11 +117914,11 @@
     {
       "answer": "WIDER",
       "clueOptions": [
-        "Broad in scope or content"
+        "More broad in scope or content"
       ],
       "clueMetadata": [
         {
-          "text": "Broad in scope or content",
+          "text": "More broad in scope or content",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -119135,11 +118343,11 @@
     {
       "answer": "WINES",
       "clueOptions": [
-        "Fermented juice (of grapes especially)"
+        "Fermented juices (of grapes especially)"
       ],
       "clueMetadata": [
         {
-          "text": "Fermented juice (of grapes especially)",
+          "text": "Fermented juices (of grapes especially)",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -119388,11 +118596,11 @@
     {
       "answer": "WIRES",
       "clueOptions": [
-        "The finishing line on a racetrack"
+        "Finishing lines on racetracks"
       ],
       "clueMetadata": [
         {
-          "text": "The finishing line on a racetrack",
+          "text": "Finishing lines on racetracks",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -120035,11 +119243,11 @@
     {
       "answer": "WORE",
       "clueOptions": [
-        "Be dressed in"
+        "Was dressed in"
       ],
       "clueMetadata": [
         {
-          "text": "Be dressed in",
+          "text": "Was dressed in",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -120235,11 +119443,11 @@
     {
       "answer": "WORN",
       "clueOptions": [
-        "Be dressed in"
+        "Been dressed in"
       ],
       "clueMetadata": [
         {
-          "text": "Be dressed in",
+          "text": "Been dressed in",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -120466,11 +119674,11 @@
     {
       "answer": "WOUNDED",
       "clueOptions": [
-        "Cause injuries or bodily harm to"
+        "Caused injuries or bodily harm to"
       ],
       "clueMetadata": [
         {
-          "text": "Cause injuries or bodily harm to",
+          "text": "Caused injuries or bodily harm to",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -120581,11 +119789,11 @@
     {
       "answer": "WRAPPED",
       "clueOptions": [
-        "Arrange or fold as a cover or protection"
+        "Arranged or folded as a cover or protection"
       ],
       "clueMetadata": [
         {
-          "text": "Arrange or fold as a cover or protection",
+          "text": "Arranged or folded as a cover or protection",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -120795,11 +120003,11 @@
     {
       "answer": "WRITTEN",
       "clueOptions": [
-        "Produce a literary work"
+        "Produced a literary work"
       ],
       "clueMetadata": [
         {
-          "text": "Produce a literary work",
+          "text": "Produced a literary work",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -120839,13 +120047,13 @@
     {
       "answer": "WROTE",
       "clueOptions": [
-        "Produce a literary work, maybe?",
-        "Communicate or express by writing",
-        "Produce a literary work"
+        "Produced a literary work, maybe?",
+        "Communicated or expressed by writing",
+        "Produced a literary work"
       ],
       "clueMetadata": [
         {
-          "text": "Produce a literary work, maybe?",
+          "text": "Produced a literary work, maybe?",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -120855,7 +120063,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Communicate or express by writing",
+          "text": "Communicated or expressed by writing",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -120865,7 +120073,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Produce a literary work",
+          "text": "Produced a literary work",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -121041,13 +120249,13 @@
     {
       "answer": "YAP",
       "clueOptions": [
-        "Informal terms for the mouth, maybe?",
+        "Informal term for the mouth, maybe?",
         "Bark in a high-pitched tone",
-        "Informal terms for the mouth"
+        "Informal term for the mouth"
       ],
       "clueMetadata": [
         {
-          "text": "Informal terms for the mouth, maybe?",
+          "text": "Informal term for the mouth, maybe?",
           "type": "direct",
           "difficulty": "hard",
           "tone": "straight",
@@ -121067,7 +120275,7 @@
           "rejectionNotes": []
         },
         {
-          "text": "Informal terms for the mouth",
+          "text": "Informal term for the mouth",
           "type": "direct",
           "difficulty": "hard",
           "tone": "straight",
@@ -121107,11 +120315,11 @@
     {
       "answer": "YARDS",
       "clueOptions": [
-        "A unit of length equal to 3 feet"
+        "Units of length equal to 3 feet"
       ],
       "clueMetadata": [
         {
-          "text": "A unit of length equal to 3 feet",
+          "text": "Units of length equal to 3 feet",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
@@ -121331,11 +120539,11 @@
     {
       "answer": "YELLING",
       "clueOptions": [
-        "Utter a sudden loud cry"
+        "Uttering a sudden loud cry"
       ],
       "clueMetadata": [
         {
-          "text": "Utter a sudden loud cry",
+          "text": "Uttering a sudden loud cry",
           "type": "direct",
           "difficulty": "medium",
           "tone": "straight",
@@ -121768,11 +120976,11 @@
     {
       "answer": "ZONES",
       "clueOptions": [
-        "(anatomy) any encircling or beltlike structure"
+        "(anatomy) encircling or beltlike structures"
       ],
       "clueMetadata": [
         {
-          "text": "(anatomy) any encircling or beltlike structure",
+          "text": "(anatomy) encircling or beltlike structures",
           "type": "direct",
           "difficulty": "easy",
           "tone": "straight",
