@@ -122196,6 +122196,3006 @@
       "themeId": "archive-box",
       "clue": "Stamp cost",
       "difficulty": "hard"
+    },
+    {
+      "answer": "ROASTED",
+      "themeId": "coffee-break",
+      "clue": "Like beans before grinding",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BREWING",
+      "themeId": "coffee-break",
+      "clue": "Coffee in the making",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STEAMED",
+      "themeId": "coffee-break",
+      "clue": "Like milk for a latte",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SIPPING",
+      "themeId": "coffee-break",
+      "clue": "Slowly enjoying a drink",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CREAMER",
+      "themeId": "coffee-break",
+      "clue": "Splash for your cup",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "OUTSIDE",
+      "themeId": "fresh-air",
+      "clue": "Where the fresh air is",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WALKING",
+      "themeId": "fresh-air",
+      "clue": "Getting there on foot",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BREATHE",
+      "themeId": "fresh-air",
+      "clue": "Take in the air",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NATURAL",
+      "themeId": "fresh-air",
+      "clue": "Unspoiled and organic",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FRESHEN",
+      "themeId": "fresh-air",
+      "clue": "Make crisp again",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TIDYING",
+      "themeId": "home-reset",
+      "clue": "Putting things in order",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CLEANUP",
+      "themeId": "home-reset",
+      "clue": "Chore after the mess",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DUSTING",
+      "themeId": "home-reset",
+      "clue": "Wiping down the shelves",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SHELVES",
+      "themeId": "home-reset",
+      "clue": "Where books live",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NESTING",
+      "themeId": "home-reset",
+      "clue": "Settling into home",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "READING",
+      "themeId": "book-nook",
+      "clue": "Lost in a book",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STORIES",
+      "themeId": "book-nook",
+      "clue": "Tales worth telling",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NOVELLA",
+      "themeId": "book-nook",
+      "clue": "Short work of fiction",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CURIOUS",
+      "themeId": "book-nook",
+      "clue": "Eager to know more",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "EDITION",
+      "themeId": "book-nook",
+      "clue": "First or limited one",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RECIPES",
+      "themeId": "kitchen-table",
+      "clue": "Cards in a cook's box",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PLATTER",
+      "themeId": "kitchen-table",
+      "clue": "Big dish for sharing",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SKILLET",
+      "themeId": "kitchen-table",
+      "clue": "Frying pan",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SERVING",
+      "themeId": "kitchen-table",
+      "clue": "Single portion",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SUPPERS",
+      "themeId": "kitchen-table",
+      "clue": "Evening meals",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LEISURE",
+      "themeId": "weekend-glow",
+      "clue": "Free time to enjoy",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "OUTINGS",
+      "themeId": "weekend-glow",
+      "clue": "Little trips for fun",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RELAXED",
+      "themeId": "weekend-glow",
+      "clue": "Fully at ease",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PASTIME",
+      "themeId": "weekend-glow",
+      "clue": "Favorite way to unwind",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GRILLED",
+      "themeId": "weekend-glow",
+      "clue": "Cooked over backyard flames",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DRIZZLE",
+      "themeId": "weather-watch",
+      "clue": "Light steady rain",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "THUNDER",
+      "themeId": "weather-watch",
+      "clue": "Rumble after lightning",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RAINBOW",
+      "themeId": "weather-watch",
+      "clue": "Arc after a shower",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SUNBEAM",
+      "themeId": "weather-watch",
+      "clue": "Ray breaking through clouds",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SHOWERS",
+      "themeId": "weather-watch",
+      "clue": "Brief bursts of rain",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TRANSIT",
+      "themeId": "city-stroll",
+      "clue": "Buses and trains, broadly",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "AVENUES",
+      "themeId": "city-stroll",
+      "clue": "Broad city streets",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STATION",
+      "themeId": "city-stroll",
+      "clue": "Where trains stop",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TRAFFIC",
+      "themeId": "city-stroll",
+      "clue": "Rush hour crawl",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TROLLEY",
+      "themeId": "city-stroll",
+      "clue": "Streetcar on rails",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "JUKEBOX",
+      "themeId": "soundtrack",
+      "clue": "Coin-fed song machine",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SINGING",
+      "themeId": "soundtrack",
+      "clue": "Using your voice musically",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RHYTHMS",
+      "themeId": "soundtrack",
+      "clue": "Beats you tap along to",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HUMMING",
+      "themeId": "soundtrack",
+      "clue": "Tune without the words",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BALLADS",
+      "themeId": "soundtrack",
+      "clue": "Slow heartfelt songs",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STRETCH",
+      "themeId": "mindful-morning",
+      "clue": "Reach to loosen up",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BALANCE",
+      "themeId": "mindful-morning",
+      "clue": "Steady equilibrium",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RESTFUL",
+      "themeId": "mindful-morning",
+      "clue": "Deeply calming",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SUNRISE",
+      "themeId": "mindful-morning",
+      "clue": "Daybreak in the east",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "QUIETLY",
+      "themeId": "mindful-morning",
+      "clue": "Without a sound",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COMPASS",
+      "themeId": "travel-lite",
+      "clue": "Needle pointing north",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LUGGAGE",
+      "themeId": "travel-lite",
+      "clue": "Bags for the trip",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TICKETS",
+      "themeId": "travel-lite",
+      "clue": "Passes to board",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "AIRPORT",
+      "themeId": "travel-lite",
+      "clue": "Where flights begin",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TOURIST",
+      "themeId": "travel-lite",
+      "clue": "Visitor with a camera",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ARTWORK",
+      "themeId": "culture-corner",
+      "clue": "Piece on display",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "REVIEWS",
+      "themeId": "culture-corner",
+      "clue": "Critics' takes",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WEBSITE",
+      "themeId": "culture-corner",
+      "clue": "Online destination",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "THEATER",
+      "themeId": "culture-corner",
+      "clue": "Stage for drama",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VIRTUAL",
+      "themeId": "culture-corner",
+      "clue": "Existing online only",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WARMING",
+      "themeId": "first-cup",
+      "clue": "Taking the chill off",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "POURING",
+      "themeId": "first-cup",
+      "clue": "Filling the mug",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FILTERS",
+      "themeId": "first-cup",
+      "clue": "Paper cones for grounds",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GROUNDS",
+      "themeId": "first-cup",
+      "clue": "What the filter catches",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SAVORED",
+      "themeId": "first-cup",
+      "clue": "Enjoyed every sip",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STEEPED",
+      "themeId": "tea-kettle",
+      "clue": "Left to soak in hot water",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WHISTLE",
+      "themeId": "tea-kettle",
+      "clue": "Kettle's ready signal",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "INFUSED",
+      "themeId": "tea-kettle",
+      "clue": "Steeped with flavor",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BOILING",
+      "themeId": "tea-kettle",
+      "clue": "Bubbling hot",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TEATIME",
+      "themeId": "tea-kettle",
+      "clue": "Afternoon steeping ritual",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MUFFINS",
+      "themeId": "bakery-run",
+      "clue": "Blueberry breakfast bakes",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PRETZEL",
+      "themeId": "bakery-run",
+      "clue": "Twisted salty snack",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STRUDEL",
+      "themeId": "bakery-run",
+      "clue": "Layered apple pastry",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "KNEADED",
+      "themeId": "bakery-run",
+      "clue": "Worked, as dough",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CRUMBLY",
+      "themeId": "bakery-run",
+      "clue": "Falling apart deliciously",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "OMELETS",
+      "themeId": "brunch-hour",
+      "clue": "Folded egg dishes",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WAFFLES",
+      "themeId": "brunch-hour",
+      "clue": "Grid-patterned breakfasts",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TOASTED",
+      "themeId": "brunch-hour",
+      "clue": "Browned until crisp",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BERRIES",
+      "themeId": "brunch-hour",
+      "clue": "Bowl of summer fruit",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GRIDDLE",
+      "themeId": "brunch-hour",
+      "clue": "Flat pancake cooker",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PUDDING",
+      "themeId": "sweet-treat",
+      "clue": "Creamy spoonable dessert",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TRUFFLE",
+      "themeId": "sweet-treat",
+      "clue": "Fancy chocolate sphere",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SHERBET",
+      "themeId": "sweet-treat",
+      "clue": "Fruity frozen scoop",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BROWNIE",
+      "themeId": "sweet-treat",
+      "clue": "Fudgy square treat",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VANILLA",
+      "themeId": "sweet-treat",
+      "clue": "Classic bean flavor",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PRODUCE",
+      "themeId": "farmers-market",
+      "clue": "Fruits and vegetables",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BASKETS",
+      "themeId": "farmers-market",
+      "clue": "Woven market carriers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LETTUCE",
+      "themeId": "farmers-market",
+      "clue": "Salad's leafy base",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CARROTS",
+      "themeId": "farmers-market",
+      "clue": "Orange root bunch",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VENDORS",
+      "themeId": "farmers-market",
+      "clue": "Sellers at the stalls",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FOLIAGE",
+      "themeId": "garden-walk",
+      "clue": "Leafy greenery",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TRELLIS",
+      "themeId": "garden-walk",
+      "clue": "Frame for climbing vines",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PATHWAY",
+      "themeId": "garden-walk",
+      "clue": "Route through the beds",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PLANTED",
+      "themeId": "garden-walk",
+      "clue": "Put in the soil",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PETUNIA",
+      "themeId": "garden-walk",
+      "clue": "Trumpet-shaped bloom",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "JOGGING",
+      "themeId": "park-loop",
+      "clue": "Easy-paced run",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BENCHES",
+      "themeId": "park-loop",
+      "clue": "Seats along the path",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STRIDES",
+      "themeId": "park-loop",
+      "clue": "Long confident steps",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RUNNERS",
+      "themeId": "park-loop",
+      "clue": "They lap the park",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PIGEONS",
+      "themeId": "park-loop",
+      "clue": "Park birds pecking crumbs",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VERANDA",
+      "themeId": "porch-sun",
+      "clue": "Covered porch cousin",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ROCKING",
+      "themeId": "porch-sun",
+      "clue": "Like a favorite porch chair",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RAILING",
+      "themeId": "porch-sun",
+      "clue": "Porch edge to lean on",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SETTLED",
+      "themeId": "porch-sun",
+      "clue": "Comfortably in place",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NAPPING",
+      "themeId": "porch-sun",
+      "clue": "Dozing in the shade",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SEASIDE",
+      "themeId": "beach-morning",
+      "clue": "By the shore",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SANDBAR",
+      "themeId": "beach-morning",
+      "clue": "Shallow strip offshore",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SEAGULL",
+      "themeId": "beach-morning",
+      "clue": "Shorebird eyeing snacks",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LAPPING",
+      "themeId": "beach-morning",
+      "clue": "What gentle waves keep doing",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DAWNING",
+      "themeId": "beach-morning",
+      "clue": "Breaking, as the day",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CURRENT",
+      "themeId": "river-path",
+      "clue": "The water's steady pull",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BRIDGES",
+      "themeId": "river-path",
+      "clue": "Spans over the water",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FLOWING",
+      "themeId": "river-path",
+      "clue": "Moving like a stream",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PEBBLES",
+      "themeId": "river-path",
+      "clue": "Small smooth stones",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RIPPLED",
+      "themeId": "river-path",
+      "clue": "Marked by tiny waves",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TERRAIN",
+      "themeId": "trailhead",
+      "clue": "The lay of the land",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CLIMBED",
+      "themeId": "trailhead",
+      "clue": "Went up the hill",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SCENERY",
+      "themeId": "trailhead",
+      "clue": "Views along the way",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TREKKED",
+      "themeId": "trailhead",
+      "clue": "Hiked a long way",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MARKERS",
+      "themeId": "trailhead",
+      "clue": "Blazes showing the route",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PUDDLES",
+      "themeId": "rainy-window",
+      "clue": "Sidewalk pools after rain",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DRIPPED",
+      "themeId": "rainy-window",
+      "clue": "Fell drop by drop",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TAPPING",
+      "themeId": "rainy-window",
+      "clue": "Soft drumming on glass",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SOAKING",
+      "themeId": "rainy-window",
+      "clue": "Thoroughly drenched",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MISTING",
+      "themeId": "rainy-window",
+      "clue": "Raining ever so lightly",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FLUTTER",
+      "themeId": "breezy-day",
+      "clue": "What curtains do in wind",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SWAYING",
+      "themeId": "breezy-day",
+      "clue": "Moving with the breeze",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RUSTLED",
+      "themeId": "breezy-day",
+      "clue": "Whispered, as leaves",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BILLOWS",
+      "themeId": "breezy-day",
+      "clue": "Swells like a sail",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WAFTING",
+      "themeId": "breezy-day",
+      "clue": "Drifting on the air",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SUNSETS",
+      "themeId": "golden-hour",
+      "clue": "Ends of golden days",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GLIMMER",
+      "themeId": "golden-hour",
+      "clue": "Faint dancing light",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RADIANT",
+      "themeId": "golden-hour",
+      "clue": "Beaming with light",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SHIMMER",
+      "themeId": "golden-hour",
+      "clue": "Soft wavering glow",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WARMEST",
+      "themeId": "golden-hour",
+      "clue": "Most golden of all",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MITTENS",
+      "themeId": "snow-day",
+      "clue": "Warm hand coverings",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SNOWMAN",
+      "themeId": "snow-day",
+      "clue": "Carrot-nosed yard figure",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ICICLES",
+      "themeId": "snow-day",
+      "clue": "Frozen drips off the eaves",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "POWDERY",
+      "themeId": "snow-day",
+      "clue": "Like fresh light snow",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DRIFTED",
+      "themeId": "snow-day",
+      "clue": "Piled up, as snow",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SUMMERY",
+      "themeId": "summer-light",
+      "clue": "Like a bright July day",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HAMMOCK",
+      "themeId": "summer-light",
+      "clue": "Netted nap spot",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SANDALS",
+      "themeId": "summer-light",
+      "clue": "Warm-weather footwear",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LONGEST",
+      "themeId": "summer-light",
+      "clue": "Like solstice daylight",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BASKING",
+      "themeId": "summer-light",
+      "clue": "Lounging in the sun",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MOONLIT",
+      "themeId": "moonrise",
+      "clue": "Brightened by night's lamp",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STARLIT",
+      "themeId": "moonrise",
+      "clue": "Under a sparkling sky",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SKYWARD",
+      "themeId": "moonrise",
+      "clue": "Toward the heavens",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DIMMING",
+      "themeId": "moonrise",
+      "clue": "Fading with the day",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CRATERS",
+      "themeId": "moonrise",
+      "clue": "Dents on the lunar face",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STAPLER",
+      "themeId": "tidy-desk",
+      "clue": "Desktop paper joiner",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NOTEPAD",
+      "themeId": "tidy-desk",
+      "clue": "Spot for quick jottings",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SORTING",
+      "themeId": "tidy-desk",
+      "clue": "Putting papers in piles",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ORDERLY",
+      "themeId": "tidy-desk",
+      "clue": "Neat and arranged",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BINDERS",
+      "themeId": "tidy-desk",
+      "clue": "Ring-filled organizers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FOLDING",
+      "themeId": "laundry-day",
+      "clue": "Making neat towel stacks",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "IRONING",
+      "themeId": "laundry-day",
+      "clue": "Pressing chore",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WASHING",
+      "themeId": "laundry-day",
+      "clue": "Cycle before drying",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TUMBLED",
+      "themeId": "laundry-day",
+      "clue": "Spun in the dryer",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WRINKLE",
+      "themeId": "laundry-day",
+      "clue": "Crease to press away",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FLICKER",
+      "themeId": "candle-hour",
+      "clue": "Dance of a small flame",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SCENTED",
+      "themeId": "candle-hour",
+      "clue": "Lavender-infused, say",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BEESWAX",
+      "themeId": "candle-hour",
+      "clue": "Natural candle material",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MELTING",
+      "themeId": "candle-hour",
+      "clue": "Slowly losing shape",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SOFTEST",
+      "themeId": "candle-hour",
+      "clue": "Gentlest of all",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SNUGGLE",
+      "themeId": "cozy-corner",
+      "clue": "Curl up close",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PILLOWS",
+      "themeId": "cozy-corner",
+      "clue": "Soft heaps on the couch",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FLANNEL",
+      "themeId": "cozy-corner",
+      "clue": "Soft plaid fabric",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "QUILTED",
+      "themeId": "cozy-corner",
+      "clue": "Stitched in cozy layers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NESTLED",
+      "themeId": "cozy-corner",
+      "clue": "Tucked in comfortably",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WATERED",
+      "themeId": "plant-care",
+      "clue": "Given a good drink",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "POTTING",
+      "themeId": "plant-care",
+      "clue": "Settling roots in a new home",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SPROUTS",
+      "themeId": "plant-care",
+      "clue": "New green shoots",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TENDRIL",
+      "themeId": "plant-care",
+      "clue": "Vine's curling reach",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GREENER",
+      "themeId": "plant-care",
+      "clue": "Like a thriving leaf",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PAJAMAS",
+      "themeId": "bedroom-reset",
+      "clue": "Sleepwear set",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SLUMBER",
+      "themeId": "bedroom-reset",
+      "clue": "Deep peaceful sleep",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BEDDING",
+      "themeId": "bedroom-reset",
+      "clue": "Sheets and comforters",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CURTAIN",
+      "themeId": "bedroom-reset",
+      "clue": "Window's soft cover",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RESTING",
+      "themeId": "bedroom-reset",
+      "clue": "Recharging quietly",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COLUMNS",
+      "themeId": "newspaper-stack",
+      "clue": "Opinion writers' spaces",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ARTICLE",
+      "themeId": "newspaper-stack",
+      "clue": "One published piece",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SECTION",
+      "themeId": "newspaper-stack",
+      "clue": "Sports or style, say",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "REPORTS",
+      "themeId": "newspaper-stack",
+      "clue": "Journalists file them",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PRINTED",
+      "themeId": "newspaper-stack",
+      "clue": "Set in ink",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SOLVING",
+      "themeId": "puzzle-page",
+      "clue": "Cracking the clues",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ANSWERS",
+      "themeId": "puzzle-page",
+      "clue": "What the clues seek",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CRYPTIC",
+      "themeId": "puzzle-page",
+      "clue": "Puzzling by design",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RIDDLES",
+      "themeId": "puzzle-page",
+      "clue": "Brain teasers in words",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SQUARES",
+      "themeId": "puzzle-page",
+      "clue": "Grid's little boxes",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "IMAGERY",
+      "themeId": "poem-moment",
+      "clue": "Pictures made of words",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LYRICAL",
+      "themeId": "poem-moment",
+      "clue": "Songlike in style",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RHYMING",
+      "themeId": "poem-moment",
+      "clue": "Matching sounds at line ends",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COUPLET",
+      "themeId": "poem-moment",
+      "clue": "Paired lines of verse",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STANZAS",
+      "themeId": "poem-moment",
+      "clue": "Poem paragraphs",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LENDING",
+      "themeId": "library-card",
+      "clue": "What libraries do best",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ARCHIVE",
+      "themeId": "library-card",
+      "clue": "Trove of old records",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CATALOG",
+      "themeId": "library-card",
+      "clue": "Index of every title",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "OVERDUE",
+      "themeId": "library-card",
+      "clue": "Late, as a borrowed book",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RETURNS",
+      "themeId": "library-card",
+      "clue": "Books back in the slot",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DRAWING",
+      "themeId": "sketchbook",
+      "clue": "Art made with lines",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SHADING",
+      "themeId": "sketchbook",
+      "clue": "Pencil work for depth",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DOODLES",
+      "themeId": "sketchbook",
+      "clue": "Idle margin scribbles",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "OUTLINE",
+      "themeId": "sketchbook",
+      "clue": "First rough shape",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ERASERS",
+      "themeId": "sketchbook",
+      "clue": "Fixers of stray marks",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WRITTEN",
+      "themeId": "letter-note",
+      "clue": "Put down in ink",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STAMPED",
+      "themeId": "letter-note",
+      "clue": "Ready for the mail",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "REGARDS",
+      "themeId": "letter-note",
+      "clue": "Warm sign-off word",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SINCERE",
+      "themeId": "letter-note",
+      "clue": "Heartfelt and true",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MAILING",
+      "themeId": "letter-note",
+      "clue": "Sending by post",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PREVIEW",
+      "themeId": "cinema-night",
+      "clue": "Sneak peek before release",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MATINEE",
+      "themeId": "cinema-night",
+      "clue": "Afternoon showing",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TRAILER",
+      "themeId": "cinema-night",
+      "clue": "Coming-attraction clip",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FEATURE",
+      "themeId": "cinema-night",
+      "clue": "Main film of the night",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SCREENS",
+      "themeId": "cinema-night",
+      "clue": "Where films light up",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ANTIQUE",
+      "themeId": "museum-hour",
+      "clue": "Centuries-old treasure",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CURATOR",
+      "themeId": "museum-hour",
+      "clue": "Keeper of the collection",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STATUES",
+      "themeId": "museum-hour",
+      "clue": "Carved standing figures",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DISPLAY",
+      "themeId": "museum-hour",
+      "clue": "Arranged for viewing",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PLAQUES",
+      "themeId": "museum-hour",
+      "clue": "Little labels by the art",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "EPISODE",
+      "themeId": "podcast-walk",
+      "clue": "One show installment",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "EARBUDS",
+      "themeId": "podcast-walk",
+      "clue": "Tiny personal speakers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ROAMING",
+      "themeId": "podcast-walk",
+      "clue": "Wandering freely",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "AUDIBLE",
+      "themeId": "podcast-walk",
+      "clue": "Loud enough to hear",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CHATTER",
+      "themeId": "podcast-walk",
+      "clue": "Lively back-and-forth talk",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CAPTURE",
+      "themeId": "photo-roll",
+      "clue": "Freeze the moment",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SNAPPED",
+      "themeId": "photo-roll",
+      "clue": "Took a quick shot",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FOCUSED",
+      "themeId": "photo-roll",
+      "clue": "Sharp, not blurry",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CAPTION",
+      "themeId": "photo-roll",
+      "clue": "Words under the image",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SELFIES",
+      "themeId": "photo-roll",
+      "clue": "Arm's-length portraits",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SHUFFLE",
+      "themeId": "game-night",
+      "clue": "Mix the deck",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DEALING",
+      "themeId": "game-night",
+      "clue": "Passing out the cards",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SCORING",
+      "themeId": "game-night",
+      "clue": "Tallying the points",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PLAYERS",
+      "themeId": "game-night",
+      "clue": "Everyone at the table",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ROLLING",
+      "themeId": "game-night",
+      "clue": "Sending dice tumbling",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COMPANY",
+      "themeId": "friend-date",
+      "clue": "Someone to share time with",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GIGGLES",
+      "themeId": "friend-date",
+      "clue": "Bubbly little laughs",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SHARING",
+      "themeId": "friend-date",
+      "clue": "Splitting the dessert",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VISITED",
+      "themeId": "friend-date",
+      "clue": "Dropped by to say hi",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HANGOUT",
+      "themeId": "friend-date",
+      "clue": "Favorite meeting spot",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COUSINS",
+      "themeId": "family-table",
+      "clue": "Kids of aunts and uncles",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SIBLING",
+      "themeId": "family-table",
+      "clue": "Brother or sister",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "POTLUCK",
+      "themeId": "family-table",
+      "clue": "Everyone brings a dish",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "REUNION",
+      "themeId": "family-table",
+      "clue": "Big family get-together",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HELPING",
+      "themeId": "family-table",
+      "clue": "Second serving, say",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "THERMOS",
+      "themeId": "picnic-basket",
+      "clue": "Keeps drinks hot or cold",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NAPKINS",
+      "themeId": "picnic-basket",
+      "clue": "Lap protectors",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HAMPERS",
+      "themeId": "picnic-basket",
+      "clue": "Woven lunch carriers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NIBBLES",
+      "themeId": "picnic-basket",
+      "clue": "Little bites to share",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GOODIES",
+      "themeId": "picnic-basket",
+      "clue": "Tasty treats packed along",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NOODLES",
+      "themeId": "soup-pot",
+      "clue": "Long strands in broth",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LENTILS",
+      "themeId": "soup-pot",
+      "clue": "Little legumes for stew",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PARSNIP",
+      "themeId": "soup-pot",
+      "clue": "Pale root vegetable",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CROUTON",
+      "themeId": "soup-pot",
+      "clue": "Crunchy cube in soup",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STEWING",
+      "themeId": "soup-pot",
+      "clue": "Simmering low and slow",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CRUNCHY",
+      "themeId": "snack-plate",
+      "clue": "Crisp to the bite",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CRACKER",
+      "themeId": "snack-plate",
+      "clue": "Crisp base for cheese",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CASHEWS",
+      "themeId": "snack-plate",
+      "clue": "Kidney-shaped nuts",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TIDBITS",
+      "themeId": "snack-plate",
+      "clue": "Small savory morsels",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CHEESES",
+      "themeId": "snack-plate",
+      "clue": "Brie and cheddar",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HOSTING",
+      "themeId": "dinner-party",
+      "clue": "Welcoming the guests",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GOBLETS",
+      "themeId": "dinner-party",
+      "clue": "Stemmed drinking cups",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ENTREES",
+      "themeId": "dinner-party",
+      "clue": "Main course dishes",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COURSES",
+      "themeId": "dinner-party",
+      "clue": "Appetizer through dessert",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GLASSES",
+      "themeId": "dinner-party",
+      "clue": "Stemware for a toast",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RAILWAY",
+      "themeId": "train-ride",
+      "clue": "Track network",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COACHES",
+      "themeId": "train-ride",
+      "clue": "Passenger cars",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TUNNELS",
+      "themeId": "train-ride",
+      "clue": "Dark mountain passages",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CABOOSE",
+      "themeId": "train-ride",
+      "clue": "Last car on the freight",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SLEEPER",
+      "themeId": "train-ride",
+      "clue": "Overnight train car",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HIGHWAY",
+      "themeId": "road-trip",
+      "clue": "Interstate stretch",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MILEAGE",
+      "themeId": "road-trip",
+      "clue": "Distance clocked",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DETOURS",
+      "themeId": "road-trip",
+      "clue": "Alternate routes taken",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TOURING",
+      "themeId": "road-trip",
+      "clue": "Traveling around",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DRIVING",
+      "themeId": "road-trip",
+      "clue": "Behind the wheel",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LEGENDS",
+      "themeId": "map-check",
+      "clue": "Map symbol keys",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ROADMAP",
+      "themeId": "map-check",
+      "clue": "Sheet of routes",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ATLASES",
+      "themeId": "map-check",
+      "clue": "Books full of maps",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BEARING",
+      "themeId": "map-check",
+      "clue": "Direction to travel",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CHARTED",
+      "themeId": "map-check",
+      "clue": "Mapped out already",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BROWSED",
+      "themeId": "market-stroll",
+      "clue": "Looked without buying",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SATCHEL",
+      "themeId": "market-stroll",
+      "clue": "Shoulder-strap carryall",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "AWNINGS",
+      "themeId": "market-stroll",
+      "clue": "Canvas shop shades",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SAMPLES",
+      "themeId": "market-stroll",
+      "clue": "Free little tastes",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BARGAIN",
+      "themeId": "market-stroll",
+      "clue": "Great deal found",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PORCHES",
+      "themeId": "neighborhood-loop",
+      "clue": "Front sitting spots",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STREETS",
+      "themeId": "neighborhood-loop",
+      "clue": "Lanes and boulevards",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HYDRANT",
+      "themeId": "neighborhood-loop",
+      "clue": "Curbside firefighting plug",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GREETED",
+      "themeId": "neighborhood-loop",
+      "clue": "Said hello to",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STROLLS",
+      "themeId": "neighborhood-loop",
+      "clue": "Leisurely walks",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TRUMPET",
+      "themeId": "jazz-morning",
+      "clue": "Brass horn with valves",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "QUARTET",
+      "themeId": "jazz-morning",
+      "clue": "Four-piece combo",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CADENCE",
+      "themeId": "jazz-morning",
+      "clue": "Rhythmic musical flow",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CYMBALS",
+      "themeId": "jazz-morning",
+      "clue": "Crashing drum kit discs",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GROOVES",
+      "themeId": "jazz-morning",
+      "clue": "Funky rhythmic pockets",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BENDING",
+      "themeId": "stretch-time",
+      "clue": "Folding at the waist",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "POSTURE",
+      "themeId": "stretch-time",
+      "clue": "How you hold yourself",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MUSCLES",
+      "themeId": "stretch-time",
+      "clue": "Biceps and hamstrings",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FLEXING",
+      "themeId": "stretch-time",
+      "clue": "Bending at the joints",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "UNWINDS",
+      "themeId": "stretch-time",
+      "clue": "Lets tension melt away",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WRITING",
+      "themeId": "morning-pages",
+      "clue": "Putting pen to paper",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ENTRIES",
+      "themeId": "morning-pages",
+      "clue": "Dated journal passages",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MUSINGS",
+      "themeId": "morning-pages",
+      "clue": "Idle reflections",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DIARIES",
+      "themeId": "morning-pages",
+      "clue": "Private daily books",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "INKWELL",
+      "themeId": "morning-pages",
+      "clue": "Reservoir for a quill",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BOLSTER",
+      "themeId": "window-seat",
+      "clue": "Long supportive cushion",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VIEWING",
+      "themeId": "window-seat",
+      "clue": "Taking in the scene",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ALCOVES",
+      "themeId": "window-seat",
+      "clue": "Cozy nooks",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DRAPERY",
+      "themeId": "window-seat",
+      "clue": "Hanging window fabric",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PERCHED",
+      "themeId": "window-seat",
+      "clue": "Sat up high",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GLEAMED",
+      "themeId": "lamp-light",
+      "clue": "Shone with soft light",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SHADOWS",
+      "themeId": "lamp-light",
+      "clue": "Dark shapes cast",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SCONCES",
+      "themeId": "lamp-light",
+      "clue": "Wall-mounted lamp holders",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DIMMERS",
+      "themeId": "lamp-light",
+      "clue": "Switches that soften light",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NIGHTLY",
+      "themeId": "lamp-light",
+      "clue": "Every evening",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STAPLES",
+      "themeId": "pantry-shelf",
+      "clue": "Flour, rice, and beans",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RAISINS",
+      "themeId": "pantry-shelf",
+      "clue": "Dried grapes",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VINEGAR",
+      "themeId": "pantry-shelf",
+      "clue": "Tangy pickling liquid",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LEGUMES",
+      "themeId": "pantry-shelf",
+      "clue": "Beans and lentils",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PICKLES",
+      "themeId": "pantry-shelf",
+      "clue": "Briny cucumber spears",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PALETTE",
+      "themeId": "studio-table",
+      "clue": "Painter's mixing board",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COLLAGE",
+      "themeId": "studio-table",
+      "clue": "Art from pasted pieces",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BRUSHES",
+      "themeId": "studio-table",
+      "clue": "Bristled paint tools",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GLITTER",
+      "themeId": "studio-table",
+      "clue": "Sparkly craft flecks",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STENCIL",
+      "themeId": "studio-table",
+      "clue": "Cutout pattern guide",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ERRANDS",
+      "themeId": "quiet-errand",
+      "clue": "Little tasks about town",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DEPOSIT",
+      "themeId": "quiet-errand",
+      "clue": "Bank drop-off",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "REFILLS",
+      "themeId": "quiet-errand",
+      "clue": "Prescription top-ups",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ROUTINE",
+      "themeId": "quiet-errand",
+      "clue": "Usual set of steps",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "QUICKLY",
+      "themeId": "quiet-errand",
+      "clue": "In no time",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DOORWAY",
+      "themeId": "front-stoop",
+      "clue": "Threshold opening",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SITTING",
+      "themeId": "front-stoop",
+      "clue": "Taking a seat",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BREEZES",
+      "themeId": "front-stoop",
+      "clue": "Gentle gusts",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DOORMAT",
+      "themeId": "front-stoop",
+      "clue": "Rug that says welcome",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WELCOME",
+      "themeId": "front-stoop",
+      "clue": "Warm greeting outside",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STARTER",
+      "themeId": "soft-launch",
+      "clue": "First mover",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TESTING",
+      "themeId": "soft-launch",
+      "clue": "Trying things out",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "KICKOFF",
+      "themeId": "soft-launch",
+      "clue": "Opening moment",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DEBUTED",
+      "themeId": "soft-launch",
+      "clue": "Made a first appearance",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "UNVEILS",
+      "themeId": "soft-launch",
+      "clue": "Reveals to the public",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DELIVER",
+      "themeId": "paper-route",
+      "clue": "Drop at the doorstep",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GAZETTE",
+      "themeId": "paper-route",
+      "clue": "Local news sheet",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BUNDLES",
+      "themeId": "paper-route",
+      "clue": "Tied stacks of papers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TOSSING",
+      "themeId": "paper-route",
+      "clue": "Flinging onto porches",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PRESSES",
+      "themeId": "paper-route",
+      "clue": "Machines printing pages",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VIOLINS",
+      "themeId": "music-room",
+      "clue": "Bowed string instruments",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RECITAL",
+      "themeId": "music-room",
+      "clue": "Student performance",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SPEAKER",
+      "themeId": "music-room",
+      "clue": "Box that plays audio",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PLAYING",
+      "themeId": "music-room",
+      "clue": "Making music",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "OCTAVES",
+      "themeId": "music-room",
+      "clue": "Eight-note spans",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SPARKED",
+      "themeId": "bright-idea",
+      "clue": "Set off suddenly",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NOTIONS",
+      "themeId": "bright-idea",
+      "clue": "Passing ideas",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "INVENTS",
+      "themeId": "bright-idea",
+      "clue": "Dreams up new things",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "THOUGHT",
+      "themeId": "bright-idea",
+      "clue": "Something pondered",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "INSPIRE",
+      "themeId": "bright-idea",
+      "clue": "Fill with motivation",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "NOONDAY",
+      "themeId": "lunch-break",
+      "clue": "When the sun is highest",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TAKEOUT",
+      "themeId": "lunch-break",
+      "clue": "Food to go",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "REFRESH",
+      "themeId": "lunch-break",
+      "clue": "Renew one's energy",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CANTEEN",
+      "themeId": "lunch-break",
+      "clue": "Workplace lunchroom",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RESPITE",
+      "themeId": "lunch-break",
+      "clue": "Brief welcome pause",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SCANNER",
+      "themeId": "checkout-line",
+      "clue": "Barcode beeper",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COUPONS",
+      "themeId": "checkout-line",
+      "clue": "Clipped discounts",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CASHIER",
+      "themeId": "checkout-line",
+      "clue": "Register worker",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RECEIPT",
+      "themeId": "checkout-line",
+      "clue": "Proof of purchase slip",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BAGGING",
+      "themeId": "checkout-line",
+      "clue": "Packing up purchases",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DAMPENS",
+      "themeId": "rain-check",
+      "clue": "Makes slightly wet",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SLICKER",
+      "themeId": "rain-check",
+      "clue": "Yellow rain jacket",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DELAYED",
+      "themeId": "rain-check",
+      "clue": "Pushed back",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DROPLET",
+      "themeId": "rain-check",
+      "clue": "Tiny bead of water",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "AWAITED",
+      "themeId": "rain-check",
+      "clue": "Looked forward to",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SUNNING",
+      "themeId": "sun-room",
+      "clue": "Soaking in warm rays",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DAPPLED",
+      "themeId": "sun-room",
+      "clue": "Spotted with shifting light",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LOUNGED",
+      "themeId": "sun-room",
+      "clue": "Sprawled lazily",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WINDOWS",
+      "themeId": "sun-room",
+      "clue": "Panes all around",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ROCKERS",
+      "themeId": "sun-room",
+      "clue": "Porch chairs that sway",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HAMMERS",
+      "themeId": "workbench",
+      "clue": "Nail drivers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SANDING",
+      "themeId": "workbench",
+      "clue": "Smoothing wood grain",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TOOLBOX",
+      "themeId": "workbench",
+      "clue": "Wrench and pliers chest",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SAWDUST",
+      "themeId": "workbench",
+      "clue": "Woodshop powder",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "REPAIRS",
+      "themeId": "workbench",
+      "clue": "Fix-it jobs",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STARRED",
+      "themeId": "notebook-margin",
+      "clue": "Marked as a favorite",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "JOTTING",
+      "themeId": "notebook-margin",
+      "clue": "Quick note-taking",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SCRAWLS",
+      "themeId": "notebook-margin",
+      "clue": "Hasty scribbles",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MARGINS",
+      "themeId": "notebook-margin",
+      "clue": "Edges of the page",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SIDEBAR",
+      "themeId": "notebook-margin",
+      "clue": "Boxed extra note",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SIMMERS",
+      "themeId": "slow-simmer",
+      "clue": "Cooks gently below boiling",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BUBBLES",
+      "themeId": "slow-simmer",
+      "clue": "What a hot pot makes",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STIRRED",
+      "themeId": "slow-simmer",
+      "clue": "Mixed with a spoon",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BRAISED",
+      "themeId": "slow-simmer",
+      "clue": "Slow-cooked in liquid",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "THICKEN",
+      "themeId": "slow-simmer",
+      "clue": "Make less runny",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SEEDBED",
+      "themeId": "greenhouse",
+      "clue": "Nursery soil patch",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TOPSOIL",
+      "themeId": "greenhouse",
+      "clue": "Rich upper dirt layer",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ORCHIDS",
+      "themeId": "greenhouse",
+      "clue": "Delicate potted blooms",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SAPLING",
+      "themeId": "greenhouse",
+      "clue": "Young slender tree",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COMPOST",
+      "themeId": "greenhouse",
+      "clue": "Rich garden mix",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CANDIES",
+      "themeId": "corner-store",
+      "clue": "Sweet counter treats",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PENNIES",
+      "themeId": "corner-store",
+      "clue": "Coins in the tray",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COOLERS",
+      "themeId": "corner-store",
+      "clue": "Cold drink cases",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GUMBALL",
+      "themeId": "corner-store",
+      "clue": "Round machine candy",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "REGULAR",
+      "themeId": "corner-store",
+      "clue": "Familiar daily customer",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RECORDS",
+      "themeId": "record-shelf",
+      "clue": "Vinyl discs",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SLEEVES",
+      "themeId": "record-shelf",
+      "clue": "Slip-in album holders",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "JACKETS",
+      "themeId": "record-shelf",
+      "clue": "Cardboard disc covers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SINGLES",
+      "themeId": "record-shelf",
+      "clue": "One-song releases",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VINTAGE",
+      "themeId": "record-shelf",
+      "clue": "Charmingly old",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CYCLING",
+      "themeId": "bike-lane",
+      "clue": "Pedaling along",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HELMETS",
+      "themeId": "bike-lane",
+      "clue": "Head protectors",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COMMUTE",
+      "themeId": "bike-lane",
+      "clue": "Daily ride to work",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BICYCLE",
+      "themeId": "bike-lane",
+      "clue": "Two-wheeled ride",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COASTED",
+      "themeId": "bike-lane",
+      "clue": "Rolled without pedaling",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "USHERED",
+      "themeId": "ticket-stub",
+      "clue": "Shown to a seat",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PROGRAM",
+      "themeId": "ticket-stub",
+      "clue": "Show's printed guide",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BALCONY",
+      "themeId": "ticket-stub",
+      "clue": "Upper tier of seats",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ENCORES",
+      "themeId": "ticket-stub",
+      "clue": "Extra final numbers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SEATING",
+      "themeId": "ticket-stub",
+      "clue": "Where the audience sits",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WISHING",
+      "themeId": "postcard-rack",
+      "clue": "Hoping you were here",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PENNING",
+      "themeId": "postcard-rack",
+      "clue": "Jotting a short note",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "AIRMAIL",
+      "themeId": "postcard-rack",
+      "clue": "Letters by plane",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FOREIGN",
+      "themeId": "postcard-rack",
+      "clue": "From faraway lands",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SENDING",
+      "themeId": "postcard-rack",
+      "clue": "Posting off",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CHIMING",
+      "themeId": "clock-tower",
+      "clue": "Ringing on the hour",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TOLLING",
+      "themeId": "clock-tower",
+      "clue": "Slow bell sounding",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STEEPLE",
+      "themeId": "clock-tower",
+      "clue": "Tall pointed spire",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STRIKES",
+      "themeId": "clock-tower",
+      "clue": "What the clock does at noon",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TICKING",
+      "themeId": "clock-tower",
+      "clue": "Steady clock sound",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BOOKISH",
+      "themeId": "reading-lamp",
+      "clue": "Fond of the printed page",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BEDSIDE",
+      "themeId": "reading-lamp",
+      "clue": "Next to where you sleep",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PREFACE",
+      "themeId": "reading-lamp",
+      "clue": "Words before chapter one",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "VOLUMES",
+      "themeId": "reading-lamp",
+      "clue": "Bound works on a shelf",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FICTION",
+      "themeId": "reading-lamp",
+      "clue": "Invented narratives",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LAUNDRY",
+      "themeId": "linen-closet",
+      "clue": "Wash-day pile",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SACHETS",
+      "themeId": "linen-closet",
+      "clue": "Scented little pouches",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STACKED",
+      "themeId": "linen-closet",
+      "clue": "Piled neatly",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PRESSED",
+      "themeId": "linen-closet",
+      "clue": "Smoothed with an iron",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CREASED",
+      "themeId": "linen-closet",
+      "clue": "Sharply folded",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TOASTER",
+      "themeId": "breakfast-bar",
+      "clue": "Bread browner",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CEREALS",
+      "themeId": "breakfast-bar",
+      "clue": "Boxed morning grains",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ORANGES",
+      "themeId": "breakfast-bar",
+      "clue": "Juicy citrus fruits",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BANANAS",
+      "themeId": "breakfast-bar",
+      "clue": "Bunched yellow fruit",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SPREADS",
+      "themeId": "breakfast-bar",
+      "clue": "Jam and butter",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FRAMING",
+      "themeId": "gallery-wall",
+      "clue": "Putting art in borders",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HANGING",
+      "themeId": "gallery-wall",
+      "clue": "Putting up on the wall",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ETCHING",
+      "themeId": "gallery-wall",
+      "clue": "Fine inked print",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CURATED",
+      "themeId": "gallery-wall",
+      "clue": "Carefully selected",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "POSTERS",
+      "themeId": "gallery-wall",
+      "clue": "Printed wall art",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ARRIVES",
+      "themeId": "station-clock",
+      "clue": "Pulls into the platform",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DEPARTS",
+      "themeId": "station-clock",
+      "clue": "Leaves the platform",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ARRIVAL",
+      "themeId": "station-clock",
+      "clue": "Coming in on time",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WAITING",
+      "themeId": "station-clock",
+      "clue": "Standing by",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PORTERS",
+      "themeId": "station-clock",
+      "clue": "Baggage handlers",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "STICKER",
+      "themeId": "desk-drawer",
+      "clue": "Peel-and-press decoration",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LETTERS",
+      "themeId": "desk-drawer",
+      "clue": "Sealed notes for mailing",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TRINKET",
+      "themeId": "desk-drawer",
+      "clue": "Small keepsake",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PUSHPIN",
+      "themeId": "desk-drawer",
+      "clue": "Corkboard tack",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RIBBONS",
+      "themeId": "desk-drawer",
+      "clue": "Decorative fabric strips",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CAMPING",
+      "themeId": "camp-table",
+      "clue": "Sleeping under stars",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "KINDLED",
+      "themeId": "camp-table",
+      "clue": "Coaxed into flame",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BONFIRE",
+      "themeId": "camp-table",
+      "clue": "Big outdoor blaze",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "COOKOUT",
+      "themeId": "camp-table",
+      "clue": "Open-air meal",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CRICKET",
+      "themeId": "camp-table",
+      "clue": "Chirping night insect",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SPINACH",
+      "themeId": "market-bag",
+      "clue": "Leafy green bunch",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BOUQUET",
+      "themeId": "market-bag",
+      "clue": "Bundle of blooms",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "AVOCADO",
+      "themeId": "market-bag",
+      "clue": "Green fruit with a pit",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "HANDLES",
+      "themeId": "market-bag",
+      "clue": "Grips of the tote",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TURNIPS",
+      "themeId": "market-bag",
+      "clue": "Round purple-white roots",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CINEMAS",
+      "themeId": "movie-matinee",
+      "clue": "Film houses",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SHOWING",
+      "themeId": "movie-matinee",
+      "clue": "Scheduled film time",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MARQUEE",
+      "themeId": "movie-matinee",
+      "clue": "Lit sign above the lobby",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CREDITS",
+      "themeId": "movie-matinee",
+      "clue": "Names rolling at the end",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SEQUELS",
+      "themeId": "movie-matinee",
+      "clue": "Follow-up films",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "PERGOLA",
+      "themeId": "garden-gate",
+      "clue": "Vine-draped walkway frame",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "WROUGHT",
+      "themeId": "garden-gate",
+      "clue": "Hammered, as fancy iron",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LATCHES",
+      "themeId": "garden-gate",
+      "clue": "Gate fasteners",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DAISIES",
+      "themeId": "garden-gate",
+      "clue": "White-petaled blooms",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ROSEBUD",
+      "themeId": "garden-gate",
+      "clue": "Bloom yet to open",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BEACONS",
+      "themeId": "harbor-light",
+      "clue": "Guiding shore lights",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MOORING",
+      "themeId": "harbor-light",
+      "clue": "Tying up at the dock",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SAILORS",
+      "themeId": "harbor-light",
+      "clue": "Deckhands at sea",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DOCKING",
+      "themeId": "harbor-light",
+      "clue": "Pulling into port",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "FOGHORN",
+      "themeId": "harbor-light",
+      "clue": "Low warning blast",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SUMMITS",
+      "themeId": "trail-map",
+      "clue": "Mountain tops",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RAVINES",
+      "themeId": "trail-map",
+      "clue": "Deep narrow gorges",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LOOKOUT",
+      "themeId": "trail-map",
+      "clue": "High vantage spot",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CANYONS",
+      "themeId": "trail-map",
+      "clue": "Deep rocky gorges",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "RAMBLED",
+      "themeId": "trail-map",
+      "clue": "Wandered without hurry",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "GLAZING",
+      "themeId": "bakery-window",
+      "clue": "Sugary shiny coat",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BATCHES",
+      "themeId": "bakery-window",
+      "clue": "Trays baked at once",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "CRULLER",
+      "themeId": "bakery-window",
+      "clue": "Twisted fried pastry",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SUGARED",
+      "themeId": "bakery-window",
+      "clue": "Dusted with sweetness",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "ECLAIRS",
+      "themeId": "bakery-window",
+      "clue": "Cream-filled pastries",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SAUCERS",
+      "themeId": "cafe-table",
+      "clue": "Under-cup plates",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "SWIRLED",
+      "themeId": "cafe-table",
+      "clue": "Twirled, as latte foam",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TEAPOTS",
+      "themeId": "cafe-table",
+      "clue": "Spouted brewing vessels",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "TEACUPS",
+      "themeId": "cafe-table",
+      "clue": "Dainty drink vessels",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "BARISTA",
+      "themeId": "cafe-table",
+      "clue": "Espresso pro",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LABELED",
+      "themeId": "archive-box",
+      "clue": "Marked for filing",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "DOSSIER",
+      "themeId": "archive-box",
+      "clue": "File of documents",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "INDEXED",
+      "themeId": "archive-box",
+      "clue": "Ordered for lookup",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "MEMENTO",
+      "themeId": "archive-box",
+      "clue": "Keepsake from the past",
+      "difficulty": "hard"
+    },
+    {
+      "answer": "LEDGERS",
+      "themeId": "archive-box",
+      "clue": "Old account books",
+      "difficulty": "hard"
     }
   ]
 }
