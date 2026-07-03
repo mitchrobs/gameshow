@@ -34,6 +34,18 @@ MAX_GRID_ATTEMPTS_PER_DAY = 120
 # re-uses cannot snap back on a fixed cadence the way the shipped pack's
 # 45-day metronome did.
 REPEAT_LIMIT_PER_WINDOW = 1
+# Hard per-pack ceiling by answer length: a word may appear at most this many
+# times across the whole generated window, regardless of cooldown relaxation.
+# This is the audit-enforced guarantee; cooldowns shape spacing, caps bound
+# totals. 3-letter English is nearly exhausted (~500 usable words for ~1,500
+# slots, avg 3.0 uses), so short glue words get more headroom; everything
+# else is capped tight.
+MAX_USES_PER_PACK = {3: 8, 4: 4, 5: 4}
+MAX_USES_DEFAULT = 3
+
+
+def max_uses_for(word: str) -> int:
+    return MAX_USES_PER_PACK.get(len(word), MAX_USES_DEFAULT)
 WORD_COOLDOWN_BASE = {3: 35, 4: 60}
 WORD_COOLDOWN_DEFAULT = 90
 WORD_COOLDOWN_JITTER = 15
@@ -107,6 +119,9 @@ BLOCKED_ANSWERS = {
     "WANKER",
 }
 
+# Overridden at build time from the bank payload: the shipped bank carries
+# 100 theme lanes while the content module's THEMES stops at 60, and the
+# rotation must span every lane the bank can clue and bonus.
 THEME_IDS = [theme["id"] for theme in THEMES]
 SEASONAL_THEMES = {
     "2026-05-10": "home-reset",  # Mother's Day
@@ -881,6 +896,7 @@ def solve_template(
     profile_override: Optional[Dict[str, int]] = None,
     allowed_words: Optional[Set[str]] = None,
     max_nodes: Optional[int] = None,
+    randomized_order: bool = False,
 ) -> Optional[List[str]]:
     if SOLVER_ENGINE != "native":
         return solve_template_py(
@@ -941,6 +957,7 @@ def solve_template(
         profile=native_profile,
         exclude_hard=difficulty == "easy",
         theme_first=profile["theme_min"] > PROFILE[difficulty]["theme_min"],
+        randomized_order=randomized_order,
         node_budget=max_nodes if max_nodes is not None else MAX_SEARCH_NODES,
         max_candidates_per_slot=MAX_CANDIDATES_PER_SLOT,
     )
@@ -1394,11 +1411,17 @@ def build_harbor_gates_grid(
     for word in words5:
         prefix5.setdefault(word[:3], []).append(word)
 
-    def word_rank(word: str) -> Tuple[int, int, str]:
+    def crossability(word: str) -> int:
+        return sum(
+            len(position_index[len(word)][index].get(ch, set())) for index, ch in enumerate(word)
+        )
+
+    def word_rank(word: str) -> Tuple[int, int, int, str]:
         entry = entries_by_answer[word]
         return (
             0 if theme_id in entry.theme_tags else 1,
             0 if entry.difficulty == "easy" else 1,
+            -crossability(word),
             word,
         )
 
@@ -1519,11 +1542,17 @@ def build_trail_left_grid(
         prefix5.setdefault(word[:2], []).append(word)
         suffix5.setdefault(word[2:], []).append(word)
 
-    def word_rank(word: str) -> Tuple[int, int, str]:
+    def crossability(word: str) -> int:
+        return sum(
+            len(position_index[len(word)][index].get(ch, set())) for index, ch in enumerate(word)
+        )
+
+    def word_rank(word: str) -> Tuple[int, int, int, str]:
         entry = entries_by_answer[word]
         return (
             0 if theme_id in entry.theme_tags else 1,
             0 if entry.difficulty == "easy" else 1,
+            -crossability(word),
             word,
         )
 
@@ -1753,6 +1782,8 @@ def build_regular_day_grid(
     theme_counts: Dict[str, int],
     required_word: Optional[str],
     accept: Callable[[SolvedGrid], bool],
+    profile_override: Optional[Dict[str, int]] = None,
+    randomized_order: bool = False,
 ) -> Optional[SolvedGrid]:
     """Solve a fresh, never-before-used grid for a non-holiday day.
 
@@ -1829,7 +1860,7 @@ def build_regular_day_grid(
     active_metas = list(candidate_metas)
     failures_by_template: Dict[str, int] = {}
     attempts_by_template: Dict[str, int] = {}
-    max_attempts = MAX_GRID_ATTEMPTS_PER_DAY if size == 5 else 32
+    max_attempts = MAX_GRID_ATTEMPTS_PER_DAY if size == 5 else 128
     for attempt in range(max_attempts):
         if not active_metas:
             break
@@ -1854,7 +1885,9 @@ def build_regular_day_grid(
             allow_theme_miss=True,
             global_word_counts=word_counts,
             required_words={required_word} if required_word else None,
+            profile_override=profile_override,
             max_nodes=attempt_budget,
+            randomized_order=randomized_order,
         )
         if not solved_words:
             solve_failures += 1
@@ -1895,6 +1928,8 @@ def build_schedule(
 ) -> Tuple[List[Dict[str, object]], Dict[str, EntryMeta], Dict[str, dict], Dict[str, dict], Dict[str, object]]:
     verbose = os.environ.get("MINI_CROSSWORD_VERBOSE") == "1"
     payload = json.loads(BANK_PATH.read_text())
+    global THEME_IDS
+    THEME_IDS = [str(theme["id"]) for theme in payload["themes"]]
     entries_by_answer: Dict[str, EntryMeta] = {}
     blocked_entry_count = 0
     weak_clue_entry_count = 0
@@ -2070,7 +2105,9 @@ def build_schedule(
         accept = make_accept(holiday_theme)
         tried_recent_sets: Set[frozenset] = set()
         for window in COOLDOWN_WINDOWS:
-            recent_words = recent_words_within(word_history, day_index, window)
+            recent_words = recent_words_within(word_history, day_index, window) | {
+                word for word, count in word_counts.items() if count >= max_uses_for(word)
+            }
             frozen = frozenset(recent_words)
             if frozen in tried_recent_sets:
                 # Early in the pack shorter windows collapse to the same
@@ -2119,6 +2156,7 @@ def build_schedule(
             if solved_grid is not None:
                 cooldown_relaxed = window < STRICT_COOLDOWN_WINDOW
                 break
+        profile_relaxed = False
         holiday_theme_missed = False
         if solved_grid is None and holiday_theme:
             # Holiday theming is best-effort: some pinned themes cannot
@@ -2131,7 +2169,9 @@ def build_schedule(
             accept = make_accept(None, gate_profile=PROFILE[difficulty], allow_shortfall=True)
             tried_recent_sets = set()
             for window in COOLDOWN_WINDOWS:
-                recent_words = recent_words_within(word_history, day_index, window)
+                recent_words = recent_words_within(word_history, day_index, window) | {
+                word for word, count in word_counts.items() if count >= max_uses_for(word)
+            }
                 frozen = frozenset(recent_words)
                 if frozen in tried_recent_sets:
                     continue
@@ -2158,6 +2198,43 @@ def build_schedule(
                 )
                 if solved_grid is not None:
                     cooldown_relaxed = window < STRICT_COOLDOWN_WINDOW
+                    break
+        if solved_grid is None:
+            profile_relaxed = True
+            relaxed = dict(PROFILE[difficulty])
+            relaxed["min_anchor"] = max(0, relaxed["min_anchor"] - 1)
+            relaxed["max_hard"] = relaxed["max_hard"] + 1
+            print(
+                f"WARNING: relaxing profile gates for {date_key} after exhausting the standard ladder",
+                flush=True,
+            )
+            accept = make_accept(None, gate_profile=relaxed, allow_shortfall=True)
+            for window in (30, 7, 0):
+                recent_words = recent_words_within(word_history, day_index, window) | {
+                word for word, count in word_counts.items() if count >= max_uses_for(word)
+            }
+                solved_grid = build_regular_day_grid(
+                    day,
+                    day_index,
+                    size,
+                    difficulty,
+                    metas_by_size[size],
+                    words_by_length,
+                    word_set_by_length,
+                    position_index,
+                    prefix_index,
+                    entries_by_answer,
+                    recent_words,
+                    signatures,
+                    word_counts,
+                    theme_counts,
+                    required_word,
+                    accept,
+                    profile_override=relaxed,
+                    randomized_order=True,
+                )
+                if solved_grid is not None:
+                    cooldown_relaxed = True
                     break
         if solved_grid is None:
             raise SystemExit(f"Failed to assign validated grid for {date_key}")
@@ -2373,6 +2450,14 @@ def audit_schedule(schedule: List[Dict[str, object]]) -> List[str]:
         same_day_collisions += sum(count - 1 for count in texts.values() if count > 1)
 
     max_uses = max((len(dates) for dates in answer_dates.values()), default=0)
+    cap_offenders = sorted(
+        answer for answer, dates in answer_dates.items() if len(dates) > max_uses_for(answer)
+    )
+    if cap_offenders:
+        failures.append(
+            f"answer usage cap exceeded for {len(cap_offenders)} answer(s) "
+            f"(e.g. {', '.join(cap_offenders[:10])})"
+        )
     min_gap: Optional[int] = None
     min_strict_gap: Optional[int] = None
     gap_violations = 0
