@@ -980,6 +980,47 @@ def solve_template(
     )
 
 
+# ---------------------------------------------------------------------------
+# Same-grid stem hygiene: RIDE and RIDER (or ICED and ICING) in one grid is a
+# crossword-style blemish. A word's stem set is itself plus every standard
+# inflection strip (with silent-e restoration and de-doubled consonants);
+# two answers sharing any stem of length >= 3 may not appear together.
+_STEM_SUFFIXES = ("ERS", "IES", "ING", "ES", "ED", "ER", "S", "D")
+_stem_cache: Dict[str, frozenset] = {}
+
+
+def stem_variants(word: str) -> frozenset:
+    cached = _stem_cache.get(word)
+    if cached is not None:
+        return cached
+    stems = {word}
+    for suffix in _STEM_SUFFIXES:
+        if word.endswith(suffix) and len(word) - len(suffix) >= 2:
+            base = word[: -len(suffix)]
+            if suffix == "IES":
+                stems.add(base + "Y")
+            stems.add(base)
+            stems.add(base + "E")
+            if len(base) >= 4 and base[-1] == base[-2]:
+                stems.add(base[:-1])
+    result = frozenset(stem for stem in stems if len(stem) >= 3)
+    _stem_cache[word] = result
+    return result
+
+
+def find_stem_pair(words: Sequence[str]) -> Optional[Tuple[str, str]]:
+    seen: Dict[str, str] = {}
+    for word in words:
+        upper = word.upper()
+        for stem in stem_variants(upper):
+            prior = seen.get(stem)
+            if prior is not None and prior != upper:
+                return (prior, upper)
+        for stem in stem_variants(upper):
+            seen.setdefault(stem, upper)
+    return None
+
+
 def date_range(pack_start: date, pack_end: date) -> Iterable[date]:
     current = pack_start
     while current <= pack_end:
@@ -2097,6 +2138,9 @@ def build_schedule(
             def accept(grid: SolvedGrid) -> bool:
                 if frozenset(grid.words) in answer_sets:
                     return False
+                if find_stem_pair(grid.words) is not None:
+                    # Shared-stem answers (RIDE/RIDER) in one grid: re-pick.
+                    return False
                 if fixed_theme is not None:
                     theme_id = fixed_theme
                 else:
@@ -2520,6 +2564,22 @@ def audit_schedule(schedule: List[Dict[str, object]]) -> List[str]:
     if gap_violations > 5:
         failures.append(f"... and {gap_violations - 5} more re-use gap violations")
 
+    stem_pair_days = []
+    for entry in schedule:
+        answers = [
+            str(clue["answer"])
+            for group in ("across", "down")
+            for clue in entry["clues"][group]
+        ]
+        pair = find_stem_pair(answers)
+        if pair is not None:
+            stem_pair_days.append(f"{entry['date']} ({pair[0]}/{pair[1]})")
+    if stem_pair_days:
+        failures.append(
+            f"{len(stem_pair_days)} grid(s) contain shared-stem answer pairs: "
+            + ", ".join(stem_pair_days[:5])
+        )
+
     pair_repeats = sum(count - 1 for count in pair_counts.values() if count > 1)
     if same_day_collisions:
         failures.append(f"{same_day_collisions} same-day clue-text collision(s)")
@@ -2539,7 +2599,7 @@ def audit_schedule(schedule: List[Dict[str, object]]) -> List[str]:
         f"(per-length floors 35/60/90); including relaxed days: {min_gap if min_gap is not None else 'n/a'}"
     )
     print(f"  Verbatim answer+clue pair repeats: {pair_repeats}")
-    print(f"  Same-day clue-text collisions: {same_day_collisions} (must be 0)")
+    print(f"  Same-day clue-text collisions: {same_day_collisions} (must be 0)\n  Same-grid stem pairs: {len(stem_pair_days)} (must be 0)")
     print(f"  Bonus uniqueness: {'all-unique' if bonus_unique else 'DUPLICATES'} ({len(set(bonuses))}/{len(bonuses)})")
     print(f"  Cooldown relaxed days: {relaxed_count}")
     return failures

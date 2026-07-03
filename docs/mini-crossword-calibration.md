@@ -6,7 +6,7 @@ Generated sample from the fully automatic editorial builder. Use this to tune cl
 
 - Dates: 500
 - Theme-answer range: 0-4
-- Average theme answers: 0.52
+- Average theme answers: 0.50
 - Unique grid signatures: 500
 - Relaxed cooldown fallbacks: 4
 - Repeated signature fallbacks: 0
