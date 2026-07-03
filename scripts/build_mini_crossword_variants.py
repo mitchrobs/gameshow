@@ -171,6 +171,25 @@ EASTER_EGG_THEMES = {
     "11-03": "mindful-morning",
 }
 SPECIAL_TEMPLATE_IDS = {"hope-square"}
+# Templates the backend audit retires: mega-corners was an editorial
+# retirement (bad layout), and full center-row/column-cross 7x7 layouts are
+# rejected wholesale. Mirrored here so a regenerated pack cannot regress.
+RETIRED_TEMPLATE_IDS = {"mega-corners"}
+
+
+def has_full_center_cross(rows: Sequence[str]) -> bool:
+    if not rows or len(rows) % 2 == 0:
+        return False
+    center = len(rows) // 2
+    row_blocked = all(cell == "#" for cell in rows[center])
+    col_blocked = all(center < len(row) and row[center] == "#" for row in rows)
+    return row_blocked and col_blocked
+
+
+def template_is_retired(meta: TemplateMeta) -> bool:
+    if meta.template_id in RETIRED_TEMPLATE_IDS:
+        return True
+    return meta.size == 7 and has_full_center_cross(meta.rows)
 
 DIFFICULTY_BY_WEEKDAY = {
     0: "easy",
@@ -325,8 +344,9 @@ def build_template_meta(template: Dict[str, object]) -> TemplateMeta:
                 while cc < size and not blocks[row][cc]:
                     cells.append((row, cc))
                     cc += 1
-                if 0 < len(cells) < 3:
-                    raise ValueError(f"Template {template['id']} has a short across slot")
+                # Runs shorter than 3 are not slots; their cells must be
+                # covered by a crossing slot (checked below) — the shipped
+                # mega-balanced layouts rely on this, matching the Go compiler.
                 if len(cells) >= 3:
                     slots.append(Slot("across", row, col, len(cells), tuple(cells), numbering[(row, col)]))
 
@@ -336,8 +356,6 @@ def build_template_meta(template: Dict[str, object]) -> TemplateMeta:
                 while rr < size and not blocks[rr][col]:
                     cells.append((rr, col))
                     rr += 1
-                if 0 < len(cells) < 3:
-                    raise ValueError(f"Template {template['id']} has a short down slot")
                 if len(cells) >= 3:
                     slots.append(Slot("down", row, col, len(cells), tuple(cells), numbering[(row, col)]))
 
@@ -345,10 +363,9 @@ def build_template_meta(template: Dict[str, object]) -> TemplateMeta:
         for col in range(size):
             if blocks[row][col]:
                 continue
-            across = any((row, col) in slot.cells for slot in slots if slot.direction == "across")
-            down = any((row, col) in slot.cells for slot in slots if slot.direction == "down")
-            if not across or not down:
-                raise ValueError(f"Template {template['id']} has an unchecked cell at {row}:{col}")
+            covered = any((row, col) in slot.cells for slot in slots)
+            if not covered:
+                raise ValueError(f"Template {template['id']} has an uncovered cell at {row}:{col}")
 
     return TemplateMeta(str(template["id"]), rows, blocks, tuple(slots), size)
 
@@ -1657,7 +1674,9 @@ def build_theme_dense_grid(
     candidate_metas = [
         meta
         for meta in metas
-        if meta.size == size and (size == 7 or meta.template_id not in SPECIAL_TEMPLATE_IDS)
+        if meta.size == size
+        and not template_is_retired(meta)
+        and (size == 7 or meta.template_id not in SPECIAL_TEMPLATE_IDS)
     ]
     if not candidate_metas:
         raise SystemExit(f"No {size}x{size} templates available for {day.isoformat()}")
@@ -1794,7 +1813,7 @@ def build_regular_day_grid(
     if required_word is not None and required_word not in entries_by_answer:
         raise SystemExit(f"Easter egg answer is missing from the bank: {required_word}")
 
-    candidate_metas = [meta for meta in metas if meta.size == size]
+    candidate_metas = [meta for meta in metas if meta.size == size and not template_is_retired(meta)]
     if required_word is not None:
         candidate_metas = [
             meta
