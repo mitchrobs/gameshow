@@ -2062,6 +2062,11 @@ def build_schedule(
 
     schedule: List[Dict[str, object]] = []
     signatures: Set[str] = set()
+    # Player-facing grid identity: the sorted answer set, independent of
+    # template/arrangement. Two days may never share one (the template-
+    # qualified signature check alone missed a same-words-different-layout
+    # repeat between two culture-corner holidays).
+    answer_sets: Set[frozenset] = set()
     word_history: Dict[str, List[int]] = {}
     word_counts: Dict[str, int] = {}
     theme_counts: Dict[str, int] = {}
@@ -2090,6 +2095,8 @@ def build_schedule(
             )
 
             def accept(grid: SolvedGrid) -> bool:
+                if frozenset(grid.words) in answer_sets:
+                    return False
                 if fixed_theme is not None:
                     theme_id = fixed_theme
                 else:
@@ -2263,6 +2270,7 @@ def build_schedule(
         commit_clue_usage(clue_state, used_pairs)
 
         signatures.add(solved_grid.signature)
+        answer_sets.add(frozenset(solved_grid.words))
         for word in solved_words:
             word_history.setdefault(word, []).append(day_index)
             word_counts[word] = word_counts.get(word, 0) + 1
@@ -2470,6 +2478,19 @@ def audit_schedule(schedule: List[Dict[str, object]]) -> List[str]:
                 pair_counts[(answer, text)] = pair_counts.get((answer, text), 0) + 1
                 texts[text] = texts.get(text, 0) + 1
         same_day_collisions += sum(count - 1 for count in texts.values() if count > 1)
+
+    seen_answer_sets: Dict[frozenset, str] = {}
+    for entry in schedule:
+        words = frozenset(
+            str(clue["answer"]).upper()
+            for group in ("across", "down")
+            for clue in entry["clues"][group]
+        )
+        prior = seen_answer_sets.get(words)
+        if prior is not None:
+            failures.append(f"{entry['date']} repeats the {prior} grid (same answer set)")
+        else:
+            seen_answer_sets[words] = str(entry["date"])
 
     max_uses = max((len(dates) for dates in answer_dates.values()), default=0)
     cap_offenders = sorted(

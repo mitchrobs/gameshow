@@ -8,7 +8,7 @@ Generated sample from the fully automatic editorial builder. Use this to tune cl
 - Theme-answer range: 0-4
 - Average theme answers: 0.52
 - Unique grid signatures: 500
-- Relaxed cooldown fallbacks: 3
+- Relaxed cooldown fallbacks: 4
 - Repeated signature fallbacks: 0
 - Agent stages: Fill Builder -> Clue Writer -> Theme Editor -> Crossword Editor -> Difficulty Calibrator
 
