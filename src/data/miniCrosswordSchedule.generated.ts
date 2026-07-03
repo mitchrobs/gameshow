@@ -193,6 +193,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -343,6 +344,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -663,6 +665,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -813,6 +816,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -963,6 +967,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -1113,6 +1118,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -1263,6 +1269,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -1415,6 +1422,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -1565,6 +1573,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -1861,6 +1870,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -2011,6 +2021,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -2161,6 +2172,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -2313,6 +2325,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -2463,6 +2476,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -2613,6 +2627,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -2763,6 +2778,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -3081,6 +3097,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -3231,6 +3248,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -3383,6 +3401,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -3533,6 +3552,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -3685,6 +3705,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -3835,6 +3856,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -3985,6 +4007,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -4305,6 +4328,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -4453,6 +4477,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -4601,6 +4626,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -4749,6 +4775,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -4899,6 +4926,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -5047,6 +5075,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -5197,6 +5226,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -5515,6 +5545,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -5663,6 +5694,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -5811,6 +5843,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -5959,6 +5992,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -6107,6 +6141,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -6259,6 +6294,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -6407,6 +6443,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -6741,6 +6778,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 9,
       "themeTargetMax": 11,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -6891,6 +6929,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -7041,6 +7080,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -7189,6 +7229,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -7337,6 +7378,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -7485,6 +7527,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -7633,6 +7676,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -7949,6 +7993,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -8099,6 +8144,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -8247,6 +8293,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -8395,6 +8442,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -8543,6 +8591,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -8693,6 +8742,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -8845,6 +8895,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -9139,6 +9190,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -9289,6 +9341,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -9437,6 +9490,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -9587,6 +9641,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -9735,6 +9790,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -9883,6 +9939,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -10031,6 +10088,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -10349,6 +10407,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -10497,6 +10556,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -10645,6 +10705,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -10793,6 +10854,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -10941,6 +11003,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -11089,6 +11152,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -11237,6 +11301,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -11553,6 +11618,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -11701,6 +11767,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -11849,6 +11916,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -11997,6 +12065,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -12145,6 +12214,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -12293,6 +12363,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -12441,6 +12512,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -12759,6 +12831,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -12907,6 +12980,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -13055,6 +13129,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -13203,6 +13278,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -13351,6 +13427,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -13499,6 +13576,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -13647,6 +13725,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -13963,6 +14042,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -14111,6 +14191,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -14259,6 +14340,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -14407,6 +14489,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -14555,6 +14638,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -14703,6 +14787,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -14851,6 +14936,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -15167,6 +15253,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -15315,6 +15402,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -15463,6 +15551,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -15611,6 +15700,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -15759,6 +15849,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -15907,6 +15998,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -16055,6 +16147,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -16371,6 +16464,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -16521,6 +16615,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -16669,6 +16764,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -16817,6 +16913,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -16965,6 +17062,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -17113,6 +17211,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -17261,6 +17360,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -17579,6 +17679,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -17727,6 +17828,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -17875,6 +17977,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -18025,6 +18128,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -18175,6 +18279,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -18327,6 +18432,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -18477,6 +18583,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -18771,6 +18878,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -18921,6 +19029,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -19071,6 +19180,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -19221,6 +19331,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -19371,6 +19482,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -19523,6 +19635,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -19675,6 +19788,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -19997,6 +20111,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -20147,6 +20262,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -20297,6 +20413,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -20445,6 +20562,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -20597,6 +20715,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -20747,6 +20866,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -20897,6 +21017,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -21213,6 +21334,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -21363,6 +21485,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -21511,6 +21634,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -21659,6 +21783,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -21807,6 +21932,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -21957,6 +22083,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -22105,6 +22232,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -22399,6 +22527,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -22547,6 +22676,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -22695,6 +22825,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -22843,6 +22974,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -22993,6 +23125,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -23141,6 +23274,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -23291,6 +23425,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -23609,6 +23744,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -23757,6 +23893,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -23905,6 +24042,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -24053,6 +24191,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -24203,6 +24342,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -24351,6 +24491,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -24499,6 +24640,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -24817,6 +24959,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -24967,6 +25110,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -25117,6 +25261,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -25265,6 +25410,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -25415,6 +25561,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -25563,6 +25710,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -25711,6 +25859,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -26027,6 +26176,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -26177,6 +26327,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -26325,6 +26476,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -26473,6 +26625,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -26621,6 +26774,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -26769,6 +26923,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -26917,6 +27072,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -27233,6 +27389,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -27381,6 +27538,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -27529,6 +27687,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -27677,6 +27836,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -27825,6 +27985,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -27973,6 +28134,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -28121,6 +28283,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -28415,6 +28578,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -28563,6 +28727,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -28713,6 +28878,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -28861,6 +29027,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -29009,6 +29176,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -29157,6 +29325,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -29311,6 +29480,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -29603,6 +29773,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -29751,6 +29922,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -29901,6 +30073,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -30049,6 +30222,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -30197,6 +30371,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -30345,6 +30520,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -30493,6 +30669,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -30811,6 +30988,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -30959,6 +31137,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -31107,6 +31286,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -31255,6 +31435,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -31403,6 +31584,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -31551,6 +31733,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -31699,6 +31882,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -32017,6 +32201,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -32165,6 +32350,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -32313,6 +32499,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -32461,6 +32648,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -32609,6 +32797,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -32757,6 +32946,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -32905,6 +33095,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -33221,6 +33412,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -33369,6 +33561,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -33517,6 +33710,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -33665,6 +33859,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -33819,6 +34014,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -33967,6 +34163,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -34115,6 +34312,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -34431,6 +34629,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -34579,6 +34778,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -34727,6 +34927,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -34875,6 +35076,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -35023,6 +35225,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -35173,6 +35376,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -35323,6 +35527,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -35643,6 +35848,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -35791,6 +35997,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -35939,6 +36146,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -36089,6 +36297,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -36239,6 +36448,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -36389,6 +36599,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -36539,6 +36750,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -36861,6 +37073,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -37009,6 +37222,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -37157,6 +37371,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -37305,6 +37520,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -37453,6 +37669,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -37603,6 +37820,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -37753,6 +37971,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -38077,6 +38296,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -38227,6 +38447,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -38377,6 +38598,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -38525,6 +38747,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -38673,6 +38896,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -38825,6 +39049,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -38975,6 +39200,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -39293,6 +39519,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -39441,6 +39668,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -39589,6 +39817,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -39739,6 +39968,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -39893,6 +40123,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -40043,6 +40274,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -40193,6 +40425,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -40509,6 +40742,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -40657,6 +40891,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -40805,6 +41040,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -40953,6 +41189,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -41101,6 +41338,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -41249,6 +41487,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -41397,6 +41636,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -41715,6 +41955,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -41863,6 +42104,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -42013,6 +42255,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -42161,6 +42404,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -42309,6 +42553,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -42459,6 +42704,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -42607,6 +42853,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -42923,6 +43170,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -43075,6 +43323,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -43223,6 +43472,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -43373,6 +43623,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -43521,6 +43772,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -43669,6 +43921,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -43819,6 +44072,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -44137,6 +44391,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -44285,6 +44540,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -44435,6 +44691,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -44583,6 +44840,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -44733,6 +44991,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -44881,6 +45140,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -45029,6 +45289,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -45345,6 +45606,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -45493,6 +45755,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -45641,6 +45904,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -45789,6 +46053,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -45937,6 +46202,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -46085,6 +46351,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -46233,6 +46500,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -46525,6 +46793,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -46673,6 +46942,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -46821,6 +47091,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -46969,6 +47240,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -47117,6 +47389,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -47265,6 +47538,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -47413,6 +47687,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -47745,6 +48020,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 9,
       "themeTargetMax": 11,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -47897,6 +48173,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -48045,6 +48322,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -48193,6 +48471,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -48341,6 +48620,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -48489,6 +48769,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -48637,6 +48918,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -48953,6 +49235,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -49101,6 +49384,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -49249,6 +49533,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -49397,6 +49682,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -49545,6 +49831,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -49693,6 +49980,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -49843,6 +50131,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -50159,6 +50448,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -50307,6 +50597,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -50455,6 +50746,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -50603,6 +50895,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -50751,6 +51044,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -50899,6 +51193,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -51047,6 +51342,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -51365,6 +51661,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -51513,6 +51810,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -51661,6 +51959,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -51809,6 +52108,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -51957,6 +52257,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -52105,6 +52406,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -52253,6 +52555,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -52569,6 +52872,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -52717,6 +53021,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -52865,6 +53170,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -53017,6 +53323,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 1,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -53167,6 +53474,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -53317,6 +53625,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -53465,6 +53774,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -53785,6 +54095,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -53935,6 +54246,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -54085,6 +54397,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -54235,6 +54548,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -54383,6 +54697,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -54533,6 +54848,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -54681,6 +54997,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -54975,6 +55292,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -55125,6 +55443,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -55273,6 +55592,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -55421,6 +55741,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -55571,6 +55892,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -55719,6 +56041,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -55867,6 +56190,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -56185,6 +56509,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -56335,6 +56660,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -56485,6 +56811,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -56635,6 +56962,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -56785,6 +57113,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -56933,6 +57262,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -57081,6 +57411,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -57401,6 +57732,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -57549,6 +57881,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -57697,6 +58030,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -57847,6 +58181,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -57997,6 +58332,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -58145,6 +58481,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -58293,6 +58630,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -58611,6 +58949,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -58761,6 +59100,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -58911,6 +59251,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -59059,6 +59400,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -59207,6 +59549,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -59355,6 +59698,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -59503,6 +59847,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -59821,6 +60166,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -59969,6 +60315,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -60117,6 +60464,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -60265,6 +60613,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -60413,6 +60762,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -60561,6 +60911,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -60709,6 +61060,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -61025,6 +61377,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -61173,6 +61526,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -61323,6 +61677,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -61471,6 +61826,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -61619,6 +61975,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -61767,6 +62124,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -61915,6 +62273,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -62207,6 +62566,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -62355,6 +62715,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -62505,6 +62866,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -62653,6 +63015,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -62801,6 +63164,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -62949,6 +63313,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -63097,6 +63462,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -63415,6 +63781,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -63563,6 +63930,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -63711,6 +64079,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -63859,6 +64228,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -64007,6 +64377,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -64155,6 +64526,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -64303,6 +64675,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -64595,6 +64968,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -64743,6 +65117,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -64891,6 +65266,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -65039,6 +65415,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -65187,6 +65564,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -65335,6 +65713,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -65483,6 +65862,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -65775,6 +66155,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -65923,6 +66304,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -66073,6 +66455,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -66221,6 +66604,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -66369,6 +66753,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -66517,6 +66902,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -66665,6 +67051,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -66957,6 +67344,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -67105,6 +67493,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -67253,6 +67642,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -67401,6 +67791,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -67549,6 +67940,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -67697,6 +68089,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -67845,6 +68238,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -68137,6 +68531,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -68285,6 +68680,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -68433,6 +68829,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -68581,6 +68978,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -68729,6 +69127,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -68877,6 +69276,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -69025,6 +69425,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -69317,6 +69718,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -69465,6 +69867,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -69615,6 +70018,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -69765,6 +70169,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -69915,6 +70320,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -70063,6 +70469,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -70213,6 +70620,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -70507,6 +70915,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 6,
       "themeTargetMax": 8,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 1,
       "signatureRepeated": 0
     }
@@ -70657,6 +71066,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -70807,6 +71217,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -70957,6 +71368,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -71107,6 +71519,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -71257,6 +71670,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 2,
       "themeTargetMax": 3,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }
@@ -71407,6 +71821,7 @@ export const MINI_CROSSWORD_SCHEDULE: MiniCrosswordScheduleEntry[] =
       "themeTargetMin": 3,
       "themeTargetMax": 4,
       "holidayTheme": 0,
+      "editorialStatus": "passed",
       "cooldownRelaxed": 0,
       "signatureRepeated": 0
     }

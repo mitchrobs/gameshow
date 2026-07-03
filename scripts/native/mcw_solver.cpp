@@ -171,6 +171,7 @@ class Solver {
         Profile profile,
         bool exclude_hard,
         bool theme_first,
+        bool randomized_order,
         long node_budget,
         int max_candidates_per_slot) {
         slots_ = std::move(slots);
@@ -178,6 +179,7 @@ class Solver {
         profile_ = profile;
         exclude_hard_ = exclude_hard;
         theme_first_ = theme_first;
+        randomized_order_ = randomized_order;
         node_budget_ = node_budget;
         max_candidates_ = max_candidates_per_slot;
         reuse_counts_ = &reuse_counts;
@@ -351,9 +353,16 @@ class Solver {
             key.word = &words_[id];
             keyed.emplace_back(key, id);
         }
-        std::stable_sort(keyed.begin(), keyed.end(), [](const auto &a, const auto &b) {
+        // Randomized mode (last-resort rung): the seeded shuffle leads the
+        // ordering so successive attempts explore genuinely different fills
+        // instead of re-deriving already-banned grids.
+        const bool randomized = randomized_order_;
+        std::stable_sort(keyed.begin(), keyed.end(), [randomized](const auto &a, const auto &b) {
             const Key &x = a.first, &y = b.first;
             if (x.required_rank != y.required_rank) return x.required_rank < y.required_rank;
+            if (randomized) {
+                if (x.random_rank != y.random_rank) return x.random_rank < y.random_rank;
+            }
             if (x.first_rank != y.first_rank) return x.first_rank < y.first_rank;
             if (x.second_rank != y.second_rank) return x.second_rank < y.second_rank;
             if (x.reuse != y.reuse) return x.reuse < y.reuse;
@@ -520,7 +529,7 @@ class Solver {
     std::vector<uint32_t> slot_shuffle_seed_;
     uint32_t seed_ = 0;
     Profile profile_{};
-    bool exclude_hard_ = false, theme_first_ = false;
+    bool exclude_hard_ = false, theme_first_ = false, randomized_order_ = false;
     long node_budget_ = 0, nodes_ = 0;
     int max_candidates_ = 0;
     const std::unordered_map<int, int> *reuse_counts_ = nullptr;
@@ -560,8 +569,8 @@ PYBIND11_MODULE(mcw_solver, m) {
         .def("solve", &Solver::solve, py::arg("grid_size"), py::arg("slots"), py::arg("seed"),
              py::arg("theme_word_ids"), py::arg("recent_ids"), py::arg("required_ids"),
              py::arg("allowed_ids"), py::arg("reuse_counts"), py::arg("profile"),
-             py::arg("exclude_hard"), py::arg("theme_first"), py::arg("node_budget"),
-             py::arg("max_candidates_per_slot"));
+             py::arg("exclude_hard"), py::arg("theme_first"), py::arg("randomized_order"),
+             py::arg("node_budget"), py::arg("max_candidates_per_slot"));
 
     m.attr("__version__") = "1";
 }

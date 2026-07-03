@@ -2256,6 +2256,9 @@ def build_schedule(
         metrics["themeTargetMin"] = scoring_profile["theme_target_min"]
         metrics["themeTargetMax"] = scoring_profile["theme_target_max"]
         metrics["holidayTheme"] = 1 if (date_key in HOLIDAY_THEME_DATES and not holiday_theme_missed) else 0
+        # The end-of-run audit gates the whole pack; a written schedule is by
+        # definition an audit-passed one.
+        metrics["editorialStatus"] = "passed"
         metrics["cooldownRelaxed"] = 1 if cooldown_relaxed else 0
         metrics["signatureRepeated"] = 0
         if verbose:
