@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import time
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
@@ -26,10 +27,24 @@ MAX_CANDIDATES_PER_SLOT = 140
 MAX_SEARCH_NODES = 100000
 MAX_GRID_ATTEMPTS_PER_DAY = 120
 # A word may appear at most this many times inside any trailing cooldown
-# window. With the 90-day cooldown this means: one use per 90 days, so every
-# re-use gap is strictly greater than WORD_COOLDOWN_DAYS.
+# window (one use per window: every re-use gap strictly exceeds the word's
+# cooldown). Cooldowns are tiered by pool size — a flat 90 days on the
+# 384-word 3-letter pool blocks nearly half of it at steady state and makes
+# rigid templates unfillable — and jittered per word (deterministically) so
+# re-uses cannot snap back on a fixed cadence the way the shipped pack's
+# 45-day metronome did.
 REPEAT_LIMIT_PER_WINDOW = 1
-WORD_COOLDOWN_DAYS = 90
+WORD_COOLDOWN_BASE = {3: 35, 4: 60}
+WORD_COOLDOWN_DEFAULT = 90
+WORD_COOLDOWN_JITTER = 15
+# First ladder window; >= every per-word cooldown so the per-word value
+# governs on strict days.
+STRICT_COOLDOWN_WINDOW = WORD_COOLDOWN_DEFAULT + WORD_COOLDOWN_JITTER
+
+
+def word_cooldown_days(word: str) -> int:
+    base = WORD_COOLDOWN_BASE.get(len(word), WORD_COOLDOWN_DEFAULT)
+    return base + stable_hash("cooldown:" + word) % WORD_COOLDOWN_JITTER
 
 # Answers that must never appear in a served grid. Seeded from a profanity
 # audit of the current bank (ASS/ASSES shipped to prod once); the filter lives
@@ -371,10 +386,10 @@ def puzzle_metrics(words: Iterable[str], entries_by_answer: Dict[str, EntryMeta]
 
 
 # Cooldown windows tried per day, strictest first. Only the full
-# WORD_COOLDOWN_DAYS window counts as "strict"; any shorter fallback marks the
+# per-word cooldown window counts as "strict"; any shorter fallback marks the
 # day cooldownRelaxed (a recorded, audited exception — used mostly by
 # seasonal-theme days whose dense builders run out of fresh theme fill).
-COOLDOWN_WINDOWS = (WORD_COOLDOWN_DAYS, 30, 7, 0)
+COOLDOWN_WINDOWS = (STRICT_COOLDOWN_WINDOW, 30, 7, 0)
 
 
 def recent_words_within(word_history: Dict[str, List[int]], day_index: int, window: int) -> Set[str]:
@@ -382,7 +397,8 @@ def recent_words_within(word_history: Dict[str, List[int]], day_index: int, wind
         return set()
     blocked: Set[str] = set()
     for word, seen_days in word_history.items():
-        recent_uses = [seen_day for seen_day in seen_days if 0 < day_index - seen_day <= window]
+        effective = min(window, word_cooldown_days(word))
+        recent_uses = [seen_day for seen_day in seen_days if 0 < day_index - seen_day <= effective]
         if len(recent_uses) >= REPEAT_LIMIT_PER_WINDOW:
             blocked.add(word)
     return blocked
@@ -716,7 +732,7 @@ def solve_template_py(
             difficulty_rank = 0 if entry.difficulty == "easy" else 1 if entry.difficulty == "medium" else 2
             required_rank = 0 if word in required_words else 1
             theme_rank = 0 if theme_id in entry.theme_tags else 2 if entry.theme_tags else 1
-            reuse_count = (global_word_counts or {}).get(word, 0)
+            reuse_count = min((global_word_counts or {}).get(word, 0), 3)
             if theme_first:
                 return (required_rank, theme_rank, difficulty_rank, reuse_count, random_rank[word], -word_crossability(word), word)
             if difficulty == "easy":
@@ -1806,6 +1822,7 @@ def build_regular_day_grid(
 
     solve_failures = 0
     reject_failures = 0
+    banned_sig_failures = 0
     # Some templates are unfillable for a given day's constraints and burn the
     # whole node budget every time; drop a template from the rotation after a
     # couple of failed solves so the attempt budget goes to viable layouts.
@@ -1820,6 +1837,9 @@ def build_regular_day_grid(
         template_attempt = attempts_by_template.get(meta.template_id, 0)
         attempts_by_template[meta.template_id] = template_attempt + 1
         seed = stable_hash(f"daybreak-daily:{day.isoformat()}:{meta.template_id}:{template_attempt}")
+        # Escalating budget: cheap early attempts, deep search only for
+        # stubborn template/seed combinations.
+        attempt_budget = min(MAX_SEARCH_NODES, 4000 << min(template_attempt, 5))
         solved_words = solve_template(
             meta,
             seed,
@@ -1834,23 +1854,28 @@ def build_regular_day_grid(
             allow_theme_miss=True,
             global_word_counts=word_counts,
             required_words={required_word} if required_word else None,
+            max_nodes=attempt_budget,
         )
         if not solved_words:
             solve_failures += 1
-            failures_by_template[meta.template_id] = failures_by_template.get(meta.template_id, 0) + 1
-            if failures_by_template[meta.template_id] >= 2 and len(active_metas) > 1:
-                active_metas = [candidate for candidate in active_metas if candidate.template_id != meta.template_id]
+            # Only substantial-budget failures count toward dropping a
+            # template: the escalating budget probes each template cheaply
+            # first, and a 4k-node miss says nothing about fillability.
+            if attempt_budget >= 32000:
+                failures_by_template[meta.template_id] = failures_by_template.get(meta.template_id, 0) + 1
+                if failures_by_template[meta.template_id] >= 2 and len(active_metas) > 1:
+                    active_metas = [candidate for candidate in active_metas if candidate.template_id != meta.template_id]
             continue
         signature = make_signature(meta, solved_words)
         if signature in banned_signatures:
-            reject_failures += 1
+            banned_sig_failures += 1
             continue
         grid = SolvedGrid(meta=meta, words=tuple(solved_words), seed=seed, signature=signature)
         if accept(grid):
             if verbose and attempt > 20:
                 print(
                     f"Daily grid {day.isoformat()} took {attempt + 1} attempts "
-                    f"(solve failures {solve_failures}, rejections {reject_failures})",
+                    f"(solve failures {solve_failures}, banned signatures {banned_sig_failures}, rejections {reject_failures})",
                     flush=True,
                 )
             return grid
@@ -1858,7 +1883,7 @@ def build_regular_day_grid(
     if verbose:
         print(
             f"Daily grid {day.isoformat()} gave up after {sum(attempts_by_template.values())} attempts "
-            f"(solve failures {solve_failures}, rejections {reject_failures})",
+            f"(solve failures {solve_failures}, banned signatures {banned_sig_failures}, rejections {reject_failures})",
             flush=True,
         )
     return None
@@ -1988,7 +2013,10 @@ def build_schedule(
     theme_counts: Dict[str, int] = {}
     clue_state = new_clue_state()
 
+    day_started = time.monotonic()
     for day_index, day in enumerate(days):
+        if day_index and day_index % 25 == 0:
+            print(f"... {day_index}/{len(days)} days built ({time.monotonic() - day_started:.0f}s)", flush=True)
         date_key = day.isoformat()
         size = 7 if day.weekday() == 6 else 5
         difficulty = DIFFICULTY_BY_WEEKDAY[day.weekday()]
@@ -1997,7 +2025,16 @@ def build_schedule(
         required_word = easter_egg_answer_for_day(day)
         accepted: Dict[str, Tuple[str, int, Dict[str, List[dict]], List[Tuple[str, str]]]] = {}
 
-        def make_accept(fixed_theme: Optional[str]) -> Callable[[SolvedGrid], bool]:
+        def make_accept(
+            fixed_theme: Optional[str],
+            gate_profile: Optional[Dict[str, int]] = None,
+            allow_shortfall: Optional[bool] = None,
+        ) -> Callable[[SolvedGrid], bool]:
+            resolved_profile = gate_profile if gate_profile is not None else profile
+            resolved_shortfall = (
+                allow_shortfall if allow_shortfall is not None else date_key not in HOLIDAY_THEME_DATES
+            )
+
             def accept(grid: SolvedGrid) -> bool:
                 if fixed_theme is not None:
                     theme_id = fixed_theme
@@ -2012,7 +2049,7 @@ def build_schedule(
                     )
                     metrics = puzzle_metrics(grid.words, entries_by_answer, theme_id)
                     if not metrics_fit_profile(
-                        metrics, profile, allow_theme_shortfall=date_key not in HOLIDAY_THEME_DATES
+                        metrics, resolved_profile, allow_theme_shortfall=resolved_shortfall
                     ):
                         return False
                 solved_seed = stable_hash(f"daybreak-mini:{date_key}:{grid.seed}:{theme_id}")
@@ -2080,8 +2117,48 @@ def build_schedule(
                     accept,
                 )
             if solved_grid is not None:
-                cooldown_relaxed = window < WORD_COOLDOWN_DAYS
+                cooldown_relaxed = window < STRICT_COOLDOWN_WINDOW
                 break
+        holiday_theme_missed = False
+        if solved_grid is None and holiday_theme:
+            # Holiday theming is best-effort: some pinned themes cannot
+            # interlock in the dense holiday shapes (culture-corner has no
+            # 4-letter words and few crossable 5s). Fall back to a regular
+            # theme-free day rather than failing the pack, and say so loudly —
+            # the day still ships, just without the seasonal flavor.
+            holiday_theme_missed = True
+            print(f"WARNING: holiday theme {holiday_theme} not buildable for {date_key}; using regular grid", flush=True)
+            accept = make_accept(None, gate_profile=PROFILE[difficulty], allow_shortfall=True)
+            tried_recent_sets = set()
+            for window in COOLDOWN_WINDOWS:
+                recent_words = recent_words_within(word_history, day_index, window)
+                frozen = frozenset(recent_words)
+                if frozen in tried_recent_sets:
+                    continue
+                tried_recent_sets.add(frozen)
+                if required_word and required_word in recent_words:
+                    continue
+                solved_grid = build_regular_day_grid(
+                    day,
+                    day_index,
+                    size,
+                    difficulty,
+                    metas_by_size[size],
+                    words_by_length,
+                    word_set_by_length,
+                    position_index,
+                    prefix_index,
+                    entries_by_answer,
+                    recent_words,
+                    signatures,
+                    word_counts,
+                    theme_counts,
+                    required_word,
+                    accept,
+                )
+                if solved_grid is not None:
+                    cooldown_relaxed = window < STRICT_COOLDOWN_WINDOW
+                    break
         if solved_grid is None:
             raise SystemExit(f"Failed to assign validated grid for {date_key}")
 
@@ -2096,11 +2173,12 @@ def build_schedule(
 
         theme_counts[theme_id] = theme_counts.get(theme_id, 0) + 1
         bonus_answer = bonus_allocator.allocate(date_key, theme_id)
+        scoring_profile = PROFILE[difficulty] if holiday_theme_missed else profile
         metrics = puzzle_metrics(solved_words, entries_by_answer, theme_id)
-        metrics["score"] = quality_score(metrics, profile, False)
-        metrics["themeTargetMin"] = profile["theme_target_min"]
-        metrics["themeTargetMax"] = profile["theme_target_max"]
-        metrics["holidayTheme"] = 1 if date_key in HOLIDAY_THEME_DATES else 0
+        metrics["score"] = quality_score(metrics, scoring_profile, False)
+        metrics["themeTargetMin"] = scoring_profile["theme_target_min"]
+        metrics["themeTargetMax"] = scoring_profile["theme_target_max"]
+        metrics["holidayTheme"] = 1 if (date_key in HOLIDAY_THEME_DATES and not holiday_theme_missed) else 0
         metrics["cooldownRelaxed"] = 1 if cooldown_relaxed else 0
         metrics["signatureRepeated"] = 0
         if verbose:
@@ -2307,7 +2385,7 @@ def audit_schedule(schedule: List[Dict[str, object]]) -> List[str]:
             if later.isoformat() not in relaxed_dates:
                 if min_strict_gap is None or gap < min_strict_gap:
                     min_strict_gap = gap
-                if gap <= WORD_COOLDOWN_DAYS:
+                if gap <= WORD_COOLDOWN_BASE.get(len(answer), WORD_COOLDOWN_DEFAULT):
                     gap_violations += 1
                     if gap_violations <= 5:
                         failures.append(f"answer {answer} re-used after {gap} days ({earlier} -> {later})")
@@ -2330,7 +2408,7 @@ def audit_schedule(schedule: List[Dict[str, object]]) -> List[str]:
     print(f"  Max uses per answer: {max_uses}")
     print(
         f"  Minimum re-use gap (strict days): {min_strict_gap if min_strict_gap is not None else 'n/a'} "
-        f"(must be > {WORD_COOLDOWN_DAYS}); including relaxed days: {min_gap if min_gap is not None else 'n/a'}"
+        f"(per-length floors 35/60/90); including relaxed days: {min_gap if min_gap is not None else 'n/a'}"
     )
     print(f"  Verbatim answer+clue pair repeats: {pair_repeats}")
     print(f"  Same-day clue-text collisions: {same_day_collisions} (must be 0)")

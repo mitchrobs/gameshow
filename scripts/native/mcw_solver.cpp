@@ -255,12 +255,22 @@ class Solver {
         return collect ? !out->empty() : false;
     }
 
-    bool all_unassigned_slots_viable() {
-        for (size_t i = 0; i < slots_.size(); ++i) {
-            if (assigned_[i] >= 0) continue;
-            if (!candidates_for_slot(slots_[i], false, nullptr)) return false;
+    long candidate_count(const SlotSpec &slot) {
+        auto range = length_ranges_.at(slot.length);
+        MaskView view;
+        view.add(all_of_length_.at(slot.length));
+        std::string pattern;
+        pattern_for(slot, pattern);
+        auto &per_pos = pos_mask_.at(slot.length);
+        for (size_t pos = 0; pos < pattern.size(); ++pos) {
+            if (pattern[pos]) view.add(per_pos[pos][pattern[pos] - 'A']);
         }
-        return true;
+        size_t lo = range.first >> 6, hi = (range.second + 63) >> 6;
+        long count = 0;
+        for (size_t wi = lo; wi < hi; ++wi) {
+            count += __builtin_popcountll(view.word(wi) & ~blocked_.w[wi] & ~used_.w[wi]);
+        }
+        return count;
     }
 
     // Rank candidates exactly like ranked_candidates_for_slot().
@@ -319,7 +329,10 @@ class Solver {
             int required_rank = required_.count(id) ? 0 : 1;
             int theme_rank = is_theme_[id] ? 0 : (has_any_theme_tag_.empty() || has_any_theme_tag_[id] ? 2 : 1);
             auto it = reuse_counts_->find(id);
-            int reuse = it == reuse_counts_->end() ? 0 : it->second;
+            // Bucketed: beyond a few uses the exact count must not dominate
+            // the ordering, or late-pack attempts all converge on the same
+            // low-reuse fills and re-derive already-banned signatures.
+            int reuse = it == reuse_counts_->end() ? 0 : std::min(it->second, 3);
             Key key;
             key.required_rank = required_rank;
             if (theme_first_) {
@@ -390,15 +403,21 @@ class Solver {
             return ok;
         }
 
-        // MRV slot selection with required-word priority (same key as Python).
+        // MRV slot selection with required-word priority. Deviation from the
+        // Python engine (which ranked every unassigned slot's candidates at
+        // every node): pick the slot by raw candidate POPCOUNT — one bitset
+        // pass per slot — and rank only the chosen slot. ~10x per node; the
+        // selection key uses the unfiltered count, so which valid grid the
+        // DFS finds first can differ from the Python engine, but the search
+        // remains fully deterministic for fixed inputs.
         int best_index = -1;
-        std::vector<int> best_candidates;
+        long best_count = 0;
         double best_density = 0;
         int best_priority = 0;
         for (size_t i = 0; i < slots_.size(); ++i) {
             if (assigned_[i] >= 0) continue;
-            std::vector<int> candidates = ranked_candidates(i, assigned_count);
-            if (candidates.empty()) {
+            long count = candidate_count(slots_[i]);
+            if (count == 0) {
                 failed_states_.insert(state);
                 return false;
             }
@@ -408,26 +427,30 @@ class Solver {
                     priority = 0;
                     break;
                 }
-            double density = static_cast<double>(candidates.size()) /
+            double density = static_cast<double>(count) /
                              std::max(1, slots_[i].length * slots_[i].length);
             bool better;
             if (best_index < 0) {
                 better = true;
             } else {
-                auto key = std::make_tuple(priority, density, -slots_[i].length,
-                                           static_cast<int>(candidates.size()));
+                auto key = std::make_tuple(priority, density, -slots_[i].length, count);
                 auto best_key = std::make_tuple(best_priority, best_density, -slots_[best_index].length,
-                                                static_cast<int>(best_candidates.size()));
+                                                best_count);
                 better = key < best_key;
             }
             if (better) {
                 best_index = static_cast<int>(i);
-                best_candidates = std::move(candidates);
+                best_count = count;
                 best_priority = priority;
                 best_density = density;
             }
         }
         if (best_index < 0) return false;
+        std::vector<int> best_candidates = ranked_candidates(best_index, assigned_count);
+        if (best_candidates.empty()) {
+            failed_states_.insert(state);
+            return false;
+        }
 
         const SlotSpec &slot = slots_[best_index];
         int tried = 0;
@@ -454,7 +477,9 @@ class Solver {
                 anchor_count_ += difficulty_of_[id] == 0;
                 hard_count_ += difficulty_of_[id] == 2;
                 theme_count_ += is_theme_[id];
-                if (all_unassigned_slots_viable() && recurse()) return true;
+                // Per-slot viability is re-checked at the next node's MRV
+                // pass, so no separate forward-check sweep here.
+                if (recurse()) return true;
                 anchor_count_ -= difficulty_of_[id] == 0;
                 hard_count_ -= difficulty_of_[id] == 2;
                 theme_count_ -= is_theme_[id];
