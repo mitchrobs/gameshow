@@ -15,8 +15,15 @@ INCLUDES=$("$VENV/bin/python" -m pybind11 --includes)
 SUFFIX=$(python3 -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")
 PYTHON_INCLUDE=$(python3 -c "import sysconfig; print(sysconfig.get_paths()['include'])")
 
+# -undefined dynamic_lookup is the macOS way to leave CPython symbols
+# unresolved until load; Linux shared objects do that by default.
+LDFLAGS=""
+if [ "$(uname)" = "Darwin" ]; then
+  LDFLAGS="-undefined dynamic_lookup"
+fi
+
 # shellcheck disable=SC2086
-c++ -O3 -std=c++17 -shared -fPIC -undefined dynamic_lookup \
+c++ -O3 -std=c++17 -shared -fPIC $LDFLAGS \
   $INCLUDES -I"$PYTHON_INCLUDE" \
   mcw_solver.cpp -o "mcw_solver$SUFFIX"
 
